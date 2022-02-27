@@ -1,0 +1,71 @@
+/*
+ * Copyright 2021 - 2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.springframework.sbm.build.migration.actions;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
+import org.springframework.sbm.build.impl.RewriteMavenParser;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import lombok.Setter;
+import org.openrewrite.Parser;
+import org.openrewrite.maven.tree.Maven;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class AddMinimalPomXml extends AbstractAction {
+
+    @Autowired
+    @JsonIgnore
+    @Setter
+    private Configuration configuration;
+
+    @Override
+    public void apply(ProjectContext context) {
+        String projectDir = context.getProjectRootDirectory().toString();
+        String projectName = projectDir.replace(" ", "-").substring(projectDir.lastIndexOf("/") + 1);
+        Map<String, String> params = new HashMap<>();
+        params.put("groupId", "com.example.change");
+        params.put("artifactId", projectName);
+        params.put("version", "0.1.0-SNAPSHOT");
+
+        StringWriter writer = new StringWriter();
+        try {
+            Template template = configuration.getTemplate("minimal-pom-xml.ftl");
+            template.process(params, writer);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        String src = writer.toString();
+        RewriteMavenParser rewriteMavenParser = new RewriteMavenParser();
+        Parser.Input input = new Parser.Input(Path.of("pom.xml"), () -> new ByteArrayInputStream(src.getBytes(StandardCharsets.UTF_8)));
+        Maven maven = rewriteMavenParser.parseInputs(List.of(input), null, new RewriteExecutionContext(getEventPublisher())).get(0);
+//        Maven document = (Maven) maven.withSourcePath(Path.of("pom.xml"));
+        OpenRewriteMavenBuildFile rewriteMavenBuildFile = new OpenRewriteMavenBuildFile(context.getProjectRootDirectory(), maven, getEventPublisher(), new RewriteExecutionContext(getEventPublisher()));
+        context.getProjectResources().add(rewriteMavenBuildFile);
+    }
+}

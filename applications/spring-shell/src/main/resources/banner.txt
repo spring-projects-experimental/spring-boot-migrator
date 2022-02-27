@@ -1,0 +1,43 @@
+--------------------------------------------------------------------------------------------------
+                _               _                 _               _                 _
+ ___ _ __  _ __(_)_ __   __ _  | |__   ___   ___ | |_   _ __ ___ (_) __ _ _ __ __ _| |_ ___  _ __
+/ __| '_ \| '__| | '_ \ / _` | | '_ \ / _ \ / _ \| __| | '_ ` _ \| |/ _` | '__/ _` | __/ _ \| '__|
+\__ \ |_) | |  | | | | | (_| | | |_) | (_) | (_) | |_  | | | | | | | (_| | | | (_| | || (_) | |
+|___/ .__/|_|  |_|_| |_|\__, | |_.__/ \___/ \___/ \__| |_| |_| |_|_|\__, |_|  \__,_|\__\___/|_|
+    |_|                 |___/                                       |___/
+
+Find us...
+on GitHub:      https://github.com/pivotal/spring-boot-migrator
+on Slack:       https://vmware.slack.com/archives/CKB9VJE68 #spring-boot-migrator
+
+This project contains a lot of ❤️❤️❤️️ but still, there will be 🐞🐞🐞
+So please, give us Feedback:   https://github.com/pivotal/spring-boot-migrator/issues
+Also if you 👍 or 👎 something or have an 💡
+
+THANK YOU!
+
+Use "help" command to list all of the available commands.
+
+Properties:
+-----------
+Git Support enabled: ${sbm.gitSupportEnabled}
+
+    - If `sbm.gitSupportEnabled` is `true` and the scanned project is a Git project,
+      the git hash will be read during scan.
+    - Before each 'apply' it will be verified that no uncommitted changes exist and that
+      the stored git hash matches the hash read during scan or after last commit.
+      If this is not true a new 'scan' will be done.
+    - After each 'apply' it will be verified that no uncommitted changes exist and the Git hash matches.
+      This prevents changes in the scanned project during 'apply'.
+    - After each 'apply' an automated commit will be done and the new Git hash will be read.
+    - If this flag is 'true' IT IS IMPORTANT THAT NO UNCOMMITTED FILES EXIST in the scanned project.
+
+    Use -Dsbm.gitSupportEnabled=true|false as VM parameter on startup to set the property.
+
+Base Package: ${sbm.defaultBasePackage}
+
+    - The package for new classes when no base package can be calculated
+
+    Use -Dsbm.defaultBasePackage=com.acme.packagename as VM parameter on startup to set the property.
+
+--------------------------------------------------------------------------------------------------

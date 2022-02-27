@@ -1,0 +1,90 @@
+- name: migrate-jpa-to-spring-boot
+  description: Migrate JPA to Spring Boot
+  order: 90
+  condition:
+    type: org.springframework.sbm.common.migration.conditions.FileExist
+    fileName: persistence.xml
+
+  actions:
+    - type: org.springframework.sbm.jee.jpa.actions.MigratePersistenceXmlToApplicationPropertiesAction
+      condition:
+        description: Any class has import starting with javax.persistence
+        type: org.springframework.sbm.java.migration.conditions.HasImportStartingWith
+        value: javax.persistence
+      name: Migrate JPA to Spring Boot
+      description: Move JPA related properties from persistence.xml to application.properties.
+      detailedDescription: |-
+        Settings from persistence.xml will be migrated to Spring Boot application.properties
+        If a datasource is looked up using JNDI manual intervention is required.
+
+    - type: org.springframework.sbm.build.migration.actions.AddDependencies
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoDependencyExistMatchingRegex
+        dependencies:
+          - 'org.springframework.boot:spring-boot-starter-data-jpa'
+      dependencies:
+        - groupId: org.springframework.boot
+          artifactId: spring-boot-starter-data-jpa
+          version: 2.6.3
+      description: Add spring-boot-starter-data-jpa to build file.
+      detailedDescription: |-
+        This code snippet is going to be added to the <dependencies> section in pom.xml
+
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</groupId>
+          </dependency>
+
+
+    - type: org.springframework.sbm.build.migration.actions.AddDependencies
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoDependencyExistMatchingRegex
+        dependencies:
+          - 'com.h2database:h2'
+      dependencies:
+        - groupId: com.h2database
+          artifactId: h2
+          version: 2.1.210
+          scope: runtime
+      description: Add h2 dependency to build file.
+      detailedDescription: |-
+        This code snippet is going to be added to the <dependencies> section in pom.xml
+
+          <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+          </dependency>
+
+    - type: org.springframework.sbm.build.migration.actions.RemoveDependenciesMatchingRegex
+      condition:
+        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+      dependenciesRegex:
+        - org\.hibernate\:(hibernate-core|hibernate-entitymanager|hibernate|hibernate-hikaricp|ejb3-persistence)\:.*
+        - org\.hibernate\.javax\.persistence\:hibernate-jpa-2\.1-api\:.*
+        - org\.apache\.tomee\:openejb-core-hibernate\:.*
+      description: Delete hibernate and dependencies transitively managed by spring-boot-starter-data-jpa.
+      detailedDescription: |-
+        This action will delete explicit 'hibernate' and related dependencies from a build file
+        as they are transitively managed by 'spring-boot-starter-data-jpa' dependency.
+
+    - type: org.springframework.sbm.java.migration.actions.AddTypeAnnotationToTypeAnnotatedWith
+      condition:
+        type: org.springframework.sbm.jee.ejb.conditions.NoTransactionalAnnotationPresentOnTypeAnnotatedWith
+        typeAnnotatedWith: org.springframework.stereotype.Service
+      description: Add @Transactional to @Service as replacement for CMT.
+      annotation: org.springframework.transaction.annotation.Transactional
+      annotatedWith: org.springframework.stereotype.Service
+
+    - type: org.springframework.sbm.jee.jpa.actions.MigrateEclipseLinkToSpringBoot
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex
+        dependencies:
+          - 'org\.eclipse\.persistence\:eclipselink\:.*'
+      description: Adds configuration for eclipselink, migrates properties from persistence.xml and ignores hibernate dependencies.
+
+    - type: org.springframework.sbm.common.migration.actions.DeleteFileMatchingPattern
+      description: Deletes all persistence.xml files
+      condition:
+        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+      pattern: '/**/persistence.xml'

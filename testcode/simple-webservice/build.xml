@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2021 - 2022 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- $Rev$ $Date$ -->
+
+<project name="MyProject" default="dist" basedir="." xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+  <!-- ===============================================================
+
+  HOW TO RUN
+
+    Download http://archive.apache.org/dist/maven/binaries/maven-ant-tasks-2.0.9.jar
+    Then execute ant as follows:
+
+    ant -lib maven-ant-tasks-2.0.9.jar
+
+  NOTE
+
+    You do NOT need maven-ant-tasks-2.0.9.jar to use OpenEJB for embedded EJB
+    testing with Ant.  It is simply used in this example to make the build.xml
+    a bit simpler.  As long as OpenEJB and it's required libraries are in the
+    <junit> classpath, the tests will run with OpenEJB embedded.
+
+  ================================================================= -->
+
+  <artifact:remoteRepository id="apache.snapshot.repository" url="http://repository.apache.org/snapshots/"/>
+  <artifact:remoteRepository id="m2.repository" url="http://repo1.maven.org/maven2/"/>
+
+  <!-- Build Classpath -->
+  <artifact:dependencies pathId="classpath.main">
+    <dependency groupId="org.apache.openejb" artifactId="javaee-api-embedded" version="6.0-3"/>
+  </artifact:dependencies>
+
+  <!-- Test Build Classpath -->
+  <artifact:dependencies pathId="classpath.test.build">
+    <dependency groupId="junit" artifactId="junit" version="4.3.1"/>
+  </artifact:dependencies>
+
+  <!-- Test Run Classpath -->
+  <artifact:dependencies pathId="classpath.test.run">
+    <remoteRepository refid="apache.snapshot.repository"/>
+    <remoteRepository refid="m2.repository"/>
+
+    <dependency groupId="org.apache.openejb" artifactId="openejb-cxf" version="4.0.0-beta-1"/>
+    <dependency groupId="junit" artifactId="junit" version="4.3.1"/>
+  </artifact:dependencies>
+
+  <!-- Properties -->
+
+  <property name="src.main.java" location="src/main/java"/>
+  <property name="src.main.resources" location="src/main/resources"/>
+  <property name="src.test.java" location="src/test/java"/>
+  <property name="build.main" location="target/classes"/>
+  <property name="build.test" location="target/test-classes"/>
+  <property name="test.reports" location="target/test-reports"/>
+  <property name="dist" location="target"/>
+
+
+  <target name="init">
+    <mkdir dir="${build.main}"/>
+    <mkdir dir="${build.test}"/>
+    <mkdir dir="${test.reports}"/>
+  </target>
+
+  <target name="compile" depends="init">
+
+    <javac srcdir="${src.main.java}" destdir="${build.main}">
+      <classpath refid="classpath.main"/>
+    </javac>
+    <copy todir="${build.main}">
+      <fileset dir="${src.main.resources}"/>
+    </copy>
+
+    <javac srcdir="${src.test.java}" destdir="${build.test}">
+      <classpath location="${build.main}"/>
+      <classpath refid="classpath.main"/>
+      <classpath refid="classpath.test.build"/>
+    </javac>
+  </target>
+
+  <target name="test" depends="compile">
+    <junit fork="yes" printsummary="yes">
+      <classpath location="${build.main}"/>
+      <classpath location="${build.test}"/>
+      <classpath refid="classpath.main"/>
+      <classpath refid="classpath.test.build"/>
+      <classpath refid="classpath.test.run"/>
+
+      <formatter type="plain"/>
+
+      <batchtest fork="yes" todir="${test.reports}">
+        <fileset dir="${src.test.java}">
+          <include name="**/*Test.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="dist" depends="test">
+    <jar jarfile="${dist}/myproject-1.0.jar" basedir="${build.main}"/>
+  </target>
+
+</project>

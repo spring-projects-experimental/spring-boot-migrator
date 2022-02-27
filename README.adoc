@@ -1,0 +1,63 @@
+= Spring Boot Migrator (SBM)
+
+[quote]
+____
+Spring Boot Migrator (SBM) aims to help developers upgrading or migrating to Spring Boot by providing recipes for automated migrations.
+____
+
+
+== How SBM works
+
+A given codebase is scanned and a set of recipes gets evaluated against the codebase. +
+The list of applicable recipes is displayed and recipes can be selected from the list to be run against the codebase. +
+The recipes either apply automated migrations or guide users on their migration journey.
+
+=== Scan application
+image::images/scan.png[]
+
+=== Apply a recipe
+image::images/apply.png[]
+
+
+== Getting started
+
+* Download the latest release from here: https://github.com/spring-projects-experimental/spring-boot-migrator/releases[Spring Boot Migrator Releases]
+* Start the application: `java -jar spring-boot-migrator.jar`
+* In the CLI start by scanning the application `scan <path-to-application>`
+* From the list of applicable recipes select the one you want to apply, +
+  e.g.: `apply initialize-spring-boot-migration` +
+  Spring Boot Migrator will now apply the migrations defined in the recipe to the codebase.
+* To get help when using SBM use the `help` command
+
+WARNING: **The OpenRewrite `rewrite-java-11` module uses JDK internals and thus requires the project to run with JDK 11.**
+
+
+=== Building from source
+* Clone the repository
+* Change into root dir
+* Run `mvn clean install`
+* Find the jar in `applications/spring-shell/spring-boot-migrator.jar`
+
+WARNING: **Some integration tests use Docker so you'll need Docker to run them. +
+You can pass the `-DskipTests` flag to the `mvn` command to ignore tests.**
+
+== Documentation
+
+- User documentation TODO: link documentation
+- Developer documentation TODO: link
+
+
+== Contributing
+
+If you have not previously done so, please sign the https://cla.pivotal.io/sign/spring[Contributor License Agreement]. You will be reminded automatically when you submit the pull request.
+
+All contributions are welcome.
+
+Please refer to the link:CONTRIBUTING.adoc[] for more details.
+
+
+**This project requires Java 11.**
+
+== License
+
+https://www.apache.org/licenses/LICENSE-2.0[Apache License v2.0]

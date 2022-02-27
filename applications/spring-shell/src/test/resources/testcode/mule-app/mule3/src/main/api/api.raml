@@ -1,0 +1,95 @@
+#%RAML 1.0
+title: Remote Vending API
+version: v1.0
+baseUri: http://remote-vending/api
+mediaType: application/json
+documentation:
+  - title: Introduction
+    content: |
+      API to manage the sales and replenishments of stock items and floats in our vending machines.
+/sales:
+  post:
+    body:
+      example: |
+        {
+          "machineId" : "ZX4102",
+          "trayId" : "A1",
+          "dateAndTime" : "2013-10-22 16:17:00",
+          "exchange" : {
+            "value" : 450,
+            "in" : 500,
+            "out" : 50
+          }
+        }
+  get:
+    responses:
+      200:
+        body:
+          example: |
+            {
+                "count" : 2,
+                "sales" : [
+                  {
+                    "dateAndTime" : "2013-10-22 16:17:00",
+                    "value" : 450,
+                    "machineId" : "ZX4102",
+                    "productId" : "Cad-CB1012"
+                  },
+                  {
+                    "dateAndTime" : "2013-10-22 16:17:00",
+                    "value" : 150,
+                    "machineId" : "ZX5322",
+                    "productId" : "CC-LB1"
+                  }
+                ],
+                "totalValue" : 600
+            }
+/machines:
+  get:
+    responses:
+      200:
+        body:
+          example: |
+            {
+              "count" : 3,
+              "machines" : [
+                {
+                  "id" : "ZX4102",
+                  "location" : "Starbuck's, 442 Geary Street, San Francisco, CA 94102"
+                },
+                {
+                  "id" : "ZX5322",
+                  "location" : "Starbuck's, 462 Powell Street, San Francisco, CA 94102"
+                },
+                {
+                  "id" : "ZX6792",
+                  "location" : "Cafe La Taza, 470 Post Street, San Francisco, CA 94102"
+                }
+              ]
+            }
+  /{machine}:
+    get:
+      responses:
+        200:
+          body:
+            example: |
+              {
+                "id" : "ZX4102",
+                "location" : "Starbuck's, 442 Geary Street, San Francisco, CA 94102",
+                "sales" : [
+                  {
+                    "dateAndTime" : "2013-10-22 16:17:00",
+                    "value" : 450,
+                    "machineId" : "ZX4102",
+                      "productId" : "Cad-CB1012"
+                  },
+                  {
+                    "dateAndTime" : "2013-10-22 16:17:00",
+                    "value" : 150,
+                    "machineId" : "ZX5322",
+                    "productId" : "CC-LB1"
+                    }
+                  ],
+                "floatsToBeReplenished" : [20, 40, 20, 80, 20, 40, 40],
+                "stockToBeReplenished" : 54
+              }

@@ -1,0 +1,93 @@
+- name: migrate-stateless-ejb
+  description: "Migration of stateless EJB to Spring components."
+  order: 80
+  condition:
+    description: 'Any class has import starting with javax.ejb.Stateless'
+    type: org.springframework.sbm.java.migration.conditions.HasImportStartingWith
+    value: javax.ejb.Stateless
+
+  actions:
+    - type: org.springframework.sbm.jee.ejb.actions.MigrateEjbAnnotations
+      condition:
+        type: org.springframework.sbm.java.migration.conditions.HasAnnotation
+        annotation: "javax.ejb.EJB"
+      description: "Replace @EJB injection with Spring Boot @Autowired."
+
+
+    - type: org.springframework.sbm.java.migration.actions.ReplaceTypeAction
+      annotation: "javax.inject.Inject"
+      withAnnotation: "org.springframework.beans.factory.annotation.Autowired"
+      condition:
+        type: org.springframework.sbm.java.migration.conditions.HasMemberAnnotation
+        annotation: "javax.inject.Inject"
+      description: "Replace CDI field injection with Spring Boot field injection."
+
+
+    - type: org.springframework.sbm.java.migration.actions.ReplaceTypeAction
+      annotation: "javax.ejb.Startup"
+      withAnnotation: "org.springframework.stereotype.Service"
+      condition:
+        type: org.springframework.sbm.java.migration.conditions.HasTypeAnnotation
+        annotation: "javax.ejb.Startup"
+      description: Removes @Startup annotation because in Spring Boot all beans are after startup.
+      detailedDescription: |-
+        Removes @Startup annotation because in Spring Boot all beans are by default available after startup of the application context.
+          If you need to initialize parts of the application before the application context was fully started
+          you might want to look into e.g.
+          - ApplicationRunner - https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/ApplicationRunner.html
+          - init method of @Bean - https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/Bean.html
+          - listening for ContextRefreshedEvents by defining a method annotated with @EventListener
+          - listening for ContextRefreshedEvents by implementing ApplicationListener<ContextRefreshedEvent>.
+
+
+
+    - type: org.springframework.sbm.jee.ejb.actions.MigrateLocalStatelessSessionBeans
+      condition:
+        type: org.springframework.sbm.java.migration.conditions.HasTypeAnnotation
+        annotation: "javax.ejb.Stateless"
+      description: "Migrate local @Stateless, @LocalBean and @Singleton to Spring Boot Service"
+
+
+    - type: org.springframework.sbm.build.migration.actions.RemoveDependenciesMatchingRegex
+      dependenciesRegex:
+        - javax\:javaee-api.*
+        - javax\.ejb\:javax\.ejb-api\:.*
+        - org\.jboss\.spec\.javax\.ejb\:jboss-ejb-api_3.*
+      condition:
+        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+      description: Delete ejb dependencies from build file.
+
+
+    - type: org.springframework.sbm.build.migration.actions.AddDependencies
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoDependencyExistMatchingRegex
+        dependencies:
+          - 'org.springframework.boot:spring-boot-starter-data-jpa'
+      dependencies:
+        - groupId: org.springframework.boot
+          artifactId: spring-boot-starter-data-jpa
+          version: latest.release
+      description: Add spring-boot-starter-data-jpa to build file.
+      detailedDescription: |-
+        This code snippet is going to be added to the <dependencies> section in pom.xml
+
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</groupId>
+          </dependency>
+
+
+    - type: org.springframework.sbm.java.migration.actions.AddTypeAnnotationToTypeAnnotatedWith
+      condition:
+        type: org.springframework.sbm.jee.ejb.conditions.NoTransactionalAnnotationPresentOnTypeAnnotatedWith
+        typeAnnotatedWith: org.springframework.stereotype.Service
+      description: Add @Transactional to @Service as replacement for CMT.
+      annotation: org.springframework.transaction.annotation.Transactional
+      annotatedWith: org.springframework.stereotype.Service
+      addAnnotationIfExists: false
+
+#    - name: "delete-class-annotations"
+#      description: "Refactor (local) EJBs annotated with @Stateless and only @Local annotation with Spring @Component annotation"
+#      annotations:
+#        - "javax.ejb.Local"
+#        - "javax.ejb.Startup"

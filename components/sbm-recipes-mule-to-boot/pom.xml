@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2021 - 2022 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>spring-boot-migrator</artifactId>
+        <groupId>org.springframework.sbm</groupId>
+        <version>0.9.2-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>sbm-recipes-mule-to-boot</artifactId>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.sbm</groupId>
+            <artifactId>sbm-core</artifactId>
+            <version>0.9.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.sbm</groupId>
+            <artifactId>recipe-test-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.sbm</groupId>
+            <artifactId>sbm-openrewrite</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.sbm</groupId>
+            <artifactId>sbm-recipes-jee-to-boot</artifactId>
+            <version>0.9.2-SNAPSHOT</version>
+        </dependency>
+
+        <!-- JAXB model generation -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.moxy</artifactId>
+            <version>2.7.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.raml.jaxrs</groupId>
+            <artifactId>jaxrs-code-generator</artifactId>
+            <version>3.0.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.json</groupId>
+                    <artifactId>json</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.sbm</groupId>
+            <artifactId>recipe-test-support</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- JAXB model creation plugin -->
+
+    <!-- ===============  WARNING   =============== -->
+    <!-- Be careful when running xjc as e.g. package-info.java might have been manually changed and would be overwritten -->
+    <!-- This needs some more love to provide the required modifications to XJC so no manual changes are required -->
+    <!-- ===============  WARNING   =============== -->
+
+    <!-- when running xjc -->
+    <profiles>
+        <profile>
+            <id>gen-java</id>
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>jaxb2-maven-plugin</artifactId>
+                        <version>${jaxb-maven-plugin.version}</version>
+                        <executions>
+                            <!-- To run xjc only for this execution: 'mvn clean -P gen-java org.codehaus.mojo:jaxb2-maven-plugin:xjc@mule' -->
+                            <execution>
+                                <id>mule</id>
+                                <goals>
+                                    <goal>xjc</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/main/xsd/mule/mule-amqp.xsd</source>
+                                        <source>src/main/xsd/mule/mule-http.xsd</source>
+                                        <source>src/main/xsd/mule/mule-wmq-ee.xsd</source>
+                                    </sources>
+                                    <noGeneratedHeaderComments>true</noGeneratedHeaderComments>
+                                    <laxSchemaValidation>true</laxSchemaValidation>
+                                    <outputDirectory>src/generated/java</outputDirectory>
+                                    <noGeneratedHeaderComments>true</noGeneratedHeaderComments>
+                                    <!--                                    <xjbSources>-->
+                                    <!--                                        <source>spring-beans.xjb</source>-->
+                                    <!--                                    </xjbSources>-->
+                                    <outputDirectory>src/generated/java</outputDirectory>
+                                    <clearOutputDir>false</clearOutputDir>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/generated/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

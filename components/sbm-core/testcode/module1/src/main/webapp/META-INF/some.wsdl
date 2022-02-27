@@ -1,0 +1,73 @@
+<!--
+  ~ Copyright 2021 - 2022 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<definitions name="EndorsementSearch"
+             targetNamespace="http://namespaces.example.com"
+             xmlns:es="http://example.com/EndorsementSearch.wsdl"
+             xmlns:esxsd="http://schemas.example.com/EndorsementSearch.xsd"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+>
+
+    <!-- omitted types section with content model schema info -->
+
+    <message name="GetEndorsingBoarderRequest">
+        <part name="body" element="esxsd:GetEndorsingBoarder"/>
+    </message>
+
+    <message name="GetEndorsingBoarderResponse">
+        <part name="body" element="esxsd:GetEndorsingBoarderResponse"/>
+    </message>
+
+    <portType name="GetEndorsingBoarderPortType">
+        <operation name="GetEndorsingBoarder">
+            <input message="es:GetEndorsingBoarderRequest"/>
+            <output message="es:GetEndorsingBoarderResponse"/>
+            <fault message="es:GetEndorsingBoarderFault"/>
+        </operation>
+    </portType>
+
+    <binding name="EndorsementSearchSoapBinding"
+             type="es:GetEndorsingBoarderPortType">
+        <soap:binding style="document"
+                      transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="GetEndorsingBoarder">
+            <soap:operation
+                    soapAction="http://example.com/EndorsementSearch"/>
+            <input>
+                <soap:body use="literal"
+                           namespace="http://schemas.example.com/EndorsementSearch.xsd"/>
+            </input>
+            <output>
+                <soap:body use="literal"
+                           namespace="http://schemas.example.com/EndorsementSearch.xsd"/>
+            </output>
+            <fault>
+                <soap:body use="literal"
+                           namespace="http://schemas.example.com/EndorsementSearch.xsd"/>
+            </fault>
+        </operation>
+    </binding>
+
+    <service name="EndorsementSearchService">
+        <documentation>snowboarding-info.com Endorsement Service</documentation>
+        <port name="GetEndorsingBoarderPort"
+              binding="es:EndorsementSearchSoapBinding">
+            <soap:address location="http://example.com/EndorsementSearch"/>
+        </port>
+    </service>
+
+</definitions>

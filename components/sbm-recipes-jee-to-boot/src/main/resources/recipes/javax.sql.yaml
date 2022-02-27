@@ -1,0 +1,32 @@
+- name: sql-access-in-java-ee-apps
+  description: SQL Access in Java EE Apps
+
+  actions:
+    - type: org.springframework.sbm.engine.recipe.DisplayDescription
+      condition:
+        description: 'Any class has import starting with javax.sql '
+        type: org.springframework.sbm.java.migration.conditions.HasImportStartingWith
+        value: javax.sql
+      name: SQL Access in Java EE Apps
+      description: |-
+
+        Synopsis
+        ========
+
+        The scan found imports starting with 'javax.sql' which indicates the usage of JDBC in a Java EE application.
+
+        Problem
+        =======
+
+        You are migrating a Java EE application that uses JDBC (raw SQL access) to Spring Boot.
+
+        Solution
+        ========
+
+        Classes from javax.sql work in Spring Boot with no changes necessary.
+        However, the way connections are acquired and configured is different in Spring apps.
+
+        For further information and help see these cookboook recipes:
+
+        - SQL Access in Java EE Apps
+          https://appmod-cookbook.apps.pcfone.io/spring-bootify/sql/

@@ -1,0 +1,86 @@
+- name: migrate-spring-xml-to-java-config
+  description: "Migrate Spring Framework xml bean configuration to Java configuration."
+  condition:
+    description: 'Any xml file containing http://www.springframework.org/schema/beans'
+    type: org.springframework.sbm.conditions.xml.XmlFileContaining
+    value: http://www.springframework.org/schema/beans
+
+  actions:
+#    - type: org.springframework.sbm.actions.DisplayDescription
+#      condition:
+#        type: org.springframework.sbm.conditions.EnvironmentVariablesNotSetCondition
+#        variables:
+#          - MAVEN_HOME
+#      description: Environment variable 'MAVEN_HOME' was not set. It is required, so please set it.
+#
+#    - type: org.springframework.sbm.actions.CopyEnvToSystemPropertyAction
+#      condition:
+#        type: org.springframework.sbm.common.conditions.TrueCondition
+#      variables:
+#        MAVEN_HOME: maven.home
+#      description: Verify MAVEN_HOME env is set and copy value to maven.home.
+#
+#    - type: org.springframework.sbm.actions.maven.RunMavenGoalsAction
+#      goals:
+#        - clean
+#        - compile
+#      condition:
+#        type: org.springframework.sbm.common.conditions.TrueCondition
+#        description: 'Always run this action.'
+#      description: Run Maven build to compile source files.
+
+    - type: org.springframework.sbm.actions.spring.xml.migration.MigrateXmlToJavaConfigurationAction
+      condition:
+        description: 'Any xml file containing www.springframework.org/schema/beans'
+        type: org.springframework.sbm.conditions.xml.XmlFileContaining
+        value: www.springframework.org/schema
+      description: Migrate xml bean configuration to Java bean configuration.
+      detailedDescription: |-
+        Migrate xml bean configuration to Java bean configuration.
+
+        <bean name="country" class="org.springframework.sbm.spring.xml.example.TestBean">
+          <constructor-arg index="0" value="India"></constructor-arg>
+          <constructor-arg index="1" value="20000"></constructor-arg>
+        </bean>
+        <bean id="appleService" class="org.springframework.sbm.spring.xml.example.AppleService">
+          <property name="country" ref="country"/>
+        </bean>
+
+        to
+
+        @Configuration
+        class ApplicationContext {
+          @Bean
+          public TestBean country() {
+            TestBean country = new TestBean("India","20000");
+            return country;
+          }
+
+          @Bean
+          public AppleService appleService() {
+            AppleService appleService = new AppleService(;
+            appleService.setCountry(country());
+            return appleService;
+          }
+        }
+
+    - type: org.springframework.sbm.build.migration.actions.AddDependencies
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex
+        dependencies:
+          - org\.springframework\:spring-jdbc:.*
+      dependencies:
+        - groupId: org.springframework.boot
+          artifactId: spring-boot-starter-jdbc
+      description: Add spring-boot-starter-jdbc dependency to build file.
+
+    - type: org.springframework.sbm.build.migration.actions.RemoveDependenciesMatchingRegex
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex
+        dependencies:
+          - org\.springframework\:spring-jdbc\:.*
+          - org\.apache\.tomcat\:tomcat-jdbc\:.*
+      dependenciesRegex:
+        - org\.springframework\:spring-jdbc:.*
+        - org\.apache\.tomcat\:tomcat-jdbc\:.*
+      description: Remove spring-jdbc and other jdbc related dependencies

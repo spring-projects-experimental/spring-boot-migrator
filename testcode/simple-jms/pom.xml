@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2021 - 2022 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<!-- $Rev$ $Date$ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.superbiz</groupId>
+  <artifactId>simple-jms</artifactId>
+  <packaging>war</packaging>
+  <version>8.0.1</version>
+  <name>TomEE :: Examples :: Simple JMS</name>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <version.arquillian>1.1.13.Final</version.arquillian>
+    <tomee.version>8.0.1</tomee.version>
+  </properties>
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.5.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.tomee.maven</groupId>
+        <artifactId>tomee-maven-plugin</artifactId>
+        <version>${tomee.version}</version>
+        <configuration>
+          <tomeeClassifier>plus</tomeeClassifier>
+          <args>-Xmx512m -XX:PermSize=256m</args>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.tomitribe.transformer</groupId>
+        <artifactId>org.eclipse.transformer.maven</artifactId>
+        <version>0.1.1a</version>
+        <configuration>
+          <classifier>jakartaee9</classifier>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <repositories>
+    <repository>
+      <id>apache-m2-snapshot</id>
+      <name>Apache Snapshot Repository</name>
+      <url>https://repository.apache.org/content/groups/snapshots</url>
+    </repository>
+  </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.tomee</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>8.0-3</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.1</version>
+      <scope>test</scope>
+    </dependency>
+    <!--
+    The <scope>test</scope> guarantees that non of your runtime
+    code is dependent on any OpenEJB classes.
+    -->
+    <dependency>
+      <groupId>org.apache.tomee</groupId>
+      <artifactId>openejb-core</artifactId>
+      <version>${tomee.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomee</groupId>
+      <artifactId>tomee-jaxrs</artifactId>
+      <version>${tomee.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-container</artifactId>
+      <version>${version.arquillian}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-api-maven</artifactId>
+      <version>2.1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+      <version>2.1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-spi-maven</artifactId>
+      <version>2.1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomee</groupId>
+      <artifactId>arquillian-tomee-remote</artifactId>
+      <version>${tomee.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomee</groupId>
+      <artifactId>ziplock</artifactId>
+      <version>${tomee.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <!--
+  This section allows you to configure where to publish libraries for sharing.
+  It is not required and may be deleted.  For more information see:
+  http://maven.apache.org/plugins/maven-deploy-plugin/
+  -->
+  <distributionManagement>
+    <repository>
+      <id>localhost</id>
+      <url>file://${basedir}/target/repo/</url>
+    </repository>
+    <snapshotRepository>
+      <id>localhost</id>
+      <url>file://${basedir}/target/snapshot-repo/</url>
+    </snapshotRepository>
+  </distributionManagement>
+</project>

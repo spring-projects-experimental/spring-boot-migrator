@@ -1,0 +1,51 @@
+<!--
+  ~ Copyright 2021 - 2022 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: layout (~{::body},'vets')}">
+
+<body>
+
+  <h2>Veterinarians</h2>
+
+  <table id="vets" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Specialties</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="vet : ${vets.vetList}">
+        <td th:text="${vet.firstName + ' ' + vet.lastName}"></td>
+        <td><span th:each="specialty : ${vet.specialties}"
+          th:text="${specialty.name + ' '}" /> <span
+          th:if="${vet.nrOfSpecialties == 0}">none</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="table-buttons">
+    <tr>
+      <td><a th:href="@{/vets.xml}">View as XML</a></td>
+      <td><a th:href="@{/vets.json}">View as JSON</a></td>
+    </tr>
+  </table>
+
+</body>
+</html>

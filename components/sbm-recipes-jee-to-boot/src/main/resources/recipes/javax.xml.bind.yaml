@@ -1,0 +1,44 @@
+- name: bootifying-java-ee-jaxb
+  description: Bootifying Java EE JAXB
+
+  actions:
+    - type: org.springframework.sbm.engine.recipe.DisplayDescription
+      condition:
+        description: 'Any class has import starting with javax.xml.bind '
+        type: org.springframework.sbm.java.migration.conditions.HasImportStartingWith
+        value: javax.xml.bind
+      name: Bootifying Java EE JAXB
+      description: |-
+
+        Synopsis
+        ========
+
+        The scan found imports starting with 'javax.xml.bind' which indicates the usage of Java EE JAXB.
+
+        Problem
+        =======
+
+        Jakarta XML Binding (JAXB) is a Java EE API that can marshal Java objects into XML and unmarshal XML into Java objects.
+        You want use JAXB with Spring Boot.
+
+        Solution
+        ========
+
+        The Spring Framework includes a class named Jaxb2Marshaller.
+        It can both marshal and unmarshal JAXB and is the recommended way to handle JAXB in Spring applications.
+        To generate JAXB classes from WSDL you can use a Gradle plugin.
+
+        For further information and help see these cookboook recipes:
+
+          - Bootifying Java EE JAXB
+            https://appmod-cookbook.apps.pcfone.io/spring-bootify/bootifying_java_ee_jaxb/
+
+          - Generating JAXB classes
+            https://appmod-cookbook.apps.pcfone.io/javaee/generate-jaxb/
+
+          - JAXB Project Usage
+            https://appmod-cookbook.apps.pcfone.io/javaee/jaxb_project_usage/
+
+          - JAXB Java Files Generation using Custom Bindings
+            https://appmod-cookbook.apps.pcfone.io/javaee/jaxb-java-files-generation-using-custom-binding/
+

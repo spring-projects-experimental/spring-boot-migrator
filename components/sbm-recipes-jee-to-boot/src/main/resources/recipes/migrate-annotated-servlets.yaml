@@ -1,0 +1,42 @@
+- name: migrate-annotated-servlets
+  description: Allow Spring Boot to deploy servlets annotated with @WebServlet
+  order: 70
+  condition:
+    description: Any class has import starting with javax.servlet
+    type: org.springframework.sbm.java.migration.conditions.HasImportStartingWith
+    value: javax.servlet
+  actions:
+    - type: org.springframework.sbm.build.migration.actions.AddDependencies
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoExactDependencyExist
+        dependency:
+          groupId: org.springframework.boot
+          artifactId: spring-boot-starter-web
+      dependencies:
+        - groupId: org.springframework.boot
+          artifactId: spring-boot-starter-web
+          version: 2.3.4.RELEASE
+      description: Add spring-boot-starter-web dependency to build file.
+      detailedDescription: |-
+        This code snippet is going to be added to the <dependencies> section in pom.xml
+
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</groupId>
+          </dependency>
+
+
+    - type: org.springframework.sbm.java.migration.actions.AddTypeAnnotationToTypeAnnotatedWith
+      condition:
+        type: org.springframework.sbm.jee.web.conditions.ShouldAddServletComponentScan
+      description: Add ServletComponentScan to Spring Boot.
+      annotation: org.springframework.boot.web.servlet.ServletComponentScan
+      annotatedWith: org.springframework.boot.autoconfigure.SpringBootApplication
+
+
+    - type: org.springframework.sbm.build.migration.actions.RemoveDependenciesMatchingRegex
+      dependenciesRegex:
+        - javax\.servlet\:servlet-api.*
+      condition:
+        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+      description: Delete javax.servlet:servlet-api dependency from build file.

@@ -1,0 +1,29 @@
+# borrowed from https://medium.com/james-reads-public-cloud-technology-blog/auto-build-and-host-pretty-html-documentation-using-asciidoc-github-pages-github-actions-758a03f93d7d
+name: build adocs
+on:
+  push:
+    branches:
+      - main
+jobs:
+  adoc_build:
+    runs-on: ubuntu-latest
+    name: Asciidoctoring the docs to pretty HTML!
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Get build container
+        id: adocbuild
+        uses: avattathil/asciidoctor-action@master
+        with:
+          program: "asciidoctor  --backend=html5 -D docs -r asciidoctor-diagram docs/*.adoc"
+          # asciidoctor  --backend=html5 -D output docs/reference/developer-documentation.adoc
+          #program: "asciidoctor -D ./docs --backend=html5 -R ./docs"
+          # -a stylesheet=style.css
+          # && echo 'docs..io' > docs/CNAME"
+      - name: Deploy docs to ghpages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_branch: gh-pages
+          publish_dir: ./docs/
+
