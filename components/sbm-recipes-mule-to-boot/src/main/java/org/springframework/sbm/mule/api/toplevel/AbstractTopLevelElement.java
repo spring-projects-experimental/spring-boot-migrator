@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  */
 @Getter
 @RequiredArgsConstructor
-public abstract class BaseDefinition implements TopLevelDefinition {
+public abstract class AbstractTopLevelElement implements TopLevelElement {
     private final Set<String> requiredImports = new HashSet<>();
     private String flowName;
     private List<JAXBElement> elements;
@@ -44,10 +44,10 @@ public abstract class BaseDefinition implements TopLevelDefinition {
     private final Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap;
 
 
-    public BaseDefinition(String flowName,
-                          List<JAXBElement> elements,
-                          MuleConfigurations muleConfigurations,
-                          Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
+    public AbstractTopLevelElement(String flowName,
+                                   List<JAXBElement> elements,
+                                   MuleConfigurations muleConfigurations,
+                                   Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
         this.flowName = flowName;
         this.elements = elements;
         this.muleConfigurations = muleConfigurations;

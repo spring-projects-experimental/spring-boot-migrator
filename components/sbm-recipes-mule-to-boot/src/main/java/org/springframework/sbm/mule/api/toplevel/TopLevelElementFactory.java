@@ -4,8 +4,8 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 
 import javax.xml.bind.JAXBElement;
 
-public interface TopLevelTypeFactory {
+public interface TopLevelElementFactory {
 
     Class<?> getSupportedTopLevelType();
-    TopLevelDefinition buildDefinition(JAXBElement topLevelElement, MuleConfigurations muleConfigurations);
+    TopLevelElement buildDefinition(JAXBElement topLevelElement, MuleConfigurations muleConfigurations);
 }

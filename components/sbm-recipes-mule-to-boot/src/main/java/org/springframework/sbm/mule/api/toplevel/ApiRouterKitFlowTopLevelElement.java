@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ApiRouterKitFlowDefinition extends BaseDefinition {
+public class ApiRouterKitFlowTopLevelElement extends AbstractTopLevelElement {
     private static final String apiRoutingKitNamingPattern = "(.*):(.*):.*";
     @Getter
     private final String route;
@@ -34,10 +34,10 @@ public class ApiRouterKitFlowDefinition extends BaseDefinition {
     @Getter
     private final String configRef;
 
-    public ApiRouterKitFlowDefinition(String flowName,
-                                      List<JAXBElement> elements,
-                                      MuleConfigurations muleConfigurations,
-                                      Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
+    public ApiRouterKitFlowTopLevelElement(String flowName,
+                                           List<JAXBElement> elements,
+                                           MuleConfigurations muleConfigurations,
+                                           Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
         super(flowName, elements, muleConfigurations, translatorsMap);
 
         String[] components = flowName.split(":");

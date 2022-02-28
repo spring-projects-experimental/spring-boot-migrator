@@ -13,12 +13,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-public class FlowTypeFactory implements TopLevelTypeFactory {
+public class FlowTopLevelElementFactory implements TopLevelElementFactory {
     private List<String> requiredImports = new ArrayList<>();
     private final Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap;
 
 
-    public FlowTypeFactory(List<? extends MuleComponentToSpringIntegrationDslTranslator> translators) {
+    public FlowTopLevelElementFactory(List<? extends MuleComponentToSpringIntegrationDslTranslator> translators) {
         translatorsMap = translators.stream()
                 .collect(Collectors.toMap(MuleComponentToSpringIntegrationDslTranslator::getSupportedMuleType, Function.identity()));
     }
@@ -29,12 +29,12 @@ public class FlowTypeFactory implements TopLevelTypeFactory {
     }
 
     @Override
-    public TopLevelDefinition buildDefinition(JAXBElement topLevelElement, MuleConfigurations muleConfigurations) {
+    public TopLevelElement buildDefinition(JAXBElement topLevelElement, MuleConfigurations muleConfigurations) {
         FlowType ft = ((FlowType) topLevelElement.getValue());
-        if (ApiRouterKitFlowDefinition.isApiRouterKitName(ft.getName())) {
-            return new ApiRouterKitFlowDefinition(ft.getName(), extractFlowElements(ft), muleConfigurations, translatorsMap);
+        if (ApiRouterKitFlowTopLevelElement.isApiRouterKitName(ft.getName())) {
+            return new ApiRouterKitFlowTopLevelElement(ft.getName(), extractFlowElements(ft), muleConfigurations, translatorsMap);
         } else {
-            return new FlowDefinition(ft.getName(), extractFlowElements(ft), muleConfigurations, translatorsMap);
+            return new FlowTopLevelElement(ft.getName(), extractFlowElements(ft), muleConfigurations, translatorsMap);
         }
     }
 

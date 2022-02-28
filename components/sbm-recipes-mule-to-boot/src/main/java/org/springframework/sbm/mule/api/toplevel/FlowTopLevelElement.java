@@ -22,12 +22,12 @@ import javax.xml.bind.JAXBElement;
 import java.util.List;
 import java.util.Map;
 
-public class FlowDefinition extends BaseDefinition {
+public class FlowTopLevelElement extends AbstractTopLevelElement {
 
-    public FlowDefinition(String flowName,
-                          List<JAXBElement> elements,
-                          MuleConfigurations muleConfigurations,
-                          Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
+    public FlowTopLevelElement(String flowName,
+                               List<JAXBElement> elements,
+                               MuleConfigurations muleConfigurations,
+                               Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
         super(flowName, elements, muleConfigurations, translatorsMap);
     }
 

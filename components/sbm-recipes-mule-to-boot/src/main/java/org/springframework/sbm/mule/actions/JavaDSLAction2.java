@@ -30,9 +30,9 @@ import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.mule.api.*;
-import org.springframework.sbm.mule.api.toplevel.TopLevelDefinition;
-import org.springframework.sbm.mule.api.toplevel.TopLevelTypeFactory;
-import org.springframework.sbm.mule.api.toplevel.UnknownDefinition;
+import org.springframework.sbm.mule.api.toplevel.TopLevelElement;
+import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.UnknownTopLevelElement;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.stereotype.Component;
@@ -49,12 +49,12 @@ public class JavaDSLAction2 extends AbstractAction {
 
     private static final String SPRING_CONFIGURATION_ANNOTATION = "org.springframework.context.annotation.Configuration";
     private final MuleMigrationContextFactory muleMigrationContextFactory;
-    private final Map<Class<?>, TopLevelTypeFactory> topLevelTypeMap;
+    private final Map<Class<?>, TopLevelElementFactory> topLevelTypeMap;
 
     @Autowired
-    public JavaDSLAction2(MuleMigrationContextFactory muleMigrationContextFactory, List<TopLevelTypeFactory> topLevelTypeFactories) {
+    public JavaDSLAction2(MuleMigrationContextFactory muleMigrationContextFactory, List<TopLevelElementFactory> topLevelTypeFactories) {
         topLevelTypeMap = topLevelTypeFactories.stream()
-                .collect(Collectors.toMap(TopLevelTypeFactory::getSupportedTopLevelType, Function.identity()));
+                .collect(Collectors.toMap(TopLevelElementFactory::getSupportedTopLevelType, Function.identity()));
         this.muleMigrationContextFactory = muleMigrationContextFactory;
     }
 
@@ -83,19 +83,19 @@ public class JavaDSLAction2 extends AbstractAction {
             if (MuleConfigurationsExtractor.isConfigType(tle)) {
                 continue;
             }
-            TopLevelDefinition definitionSnippet = null;
+            TopLevelElement definitionSnippet = null;
             if (topLevelTypeMap.containsKey(tle.getValue().getClass())) {
-                TopLevelTypeFactory tltf = topLevelTypeMap.get(tle.getValue().getClass());
+                TopLevelElementFactory tltf = topLevelTypeMap.get(tle.getValue().getClass());
                 definitionSnippet = tltf.buildDefinition(tle, muleMigrationContext.getMuleConfigurations());
             } else {
-                definitionSnippet = new UnknownDefinition(tle);
+                definitionSnippet = new UnknownTopLevelElement(tle);
             }
             buildFile.addDependencies(buildDependencies(definitionSnippet));
             flowConfigurationSource.getType().addMethod(definitionSnippet.renderDslSnippet(), definitionSnippet.getRequiredImports());
         }
     }
 
-    private List<Dependency> buildDependencies(TopLevelDefinition snippet) {
+    private List<Dependency> buildDependencies(TopLevelElement snippet) {
         return snippet.getRequiredDependencies().stream()
                 .map(r -> r.split(":"))
                 .filter(p -> p.length == 3)

@@ -23,13 +23,13 @@ import javax.xml.bind.JAXBElement;
 import java.util.List;
 import java.util.Map;
 
-public class SubflowDefinition extends BaseDefinition {
+public class SubflowTopLevelElement extends AbstractTopLevelElement {
     private boolean generateEmptyFlow;
 
-    public SubflowDefinition(String flowName,
-                             List<JAXBElement> elements,
-                             MuleConfigurations muleConfigurations,
-                             Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
+    public SubflowTopLevelElement(String flowName,
+                                  List<JAXBElement> elements,
+                                  MuleConfigurations muleConfigurations,
+                                  Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
         super(flowName, elements, muleConfigurations, translatorsMap);
     }
 

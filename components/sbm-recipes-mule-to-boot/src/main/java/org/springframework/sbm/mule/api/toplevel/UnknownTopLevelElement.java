@@ -10,7 +10,7 @@ import java.util.Set;
 import static java.util.Collections.emptySet;
 
 @AllArgsConstructor
-public class UnknownDefinition implements TopLevelDefinition {
+public class UnknownTopLevelElement implements TopLevelElement {
 
     private JAXBElement element;
 

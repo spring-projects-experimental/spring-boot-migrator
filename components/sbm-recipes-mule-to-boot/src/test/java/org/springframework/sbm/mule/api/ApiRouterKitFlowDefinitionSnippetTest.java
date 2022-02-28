@@ -16,7 +16,7 @@
 package org.springframework.sbm.mule.api;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.mule.api.toplevel.ApiRouterKitFlowDefinition;
+import org.springframework.sbm.mule.api.toplevel.ApiRouterKitFlowTopLevelElement;
 
 import java.util.List;
 import java.util.Map;
@@ -30,17 +30,17 @@ class ApiRouterKitFlowDefinitionSnippetTest {
     @Test
     public void shouldDetectAPIRoutingKitNamingPattern() {
 
-        assertTrue(ApiRouterKitFlowDefinition.isApiRouterKitName("get:/helloworld:helloword-config"));
+        assertTrue(ApiRouterKitFlowTopLevelElement.isApiRouterKitName("get:/helloworld:helloword-config"));
     }
 
     @Test
     public void shouldBeAbleToDetectNonAPIRoutingKitNames() {
-        assertFalse(ApiRouterKitFlowDefinition.isApiRouterKitName("helloword-config"));
+        assertFalse(ApiRouterKitFlowTopLevelElement.isApiRouterKitName("helloword-config"));
     }
 
     @Test
     public void shouldParseConfigRefFromName() {
-        ApiRouterKitFlowDefinition apiRouterSnippet = new ApiRouterKitFlowDefinition(
+        ApiRouterKitFlowTopLevelElement apiRouterSnippet = new ApiRouterKitFlowTopLevelElement(
                 "get:/helloworld:helloword-config",
                 List.of(),
                 null,
@@ -51,7 +51,7 @@ class ApiRouterKitFlowDefinitionSnippetTest {
 
     @Test
     public void shouldParseConfigRefFromNameWithContentTypeNamePattern() {
-        ApiRouterKitFlowDefinition apiRouterSnippet = new ApiRouterKitFlowDefinition(
+        ApiRouterKitFlowTopLevelElement apiRouterSnippet = new ApiRouterKitFlowTopLevelElement(
                 "get:/helloworld:application/json:helloword-config",
                 List.of(),
                 null,
@@ -62,13 +62,13 @@ class ApiRouterKitFlowDefinitionSnippetTest {
     @Test
     public void shouldParsePathAndMethod() {
         String name = "post:/clients/{client_identifier}/risk/rating:application/json:hbfr-bil-risk-client-rating-mb05-hub-sys-config";
-        ApiRouterKitFlowDefinition apiRouterSnippet = new ApiRouterKitFlowDefinition(
+        ApiRouterKitFlowTopLevelElement apiRouterSnippet = new ApiRouterKitFlowTopLevelElement(
                 name,
                 List.of(),
                 null,
                 Map.of());
 
-        assertTrue(ApiRouterKitFlowDefinition.isApiRouterKitName(name));
+        assertTrue(ApiRouterKitFlowTopLevelElement.isApiRouterKitName(name));
         assertThat(apiRouterSnippet.getMethod()).isEqualTo("post");
         assertThat(apiRouterSnippet.getRoute()).isEqualTo("/clients/{client_identifier}/risk/rating");
     }

@@ -13,10 +13,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-public class SubflowTypeFactory implements TopLevelTypeFactory {
+public class SubflowTopLevelElementFactory implements TopLevelElementFactory {
     private final Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap;
 
-    public SubflowTypeFactory(List<? extends MuleComponentToSpringIntegrationDslTranslator> translators) {
+    public SubflowTopLevelElementFactory(List<? extends MuleComponentToSpringIntegrationDslTranslator> translators) {
         translatorsMap = translators.stream()
                 .collect(Collectors.toMap(MuleComponentToSpringIntegrationDslTranslator::getSupportedMuleType, Function.identity()));
     }
@@ -28,14 +28,14 @@ public class SubflowTypeFactory implements TopLevelTypeFactory {
     }
 
     @Override
-    public TopLevelDefinition buildDefinition(JAXBElement topLevelElement, MuleConfigurations muleConfigurations) {
+    public TopLevelElement buildDefinition(JAXBElement topLevelElement, MuleConfigurations muleConfigurations) {
         SubFlowType sft = ((SubFlowType) topLevelElement.getValue());
         String flowName = translateToJavaName(sft.getName());
 
         List<JAXBElement> l = new ArrayList<>();
         l.addAll(sft.getMessageProcessorOrOutboundEndpoint());
 
-        return new SubflowDefinition(flowName, l, muleConfigurations, translatorsMap);
+        return new SubflowTopLevelElement(flowName, l, muleConfigurations, translatorsMap);
     }
 
     private String translateToJavaName(String name) {

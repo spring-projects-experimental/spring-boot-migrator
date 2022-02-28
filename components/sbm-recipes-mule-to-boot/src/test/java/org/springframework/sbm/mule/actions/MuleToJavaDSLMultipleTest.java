@@ -28,9 +28,9 @@ import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpOutboun
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
 import org.springframework.sbm.mule.api.*;
-import org.springframework.sbm.mule.api.toplevel.FlowTypeFactory;
-import org.springframework.sbm.mule.api.toplevel.SubflowTypeFactory;
-import org.springframework.sbm.mule.api.toplevel.TopLevelTypeFactory;
+import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXml;
@@ -120,9 +120,9 @@ public class MuleToJavaDSLMultipleTest {
                 new LoggingTranslator(new ExpressionLanguageTranslator()
                 )
         );
-        List<TopLevelTypeFactory> topLevelTypeFactories = List.of(
-                new FlowTypeFactory(translators),
-                new SubflowTypeFactory(translators)
+        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
+                new FlowTopLevelElementFactory(translators),
+                new SubflowTopLevelElementFactory(translators)
         );
 
         ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
