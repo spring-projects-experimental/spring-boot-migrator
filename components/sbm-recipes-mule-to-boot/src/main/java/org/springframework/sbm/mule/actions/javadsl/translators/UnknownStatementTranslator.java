@@ -17,7 +17,7 @@ package org.springframework.sbm.mule.actions.javadsl.translators;
 
 import org.jetbrains.annotations.NotNull;
 import org.mulesoft.schema.mule.core.AbstractInboundEndpointType;
-import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
@@ -30,7 +30,7 @@ public class UnknownStatementTranslator implements MuleComponentToSpringIntegrat
     }
 
     @Override
-    public DslSnippet translate(MuleMigrationContext context, Object component, QName name) {
+    public DslSnippet translate(Object component, QName name, MuleConfigurations muleConfigurations) {
         return new DslSnippet(
                 generateDSLStatement(component),
                 Collections.emptySet(),

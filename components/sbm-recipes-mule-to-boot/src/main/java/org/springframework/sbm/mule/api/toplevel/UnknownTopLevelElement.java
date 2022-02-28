@@ -1,4 +1,4 @@
-package org.springframework.sbm.mule.api;
+package org.springframework.sbm.mule.api.toplevel;
 
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +10,7 @@ import java.util.Set;
 import static java.util.Collections.emptySet;
 
 @AllArgsConstructor
-public class UnknownDefinitionSnippet implements DefinitionSnippet{
+public class UnknownTopLevelElement implements TopLevelElement {
 
     private JAXBElement element;
 

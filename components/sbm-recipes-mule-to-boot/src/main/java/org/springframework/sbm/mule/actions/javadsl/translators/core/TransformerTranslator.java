@@ -19,7 +19,7 @@ package org.springframework.sbm.mule.actions.javadsl.translators.core;
 import org.mulesoft.schema.mule.core.AbstractTransformerType;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
@@ -33,8 +33,7 @@ public class TransformerTranslator implements MuleComponentToSpringIntegrationDs
     }
 
     @Override
-    public DslSnippet translate(MuleMigrationContext context, AbstractTransformerType component, QName name) {
-
+    public DslSnippet translate(AbstractTransformerType component, QName name, MuleConfigurations muleConfigurations) {
         if (name.getLocalPart().equals("byte-array-to-string-transformer")) {
             return new DslSnippet(".transform(new ObjectToStringTransformer())", Set.of("org.springframework.integration.transformer.ObjectToStringTransformer"));
         } else {

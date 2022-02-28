@@ -15,9 +15,6 @@
  */
 package org.springframework.sbm.mule.actions;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,47 +30,43 @@ import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.mule.api.*;
+import org.springframework.sbm.mule.api.toplevel.TopLevelElement;
+import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.UnknownTopLevelElement;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.stereotype.Component;
 
 import javax.xml.bind.JAXBElement;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Component
-@NoArgsConstructor
-@AllArgsConstructor
 public class JavaDSLAction2 extends AbstractAction {
 
     private static final String SPRING_CONFIGURATION_ANNOTATION = "org.springframework.context.annotation.Configuration";
-    @Autowired
-    @Setter
-    private MuleMigrationContextFactory muleMigrationContextFactory;
+    private final MuleMigrationContextFactory muleMigrationContextFactory;
+    private final Map<Class<?>, TopLevelElementFactory> topLevelTypeMap;
 
     @Autowired
-    @Setter
-    private FlowHandler flowHandler;
+    public JavaDSLAction2(MuleMigrationContextFactory muleMigrationContextFactory, List<TopLevelElementFactory> topLevelTypeFactories) {
+        topLevelTypeMap = topLevelTypeFactories.stream()
+                .collect(Collectors.toMap(TopLevelElementFactory::getSupportedTopLevelType, Function.identity()));
+        this.muleMigrationContextFactory = muleMigrationContextFactory;
+    }
 
     @Override
     public void apply(ProjectContext context) {
-
         BuildFile buildFile = context.getApplicationModules().getRootModule().getBuildFile();
         MuleMigrationContext muleMigrationContext = muleMigrationContextFactory.createMuleMigrationContext(context);
-
         JavaSourceAndType flowConfigurationSource = findOrCreateFlowConfigurationClass(context);
-
-        List<JAXBElement> topLevelElements = getTopLevelElements(muleMigrationContext);
-
         createJavaResource(context, muleMigrationContext.getMuleConfigurations().getConfigurations());
 
-        startProcess("Handle sub-flow elements");
-        handleSubflows(muleMigrationContext, flowConfigurationSource);
-        endProcess();
-
-        startProcess("Handle flow elements");
-        handleFlows(buildFile, muleMigrationContext, flowConfigurationSource, topLevelElements);
+        startProcess("Handle top level elements");
+        handleTopLevelElements(buildFile, muleMigrationContext, flowConfigurationSource);
         endProcess();
 
         // TODO: Spring Beans need to be retrieved as well
@@ -85,39 +78,28 @@ public class JavaDSLAction2 extends AbstractAction {
 //          </spring:beans>
     }
 
-    private void handleFlows(BuildFile buildFile, MuleMigrationContext muleMigrationContext, JavaSourceAndType flowConfigurationSource, List<JAXBElement> topLevelElements) {
-        topLevelElements.forEach(o -> {
-            // either create a method per flow and add the method and imports to the class
-            DefinitionSnippet snippet = flowHandler.transformFlow(muleMigrationContext, o);
-
-            List<Dependency> dependencies = snippet.getRequiredDependencies().stream()
-                    .map(r -> r.split(":"))
-                    .filter(p -> p.length == 3)
-                    .map(p -> Dependency.builder().groupId(p[0]).artifactId(p[1]).version(p[2]).build())
-                    .collect(Collectors.toList());
-
-            buildFile.addDependencies(dependencies);
-            flowConfigurationSource.getType().addMethod(snippet.renderDslSnippet(), snippet.getRequiredImports());
-        });
-    }
-
-    private void handleSubflows( MuleMigrationContext muleMigrationContext, JavaSourceAndType flowConfigurationSource) {
-        if (muleMigrationContext.getAvailableMuleSubFlows().size() > 0) {
-
-            muleMigrationContext.getAvailableMuleSubFlows()
-                    .forEach(subFlowType -> {
-                                BaseDefinitionSnippet snippet = flowHandler.transformSubflow(muleMigrationContext, subFlowType);
-                                flowConfigurationSource.getType().addMethod(snippet.renderDslSnippet(), snippet.getRequiredImports());
-                            }
-                    );
+    private void handleTopLevelElements(BuildFile buildFile, MuleMigrationContext muleMigrationContext, JavaSourceAndType flowConfigurationSource) {
+        for(JAXBElement tle : muleMigrationContext.getTopLevelElements()) {
+            if (MuleConfigurationsExtractor.isConfigType(tle)) {
+                continue;
+            }
+            TopLevelElement definitionSnippet = null;
+            if (topLevelTypeMap.containsKey(tle.getValue().getClass())) {
+                TopLevelElementFactory tltf = topLevelTypeMap.get(tle.getValue().getClass());
+                definitionSnippet = tltf.buildDefinition(tle, muleMigrationContext.getMuleConfigurations());
+            } else {
+                definitionSnippet = new UnknownTopLevelElement(tle);
+            }
+            buildFile.addDependencies(buildDependencies(definitionSnippet));
+            flowConfigurationSource.getType().addMethod(definitionSnippet.renderDslSnippet(), definitionSnippet.getRequiredImports());
         }
     }
 
-
-    private List<JAXBElement> getTopLevelElements(MuleMigrationContext muleMigrationContext) {
-        Stream<JAXBElement> a = muleMigrationContext.getAvailableFlows().stream().filter(Objects::nonNull).map(JAXBElement.class::cast);
-        Stream<JAXBElement> b = muleMigrationContext.getNonSupportedTypes().stream().filter(Objects::nonNull).map(JAXBElement.class::cast);
-        return Stream.concat(a, b)
+    private List<Dependency> buildDependencies(TopLevelElement snippet) {
+        return snippet.getRequiredDependencies().stream()
+                .map(r -> r.split(":"))
+                .filter(p -> p.length == 3)
+                .map(p -> Dependency.builder().groupId(p[0]).artifactId(p[1]).version(p[2]).build())
                 .collect(Collectors.toList());
     }
 

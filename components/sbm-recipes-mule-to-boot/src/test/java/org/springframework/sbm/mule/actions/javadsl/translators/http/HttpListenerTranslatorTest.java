@@ -17,8 +17,7 @@ package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
-import org.springframework.sbm.mule.api.MuleConfigurations;
-import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.sbm.mule.resource.MuleXml;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
@@ -72,8 +71,6 @@ class HttpListenerTranslatorTest {
 
         MuleType muleType = muleXmls.get(0).getMuleType();
         ListenerType listenerType = ((ListenerType) ((JAXBElement) ((FlowType) ((JAXBElement) muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractMessageSource()).getValue());
-        DslSnippet snippet = sut.translate(
-                new MuleMigrationContext(List.of(), List.of(), new MuleConfigurations(new HashMap<>()), List.of(), List.of()), listenerType, new QName(""));
-        return snippet;
+        return sut.translate(listenerType, new QName(""), new MuleConfigurations(new HashMap<>()));
     }
 }

@@ -25,9 +25,12 @@ import org.springframework.sbm.mule.actions.javadsl.translators.common.Expressio
 import org.springframework.sbm.mule.actions.javadsl.translators.core.FlowRefTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.MuleConfigurationsExtractor;
-import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
+import org.springframework.sbm.mule.api.*;
+import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -121,9 +124,14 @@ public class SubflowsTest {
                         new AmqpOutboundEndpointTranslator(),
                         new AmqpInboundEndpointTranslator()
                 );
-        FlowHandler flowHandler = new FlowHandler(translators);
+        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
+                new FlowTopLevelElementFactory(translators),
+                new SubflowTopLevelElementFactory(translators)
+        );
+
         ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
-        myAction2 = new JavaDSLAction2(new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory)), flowHandler);
+        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
+        myAction2 = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
         myAction2.setEventPublisher(eventPublisher);
     }
 
@@ -161,17 +169,17 @@ public class SubflowsTest {
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow outToAMQP(org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate) {\n" +
-                        "        return flow -> flow\n" +
-                        "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"));\n" +
-                        "    }\n" +
-                        "\n" +
-                        "    @Bean\n" +
                         "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory, org.springframework.integration.dsl.IntegrationFlow outToAMQP) {\n" +
                         "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" +
                         "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                         "                .gateway(outToAMQP)\n" +
                         "                .get();\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow outToAMQP(org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate) {\n" +
+                        "        return flow -> flow\n" +
+                        "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"));\n" +
                         "    }}"
                 );
 
@@ -210,18 +218,18 @@ public class SubflowsTest {
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow outToUnknown() {\n" +
-                        "        return flow -> {\n" +
-                        "            // FIXME: Conversion is not supported for Mule type: org.mulesoft.schema.mule.core.SetVariableType\n" +
-                        "        };\n" +
-                        "    }\n" +
-                        "\n" +
-                        "    @Bean\n" +
                         "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory, org.springframework.integration.dsl.IntegrationFlow outToUnknown) {\n" +
                         "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" +
                         "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                         "                .gateway(outToUnknown)\n" +
                         "                .get();\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow outToUnknown() {\n" +
+                        "        return flow -> {\n" +
+                        "            // FIXME: Conversion is not supported for Mule type: org.mulesoft.schema.mule.core.SetVariableType\n" +
+                        "        };\n" +
                         "    }}"
                 );
 

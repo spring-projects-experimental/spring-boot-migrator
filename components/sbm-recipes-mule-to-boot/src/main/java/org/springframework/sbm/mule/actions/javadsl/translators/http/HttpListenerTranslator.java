@@ -17,7 +17,7 @@ package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import lombok.extern.slf4j.Slf4j;
 import org.mulesoft.schema.mule.http.ListenerType;
 import org.springframework.stereotype.Component;
@@ -43,7 +43,7 @@ public class HttpListenerTranslator implements MuleComponentToSpringIntegrationD
     }
 
     @Override
-    public DslSnippet translate(MuleMigrationContext context, ListenerType component, QName name) {
+    public DslSnippet translate(ListenerType component, QName name, MuleConfigurations muleConfigurations) {
         /*
         * In the connector component on your flow, the only required fields are the Path
         * (the path-absolute URL defining the resource location), which by default is /,

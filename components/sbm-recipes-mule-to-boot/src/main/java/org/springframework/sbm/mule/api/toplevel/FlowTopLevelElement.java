@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.mule.api;
+package org.springframework.sbm.mule.api.toplevel;
 
-import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
+import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 
+import javax.xml.bind.JAXBElement;
 import java.util.List;
+import java.util.Map;
 
-public class FlowDefinitionSnippet extends BaseDefinitionSnippet {
-    public FlowDefinitionSnippet(String flowName, List<DslSnippet> dslSnippets) {
-        super(flowName, dslSnippets);
+public class FlowTopLevelElement extends AbstractTopLevelElement {
+
+    public FlowTopLevelElement(String flowName,
+                               List<JAXBElement> elements,
+                               MuleConfigurations muleConfigurations,
+                               Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
+        super(flowName, elements, muleConfigurations, translatorsMap);
     }
 
     protected String composeSuffixDslCode() {

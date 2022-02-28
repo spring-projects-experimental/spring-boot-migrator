@@ -18,8 +18,7 @@ package org.springframework.sbm.mule.actions.javadsl.translators.logging;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
-import org.springframework.sbm.mule.api.MuleConfigurations;
-import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.sbm.mule.resource.MuleXml;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
@@ -288,7 +287,7 @@ class LoggingTranslatorTest {
         MuleType muleType = muleXmls.get(0).getMuleType();
         LoggerType loggerType = (LoggerType)  ((FlowType)((JAXBElement)muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractMessageProcessorOrAbstractOutboundEndpointOrAbstractMixedContentMessageProcessor().get(0).getValue();
 
-        DslSnippet snippet = sut.translate(new MuleMigrationContext(List.of(), List.of(),  new MuleConfigurations(new HashMap<>()), List.of(), List.of()), loggerType, new QName(""));
+        DslSnippet snippet = sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()));
 
         assertThat(snippet.getRenderedSnippet()).isEqualTo(
                 ".log(\"#{payload}\")"
@@ -311,6 +310,6 @@ class LoggingTranslatorTest {
 
         MuleType muleType = muleXmls.get(0).getMuleType();
         LoggerType loggerType = (LoggerType)  ((FlowType)((JAXBElement)muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractMessageProcessorOrAbstractOutboundEndpointOrAbstractMixedContentMessageProcessor().get(0).getValue();
-        return sut.translate(new MuleMigrationContext(List.of(), List.of(), new MuleConfigurations(new HashMap<>()), List.of(), List.of()), loggerType, new QName(""));
+        return sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()));
     }
 }

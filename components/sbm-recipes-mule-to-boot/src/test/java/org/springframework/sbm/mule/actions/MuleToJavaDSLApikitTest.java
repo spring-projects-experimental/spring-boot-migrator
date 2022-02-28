@@ -24,9 +24,12 @@ import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigT
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.core.SetPayloadTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.MuleConfigurationsExtractor;
-import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
+import org.springframework.sbm.mule.api.*;
+import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -56,9 +59,14 @@ public class MuleToJavaDSLApikitTest {
                 new SetPayloadTranslator(),
                 new LoggingTranslator(new ExpressionLanguageTranslator())
         );
-        FlowHandler flowHandler = new FlowHandler(translators);
+        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
+                new FlowTopLevelElementFactory(translators),
+                new SubflowTopLevelElementFactory(translators)
+        );
+
         ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
-        myAction = new JavaDSLAction2(new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory)), flowHandler);
+        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
+        myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
         myAction.setEventPublisher(eventPublisher);
     }
 

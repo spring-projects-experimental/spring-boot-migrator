@@ -20,14 +20,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.core.FlowRefTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.MuleConfigurationsExtractor;
-import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
+import org.springframework.sbm.mule.api.*;
+import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -63,10 +66,18 @@ public class MultipleFlowsTest {
 
     @BeforeEach
     public void setup() {
-        List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(new HttpListenerTranslator(), new LoggingTranslator(new ExpressionLanguageTranslator()), new FlowRefTranslator());
-        FlowHandler flowHandler = new FlowHandler(translators);
-        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new HttpListenerConfigTypeAdapter()));
-        myAction2 = new JavaDSLAction2(new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory)), flowHandler);
+        List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
+                new HttpListenerTranslator(),
+                new LoggingTranslator(new ExpressionLanguageTranslator()),
+                new FlowRefTranslator());
+        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
+                new FlowTopLevelElementFactory(translators),
+                new SubflowTopLevelElementFactory(translators)
+        );
+
+        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
+        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
+        myAction2 = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
         myAction2.setEventPublisher(eventPublisher);
     }
 
@@ -103,16 +114,16 @@ public class MultipleFlowsTest {
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow logging() {\n" +
-                        "        return flow -> flow\n" +
-                        "                .log(LoggingHandler.Level.INFO);\n" +
-                        "    }\n" +
-                        "\n" +
-                        "    @Bean\n" +
                         "    IntegrationFlow main_flow(org.springframework.integration.dsl.IntegrationFlow logging) {\n" +
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/subflows\")).handle((p, h) -> p)\n" +
                         "                .gateway(logging)\n" +
                         "                .get();\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow logging() {\n" +
+                        "        return flow -> flow\n" +
+                        "                .log(LoggingHandler.Level.INFO);\n" +
                         "    }}");
     }
 }

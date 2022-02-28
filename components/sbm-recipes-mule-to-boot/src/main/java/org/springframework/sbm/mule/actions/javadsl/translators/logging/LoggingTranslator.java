@@ -18,7 +18,7 @@ package org.springframework.sbm.mule.actions.javadsl.translators.logging;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
-import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mulesoft.schema.mule.core.LoggerType;
@@ -46,7 +46,7 @@ public class LoggingTranslator implements MuleComponentToSpringIntegrationDslTra
         return LoggerType.class;
     }
 
-    public DslSnippet translate(MuleMigrationContext context, LoggerType loggerType, QName name) {
+    public DslSnippet translate(LoggerType loggerType, QName name, MuleConfigurations muleConfigurations) {
 
         StringBuffer sb = new StringBuffer();
 

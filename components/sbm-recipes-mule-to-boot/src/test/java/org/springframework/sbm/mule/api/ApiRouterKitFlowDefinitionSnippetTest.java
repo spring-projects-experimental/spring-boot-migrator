@@ -16,46 +16,59 @@
 package org.springframework.sbm.mule.api;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.mule.api.toplevel.ApiRouterKitFlowTopLevelElement;
 
-import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiRouterKitFlowDefinitionSnippetTest {
 
     @Test
     public void shouldDetectAPIRoutingKitNamingPattern() {
 
-        assertTrue(ApiRouterKitFlowDefinitionSnippet.isApiRouterKitName("get:/helloworld:helloword-config"));
+        assertTrue(ApiRouterKitFlowTopLevelElement.isApiRouterKitName("get:/helloworld:helloword-config"));
     }
 
     @Test
     public void shouldBeAbleToDetectNonAPIRoutingKitNames() {
-        assertFalse(ApiRouterKitFlowDefinitionSnippet.isApiRouterKitName("helloword-config"));
+        assertFalse(ApiRouterKitFlowTopLevelElement.isApiRouterKitName("helloword-config"));
     }
 
     @Test
     public void shouldParseConfigRefFromName() {
+        ApiRouterKitFlowTopLevelElement apiRouterSnippet = new ApiRouterKitFlowTopLevelElement(
+                "get:/helloworld:helloword-config",
+                List.of(),
+                null,
+                Map.of());
 
-        String name = "get:/helloworld:helloword-config";
-        ApiRouterKitFlowDefinitionSnippet apiRouterSnippet = new ApiRouterKitFlowDefinitionSnippet(name, Collections.emptyList());
         assertThat(apiRouterSnippet.getConfigRef()).isEqualTo("helloword-config");
     }
 
     @Test
     public void shouldParseConfigRefFromNameWithContentTypeNamePattern() {
-        String name = "get:/helloworld:application/json:helloword-config";
-        ApiRouterKitFlowDefinitionSnippet apiRouterSnippet = new ApiRouterKitFlowDefinitionSnippet(name, Collections.emptyList());
+        ApiRouterKitFlowTopLevelElement apiRouterSnippet = new ApiRouterKitFlowTopLevelElement(
+                "get:/helloworld:application/json:helloword-config",
+                List.of(),
+                null,
+                Map.of());
         assertThat(apiRouterSnippet.getConfigRef()).isEqualTo("helloword-config");
     }
 
     @Test
     public void shouldParsePathAndMethod() {
         String name = "post:/clients/{client_identifier}/risk/rating:application/json:hbfr-bil-risk-client-rating-mb05-hub-sys-config";
-        ApiRouterKitFlowDefinitionSnippet apiRouterSnippet = new ApiRouterKitFlowDefinitionSnippet(name, Collections.emptyList());
+        ApiRouterKitFlowTopLevelElement apiRouterSnippet = new ApiRouterKitFlowTopLevelElement(
+                name,
+                List.of(),
+                null,
+                Map.of());
 
-        assertTrue(ApiRouterKitFlowDefinitionSnippet.isApiRouterKitName(name));
+        assertTrue(ApiRouterKitFlowTopLevelElement.isApiRouterKitName(name));
         assertThat(apiRouterSnippet.getMethod()).isEqualTo("post");
         assertThat(apiRouterSnippet.getRoute()).isEqualTo("/clients/{client_identifier}/risk/rating");
     }

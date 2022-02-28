@@ -18,7 +18,7 @@ package org.springframework.sbm.mule.actions.javadsl.translators.core;
 import org.mulesoft.schema.mule.core.SetPayloadTransformerType;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
@@ -32,7 +32,7 @@ public class SetPayloadTranslator implements MuleComponentToSpringIntegrationDsl
     }
 
     @Override
-    public DslSnippet translate(MuleMigrationContext context, SetPayloadTransformerType component, QName name) {
+    public DslSnippet translate(SetPayloadTransformerType component, QName name, MuleConfigurations muleConfigurations) {
         String valueWithoutNewLines = component.getValue().replace("\n", "");
         String withEscapedChars = valueWithoutNewLines.replace("\"", "\\\"");
         return new DslSnippet(".handle((p, h) -> " + "\"" + withEscapedChars + "\")", Collections.emptySet());

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.mule.api;
+package org.springframework.sbm.mule.api.toplevel.configuration;
 
 import lombok.Getter;
 
@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class MuleConfigurations <T> {
+public class MuleConfigurations {
     @Getter
     private Map<String, ? extends ConfigurationTypeAdapter> configurations = new HashMap<>();
 

@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.actions.FlowHandler;
 import org.springframework.sbm.mule.actions.JavaDSLAction2;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigTypeAdapter;
@@ -29,9 +28,11 @@ import org.springframework.sbm.mule.actions.javadsl.translators.common.Expressio
 import org.springframework.sbm.mule.actions.javadsl.translators.core.FlowRefTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.MuleConfigurationsExtractor;
-import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
+import org.springframework.sbm.mule.api.*;
+import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -71,9 +72,11 @@ public class WMQFlowTest {
                         new AmqpOutboundEndpointTranslator(),
                         new AmqpInboundEndpointTranslator()
                 );
-        FlowHandler flowHandler = new FlowHandler(translators);
+        List<TopLevelElementFactory> topLevelTypeFactories = List.of(new FlowTopLevelElementFactory(translators));
+
         ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
-        myAction2 = new JavaDSLAction2(new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory)), flowHandler);
+        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
+        myAction2 = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
         myAction2.setEventPublisher(eventPublisher);
     }
 
@@ -93,8 +96,7 @@ public class WMQFlowTest {
                         "org.springframework.boot:spring-boot-starter-integration:2.5.5",
                         "org.springframework.integration:spring-integration-stream:5.4.4",
                         "org.springframework.integration:spring-integration-http:5.4.4"
-                )
-                .build();
+                ).build();
         myAction2.apply(projectContext);
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
@@ -113,10 +115,6 @@ public class WMQFlowTest {
                         "        IntegrationFlows.from(\"\")\n" +
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                .get();\n" +
-                        "    }\n" +
-                        "\n" +
-                        "    void wmqConnector() {\n" +
-                        "        //FIXME: element is not supported for conversion: <wmq:connector/>\n" +
                         "    }}"
                 );
     }

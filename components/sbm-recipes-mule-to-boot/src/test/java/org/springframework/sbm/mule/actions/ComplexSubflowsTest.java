@@ -27,9 +27,12 @@ import org.springframework.sbm.mule.actions.javadsl.translators.common.Expressio
 import org.springframework.sbm.mule.actions.javadsl.translators.core.FlowRefTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.MuleConfigurationsExtractor;
-import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
+import org.springframework.sbm.mule.api.*;
+import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -134,17 +137,21 @@ public class ComplexSubflowsTest {
 
     @BeforeEach
     public void setup() {
-        List<MuleComponentToSpringIntegrationDslTranslator> translators =
-                List.of(
+        List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
                         new HttpListenerTranslator(),
                         new LoggingTranslator(new ExpressionLanguageTranslator()),
                         new FlowRefTranslator(),
                         new AmqpOutboundEndpointTranslator(),
                         new AmqpInboundEndpointTranslator()
                 );
-        FlowHandler flowHandler = new FlowHandler(translators);
+        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
+                new FlowTopLevelElementFactory(translators),
+                new SubflowTopLevelElementFactory(translators)
+                );
+
         ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
-        myAction2 = new JavaDSLAction2(new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory)), flowHandler);
+        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
+        myAction2 = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
         myAction2.setEventPublisher(eventPublisher);
     }
 
@@ -181,26 +188,6 @@ public class ComplexSubflowsTest {
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow callHubSysSubFlow(org.springframework.integration.dsl.IntegrationFlow callMQ) {\n" +
-                        "        return flow -> flow\n" +
-                        "                .gateway(callMQ);\n" +
-                        "    }\n" +
-                        "\n" +
-                        "    @Bean\n" +
-                        "    IntegrationFlow commonLogStartSubFlow() {\n" +
-                        "        return flow -> flow\n" +
-                        "                .log(LoggingHandler.Level.DEBUG, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"RequestMessageReceived\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\",[message] ${message}\")\n" +
-                        "                .log(LoggingHandler.Level.INFO, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"RequestPayloadReceived\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\",[payload] ${message.payloadAs(java.lang.String)}\");\n" +
-                        "    }\n" +
-                        "\n" +
-                        "    @Bean\n" +
-                        "    IntegrationFlow commonLogEndSubFlow() {\n" +
-                        "        return flow -> flow\n" +
-                        "                .log(LoggingHandler.Level.INFO, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"ResponsePayloadSent\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\" [payload] ${message.payloadAs(java.lang.String)}\")\n" +
-                        "                .log(LoggingHandler.Level.DEBUG, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"ResponseMessageSent\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\",[message] ${message}\");\n" +
-                        "    }\n" +
-                        "\n" +
-                        "    @Bean\n" +
                         "    IntegrationFlow hbfr_bil_risk_client_rating_mb05_hub_sys_main(org.springframework.integration.dsl.IntegrationFlow set_hbfr_headers_out) {\n" +
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"${http.listener.path}/*\")).handle((p, h) -> p)\n" +
                         "                .gateway(set_hbfr_headers_out)\n" +
@@ -224,6 +211,26 @@ public class ComplexSubflowsTest {
                         "                .gateway(commonLogEndSubFlow)\n" +
                         "                .gateway(set_hbfr_headers_out)\n" +
                         "                .get();\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow callHubSysSubFlow(org.springframework.integration.dsl.IntegrationFlow callMQ) {\n" +
+                        "        return flow -> flow\n" +
+                        "                .gateway(callMQ);\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow commonLogStartSubFlow() {\n" +
+                        "        return flow -> flow\n" +
+                        "                .log(LoggingHandler.Level.DEBUG, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"RequestMessageReceived\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\",[message] ${message}\")\n" +
+                        "                .log(LoggingHandler.Level.INFO, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"RequestPayloadReceived\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\",[payload] ${message.payloadAs(java.lang.String)}\");\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow commonLogEndSubFlow() {\n" +
+                        "        return flow -> flow\n" +
+                        "                .log(LoggingHandler.Level.INFO, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"ResponsePayloadSent\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\" [payload] ${message.payloadAs(java.lang.String)}\")\n" +
+                        "                .log(LoggingHandler.Level.DEBUG, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"ResponseMessageSent\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\",[message] ${message}\");\n" +
                         "    }}"
                 );
 

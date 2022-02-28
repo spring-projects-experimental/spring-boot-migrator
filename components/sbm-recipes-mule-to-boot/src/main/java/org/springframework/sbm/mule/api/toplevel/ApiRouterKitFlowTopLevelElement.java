@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.mule.api;
+package org.springframework.sbm.mule.api.toplevel;
 
 import lombok.Getter;
-import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
+import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 
+import javax.xml.bind.JAXBElement;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-public class ApiRouterKitFlowDefinitionSnippet extends BaseDefinitionSnippet {
+public class ApiRouterKitFlowTopLevelElement extends AbstractTopLevelElement {
     private static final String apiRoutingKitNamingPattern = "(.*):(.*):.*";
     @Getter
     private final String route;
@@ -31,8 +34,11 @@ public class ApiRouterKitFlowDefinitionSnippet extends BaseDefinitionSnippet {
     @Getter
     private final String configRef;
 
-    public ApiRouterKitFlowDefinitionSnippet(String flowName, List<DslSnippet> dslSnippets) {
-        super(flowName, dslSnippets);
+    public ApiRouterKitFlowTopLevelElement(String flowName,
+                                           List<JAXBElement> elements,
+                                           MuleConfigurations muleConfigurations,
+                                           Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
+        super(flowName, elements, muleConfigurations, translatorsMap);
 
         String[] components = flowName.split(":");
         method = components[0];
