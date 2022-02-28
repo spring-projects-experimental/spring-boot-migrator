@@ -1,5 +1,5 @@
 # borrowed from https://medium.com/james-reads-public-cloud-technology-blog/auto-build-and-host-pretty-html-documentation-using-asciidoc-github-pages-github-actions-758a03f93d7d
-name: build adocs
+name: build documentation from Asciidoctor
 on:
   push:
     branches:
