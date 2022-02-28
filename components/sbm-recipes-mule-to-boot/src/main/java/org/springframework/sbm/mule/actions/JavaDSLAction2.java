@@ -59,13 +59,18 @@ public class JavaDSLAction2 extends AbstractAction {
     }
 
     @Override
+    public String getDescription() {
+        return "Migrating Mulesoft to Spring Boot";
+    }
+
+    @Override
     public void apply(ProjectContext context) {
         BuildFile buildFile = context.getApplicationModules().getRootModule().getBuildFile();
         MuleMigrationContext muleMigrationContext = muleMigrationContextFactory.createMuleMigrationContext(context);
         JavaSourceAndType flowConfigurationSource = findOrCreateFlowConfigurationClass(context);
         createJavaResource(context, muleMigrationContext.getMuleConfigurations().getConfigurations());
 
-        startProcess("Handle top level elements");
+        startProcess("Converting Mulesoft files");
         handleTopLevelElements(buildFile, muleMigrationContext, flowConfigurationSource);
         endProcess();
 
@@ -95,8 +100,10 @@ public class JavaDSLAction2 extends AbstractAction {
                 .map(this::buildDependencies)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
+        logEvent("Adding " + listOfDependencies.size() + " dependencies");
         buildFile.addDependencies(listOfDependencies);
 
+        logEvent("Adding " + topLevelElements.size() + " methods");
         topLevelElements.forEach(topLevelElement -> {
             flowConfigurationSource.getType().addMethod(topLevelElement.renderDslSnippet(), topLevelElement.getRequiredImports());
         });
