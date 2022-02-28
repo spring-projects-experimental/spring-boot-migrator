@@ -7,5 +7,5 @@ import javax.xml.bind.JAXBElement;
 public interface TopLevelTypeFactory {
 
     Class<?> getSupportedTopLevelType();
-    TopLevelDefinition buildDefinitionSnippet(JAXBElement topLevelElement, MuleConfigurations muleConfigurations);
+    TopLevelDefinition buildDefinition(JAXBElement topLevelElement, MuleConfigurations muleConfigurations);
 }

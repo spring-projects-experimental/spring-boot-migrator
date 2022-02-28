@@ -86,7 +86,7 @@ public class JavaDSLAction2 extends AbstractAction {
             TopLevelDefinition definitionSnippet = null;
             if (topLevelTypeMap.containsKey(tle.getValue().getClass())) {
                 TopLevelTypeFactory tltf = topLevelTypeMap.get(tle.getValue().getClass());
-                definitionSnippet = tltf.buildDefinitionSnippet(tle, muleMigrationContext.getMuleConfigurations());
+                definitionSnippet = tltf.buildDefinition(tle, muleMigrationContext.getMuleConfigurations());
             } else {
                 definitionSnippet = new UnknownDefinition(tle);
             }

@@ -29,7 +29,7 @@ public class FlowTypeFactory implements TopLevelTypeFactory {
     }
 
     @Override
-    public TopLevelDefinition buildDefinitionSnippet(JAXBElement topLevelElement, MuleConfigurations muleConfigurations) {
+    public TopLevelDefinition buildDefinition(JAXBElement topLevelElement, MuleConfigurations muleConfigurations) {
         FlowType ft = ((FlowType) topLevelElement.getValue());
         if (ApiRouterKitFlowDefinition.isApiRouterKitName(ft.getName())) {
             return new ApiRouterKitFlowDefinition(ft.getName(), extractFlowElements(ft), muleConfigurations, translatorsMap);
