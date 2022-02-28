@@ -3,7 +3,7 @@ name: build adocs
 on:
   push:
     branches:
-      - main
+      - docs
 jobs:
   adoc_build:
     runs-on: ubuntu-latest
@@ -15,7 +15,7 @@ jobs:
         id: adocbuild
         uses: avattathil/asciidoctor-action@master
         with:
-          program: "asciidoctor  --backend=html5 -D docs -r asciidoctor-diagram docs/*.adoc"
+          program: "asciidoctor  --backend=html5 -D docs -r asciidoctor-diagram docs/reference/*.adoc"
           # asciidoctor  --backend=html5 -D output docs/reference/developer-documentation.adoc
           #program: "asciidoctor -D ./docs --backend=html5 -R ./docs"
           # -a stylesheet=style.css
@@ -25,5 +25,5 @@ jobs:
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_branch: gh-pages
-          publish_dir: ./docs/
+          publish_dir: ./docs/reference/
 
