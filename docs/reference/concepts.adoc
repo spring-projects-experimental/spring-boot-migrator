@@ -15,8 +15,6 @@ When all actions of a recipe evaluate to `false` the recipe itself is not applic
 
 Recipes can be declared in yaml syntax or provided as Java bean definitions.
 
-Foo: {repo}
-
 - See link:{repo}/blob/main/components/sbm-support-boot/src/main/resources/recipes/initialize-spring-boot-migration.yaml[initialize-spring-boot-migration.yaml,window=_blank] for a recipe in YAML syntax
 - See link:{repo}/blob/main/components/sbm-recipes-mule-to-boot/src/main/java/org/springframework/sbm/mule/MigrateMuleToBoot.java[MigrateMuleToBoot.java,window=_blank] for a recipe as Spring bean.
 
