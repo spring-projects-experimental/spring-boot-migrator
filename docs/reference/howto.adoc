@@ -1,6 +1,8 @@
 == How To
 
 === Implement Actions
+First step on your journey to implement a new recipe will be the implementation of an `Action`.
+Every
 
 ==== Display Progress
 
