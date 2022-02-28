@@ -3,7 +3,7 @@ name: build documentation from Asciidoctor
 on:
   push:
     branches:
-      - docs
+      - main
 jobs:
   adoc_build:
     runs-on: ubuntu-latest

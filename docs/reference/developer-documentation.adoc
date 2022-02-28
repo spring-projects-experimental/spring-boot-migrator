@@ -19,4 +19,4 @@ include::concepts.adoc[]
 
 include::howto.adoc[]
 
-include:testing.adoc[]
+include::testing.adoc[]
