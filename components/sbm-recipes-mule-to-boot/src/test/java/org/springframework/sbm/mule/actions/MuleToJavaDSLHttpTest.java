@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.mule.actions;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.openrewrite.SourceFile;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
@@ -22,18 +25,16 @@ import org.springframework.sbm.mule.actions.javadsl.translators.common.Expressio
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.MuleConfigurationsExtractor;
-import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
-import org.springframework.sbm.mule.resource.MuleXml;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
+import org.springframework.sbm.mule.api.*;
+import org.springframework.sbm.mule.api.toplevel.FlowTypeFactory;
+import org.springframework.sbm.mule.api.toplevel.SubflowTypeFactory;
+import org.springframework.sbm.mule.api.toplevel.TopLevelTypeFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.openrewrite.SourceFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,16 +56,23 @@ public class MuleToJavaDSLHttpTest {
             "  </flow>\n" +
             "</mule>";
 
-    private JavaDSLAction2 sut;
+    private JavaDSLAction2 myAction;
     private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 
     @BeforeEach
     public void setup() {
-        List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(new HttpListenerTranslator(), new LoggingTranslator(new ExpressionLanguageTranslator()));
-        FlowHandler flowHandler = new FlowHandler(translators);
+        List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
+                new HttpListenerTranslator(),
+                new LoggingTranslator(new ExpressionLanguageTranslator()));
+        List<TopLevelTypeFactory> topLevelTypeFactories = List.of(
+                new FlowTypeFactory(translators),
+                new SubflowTypeFactory(translators)
+        );
+
         ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new HttpListenerConfigTypeAdapter()));
-        sut = new JavaDSLAction2(new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory)), flowHandler);
-        sut.setEventPublisher(eventPublisher);
+        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
+        myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
+        myAction.setEventPublisher(eventPublisher);
     }
 
     @Test
@@ -85,7 +93,7 @@ public class MuleToJavaDSLHttpTest {
                 )
                 .addRegistrar(registrar)
                 .build();
-        sut.apply(projectContext);
+        myAction.apply(projectContext);
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +

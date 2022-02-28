@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.mule.api;
+package org.springframework.sbm.mule.api.toplevel.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.mulesoft.schema.mule.core.AbstractConnectorType;
@@ -42,14 +42,14 @@ public class MuleConfigurationsExtractor {
                 .flatMap(m -> m.getBeansOrBeanOrPropertyPlaceholder().stream())
                 .filter(JAXBElement.class::isInstance)
                 .map(JAXBElement.class::cast)
-                .filter(this::filterConfigType)
+                .filter(MuleConfigurationsExtractor::isConfigType)
                 .map(e -> configurationTypeAdapterFactory.createAdapter(e.getValue()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(a -> a.getName(), a -> a));
     }
 
 
-    private boolean filterConfigType(JAXBElement jaxbElement) {
+    public static boolean isConfigType(JAXBElement jaxbElement) {
         Class<?> aClass = jaxbElement.getValue().getClass();
         Set<Class> configTypes = Set.of(RequestConfigType.class, ConfigurationType.class, AbstractConnectorType.class, ListenerConfigType.class);
         return configTypes.stream()

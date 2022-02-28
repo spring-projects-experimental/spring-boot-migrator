@@ -18,8 +18,7 @@ package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
-import org.springframework.sbm.mule.api.MuleConfigurations;
-import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.sbm.mule.resource.MuleXml;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
@@ -134,7 +133,7 @@ public class AmqpOutboundEndpointTranslatorTest {
 
     private DslSnippet apply(OutboundEndpointType outboundEndpointType) {
         AmqpOutboundEndpointTranslator sut = new AmqpOutboundEndpointTranslator();
-        return sut.translate(new MuleMigrationContext(List.of(), List.of(), new MuleConfigurations(new HashMap<>()), List.of(), List.of()), outboundEndpointType, new QName(""));
+        return sut.translate(outboundEndpointType, new QName(""), new MuleConfigurations(new HashMap<>()));
     }
 
     private OutboundEndpointType getOutboundEndpointType(FlowType flowType) {

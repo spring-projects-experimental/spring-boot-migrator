@@ -25,9 +25,12 @@ import org.springframework.sbm.mule.actions.javadsl.translators.core.Transformer
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
+import org.springframework.sbm.mule.api.toplevel.FlowTypeFactory;
+import org.springframework.sbm.mule.api.toplevel.SubflowTypeFactory;
+import org.springframework.sbm.mule.api.toplevel.TopLevelTypeFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -59,7 +62,7 @@ public class MuleToJavaDSLTransformerTest {
             "</flow>\n" +
             "</mule>";
 
-    private JavaDSLAction2 sut;
+    private JavaDSLAction2 myAction;
 
     private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 
@@ -71,10 +74,15 @@ public class MuleToJavaDSLTransformerTest {
                         new LoggingTranslator(new ExpressionLanguageTranslator()),
                         new TransformerTranslator()
                 );
-        FlowHandler flowHandler = new FlowHandler(translators);
-        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new HttpListenerConfigTypeAdapter()));
-        sut = new JavaDSLAction2(new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory)), flowHandler);
-        sut.setEventPublisher(eventPublisher);
+        List<TopLevelTypeFactory> topLevelTypeFactories = List.of(
+                new FlowTypeFactory(translators),
+                new SubflowTypeFactory(translators)
+        );
+
+        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new HttpListenerConfigTypeAdapter ()));
+        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
+        myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
+        myAction.setEventPublisher(eventPublisher);
     }
 
     @Test
@@ -95,7 +103,7 @@ public class MuleToJavaDSLTransformerTest {
                 )
                 .addRegistrar(registrar)
                 .build();
-        sut.apply(projectContext);
+        myAction.apply(projectContext);
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +

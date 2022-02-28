@@ -17,8 +17,8 @@ package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.api.ConfigurationTypeAdapter;
-import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -52,7 +52,7 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
     }
 
     @Override
-    public DslSnippet translate(MuleMigrationContext context, RequestType component, QName name) {
+    public DslSnippet translate(RequestType component, QName name, MuleConfigurations muleConfigurations) {
 
 
         String templateStr = "return IntegrationFlows\n" +
@@ -70,9 +70,9 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
         try {
             Map<String, Object> data = new HashMap<>();
 
-            // TODO: requires aaccess to config, e.g. muleMigrationContext.getConfigRef("...")
+            // TODO: requires access to config, e.g. muleMigrationContext.getConfigRef("...")
             String configRef = component.getConfigRef();
-            Optional<? extends ConfigurationTypeAdapter> configurationTypeAdapter = context.getMuleConfigurations().find(configRef);
+            Optional<? extends ConfigurationTypeAdapter> configurationTypeAdapter = muleConfigurations.find(configRef);
             if(configurationTypeAdapter.isPresent()) {
                 RequestConfigType cast = (RequestConfigType) configurationTypeAdapter.get().getMuleConfiguration();
                 data.put("host", cast.getHost());

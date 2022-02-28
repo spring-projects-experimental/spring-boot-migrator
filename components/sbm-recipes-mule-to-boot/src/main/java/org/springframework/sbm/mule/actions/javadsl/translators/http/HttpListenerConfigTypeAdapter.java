@@ -16,7 +16,7 @@
 package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
 import org.mulesoft.schema.mule.http.ListenerConfigType;
-import org.springframework.sbm.mule.api.ConfigurationTypeAdapter;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
 import org.springframework.stereotype.Component;
 
 import java.util.*;

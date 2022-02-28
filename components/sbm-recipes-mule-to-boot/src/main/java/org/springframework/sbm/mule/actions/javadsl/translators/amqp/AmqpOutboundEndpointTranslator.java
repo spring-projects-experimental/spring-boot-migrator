@@ -18,7 +18,7 @@ package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.mulesoft.schema.mule.amqp.OutboundEndpointType;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +36,7 @@ public class AmqpOutboundEndpointTranslator implements MuleComponentToSpringInte
     }
 
     @Override
-    public DslSnippet translate(MuleMigrationContext context, OutboundEndpointType component, QName name) {
+    public DslSnippet translate(OutboundEndpointType component, QName name, MuleConfigurations muleConfigurations) {
 
 
         addExchange(snippet, component.getExchangeName());

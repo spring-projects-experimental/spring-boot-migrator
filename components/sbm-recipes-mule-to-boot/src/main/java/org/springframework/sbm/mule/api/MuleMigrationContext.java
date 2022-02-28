@@ -15,37 +15,26 @@
  */
 package org.springframework.sbm.mule.api;
 
-import org.mulesoft.schema.mule.core.AnnotatedType;
-import org.springframework.sbm.properties.api.PropertiesSource;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.mulesoft.schema.mule.core.FlowType;
-import org.mulesoft.schema.mule.core.SubFlowType;
-import org.mulesoft.schema.mule.tls.TlsContextType;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
+import org.springframework.sbm.properties.api.PropertiesSource;
 
 import javax.xml.bind.JAXBElement;
 import java.util.List;
 
 @Getter
-@RequiredArgsConstructor
 public class MuleMigrationContext {
-    private List<JAXBElement> availableFlows;
-    private List<SubFlowType> availableMuleSubFlows;
+    private final List<JAXBElement> topLevelElements;
     private final MuleConfigurations muleConfigurations;
     private final List<PropertiesSource> propertiesFiles;
-    private final List<JAXBElement> nonSupportedTypes;
 
     public MuleMigrationContext(
-            List<JAXBElement> availableFlows,
-            List<SubFlowType> availableMuleSubFlows,
+            List<JAXBElement> topLevelElements,
             MuleConfigurations muleConfigurations,
-            List<PropertiesSource> propertiesFiles,
-            List<JAXBElement> notSupportedTypes
+            List<PropertiesSource> propertiesFiles
     ) {
-        this.availableFlows = availableFlows;
-        this.availableMuleSubFlows = availableMuleSubFlows;
+        this.topLevelElements = topLevelElements;
         this.muleConfigurations = muleConfigurations;
         this.propertiesFiles = propertiesFiles;
-        this.nonSupportedTypes = notSupportedTypes;
     }
 }

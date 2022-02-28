@@ -16,14 +16,12 @@
 package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
 import org.mulesoft.schema.mule.http.RequestConfigType;
-import org.springframework.sbm.mule.api.ConfigurationTypeAdapter;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
 import org.springframework.stereotype.Component;
 
-import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class RequestConfigTypeAdapter extends ConfigurationTypeAdapter<RequestConfigType> {

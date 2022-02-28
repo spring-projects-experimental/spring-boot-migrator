@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.mule.api;
+package org.springframework.sbm.mule.api.toplevel;
 
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
+import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 
+import javax.xml.bind.JAXBElement;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-public class SubflowDefinitionSnippet extends BaseDefinitionSnippet {
+public class SubflowDefinition extends BaseDefinition {
     private boolean generateEmptyFlow;
 
-    public SubflowDefinitionSnippet(String flowName, List<DslSnippet> dslSnippets) {
-        super(flowName, dslSnippets);
+    public SubflowDefinition(String flowName,
+                             List<JAXBElement> elements,
+                             MuleConfigurations muleConfigurations,
+                             Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
+        super(flowName, elements, muleConfigurations, translatorsMap);
     }
 
     @Override

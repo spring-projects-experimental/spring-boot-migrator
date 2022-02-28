@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 
-import org.springframework.sbm.mule.api.ConfigurationTypeAdapter;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
 import org.mulesoft.schema.mule.amqp.AmqpConnectorType;
 import org.springframework.stereotype.Component;
 

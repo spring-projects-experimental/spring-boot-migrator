@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.mule.api;
+package org.springframework.sbm.mule.api.toplevel;
 
 import org.springframework.sbm.java.util.Helper;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.UnknownStatementTranslator;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,17 +33,41 @@ import java.util.stream.Collectors;
  */
 @Getter
 @RequiredArgsConstructor
-public abstract class BaseDefinitionSnippet implements DefinitionSnippet {
+public abstract class BaseDefinition implements TopLevelDefinition {
     private final Set<String> requiredImports = new HashSet<>();
     private String flowName;
-    private List<DslSnippet> dslSnippets;
+    private List<JAXBElement> elements;
     private final Set<String> requiredDependencies = new HashSet<>();
+    private final MuleConfigurations muleConfigurations;
+    private List<DslSnippet> dslSnippets;
 
-    public BaseDefinitionSnippet(String flowName, List<DslSnippet> dslSnippets) {
+    private final Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap;
+
+
+    public BaseDefinition(String flowName,
+                          List<JAXBElement> elements,
+                          MuleConfigurations muleConfigurations,
+                          Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
         this.flowName = flowName;
-        this.dslSnippets = dslSnippets;
+        this.elements = elements;
+        this.muleConfigurations = muleConfigurations;
+        this.translatorsMap = translatorsMap;
         requiredImports.add("org.springframework.context.annotation.Bean");
+        requiredImports.add("org.springframework.integration.dsl.IntegrationFlow");
+        dslSnippets = buildDslSnippets();
     }
+
+    public List<DslSnippet> buildDslSnippets() {
+        return elements.stream()
+                .map(o -> translate(o.getValue(), o.getName(), muleConfigurations))
+                .collect(Collectors.toList());
+    }
+
+    private DslSnippet translate(Object o, QName name, MuleConfigurations muleConfigurations) {
+        MuleComponentToSpringIntegrationDslTranslator translator = translatorsMap.getOrDefault(o.getClass(), new UnknownStatementTranslator());
+        return translator.translate(o, name, muleConfigurations);
+    }
+
 
     /**
      * @return the list of required types to be imported
