@@ -1,0 +1,88 @@
+== Concepts
+
+SBM offers commands to scan application source code and run recipes against it.
+Recipes bundle actions to apply source code migrations or find information in the codebase.
+
+An `Action` is a single step in a recipe and can be reused by other recipes.
+Every `Recipe` has at least one ``Action`` and each Recipe and every action has a condition which defines if the recipe and/or it's actions are applicable.
+
+The condition has access to all resources to evaluate to `true` or `false`.
+If a recipe's condition evaluates to `false` the recipe is not displayed.
+Actions with a condition evaluating to `true` are applicable and will be executed with the recipe.
+When all actions of a recipe evaluate to `false` the recipe itself is not applicable.
+
+=== Recipes
+
+Recipes can be declared in yaml syntax or provided as Java bean definitions.
+
+- See link:./components/sbm-support-boot/src/main/resources/recipes/initialize-spring-boot-migration.yaml[initialize-spring-boot-migration.yaml] for a recipe in YAML syntax
+- See link:./components/sbm-recipes-mule-to-boot/src/main/java/org/springframework/sbm/mule/MigrateMuleToBoot.java[MigrateMuleToBoot.java] for a recipe as Spring bean.
+
+=== Actions
+
+Action is the starting point when developing a recipe.
+Every Action has access to all resources and their ASTs through the `ProjectContext`.
+
+[source,java]
+....
+class MyAction extends AbstractAction {
+    void apply(ProjectContext context) {
+        // analyse and modify AST
+    }
+}
+....
+
+=== ProjectContext
+
+After scanning and parsing the source code of a given application a `ProjectContext` gets created.
+The `ProjectContext` acts as facade to the https://en.wikipedia.org/wiki/Abstract_syntax_tree[abstract syntax tree] (AST) of the project and provides an API to access project resources.
+
+[source,java]
+....
+ProjectJavaSources pjs = context.getProjectJavaSources();
+ApplicationModules am = context.getApplicationModules()
+....
+
+The `ProjectContext` represents the current application state in memory and provides access to all resources.
+The API provides methods to retrieve and modify Java source, application modules and build files.
+All other resource types can be retrieved using finders.
+
+[[Finders]]
+=== Finders
+
+Finders are useful to access and filter resources.
+
+[source,java]
+.....
+public interface ProjectResourceFinder<T> {
+    T apply(ProjectResourceSet projectResourceSet);
+}
+.....
+
+Finder have access to the `ProjectResourceSet` (see <<ProjectResourceSet>>) to filter/find resources and return the result.
+The result is of the same type as the generic type `T`.
+
+The ProjectContext provides a `search(..)` method to apply Finder.
+
+[source,java]
+.....
+List<..> resources = projectContext.search(new PathMatchingProjectResourceFinder("/**/some/path/*.file"));
+.....
+
+Finders also provide access to specialized resources, resources that are not directly accessible through the ProjectContext Api.
+Specialized resources like `SpringBootApplicationProperties`, `PersistenceXml`, `WebXml`, ..., can be retrieved by their ``Finder``s.
+
+[source,java]
+....
+void apply(ProjectContext context) {
+    SpringBootApplicationProperties p = context.search(new SpringBootApplicationPropertiesFinder());
+    p.getProperty("cloud-profile", "some.property.key")
+}
+....
+
+Read the <<Specialized_Resources, Specialized Resources>> section to learn how you can provide new Specialized Resources.
+
+=== Modules
+
+Since 0.9.0 SBM starts to support https://maven.apache.org/guides/mini/guide-multiple-modules.html#the-reactor[multi module applications].
+

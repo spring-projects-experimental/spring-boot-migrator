@@ -1,0 +1,32 @@
+== Getting started
+
+=== Requirements
+
+* Maven
+* JDK 11+
+* IntelliJ (other IDEs should work too)
+* Docker (for tests)
+
+=== Build and Run
+
+NOTE: *`M2_HOME` env must be set* to run integration tests! +
+*Docker must be installed* to run (some) integration tests!
+
+[source,shell]
+....
+# clone project
+git clone0 git@github.com:spring-projects-experimental/spring-boot-migrator.git
+
+# build project
+cd spring-boot-migrator
+mvn clean install
+
+# Ignore all tests
+mvn clean install -DskipTests
+
+# Ignore all tests marked with @Tag("integration")
+mvn clean install -DskipITs
+
+# Run the jar
+java -jar applications/spring-shell/target/spring-boot-migrator.jar
+....

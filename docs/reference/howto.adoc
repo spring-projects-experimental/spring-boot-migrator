@@ -1,0 +1,149 @@
+== How To
+
+=== Implement Actions
+First step on your journey to implement a new recipe will be the implementation of an `Action`.
+Every
+
+==== Display Progress
+
+A long running action can leave the user without any information about the progress of the migration.
+
+The `Action` interface defines methods to display progress information to the user.
+There are two types of rendered information, process and log messages.
+
+===== Process
+
+`startStep(String)` starts a new sub routine.
+
+`stopStep()` stops the last sub routine
+
+===== Log Messages
+
+`logEvent(String)` logs a message inside a routine
+
+When an action starts, a first process (the action) is automatically started.
+It begins with the action and ends with success or error.
+If no other progress change is reported during the execution of the action, a loader is rendered during the
+
+[source,bash]
+.....
+.    My Action
+..   My Action
+[..] My Action
+    .    Sub Routine
+    ..   Sub Routine
+    [ok] Sub Routine
+[ok] My Action
+.....
+
+=== Creating Recipes
+
+==== Declarative recipes
+
+==== Recipe beans
+
+=== Create a Condition
+
+=== BuildFile and Dependencies
+
+==== Adding a Dependency
+
+==== Removing a Dependency
+
+==== Adding Dependency Exclusion
+
+=== Migrating Java Code
+
+==== Access all JavaSources
+
+==== Adding annotations
+
+==== Removing annotations
+
+==== Modifying annotations
+
+==== Migrating Methods
+
+==== Add a new JavaSource
+
+A new `JavaSource` must be added to a `JavaSourceSet` of a given `ApplicationModule`.
+The default ``JavaSourceSet``s are 'main' (`src/main/java`) and 'test' (`src/test/java`).
+
+Example: Adding a new Java class to the 'main' source set of an `ApplicationModule`
+[source,java]
+
+.....
+public void apply(ProjectContext context) {
+
+    ApplicationModule targetModule = ... // retrieve target module
+
+    String javaCode =
+        "package com.example.foo;\n" +
+        "public class Bar {}";
+
+    Path projectRootDirectory = context.getProjectRootDirectory();
+
+    targetModule.getMainJavaSourceSet().addJavaSource(projectRootDirectory, sourceFolder, src, packageName);
+}
+.....
+
+=== OpenRewrite Recipe and Visitor
+
+=== Use Freemarker templates
+
+Add this snippet to your Action to use freemarker
+
+[source,java]
+....
+@Autowired
+@JsonIgnore
+@Setter
+private Configuration configuration;
+....
+
+and place your template under `src/main/resources/templates`
+
+Example: using Freemarker template in Action
+[source,java]
+.....
+Map<String, String> params = new HashMap<>();
+params.put("groupId", "com.example.change");
+params.put("artifactId", projectName);
+params.put("version", "0.1.0-SNAPSHOT");
+
+StringWriter writer = new StringWriter();
+try {
+    Template template = configuration.getTemplate("minimal-pom-xml.ftl");
+    template.process(params, writer);
+} catch (TemplateException | IOException e) {
+    throw new RuntimeException(e);
+}
+String src = writer.toString();
+.....
+
+=== Migrate Multi Module Projects
+
+==== Access a Module's JavaSources
+
+[[Specialized_Resources]]
+=== Specialized Resources
+
+==== Create a Finder to access other resources
+
+The `ProjectContext` only offers direct access to Java and BuildFile resources.
+To access other resources the concept of ``Finder``s exists.
+A `Finder` implements the `ResourceFinder` interface.
+
+[source,java]
+.....
+public interface ProjectResourceFinder<T> {
+    T apply(ProjectResourceSet projectResourceSet);
+}
+.....
+
+These ``Finder``s can than be provided to the `search(...)` method of `ProjectContext`.
+The `ProjectContext` will provide the `ProjectResourceSet` to the `Finder` and the `Finder` can then filter/search
+
+==== Manipulate Spring Boot properties
+
+==== Create a specialized Resource

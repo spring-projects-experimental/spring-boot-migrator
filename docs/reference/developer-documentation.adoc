@@ -1,0 +1,22 @@
+= Developer Documentation
+Fabian Krüger <fkrueger@vmware.com>
+2022-02-28
+:appversion: 0.9.1
+:toc: left
+:sectnums:
+:sectnumlevels: 3
+:toclevels: 3
+:source-highlighter: highlight.js
+
+== Introduction
+
+Spring Boot Migrator (SBM) aims to help developers migrating applications to Spring Boot, upgrade existing Boot applications or migrate an application to use Spring Boot features. +
+These migrations are defined as recipes consisting of one or more actions to be applied to the target application.
+
+include::getting-started.adoc[]
+
+include::concepts.adoc[]
+
+include::howto.adoc[]
+
+include::testing.adoc[]

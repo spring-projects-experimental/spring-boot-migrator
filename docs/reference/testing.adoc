@@ -1,0 +1,72 @@
+== Testing
+
+Different classes exist to help writing tests for ``Recipe``s, ``Condition``s and ``Action``s.
+
+=== TestProjectContext
+
+When testing ``Action``s and ``Condition``s you'll need a initialized ProjectContext as test fixture.
+To avoid reading projects for testing from the filesystem the `TestProjectContext` can be used.
+
+The `TestProjectContext` offers ways to create all kinds of ProjectContext instances initialized from resorces given as
+strings as if they were read from filesystem. Have a look at the API documentation for details.
+
+- Creates different pom.xml. A blank default, with given dependencies defined, from a given String or as Mockito mock
+- Provides a method to register additional ResourceWrapper for specialized resources
+
+[source,java]
+.....
+String sourceCode = "package com.acme.app;\npublic class MyClass {}";
+
+ProjectContext projectContext = TestProjectContext.buildProjectContext() <1>
+        .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0") <2>
+        .withJavaSources(sourceCode) <3>
+        .build(); <4>
+
+// Use ProjectContext to test Action or Condition
+.....
+
+<1> Call TestProjectContext static builder method which will inject a mock for ApplicationEventPublisher
+<2> Add required dependencies to the classpath (assume they're needed). This will add a pom.xml declaring the provided dependencies.
+<3> Add a new Java file with given source to `src/main/java/com/acme/app/MyClass.java`
+<4> build and return the initialized ProjectContext.
+
+=== ProjectContextFileSystemTestSupport
+
+If you want to create a ProjectContext from filesystem, `ProjectContextFileSystemTestSupport` is your friend. +
+It assumes a directory `testcode` in the same module as the test resides in.
+The initial project is read from a `given` directory inside `testcode`, let's say `testcode/given/my-project`.
+The resources are then copied to `target/test-projects/my-project` and the ProjectContext is created from this directory.
+
+[source,java]
+.....
+@Test
+void someTest() {
+    ProjectContext projectContext = ProjectContextFileSystemTestSupport
+                                            .createProjectContextFromDir("boot-23-app");
+    // modify ProjectContext
+}
+.....
+
+Copies all resources from `./testcode/given/boot-23-app` to `./target/test-projects/boot-23-app` and creates a ProjectContext from it.
+
+
+=== RecipeIntegrationTestSupport
+
+If you want to integration test a recipe, `RecipeIntegrationTestSupport` can help you.
+
+[source,java]
+.....
+String applicationDir = "example-app"; <1>
+
+RecipeIntegrationTestSupport.initializeProject(applicationDir)
+        .andApplyRecipe("boot-2.4-2.5-datasource-initializer"); <2>
+
+Path javaClass = RecipeIntegrationTestSupport.getResultDir(applicationDir).resolve("src/main/java/com/example/SomeJavaClass.java"); <3>
+
+assertThat(javaClass).hasContent("..."); <4>
+.....
+
+<1> Provide a project, here under ./testcode/example-app/given
+<2> Scan the project and apply the given recipe
+<3> Retrieve the path to a resource after migration
+<4> Verify the resource has expected content
