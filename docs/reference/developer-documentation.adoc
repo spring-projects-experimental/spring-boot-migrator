@@ -7,6 +7,7 @@ Fabian Krüger
 :sectnumlevels: 3
 :toclevels: 3
 :source-highlighter: highlight.js
+:repo: https://github.com/spring-projects-experimental/spring-boot-migrator
 
 == Introduction
 
@@ -15,7 +16,7 @@ These migrations are defined as recipes consisting of one or more actions to be 
 
 include::getting-started.adoc[]
 
-include::concepts.adoc[]
+include::concepts.adoc[repo]
 
 include::howto.adoc[]
 
