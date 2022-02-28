@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2021 - 2022 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-amqp="http://www.springframework.org/schema/integration/amqp"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+       xsi:schemaLocation="http://www.springframework.org/schema/integration/amqp https://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd
+		http://www.springframework.org/schema/integration https://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/stream https://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+		http://www.springframework.org/schema/rabbit https://www.springframework.org/schema/rabbit/spring-rabbit.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Infrastructure settings -->
+    <rabbit:connection-factory id="rabbitConnectionFactory" host="localhost" />
+
+    <rabbit:template id="amqpTemplate" connection-factory="rabbitConnectionFactory" />
+
+    <rabbit:queue name="FirstQueue" durable="false"/>
+    <rabbit:queue name="si.out.queue" durable="false"/>
+<!--    <int:channel id="fromAMQP" />-->
+
+    <rabbit:admin connection-factory="rabbitConnectionFactory" />
+
+    <rabbit:direct-exchange name="si.out.exchange">
+        <rabbit:bindings>
+            <rabbit:binding queue="si.out.queue" key="si.out.binding" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+
+    <!-- From AMQP to STOUT -->
+    <int-amqp:inbound-channel-adapter channel="fromAMQP"
+                              queue-names="FirstQueue"
+                              connection-factory="rabbitConnectionFactory"/>
+
+    <int:channel id="fromAMQP">
+        <int:interceptors>
+            <int:wire-tap channel="loggingChannel" />
+        </int:interceptors>
+    </int:channel>
+    <int:logging-channel-adapter id="loggingChannel" log-full-message="true" logger-name="tapInbound"
+                                 level="INFO" />
+
+    <int:object-to-string-transformer input-channel="fromAMQP" output-channel="transform"/>
+    <int:transformer input-channel="transform" output-channel="consoleOut" expression="'Received: ' + payload" />
+    <int:transformer input-channel="transform" output-channel="toAmqp" expression="'Received: ' + payload" />
+
+    <int-stream:stdout-channel-adapter id="consoleOut"
+                                       append-newline="true" />
+
+    <!-- To AMQP -->
+    <int-amqp:outbound-channel-adapter
+            channel="toAmqp" amqp-template="amqpTemplate" exchange-name="si.out.exchange"
+            routing-key="si.test.binding" />
+
+    <int:channel id="toAmqp" />
+
+</beans>

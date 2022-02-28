@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright 2021 - 2022-2022 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<xsd:schema xmlns="http://www.mulesoft.org/schema/mule/amqp"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+  xmlns:schemadoc="http://www.mulesoft.org/schema/mule/schemadoc"
+  targetNamespace="http://www.mulesoft.org/schema/mule/amqp"
+  elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+  <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+  <xsd:import namespace="http://www.mulesoft.org/schema/mule/core"
+    schemaLocation="mule.xsd" />
+  <xsd:import namespace="http://www.mulesoft.org/schema/mule/schemadoc"
+    schemaLocation="mule-schemadoc.xsd" />
+
+  <xsd:annotation>
+    <xsd:documentation>Connects to AMQP brokers</xsd:documentation>
+    <xsd:appinfo>
+      <schemadoc:short-name>AMQP</schemadoc:short-name>
+      <schemadoc:page-title>AMQP Transport</schemadoc:page-title>
+<!--      <schemadoc:transport-features-->
+<!--        receiveEvents="true" dispatchEvents="false" responseEvents="true"-->
+<!--        requestEvents="true" transactions="false" streaming="false">-->
+<!--        <schemadoc:inboundMEPs in-only="true"-->
+<!--          in-optional-out="false" in-out="false" />-->
+<!--        <schemadoc:outboundMEPs out-only="true"-->
+<!--          out-in="true" out-optional-in="true" />-->
+<!--      </schemadoc:transport-features>-->
+    </xsd:appinfo>
+  </xsd:annotation>
+
+  <xsd:element name="connector" type="amqpConnectorType"
+    substitutionGroup="mule:abstract-connector">
+    <xsd:annotation>
+      <xsd:documentation>
+        Connects to AMQP brokers
+            </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+  <xsd:complexType name="amqpConnectorType">
+    <xsd:complexContent>
+      <xsd:extension base="mule:connectorType">
+        <xsd:attribute name="host" type="xsd:string"
+          default="localhost">
+          <xsd:annotation>
+            <xsd:documentation>
+              The main AMQP broker host to connect to.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="port" type="mule:substitutablePortNumber"
+          default="5672">
+          <xsd:annotation>
+            <xsd:documentation>
+              The port to use to connect to the main
+              AMQP broker.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="fallbackAddresses" type="xsd:string">
+          <xsd:annotation>
+            <xsd:documentation>
+              A comma-separated list of "host:port" or
+              "host", defining fallback brokers to attempt connection
+              to, should the connection to main broker fail.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="virtualHost" type="xsd:string"
+          default="/">
+          <xsd:annotation>
+            <xsd:documentation>
+              The virtual host to connect to on the
+              AMQP broker.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="username" type="xsd:string"
+          default="guest">
+          <xsd:annotation>
+            <xsd:documentation>
+              The user name to use to connect to the
+              AMQP broker.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="password" type="xsd:string"
+          default="guest">
+          <xsd:annotation>
+            <xsd:documentation>
+              The password to use to connect to the
+              AMQP broker.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="deliveryMode" default="PERSISTENT">
+          <xsd:annotation>
+            <xsd:documentation>
+              The delivery mode to use when publishing
+              to the AMQP broker.
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:simpleType>
+            <xsd:restriction base="xsd:string">
+              <xsd:enumeration value="PERSISTENT" />
+              <xsd:enumeration value="NON_PERSISTENT" />
+            </xsd:restriction>
+          </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="priority" default="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              The priority to use when publishing to
+              the AMQP broker.
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:simpleType>
+            <xsd:restriction base="xsd:byte">
+              <xsd:minInclusive value="0" />
+              <xsd:maxInclusive value="9" />
+            </xsd:restriction>
+          </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="mandatory" type="mule:substitutableBoolean"
+          default="false">
+          <xsd:annotation>
+            <xsd:documentation>
+              This flag tells the server how to react
+              if the message cannot be
+              routed to a queue. If this flag is
+              set to true, the server will throw an exception for any
+              unroutable message. If this flag is false, the server
+              silently drops the message.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="immediate" type="mule:substitutableBoolean"
+          default="false">
+          <xsd:annotation>
+            <xsd:documentation>
+              This flag tells the server how to react
+              if the message cannot be
+              routed to a queue consumer
+              immediately. If this flag is set to true, the server
+              will
+              throw an exception for any undeliverable message. If
+              this
+              flag is false, the server will queue the message, but
+              with
+              no guarantee that it will ever be consumed.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="default-return-endpoint-ref"
+          type="xsd:string">
+          <xsd:annotation>
+            <xsd:documentation>
+              Reference to an endpoint to which AMQP
+              returned message should be
+              dispatched to.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="ackMode" default="AMQP_AUTO">
+          <xsd:annotation>
+            <xsd:documentation>
+              The acknowledgment mode to use when
+              consuming from the AMQP broker.
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:simpleType>
+            <xsd:restriction base="xsd:string">
+              <xsd:enumeration value="AMQP_AUTO">
+                <xsd:annotation>
+                  <xsd:documentation>The AMQP broker will consider
+                    messages acknowledged once delivered.
+                  </xsd:documentation>
+                </xsd:annotation>
+              </xsd:enumeration>
+              <xsd:enumeration value="MULE_AUTO">
+                <xsd:annotation>
+                  <xsd:documentation>Mule will automatically acknowledge
+                    messages when the flow will have been processed, if
+                    no exception has been encountered.
+                    Using asynchronous
+                    sub-flows or dispatch may lead to early
+                    acknowledgment.
+                  </xsd:documentation>
+                </xsd:annotation>
+              </xsd:enumeration>
+              <xsd:enumeration value="MANUAL">
+                <xsd:annotation>
+                  <xsd:documentation>The AMQP broker will expect
+                    explicit message acknowledgments.
+                  </xsd:documentation>
+                </xsd:annotation>
+              </xsd:enumeration>
+            </xsd:restriction>
+          </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="prefetchSize" type="mule:substitutableInt"
+          default="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              The maximum amount of content (measured
+              in octets) that the server will deliver, 0 if unlimited.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="prefetchCount" type="mule:substitutableInt"
+          default="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              The maximum number of messages that the
+              server will deliver, 0 if unlimited.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="noLocal" type="mule:substitutableBoolean"
+          default="false">
+          <xsd:annotation>
+            <xsd:documentation>
+              If the no-local field is set the server
+              will not send messages to the connection that published
+              them.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="exclusiveConsumers" type="mule:substitutableBoolean"
+          default="false">
+          <xsd:annotation>
+            <xsd:documentation>
+              Set to true if the connector should only
+              create exclusive consumers.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="activeDeclarationsOnly" type="mule:substitutableBoolean"
+          default="false">
+          <xsd:annotation>
+            <xsd:documentation>
+              Defines if the connector should only do
+              active exchange and queue declarations or can also perform
+              passive declarations to enforce their existence.
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="inbound-endpoint" type="inboundEndpointType"
+    substitutionGroup="mule:abstract-inbound-endpoint" />
+  <xsd:complexType name="inboundEndpointType">
+    <xsd:complexContent>
+      <xsd:extension base="mule:inboundEndpointType">
+        <xsd:attributeGroup ref="addressAttributes" />
+        <xsd:attributeGroup ref="propertyAttributes" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="outbound-endpoint" type="outboundEndpointType"
+    substitutionGroup="mule:abstract-outbound-endpoint" />
+  <xsd:complexType name="outboundEndpointType">
+    <xsd:complexContent>
+      <xsd:extension base="mule:outboundEndpointType">
+        <xsd:attributeGroup ref="addressAttributes" />
+        <xsd:attributeGroup ref="propertyAttributes" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="endpoint" type="globalEndpointType"
+    substitutionGroup="mule:abstract-global-endpoint" />
+
+  <xsd:complexType name="globalEndpointType">
+    <xsd:complexContent>
+      <xsd:extension base="mule:globalEndpointType">
+        <xsd:attributeGroup ref="addressAttributes" />
+        <xsd:attributeGroup ref="propertyAttributes" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:attributeGroup name="addressAttributes">
+    <xsd:attribute name="exchangeName" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation>
+          The exchange to publish to or bind queues to.
+          Leave blank or omit for the default exchange.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="queueName" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation>
+          The queue name to consume from. Leave blank
+          or omit for using a new private exclusive server-named queue.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+
+  <xsd:attributeGroup name="propertyAttributes">
+    <xsd:attribute name="routingKey" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation>
+          The routing key to use when binding a queue or publishing a message.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="consumerTag" type="xsd:string">
+      <xsd:annotation>
+        <xsd:documentation>
+          A client-generated consumer tag to establish context.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="exchangeType">
+      <xsd:annotation>
+        <xsd:documentation>
+          The type of exchange to be declared.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="fanout" />
+          <xsd:enumeration value="direct" />
+          <xsd:enumeration value="topic" />
+          <xsd:enumeration value="headers" />
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="exchangeDurable" type="mule:substitutableBoolean">
+      <xsd:annotation>
+        <xsd:documentation>
+          The durability of the declared exchange.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="exchangeAutoDelete" type="mule:substitutableBoolean">
+      <xsd:annotation>
+        <xsd:documentation>
+          Specifies if the declared exchange should be
+          autodeleted.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="queueDurable" type="mule:substitutableBoolean">
+      <xsd:annotation>
+        <xsd:documentation>
+          Specifies if the declared queue is durable.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="queueAutoDelete" type="mule:substitutableBoolean">
+      <xsd:annotation>
+        <xsd:documentation>
+          Specifies if the declared queue should be
+          autodeleted.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+    <xsd:attribute name="queueExclusive" type="mule:substitutableBoolean">
+      <xsd:annotation>
+        <xsd:documentation>
+          Specifies if the declared queue is exclusive.
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+
+  <xsd:element name="acknowledge-message" type="basicAckType"
+    substitutionGroup="mule:abstract-message-processor" />
+  <xsd:complexType name="basicAckType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Acknowledges the AMQP message that is currently
+        processed by Mule.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="mule:abstractMessageProcessorType">
+        <xsd:attribute name="multiple" type="mule:substitutableBoolean"
+          default="false">
+          <xsd:annotation>
+            <xsd:documentation>
+              Set to true to acknowledge all messages up to and including the
+              delivery tag of the AMQP message that is currently
+              processed by Mule; false to acknowledge just the current
+              message.
+      </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:element name="reject-message" type="basicRejectType"
+    substitutionGroup="mule:abstract-message-processor" />
+  <xsd:complexType name="basicRejectType">
+    <xsd:annotation>
+      <xsd:documentation>
+        Rejects the AMQP message that is currently
+        processed by Mule.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="mule:abstractMessageProcessorType">
+        <xsd:attribute name="requeue" type="mule:substitutableBoolean"
+          default="false">
+          <xsd:annotation>
+            <xsd:documentation>
+               Set to true if the rejected message should be requeued rather than discarded/dead-lettered.
+      </xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="return-handler" type="returnHandlerType"
+    substitutionGroup="mule:abstract-message-processor" />
+  <xsd:complexType name="returnHandlerType">
+    <xsd:annotation>
+      <xsd:documentation>Defines the strategy to use to handle messages returned by the AMQP broker.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="mule:abstractMessageProcessorType">
+        <xsd:sequence>
+          <xsd:group ref="mule:messageProcessorOrOutboundEndpoint"
+            minOccurs="0" maxOccurs="1">
+            <xsd:annotation>
+              <xsd:documentation>Destination to which returned messages
+                will be sent.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:group>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="amqpmessage-to-object-transformer"
+    type="mule:abstractTransformerType" substitutionGroup="mule:abstract-transformer">
+    <xsd:annotation>
+      <xsd:documentation>
+        The amqpmessage-to-object-transformer element
+        configures a transformer
+        that converts an AMQP message into an
+        object by extracting the
+        message payload.
+            </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <xsd:element name="object-to-amqpmessage-transformer"
+    type="mule:abstractTransformerType" substitutionGroup="mule:abstract-transformer">
+    <xsd:annotation>
+      <xsd:documentation>
+        The object-to-amqpmessage-transformer element
+        configures a transformer
+        that accepts byte[] payloads and copies
+        outbound message properties to either standard AMQP headers or
+        custom ones (based on their names).
+            </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+
+
+</xsd:schema>

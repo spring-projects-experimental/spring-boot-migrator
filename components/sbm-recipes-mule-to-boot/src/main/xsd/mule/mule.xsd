@@ -16,6 +16,7 @@
   -->
 
 <xsd:schema xmlns="http://www.mulesoft.org/schema/mule/core"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns:spring="http://www.springframework.org/schema/beans"
             xmlns:spring-context="http://www.springframework.org/schema/context"

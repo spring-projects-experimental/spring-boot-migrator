@@ -1,0 +1,1035 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright 2021 - 2022 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+            xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+            xmlns:tcp="http://www.mulesoft.org/schema/mule/tcp"
+            xmlns:schemadoc="http://www.mulesoft.org/schema/mule/schemadoc"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/core"
+                schemaLocation="./mule.xsd" />
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/tls"
+                schemaLocation="./mule-tls.xsd" />
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/tcp"
+                schemaLocation="./mule-tcp.xsd" />
+
+    <xsd:annotation>
+        <xsd:documentation>
+            Mule Utilities for HTTP Services.
+        </xsd:documentation>
+        <xsd:appinfo>
+            <schemadoc:short-name>HTTP</schemadoc:short-name>
+            <schemadoc:page-title>HTTP Module</schemadoc:page-title>
+        </xsd:appinfo>
+    </xsd:annotation>
+
+    <xsd:element name="listener" type="listenerType" substitutionGroup="mule:abstract-message-source">
+        <xsd:annotation>
+            <xsd:documentation>
+                Listener for incoming HTTP requests.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="listenerType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractMessageSourceType">
+                <xsd:sequence>
+                    <xsd:element name="response-builder" minOccurs="0" maxOccurs="1" type="responseBuilderType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Contains the definition of all the parameters that should be sent in the response (headers, status code, response phrase).
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="error-response-builder" minOccurs="0" maxOccurs="1" type="responseBuilderType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Contains the definition of all the parameters that should be sent in the response (headers, status code, response phrase).
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="path" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Path were to listen for incoming request.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="allowedMethods" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Comma separated list of allowed HTTP methods by this listener. To allow all methods do not defined the attribute.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="config-ref" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            A reference to the configuration element for this listener. If no reference is provided,
+                            a default configuration will be created.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="responseStreamingMode" default="AUTO">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Defines if the response should be sent using streaming or not. If this attribute is not present or is AUTO,
+                            the behavior will depend on the type of the payload (it will stream only for InputStream). If set
+                            to ALWAYS, it will always stream. If set to NEVER, it will never stream. As streaming is done the response
+                            will be sent user Transfer-Encoding: chunked.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                    <xsd:simpleType>
+                        <xsd:restriction base="xsd:NMTOKEN">
+                            <xsd:enumeration value="AUTO"/>
+                            <xsd:enumeration value="ALWAYS"/>
+                            <xsd:enumeration value="NEVER"/>
+                        </xsd:restriction>
+                    </xsd:simpleType>
+                </xsd:attribute>
+                <xsd:attribute name="parseRequest" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            By default, the request will be parsed (for example, a multi part request will be mapped as a
+                            Mule message with null payload and inbound attachments with each part). If this property is set to false,
+                            no parsing will be done, and the payload will always contain the raw contents of the HTTP request.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="listener-config" type="listenerConfigType" substitutionGroup="mule:abstract-shared-extension">
+        <xsd:annotation>
+            <xsd:documentation>
+                Grouping configuration for a set of listener elements.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="listenerConfigType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+                <xsd:sequence>
+                    <xsd:element ref="tls:context" minOccurs="0" maxOccurs="1" />
+                    <xsd:element name="worker-threading-profile" type="mule:asynchronousThreadingProfileType" minOccurs="0" maxOccurs="1"/>
+                </xsd:sequence>
+                <xsd:attribute name="name" type="mule:substitutableName" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Identifies the configuration in the registry, so that it can be referenced by the request message processor.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="protocol" type="httpProtocol" default="HTTP">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Protocol to use for communication. Valid values are HTTP and HTTPS. Default value is HTTP. When using HTTPS the
+                            HTTP communication is going to be secured using TLS / SSL. If HTTPS was configured as protocol then the
+                            user needs to configure at least the keystore in the tls:context child element of this listener-config.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="host" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Host where the requests will be sent.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="port" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Port where the requests will be received. If the protocol attribute is HTTP (default) then the default value is 80, if the protocol
+                            attribute is HTTPS then the default value is 443.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="basePath" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Base path to use for all requests that reference this config.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="tlsContext-ref" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Reference to a TLS config element. This will enable HTTPS for this config.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="parseRequest" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            By default, the request will be parsed (for example, a multi part request will be mapped as a
+                            Mule message with null payload and inbound attachments with each part). If this property is set to false,
+                            no parsing will be done, and the payload will always contain the raw contents of the HTTP request.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="connectionIdleTimeout" type="mule:substitutableInt" default="30000">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The number of milliseconds that a connection can remain idle before it is closed.
+                            The value of this attribute is only used when persistent connections are enabled.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="usePersistentConnections" type="mule:substitutableBoolean" default="true">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            If false, each connection will be closed after the first request is completed.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="response-builder" type="globalResponseBuilderType" substitutionGroup="mule:abstract-empty-processor">
+        <xsd:annotation>
+            <xsd:documentation>
+                HTTP response
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="globalResponseBuilderType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractEmptyMessageProcessorType">
+                <xsd:sequence>
+                    <xsd:any namespace="##any"
+                             processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+                <xsd:anyAttribute namespace="##any"
+                                  processContents="skip"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="responseBuilderType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+                <xsd:sequence>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element name="builder">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Allows to compose a request-builder.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:attribute name="ref" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                        <xsd:documentation>
+                                            Name of a response-builder.
+                                        </xsd:documentation>
+                                    </xsd:annotation>
+                                </xsd:attribute>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <xsd:element name="header" type="httpHeaderType" minOccurs="0" maxOccurs="unbounded">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Adds a header to the response.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+
+                        <xsd:element name="headers" type="headersType" minOccurs="0" maxOccurs="unbounded">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Adds many headers to the response based on expressions.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:choice>
+                </xsd:sequence>
+                <xsd:attribute name="statusCode" type="mule:substitutableInt" />
+                <xsd:attribute name="reasonPhrase" type="xsd:string" />
+                <xsd:attribute name="disablePropertiesAsHeaders" type="mule:substitutableBoolean" default="false" />
+            </xsd:extension>
+        </xsd:complexContent>
+
+    </xsd:complexType>
+
+    <xsd:element name="request" type="requestType" substitutionGroup="mule:abstract-message-processor">
+        <xsd:annotation>
+            <xsd:documentation>
+                Component that consumes an HTTP service.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="requestType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractMessageProcessorType">
+                <xsd:sequence>
+                    <xsd:element name="request-builder" minOccurs="0" maxOccurs="1" type="requestBuilderType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Contains the definition of all the parameters that should be sent in the request (uri params,
+                                query params and headers).
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+
+                    <xsd:choice>
+                        <xsd:element name="success-status-code-validator" minOccurs="0" maxOccurs="1">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Configures error handling of the response based on the status code.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:attribute name="values" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                        <xsd:documentation>
+                                            Status codes that will be considered as successful. Other status codes in the response will
+                                            cause the component to throw an exception.
+                                        </xsd:documentation>
+                                    </xsd:annotation>
+                                </xsd:attribute>
+                            </xsd:complexType>
+                        </xsd:element>
+
+                        <xsd:element name="failure-status-code-validator" minOccurs="0" maxOccurs="1">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Configures error handling of the response based on the status code.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:attribute name="values" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                        <xsd:documentation>
+                                            Status codes that will be considered as failures. Responses with these status codes will
+                                            cause the component to throw an exception.
+                                        </xsd:documentation>
+                                    </xsd:annotation>
+                                </xsd:attribute>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:choice>
+
+                </xsd:sequence>
+
+                <xsd:attributeGroup ref="commonRequestAttributes" />
+
+                <xsd:attribute name="path" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Path where the request will be sent.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="method" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The HTTP method for the request.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="config-ref" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            A reference to the configuration element for this requester. If no reference is provided,
+                            a default configuration will be created.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="source" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The expression used to obtain the body that will be sent in the request. Default is
+                            empty, so the payload will be used as the body.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="target" type="xsd:string" default="#[payload]">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The enricher expression used to enrich the current message with the body
+                            of the response. Default is "#[payload]", so after processing the response, the contents
+                            of its body will be set as payload of the message.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+
+    <xsd:element name="request-builder" type="globalRequestBuilderType" substitutionGroup="mule:abstract-extension" />
+
+    <xsd:complexType name="globalRequestBuilderType">
+        <xsd:complexContent>
+            <xsd:extension base="requestBuilderType">
+                <xsd:attribute name="name" type="mule:substitutableName">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Identifies the builder so that other elements can reference it.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="requestBuilderType">
+        <xsd:complexContent>
+
+            <xsd:extension base="mule:abstractExtensionType">
+
+                <xsd:sequence>
+                    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                        <xsd:element name="builder">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Allows to compose a request-builder.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:attribute name="ref" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                        <xsd:documentation>
+                                            Name of a request-builder.
+                                        </xsd:documentation>
+                                    </xsd:annotation>
+                                </xsd:attribute>
+                            </xsd:complexType>
+                        </xsd:element>
+
+                        <xsd:element name="query-param">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Adds a query parameter to the request.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:attribute name="paramName" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                        <xsd:documentation>
+                                            The name of the query parameter.
+                                        </xsd:documentation>
+                                    </xsd:annotation>
+                                </xsd:attribute>
+                                <xsd:attribute name="value" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                        <xsd:documentation>
+                                            The value of the query parameter.
+                                        </xsd:documentation>
+                                    </xsd:annotation>
+                                </xsd:attribute>
+                            </xsd:complexType>
+                        </xsd:element>
+
+                        <xsd:element name="query-params">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Adds many query parameters to the request based on a map.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:attribute name="expression" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                        <xsd:documentation>
+                                            A MEL expression that should return the parameters to send, the keys
+                                            are the names of the parameters.
+                                        </xsd:documentation>
+                                    </xsd:annotation>
+                                </xsd:attribute>
+                            </xsd:complexType>
+                        </xsd:element>
+
+                        <xsd:element name="uri-param">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Adds a URI parameter to the request.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:attribute name="paramName" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                        <xsd:documentation>
+                                            The name of the URI parameter to send. The path should contain
+                                            a placeholder for this name with the syntax "{name}".
+                                        </xsd:documentation>
+                                    </xsd:annotation>
+                                </xsd:attribute>
+                                <xsd:attribute name="value" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                        <xsd:documentation>
+                                            The value of the URI parameter.
+                                        </xsd:documentation>
+                                    </xsd:annotation>
+                                </xsd:attribute>
+                            </xsd:complexType>
+                        </xsd:element>
+
+                        <xsd:element name="uri-params">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Adds many URI parameters to the request based on a map.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:attribute name="expression" type="xsd:string" use="required">
+                                    <xsd:annotation>
+                                        <xsd:documentation>
+                                            MEL expression that should return a map with the parameters. The
+                                            keys are the names of the parameters, and the path of the request
+                                            should contain a placeholder for each of these.
+                                        </xsd:documentation>
+                                    </xsd:annotation>
+                                </xsd:attribute>
+                            </xsd:complexType>
+                        </xsd:element>
+
+                        <xsd:element name="header" type="httpHeaderType">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Adds a header to the request.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+
+                        <xsd:element name="headers" type="headersType">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Adds many headers to the request.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:choice>
+
+                </xsd:sequence>
+
+            </xsd:extension>
+        </xsd:complexContent>
+
+    </xsd:complexType>
+
+    <xsd:element name="request-config" type="requestConfigType" substitutionGroup="mule:abstract-shared-extension"/>
+
+    <xsd:complexType name="requestConfigType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+
+                <xsd:sequence>
+
+                    <xsd:element ref="abstract-http-request-authentication-provider" minOccurs="0"/>
+
+                    <xsd:element ref="tcp:client-socket-properties" minOccurs="0" maxOccurs="1" />
+                    <xsd:element ref="tls:context" minOccurs="0" maxOccurs="1" />
+
+                    <xsd:element name="raml-api-configuration" minOccurs="0" maxOccurs="1">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Specifies a RAML configuration file for the API that is being consumed.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:attribute name="location" type="xsd:string" use="required">
+                                <xsd:annotation>
+                                    <xsd:documentation>
+                                        The location of the RAML file.
+                                    </xsd:documentation>
+                                </xsd:annotation>
+                            </xsd:attribute>
+                        </xsd:complexType>
+                    </xsd:element>
+
+                    <xsd:choice>
+                        <xsd:element name="proxy" type="proxyType" minOccurs="0" maxOccurs="1" >
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Reusable configuration element for outbound connections through a proxy.
+                                    A proxy element must define a host name and a port attributes, and optionally can define a username
+                                    and a password.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+
+                        <xsd:element name="ntlm-proxy" type="NtlmProxyType" minOccurs="0" maxOccurs="1" >
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Reusable configuration element for outbound connections through a proxy.
+                                    A proxy element must define a host name and a port attributes, and optionally can define a username
+                                    and a password.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:choice>
+
+                </xsd:sequence>
+
+                <xsd:attributeGroup ref="commonRequestAttributes" />
+                <xsd:attribute name="protocol" type="httpProtocol" default="HTTP">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Protocol to use for communication. Valid values are HTTP and HTTPS. Default value is HTTP. When using HTTPS the
+                            HTTP communication is going to be secured using TLS / SSL. If HTTPS was configured as protocol then the
+                            user can customize the tls/ssl configuration by defining the tls:context child element of this listener-config.
+                            If not tls:context is defined then the default JVM certificates are going to be used to establish communication.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="name" type="mule:substitutableName" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Identifies the configuration in the registry, so that it can be referenced by the request message processor.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="basePath" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Base path to use for all requests that reference this config.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="tlsContext-ref" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Reference to a TLS context element. This will enable HTTPS for this config.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="clientSocketProperties-ref" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Reference to a TCP Client Socket properties element.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="proxy-ref" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Reference to a proxy context element.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="maxConnections" type="mule:substitutableInt" default="-1">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The maximum number of outbound connections that will be kept open at the same time.
+                            By default the number of connections is unlimited.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="streamResponse" type="mule:substitutableBoolean" default="false">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Whether or not received responses should be streamed, meaning processing will continue as soon as all headers are parsed and
+                            the body streamed as it arrives. When enabled, the response MUST be eventually read since depending on the configured buffer
+                            size it may not fit into memory and processing will stop until space is available.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="responseBufferSize" type="mule:substitutableInt" default="10240">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The number of bytes assigned to the response buffer.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="connectionIdleTimeout" type="mule:substitutableInt" default="30000">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The number of milliseconds that a connection can remain idle before it is closed.
+                            The value of this attribute is only used when persistent connections are enabled.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="usePersistentConnections" type="mule:substitutableBoolean" default="true">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            If false, each connection will be closed after the first request is completed.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="enableCookies" type="mule:substitutableBoolean" default="false">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            If true, cookies received in HTTP responses will be stored, and sent in subsequent HTTP requests.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <!-- Common attributes in the request and request-config elements -->
+    <xsd:attributeGroup name="commonRequestAttributes">
+        <xsd:attribute name="followRedirects" type="mule:substitutableBoolean">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Specifies whether to follow redirects or not. Default value is true.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="host" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Host where the requests will be sent.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="port" type="mule:substitutableInt">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Port where the requests will be sent. If the protocol attribute is HTTP (default) then the default value is 80, if the protocol
+                    attribute is HTTPS then the default value is 443.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="parseResponse" type="xsd:boolean" default="true">
+            <xsd:annotation>
+                <xsd:documentation>
+                    By default, the response will be parsed (for example, a multi part response will be mapped as a
+                    Mule message with null payload and inbound attachments with each part). If this property is set to false,
+                    no parsing will be done, and the payload will always contain the raw contents of the HTTP response.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="requestStreamingMode">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Defines if the request should be sent using streaming or not. If this attribute is not present or is AUTO,
+                    the behavior will depend on the type of the payload (it will stream only for InputStream). If set
+                    to ALWAYS, it will always stream. If set to NEVER, it will never stream. As streaming is done the request
+                    will be sent user Transfer-Encoding: chunked.
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:NMTOKEN">
+                    <xsd:enumeration value="AUTO"/>
+                    <xsd:enumeration value="ALWAYS"/>
+                    <xsd:enumeration value="NEVER"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="sendBodyMode">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Defines if the request should contain a body or not. If AUTO or empty, it will depend on the method (GET,
+                    HEAD and OPTIONS will not send a body).
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:NMTOKEN">
+                    <xsd:enumeration value="AUTO"/>
+                    <xsd:enumeration value="ALWAYS"/>
+                    <xsd:enumeration value="NEVER"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="responseTimeout" type="mule:substitutableInt">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Maximum time that the request element will block the execution of the flow waiting for the HTTP response.
+                    If this value is not present, the default response timeout from the Mule configuration will be used.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:attributeGroup>
+
+    <xsd:element name="abstract-http-request-authentication-provider" type="abstractHttpRequestAuthenticationProvider" abstract="true">
+        <xsd:annotation>
+            <xsd:documentation>
+                A security manager is a container for security providers. More than one security manager may be configured; each contains providers from a particular module and has that module type. This element is abstract - a security-related module or transport will provide a suitable implementation.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="abstractHttpRequestAuthenticationProvider">
+        <xsd:complexContent>
+            <xsd:extension base="mule:annotatedType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        An empty holder that can be extended by modules that want to provide http request authentication.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="basic-authentication" type="basicAuthenticationType" substitutionGroup="abstract-http-request-authentication-provider">
+        <xsd:annotation>
+            <xsd:documentation>
+                Configures basic authentication for the requests.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="basicAuthenticationType">
+        <xsd:complexContent>
+            <xsd:extension base="abstractHttpRequestAuthenticationProvider">
+                <xsd:attribute name="username" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The username to authenticate.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="password" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The password to authenticate.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="preemptive" type="mule:substitutableBoolean" default="false" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Configures if authentication should be preemptive or not. Preemptive authentication will send
+                            the authentication header in the first request, instead of waiting for a 401 response code to send it.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="digest-authentication" type="digestAuthenticationType" substitutionGroup="abstract-http-request-authentication-provider">
+        <xsd:annotation>
+            <xsd:documentation>
+                Configures digest authentication for the requests.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="digestAuthenticationType">
+        <xsd:complexContent>
+            <xsd:extension base="abstractHttpRequestAuthenticationProvider">
+                <xsd:attribute name="username" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The username to authenticate.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="password" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The password to authenticate.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="ntlm-authentication" type="ntlmAuthenticationType" substitutionGroup="abstract-http-request-authentication-provider">
+        <xsd:annotation>
+            <xsd:documentation>
+                Configures NTLM authentication for the requests.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="ntlmAuthenticationType">
+        <xsd:complexContent>
+            <xsd:extension base="abstractHttpRequestAuthenticationProvider">
+                <xsd:attribute name="username" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The username to authenticate.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="password" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The password to authenticate.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="domain" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The domain to authenticate.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="workstation" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The workstation to authenticate.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="httpHeaderType">
+        <xsd:attribute name="headerName" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The name of the header.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="value" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The value of the header.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="headersType">
+        <xsd:attribute name="expression" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    MEL expression that should return a map with the headers to add.
+                    The keys of the map are the names of the headers.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="proxyType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+                <xsd:attribute name="host" type="xsd:string" />
+                <xsd:attribute name="port" type="mule:substitutableInt" />
+                <xsd:attribute name="username" type="xsd:string" use="optional" />
+                <xsd:attribute name="password" type="xsd:string" use="optional" />
+                <xsd:attribute name="nonProxyHosts" type="xsd:string" use="optional" />
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="proxy" type="globalProxyType" substitutionGroup="mule:abstract-extension">
+        <xsd:annotation>
+            <xsd:documentation>
+                Reusable configuration element for outbound connections through a proxy.
+                A proxy element must define a host name and a port attributes, and optionally can define a username
+                and a password.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="globalProxyType">
+        <xsd:complexContent>
+            <xsd:extension base="proxyType">
+                <xsd:attribute name="name" type="mule:substitutableName" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Identifies the proxy configuration in the registry, so that it can be referenced by the request config.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="NtlmProxyType">
+        <xsd:complexContent>
+            <xsd:extension base="proxyType">
+                <xsd:attribute name="ntlmDomain" type="xsd:string" use="required" />
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="ntlm-proxy" type="globalNtlmProxyType" substitutionGroup="mule:abstract-extension">
+        <xsd:annotation>
+            <xsd:documentation>
+                Reusable configuration element for outbound connections through a proxy.
+                A proxy element must define a host name and a port attributes, and optionally can define a username
+                and a password.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="globalNtlmProxyType">
+        <xsd:complexContent>
+            <xsd:extension base="NtlmProxyType">
+                <xsd:attribute name="name" type="mule:substitutableName" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Identifies the proxy configuration in the registry, so that it can be referenced by the request config.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="config" type="httpConfigType" substitutionGroup="mule:abstract-configuration-extension">
+        <xsd:annotation>
+            <xsd:documentation>
+                HTTP global configuration
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="httpConfigType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractConfigurationExtensionType">
+                <xsd:attribute name="useTransportForUris" type="mule:substitutableBoolean" default="false">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Backwards Compatabilty Flag: Since Mule 3.6, default HTTP URIs are resolved with the new HTTP connector (for example when using MuleClient). If set to true, this behavior is changed so that the HTTP transport is used.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:simpleType name="httpProtocol">
+        <xsd:union>
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="HTTP">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Plain HTTP protocol with no encryption (HTTPS / SSL/ TLS) configured
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:enumeration>
+                    <xsd:enumeration value="HTTPS">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                HTTP protocol used with encryption (HTTPS / SSL / TLS).
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:enumeration>
+                </xsd:restriction>
+            </xsd:simpleType>
+            <xsd:simpleType>
+                <xsd:restriction base="mule:propertyPlaceholderType"/>
+            </xsd:simpleType>
+        </xsd:union>
+    </xsd:simpleType>
+
+</xsd:schema>

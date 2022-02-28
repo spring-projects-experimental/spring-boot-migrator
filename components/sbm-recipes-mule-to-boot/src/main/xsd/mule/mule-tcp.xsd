@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright 2021 - 2022 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<xsd:schema xmlns="http://www.mulesoft.org/schema/mule/tcp"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+            xmlns:schemadoc="http://www.mulesoft.org/schema/mule/schemadoc"
+            targetNamespace="http://www.mulesoft.org/schema/mule/tcp"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/core"
+                schemaLocation="./mule.xsd" />
+    <xsd:import namespace = "http://www.mulesoft.org/schema/mule/schemadoc"
+                schemaLocation = "./mule-schemadoc.xsd"/>
+
+    <xsd:annotation>
+        <xsd:documentation>
+            The TCP transport enables events to be sent and received over TCP sockets.
+        </xsd:documentation>
+        <xsd:appinfo>
+            <schemadoc:short-name>TCP</schemadoc:short-name>
+            <schemadoc:page-title>TCP Transport</schemadoc:page-title>
+            <schemadoc:transport-features receiveEvents="true" dispatchEvents="true"
+                                          requestEvents="true"
+                                          transactions="false" streaming="true">
+                <schemadoc:MEPs supported="one-way, request-response" default="request-response"/>
+            </schemadoc:transport-features>
+        </xsd:appinfo>
+    </xsd:annotation>
+
+    <xsd:element name="connector" type="tcpConnectorType" substitutionGroup="mule:abstract-connector">
+        <xsd:annotation>
+            <xsd:documentation>
+                Connects Mule to a TCP socket to send or receive data via the network.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="polling-connector" type="pollingTcpConnectorType" substitutionGroup="mule:abstract-connector">
+        <xsd:annotation>
+            <xsd:documentation>
+                Connects Mule to a TCP socket to send or receive data via the network.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="pollingTcpConnectorType">
+        <xsd:complexContent>
+            <xsd:extension base="tcpConnectorType">
+                <xsd:attribute name="timeout" type="mule:substitutableLong">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The timeout to wait in milliseconds for data to come from the server
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="pollingFrequency" type="mule:substitutableLong">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The time in milliseconds to wait between each request to the TCP server.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="noProtocolTcpConnectorType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:connectorType">
+                <xsd:attribute name="sendBufferSize" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The size of the buffer (in bytes) used when sending data, set on the socket itself.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="receiveBufferSize" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The size of the buffer (in bytes) used when receiving data, set on the socket itself.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="receiveBacklog" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The maximum queue length for incoming connections.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="sendTcpNoDelay" type="mule:substitutableBoolean">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            If set, transmitted data is not collected together for greater efficiency but sent immediately.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="reuseAddress" type="mule:substitutableBoolean">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            If set (the default), SO_REUSEADDRESS is set on server sockets before binding. This helps reduce "address already in use" errors when a socket is re-used.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="connectionTimeout" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Number of milliseconds to wait until an outbound connection to a remote server is successfully created. No timeout is configured by default.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="clientSoTimeout" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            This sets the SO_TIMEOUT value when the socket is used as a client. Reading from the socket will block for up to this long (in milliseconds) before the read fails. A value of 0 (the default) causes the read to wait indefinitely (if no data arrives).
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="serverSoTimeout" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            This sets the SO_TIMEOUT value when the socket is used as a server. Reading from the socket will block for up to this long (in milliseconds) before the read fails. A value of 0 (the default) causes the read to wait indefinitely (if no data arrives).
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="socketSoLinger" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            This sets the SO_LINGER value. This is related to how long (in milliseconds) the socket will take to close so that any remaining data is transmitted correctly.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="keepSendSocketOpen" type="mule:substitutableBoolean">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            If set, the socket is not closed after sending a message.  This attribute only applies when sending data over a socket (Client).
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="keepAlive" type="mule:substitutableBoolean">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Enables SO_KEEPALIVE behavior on open sockets. This automatically checks socket connections that are open but unused for long periods and closes them if the connection becomes unavailable.  This is a property on the socket itself and is used by a server socket to control whether connections to the server are kept alive before they are recycled.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="socketMaxWait" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Sets the maximum amount of time (in milliseconds) the socket pool should block waiting for a socket before throwing an exception. When less than or equal to 0 it may block indefinitely (the default).
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="failOnUnresolvedHost" type="mule:substitutableBoolean">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            If set (the default), it will fail during socket creation if the host set on the endpoint cannot be resolved. However, it can be set to false to allow unresolved hosts (this is useful on some circumstances like connecting through a proxy).
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="tcpConnectorType">
+        <xsd:complexContent>
+            <xsd:extension base="noProtocolTcpConnectorType">
+                <xsd:sequence>
+                    <xsd:element ref="abstract-protocol" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The class name for the protocol handler. This controls how the raw data stream is converted into messages. By default, messages are constructed as dara is received, with no correction for multiple packets or fragmentation. Typically, change this value, or use a transport that includes a protocol like HTTP.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="dispatcherFactory-ref" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Allows to define a custom message dispatcher factory
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="abstract-protocol" type="abstractProtocolType"/>
+    <xsd:complexType name="abstractProtocolType">
+        <xsd:attribute name="rethrowExceptionOnRead" type="mule:substitutableBoolean">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Rethrow the exception if read fails
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:element name="streaming-protocol" type="abstractProtocolType" substitutionGroup="abstract-protocol">
+        <xsd:annotation>
+            <xsd:documentation>
+                TCP does not guarantee that data written to a socket is transmitted in a single packet, so if you want to transmit entire Mule messages reliably, you must specify an additional protocol. However, this is not an issue with streaming, so the streaming-protocol element is an alias for the "direct" (null) protocol.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="xml-protocol" type="abstractProtocolType" substitutionGroup="abstract-protocol">
+        <xsd:annotation>
+            <xsd:documentation>
+                TCP does not guarantee that data written to a socket is transmitted in a single packet, so if you want to transmit entire Mule messages reliably, you must specify an additional protocol. The xml-protocol element configures the XML protocol, which uses XML syntax to isolate messages from the stream of bytes received, so it will only work with well-formed XML.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="xml-eof-protocol" type="abstractProtocolType" substitutionGroup="abstract-protocol">
+        <xsd:annotation>
+            <xsd:documentation>
+                Similar to xml-protocol, the xml-eof-protocol element configures the XML protocol, but it will also use socket closure to terminate a message (even if the XML is not well-formed).
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="eof-protocol" type="byteOrMessageProtocolType" substitutionGroup="abstract-protocol">
+        <xsd:annotation>
+            <xsd:documentation>
+                TCP does not guarantee that data written to a socket is transmitted in a single packet, so if you want to transmit entire Mule messages reliably, you must specify an additional protocol. The eof-protocol element configures a protocol that simply accumulates all data until the socket closes and places it in a single message.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="direct-protocol" type="byteOrMessageProtocolType" substitutionGroup="abstract-protocol">
+        <xsd:annotation>
+            <xsd:documentation>
+                TCP does not guarantee that data written to a socket is transmitted in a single packet. Using the direct-protocol element to configure the "null" protocol does not change the normal TCP behavior, so message fragmentation may occur. For example, a single sent message may be received in several pieces, each as a separate received message. Typically, it is not a good choice for messaging within Mule, but it may be necessary to interface with external TCP-based protocols.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="byteOrMessageProtocolType">
+        <xsd:complexContent>
+            <xsd:extension base="abstractProtocolType">
+                <xsd:attribute name="payloadOnly" type="mule:substitutableBoolean" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Sends only the payload, not the entire Mule message object or its properties. This defaults to true when the protocol is not specified explicitly (when the safe protocol is used).
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="safe-protocol" type="lengthProtocolType" substitutionGroup="abstract-protocol">
+        <xsd:annotation>
+            <xsd:documentation>
+                Similar to length-protocol, safe-protocol also includes a prefix. Verification of the prefix allows mis-matched protocols to be detected and avoids interpreting "random" data as a message length (which may give out-of-memory errors). This is the default protocol in Mule 2.x.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="custom-class-loading-protocol" type="customClassLoadingProtocolType" substitutionGroup="abstract-protocol">
+        <xsd:annotation>
+            <xsd:documentation>
+                A length protocol that uses a specific class loader to load objects from streams
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="customClassLoadingProtocolType">
+        <xsd:complexContent>
+            <xsd:extension base="lengthProtocolType">
+                <xsd:attribute name="classLoader-ref" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Allows Spring beans to be defined for class loading
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="length-protocol" type="lengthProtocolType" substitutionGroup="abstract-protocol">
+        <xsd:annotation>
+            <xsd:documentation>
+                The length-protocol element configures the length protocol, which precedes each message with the number of bytes sent so that an entire message can be constructed on the received.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="lengthProtocolType">
+        <xsd:complexContent>
+            <xsd:extension base="byteOrMessageProtocolType">
+                <xsd:attribute name="maxMessageLength" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            An optional maximum length for the number of bytes in a single message. Messages larger than this will trigger an error in the receiver, but it give an assurance that no out-of-memory error will occur.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="custom-protocol" type="customProtocolType" substitutionGroup="abstract-protocol">
+        <xsd:annotation>
+            <xsd:documentation>
+                The custom-protocol element allows you to configure your own protocol implementation.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="customProtocolType">
+        <xsd:complexContent>
+            <xsd:extension base="abstractProtocolType">
+                <xsd:attribute name="class" type="mule:substitutableClass" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            A class that implements the TcpProtocol interface.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="ref" type="xsd:NMTOKEN" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Reference to a spring bean that implements the TcpProtocol interface.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="inbound-endpoint" type="inboundEndpointType" substitutionGroup="mule:abstract-inbound-endpoint">
+        <xsd:annotation>
+            <xsd:documentation>
+                The inbound-endpoint element configures the endpoint on which the messages are received.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="inboundEndpointType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:inboundEndpointType">
+                <xsd:attributeGroup ref="addressAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="outbound-endpoint" type="outboundEndpointType" substitutionGroup="mule:abstract-outbound-endpoint">
+        <xsd:annotation>
+            <xsd:documentation>
+                The outbound-endpoint element configures the endpoint where the messages are sent.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="outboundEndpointType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:outboundEndpointType">
+                <xsd:attributeGroup ref="addressAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="endpoint" type="globalEndpointType" substitutionGroup="mule:abstract-global-endpoint">
+        <xsd:annotation>
+            <xsd:documentation>
+                The endpoint element configures a global TCP endpoint definition.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="globalEndpointType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:globalEndpointType">
+                <xsd:attributeGroup ref="addressAttributes"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:attributeGroup name="addressAttributes">
+        <xsd:attribute name="host" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The host of the TCP socket.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="port" type="mule:substitutablePortNumber">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The port of the TCP socket.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:attributeGroup>
+
+
+    <xsd:element name="client-socket-properties" type="tcpClientSocketPropertiesType" substitutionGroup="mule:abstract-extension">
+        <xsd:annotation>
+            <xsd:documentation>
+                Configuration element for setting client socket properties.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="server-socket-properties" type="tcpServerSocketPropertiesType" substitutionGroup="mule:abstract-extension">
+        <xsd:annotation>
+            <xsd:documentation>
+                Configuration element for setting server socket properties.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="tcpAbstractSocketPropertiesType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+                <xsd:attribute name="name" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The name of this properties object, so that it can be referenced by config elements.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="sendBufferSize" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The size of the buffer (in bytes) used when sending data, set on the socket itself.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="receiveBufferSize" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The size of the buffer (in bytes) used when receiving data, set on the socket itself.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="sendTcpNoDelay" type="mule:substitutableBoolean" default="true">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            If set, transmitted data is not collected together for greater efficiency but sent immediately.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="timeout" type="mule:substitutableInt" default="0">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            This sets the SO_TIMEOUT value on client sockets. Reading from the socket will block for up to this long (in milliseconds) before the read fails. A value of 0 (the default) causes the read to wait indefinitely (if no data arrives).
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="linger" type="mule:substitutableInt" default="-1">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            This sets the SO_LINGER value. This is related to how long (in milliseconds) the socket will take to close so that any remaining data is transmitted correctly.
+                            A value of -1 (default) disables linger on the socket.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="keepAlive" type="mule:substitutableBoolean">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Enables SO_KEEPALIVE behavior on open sockets. This automatically checks socket connections that are open but unused for long periods and closes them if the connection becomes unavailable.  This is a property on the socket itself and is used by a server socket to control whether connections to the server are kept alive before they are recycled.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="tcpClientSocketPropertiesType">
+        <xsd:complexContent>
+            <xsd:extension base="tcpAbstractSocketPropertiesType">
+                <xsd:attribute name="connectionTimeout" type="mule:substitutableInt" default="30000">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Number of milliseconds to wait until an outbound connection to a remote server is successfully created. No timeout is configured by default.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+
+    <xsd:complexType name="tcpServerSocketPropertiesType">
+        <xsd:complexContent>
+            <xsd:extension base="tcpAbstractSocketPropertiesType">
+                <xsd:attribute name="reuseAddress" type="mule:substitutableBoolean" default="true">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            If set (the default), SO_REUSEADDRESS is set on server sockets before binding. This helps reduce "address already in use" errors when a socket is re-used.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="receiveBacklog" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The maximum queue length for incoming connections.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="serverTimeout" type="mule:substitutableInt" default="0">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            This sets the SO_TIMEOUT value when the socket is used as a server. This is the timeout that applies to the "accept" operation. A value of 0 (the default) causes the accept to wait indefinitely (if no connection arrives).
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+</xsd:schema>
