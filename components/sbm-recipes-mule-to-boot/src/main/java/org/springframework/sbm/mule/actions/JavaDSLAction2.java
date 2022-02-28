@@ -99,9 +99,7 @@ public class JavaDSLAction2 extends AbstractAction {
 
     private List<Dependency> buildDependencies(TopLevelElement snippet) {
         return snippet.getRequiredDependencies().stream()
-                .map(r -> r.split(":"))
-                .filter(p -> p.length == 3)
-                .map(p -> Dependency.builder().groupId(p[0]).artifactId(p[1]).version(p[2]).build())
+                .map(Dependency::fromCoordinates)
                 .collect(Collectors.toList());
     }
 

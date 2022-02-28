@@ -91,4 +91,14 @@ public class Dependency {
     public String getCoordinates() {
         return getGroupId() + ":" + getArtifactId() + ":" + getVersion();
     }
+
+    public static Dependency fromCoordinates(String coordinate) {
+        String[] splitCoordinates = coordinate.split(":");
+
+        return Dependency.builder()
+                .groupId(splitCoordinates[0])
+                .artifactId(splitCoordinates[1])
+                .version(splitCoordinates[2]).build();
+
+    }
 }
