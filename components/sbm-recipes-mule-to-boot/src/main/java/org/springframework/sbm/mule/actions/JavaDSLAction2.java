@@ -79,27 +79,32 @@ public class JavaDSLAction2 extends AbstractAction {
     }
 
     private void handleTopLevelElements(BuildFile buildFile, MuleMigrationContext muleMigrationContext, JavaSourceAndType flowConfigurationSource) {
+        List<TopLevelElement> topLevelElements = new ArrayList<>();
         for(JAXBElement tle : muleMigrationContext.getTopLevelElements()) {
             if (MuleConfigurationsExtractor.isConfigType(tle)) {
                 continue;
             }
-            TopLevelElement definitionSnippet = null;
             if (topLevelTypeMap.containsKey(tle.getValue().getClass())) {
                 TopLevelElementFactory tltf = topLevelTypeMap.get(tle.getValue().getClass());
-                definitionSnippet = tltf.buildDefinition(tle, muleMigrationContext.getMuleConfigurations());
+                topLevelElements.add(tltf.buildDefinition(tle, muleMigrationContext.getMuleConfigurations()));
             } else {
-                definitionSnippet = new UnknownTopLevelElement(tle);
+                topLevelElements.add(new UnknownTopLevelElement(tle));
             }
-            buildFile.addDependencies(buildDependencies(definitionSnippet));
-            flowConfigurationSource.getType().addMethod(definitionSnippet.renderDslSnippet(), definitionSnippet.getRequiredImports());
         }
+        List<Dependency> listOfDependencies = topLevelElements.stream()
+                .map(this::buildDependencies)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+        buildFile.addDependencies(listOfDependencies);
+
+        topLevelElements.forEach(topLevelElement -> {
+            flowConfigurationSource.getType().addMethod(topLevelElement.renderDslSnippet(), topLevelElement.getRequiredImports());
+        });
     }
 
     private List<Dependency> buildDependencies(TopLevelElement snippet) {
         return snippet.getRequiredDependencies().stream()
-                .map(r -> r.split(":"))
-                .filter(p -> p.length == 3)
-                .map(p -> Dependency.builder().groupId(p[0]).artifactId(p[1]).version(p[2]).build())
+                .map(Dependency::fromCoordinates)
                 .collect(Collectors.toList());
     }
 
