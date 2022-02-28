@@ -2,7 +2,18 @@
 
 === Implement Actions
 First step on your journey to implement a new recipe will be the implementation of an `Action`.
-Every
+Every Action that needs access to the ProjectContext to modify resources should extend `AbstractAction`.
+
+[source,java]
+....
+class MyAction extends AbstractAction {
+    void apply(ProjectContext context) {
+        // analyse and modify AST
+    }
+}
+....
+
+Use <<TestProjectContext>> to test your Action.
 
 ==== Display Progress
 
@@ -38,9 +49,21 @@ If no other progress change is reported during the execution of the action, a lo
 
 === Creating Recipes
 
+Recipes bundle a set of Actions for a migration.
+They can be declared programmatically as Spring beans or declarative using yaml syntax.
+The main difference is that yaml recipes can be provided to SBM without code changes on startup allowing to add new,
+declarative recipes without recompilation while the bean definition is arguably easier to use.
+
 ==== Declarative recipes
 
+Declarative recipes must be placed under `src/main`resources/recipes`. +
+See link:{repo}/blob/main/components/sbm-support-boot/src/main/resources/recipes/initialize-spring-boot-migration.yaml[initialize-spring-boot-migration.yaml,window=_blank] for a recipe in YAML syntax
+
 ==== Recipe beans
+
+A recipe can be defined as Spring bean using @Bean annotated method, see link:{repo}/blob/main/components/sbm-recipes-mule-to-boot/src/main/java/org/springframework/sbm/mule/MigrateMuleToBoot.java[MigrateMuleToBoot.java,window=_blank] for a recipe declared as Spring bean.
+
+NOTE: Remember to provide a description to all Actions to display the description to the user when the Action is applied.
 
 === Create a Condition
 
@@ -95,10 +118,15 @@ Add this snippet to your Action to use freemarker
 
 [source,java]
 ....
-@Autowired
-@JsonIgnore
-@Setter
-private Configuration configuration;
+public class MyAction extends AbstractAction {
+
+    @Autowired
+    @JsonIgnore
+    @Setter
+    private Configuration configuration;
+
+    // ...
+}
 ....
 
 and place your template under `src/main/resources/templates`
