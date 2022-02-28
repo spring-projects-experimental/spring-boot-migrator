@@ -79,6 +79,7 @@ public class JavaDSLAction2 extends AbstractAction {
     }
 
     private void handleTopLevelElements(BuildFile buildFile, MuleMigrationContext muleMigrationContext, JavaSourceAndType flowConfigurationSource) {
+        List<Dependency> dependencies = new ArrayList<>();
         for(JAXBElement tle : muleMigrationContext.getTopLevelElements()) {
             if (MuleConfigurationsExtractor.isConfigType(tle)) {
                 continue;
@@ -90,9 +91,10 @@ public class JavaDSLAction2 extends AbstractAction {
             } else {
                 definitionSnippet = new UnknownTopLevelElement(tle);
             }
-            buildFile.addDependencies(buildDependencies(definitionSnippet));
+            dependencies.addAll(buildDependencies(definitionSnippet));
             flowConfigurationSource.getType().addMethod(definitionSnippet.renderDslSnippet(), definitionSnippet.getRequiredImports());
         }
+        buildFile.addDependencies(dependencies);
     }
 
     private List<Dependency> buildDependencies(TopLevelElement snippet) {
