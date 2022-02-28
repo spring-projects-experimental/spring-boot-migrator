@@ -95,6 +95,9 @@ public class Dependency {
     public static Dependency fromCoordinates(String coordinate) {
         String[] splitCoordinates = coordinate.split(":");
 
+        if (splitCoordinates.length != 3) {
+            return null;
+        }
         return Dependency.builder()
                 .groupId(splitCoordinates[0])
                 .artifactId(splitCoordinates[1])
