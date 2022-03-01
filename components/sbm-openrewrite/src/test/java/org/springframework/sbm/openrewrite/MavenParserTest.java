@@ -16,11 +16,16 @@
 package org.springframework.sbm.openrewrite;
 
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.Problem;
 
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MavenParserTest {
 
@@ -44,11 +49,49 @@ public class MavenParserTest {
 				"    <groupId>com.example</groupId>\n" +
 				"    <artifactId>foo-bar</artifactId>\n" +
 				"    <version>0.1.0-SNAPSHOT</version>\n" +
-				"    <dependencies>\n" +
-				"    </dependencies>\n" +
+				"    <dependencies></dependencies>\n" +
 				"</project>";
 
 		List<Xml.Document> parse = MavenParser.builder().build().parse(pomXml);
+	}
+
+	@Test
+	void test() {
+		String pomXml =
+				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+						"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+						"    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+						"    <modelVersion>4.0.0</modelVersion>\n" +
+						"    <groupId>foo</groupId>\n" +
+						"    <artifactId>bar</artifactId>\n" +
+						"    <version>0.0.1-SNAPSHOT</version>\n" +
+						"    <name>foobat</name>\n" +
+						"    <repositories>\n" +
+						"        <repository>\n" +
+						"            <id>jcenter</id>\n" +
+						"            <name>jcenter</name>\n" +
+						"            <url>https://jcenter.bintray.com</url>\n" +
+						"        </repository>\n" +
+						"        <repository>\n" +
+						"            <id>mavencentral</id>\n" +
+						"            <name>mavencentral</name>\n" +
+						"            <url>https://repo.maven.apache.org/maven2</url>\n" +
+						"        </repository>\n" +
+						"    </repositories>" +
+						"    <dependencies>\n" +
+						"        <dependency>\n" +
+						"            <groupId>org.apache.tomee</groupId>\n" +
+						"            <artifactId>openejb-core-hibernate</artifactId>\n" +
+						"            <version>8.0.5</version>\n" +
+//						"            <type>pom</type>\n" +
+						"        </dependency>\n" +
+						"    </dependencies>\n" +
+						"</project>";
+
+		Xml.Document document = MavenParser.builder().build().parse(pomXml).get(0);
+		MavenResolutionResult r = document.getMarkers().findFirst(MavenResolutionResult.class).get();
+		assertThat(r.getDependencies()).hasSize(4);
+		assertThat(r.getDependencies().get(Scope.Compile)).hasSize(84);
 	}
 
 }

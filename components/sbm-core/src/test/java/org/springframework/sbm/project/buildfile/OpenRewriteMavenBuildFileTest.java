@@ -15,16 +15,16 @@
  */
 package org.springframework.sbm.project.buildfile;
 
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.Plugin;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -111,7 +111,6 @@ public class OpenRewriteMavenBuildFileTest {
                         "            <url>https://repo.maven.apache.org/maven2</url>\n" +
                         "        </repository>\n" +
                         "    </repositories>" +
-                        "\n" +
                         "    <dependencies>\n" +
                         "        <dependency>\n" +
                         "            <groupId>org.apache.tomee</groupId>\n" +
