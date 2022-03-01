@@ -16,15 +16,13 @@
 package org.springframework.sbm.project.parser;
 
 import lombok.extern.slf4j.Slf4j;
+import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.cache.ReadOnlyLocalMavenArtifactCache;
 import org.openrewrite.maven.internal.MavenParsingException;
-import org.openrewrite.maven.tree.MavenRepository;
-import org.openrewrite.maven.tree.Pom;
-import org.openrewrite.maven.tree.Scope;
+import org.openrewrite.maven.tree.*;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -34,7 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DependencyHelper {
 
-    public List<Path> downloadArtifacts(Consumer<Throwable> errorHandler, Set<Pom.Dependency> dependencies) {
+    public List<Path> downloadArtifacts(Consumer<Throwable> errorHandler, Set<ResolvedDependency> dependencies) {
         MavenArtifactDownloader artifactDownloader = new MavenArtifactDownloader(
                 ReadOnlyLocalMavenArtifactCache.mavenLocal().orElse(
                         new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".rewrite", "cache", "artifacts"))
@@ -49,7 +47,7 @@ public class DependencyHelper {
                 .collect(Collectors.toList());
     }
 
-    public List<Path> downloadArtifacts(Set<Pom.Dependency> dependencies) {
+    public List<Path> downloadArtifacts(Set<ResolvedDependency> dependencies) {
         return downloadArtifacts(createErrorHandler(), dependencies);
     }
 
@@ -64,8 +62,8 @@ public class DependencyHelper {
         return errorConsumer;
     }
 
-    public Set<Pom.Dependency> mapCoordinatesToDependencies(List<String> coordinates) {
-        Set<Pom.Dependency> dependencies = new HashSet<>();
+    public Set<Dependency> mapCoordinatesToDependencies(List<String> coordinates) {
+        Set<Dependency> dependencies = new HashSet<>();
         coordinates.forEach(c -> {
 
             String[] parts = c.split(":");
@@ -78,24 +76,38 @@ public class DependencyHelper {
 
             MavenRepository mavenRepository = new MavenRepository(
                     "jcenter",
-                    URI.create("https://jcenter.bintray.com"),
+                    "https://jcenter.bintray.com",
                     true,
                     true,
                     true,
                     null,
                     null
             );
-            Pom model = Pom.build(groupId, artifactId, version, null);
-            Pom.Dependency dependency = new Pom.Dependency(mavenRepository, Scope.Compile, null, null, false, model, version, Set.of());
+
+            @Nullable String classifier = null;
+            @Nullable String type = null;
+            String scope = Scope.Compile.name();
+            List<GroupArtifact> exclusions = new ArrayList<>();
+            boolean optional = false;
+
+            Dependency dependency = new Dependency(
+                    new GroupArtifactVersion(groupId, artifactId, version),
+                    classifier,
+                    type,
+                    scope,
+                    exclusions,
+                    optional
+            );
+
             dependencies.add(dependency);
         });
         return dependencies;
     }
 
-    public Optional<Path> downloadArtifact(Pom.Dependency d) {
+    public Optional<Path> downloadArtifact(ResolvedDependency d) {
         List<Path> paths = this.downloadArtifacts(Set.of(d));
         if (paths == null || paths.isEmpty()) {
-            log.error(String.format("The dependency '%s:%s:%s' of packaging '%s' could not be downloaded.", d.getGroupId(), d.getArtifactId(), d.getVersion(), d.getModel().getPackaging()));
+            log.warn(String.format("The dependency '%s:%s:%s' could not be downloaded.", d.getGroupId(), d.getArtifactId(), d.getVersion()));
             return Optional.empty();
         }
         return Optional.of(paths.get(0));

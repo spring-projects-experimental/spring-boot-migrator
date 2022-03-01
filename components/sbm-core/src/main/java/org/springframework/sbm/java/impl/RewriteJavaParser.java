@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
+import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +35,7 @@ public class RewriteJavaParser implements JavaParser {
     private final boolean javaParserRelaxedClassTypeMatching = true;
 
     private JavaParser javaParser;
+    private String sourceSet;
 
     // satisfies DI
     public RewriteJavaParser() {
@@ -51,8 +53,7 @@ public class RewriteJavaParser implements JavaParser {
     @NotNull
     private JavaParser buildJavaParser(Collection<Path> classpath) {
         Builder<? extends JavaParser, ?> builder = JavaParser.fromJavaVersion()
-                .logCompilationWarningsAndErrors(javaParserShouldLogCompilationWarningsAndErrors)
-                .relaxedClassTypeMatching(javaParserRelaxedClassTypeMatching);
+                .logCompilationWarningsAndErrors(javaParserShouldLogCompilationWarningsAndErrors);
         if (!classpath.isEmpty()) {
             builder.classpath(classpath);
         }
@@ -73,6 +74,16 @@ public class RewriteJavaParser implements JavaParser {
     @Override
     public void setClasspath(Collection<Path> classpath) {
         this.javaParser = buildJavaParser(classpath);
+    }
+
+    @Override
+    public void setSourceSet(String sourceSet) {
+        this.sourceSet = sourceSet;
+    }
+
+    @Override
+    public JavaSourceSet getSourceSet(ExecutionContext ctx) {
+        return null; // FIXME: #497
     }
 
     public List<J.CompilationUnit> parse(List<Path> javaResources, ExecutionContext executionContext) {

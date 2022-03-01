@@ -16,30 +16,39 @@
 package org.springframework.sbm.openrewrite;
 
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.MavenParser;
-import org.openrewrite.maven.tree.Maven;
+import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.Problem;
 
 import java.util.List;
 
 public class MavenParserTest {
 
-    @Test
-    @Disabled("Try with latest release, see #497")
-    void testParsingPomWithEmptyDependenciesSection() {
-        String pomXml =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "    <groupId>com.example</groupId>\n" +
-                        "    <artifactId>foo-bar</artifactId>\n" +
-                        "    <version>0.1.0-SNAPSHOT</version>\n" +
-                        "    <dependencies>\n" +
-                        "    </dependencies>" +
-                        "</project>";
+	@Problem(description = "java.io.UncheckedIOException: Failed to parse pom", version = "7.18.2")
+	@Disabled("#497")
+	void testParsingPomWithEmptyDependenciesSection() {
+//		String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+//				+ "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \n" +
+//				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
+//				"    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n"
+//				+ "    <modelVersion>4.0.0</modelVersion>\n"
+//				+ "    <groupId>com.example</groupId>\n"
+//				+ "    <artifactId>foo-bar</artifactId>\n"
+//				+ "    <version>0.1.0-SNAPSHOT</version>\n"
+//				+ "    <dependencies>\n</dependencies>\n"
+//				+ "</project>";
 
-        List<Maven> parse = MavenParser.builder()
-                .build()
-                .parse(pomXml);
-    }
+		String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+				"    <modelVersion>4.0.0</modelVersion>\n" +
+				"    <groupId>com.example</groupId>\n" +
+				"    <artifactId>foo-bar</artifactId>\n" +
+				"    <version>0.1.0-SNAPSHOT</version>\n" +
+				"    <dependencies>\n" +
+				"    </dependencies>\n" +
+				"</project>";
+
+		List<Xml.Document> parse = MavenParser.builder().build().parse(pomXml);
+	}
+
 }

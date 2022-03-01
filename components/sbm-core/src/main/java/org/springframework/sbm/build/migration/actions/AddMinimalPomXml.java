@@ -16,17 +16,17 @@
 package org.springframework.sbm.build.migration.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import lombok.Setter;
+import org.openrewrite.Parser;
+import org.openrewrite.xml.tree.Xml;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import lombok.Setter;
-import org.openrewrite.Parser;
-import org.openrewrite.maven.tree.Maven;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
@@ -63,7 +63,7 @@ public class AddMinimalPomXml extends AbstractAction {
         String src = writer.toString();
         RewriteMavenParser rewriteMavenParser = new RewriteMavenParser();
         Parser.Input input = new Parser.Input(Path.of("pom.xml"), () -> new ByteArrayInputStream(src.getBytes(StandardCharsets.UTF_8)));
-        Maven maven = rewriteMavenParser.parseInputs(List.of(input), null, new RewriteExecutionContext(getEventPublisher())).get(0);
+        Xml.Document maven = rewriteMavenParser.parseInputs(List.of(input), null, new RewriteExecutionContext(getEventPublisher())).get(0);
 //        Maven document = (Maven) maven.withSourcePath(Path.of("pom.xml"));
         OpenRewriteMavenBuildFile rewriteMavenBuildFile = new OpenRewriteMavenBuildFile(context.getProjectRootDirectory(), maven, getEventPublisher(), new RewriteExecutionContext(getEventPublisher()));
         context.getProjectResources().add(rewriteMavenBuildFile);

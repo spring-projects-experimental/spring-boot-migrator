@@ -15,21 +15,13 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.springframework.sbm.build.migration.MavenPomCacheProvider;
-import org.springframework.sbm.engine.git.GitSupport;
-import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.context.ProjectContextFactory;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.resource.*;
-import org.springframework.sbm.xml.parser.RewriteXmlParser;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.maven.tree.Maven;
 import org.openrewrite.properties.tree.Properties;
 import org.openrewrite.text.PlainText;
 import org.openrewrite.xml.tree.Xml;
@@ -38,15 +30,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.sbm.build.migration.MavenPomCacheProvider;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectContextFactory;
+import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.resource.*;
+import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.springframework.sbm.project.parser.ResourceVerifier.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.*;
 
 
 @SpringBootTest(classes = {
@@ -66,7 +66,7 @@ import static org.mockito.Mockito.mock;
 }, properties = {"sbm.gitSupportEnabled=false"})
 class ProjectContextInitializerTest {
 
-    private Path projectDirectory = Path.of("./testcode").toAbsolutePath().normalize();
+    private final Path projectDirectory = Path.of("./testcode").toAbsolutePath().normalize();
 
     @Autowired
     private ProjectContextInitializer sut;
@@ -97,7 +97,7 @@ class ProjectContextInitializerTest {
         assertThat(projectResources).hasSize(18);
 
         verifyResource("testcode/pom.xml")
-                .wrappedInstanceOf(Maven.class)
+                .wrappedInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         mavenModelMarker("com.example:example-project-parent:1.0.0-SNAPSHOT"),
                         buildToolMarker("Maven", "3.6"), // TODO: does this work in all env (taken from .mvn)?

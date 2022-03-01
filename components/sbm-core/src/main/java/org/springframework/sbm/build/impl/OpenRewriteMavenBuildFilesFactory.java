@@ -15,14 +15,14 @@
  */
 package org.springframework.sbm.build.impl;
 
+import lombok.RequiredArgsConstructor;
+import org.openrewrite.maven.MavenParser;
+import org.openrewrite.xml.tree.Xml;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFilesFactory;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
-import lombok.RequiredArgsConstructor;
-import org.openrewrite.maven.MavenParser;
-import org.openrewrite.maven.tree.Maven;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -47,8 +47,8 @@ public class OpenRewriteMavenBuildFilesFactory implements BuildFilesFactory {
         for (int i = 0; i < projectResources.size(); i++) {
             ProjectResource projectResource = projectResources.get(i);
             if (projectResource.getAbsolutePath().endsWith(BUILD_FILE)) {
-                List<Maven> mavenPoms = parser.parse(List.of(projectResource.getAbsolutePath()), null, executionContext);
-                Maven mavenPom = mavenPoms.get(0);
+                List<Xml.Document> mavenPoms = parser.parse(List.of(projectResource.getAbsolutePath()), null, executionContext);
+                Xml.Document mavenPom = mavenPoms.get(0);
                 OpenRewriteMavenBuildFile buildFile = new OpenRewriteMavenBuildFile(absoluteProjectDir, mavenPom, eventPublisher, executionContext);
                 projectResources.replace(i, buildFile);
                 result.add(buildFile);

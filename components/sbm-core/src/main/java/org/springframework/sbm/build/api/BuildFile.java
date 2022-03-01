@@ -15,9 +15,8 @@
  */
 package org.springframework.sbm.build.api;
 
-import org.springframework.sbm.project.resource.ProjectResource;
-import org.openrewrite.maven.tree.Pom;
 import org.openrewrite.maven.tree.Scope;
+import org.springframework.sbm.project.resource.ProjectResource;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -28,7 +27,12 @@ public interface BuildFile extends ProjectResource {
 
     List<Dependency> getDeclaredDependencies();
 
-    Set<Pom.Dependency> getEffectiveDependencies(Scope scope);
+    /**
+     * Returns any available dependency (declared or transitive) with given scope.
+     */
+    Set<Dependency> getEffectiveDependencies(Scope scope);
+
+    Set<Dependency> getEffectiveDependencies();
 
     /**
      * Check if any declared dependency matches any of the given regex.
@@ -46,8 +50,16 @@ public interface BuildFile extends ProjectResource {
 
     boolean hasExactDeclaredDependency(Dependency dependency);
 
+    /**
+     * Add a dependency to the build file and reparse Java sources.
+     *
+     * Always prefer {@link #addDependencies(List)} instead of looping this method.
+     */
     void addDependency(Dependency dependency);
 
+    /**
+     * Add a list of dependencies to the build file and reparse Java sources.
+     */
     void addDependencies(List<Dependency> dependencies);
 
     void removeDependencies(List<Dependency> dependencies);

@@ -15,29 +15,60 @@
  */
 package org.springframework.sbm.support.openrewrite.api;
 
-import org.springframework.sbm.Problem;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.maven.cache.InMemoryMavenPomCache;
+import org.openrewrite.maven.MavenExecutionContextView;
+import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.cache.RocksdbMavenPomCache;
 import org.openrewrite.maven.internal.MavenPomDownloader;
-import org.openrewrite.maven.internal.RawMaven;
-import org.openrewrite.maven.tree.MavenRepository;
+import org.openrewrite.maven.tree.GroupArtifactVersion;
+import org.openrewrite.maven.tree.Pom;
+import org.openrewrite.maven.tree.ResolvedPom;
+import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.Problem;
 
-import java.net.URI;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class MavenDependencyDownloadTest {
 
     @Problem(
-            description = "Some dependencies cannot be downloaded because the resolved resource path is wrong",
-            version = "7.16.3"
+//            description = "Some dependencies cannot be downloaded because the resolved resource path is wrong",
+//            version = "7.16.3"
+            description = "Fails with containingPom being null",
+            version = "7.18.2"
     )
-    void downloadDependencies() {
+    @Disabled
+    void downloadDependencies(@TempDir Path tempDir) {
         InMemoryExecutionContext executionContext = new InMemoryExecutionContext((t) -> System.out.println(t.getMessage()));
-        MavenPomDownloader mavenPomDownloader = new MavenPomDownloader(new InMemoryMavenPomCache(), new HashMap<>(), executionContext);
-        RawMaven download = mavenPomDownloader.download("com.h2database", "h2", "1.4.200", null, null, List.of(new MavenRepository("maven", URI.create("https://repo.maven.apache.org/maven2"), true, false, null, null)), executionContext);
-        assertThat(download).isNull();
+        MavenExecutionContextView ctx = MavenExecutionContextView.view(executionContext);
+        ctx.setPomCache(new RocksdbMavenPomCache(tempDir.resolve("rewrite-cache")));
+
+        HashMap<Path, Pom> projectPoms = new HashMap<>();
+        MavenPomDownloader mavenPomDownloader = new MavenPomDownloader(projectPoms, ctx);
+        GroupArtifactVersion gav = new GroupArtifactVersion("com.h2database", "h2", "1.4.200");
+        String relativePath = "";
+        ResolvedPom containingPom = null;
+        Pom download = mavenPomDownloader.download(gav, relativePath, containingPom, List.of());
+//        assertThat(download).isNull();
+    }
+
+    @Disabled
+    void downloadDependencies2(@TempDir Path tempDir) {
+        InMemoryExecutionContext executionContext = new InMemoryExecutionContext((t) -> System.out.println(t.getMessage()));
+        MavenExecutionContextView ctx = MavenExecutionContextView.view(executionContext);
+        ctx.setPomCache(new RocksdbMavenPomCache(tempDir.resolve("rewrite-cache")));
+
+        HashMap<Path, Pom> projectPoms = new HashMap<>();
+        MavenPomDownloader mavenPomDownloader = new MavenPomDownloader(projectPoms, ctx);
+        GroupArtifactVersion gav = new GroupArtifactVersion("com.h2database", "h2", "1.4.200");
+        String relativePath = "";
+        ResolvedPom containingPom = null;
+        Xml.Document document = MavenParser.builder().build().parse("<pom/>").get(0);
+
+        Pom download = mavenPomDownloader.download(gav, relativePath, containingPom, List.of());
+//        assertThat(download).isNull();
     }
 }

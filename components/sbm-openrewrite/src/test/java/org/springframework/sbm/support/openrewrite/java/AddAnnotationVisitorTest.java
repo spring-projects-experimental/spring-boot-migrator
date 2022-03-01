@@ -87,8 +87,6 @@ class AddAnnotationVisitorTest {
         List<Result> result = new GenericOpenRewriteRecipe<>(() -> sut).run(List.of(compilationUnit));
         assertThat(result).isNotEmpty();
         assertThat(result.get(0).getAfter().printAll()).isEqualTo(
-                "import java.lang.Deprecated;\n" +
-                        "\n" +
                         "public class Foo {\n" +
                         "    @Deprecated\n" +
                         "    private int bar;\n" +

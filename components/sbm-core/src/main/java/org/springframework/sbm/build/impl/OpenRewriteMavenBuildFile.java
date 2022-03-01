@@ -15,34 +15,26 @@
  */
 package org.springframework.sbm.build.impl;
 
+import org.openrewrite.*;
+import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.marker.Markers;
+import org.openrewrite.maven.*;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.ResolvedDependency;
+import org.openrewrite.maven.tree.Scope;
+import org.openrewrite.xml.tree.Xml;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.*;
 import org.springframework.sbm.build.migration.recipe.AddMavenPlugin;
 import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyManagement;
 import org.springframework.sbm.build.migration.visitor.AddProperty;
-import org.springframework.sbm.build.migration.visitor.SetPackaging;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
-import org.jboss.shrinkwrap.resolver.api.maven.MavenResolvedArtifact;
-import org.jboss.shrinkwrap.resolver.api.maven.MavenWorkingSession;
-import org.jboss.shrinkwrap.resolver.api.maven.PackagingType;
-import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
-import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenCoordinates;
-import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependencies;
-import org.jboss.shrinkwrap.resolver.api.maven.coordinate.MavenDependency;
-import org.jboss.shrinkwrap.resolver.impl.maven.MavenWorkingSessionImpl;
-import org.openrewrite.*;
-import org.openrewrite.maven.*;
-import org.openrewrite.maven.tree.Maven;
-import org.openrewrite.maven.tree.Pom;
-import org.openrewrite.maven.tree.Scope;
-import org.openrewrite.xml.tree.Xml;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,7 +42,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> implements BuildFile {
+public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Document> implements BuildFile {
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -59,14 +51,14 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
 
         private List<SourceFile> sourceFiles;
 
-        @Override
+        @Deprecated(forRemoval = true)
         protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
             if (sourceFiles == null) {
                 List<SourceFile> nonMavenFiles = new ArrayList<>(before.size());
-                List<Maven> mavenFiles = new ArrayList<>();
+                List<Xml.Document> mavenFiles = new ArrayList<>();
                 for (SourceFile f : before) {
-                    if (f instanceof Maven) {
-                        mavenFiles.add((Maven) f);
+                    if (f instanceof Xml.Document) {
+                        mavenFiles.add((Xml.Document) f);
                     } else {
                         nonMavenFiles.add(f);
                     }
@@ -80,11 +72,15 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
                                 )
                         )
                         .collect(Collectors.toList());
-                List<Maven> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx);
+                List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx);
 
                 for (int i = 0; i < newMavenFiles.size(); i++) {
-                    Maven m = mavenFiles.get(i).withModel(newMavenFiles.get(i).getModel());
-                    mavenFiles.set(i, m);
+                    Optional<MavenResolutionResult> mavenModels = MavenBuildFileUtil.getMavenResolution(mavenFiles.get(i));
+                    Optional<MavenResolutionResult> newMavenModels = MavenBuildFileUtil.getMavenResolution(newMavenFiles.get(i));
+                    mavenFiles.get(i).withMarkers(Markers.build(Arrays.asList(newMavenModels.get())));
+//                    Xml.Document m = mavenFiles.get(i).getMarkers().withModel(newMavenFiles.get(i).getModel());
+                    // FIXME: 497 verify correctness
+                    mavenFiles.set(i, newMavenFiles.get(i));
                 }
 
                 sourceFiles = nonMavenFiles;
@@ -112,7 +108,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
 
     private final RewriteExecutionContext executionContext;
 
-    public OpenRewriteMavenBuildFile(Path absoluteProjectPath, Maven sourceFile, ApplicationEventPublisher eventPublisher, RewriteExecutionContext executionContext) {
+    public OpenRewriteMavenBuildFile(Path absoluteProjectPath, Xml.Document sourceFile, ApplicationEventPublisher eventPublisher, RewriteExecutionContext executionContext) {
         super(absoluteProjectPath, sourceFile);
         this.eventPublisher = eventPublisher;
         this.executionContext = executionContext;
@@ -121,16 +117,91 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
     public void apply(Recipe recipe) {
         List<Result> result = recipe.run(List.of(getSourceFile()), executionContext);
         if (!result.isEmpty()) {
-            replaceWith((Maven) result.get(0).getAfter());
+            replaceWith((Xml.Document) result.get(0).getAfter());
         }
     }
 
-    public Maven getPom() {
-        return getSourceFile();
+    public MavenResolutionResult getPom() {
+        return MavenBuildFileUtil.getMavenResolution(getSourceFile()).get();
+    }
+
+    @Override
+    public void addDependency(Dependency dependency) {
+        addDependencyInner(dependency);
+        eventPublisher.publishEvent(new DependenciesChangedEvent(getResolvedDependenciesPaths()));
+    }
+
+    @Override
+    public void addDependencies(List<Dependency> dependencies) {
+        addDependenciesInner(dependencies);
+        eventPublisher.publishEvent(new DependenciesChangedEvent(getResolvedDependenciesPaths()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasDeclaredDependencyMatchingRegex(String... regex) {
+        return getDeclaredDependencies().stream()
+                .map(d -> d.getCoordinates())
+                .anyMatch(dc -> Arrays.stream(regex).anyMatch(r -> dc.matches(r)));
+    }
+
+    @Override
+    public boolean hasExactDeclaredDependency(Dependency dependency) {
+        return getDeclaredDependencies().stream()
+                .anyMatch(d -> d.equals(dependency));
+    }
+
+    public List<Dependency> getDeclaredDependencies() {
+        Map<Scope, List<ResolvedDependency>> dependencies = getPom().getDependencies();
+        return dependencies.keySet().stream()
+                .flatMap(k -> {
+                    List<ResolvedDependency> resolvedDependencies = dependencies.get(k);
+                    return resolvedDependencies.stream()
+                            .map(d -> Dependency.builder()
+                                    .groupId(d.getGroupId())
+                                    .artifactId(d.getArtifactId())
+                                    .version(d.getVersion())
+                                    .scope(d.getRequested().getScope())
+                                    .type(d.getType())
+                                    .build())
+                            .distinct();
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * TODO: #497 Test with declared and transitive dependencies
+     */
+    @Override
+    public Set<Dependency> getEffectiveDependencies(Scope scope) {
+        return getPom().getDependencies().get(scope)
+                .stream()
+                .map(d -> mapDependency(scope, d))
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Dependency> getEffectiveDependencies() {
+        return getPom().getDependencies().entrySet()
+                .stream()
+                .flatMap(e -> e.getValue().stream().map(v -> mapDependency(e.getKey(), v)))
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void removeDependencies(List<Dependency> dependencies) {
+        removeDependenciesInner(dependencies);
+        eventPublisher.publishEvent(new DependenciesChangedEvent(getResolvedDependenciesPaths()));
     }
 
     /**
      * Removes all dependencies matching given regex.
+     *
+     * Example: {@code "com\\.acme\\:artifact\\.id\\:.*"} matches all versions of {@code com.acme:artifact.id}
      *
      * @param regex varargs matching dependency coordinates `groupId:artifactId:version`
      */
@@ -144,46 +215,28 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
     }
 
     @Override
-    public void addDependency(Dependency dependency) {
-        addDependencyInner(dependency);
-        eventPublisher.publishEvent(new DependenciesChangedEvent(getResolvedDependenciesPaths()));
-    }
-
-    @Override
     public void addToDependencyManagement(Dependency dependency) {
         addToDependencyManagementInner(dependency);
         eventPublisher.publishEvent(new DependenciesChangedEvent(getResolvedDependenciesPaths()));
     }
 
-    @Override
-    public void addDependencies(List<Dependency> dependencies) {
-        addDependenciesInner(dependencies);
-        eventPublisher.publishEvent(new DependenciesChangedEvent(getResolvedDependenciesPaths()));
+    private org.springframework.sbm.build.api.Dependency mapDependency(Scope scope, ResolvedDependency d) {
+       return new Dependency(
+                d.getGroupId(),
+                d.getArtifactId(),
+                d.getVersion(),
+                d.getType(),
+                scope.name(),
+                d.getClassifier(),
+                d.getRequested().getExclusions()
+                        .stream()
+                        .map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build())
+                        .collect(Collectors.toList())
+                );
     }
 
-    @Override
-    public void removeDependencies(List<Dependency> dependencies) {
-        removeDependenciesInner(dependencies);
-        eventPublisher.publishEvent(new DependenciesChangedEvent(getResolvedDependenciesPaths()));
-    }
-
-    public List<Dependency> getDeclaredDependencies() {
-        Collection<org.openrewrite.maven.tree.Pom.Dependency> dependencies = getPom().getModel().getDependencies();
-        return dependencies.stream()
-                .map(d -> Dependency.builder()
-                        .groupId(d.getGroupId())
-                        .artifactId(d.getArtifactId())
-                        .version(d.getVersion())
-                        .scope(scopeString(d.getScope()))
-                        .type(d.getType())
-                        .build())
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Set<Pom.Dependency> getEffectiveDependencies(Scope scope) {
-        return getPom().getModel().getDependencies(scope);
+    public void addDependencyInner(Dependency dependency) {
+        addDependenciesInner(List.of(dependency));
     }
 
     private String scopeString(Scope scope) {
@@ -210,26 +263,6 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
         }
     */
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDeclaredDependencyMatchingRegex(String... regex) {
-        return getDeclaredDependencies().stream()
-                .map(d -> d.getCoordinates())
-                .anyMatch(dc -> Arrays.stream(regex).anyMatch(r -> dc.matches(r)));
-    }
-
-    @Override
-    public boolean hasExactDeclaredDependency(Dependency dependency) {
-        return getDeclaredDependencies().stream()
-                .anyMatch(d -> d.equals(dependency));
-    }
-
-    public void addDependencyInner(Dependency dependency) {
-        addDependenciesInner(List.of(dependency));
-    }
-
     protected void addDependenciesInner(List<Dependency> dependencies) {
 //        dependencies = dependencies.stream().filter(d -> hasExactDeclaredDependency(d)).collect(Collectors.toList());
         if (!dependencies.isEmpty()) {
@@ -250,7 +283,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
     }
 
     private boolean hasEffectiveDependency(Dependency d) {
-        return getPom().getMavenModel().getPom().getDependencies().stream()
+        return getEffectiveDependencies().stream()
                 .anyMatch(dep -> d.getCoordinates().equals(dep.getCoordinates()));
     }
 
@@ -270,8 +303,12 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
     private void updateClasspathRegistry() {
         ClasspathRegistry instance = ClasspathRegistry.getInstance();
         // FIXME: removed dependencies must be removed from ProjectDependenciesRegistry too
-        Set<Pom.Dependency> compileDependencies = getPom().getModel().getDependencies(Scope.Compile);
-        compileDependencies.addAll(getPom().getModel().getDependencies(Scope.Test));
+        Set<ResolvedDependency> compileDependencies = getPom().getDependencies().get(Scope.Compile).stream().collect(Collectors.toSet());
+        Set<ResolvedDependency> collect = getPom().getDependencies().get(Scope.Test)
+                .stream()
+                .flatMap(d -> d.getDependencies().stream())
+                .collect(Collectors.toSet());
+        compileDependencies.addAll(collect);
         compileDependencies.stream()
                 .forEach(instance::addDependency);
     }
@@ -309,12 +346,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
 
     @Override
     public List<Dependency> getDependencyManagement() {
-        Maven pom = getPom();
-        if (pom.getModel().getDependencyManagement() == null) {
+        MavenResolutionResult pom = getPom();
+        if (pom.getPom().getDependencyManagement() == null) {
             return Collections.emptyList();
         }
-        return pom.getModel().getDependencyManagement().getDependencies().stream()
-                .flatMap(d -> d.getDependencies().stream())
+        return pom.getPom().getDependencyManagement().stream()
                 .map(d -> Dependency.builder()
                         .groupId(d.getGroupId())
                         .artifactId(d.getArtifactId())
@@ -337,51 +373,53 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
     // TODO:
     public List<Path> getResolvedDependenciesPaths() {
 
-        try {
-            MavenResolvedArtifact[] artifacts = new MavenResolvedArtifact[0];
-            File file = getAbsolutePath().toFile();
-            if (file.exists()) {
-                MavenWorkingSession mavenWorkingSession = new MavenWorkingSessionImpl().loadPomFromFile(file);
-                if (!mavenWorkingSession.getDeclaredDependencies().isEmpty()) {
-                    artifacts = org.jboss.shrinkwrap.resolver.api.maven.Maven.resolver().loadPomFromFile(file)
-                            .importDependencies(ScopeType.values())
-                            .resolve().withTransitivity().asResolvedArtifact();
-                }
-            } else {
-                List<MavenDependency> mavenDependencies = getDeclaredDependencies().stream()
-                        .map(d -> MavenDependencies.createDependency(
-                                MavenCoordinates.createCoordinate(
-                                        d.getGroupId(), d.getArtifactId(), d.getVersion(),
-                                        d.getType() == null ? PackagingType.JAR : PackagingType.of(d.getType()),
-                                        d.getClassifier()),
-                                ScopeType.fromScopeType(d.getScope()),
-                                false))
-                        .collect(Collectors.toList());
-
-                if (mavenDependencies.isEmpty()) {
-                    return Collections.emptyList();
-                }
-
-                artifacts = org.jboss.shrinkwrap.resolver.api.maven.Maven.resolver()
-                        .addDependencies(mavenDependencies)
-                        .resolve().withTransitivity().asResolvedArtifact();
-            }
-
-            return Arrays.stream(artifacts)
-                    .map(a -> a.asFile().toPath())
-                    .collect(Collectors.toList());
-        } catch (
-                Exception e) {
-            throw new RuntimeException(e);
-        }
+        return new ArrayList<>(ClasspathRegistry.getInstance().getCurrentDependencies());
+//
+//        try {
+//            MavenResolvedArtifact[] artifacts = new MavenResolvedArtifact[0];
+//            File file = getAbsolutePath().toFile();
+//            if (file.exists()) {
+//                MavenWorkingSession mavenWorkingSession = new MavenWorkingSessionImpl().loadPomFromFile(file);
+//                if (!mavenWorkingSession.getDeclaredDependencies().isEmpty()) {
+//                    artifacts = org.jboss.shrinkwrap.resolver.api.maven.Maven.resolver().loadPomFromFile(file)
+//                            .importDependencies(ScopeType.values())
+//                            .resolve().withTransitivity().asResolvedArtifact();
+//                }
+//            } else {
+//                List<MavenDependency> mavenDependencies = getDeclaredDependencies().stream()
+//                        .map(d -> MavenDependencies.createDependency(
+//                                MavenCoordinates.createCoordinate(
+//                                        d.getGroupId(), d.getArtifactId(), d.getVersion(),
+//                                        d.getType() == null ? PackagingType.JAR : PackagingType.of(d.getType()),
+//                                        d.getClassifier()),
+//                                ScopeType.fromScopeType(d.getScope()),
+//                                false))
+//                        .collect(Collectors.toList());
+//
+//                if (mavenDependencies.isEmpty()) {
+//                    return Collections.emptyList();
+//                }
+//
+//                artifacts = org.jboss.shrinkwrap.resolver.api.maven.Maven.resolver()
+//                        .addDependencies(mavenDependencies)
+//                        .resolve().withTransitivity().asResolvedArtifact();
+//            }
+//
+//            return Arrays.stream(artifacts)
+//                    .map(a -> a.asFile().toPath())
+//                    .collect(Collectors.toList());
+//        } catch (
+//                Exception e) {
+//            throw new RuntimeException(e);
+//        }
 
     }
 
     @Override
     public boolean hasPlugin(Plugin plugin) {
         // TODO: [FK] discuss how to handle conditions. This code is exactly the same as in #AddMavenPluginVisitor.pluginDefinitionExists(Maven.Pom pom) which is private and the test would repeat the test for AddMavenPluginVisitor
-        Maven pom = getPom();
-        Optional<Xml.Tag> pluginDefinition = pom.getRoot().getChildren("build").stream()
+        Xml.Document sourceFile = getSourceFile();
+        Optional<Xml.Tag> pluginDefinition = sourceFile.getRoot().getChildren("build").stream()
                 .flatMap(b -> b.getChildren("plugins").stream())
                 .flatMap(b -> b.getChildren("plugin").stream())
                 .filter(p -> p.getChildren("groupId") != null && !p.getChildren("groupId").isEmpty())
@@ -420,7 +458,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
     @Override
     public List<Path> getClasspath() {
         List<Path> classpath = new ArrayList<>();
-        classpath.add(getPom().getSourcePath().toAbsolutePath().getParent().resolve("target/classes"));
+        classpath.add(getSourceFile().getSourcePath().toAbsolutePath().getParent().resolve("target/classes"));
         classpath.addAll(getResolvedDependenciesPaths());
         return classpath;
     }
@@ -431,7 +469,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
     }
 
     final public String getProperty(String key) {
-        return getPom().getModel().getProperties().get(key);
+        return getPom().getPom().getProperties().get(key);
     }
 
     final public void setProperty(String key, String value) {
@@ -439,20 +477,21 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
             apply(new RemoveProperty(key));
         } else {
             String current = getProperty(key);
-            apply(current == null ? new AddProperty(key, value) : new ChangePropertyValue(key, value));
+            apply(current == null ? new AddProperty(key, value) : new ChangePropertyValue(key, value, false));
         }
         apply(new RefreshPomModel());
     }
 
     @Override
     public String getPackaging() {
-        String packaging = getPom().getModel().getPackaging();
+        String packaging = getPom().getPom().getPackaging();
         return packaging;
     }
 
     @Override
     public void setPackaging(String packaging) {
-        apply(new SetPackaging(packaging).doNext(new RefreshPomModel()));
+        ChangePackaging changePackaging = new ChangePackaging(getGroupId(), getArtifactId(), packaging);
+        apply(changePackaging);
     }
 
     @Override
@@ -463,17 +502,17 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
 
     @Override
     public String getGroupId() {
-        return getPom().getMavenModel().getPom().getGroupId();
+        return getPom().getPom().getGroupId();
     }
 
     @Override
     public String getArtifactId() {
-        return getPom().getMavenModel().getPom().getArtifactId();
+        return getPom().getPom().getArtifactId();
     }
 
     @Override
     public String getVersion() {
-        return getPom().getMavenModel().getPom().getVersion();
+        return getPom().getPom().getVersion();
     }
 
     @Override
@@ -483,16 +522,16 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
 
     @Override
     public boolean hasParent() {
-        Pom parent = getPom().getModel().getParent();
+        @Nullable MavenResolutionResult parent = getPom().getParent();
         return parent != null;
     }
 
     @Override
     public void upgradeParentVersion(String version) {
         if (hasParent()) {
-            Pom parent = getPom().getModel().getParent();
+            @Nullable MavenResolutionResult parent = getPom().getParent();
             apply(
-                    new UpgradeParentVersion(parent.getGroupId(), parent.getArtifactId(), version, null)
+                    new UpgradeParentVersion(parent.getPom().getGroupId(), parent.getPom().getArtifactId(), version, null)
                             .doNext(new RefreshPomModel())
             );
         }
@@ -500,18 +539,18 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
 
     @Override
     public ParentDeclaration getParentPomDeclaration() {
-        Pom parent = getPom().getModel().getParent();
+        @Nullable MavenResolutionResult parent = getPom().getParent();
         // FIXME: no relativePath for parent declaration
         if (parent == null) {
             // TODO: return Optional instead of null
             return null;
         }
-        return new RewriteMavenParentDeclaration(parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "Not supported (yet)");
+        return new RewriteMavenParentDeclaration(parent.getPom().getGroupId(), parent.getPom().getArtifactId(), parent.getPom().getVersion(), "Not supported (yet)");
     }
 
     @Override
     public Optional<String> getName() {
-        return Optional.ofNullable(getPom().getModel().getName());
+        return Optional.ofNullable(getPom().getPom().getRequested().getName());
     }
 
     @Override
@@ -533,14 +572,13 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
 
     @Override
     public List<Plugin> getPlugins() {
-        Maven maven = getPom();
 
         List<Plugin> plugins = new ArrayList<>();
 
-        MavenVisitor mavenVisitor = new MavenVisitor() {
+        MavenVisitor mavenVisitor = new MavenVisitor<ExecutionContext>() {
 
             @Override
-            public Maven visitMaven(Maven maven, ExecutionContext ctx) {
+            public Xml.Document visitDocument(Xml.Document maven, ExecutionContext ctx) {
                 Xml.Tag mavenRoot = maven.getRoot();
                 Optional<Xml.Tag> build = mavenRoot.getChild("build");
                 if (build.isPresent()) {
@@ -570,7 +608,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
             }
         };
 
-        mavenVisitor.visitMaven(maven, executionContext);
+        mavenVisitor.visitDocument(getSourceFile(), executionContext);
 
         return plugins;
     }
@@ -604,9 +642,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Maven> im
             recipe.doNext(new RemoveMavenPlugin(split[0], split[1]));
         }
 
-        List<Result> run = recipe.run(List.of(getPom()), executionContext);
+        List<Result> run = recipe.run(List.of(getSourceFile()), executionContext);
         if (!run.isEmpty()) {
-            replaceWith((Maven) run.get(0).getAfter());
+            replaceWith((Xml.Document) run.get(0).getAfter());
         }
     }
 
