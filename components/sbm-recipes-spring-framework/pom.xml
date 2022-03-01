@@ -89,12 +89,5 @@
             <artifactId>recipe-test-support</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.sbm</groupId>
-            <artifactId>recipe-test-support</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>
