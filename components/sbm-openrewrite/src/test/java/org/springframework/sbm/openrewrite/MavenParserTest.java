@@ -17,12 +17,21 @@ package org.springframework.sbm.openrewrite;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.cache.RocksdbMavenPomCache;
+import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.Pom;
+import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.Problem;
 
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +65,7 @@ public class MavenParserTest {
 	}
 
 	@Test
-	void test() {
+	void test(@TempDir Path tempDir) {
 		String pomXml =
 				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
 						"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -83,15 +92,22 @@ public class MavenParserTest {
 						"            <groupId>org.apache.tomee</groupId>\n" +
 						"            <artifactId>openejb-core-hibernate</artifactId>\n" +
 						"            <version>8.0.5</version>\n" +
-//						"            <type>pom</type>\n" +
+//						"            <type>pom</type>\n" + // FIXME:
 						"        </dependency>\n" +
 						"    </dependencies>\n" +
 						"</project>";
 
 		Xml.Document document = MavenParser.builder().build().parse(pomXml).get(0);
 		MavenResolutionResult r = document.getMarkers().findFirst(MavenResolutionResult.class).get();
+
+		InMemoryExecutionContext executionContext = new InMemoryExecutionContext((t) -> System.out.println(t.getMessage()));
+		MavenExecutionContextView ctx = MavenExecutionContextView.view(executionContext);
+		ctx.setPomCache(new RocksdbMavenPomCache(tempDir.resolve("rewrite-cache")));
+		HashMap<Path, Pom> projectPoms = new HashMap<>();
+		MavenPomDownloader mavenPomDownloader = new MavenPomDownloader(projectPoms, ctx);
+		List<ResolvedDependency> resolvedDependencies = r.getDependencies().get(Scope.Compile);
 		assertThat(r.getDependencies()).hasSize(4);
-		assertThat(r.getDependencies().get(Scope.Compile)).hasSize(84);
+		assertThat(resolvedDependencies).hasSize(84);
 	}
 
 }
