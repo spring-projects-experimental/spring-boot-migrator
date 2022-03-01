@@ -15,7 +15,9 @@
  */
 package org.springframework.sbm.build.api;
 
+import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.springframework.sbm.build.impl.JavaSourceSetImpl;
+import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
@@ -27,7 +29,6 @@ import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.SourceFile;
-import org.openrewrite.maven.tree.Modules;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -109,13 +110,13 @@ public class ApplicationModule {
     }
 
     public List<ApplicationModule> getModules() {
-        Optional<Modules> modulesMarker = ((OpenRewriteMavenBuildFile) buildFile).getPom().getMarkers().findFirst(Modules.class);
-        if (modulesMarker.isPresent()) {
-            return modulesMarker.get()
-                    .getModules()
+        Optional<MavenResolutionResult> mavenResolution = MavenBuildFileUtil.getMavenResolution(((OpenRewriteMavenBuildFile) buildFile).getSourceFile());
+        List<MavenResolutionResult> modulesMarker = mavenResolution.get().getModules();
+        if ( ! modulesMarker.isEmpty()) {
+            return modulesMarker
                     .stream()
                     .map(m -> new ApplicationModule(
-                            m.getName(),
+                            m.getPom().getGav().toString(),
                             this.buildFile,
                             projectRootDir,
                             modulePath,

@@ -15,47 +15,36 @@
  */
 package org.springframework.sbm.build.migration;
 
-import org.springframework.sbm.engine.annotations.StatefulComponent;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
-import org.openrewrite.maven.cache.MapdbMavenPomCache;
 import org.openrewrite.maven.cache.MavenPomCache;
 import org.openrewrite.maven.cache.RocksdbMavenPomCache;
+import org.springframework.sbm.engine.annotations.StatefulComponent;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @StatefulComponent
 public class MavenPomCacheProvider {
 
-    private MavenPomCache pomCache;
+	private MavenPomCache pomCache;
 
-    @PostConstruct
-    void postConstruct() {
-        pomCache = rocksdb(); // mapdb();
-    }
+	@PostConstruct
+	void postConstruct() {
+		pomCache = rocksdb();
+	}
 
-    public MavenPomCache getPomCache() {
-        return pomCache == null ? inMemory() : pomCache;
-    }
+	public MavenPomCache getPomCache() {
+		return pomCache == null ? inMemory() : pomCache;
+	}
 
-    private MavenPomCache inMemory() {
-        return new InMemoryMavenPomCache();
-    }
+	private MavenPomCache inMemory() {
+		return new InMemoryMavenPomCache();
+	}
 
-    private void mapdb() {
-        File workspace = Paths.get(System.getProperty("user.home"), ".rewrite", "cache", "poms").toFile();
-        new MapdbMavenPomCache(
-                workspace,
-                null
-        );
-    }
-
-    @NotNull
-    private RocksdbMavenPomCache rocksdb() {
-        return new RocksdbMavenPomCache(Path.of(".").toAbsolutePath());
-    }
+	@NotNull
+	private RocksdbMavenPomCache rocksdb() {
+		return new RocksdbMavenPomCache(Path.of(".").toAbsolutePath());
+	}
 
 }

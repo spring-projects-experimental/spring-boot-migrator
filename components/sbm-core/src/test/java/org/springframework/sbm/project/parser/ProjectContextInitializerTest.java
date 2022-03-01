@@ -15,13 +15,13 @@
  */
 package org.springframework.sbm.project.parser;
 
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.maven.tree.Maven;
 import org.openrewrite.properties.tree.Properties;
 import org.openrewrite.text.PlainText;
 import org.openrewrite.xml.tree.Xml;
@@ -51,7 +51,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.springframework.sbm.project.parser.ResourceVerifier.*;
+import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.*;
 
 
 @SpringBootTest(classes = {
@@ -75,7 +75,7 @@ import static org.springframework.sbm.project.parser.ResourceVerifier.*;
 }, properties = {"sbm.gitSupportEnabled=false"})
 class ProjectContextInitializerTest {
 
-    private Path projectDirectory = Path.of("./testcode/path-scanner").toAbsolutePath().normalize();
+    private final Path projectDirectory = Path.of("./testcode/path-scanner").toAbsolutePath().normalize();
 
     @Autowired
     private ProjectContextInitializer sut;
@@ -109,6 +109,7 @@ class ProjectContextInitializerTest {
 
         assertThat(projectResources).hasSize(18);
 
+        verifyResource("testcode/pom.xml").wrappedInstanceOf(Xml.Document.class);
         verifyIgnored(projectResources, "testcode/path-scanner/.git");
 
         verifyResource("testcode/path-scanner/pom.xml")

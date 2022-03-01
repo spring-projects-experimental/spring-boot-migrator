@@ -21,8 +21,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Result;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.UpgradeDependencyVersion;
-import org.openrewrite.maven.cache.InMemoryMavenPomCache;
-import org.openrewrite.maven.tree.Maven;
+import org.openrewrite.xml.tree.Xml;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,7 +65,7 @@ public class UpgradeDependencyVersionTest {
                     + "    </dependencies>\n"
                     + "</project>";
 
-    private List<Maven> mavens = MavenParser.builder().cache(new InMemoryMavenPomCache()).build().parse(POM_XML);
+    private final List<Xml.Document> mavens = MavenParser.builder().build().parse(POM_XML);
 
     @Test
     @Disabled

@@ -15,15 +15,15 @@
  */
 package org.springframework.sbm.build.resource;
 
+import lombok.RequiredArgsConstructor;
+import org.openrewrite.SourceFile;
+import org.openrewrite.xml.tree.Xml;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.annotation.Order;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.ProjectResourceWrapper;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import lombok.RequiredArgsConstructor;
-import org.openrewrite.SourceFile;
-import org.openrewrite.maven.tree.Maven;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,12 +35,12 @@ public class BuildFileResourceWrapper implements ProjectResourceWrapper<OpenRewr
 
     @Override
     public boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
-        return Maven.class.isAssignableFrom(rewriteSourceFileHolder.getSourceFile().getClass());
+        return Xml.Document.class.isAssignableFrom(rewriteSourceFileHolder.getSourceFile().getClass());
     }
 
     @Override
     public OpenRewriteMavenBuildFile wrapRewriteSourceFileHolder(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
-        Maven maven = Maven.class.cast(rewriteSourceFileHolder.getSourceFile());
+        Xml.Document maven = (Xml.Document) rewriteSourceFileHolder.getSourceFile();
         return new OpenRewriteMavenBuildFile(rewriteSourceFileHolder.getAbsoluteProjectDir(), maven, eventPublisher, new RewriteExecutionContext(eventPublisher));
     }
 

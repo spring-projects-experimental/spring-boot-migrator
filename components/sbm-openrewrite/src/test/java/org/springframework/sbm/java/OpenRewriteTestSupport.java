@@ -221,8 +221,7 @@ public class OpenRewriteTestSupport {
      */
     public static JavaParser getJavaParser(String... classpath) {
         JavaParser.Builder<? extends JavaParser, ?> jp = JavaParser.fromJavaVersion()
-                .logCompilationWarningsAndErrors(true)
-                .relaxedClassTypeMatching(false);
+                .logCompilationWarningsAndErrors(true);
 
         List<Path> collect = getClasspathFiles(classpath);
         if (classpath.length > 0) {

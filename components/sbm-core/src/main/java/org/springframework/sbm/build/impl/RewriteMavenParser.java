@@ -15,20 +15,20 @@
  */
 package org.springframework.sbm.build.impl;
 
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenParser;
-import org.openrewrite.maven.tree.Maven;
+import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
 
 @Component
-public class RewriteMavenParser implements Parser<Maven> {
+public class RewriteMavenParser implements Parser<Xml.Document> {
 
     private final MavenParser parser;
 
@@ -52,12 +52,12 @@ public class RewriteMavenParser implements Parser<Maven> {
     }
 
     @Override
-    public List<Maven> parse(String... sources) {
+    public List<Xml.Document> parse(String... sources) {
         return parser.parse(sources);
     }
 
     @Override
-    public List<Maven> parseInputs(Iterable<Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
+    public List<Xml.Document> parseInputs(Iterable<Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
         return parser.parseInputs(sources, relativeTo, ctx);
     }
 

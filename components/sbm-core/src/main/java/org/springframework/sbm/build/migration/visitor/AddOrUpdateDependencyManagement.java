@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class AddOrUpdateDependencyManagement extends MavenVisitor {
+public class AddOrUpdateDependencyManagement extends MavenVisitor<ExecutionContext> {
 
     /*
      * What does this visitor do?

@@ -78,9 +78,9 @@ public class RewriteMethodInvocation extends Recipe {
 		JavaType type = JavaType.buildType(newType);
 		return new RewriteMethodInvocation(matcher, (v, m, a) -> {
 			return m
-					.withName(m.getName().withName(newName))
+					.withName(m.getName().withSimpleName(newName))
 					.withSelect(m.getSelect().withType(type))
-					.withType(m.getType().withDeclaringType(TypeUtils.asFullyQualified(type)));
+					.withType(m.getType()); // TODO: #497 verify this still works
 		});
 	}
 

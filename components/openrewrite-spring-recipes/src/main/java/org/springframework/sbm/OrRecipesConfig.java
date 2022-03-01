@@ -15,16 +15,16 @@
  */
 package org.springframework.sbm;
 
-import org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex;
+import org.openrewrite.maven.AddPluginDependency;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
+import org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex;
 import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.spring.migration.actions.OpenRewriteRecipeAdapterAction;
-import org.springframework.sbm.support.openrewrite.maven.AddPluginDependency;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -69,6 +69,9 @@ public class OrRecipesConfig {
         
         r.doNext(new RemoveMavenPlugin("org.codehaus.mojo", "cobertura-maven-plugin"));
         r.doNext(new AddPluginDependency("ro.isdc.wro4j", "wro4j-maven-plugin", "org.mockito", "mockito-core", "${mockito.version}"));
+
+
+
         r.doNext(new OpenRewriteMavenBuildFile.RefreshPomModel());
 
         AnyDependencyExistMatchingRegex condition = new AnyDependencyExistMatchingRegex();

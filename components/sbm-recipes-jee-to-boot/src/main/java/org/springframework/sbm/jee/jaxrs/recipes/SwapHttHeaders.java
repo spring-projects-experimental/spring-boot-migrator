@@ -49,7 +49,7 @@ public class SwapHttHeaders extends Recipe {
                             JavaType javaType = JavaType.buildType("org.springframework.http.HttpHeaders");
                             return m
                                     .withSelect(m.getSelect().withType(javaType))
-                                    .withName(m.getName().withName("getAcceptLanguageAsLocales"))
+                                    .withName(m.withName().getName().withName("getAcceptLanguageAsLocales"))
                                     .withType(m.getType().withDeclaringType(TypeUtils.asFullyQualified(JavaType.buildType("org.springframework.http.HttpHeaders"))));
                         }
                 )

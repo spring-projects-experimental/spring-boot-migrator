@@ -44,11 +44,7 @@ public class ChangeTypeTest {
                 "    }\n" +
                 "}";
 
-        // 7.17.x
-//        ChangeType changeType = new ChangeType("javax.ws.rs.core.Response${'$'}Status${'$'}Family", "org.springframework.http.HttpStatus${'$'}Series");
-
-        // 7.16.3
-        ChangeType changeType = new ChangeType("javax.ws.rs.core.Response.Status.Family", "org.springframework.http.HttpStatus.Series");
+        ChangeType changeType = new ChangeType("javax.ws.rs.core.Response$Status$Family", "org.springframework.http.HttpStatus$Series");
 
         J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(javaSource, "javax:javaee-api:8.0", "org.springframework:spring-web:5.3.7");
 

@@ -17,21 +17,15 @@ package org.springframework.sbm.support.openrewrite.maven;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.Recipe;
-import org.openrewrite.TreeVisitor;
-import org.openrewrite.maven.MavenVisitor;
-import org.openrewrite.maven.internal.InsertDependencyComparator;
-import org.openrewrite.xml.AddToTagVisitor;
-import org.openrewrite.xml.XPathMatcher;
-import org.openrewrite.xml.tree.Xml;
-import org.openrewrite.xml.tree.Xml.Tag;
 
 @Data
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class AddPluginDependency extends Recipe {
+/**
+ * TODO(497): remove
+ * @deprecated Use {@code #org.openrewrite.maven.AddPluginDependency} instead
+ */
+@Deprecated(forRemoval = true)
+public class AddPluginDependency { /*extends Recipe {
 
     private static final XPathMatcher PLUGIN_MATCHER = new XPathMatcher("/project/build/plugins/plugin");
     private static final String FOUND_DEPENDENCY_MSG = "plugin-dependency-found";
@@ -87,7 +81,6 @@ public class AddPluginDependency extends Recipe {
             this.scope = tag;
         }
 
-        @Override
         public Xml visitTag(Xml.Tag tag, ExecutionContext ctx) {
             // Any tag
             if (getCursor().isScopeInPath(scope)) {
@@ -112,6 +105,6 @@ public class AddPluginDependency extends Recipe {
             return super.visitTag(tag, ctx);
         }
 
-    }
+    }*/
 
 }

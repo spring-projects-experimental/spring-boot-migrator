@@ -47,7 +47,7 @@ public class RemoveMavenPlugin extends Recipe {
         return new RemoveMavenPluginVisitor();
     }
 
-    private class RemoveMavenPluginVisitor extends MavenVisitor {
+    private class RemoveMavenPluginVisitor extends MavenVisitor<ExecutionContext> {
 
         @Override
         public Xml visitTag(Xml.Tag tag, ExecutionContext ctx) {
@@ -59,7 +59,7 @@ public class RemoveMavenPlugin extends Recipe {
 
         private boolean hasGroupAndArtifact(String groupId, String artifactId) {
             Xml.Tag tag = getCursor().getValue();
-            return groupId.equals(tag.getChildValue("groupId").orElse(model.getGroupId())) &&
+            return groupId.equals(tag.getChildValue("groupId")) &&
                     tag.getChildValue("artifactId")
                             .map(a -> a.equals(artifactId))
                             .orElse(artifactId == null);

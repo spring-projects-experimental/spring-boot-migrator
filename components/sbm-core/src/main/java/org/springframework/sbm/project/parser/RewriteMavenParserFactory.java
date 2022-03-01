@@ -50,7 +50,6 @@ public class RewriteMavenParserFactory {
         // rewriteExecutionContext.getMavenPomCache();
 
         MavenParser.Builder mavenParserBuilder = MavenParser.builder()
-                .cache(getPomCache())
                 .mavenConfig(absoluteProjectDir.resolve(".mvn/maven.config"));
 
         MavenProjectParser mavenProjectParser = new MavenProjectParser(

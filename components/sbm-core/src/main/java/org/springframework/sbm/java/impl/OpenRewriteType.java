@@ -19,10 +19,6 @@ import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
-import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
-import org.springframework.sbm.support.openrewrite.java.FindCompilationUnitContainingType;
-import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -36,6 +32,10 @@ import org.openrewrite.java.tree.J.ClassDeclaration;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.JavaType.Class;
 import org.openrewrite.java.tree.TypeUtils;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
+import org.springframework.sbm.support.openrewrite.java.FindCompilationUnitContainingType;
+import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 
 import java.util.List;
 import java.util.Optional;
@@ -125,6 +125,7 @@ public class OpenRewriteType implements Type {
     @Override
     // FIXME: reuse
     public void removeAnnotation(String fqName) {
+        // TODO: See if RemoveAnnotationVisitor can be replaced with OpenRewrite's version
         Recipe removeAnnotationRecipe = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(getClassDeclaration(), fqName))
                 .doNext(new RemoveUnusedImports());
         refactoring.refactor(rewriteSourceFileHolder, removeAnnotationRecipe);

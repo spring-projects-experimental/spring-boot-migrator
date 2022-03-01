@@ -20,9 +20,10 @@ import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.MavenVisitor;
-import org.openrewrite.maven.tree.Maven;
+import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.util.ReflectionUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 class Refactoring<P> {
 
-    private final RewriteSourceFileHolder<Maven> pom;
+    private final RewriteSourceFileHolder<Xml.Document> pom;
 
     public void execute(MavenVisitor... visitors) {
         List<Result> results = Arrays.stream(visitors)
@@ -64,8 +65,8 @@ class Refactoring<P> {
         MavenParser parser = MavenParser
                 .builder()
                 .build();
-        Maven wrappedMavenFile = parser.parse(result.getAfter().printAll()).get(0);
-        wrappedMavenFile = (Maven) wrappedMavenFile.withSourcePath(pom.getSourceFile().getSourcePath());
+        Xml.Document wrappedMavenFile = parser.parse(result.getAfter().printAll()).get(0);
+        wrappedMavenFile = (Xml.Document) wrappedMavenFile.withSourcePath(pom.getSourceFile().getSourcePath());
         pom.replaceWith(wrappedMavenFile);
     }
 }

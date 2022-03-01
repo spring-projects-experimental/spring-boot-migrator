@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.engine.events;
+package org.springframework.sbm.build.impl;
 
-import lombok.Getter;
-import org.openrewrite.maven.tree.Dependency;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.xml.tree.Xml;
 
-public class StartDownloadingDependencyEvent {
-    @Getter
-    private final Dependency dependency;
+import java.util.Optional;
 
-    public StartDownloadingDependencyEvent(Dependency d) {
-        this.dependency = d;
+/**
+ * @author Fabian Krüger
+ */
+public class MavenBuildFileUtil {
+    public static Optional<MavenResolutionResult> getMavenResolution(Xml.Document pom) {
+        return pom.getMarkers().findFirst(MavenResolutionResult.class);
     }
 }

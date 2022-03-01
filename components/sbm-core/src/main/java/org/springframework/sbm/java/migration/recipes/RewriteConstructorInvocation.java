@@ -15,10 +15,7 @@
  */
 package org.springframework.sbm.java.migration.recipes;
 
-import java.util.Arrays;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
+import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
@@ -28,7 +25,9 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.NewClass;
 import org.openrewrite.java.tree.TypeUtils;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Arrays;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 public class RewriteConstructorInvocation extends Recipe {
@@ -72,9 +71,9 @@ public class RewriteConstructorInvocation extends Recipe {
 	public static Predicate<NewClass> constructorMatcher(String typeFqName, String... parameterTypes) {
 		return n -> {
 			if (n.getConstructorType() != null 
-					&& n.getConstructorType().getResolvedSignature() != null
+					&& n.getConstructorType().isConstructor()
 					&& typeFqName.equals(n.getConstructorType().getDeclaringType().getFullyQualifiedName())) {
-				String[] paramTypes = n.getConstructorType().getResolvedSignature().getParamTypes()
+				String[] paramTypes = n.getConstructorType().getParameterTypes()
 						.stream()
 						.map(t -> TypeUtils.asFullyQualified(t).getFullyQualifiedName())
 						.toArray(String[]::new);
@@ -84,7 +83,7 @@ public class RewriteConstructorInvocation extends Recipe {
 		};
 	}
 	
-	public static interface Transformer {
+	public interface Transformer {
 		
 		J transform(JavaVisitor<ExecutionContext> visitor, NewClass n, Consumer<String> addImport);
 		
