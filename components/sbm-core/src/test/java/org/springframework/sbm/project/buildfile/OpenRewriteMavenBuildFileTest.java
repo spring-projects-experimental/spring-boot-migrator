@@ -111,7 +111,6 @@ public class OpenRewriteMavenBuildFileTest {
                         "            <url>https://repo.maven.apache.org/maven2</url>\n" +
                         "        </repository>\n" +
                         "    </repositories>" +
-                        "\n" +
                         "    <dependencies>\n" +
                         "        <dependency>\n" +
                         "            <groupId>org.apache.tomee</groupId>\n" +
