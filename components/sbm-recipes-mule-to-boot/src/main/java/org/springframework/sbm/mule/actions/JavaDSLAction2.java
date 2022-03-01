@@ -112,6 +112,7 @@ public class JavaDSLAction2 extends AbstractAction {
     private List<Dependency> buildDependencies(TopLevelElement snippet) {
         return snippet.getRequiredDependencies().stream()
                 .map(Dependency::fromCoordinates)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
