@@ -1,5 +1,6 @@
 package org.springframework.sbm.openrewrite;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.Result;
 import org.openrewrite.maven.ExcludeDependency;
@@ -8,6 +9,7 @@ import org.openrewrite.xml.tree.Xml;
 
 import java.util.List;
 
+@Disabled("#7")
 public class ExcludeDependencyTest {
 
     @Test
@@ -22,6 +24,7 @@ public class ExcludeDependencyTest {
                         "  <artifactId>dummy-test-artifact</artifactId>\n" +
                         "  <version>1.0.0</version>\n" +
                         "  <dependencies>\n" +
+                        // FIXME #7
 //                        "    <dependency>\n" +
 //                        "      <groupId>org.junit.jupiter</groupId>\n" +
 //                        "      <artifactId>junit-jupiter-api</artifactId>\n" +
