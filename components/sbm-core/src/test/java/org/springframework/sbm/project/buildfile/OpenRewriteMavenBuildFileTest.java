@@ -348,14 +348,15 @@ public class OpenRewriteMavenBuildFileTest {
 
         sut.addDependencies(List.of(
                 Dependency.builder()
-                        .groupId("org.junit.jupiter")
-                        .artifactId("junit-jupiter-api")
-                        .version("5.7.0")
+                        .groupId("javax.mail")
+                        .artifactId("javax.mail-api")
+                        .version("1.6.2")
                         .build(),
                 Dependency.builder()
                         .groupId("org.junit.jupiter")
                         .artifactId("junit-jupiter-engine")
                         .version("5.7.0")
+                        .scope("test")
                         .exclusions(List.of(Dependency.builder()
                                 .groupId("org.junit.jupiter")
                                 .artifactId("junit-jupiter-api")
@@ -374,14 +375,15 @@ public class OpenRewriteMavenBuildFileTest {
                         + "  <version>1.0.0</version>\n"
                         + "  <dependencies>\n"
                         + "    <dependency>\n"
-                        + "      <groupId>org.junit.jupiter</groupId>\n"
-                        + "      <artifactId>junit-jupiter-api</artifactId>\n"
-                        + "      <version>5.7.0</version>\n"
+                        + "      <groupId>javax.mail</groupId>\n"
+                        + "      <artifactId>javax.mail-api</artifactId>\n"
+                        + "      <version>1.6.2</version>\n"
                         + "    </dependency>\n"
                         + "    <dependency>\n"
                         + "      <groupId>org.junit.jupiter</groupId>\n"
                         + "      <artifactId>junit-jupiter-engine</artifactId>\n"
                         + "      <version>5.7.0</version>\n"
+                        + "      <scope>test</scope>\n"
                         + "      <exclusions>\n"
                         + "        <exclusion>\n"
                         + "          <groupId>org.junit.jupiter</groupId>\n"
@@ -397,9 +399,9 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(sut.getDeclaredDependencies()).hasSize(2);
 
         Dependency addedDependency = sut.getDeclaredDependencies().get(0);
-        assertThat(addedDependency.getGroupId()).isEqualTo("org.junit.jupiter");
-        assertThat(addedDependency.getArtifactId()).isEqualTo("junit-jupiter-api");
-        assertThat(addedDependency.getVersion()).isEqualTo("5.7.0");
+        assertThat(addedDependency.getGroupId()).isEqualTo("javax.mail");
+        assertThat(addedDependency.getArtifactId()).isEqualTo("javax.mail-api");
+        assertThat(addedDependency.getVersion()).isEqualTo("1.6.2");
 
         addedDependency = sut.getDeclaredDependencies().get(1);
         assertThat(addedDependency.getGroupId()).isEqualTo("org.junit.jupiter");

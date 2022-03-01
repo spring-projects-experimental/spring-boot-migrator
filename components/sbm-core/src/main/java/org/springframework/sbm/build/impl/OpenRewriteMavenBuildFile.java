@@ -154,21 +154,28 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     public List<Dependency> getDeclaredDependencies() {
-        Map<Scope, List<ResolvedDependency>> dependencies = getPom().getDependencies();
-        return dependencies.keySet().stream()
-                .flatMap(k -> {
-                    List<ResolvedDependency> resolvedDependencies = dependencies.get(k);
-                    return resolvedDependencies.stream()
-                            .map(d -> Dependency.builder()
-                                    .groupId(d.getGroupId())
-                                    .artifactId(d.getArtifactId())
-                                    .version(d.getVersion())
-                                    .scope(d.getRequested().getScope())
-                                    .type(d.getType())
-                                    .build())
-                            .distinct();
-                })
-                .collect(Collectors.toList());
+        return getSourceFile()
+                .getRoot()
+                .getChild("dependencies").get()
+                .getChildren()
+                .stream()
+                .map(t ->
+                {
+                    Dependency.DependencyBuilder dependencyBuilder = Dependency.builder()
+                            .groupId(t.getChildren("groupId").get(0).getValue().get())
+                            .artifactId(t.getChildren("artifactId").get(0).getValue().get());
+                    if(t.getChild("version").isPresent()) {
+                        dependencyBuilder.version(t.getChild("version").get().getValue().get());
+                    }
+                    if(t.getChild("type").isPresent()) {
+                        dependencyBuilder.type(t.getChild("type").get().getValue().get());
+                    }
+                    if(t.getChild("scope").isPresent()) {
+                        dependencyBuilder.scope(t.getChild("scope").get().getValue().get());
+                    }
+                    return dependencyBuilder.build();
+                }
+                ).collect(Collectors.toList());
     }
 
     /**
