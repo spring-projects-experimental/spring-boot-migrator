@@ -52,8 +52,8 @@ import org.springframework.schema.beans.PropertyType;
     "serviceOverrides"
 })
 @XmlSeeAlso({
-    AmqpConnectorType.class,
     JndiConnectorType.class,
+    AmqpConnectorType.class,
     NoProtocolTcpConnectorType.class,
     CustomConnectorType.class,
     TransactedConnectorType.class

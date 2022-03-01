@@ -77,8 +77,8 @@ public class TlsContextType
      * <p>
      * You are getting this "catch-all" property because of the following reason: 
      * The field name "TrustStore" is used by two different parts of a schema. See: 
-     * line 166 of file:/Users/sanagaraj/workspace/spring-boot-migrator/components/sbm-recipes-mule-to-boot/src/main/xsd/mule/mule-tls.xsd
-     * line 162 of file:/Users/sanagaraj/workspace/spring-boot-migrator/components/sbm-recipes-mule-to-boot/src/main/xsd/mule/mule-tls.xsd
+     * line 166 of file:/Users/sanagaraj/workspace/opensource/spring-boot-migrator/components/sbm-recipes-mule-to-boot/src/main/xsd/mule/mule-tls.xsd
+     * line 162 of file:/Users/sanagaraj/workspace/opensource/spring-boot-migrator/components/sbm-recipes-mule-to-boot/src/main/xsd/mule/mule-tls.xsd
      * <p>
      * To get rid of this property, apply a property customization to one 
      * of both of the following declarations to change their names: 

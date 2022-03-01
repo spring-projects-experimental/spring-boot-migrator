@@ -51,9 +51,9 @@ public class QueueProfileType
      *     possible object is
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RefQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractQueueStoreType }{@code >}
      *     
@@ -69,9 +69,9 @@ public class QueueProfileType
      *     allowed object is
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RefQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractQueueStoreType }{@code >}
      *     

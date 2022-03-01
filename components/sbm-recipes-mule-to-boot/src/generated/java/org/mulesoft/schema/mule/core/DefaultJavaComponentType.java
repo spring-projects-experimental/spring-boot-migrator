@@ -98,13 +98,13 @@ public class DefaultJavaComponentType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link ReflectionEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link MethodEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link MethodEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link PropertyEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReflectionEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
      *     
      */
@@ -117,13 +117,13 @@ public class DefaultJavaComponentType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link ReflectionEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link MethodEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link MethodEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link PropertyEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReflectionEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
      *     
      */
@@ -138,8 +138,8 @@ public class DefaultJavaComponentType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link SpringBeanLookupType }{@code >}
      *     {@link JAXBElement }{@code <}{@link SingletonObjectFactoryType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link SpringBeanLookupType }{@code >}
      *     {@link JAXBElement }{@code <}{@link PrototypeObjectFactoryType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractObjectFactoryType }{@code >}
      *     
@@ -153,8 +153,8 @@ public class DefaultJavaComponentType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link SpringBeanLookupType }{@code >}
      *     {@link JAXBElement }{@code <}{@link SingletonObjectFactoryType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link SpringBeanLookupType }{@code >}
      *     {@link JAXBElement }{@code <}{@link PrototypeObjectFactoryType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractObjectFactoryType }{@code >}
      *     

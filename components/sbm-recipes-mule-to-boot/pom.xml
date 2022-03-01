@@ -132,6 +132,7 @@
                                         <source>src/main/xsd/mule/mule-amqp.xsd</source>
                                         <source>src/main/xsd/mule/mule-http.xsd</source>
                                         <source>src/main/xsd/mule/mule-wmq-ee.xsd</source>
+                                        <source>src/main/xsd/mule/dw.xsd</source>
                                     </sources>
                                     <noGeneratedHeaderComments>true</noGeneratedHeaderComments>
                                     <laxSchemaValidation>true</laxSchemaValidation>

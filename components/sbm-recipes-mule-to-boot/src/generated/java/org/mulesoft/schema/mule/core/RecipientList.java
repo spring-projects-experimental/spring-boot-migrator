@@ -23,8 +23,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *       &lt;sequence&gt;
  *         &lt;element ref="{http://www.mulesoft.org/schema/mule/core}abstract-message-info-mapping" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
- *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}defaultCorrelationAttributes"/&gt;
  *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}expressionAttributes"/&gt;
+ *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}defaultCorrelationAttributes"/&gt;
  *       &lt;anyAttribute processContents='lax' namespace='##other'/&gt;
  *     &lt;/extension&gt;
  *   &lt;/complexContent&gt;
@@ -43,24 +43,24 @@ public class RecipientList
 
     @XmlElementRef(name = "abstract-message-info-mapping", namespace = "http://www.mulesoft.org/schema/mule/core", type = JAXBElement.class, required = false)
     protected JAXBElement<? extends AbstractMessageInfoMappingType> abstractMessageInfoMapping;
-    @XmlAttribute(name = "enableCorrelation")
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String enableCorrelation;
     @XmlAttribute(name = "evaluator")
     protected String evaluator;
     @XmlAttribute(name = "expression", required = true)
     protected String expression;
     @XmlAttribute(name = "custom-evaluator")
     protected String customEvaluator;
+    @XmlAttribute(name = "enableCorrelation")
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    protected String enableCorrelation;
 
     /**
      * Gets the value of the abstractMessageInfoMapping property.
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     
      */
@@ -73,42 +73,14 @@ public class RecipientList
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     
      */
     public void setAbstractMessageInfoMapping(JAXBElement<? extends AbstractMessageInfoMappingType> value) {
         this.abstractMessageInfoMapping = value;
-    }
-
-    /**
-     * Gets the value of the enableCorrelation property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEnableCorrelation() {
-        if (enableCorrelation == null) {
-            return "IF_NOT_SET";
-        } else {
-            return enableCorrelation;
-        }
-    }
-
-    /**
-     * Sets the value of the enableCorrelation property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEnableCorrelation(String value) {
-        this.enableCorrelation = value;
     }
 
     /**
@@ -181,6 +153,34 @@ public class RecipientList
      */
     public void setCustomEvaluator(String value) {
         this.customEvaluator = value;
+    }
+
+    /**
+     * Gets the value of the enableCorrelation property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getEnableCorrelation() {
+        if (enableCorrelation == null) {
+            return "IF_NOT_SET";
+        } else {
+            return enableCorrelation;
+        }
+    }
+
+    /**
+     * Sets the value of the enableCorrelation property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setEnableCorrelation(String value) {
+        this.enableCorrelation = value;
     }
 
 }

@@ -2,6 +2,7 @@ package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mulesoft.schema.mule.core.MuleType;
 import org.openrewrite.SourceFile;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -17,34 +18,36 @@ import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
+import org.springframework.sbm.mule.resource.MuleXmlUnmarshaller;
 import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class MuleToJavaDSLDataWeaverTest {
-    private final String xmlDW =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<mule xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" \n" +
-            "  xmlns=\"http://www.mulesoft.org/schema/mule/core\"\n" +
-            "  xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
-            "  xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-            "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-            "  http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
-            "  http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd\"\n" +
-            ">\n" +
-            "  <flow name=\"http-routeFlow\" doc:id=\"ff11723e-78e9-4cc2-b760-2bec156ef0f2\" >\n" +
-            "    <http:listener doc:name=\"Listener\" doc:id=\"9f602d5c-5386-4fc9-ac8f-024d754c17e5\" config-ref=\"HTTP_Listener_Configuration\" path=\"/test\"/>\n" +
-            "    <dw:transform-message doc:name=\"mapCustomerDetailsRequestFixedwidth\">\n" +
-            "         <dw:set-payload resource=\"classpath:dwl/mapClientRiskRatingRequest.dwl\"/>\n" +
-            "    </dw:transform-message>\n" +
-            "  </flow>\n" +
-            "</mule>";
+    private final static String xmlDW =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "\n" +
+                    "<mule xmlns     = \"http://www.mulesoft.org/schema/mule/core\" \n" +
+                    "      xmlns:dw  = \"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
+                    "      xmlns:doc = \"http://www.mulesoft.org/schema/mule/documentation\"\n" +
+                    "      xmlns:xsi = \"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                    "      \n" +
+                    "      xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd\n" +
+                    "                          http://www.mulesoft.org/schema/mule/core  http://www.mulesoft.org/schema/mule/core/current/mule.xsd\">\n" +
+                    "\n" +
+                    "    <sub-flow name=\"customErrorResponseTransformSubFlow\">\n" +
+                    "\n" +
+                    "        <dw:transform-message                                          doc:name=\"mapClientRiskRatingResponseErrorJSON\">\n" +
+                    "            <dw:set-payload resource=\"classpath:dwl/mapClientRiskRatingResponseErrorJSON.dwl\"/>\n" +
+                    "        </dw:transform-message>\n" +
+                    "        \n" +
+                    "    </sub-flow>\n" +
+                    "    \n" +
+                    "</mule>";
 
     private JavaDSLAction2 myAction;
     private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
@@ -67,6 +70,7 @@ public class MuleToJavaDSLDataWeaverTest {
 
     @Test
     public void shouldGenerateCommentForDWStatement() {
+        System.out.println(xmlDW);
         MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
         ApplicationProperties applicationProperties = new ApplicationProperties();
         applicationProperties.setDefaultBasePackage("com.example.javadsl");
@@ -99,8 +103,14 @@ public class MuleToJavaDSLDataWeaverTest {
                         "    @Bean\n" +
                         "    IntegrationFlow http_routeFlow() {\n" +
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
-                        "                // FIXME: cannot convert dw:transform-message statement" +
+                        "                // FIXME: cannot convert dw:transform-message statement\n" +
                         "                .get();\n" +
                         "    }}");
+    }
+
+    @Test
+    public void temp() {
+        MuleXmlUnmarshaller muleXmlUnmarshaller = new MuleXmlUnmarshaller();
+        MuleType muleType = muleXmlUnmarshaller.unmarshal(xmlDW);
     }
 }
