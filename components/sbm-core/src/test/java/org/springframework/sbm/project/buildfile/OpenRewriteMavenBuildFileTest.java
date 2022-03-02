@@ -36,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-// TODO: rework tests to make them faster, maybe remove amount of deps and using rewrite MavenDownloader helps?
 public class OpenRewriteMavenBuildFileTest {
 
     @Test
@@ -1590,6 +1589,37 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
+    void hasParentWithParentShouldReturnParent() {
+        String pomXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                        "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                        "    <modelVersion>4.0.0</modelVersion>\n" +
+                        "    <parent>\n" +
+                        "        <groupId>org.springframework.boot</groupId>\n" +
+                        "        <artifactId>spring-boot-starter-parent</artifactId>\n" +
+                        "        <version>2.4.12</version>\n" +
+                        "        <relativePath/> <!-- lookup parent from repository -->\n" +
+                        "    </parent>\n" +
+                        "    <groupId>com.example</groupId>\n" +
+                        "    <artifactId>spring-boot-24-to-25-example</artifactId>\n" +
+                        "    <version>0.0.1-SNAPSHOT</version>\n" +
+                        "    <name>spring-boot-2.4-to-2.5-example</name>\n" +
+                        "    <description>spring-boot-2.4-to-2.5-example</description>\n" +
+                        "    <properties>\n" +
+                        "        <java.version>11</java.version>\n" +
+                        "    </properties>\n" +
+                        "</project>\n";
+
+        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration()).isNotEmpty();
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().get().getGroupId()).isEqualTo("org.springframework.boot");
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().get().getArtifactId()).isEqualTo("spring-boot-starter-parent");
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().get().getVersion()).isEqualTo("2.4.12");
+    }
+
+    @Test
     void upgradeParentVersion() {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -1616,6 +1646,7 @@ public class OpenRewriteMavenBuildFileTest {
 
         openRewriteMavenBuildFile.upgradeParentVersion("2.5.6");
 
-        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().getVersion()).isEqualTo("2.5.6");
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration()).isNotEmpty();
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().get().getVersion()).isEqualTo("2.5.6");
     }
 }

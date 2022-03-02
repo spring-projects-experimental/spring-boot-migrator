@@ -15,10 +15,10 @@
  */
 package org.springframework.sbm.build.api;
 
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -92,12 +92,12 @@ public class ApplicationModules {
                 // no other pom depends on this pom in its dependency section
                 if (noOtherPomDependsOn(module.getBuildFile())) {
                     // has no parent or parent has packaging pom
-                    ParentDeclaration parentPomDeclaration = module.getBuildFile().getParentPomDeclaration();
-                    if (parentPomDeclaration == null) {
+                    Optional<ParentDeclaration> parentPomDeclaration = module.getBuildFile().getParentPomDeclaration();
+                    if (parentPomDeclaration.isEmpty()) {
                         topmostModules.add(module);
-                    } else if (isDeclaredInProject(parentPomDeclaration) && isPackagingOfPom(parentPomDeclaration)) {
+                    } else if (isDeclaredInProject(parentPomDeclaration.get()) && isPackagingOfPom(parentPomDeclaration.get())) {
                         topmostModules.add(module);
-                    } else if (!isDeclaredInProject(parentPomDeclaration)) {
+                    } else if (!isDeclaredInProject(parentPomDeclaration.get())) {
                         topmostModules.add(module);
                     }
                 }
