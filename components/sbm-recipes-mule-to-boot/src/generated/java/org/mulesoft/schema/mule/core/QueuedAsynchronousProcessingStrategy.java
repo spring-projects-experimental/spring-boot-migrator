@@ -53,10 +53,10 @@ public class QueuedAsynchronousProcessingStrategy
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RefQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RefQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractQueueStoreType }{@code >}
@@ -71,10 +71,10 @@ public class QueuedAsynchronousProcessingStrategy
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RefQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RefQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractQueueStoreType }{@code >}

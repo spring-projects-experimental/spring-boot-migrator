@@ -42,6 +42,15 @@ import javax.xml.namespace.QName;
     "content"
 })
 @XmlSeeAlso({
+    org.mulesoft.schema.mule.ee.dw.TransformMessageType.InputPayload.class,
+    org.mulesoft.schema.mule.ee.dw.TransformMessageType.InputVariable.class,
+    org.mulesoft.schema.mule.ee.dw.TransformMessageType.InputSessionVariable.class,
+    org.mulesoft.schema.mule.ee.dw.TransformMessageType.InputInboundProperty.class,
+    org.mulesoft.schema.mule.ee.dw.TransformMessageType.InputOutboundProperty.class,
+    org.mulesoft.schema.mule.ee.dw.TransformMessageType.SetPayload.class,
+    org.mulesoft.schema.mule.ee.dw.TransformMessageType.SetVariable.class,
+    org.mulesoft.schema.mule.ee.dw.TransformMessageType.SetSessionVariable.class,
+    org.mulesoft.schema.mule.ee.dw.TransformMessageType.SetProperty.class,
     AbstractMixedContentExtensionType.class,
     AbstractMixedContentMessageProcessorType.class
 })

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:mule="http://www.mulesoft.org/schema/mule/core" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://www.mulesoft.org/schema/mule/ee/dw">
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xs:import schemaLocation="./spring-beans-4.3.xsd"
+               namespace="http://www.springframework.org/schema/beans"/>
+    <xs:import schemaLocation="./mule.xsd"
+               namespace="http://www.mulesoft.org/schema/mule/core"/>
+
+    <xs:element xmlns="http://www.mulesoft.org/schema/mule/ee/dw"
+                xmlns:mule="http://www.mulesoft.org/schema/mule/core" name="transform-message"
+                substitutionGroup="mule:abstract-message-processor" type="transformMessageType">
+
+        <xs:annotation>
+            <xs:documentation>Transform an input data format into another using Weave Language.</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+
+    <xs:complexType name="transformMessageType">
+        <xs:complexContent>
+            <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+                <xs:sequence>
+                    <!--Input Properties -->
+                    <xs:element name="input-payload" minOccurs="0" maxOccurs="1">
+                        <xs:complexType>
+                            <xs:complexContent mixed="true">
+                                <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+                                              base="mule:annotatedMixedContentType">
+                                    <xs:sequence>
+                                        <xs:element name="reader-property" maxOccurs="unbounded" minOccurs="0">
+                                            <xs:complexType>
+                                                <xs:attribute type="xs:string" name="name" use="optional"/>
+                                                <xs:attribute type="xs:string" name="value" use="optional"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="mimeType" use="optional"/>
+                                </xs:extension>
+                            </xs:complexContent>
+                        </xs:complexType>
+                    </xs:element>
+
+                    <xs:element name="input-variable" minOccurs="0" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:complexContent mixed="true">
+                                <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+                                              base="mule:annotatedMixedContentType">
+                                    <xs:sequence>
+                                        <xs:element name="reader-property" maxOccurs="unbounded" minOccurs="0">
+                                            <xs:complexType>
+                                                <xs:attribute type="xs:string" name="name" use="optional"/>
+                                                <xs:attribute type="xs:string" name="value" use="optional"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="mimeType" use="optional"/>
+                                    <xs:attribute name="variableName"/>
+                                </xs:extension>
+                            </xs:complexContent>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="input-session-variable" minOccurs="0" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:complexContent mixed="true">
+                                <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+                                              base="mule:annotatedMixedContentType">
+                                    <xs:sequence>
+                                        <xs:element name="reader-property" maxOccurs="unbounded" minOccurs="0">
+                                            <xs:complexType>
+                                                <xs:attribute type="xs:string" name="name" use="optional"/>
+                                                <xs:attribute type="xs:string" name="value" use="optional"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="mimeType" use="optional"/>
+                                    <xs:attribute name="variableName"/>
+                                </xs:extension>
+                            </xs:complexContent>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="input-inbound-property" minOccurs="0" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:complexContent mixed="true">
+                                <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+                                              base="mule:annotatedMixedContentType">
+                                    <xs:sequence>
+                                        <xs:element name="reader-property" maxOccurs="unbounded" minOccurs="0">
+                                            <xs:complexType>
+                                                <xs:attribute type="xs:string" name="name" use="optional"/>
+                                                <xs:attribute type="xs:string" name="value" use="optional"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="mimeType" use="optional"/>
+                                    <xs:attribute name="propertyName"/>
+                                </xs:extension>
+                            </xs:complexContent>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="input-outbound-property" minOccurs="0" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:complexContent mixed="true">
+                                <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+                                              base="mule:annotatedMixedContentType">
+                                    <xs:sequence>
+                                        <xs:element name="reader-property" maxOccurs="unbounded" minOccurs="0">
+                                            <xs:complexType>
+                                                <xs:attribute type="xs:string" name="name" use="optional"/>
+                                                <xs:attribute type="xs:string" name="value" use="optional"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="mimeType" use="optional"/>
+                                    <xs:attribute name="propertyName"/>
+                                </xs:extension>
+                            </xs:complexContent>
+                        </xs:complexType>
+                    </xs:element>
+
+                    <!--Targets -->
+                    <xs:element name="set-payload" minOccurs="0" maxOccurs="1">
+                        <xs:complexType>
+                            <xs:complexContent mixed="true">
+                                <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+                                              base="mule:annotatedMixedContentType">
+                                    <xs:attribute name="resource" use="optional"/>
+                                </xs:extension>
+                            </xs:complexContent>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="set-variable" minOccurs="0" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:complexContent mixed="true">
+                                <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+                                              base="mule:annotatedMixedContentType">
+                                    <xs:attribute name="resource" use="optional"/>
+                                    <xs:attribute name="variableName"/>
+                                </xs:extension>
+                            </xs:complexContent>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="set-session-variable" minOccurs="0" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:complexContent mixed="true">
+                                <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+                                              base="mule:annotatedMixedContentType">
+                                    <xs:attribute name="resource" use="optional"/>
+                                    <xs:attribute name="variableName"/>
+                                </xs:extension>
+                            </xs:complexContent>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="set-property" minOccurs="0" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:complexContent mixed="true">
+                                <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+                                              base="mule:annotatedMixedContentType">
+                                    <xs:attribute name="resource" use="optional"/>
+                                    <xs:attribute name="propertyName"/>
+                                </xs:extension>
+                            </xs:complexContent>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+
+
+                <!--The execution mode of this message transformation.-->
+                <xs:attribute name="mode" default="immediate">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="deferred"/>
+                            <xs:enumeration value="immediate"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+</xs:schema>

@@ -63,11 +63,11 @@ public class ChoiceExceptionStrategyType
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
      * {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      * 
      * 

@@ -60,19 +60,19 @@ public class CollectionFilterType
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
      * {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
      * {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CommonFilterType }{@code >}
      * 
      * 
