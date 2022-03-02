@@ -24,9 +24,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigTypeAdapter;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpInboundEndpointTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpOutboundEndpointTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.core.SetPropertyTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
 import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
@@ -35,8 +34,6 @@ import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
-import org.springframework.sbm.mule.resource.MuleXml;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -56,22 +53,9 @@ public class MuleToJavaDSLSetPropertyTest {
             "  <http:listener-config name=\"HTTP_Listener_Configuration\" host=\"0.0.0.0\" port=\"8081\" doc:name=\"HTTP Listener Configuration\"/>\n" +
             "  <flow name=\"http-routeFlow\" doc:id=\"ff11723e-78e9-4cc2-b760-2bec156ef0f2\" >\n" +
             "    <http:listener doc:name=\"Listener\" doc:id=\"9f602d5c-5386-4fc9-ac8f-024d754c17e5\" config-ref=\"HTTP_Listener_Configuration\" path=\"/test\"/>\n" +
-            "    <set-property propertyName=\"TestProperty\" value=\"testPropertyValue\"/>\n" +
+            "    <set-property propertyName=\"TestProperty\" value=\"TestPropertyValue\"/>\n" +
             "  </flow>\n" +
             "</mule>";
-//    private final String muleXml = "<mule xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-//            "xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
-//            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-//            "xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-//            "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-//            "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
-//            "http://www.mulesoft.org/schema/mule/amqp http://www.mulesoft.org/schema/mule/amqp/current/mule-amqp.xsd\">\n" +
-//            "<http:listener-config name=\"HTTP_Listener_Configuration\" host=\"0.0.0.0\" port=\"9082\" doc:name=\"HTTP Listener Configuration\"/>\n" +
-//            "<flow name=\"http-flow\">\n" +
-//            "<http:listener doc:name=\"Listener\"  config-ref=\"HTTP_Listener_Configuration\" path=\"/test\"/>\n" +
-//            "<set-property propertyName=\"TestProperty\" value=\"TestPropertyValue\"/>\n" +
-//            "</flow>\n" +
-//            "</mule>";
 
     private JavaDSLAction2 myAction;
     private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
@@ -80,8 +64,8 @@ public class MuleToJavaDSLSetPropertyTest {
     public void setup() {
         List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
                 new HttpListenerTranslator(),
-                new LoggingTranslator(new ExpressionLanguageTranslator()
-                )
+                new LoggingTranslator(new ExpressionLanguageTranslator()),
+                new SetPropertyTranslator()
         );
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
                 new FlowTopLevelElementFactory(translators),
@@ -117,21 +101,20 @@ public class MuleToJavaDSLSetPropertyTest {
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(
-                 "package com.example.javadsl;\n" +
-                "import org.springframework.context.annotation.Bean;\n" +
-                "import org.springframework.context.annotation.Configuration;\n" +
-                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                "import org.springframework.integration.handler.LoggingHandler;\n" +
-                "import org.springframework.integration.http.dsl.Http;\n" +
-                "\n" +
-                "@Configuration\n" +
-                "public class FlowConfigurations {\n" +
-                "    @Bean\n" +
-                "    IntegrationFlow http_routeFlow() {\n" +
-                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
-                "                .enrichHeaders(h -> h.header(\"TestProperty\", \"TestPropertyValue\"))\n" +
-                "                .get();\n" +
-                "    }});");
+                        "package com.example.javadsl;\n" +
+                                "import org.springframework.context.annotation.Bean;\n" +
+                                "import org.springframework.context.annotation.Configuration;\n" +
+                                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
+                                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                                "import org.springframework.integration.http.dsl.Http;\n" +
+                                "\n" +
+                                "@Configuration\n" +
+                                "public class FlowConfigurations {\n" +
+                                "    @Bean\n" +
+                                "    IntegrationFlow http_routeFlow() {\n" +
+                                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
+                                "                .enrichHeaders(h -> h.header(\"TestProperty\", \"TestPropertyValue\"))\n" +
+                                "                .get();\n" +
+                                "    }}");
     }
 }
