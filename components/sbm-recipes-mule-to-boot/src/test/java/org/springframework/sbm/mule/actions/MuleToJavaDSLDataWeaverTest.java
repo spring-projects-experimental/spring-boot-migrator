@@ -2,8 +2,6 @@ package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mulesoft.schema.mule.core.MuleType;
-import org.openrewrite.SourceFile;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
@@ -18,7 +16,6 @@ import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.mule.resource.MuleXmlUnmarshaller;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -94,23 +91,14 @@ public class MuleToJavaDSLDataWeaverTest {
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
                         "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                        "import org.springframework.integration.handler.LoggingHandler;\n" +
-                        "import org.springframework.integration.http.dsl.Http;\n" +
                         "\n" +
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow http_routeFlow() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
-                        "                // FIXME: cannot convert dw:transform-message statement\n" +
-                        "                .get();\n" +
+                        "    IntegrationFlow customErrorResponseTransformSubFlow() {\n" +
+                        "        return flow -> {\n" +
+                        "            // FIXME: Conversion is not supported for Mule type: org.mulesoft.schema.mule.ee.dw.TransformMessageType\n" +
+                        "        };\n" +
                         "    }}");
-    }
-
-    @Test
-    public void temp() {
-        MuleXmlUnmarshaller muleXmlUnmarshaller = new MuleXmlUnmarshaller();
-        MuleType muleType = muleXmlUnmarshaller.unmarshal(xmlDW);
     }
 }

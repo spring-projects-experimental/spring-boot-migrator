@@ -16,8 +16,8 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;complexType name="globalEndpointType"&gt;
  *   &lt;complexContent&gt;
  *     &lt;extension base="{http://www.mulesoft.org/schema/mule/core}globalEndpointType"&gt;
- *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/amqp}propertyAttributes"/&gt;
  *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/amqp}addressAttributes"/&gt;
+ *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/amqp}propertyAttributes"/&gt;
  *       &lt;anyAttribute processContents='lax' namespace='##other'/&gt;
  *     &lt;/extension&gt;
  *   &lt;/complexContent&gt;
@@ -32,6 +32,10 @@ public class GlobalEndpointType
     extends org.mulesoft.schema.mule.core.GlobalEndpointType
 {
 
+    @XmlAttribute(name = "exchangeName")
+    protected String exchangeName;
+    @XmlAttribute(name = "queueName")
+    protected String queueName;
     @XmlAttribute(name = "routingKey")
     protected String routingKey;
     @XmlAttribute(name = "consumerTag")
@@ -48,10 +52,54 @@ public class GlobalEndpointType
     protected String queueAutoDelete;
     @XmlAttribute(name = "queueExclusive")
     protected String queueExclusive;
-    @XmlAttribute(name = "exchangeName")
-    protected String exchangeName;
-    @XmlAttribute(name = "queueName")
-    protected String queueName;
+
+    /**
+     * Gets the value of the exchangeName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getExchangeName() {
+        return exchangeName;
+    }
+
+    /**
+     * Sets the value of the exchangeName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setExchangeName(String value) {
+        this.exchangeName = value;
+    }
+
+    /**
+     * Gets the value of the queueName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getQueueName() {
+        return queueName;
+    }
+
+    /**
+     * Sets the value of the queueName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setQueueName(String value) {
+        this.queueName = value;
+    }
 
     /**
      * Gets the value of the routingKey property.
@@ -243,54 +291,6 @@ public class GlobalEndpointType
      */
     public void setQueueExclusive(String value) {
         this.queueExclusive = value;
-    }
-
-    /**
-     * Gets the value of the exchangeName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getExchangeName() {
-        return exchangeName;
-    }
-
-    /**
-     * Sets the value of the exchangeName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setExchangeName(String value) {
-        this.exchangeName = value;
-    }
-
-    /**
-     * Gets the value of the queueName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getQueueName() {
-        return queueName;
-    }
-
-    /**
-     * Sets the value of the queueName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setQueueName(String value) {
-        this.queueName = value;
     }
 
 }

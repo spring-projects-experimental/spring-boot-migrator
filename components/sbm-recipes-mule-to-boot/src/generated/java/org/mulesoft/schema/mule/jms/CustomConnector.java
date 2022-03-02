@@ -112,8 +112,8 @@ public class CustomConnector
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link CustomJndiNameResolverType }{@code >}
      * {@link JAXBElement }{@code <}{@link DefaultJndiNameResolverType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomJndiNameResolverType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractJndiNameResolverType }{@code >}
      * 
      * 

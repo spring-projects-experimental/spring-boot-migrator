@@ -91,9 +91,9 @@ import org.mulesoft.schema.mule.jms.PropertyFilter;
  *   &lt;complexContent&gt;
  *     &lt;extension base="{http://www.mulesoft.org/schema/mule/core}abstractInboundEndpointType"&gt;
  *       &lt;group ref="{http://www.mulesoft.org/schema/mule/ee/wmq}defaultEndpointElements"/&gt;
- *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/ee/wmq}commonAddressAttributes"/&gt;
- *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}defaultEndpointAttributes"/&gt;
  *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}allExchangePatterns"/&gt;
+ *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}defaultEndpointAttributes"/&gt;
+ *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/ee/wmq}commonAddressAttributes"/&gt;
  *       &lt;anyAttribute processContents='lax' namespace='##other'/&gt;
  *     &lt;/extension&gt;
  *   &lt;/complexContent&gt;
@@ -128,8 +128,9 @@ public class InboundEndpointType
         @XmlElementRef(name = "properties", namespace = "http://www.mulesoft.org/schema/mule/core", type = JAXBElement.class, required = false)
     })
     protected List<Object> abstractTransformerOrAbstractFilterOrAbstractSecurityFilter;
-    @XmlAttribute(name = "queue")
-    protected String queue;
+    @XmlAttribute(name = "exchange-pattern")
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    protected String exchangePattern;
     @XmlAttribute(name = "ref")
     protected String ref;
     @XmlAttribute(name = "address")
@@ -150,9 +151,8 @@ public class InboundEndpointType
     protected String disableTransportTransformer;
     @XmlAttribute(name = "mimeType")
     protected String mimeType;
-    @XmlAttribute(name = "exchange-pattern")
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String exchangePattern;
+    @XmlAttribute(name = "queue")
+    protected String queue;
 
     /**
      * Gets the value of the abstractTransformerOrAbstractFilterOrAbstractSecurityFilter property.
@@ -172,91 +172,91 @@ public class InboundEndpointType
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
+     * {@link JAXBElement }{@code <}{@link RefTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AppendStringTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link SetPropertyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CopyPropertiesType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ValueExtractorTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ParseTemplateTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CopyAttachmentType }{@code >}
+     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link SetAttachmentType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MessagePropertiesTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link SetVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemoveAttachmentType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AppendStringTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link BeanBuilderTransformer }{@code >}
-     * {@link JAXBElement }{@code <}{@link SetAttachmentType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link RemovePropertyType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ValueExtractorTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MessagePropertiesTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ParseTemplateTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemoveAttachmentType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RefTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CopyPropertiesType }{@code >}
      * {@link JAXBElement }{@code <}{@link SetVariableType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link SetPropertyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CopyAttachmentType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link CommonTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
-     * {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CommonFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link EncryptionSecurityFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomSecurityFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link UsernamePasswordFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link BasicSecurityFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link EncryptionSecurityFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link UsernamePasswordFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractSecurityFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link BaseAggregatorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ForeachProcessorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MessageChunkSplitter }{@code >}
-     * {@link JAXBElement }{@code <}{@link CollectionSplitter }{@code >}
-     * {@link JAXBElement }{@code <}{@link WireTap }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomAggregator }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomSplitter }{@code >}
+     * {@link JAXBElement }{@code <}{@link MessageChunkSplitter }{@code >}
      * {@link JAXBElement }{@code <}{@link BaseAggregatorType }{@code >}
      * {@link JAXBElement }{@code <}{@link BaseAggregatorType }{@code >}
      * {@link JAXBElement }{@code <}{@link MapSplitter }{@code >}
-     * {@link JAXBElement }{@code <}{@link CombineCollectionsTransformer }{@code >}
-     * {@link JAXBElement }{@code <}{@link IdempotentSecureHashMessageFilter }{@code >}
+     * {@link JAXBElement }{@code <}{@link WireTap }{@code >}
+     * {@link JAXBElement }{@code <}{@link Splitter }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomAggregator }{@code >}
+     * {@link JAXBElement }{@code <}{@link BaseAggregatorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ForeachProcessorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CollectionSplitter }{@code >}
      * {@link JAXBElement }{@code <}{@link IdempotentMessageFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link MessageFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CombineCollectionsTransformer }{@code >}
+     * {@link JAXBElement }{@code <}{@link IdempotentSecureHashMessageFilter }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractGlobalInterceptingMessageProcessorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link Splitter }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInterceptingMessageProcessorType }{@code >}
      * {@link JAXBElement }{@code <}{@link LoggerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractObserverMessageProcessorType }{@code >}
@@ -267,11 +267,11 @@ public class InboundEndpointType
      * {@link Response }
      * {@link JAXBElement }{@code <}{@link IdempotentRedeliveryPolicyType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractRedeliveryPolicyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomTransactionType }{@code >}
      * {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
-     * {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      * {@link JAXBElement }{@code <}{@link XaTransactionType }{@code >}
+     * {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
+     * {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransactionType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransactionType }{@code >}
      * {@link JAXBElement }{@code <}{@link SelectorFilter }{@code >}
@@ -288,27 +288,27 @@ public class InboundEndpointType
     }
 
     /**
-     * Gets the value of the queue property.
+     * Gets the value of the exchangePattern property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getQueue() {
-        return queue;
+    public String getExchangePattern() {
+        return exchangePattern;
     }
 
     /**
-     * Sets the value of the queue property.
+     * Sets the value of the exchangePattern property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setQueue(String value) {
-        this.queue = value;
+    public void setExchangePattern(String value) {
+        this.exchangePattern = value;
     }
 
     /**
@@ -538,27 +538,27 @@ public class InboundEndpointType
     }
 
     /**
-     * Gets the value of the exchangePattern property.
+     * Gets the value of the queue property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getExchangePattern() {
-        return exchangePattern;
+    public String getQueue() {
+        return queue;
     }
 
     /**
-     * Sets the value of the exchangePattern property.
+     * Sets the value of the queue property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setExchangePattern(String value) {
-        this.exchangePattern = value;
+    public void setQueue(String value) {
+        this.queue = value;
     }
 
 }

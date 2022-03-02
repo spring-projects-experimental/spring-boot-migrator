@@ -60,12 +60,12 @@ public class OutboundRouterType
      * @return
      *     possible object is
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractOutboundEndpointType }{@code >}
      *     
      */
@@ -79,12 +79,12 @@ public class OutboundRouterType
      * @param value
      *     allowed object is
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractOutboundEndpointType }{@code >}
      *     
      */
@@ -123,11 +123,11 @@ public class OutboundRouterType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link XaTransactionType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractTransactionType }{@code >}
      *     
      */
@@ -140,11 +140,11 @@ public class OutboundRouterType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link XaTransactionType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractTransactionType }{@code >}
      *     
      */

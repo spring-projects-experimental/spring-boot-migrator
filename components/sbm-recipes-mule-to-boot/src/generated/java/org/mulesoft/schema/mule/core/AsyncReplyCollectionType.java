@@ -78,13 +78,13 @@ public class AsyncReplyCollectionType {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
      * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.InboundEndpointType }{@code >}
-     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
-     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.InboundEndpointType }{@code >}
-     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.InboundEndpointType }{@code >}
+     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.InboundEndpointType }{@code >}
+     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.InboundEndpointType }{@code >}
+     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
+     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInboundEndpointType }{@code >}
      * 
      * 
@@ -118,16 +118,16 @@ public class AsyncReplyCollectionType {
      * {@link JAXBElement }{@code <}{@link AsyncReplyRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomAsyncReplyRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractAsyncReplyRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomInboundRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link WireTapRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link IdempotentSecureHashReceiverType }{@code >}
-     * {@link JAXBElement }{@code <}{@link IdempotentReceiverType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MessageChunkingAggregatorRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link BaseAggregatorRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link FilteredInboundRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MessageChunkingAggregatorRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link WireTapRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomInboundRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link IdempotentReceiverType }{@code >}
      * {@link JAXBElement }{@code <}{@link BaseAggregatorRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomCorrelationAggregatorRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link BaseAggregatorRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInboundRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link RefMessageProcessorType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomMessageProcessorType }{@code >}

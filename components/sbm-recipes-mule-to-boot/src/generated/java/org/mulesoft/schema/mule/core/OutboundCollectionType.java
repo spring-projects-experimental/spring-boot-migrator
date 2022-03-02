@@ -64,20 +64,20 @@ public class OutboundCollectionType {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
+     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RoundRobinSplitterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionSplitterOutboundRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionRecipientListRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link SingleEndpointFilteringOutboundRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomOutboundRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link EndpointSelectorRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionSplitterOutboundRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ChunkingRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link StaticRecipientListRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link OutboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link ExpressionOrStaticRecipientListRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link StaticRecipientListRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RoundRobinSplitterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link SingleEndpointFilteringOutboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ChunkingRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionRecipientListRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractOutboundRouterType }{@code >}
      * 
      * 
@@ -94,10 +94,10 @@ public class OutboundCollectionType {
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link CustomCatchAllStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CustomForwardingCatchAllStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ForwardingCatchAllStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link LoggingCatchAllStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomCatchAllStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomForwardingCatchAllStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractCatchAllStrategyType }{@code >}
      *     
      */
@@ -110,10 +110,10 @@ public class OutboundCollectionType {
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link CustomCatchAllStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CustomForwardingCatchAllStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ForwardingCatchAllStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link LoggingCatchAllStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomCatchAllStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomForwardingCatchAllStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractCatchAllStrategyType }{@code >}
      *     
      */

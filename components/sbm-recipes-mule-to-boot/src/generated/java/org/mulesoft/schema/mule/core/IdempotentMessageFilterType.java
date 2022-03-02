@@ -61,8 +61,8 @@ public class IdempotentMessageFilterType
      *     {@link JAXBElement }{@code <}{@link ManagedObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMonitoredObjectStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link SpringObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link TextFileObjectStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link SpringObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractObjectStoreType }{@code >}
      *     
      */
@@ -78,8 +78,8 @@ public class IdempotentMessageFilterType
      *     {@link JAXBElement }{@code <}{@link ManagedObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMonitoredObjectStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link SpringObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link TextFileObjectStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link SpringObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractObjectStoreType }{@code >}
      *     
      */

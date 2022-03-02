@@ -141,12 +141,12 @@ public class BaseServiceType
      * 
      * @return
      *     possible object is
+     *     {@link JAXBElement }{@code <}{@link DefaultJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link StaticComponentType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link PooledJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RestServiceWrapperType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link PooledJavaComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultJavaComponentType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link StaticComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractComponentType }{@code >}
      *     
@@ -160,12 +160,12 @@ public class BaseServiceType
      * 
      * @param value
      *     allowed object is
+     *     {@link JAXBElement }{@code <}{@link DefaultJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link StaticComponentType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link PooledJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RestServiceWrapperType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link PooledJavaComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultJavaComponentType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link StaticComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractComponentType }{@code >}
      *     
@@ -227,10 +227,10 @@ public class BaseServiceType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
@@ -247,10 +247,10 @@ public class BaseServiceType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
@@ -274,8 +274,8 @@ public class BaseServiceType
      * @return
      *     possible object is
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     
      */
@@ -289,8 +289,8 @@ public class BaseServiceType
      * @param value
      *     allowed object is
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     
      */

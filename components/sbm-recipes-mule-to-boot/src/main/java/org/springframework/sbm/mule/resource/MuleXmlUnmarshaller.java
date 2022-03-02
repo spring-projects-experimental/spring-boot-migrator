@@ -16,6 +16,7 @@
 package org.springframework.sbm.mule.resource;
 
 import org.mulesoft.schema.mule.core.MuleType;
+import org.mulesoft.schema.mule.ee.dw.ObjectFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -32,7 +33,12 @@ public class MuleXmlUnmarshaller {
         try {
             XMLStreamReader xsr = XMLInputFactory.newFactory().createXMLStreamReader(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 //            PersistenceXmlUnmarshaller.XMLReaderWithoutNamespace xr = new PersistenceXmlUnmarshaller.XMLReaderWithoutNamespace(xsr);
-            JAXBContext jaxbContext = JAXBContext.newInstance(MuleType.class);
+            JAXBContext jaxbContext = JAXBContext.newInstance(
+                    org.mulesoft.schema.mule.core.ObjectFactory.class,
+                    org.mulesoft.schema.mule.amqp.ObjectFactory.class,
+                    org.mulesoft.schema.mule.http.ObjectFactory.class,
+                    org.mulesoft.schema.mule.ee.wmq.ObjectFactory.class,
+                    org.mulesoft.schema.mule.ee.dw.ObjectFactory.class);
             Unmarshaller jc = jaxbContext.createUnmarshaller();
             JAXBElement<MuleType> unmarshal = (JAXBElement<MuleType>) jc.unmarshal(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
             return unmarshal.getValue();

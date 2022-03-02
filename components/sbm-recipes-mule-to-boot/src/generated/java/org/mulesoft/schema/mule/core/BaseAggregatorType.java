@@ -68,8 +68,8 @@ public class BaseAggregatorType
      * @return
      *     possible object is
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     
      */
@@ -83,8 +83,8 @@ public class BaseAggregatorType
      * @param value
      *     allowed object is
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     
      */
