@@ -22,8 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -87,7 +89,7 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
                     new NetworkedContainer("hellomule-migrated:1.0-SNAPSHOT", List.of(9081), "spring")
                     , rabbitContainer.getNetwork());
 
-            checkReceivedMessage(channel, message);
+            checkReceivedMessage(channel, message, Map.of("TestProperty", "TestPropertyValue"));
             checkSendHttpMessage(container.getContainer().getMappedPort(9081));
             checkInboundGatewayHttpMessage(container.getContainer().getMappedPort(9081));
         }
@@ -104,8 +106,8 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    private void checkReceivedMessage(Channel channel, String expectedMessage) throws IOException, InterruptedException {
-        Receiver receiver = new Receiver(expectedMessage);
+    private void checkReceivedMessage(Channel channel, String expectedMessage, Map<String, String> expectedHeaders) throws IOException, InterruptedException {
+        Receiver receiver = new Receiver(expectedMessage, expectedHeaders);
         channel.basicConsume(SECOND_QUEUE_NAME, true, receiver, consumerTag -> {
         });
         boolean latch = receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
@@ -114,10 +116,12 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
 
     public static class Receiver implements DeliverCallback {
         private final String expectedMessage;
+        private final Map<String, String> expectedHeaders;
         private final CountDownLatch latch = new CountDownLatch(1);
 
-        public Receiver(String expectedMessage) {
+        public Receiver(String expectedMessage, Map<String, String> expectedHeaders) {
             this.expectedMessage = expectedMessage;
+            this.expectedHeaders = expectedHeaders;
         }
 
         public CountDownLatch getLatch() {
@@ -126,9 +130,16 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
 
         @Override
         public void handle(String s, Delivery delivery) throws IOException {
-            String receivedMessage = new String(delivery.getBody(), "UTF-8");
+            String receivedMessage = new String(delivery.getBody(), StandardCharsets.UTF_8);
+            Map<String, Object> receivedHeader = delivery.getProperties().getHeaders();
+
+            boolean headersMatch = expectedHeaders.entrySet().stream()
+                    .allMatch(
+                            p -> receivedHeader.get(p.getKey()).toString().equals(p.getValue())
+                    );
             System.out.println(" [x] Received '" + receivedMessage + "'");
-            if (receivedMessage.equals(expectedMessage)) {
+            System.out.println(" [x] Does header match? : " + headersMatch);
+            if (receivedMessage.equals(expectedMessage) && headersMatch) {
                 latch.countDown();
             }
         }
