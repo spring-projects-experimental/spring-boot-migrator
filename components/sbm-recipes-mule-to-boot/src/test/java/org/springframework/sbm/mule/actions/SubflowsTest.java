@@ -169,7 +169,7 @@ public class SubflowsTest {
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory, org.springframework.integration.dsl.IntegrationFlow outToAMQP) {\n" +
+                        "    IntegrationFlow amqp_muleFlow(ConnectionFactory connectionFactory, IntegrationFlow outToAMQP) {\n" +
                         "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" +
                         "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                         "                .gateway(outToAMQP)\n" +
@@ -177,7 +177,7 @@ public class SubflowsTest {
                         "    }\n" +
                         "\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow outToAMQP(org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate) {\n" +
+                        "    IntegrationFlow outToAMQP(RabbitTemplate rabbitTemplate) {\n" +
                         "        return flow -> flow\n" +
                         "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"));\n" +
                         "    }}"
@@ -218,7 +218,7 @@ public class SubflowsTest {
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory, org.springframework.integration.dsl.IntegrationFlow outToUnknown) {\n" +
+                        "    IntegrationFlow amqp_muleFlow(ConnectionFactory connectionFactory, IntegrationFlow outToUnknown) {\n" +
                         "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" +
                         "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                         "                .gateway(outToUnknown)\n" +
