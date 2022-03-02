@@ -101,6 +101,9 @@ public interface BuildFile extends ProjectResource {
 
     String print();
 
+    /**
+     * Get the packaging type for this BuildFile.
+     */
     String getPackaging();
 
     void setPackaging(String packaging);

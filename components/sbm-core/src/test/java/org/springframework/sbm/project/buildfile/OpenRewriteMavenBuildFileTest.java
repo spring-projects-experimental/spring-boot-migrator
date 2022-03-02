@@ -456,6 +456,7 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
+    @Disabled("#7")
     void testGetDependencies() {
         String pomSource =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

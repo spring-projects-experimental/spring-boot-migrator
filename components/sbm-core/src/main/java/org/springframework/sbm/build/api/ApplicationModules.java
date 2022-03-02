@@ -88,7 +88,7 @@ public class ApplicationModules {
         List<ApplicationModule> topmostModules = new ArrayList<>();
         modules.forEach(module -> {
             // is jar
-            if ("jar".equals(module.getBuildFile().getPackaging())) {
+            if ("jar".equals(module.getBuildFile().getPackaging())) { // FIXME: other types could be topmost too, e.g. 'war'
                 // no other pom depends on this pom in its dependency section
                 if (noOtherPomDependsOn(module.getBuildFile())) {
                     // has no parent or parent has packaging pom
