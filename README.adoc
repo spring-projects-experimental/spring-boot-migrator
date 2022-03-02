@@ -7,11 +7,11 @@ ____
 
 == How SBM works
 
-Spring Boot Migrator uses and is compatible with https://github.com/openrewrite/rewrite[OpenRewrite,window=_blank],
+Spring Boot Migrator uses and is compatible to https://github.com/openrewrite/rewrite[OpenRewrite,window=_blank],
 a powerful mass refactoring ecosystem for Java and other source code.
 
 Spring Boot Migrator offers a CLI to run recipes to migrate or upgrade a given application to Spring Boot.
-For developing new and custom recipes, SBM provides an opinionated API compatible with OpenRewrite recipes
+For developing new and custom recipes, SBM provides an opinionated API compatible to OpenRewrite recipes
 and a set of specialized resource representations to simplify recipe development for Spring Boot.
 
 
