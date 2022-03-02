@@ -20,6 +20,7 @@ import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.*;
 import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.Parent;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.tree.Xml;
@@ -154,28 +155,33 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     public List<Dependency> getDeclaredDependencies() {
-        return getSourceFile()
+        Optional<Xml.Tag> dependenciesTag = getSourceFile()
                 .getRoot()
-                .getChild("dependencies").get()
-                .getChildren()
-                .stream()
-                .map(t ->
-                {
-                    Dependency.DependencyBuilder dependencyBuilder = Dependency.builder()
-                            .groupId(t.getChildren("groupId").get(0).getValue().get())
-                            .artifactId(t.getChildren("artifactId").get(0).getValue().get());
-                    if(t.getChild("version").isPresent()) {
-                        dependencyBuilder.version(t.getChild("version").get().getValue().get());
-                    }
-                    if(t.getChild("type").isPresent()) {
-                        dependencyBuilder.type(t.getChild("type").get().getValue().get());
-                    }
-                    if(t.getChild("scope").isPresent()) {
-                        dependencyBuilder.scope(t.getChild("scope").get().getValue().get());
-                    }
-                    return dependencyBuilder.build();
-                }
-                ).collect(Collectors.toList());
+                .getChild("dependencies");
+        if(dependenciesTag.isPresent()) {
+            Xml.Tag dependencies = dependenciesTag.get();
+            return dependencies.getChildren()
+                    .stream()
+                    .map(t ->
+                            {
+                                Dependency.DependencyBuilder dependencyBuilder = Dependency.builder()
+                                        .groupId(t.getChildren("groupId").get(0).getValue().get())
+                                        .artifactId(t.getChildren("artifactId").get(0).getValue().get());
+                                if(t.getChild("version").isPresent()) {
+                                    dependencyBuilder.version(t.getChild("version").get().getValue().get());
+                                }
+                                if(t.getChild("type").isPresent()) {
+                                    dependencyBuilder.type(t.getChild("type").get().getValue().get());
+                                }
+                                if(t.getChild("scope").isPresent()) {
+                                    dependencyBuilder.scope(t.getChild("scope").get().getValue().get());
+                                }
+                                return dependencyBuilder.build();
+                            }
+                    ).collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     /**
@@ -529,30 +535,30 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public boolean hasParent() {
-        @Nullable MavenResolutionResult parent = getPom().getParent();
+        @Nullable Parent parent = getPom().getPom().getRequested().getParent();
         return parent != null;
     }
 
     @Override
     public void upgradeParentVersion(String version) {
         if (hasParent()) {
-            @Nullable MavenResolutionResult parent = getPom().getParent();
+            @Nullable Parent parent = getPom().getPom().getRequested().getParent();
             apply(
-                    new UpgradeParentVersion(parent.getPom().getGroupId(), parent.getPom().getArtifactId(), version, null)
+                    new UpgradeParentVersion(parent.getGroupId(), parent.getArtifactId(), version, null)
                             .doNext(new RefreshPomModel())
             );
         }
     }
 
     @Override
-    public ParentDeclaration getParentPomDeclaration() {
-        @Nullable MavenResolutionResult parent = getPom().getParent();
+    public Optional<ParentDeclaration> getParentPomDeclaration() {
+        @Nullable Parent parent = getPom().getPom().getRequested().getParent();
         // FIXME: no relativePath for parent declaration
         if (parent == null) {
             // TODO: return Optional instead of null
-            return null;
+            return Optional.empty();
         }
-        return new RewriteMavenParentDeclaration(parent.getPom().getGroupId(), parent.getPom().getArtifactId(), parent.getPom().getVersion(), "Not supported (yet)");
+        return Optional.of(new RewriteMavenParentDeclaration(parent.getGroupId(), parent.getArtifactId(), parent.getVersion(), "Not supported (yet)"));
     }
 
     @Override

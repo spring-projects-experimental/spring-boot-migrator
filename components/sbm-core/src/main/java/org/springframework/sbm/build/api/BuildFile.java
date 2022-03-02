@@ -125,7 +125,7 @@ public interface BuildFile extends ProjectResource {
 
     void upgradeParentVersion(String version);
 
-    ParentDeclaration getParentPomDeclaration();
+    Optional<ParentDeclaration> getParentPomDeclaration();
 
     Optional<String> getName();
 
