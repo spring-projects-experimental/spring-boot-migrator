@@ -70,6 +70,7 @@ public class ClasspathRegistry {
 		Set<ResolvedDependency> effectiveDependencies = new HashSet<>();
 		buildFiles.forEach(bf -> {
             Map<Scope, List<ResolvedDependency>> dependencies = ((OpenRewriteMavenBuildFile) bf).getPom().getDependencies();
+			// FIXME: #7 respect scope
             effectiveDependencies.addAll(dependencies.get(Scope.Compile));
 			effectiveDependencies.addAll(dependencies.get(Scope.Test));
 			effectiveDependencies.addAll(dependencies.get(Scope.Provided));

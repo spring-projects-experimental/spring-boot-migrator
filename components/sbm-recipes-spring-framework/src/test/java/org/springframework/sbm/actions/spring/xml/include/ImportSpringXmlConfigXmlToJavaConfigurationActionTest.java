@@ -15,14 +15,14 @@
  */
 package org.springframework.sbm.actions.spring.xml.include;
 
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.project.resource.TestProjectContext;
 import freemarker.template.Configuration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.java.api.JavaSource;
+import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -59,18 +59,16 @@ public class ImportSpringXmlConfigXmlToJavaConfigurationActionTest {
                 "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
                 "    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                 "    <groupId>org.springframework.sbm</groupId>\n" +
+                "    <artifactId>something</artifactId>\n" +
                 "    <version>0.6.1-SNAPSHOT</version>\n" +
                 "    <modelVersion>4.0.0</modelVersion>\n" +
-                "\n" +
-                "    <artifactId>something</artifactId>\n" +
-                "\n" +
                 "    <dependencies>\n" +
                 "        <dependency>\n" +
                 "            <groupId>org.springframework</groupId>\n" +
-                "            <artifactId>spring-context</artifactId>\n" +
+                "            <artifactId>spring-context</artifactId>" +
+                "            <version>5.3.16</version>\n" +
                 "        </dependency>\n" +
                 "    </dependencies>\n" +
-                "\n" +
                 "</project>";
 
         ProjectContext ctx = TestProjectContext.buildProjectContext()
