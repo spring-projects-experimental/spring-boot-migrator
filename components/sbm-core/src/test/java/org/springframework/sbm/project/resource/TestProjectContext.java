@@ -39,6 +39,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
@@ -491,7 +492,7 @@ public class TestProjectContext {
         }
 
         private boolean containsAnyPomXml() {
-            return resources.keySet().stream().anyMatch(p -> p.toString().endsWith("/pom.xml"));
+            return resources.keySet().stream().anyMatch(p -> p.toString().endsWith(File.separator + "pom.xml"));
         }
 
         private List<Resource> mapToResources(Map<Path, String> resources) {
