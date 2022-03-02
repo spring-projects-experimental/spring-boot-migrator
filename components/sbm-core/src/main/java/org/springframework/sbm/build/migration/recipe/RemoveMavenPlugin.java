@@ -59,7 +59,7 @@ public class RemoveMavenPlugin extends Recipe {
 
         private boolean hasGroupAndArtifact(String groupId, String artifactId) {
             Xml.Tag tag = getCursor().getValue();
-            return groupId.equals(tag.getChildValue("groupId")) &&
+            return groupId.equals(tag.getChildValue("groupId").get()) &&
                     tag.getChildValue("artifactId")
                             .map(a -> a.equals(artifactId))
                             .orElse(artifactId == null);

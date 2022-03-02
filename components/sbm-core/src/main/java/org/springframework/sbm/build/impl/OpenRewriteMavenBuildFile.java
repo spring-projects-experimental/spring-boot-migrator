@@ -498,6 +498,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     @Override
     public String getPackaging() {
         String packaging = getPom().getPom().getPackaging();
+        if(packaging == null) {
+            packaging = "jar";
+        }
         return packaging;
     }
 
