@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -78,8 +78,7 @@ public class OpenRewriteMethodTest {
                         "public void mytest() {}\n" +
                         "}";
         String expected =
-                "import org.junit.jupiter.api.Order;\n\n" +
-                        "import java.lang.Integer;\n" +
+                "import org.junit.jupiter.api.Order;\n" +
                         "\n" +
                         "public class Foo {\n" +
                         "    @Order(value = Integer.MAX_VALUE)\n" +
