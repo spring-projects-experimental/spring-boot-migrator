@@ -99,7 +99,6 @@ public class MuleToJavaDSLWmqTest {
                         "org.springframework:spring-beans:5.3.1",
                         "org.springframework.integration:spring-integration-core:5.5.8",
                         "org.springframework.integration:spring-integration-http:5.5.8",
-                        "org.springframework.integration:spring-integration-jms:5.5.8",
                         "org.springframework.boot:spring-boot-starter-integration:2.6.3"
                 )
                 .addRegistrar(registrar)
@@ -113,7 +112,7 @@ public class MuleToJavaDSLWmqTest {
                                 "import org.springframework.context.annotation.Configuration;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlow;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                                "import org.springframework.integration.http.dsl.Http;\n"+
+                                "import org.springframework.integration.http.dsl.Http;\n" +
                                 "import org.springframework.integration.jms.dsl.Jms;\n" +
                                 "\n" +
                                 "import javax.jms.ConnectionFactory;\n" +
@@ -143,6 +142,7 @@ public class MuleToJavaDSLWmqTest {
 
         List<Dependency> declaredDependencies = projectContext.getBuildFile().getDeclaredDependencies();
         checkDependency(declaredDependencies, "com.ibm.mq", "mq-jms-spring-boot-starter", "2.6.4");
+        checkDependency(declaredDependencies, "org.springframework.integration", "spring-integration-jms", "5.5.8");
     }
 
     private void checkDependency(List<Dependency> declaredDependencies,
@@ -153,13 +153,7 @@ public class MuleToJavaDSLWmqTest {
                 .anyMatch(d ->
                         d.getGroupId().equals(groupId)
                                 && d.getArtifactId().equals(artifactId)
-                                && d.getVersion().equals(version));
+                                && (d.getVersion() != null || d.getVersion().equals(version)));
         assertThat(foundDependency).isTrue();
-    }
-
-    @Test
-    @Disabled
-    public void checkPomFileIfJMSDependencyIsPresent() {
-
     }
 }

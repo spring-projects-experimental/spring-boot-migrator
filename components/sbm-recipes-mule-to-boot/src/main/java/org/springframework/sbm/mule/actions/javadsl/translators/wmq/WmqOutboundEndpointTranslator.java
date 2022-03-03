@@ -23,7 +23,7 @@ public class WmqOutboundEndpointTranslator implements MuleComponentToSpringInteg
         return new DslSnippet(
                 ".handle(Jms.outboundAdapter(connectionFactory).destination(\"" +component.getQueue()+"\"))",
                 Set.of("javax.jms.ConnectionFactory", "org.springframework.integration.jms.dsl.Jms"),
-                Collections.emptySet(),
+                Set.of("com.ibm.mq:mq-jms-spring-boot-starter:2.6.4", "org.springframework.integration:spring-integration-jms:5.5.8"),
                 Set.of(new Bean("connectionFactory", "javax.jms.ConnectionFactory"))
         );
     }
