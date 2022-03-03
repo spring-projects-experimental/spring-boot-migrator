@@ -31,4 +31,15 @@ public class Bean {
      * Fully qualified namd of the bean type
      */
     private final String beanClass;
+
+
+    public String getDependentBeanSimpleName() {
+
+        if (beanClass == null || beanClass.isEmpty()) {
+            throw  new IllegalStateException("Bean class is empty");
+        }
+
+        String[] classTree = beanClass.split("\\.");
+        return classTree[classTree.length - 1];
+    }
 }

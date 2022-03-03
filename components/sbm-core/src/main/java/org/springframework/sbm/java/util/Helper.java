@@ -33,14 +33,4 @@ public class Helper {
     static String lowercaseFirstChar(String name) {
         return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
-
-    public static String getClassFromFullyQualifiedReference(String fullyQualifiedClass) {
-
-        if (fullyQualifiedClass == null) {
-            return "";
-        }
-
-        String[] classTree = fullyQualifiedClass.split("\\.");
-        return classTree[classTree.length - 1];
-    }
 }
