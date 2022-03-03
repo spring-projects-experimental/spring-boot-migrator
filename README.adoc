@@ -2,7 +2,7 @@
 
 [quote]
 ____
-Spring Boot Migrator (SBM) aims to help developers upgrading or migrating to Spring Boot by providing recipes for automated migrations.
+Spring Boot Migrator (SBM) aims to help developers upgrade or migrate to [Spring Boot](https://spring.io/projects/spring-boot) by providing recipes for automated migrations.
 ____
 
 == How SBM works
@@ -11,7 +11,7 @@ Spring Boot Migrator uses and is compatible to https://github.com/openrewrite/re
 a powerful mass refactoring ecosystem for Java and other source code.
 
 Spring Boot Migrator offers a CLI to run recipes to migrate or upgrade a given application to Spring Boot.
-For developing new and custom recipes, SBM provides an opinionated API compatible to OpenRewrite recipes
+For developing new and custom recipes, SBM provides an opinionated API compatible with [OpenRewrite](https://docs.openrewrite.org/) recipes
 and a set of specialized resource representations to simplify recipe development for Spring Boot.
 
 
