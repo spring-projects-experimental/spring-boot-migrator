@@ -33,7 +33,7 @@ public class Bean {
     private final String beanClass;
 
 
-    public String getDependentBeanSimpleName() {
+    public String getBeanSimpleName() {
 
         if (beanClass == null || beanClass.isEmpty()) {
             throw  new IllegalStateException("Bean class is empty");

@@ -25,24 +25,24 @@ class BeanTest {
     @Test
     public void shouldReturnSimpleClassName() {
         Bean bean = new Bean("beanName", "org.springframework.integration.dsl.IntegrationFlow");
-        assertThat(bean.getDependentBeanSimpleName()).isEqualTo("IntegrationFlow");
+        assertThat(bean.getBeanSimpleName()).isEqualTo("IntegrationFlow");
     }
 
     @Test
     public void shouldThrowErrorWhenBeanClassIsNull() {
         Bean bean = new Bean("beanName", null);
-        assertThrows(IllegalStateException.class, bean::getDependentBeanSimpleName);
+        assertThrows(IllegalStateException.class, bean::getBeanSimpleName);
     }
 
     @Test
     public void shouldThrowErrorWhenBeanClassIsEmpty() {
         Bean bean = new Bean("beanName", "");
-        assertThrows(IllegalStateException.class, bean::getDependentBeanSimpleName);
+        assertThrows(IllegalStateException.class, bean::getBeanSimpleName);
     }
 
     @Test
     public void shouldReturnSimpleClassNameIfBeanClassContainsSimpleClassName() {
         Bean bean = new Bean("beanName", "IntegrationFlow");
-        assertThat(bean.getDependentBeanSimpleName()).isEqualTo("IntegrationFlow");
+        assertThat(bean.getBeanSimpleName()).isEqualTo("IntegrationFlow");
     }
 }
