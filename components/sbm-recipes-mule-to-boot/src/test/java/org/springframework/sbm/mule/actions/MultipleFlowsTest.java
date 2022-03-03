@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
 
 public class MultipleFlowsTest {
 
-    private final String muleMultiFlow = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+    private final static String  muleMultiFlow = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
             "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\" xmlns:metadata=\"http://www.mulesoft.org/schema/mule/metadata\" xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
             "xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
@@ -114,7 +114,7 @@ public class MultipleFlowsTest {
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow main_flow(org.springframework.integration.dsl.IntegrationFlow logging) {\n" +
+                        "    IntegrationFlow main_flow(IntegrationFlow logging) {\n" +
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/subflows\")).handle((p, h) -> p)\n" +
                         "                .gateway(logging)\n" +
                         "                .get();\n" +
