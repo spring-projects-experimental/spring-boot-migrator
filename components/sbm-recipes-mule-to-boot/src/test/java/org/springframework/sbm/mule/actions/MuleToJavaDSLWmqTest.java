@@ -26,6 +26,7 @@ import org.springframework.sbm.mule.actions.javadsl.translators.common.Expressio
 import org.springframework.sbm.mule.actions.javadsl.translators.core.SetPropertyTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.wmq.OutboundEndpointTranslator;
 import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
 import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
@@ -42,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class MuleToJavaDSLWmqTest {
-    private final String muleXml = "<mule xmlns:wmq=\"http://www.mulesoft.org/schema/mule/ee/wmq\" xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
+    private final static String muleXml = "<mule xmlns:wmq=\"http://www.mulesoft.org/schema/mule/ee/wmq\" xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
             "xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
             "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
             "xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
@@ -64,7 +65,8 @@ public class MuleToJavaDSLWmqTest {
     @BeforeEach
     public void setup() {
         List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
-                new HttpListenerTranslator()
+                new HttpListenerTranslator(),
+                new OutboundEndpointTranslator()
         );
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
                 new FlowTopLevelElementFactory(translators),
@@ -103,23 +105,22 @@ public class MuleToJavaDSLWmqTest {
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
-                                "\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +
                                 "import org.springframework.context.annotation.Configuration;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlow;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                                "import org.springframework.integration.http.dsl.Http;\n"+
                                 "import org.springframework.integration.jms.dsl.Jms;\n" +
                                 "\n" +
                                 "import javax.jms.ConnectionFactory;\n" +
                                 "\n" +
                                 "@Configuration\n" +
-                                "public class JavaDSLWmq {\n" +
+                                "public class FlowConfigurations {\n" +
                                 "    @Bean\n" +
-                                "    public IntegrationFlow jmsInbound(ConnectionFactory connectionFactory) {\n" +
-                                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\"))\n" +
-                                "                 .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q1\"))" +
+                                "    IntegrationFlow http_flow(ConnectionFactory connectionFactory) {\n" +
+                                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
+                                "                .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q1\"))\n" +
                                 "                .get();\n" +
-                                "    }\n" +
-                                "}\n");
+                                "    }}");
     }
 }
