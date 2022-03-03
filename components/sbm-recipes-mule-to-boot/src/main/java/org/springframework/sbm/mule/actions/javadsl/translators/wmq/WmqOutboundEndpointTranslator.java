@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.Set;
 
 @Component
-public class OutboundEndpointTranslator implements MuleComponentToSpringIntegrationDslTranslator<OutboundEndpointType> {
+public class WmqOutboundEndpointTranslator implements MuleComponentToSpringIntegrationDslTranslator<OutboundEndpointType> {
     @Override
     public Class<OutboundEndpointType> getSupportedMuleType() {
         return OutboundEndpointType.class;

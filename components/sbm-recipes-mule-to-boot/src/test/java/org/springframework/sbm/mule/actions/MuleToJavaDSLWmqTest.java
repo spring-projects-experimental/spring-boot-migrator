@@ -21,14 +21,13 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigTypeAdapter;
-import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.core.SetPropertyTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.wmq.OutboundEndpointTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqOutboundEndpointTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqConnectorTypeAdapter;
 import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
 import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
@@ -70,21 +69,23 @@ public class MuleToJavaDSLWmqTest {
     public void setup() {
         List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
                 new HttpListenerTranslator(),
-                new OutboundEndpointTranslator()
+                new WmqOutboundEndpointTranslator()
         );
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
                 new FlowTopLevelElementFactory(translators),
                 new SubflowTopLevelElementFactory(translators)
         );
 
-        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
+        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(
+                new HttpListenerConfigTypeAdapter(),
+                new WmqConnectorTypeAdapter()));
         MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
         myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
         myAction.setEventPublisher(eventPublisher);
     }
 
     @Test
-    public void shouldGenerateSetPropertyStatements() {
+    public void shouldGenerateWmqOutboundStatements() {
 
         MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
         ApplicationProperties applicationProperties = new ApplicationProperties();
@@ -99,8 +100,7 @@ public class MuleToJavaDSLWmqTest {
                         "org.springframework.integration:spring-integration-core:5.5.8",
                         "org.springframework.integration:spring-integration-http:5.5.8",
                         "org.springframework.integration:spring-integration-jms:5.5.8",
-                        "org.springframework.boot:spring-boot-starter-integration:2.6.3",
-                        "com.ibm.mq:mq-jms-spring-boot-starter:2.6.4"
+                        "org.springframework.boot:spring-boot-starter-integration:2.6.3"
                 )
                 .addRegistrar(registrar)
                 .build();
@@ -134,8 +134,27 @@ public class MuleToJavaDSLWmqTest {
                 .filter(r -> r.getSourcePath().toString().contains("application.properties"))
                 .collect(Collectors.toList());
 
-        assertThat(applicationProperty).hasSizeGreaterThan(5);
-//        assertThat(applicationProperty.get(0).print()).isEqualTo("server.port=8081");
+        assertThat(applicationProperty).hasSize(1);
+        assertThat(applicationProperty.get(0).print()).contains("ibm.mq.queueManager=QM1");
+        assertThat(applicationProperty.get(0).print()).contains("ibm.mq.channel=Channel1");
+        assertThat(applicationProperty.get(0).print()).contains("ibm.mq.connName=localhost(1414)");
+        assertThat(applicationProperty.get(0).print()).contains("ibm.mq.user=username");
+        assertThat(applicationProperty.get(0).print()).contains("ibm.mq.password=password");
+
+        List<Dependency> declaredDependencies = projectContext.getBuildFile().getDeclaredDependencies();
+        checkDependency(declaredDependencies, "com.ibm.mq", "mq-jms-spring-boot-starter", "2.6.4");
+    }
+
+    private void checkDependency(List<Dependency> declaredDependencies,
+                                 String groupId,
+                                 String artifactId,
+                                 String version) {
+        boolean foundDependency = declaredDependencies.stream()
+                .anyMatch(d ->
+                        d.getGroupId().equals(groupId)
+                                && d.getArtifactId().equals(artifactId)
+                                && d.getVersion().equals(version));
+        assertThat(foundDependency).isTrue();
     }
 
     @Test
