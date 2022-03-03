@@ -17,6 +17,7 @@
 package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -122,5 +123,18 @@ public class MuleToJavaDSLWmqTest {
                                 "                .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q1\"))\n" +
                                 "                .get();\n" +
                                 "    }}");
+    }
+
+
+    @Test
+    @Disabled
+    public void checkConfig() {
+
+    }
+
+    @Test
+    @Disabled
+    public void checkPomFileIsImported() {
+
     }
 }
