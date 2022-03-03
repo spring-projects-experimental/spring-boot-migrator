@@ -19,6 +19,7 @@ package org.springframework.sbm.mule.actions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.SourceFile;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
@@ -36,9 +37,11 @@ import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationType
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -123,18 +126,21 @@ public class MuleToJavaDSLWmqTest {
                                 "                .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q1\"))\n" +
                                 "                .get();\n" +
                                 "    }}");
-    }
 
+        List<RewriteSourceFileHolder<? extends SourceFile>> applicationProperty = projectContext
+                .getProjectResources()
+                .list()
+                .stream()
+                .filter(r -> r.getSourcePath().toString().contains("application.properties"))
+                .collect(Collectors.toList());
+
+        assertThat(applicationProperty).hasSizeGreaterThan(5);
+//        assertThat(applicationProperty.get(0).print()).isEqualTo("server.port=8081");
+    }
 
     @Test
     @Disabled
-    public void checkConfig() {
-
-    }
-
-    @Test
-    @Disabled
-    public void checkPomFileIsImported() {
+    public void checkPomFileIfJMSDependencyIsPresent() {
 
     }
 }
