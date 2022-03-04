@@ -28,6 +28,7 @@ import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListene
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqConnectorTypeAdapter;
+import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqInboundEndpointTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqOutboundEndpointTranslator;
 import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
 import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
@@ -88,7 +89,7 @@ public class MuleToJavaDSLWmqInboundTest {
     public void setup() {
         List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
                 new LoggingTranslator(new ExpressionLanguageTranslator()),
-                new WmqOutboundEndpointTranslator()
+                new WmqInboundEndpointTranslator()
         );
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
                 new FlowTopLevelElementFactory(translators),
@@ -126,25 +127,24 @@ public class MuleToJavaDSLWmqInboundTest {
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(
-                        "package com.example.demorabitmqspringintegration;\n" +
-                                "\n" +
+                        "package com.example.javadsl;\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +
                                 "import org.springframework.context.annotation.Configuration;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlow;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                                "import org.springframework.integration.handler.LoggingHandler;\n" +
                                 "import org.springframework.integration.jms.dsl.Jms;\n" +
+                                "\n" +
                                 "import javax.jms.ConnectionFactory;\n" +
                                 "\n" +
                                 "@Configuration\n" +
-                                "public class JavaDSLWmq {\n" +
+                                "public class FlowConfigurations {\n" +
                                 "    @Bean\n" +
-                                "    public IntegrationFlow jmsInbound(ConnectionFactory connectionFactory) {\n" +
-                                "        return IntegrationFlows.from(\n" +
-                                "                        Jms.inboundAdapter(connectionFactory).destination(\"Q1\"))\n" +
-                                "                .log()\n" +
+                                "    IntegrationFlow http_muleFlow(ConnectionFactory connectionFactory) {\n" +
+                                "        IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"Q1\")).handle((p, h) -> p)\n" +
+                                "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                .get();\n" +
-                                "    }\n" +
-                                "}");
+                                "    }}");
 
         List<RewriteSourceFileHolder<? extends SourceFile>> applicationProperty = projectContext
                 .getProjectResources()
