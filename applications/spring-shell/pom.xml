@@ -99,6 +99,12 @@
             <version>1.16.3</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>mq-jms-spring-boot-starter</artifactId>
+            <version>2.6.4</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Override Jackson coming from spring boot -->
         <dependency>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ /*
+  ~  * Copyright 2021 - 2022 the original author or authors.
+  ~  *
+  ~  * Licensed under the Apache License, Version 2.0 (the "License");
+  ~  * you may not use this file except in compliance with the License.
+  ~  * You may obtain a copy of the License at
+  ~  *
+  ~  *      https://www.apache.org/licenses/LICENSE-2.0
+  ~  *
+  ~  * Unless required by applicable law or agreed to in writing, software
+  ~  * distributed under the License is distributed on an "AS IS" BASIS,
+  ~  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  * See the License for the specific language governing permissions and
+  ~  * limitations under the License.
+  ~  */
+  -->
+
+<mule xmlns:wmq="http://www.mulesoft.org/schema/mule/ee/wmq"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/ee/wmq/current/mule-wmq-ee.xsd">
+    <wmq:connector name="WMQ" hostName="wmqhost" port="1414" queueManager="QM1" channel="DEV.APP.SVRCONN" username="app"
+                   password="passw0rd" transportType="CLIENT_MQ_TCPIP" targetClient="JMS_COMPLIANT"
+                   validateConnections="true" doc:name="WMQ"/>
+    <flow name="wmq-flow">
+        <wmq:inbound-endpoint queue="DEV.QUEUE.1" doc:name="WMQ" connector-ref="WMQ"/>
+        <logger level="INFO" doc:name="Logger"/>
+        <wmq:outbound-endpoint queue="DEV.QUEUE.2" targetClient="JMS_COMPLIANT" connector-ref="WMQ" doc:name="WMQ"/>
+    </flow>
+</mule>

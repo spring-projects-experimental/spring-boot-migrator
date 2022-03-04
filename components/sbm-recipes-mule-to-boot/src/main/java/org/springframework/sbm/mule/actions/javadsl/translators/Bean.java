@@ -38,8 +38,6 @@ public class Bean {
         if (beanClass == null || beanClass.isEmpty()) {
             throw  new IllegalStateException("Bean class is empty");
         }
-
-        String[] classTree = beanClass.split("\\.");
-        return classTree[classTree.length - 1];
+        return beanClass;
     }
 }

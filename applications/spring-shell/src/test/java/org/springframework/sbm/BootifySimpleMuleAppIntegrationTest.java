@@ -19,6 +19,8 @@ import com.rabbitmq.client.*;
 import org.junit.jupiter.api.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.sbm.wmq.WMQListener;
+import org.springframework.sbm.wmq.WMQSender;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -70,6 +72,13 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
                         "amqphost"),
                 null);
 
+        RunningNetworkedContainer wmqContainer = startDockerContainers(
+                new NetworkedContainer(
+                        "ibmcom/mq",
+                        List.of(1414, 9443),
+                        "wmqhost"),
+                null);
+
         try (Connection connection = CONNECTION_FACTORY.newConnection(
                 Collections.singletonList(
                         new Address("localhost", rabbitContainer.getContainer().getMappedPort(5672))
@@ -92,7 +101,19 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
             checkReceivedMessage(channel, message, Map.of("TestProperty", "TestPropertyValue"));
             checkSendHttpMessage(container.getContainer().getMappedPort(9081));
             checkInboundGatewayHttpMessage(container.getContainer().getMappedPort(9081));
+            checkWMQMessage();
         }
+    }
+
+    private void checkWMQMessage() throws InterruptedException {
+        WMQSender wmqSender = new WMQSender();
+        CountDownLatch latch = new CountDownLatch(1);
+        WMQListener wmqListener = new WMQListener();
+        wmqListener.listenForMessage("DEV.QUEUE.2", message -> {
+            latch.countDown();
+        });
+        wmqSender.sendMessage("DEV.QUEUE.1", "Test WMQ message");
+        latch.await(5000, TimeUnit.MILLISECONDS);
     }
 
     private void checkInboundGatewayHttpMessage(int port) {
