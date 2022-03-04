@@ -69,7 +69,7 @@ public class DslSnippet {
                 .flatMap(dsl -> dsl.getBeans().stream())
                 .collect(Collectors.toSet())
                 .stream()
-                .map(b -> b.getBeanSimpleName() + " " + Helper.sanitizeForBeanMethodName(b.getBeanName()))
+                .map(b -> b.getBeanClass() + " " + Helper.sanitizeForBeanMethodName(b.getBeanName()))
                 .collect(Collectors.joining(", "));
     }
 }

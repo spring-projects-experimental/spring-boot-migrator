@@ -191,7 +191,7 @@ public class MuleToJavaDSLMultipleTest {
                                 "@Configuration\n" +
                                 "public class FlowConfigurations {\n" +
                                 "    @Bean\n" +
-                                "    IntegrationFlow amqp_muleFlow(ConnectionFactory connectionFactory, RabbitTemplate rabbitTemplate) {\n" +
+                                "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate, org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory) {\n" +
                                 "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"))\n" +
@@ -237,24 +237,24 @@ public class MuleToJavaDSLMultipleTest {
 
         assertThat(projectContext.getProjectJavaSources().list().get(0).print()).isEqualTo(
                 "package com.example.javadsl;\n" +
-                  "import org.springframework.amqp.rabbit.connection.ConnectionFactory;\n" +
-                  "import org.springframework.amqp.rabbit.core.RabbitTemplate;\n" +
-                  "import org.springframework.context.annotation.Bean;\n" +
-                  "import org.springframework.context.annotation.Configuration;\n" +
-                  "import org.springframework.integration.amqp.dsl.Amqp;\n" +
-                  "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                  "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                  "import org.springframework.integration.handler.LoggingHandler;\n" +
-                  "\n" +
-                  "@Configuration\n" +
-                  "public class FlowConfigurations {\n" +
-                  "    @Bean\n" +
-                  "    IntegrationFlow amqp_muleFlow(ConnectionFactory connectionFactory, RabbitTemplate rabbitTemplate) {\n" +
-                  "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" +
-                  "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" + // FIXME: replace Mule EL with Spring EL
-                  "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"))\n" +
-                  "                .get();\n" +
-                  "    }}"
+                        "import org.springframework.amqp.rabbit.connection.ConnectionFactory;\n" +
+                        "import org.springframework.amqp.rabbit.core.RabbitTemplate;\n" +
+                        "import org.springframework.context.annotation.Bean;\n" +
+                        "import org.springframework.context.annotation.Configuration;\n" +
+                        "import org.springframework.integration.amqp.dsl.Amqp;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                        "import org.springframework.integration.handler.LoggingHandler;\n" +
+                        "\n" +
+                        "@Configuration\n" +
+                        "public class FlowConfigurations {\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate, org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory) {\n" +
+                        "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" +
+                        "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
+                        "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"))\n" +
+                        "                .get();\n" +
+                        "    }}"
         );
     }
 }

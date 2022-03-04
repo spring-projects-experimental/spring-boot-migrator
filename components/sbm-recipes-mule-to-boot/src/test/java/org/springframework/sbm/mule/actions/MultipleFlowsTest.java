@@ -114,7 +114,7 @@ public class MultipleFlowsTest {
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow main_flow(IntegrationFlow logging) {\n" +
+                        "    IntegrationFlow main_flow(org.springframework.integration.dsl.IntegrationFlow logging) {\n" +
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/subflows\")).handle((p, h) -> p)\n" +
                         "                .gateway(logging)\n" +
                         "                .get();\n" +

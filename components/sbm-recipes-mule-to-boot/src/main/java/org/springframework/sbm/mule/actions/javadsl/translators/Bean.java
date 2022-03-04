@@ -31,13 +31,4 @@ public class Bean {
      * Fully qualified namd of the bean type
      */
     private final String beanClass;
-
-
-    public String getBeanSimpleName() {
-
-        if (beanClass == null || beanClass.isEmpty()) {
-            throw  new IllegalStateException("Bean class is empty");
-        }
-        return beanClass;
-    }
 }
