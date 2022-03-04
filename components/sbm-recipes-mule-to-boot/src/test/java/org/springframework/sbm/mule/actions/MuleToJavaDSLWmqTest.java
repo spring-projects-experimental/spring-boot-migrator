@@ -59,9 +59,9 @@ public class MuleToJavaDSLWmqTest {
             "<http:listener-config name=\"HTTP_Listener_Configuration\" host=\"0.0.0.0\" port=\"9081\" doc:name=\"HTTP Listener Configuration\"/>\n" +
             "<wmq:connector name=\"WMQ\" hostName=\"localhost\" port=\"1414\" queueManager=\"QM1\" channel=\"Channel1\" username=\"username\" password=\"password\" transportType=\"CLIENT_MQ_TCPIP\" targetClient=\"JMS_COMPLIANT\" validateConnections=\"true\" doc:name=\"WMQ\"/>\n" +
             "<flow name=\"wmq-flow\">\n" +
-            "<wmq:inbound-endpoint queue=\"Q2\" doc:name=\"WMQ\" connector-ref=\"WMQ\"/>\n" +
+            "<wmq:inbound-endpoint queue=\"Q1\" doc:name=\"WMQ\" connector-ref=\"WMQ\"/>\n" +
             "<logger level=\"INFO\" doc:name=\"Logger\" doc:id=\"4585ec7f-2d4a-4d86-af24-b678d4a99227\" />\n" +
-            "<wmq:outbound-endpoint queue=\"Q1\" targetClient=\"JMS_COMPLIANT\" connector-ref=\"WMQ\" doc:name=\"WMQ\"/>\n" +
+            "<wmq:outbound-endpoint queue=\"Q2\" targetClient=\"JMS_COMPLIANT\" connector-ref=\"WMQ\" doc:name=\"WMQ\"/>\n" +
             "</flow>\n" +
             "</mule>";
 
@@ -101,7 +101,6 @@ public class MuleToJavaDSLWmqTest {
                         "org.springframework:spring-context:5.3.1",
                         "org.springframework:spring-beans:5.3.1",
                         "org.springframework.integration:spring-integration-core:5.5.8",
-                        "org.springframework.integration:spring-integration-http:5.5.8",
                         "org.springframework.boot:spring-boot-starter-integration:2.6.3"
                 )
                 .addRegistrar(registrar)
@@ -126,7 +125,7 @@ public class MuleToJavaDSLWmqTest {
                                 "    IntegrationFlow wmq_flow(javax.jms.ConnectionFactory connectionFactory) {\n" +
                                 "        IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"Q1\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
-                                "                .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q1\"))\n" +
+                                "                .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q2\"))\n" +
                                 "                .get();\n" +
                                 "    }}");
 
