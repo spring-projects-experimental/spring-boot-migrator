@@ -94,7 +94,7 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
         StringBuilder sb = new StringBuilder();
         sb.append("@Bean\n");
         String methodName = Helper.sanitizeForBeanMethodName(getFlowName());
-        String methodParams = composeMethodParametersBeans(dslSnippets);
+        String methodParams = DslSnippet.getMethodParameters(dslSnippets);
         sb.append("IntegrationFlow ").append(methodName).append("(").append(methodParams).append(") {\n");
         sb.append(composePrefixDslCode());
         String dsl = getDslSnippets().stream().map(DslSnippet::getRenderedSnippet).collect(Collectors.joining("\n"));
@@ -117,12 +117,5 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
 
     protected String composeSuffixDslCode() {
         return "";
-    }
-
-    private String composeMethodParametersBeans(List<DslSnippet> dslSnippets) {
-        return dslSnippets.stream()
-                .flatMap(dsl -> dsl.getBeans().stream())
-                .map(b -> b.getBeanSimpleName() + " " + Helper.sanitizeForBeanMethodName(b.getBeanName()))
-                .collect(Collectors.joining(", "));
     }
 }

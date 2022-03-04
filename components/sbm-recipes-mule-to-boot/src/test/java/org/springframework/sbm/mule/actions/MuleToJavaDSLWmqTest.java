@@ -90,9 +90,6 @@ public class MuleToJavaDSLWmqTest {
 
     @Test
     public void shouldGenerateWmqOutboundStatements() {
-
-        System.out.println(muleXml);
-
         MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
         ApplicationProperties applicationProperties = new ApplicationProperties();
         applicationProperties.setDefaultBasePackage("com.example.javadsl");
