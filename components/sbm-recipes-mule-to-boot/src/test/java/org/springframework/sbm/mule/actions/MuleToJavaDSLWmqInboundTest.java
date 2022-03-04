@@ -17,17 +17,18 @@
 package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqOutboundEndpointTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqConnectorTypeAdapter;
+import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqOutboundEndpointTranslator;
 import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
 import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
@@ -45,8 +46,26 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class MuleToJavaDSLWmqTest {
-    private final static String muleXml = "<mule xmlns:wmq=\"http://www.mulesoft.org/schema/mule/ee/wmq\" xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
+public class MuleToJavaDSLWmqInboundTest {
+    private final static String muleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "\n" +
+            "<!--\n" +
+            "  ~ Copyright 2021 - 2022 the original author or authors.\n" +
+            "  ~\n" +
+            "  ~ Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+            "  ~ you may not use this file except in compliance with the License.\n" +
+            "  ~ You may obtain a copy of the License at\n" +
+            "  ~\n" +
+            "  ~      https://www.apache.org/licenses/LICENSE-2.0\n" +
+            "  ~\n" +
+            "  ~ Unless required by applicable law or agreed to in writing, software\n" +
+            "  ~ distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+            "  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+            "  ~ See the License for the specific language governing permissions and\n" +
+            "  ~ limitations under the License.\n" +
+            "  -->\n" +
+            "\n" +
+            "<mule xmlns:wmq=\"http://www.mulesoft.org/schema/mule/ee/wmq\" xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
             "xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
             "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
             "xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
@@ -56,9 +75,9 @@ public class MuleToJavaDSLWmqTest {
             "http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/ee/wmq/current/mule-wmq-ee.xsd\">\n" +
             "<http:listener-config name=\"HTTP_Listener_Configuration\" host=\"0.0.0.0\" port=\"9081\" doc:name=\"HTTP Listener Configuration\"/>\n" +
             "<wmq:connector name=\"WMQ\" hostName=\"localhost\" port=\"1414\" queueManager=\"QM1\" channel=\"Channel1\" username=\"username\" password=\"password\" transportType=\"CLIENT_MQ_TCPIP\" targetClient=\"JMS_COMPLIANT\" validateConnections=\"true\" doc:name=\"WMQ\"/>\n" +
-            "<flow name=\"http-flow\">\n" +
-            "<http:listener doc:name=\"Listener\"  config-ref=\"HTTP_Listener_Configuration\" path=\"/test\"/>\n" +
-            "<wmq:outbound-endpoint queue=\"Q1\" targetClient=\"JMS_COMPLIANT\" connector-ref=\"WMQ\" doc:name=\"WMQ\"/>\n" +
+            "<flow name=\"http-muleFlow\">\n" +
+            "<wmq:inbound-endpoint queue=\"Q2\" doc:name=\"WMQ\" connector-ref=\"WMQ\"/>\n" +
+            "<logger level=\"INFO\" doc:name=\"Logger\"/>\n" +
             "</flow>\n" +
             "</mule>";
 
@@ -68,7 +87,7 @@ public class MuleToJavaDSLWmqTest {
     @BeforeEach
     public void setup() {
         List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
-                new HttpListenerTranslator(),
+                new LoggingTranslator(new ExpressionLanguageTranslator()),
                 new WmqOutboundEndpointTranslator()
         );
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
@@ -85,14 +104,14 @@ public class MuleToJavaDSLWmqTest {
     }
 
     @Test
-    public void shouldGenerateWmqOutboundStatements() {
+    public void shouldGenerateWmqInboundStatements() {
 
         MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
         ApplicationProperties applicationProperties = new ApplicationProperties();
         applicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-set-property-flow.xml", muleXml)
+                .addProjectResource("src/main/resources/mule-wmq-flow.xml", muleXml)
                 .withApplicationProperties(applicationProperties)
                 .withBuildFileHavingDependencies(
                         "org.springframework:spring-context:5.3.1",
@@ -107,24 +126,25 @@ public class MuleToJavaDSLWmqTest {
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(
-                        "package com.example.javadsl;\n" +
+                        "package com.example.demorabitmqspringintegration;\n" +
+                                "\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +
                                 "import org.springframework.context.annotation.Configuration;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlow;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                                "import org.springframework.integration.http.dsl.Http;\n" +
                                 "import org.springframework.integration.jms.dsl.Jms;\n" +
-                                "\n" +
                                 "import javax.jms.ConnectionFactory;\n" +
                                 "\n" +
                                 "@Configuration\n" +
-                                "public class FlowConfigurations {\n" +
+                                "public class JavaDSLWmq {\n" +
                                 "    @Bean\n" +
-                                "    IntegrationFlow http_flow(ConnectionFactory connectionFactory) {\n" +
-                                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
-                                "                .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q1\"))\n" +
+                                "    public IntegrationFlow jmsInbound(ConnectionFactory connectionFactory) {\n" +
+                                "        return IntegrationFlows.from(\n" +
+                                "                        Jms.inboundAdapter(connectionFactory).destination(\"Q1\"))\n" +
+                                "                .log()\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
 
         List<RewriteSourceFileHolder<? extends SourceFile>> applicationProperty = projectContext
                 .getProjectResources()
