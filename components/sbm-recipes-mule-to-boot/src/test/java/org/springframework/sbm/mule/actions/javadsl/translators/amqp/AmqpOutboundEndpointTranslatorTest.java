@@ -16,7 +16,7 @@
 package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
+import org.springframework.sbm.mule.actions.javadsl.translators.RequiredBean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.sbm.mule.resource.MuleXml;
@@ -103,7 +103,7 @@ public class AmqpOutboundEndpointTranslatorTest {
         OutboundEndpointType outboundEndpointType = getOutboundEndpointType(flowType);
 
         DslSnippet snippet = apply(outboundEndpointType);
-        assertThat(snippet.getBeans()).isNotNull();
+        assertThat(snippet.getRequiredBeans()).isNotNull();
         assertThat(snippet.getRenderedSnippet()).isEqualTo(".handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sales_exchange\").routingKey(\"sales_queue\"))");
     }
 
@@ -124,8 +124,8 @@ public class AmqpOutboundEndpointTranslatorTest {
 
         DslSnippet snippet = apply(outboundEndpointType);
 
-        assertThat(snippet.getBeans()).isNotNull();
-        assertThat(snippet.getBeans()).contains(new Bean("rabbitTemplate", "org.springframework.amqp.rabbit.core.RabbitTemplate"));
+        assertThat(snippet.getRequiredBeans()).isNotNull();
+        assertThat(snippet.getRequiredBeans()).contains(new RequiredBean("rabbitTemplate", "org.springframework.amqp.rabbit.core.RabbitTemplate"));
         assertThat(snippet.getRequiredImports()).contains("org.springframework.amqp.rabbit.core.RabbitTemplate");
         assertThat(snippet.getRenderedSnippet()).isEqualTo(".handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"))");
     }

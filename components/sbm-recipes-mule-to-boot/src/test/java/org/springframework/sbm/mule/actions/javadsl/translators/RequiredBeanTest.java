@@ -20,29 +20,29 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class BeanTest {
+class RequiredBeanTest {
 
     @Test
     public void shouldReturnSimpleClassName() {
-        Bean bean = new Bean("beanName", "org.springframework.integration.dsl.IntegrationFlow");
-        assertThat(bean.getBeanSimpleName()).isEqualTo("IntegrationFlow");
+        RequiredBean bean = new RequiredBean("beanName", "org.springframework.integration.dsl.IntegrationFlow");
+        assertThat(bean.getBeanClassSimpleName()).isEqualTo("IntegrationFlow");
     }
 
     @Test
     public void shouldThrowErrorWhenBeanClassIsNull() {
-        Bean bean = new Bean("beanName", null);
-        assertThrows(IllegalStateException.class, bean::getBeanSimpleName);
+        RequiredBean bean = new RequiredBean("beanName", null);
+        assertThrows(IllegalStateException.class, bean::getBeanClassSimpleName);
     }
 
     @Test
     public void shouldThrowErrorWhenBeanClassIsEmpty() {
-        Bean bean = new Bean("beanName", "");
-        assertThrows(IllegalStateException.class, bean::getBeanSimpleName);
+        RequiredBean bean = new RequiredBean("beanName", "");
+        assertThrows(IllegalStateException.class, bean::getBeanClassSimpleName);
     }
 
     @Test
     public void shouldReturnSimpleClassNameIfBeanClassContainsSimpleClassName() {
-        Bean bean = new Bean("beanName", "IntegrationFlow");
-        assertThat(bean.getBeanSimpleName()).isEqualTo("IntegrationFlow");
+        RequiredBean bean = new RequiredBean("beanName", "IntegrationFlow");
+        assertThat(bean.getBeanClassSimpleName()).isEqualTo("IntegrationFlow");
     }
 }

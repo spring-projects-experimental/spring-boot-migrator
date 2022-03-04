@@ -44,7 +44,7 @@ public class DslSnippet {
      */
     private final Set<String> requiredDependencies;
 
-    private final Set<Bean> beans;
+    private final Set<RequiredBean> requiredBeans;
 
     private final boolean isUnknownStatement;
 
@@ -56,7 +56,7 @@ public class DslSnippet {
     public DslSnippet(String renderedSnippet,
                       Set<String> requiredImports,
                       Set<String> requiredDependencies,
-                      Set<Bean> beans) {
-        this(renderedSnippet, requiredImports, requiredDependencies, beans, false);
+                      Set<RequiredBean> requiredBeans) {
+        this(renderedSnippet, requiredImports, requiredDependencies, requiredBeans, false);
     }
 }

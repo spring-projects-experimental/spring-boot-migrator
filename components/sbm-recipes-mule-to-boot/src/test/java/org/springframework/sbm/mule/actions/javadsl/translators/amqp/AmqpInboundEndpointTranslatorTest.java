@@ -16,7 +16,7 @@
 package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
+import org.springframework.sbm.mule.actions.javadsl.translators.RequiredBean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.sbm.mule.resource.MuleXml;
@@ -79,8 +79,8 @@ class AmqpInboundEndpointTranslatorTest {
                 .build();
 
         DslSnippet snippet = apply(projectContext);
-        assertThat(snippet.getBeans()).isNotNull();
-        assertThat(snippet.getBeans()).contains(new Bean("connectionFactory", "org.springframework.amqp.rabbit.connection.ConnectionFactory"));
+        assertThat(snippet.getRequiredBeans()).isNotNull();
+        assertThat(snippet.getRequiredBeans()).contains(new RequiredBean("connectionFactory", "org.springframework.amqp.rabbit.connection.ConnectionFactory"));
         assertThat(snippet.getRequiredImports()).contains("org.springframework.amqp.rabbit.connection.ConnectionFactory");
         assertThat(snippet.getRenderedSnippet()).isEqualTo("return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))");
     }

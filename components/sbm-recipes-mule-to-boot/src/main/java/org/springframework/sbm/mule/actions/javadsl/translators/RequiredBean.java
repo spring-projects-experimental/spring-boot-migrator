@@ -25,15 +25,15 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @EqualsAndHashCode
-public class Bean {
+public class RequiredBean {
     private final String beanName;
     /**
-     * Fully qualified namd of the bean type
+     * Fully qualified name of the bean type
      */
     private final String beanClass;
 
 
-    public String getBeanSimpleName() {
+    public String getBeanClassSimpleName() {
 
         if (beanClass == null || beanClass.isEmpty()) {
             throw  new IllegalStateException("Bean class is empty");

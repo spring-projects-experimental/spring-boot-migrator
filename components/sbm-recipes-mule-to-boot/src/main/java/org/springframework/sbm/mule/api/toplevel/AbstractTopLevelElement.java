@@ -121,8 +121,8 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
 
     private String composeMethodParametersBeans(List<DslSnippet> dslSnippets) {
         return dslSnippets.stream()
-                .flatMap(dsl -> dsl.getBeans().stream())
-                .map(b -> b.getBeanSimpleName() + " " + Helper.sanitizeForBeanMethodName(b.getBeanName()))
+                .flatMap(dsl -> dsl.getRequiredBeans().stream())
+                .map(b -> b.getBeanClassSimpleName() + " " + Helper.sanitizeForBeanMethodName(b.getBeanName()))
                 .collect(Collectors.joining(", "));
     }
 }

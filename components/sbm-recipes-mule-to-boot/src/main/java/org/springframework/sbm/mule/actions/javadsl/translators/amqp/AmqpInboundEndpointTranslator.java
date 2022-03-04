@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 
-import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
+import org.springframework.sbm.mule.actions.javadsl.translators.RequiredBean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
@@ -40,8 +40,8 @@ public class AmqpInboundEndpointTranslator implements MuleComponentToSpringInteg
     public DslSnippet translate(InboundEndpointType inboundEndpointType, QName name, MuleConfigurations muleConfigurations) {
         String queueName = inboundEndpointType.getQueueName();
         String renderedSnippet = snippetTemplate.replace("${queueName}", queueName);
-        Bean amqpConnectionFactoryBean = new Bean("connectionFactory", "org.springframework.amqp.rabbit.connection.ConnectionFactory");
-        DslSnippet dslSnippet = new DslSnippet(renderedSnippet, Set.of("org.springframework.amqp.rabbit.connection.ConnectionFactory", "org.springframework.integration.amqp.dsl.Amqp"), Set.of("org.springframework.integration:spring-integration-amqp:5.4.4"), Set.of(amqpConnectionFactoryBean));
+        RequiredBean amqpConnectionFactoryRequiredBean = new RequiredBean("connectionFactory", "org.springframework.amqp.rabbit.connection.ConnectionFactory");
+        DslSnippet dslSnippet = new DslSnippet(renderedSnippet, Set.of("org.springframework.amqp.rabbit.connection.ConnectionFactory", "org.springframework.integration.amqp.dsl.Amqp"), Set.of("org.springframework.integration:spring-integration-amqp:5.4.4"), Set.of(amqpConnectionFactoryRequiredBean));
         return dslSnippet;
     }
 }

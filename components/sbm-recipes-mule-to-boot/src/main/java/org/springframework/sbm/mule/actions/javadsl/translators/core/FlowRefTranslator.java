@@ -16,7 +16,7 @@
 package org.springframework.sbm.mule.actions.javadsl.translators.core;
 
 import org.springframework.sbm.java.util.Helper;
-import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
+import org.springframework.sbm.mule.actions.javadsl.translators.RequiredBean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
@@ -52,7 +52,7 @@ public class FlowRefTranslator implements MuleComponentToSpringIntegrationDslTra
         return new DslSnippet(flowRefSnippet,
                 Collections.emptySet(),
                 Collections.emptySet(),
-                Set.of(new Bean(subFlowName, "org.springframework.integration.dsl.IntegrationFlow")));
+                Set.of(new RequiredBean(subFlowName, "org.springframework.integration.dsl.IntegrationFlow")));
     }
 
     private String translateToJavaName(String name) {

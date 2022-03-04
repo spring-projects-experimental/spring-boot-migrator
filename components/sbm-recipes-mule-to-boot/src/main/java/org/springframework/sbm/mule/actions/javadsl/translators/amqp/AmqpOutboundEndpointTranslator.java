@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 
-import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
+import org.springframework.sbm.mule.actions.javadsl.translators.RequiredBean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
@@ -48,7 +48,7 @@ public class AmqpOutboundEndpointTranslator implements MuleComponentToSpringInte
                 ),
                 Set.of("org.springframework.amqp.rabbit.core.RabbitTemplate"),
                 Set.of(),
-                Set.of(new Bean("rabbitTemplate", "org.springframework.amqp.rabbit.core.RabbitTemplate")
+                Set.of(new RequiredBean("rabbitTemplate", "org.springframework.amqp.rabbit.core.RabbitTemplate")
                 )
         );
     }
