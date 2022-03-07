@@ -346,7 +346,7 @@ public abstract class IntegrationTestBaseClass {
         private GenericContainer container;
     }
 
-    protected RunningNetworkedContainer startDockerContainers(NetworkedContainer networkedContainer, Network attachNetwork, Map<String, String> envMap) {
+    protected RunningNetworkedContainer startDockerContainer(NetworkedContainer networkedContainer, Network attachNetwork, Map<String, String> envMap) {
 
         Network network = attachNetwork == null ? Network.newNetwork() : attachNetwork;
 

@@ -16,7 +16,7 @@
  *
  */
 
-package org.springframework.sbm.wmq;
+package org.springframework.sbm.mule.wmq;
 
 import com.ibm.msg.client.jms.JmsConnectionFactory;
 import com.ibm.msg.client.jms.JmsFactoryFactory;

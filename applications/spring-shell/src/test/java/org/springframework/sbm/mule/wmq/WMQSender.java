@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-package org.springframework.sbm.wmq;
+package org.springframework.sbm.mule.wmq;
 
-
-import com.ibm.msg.client.jms.JmsConnectionFactory;
-import com.ibm.msg.client.jms.JmsFactoryFactory;
-import com.ibm.msg.client.wmq.WMQConstants;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.jms.*;
 

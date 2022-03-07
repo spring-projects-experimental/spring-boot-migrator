@@ -19,8 +19,8 @@ import com.rabbitmq.client.*;
 import org.junit.jupiter.api.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.sbm.wmq.WMQListener;
-import org.springframework.sbm.wmq.WMQSender;
+import org.springframework.sbm.mule.wmq.WMQListener;
+import org.springframework.sbm.mule.wmq.WMQSender;
 import org.springframework.web.client.RestTemplate;
 
 import javax.jms.JMSException;
@@ -63,7 +63,7 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
 
         executeMavenGoals(getTestDir(), "clean", "package", "spring-boot:build-image");
 
-        RunningNetworkedContainer rabbitContainer = startDockerContainers(
+        RunningNetworkedContainer rabbitContainer = startDockerContainer(
                 new NetworkedContainer(
                         "rabbitmq:3-management",
                         List.of(5672, 15672),
@@ -71,18 +71,14 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
                 null,
                 Collections.emptyMap());
 
-        Map<String, String> wmqMap = new HashMap<>();
-        wmqMap.put("LICENSE", "accept");
-        wmqMap.put("MQ_QMGR_NAME", "QM1");
-        wmqMap.put("MQ_APP_PASSWORD", "passw0rd");
-        RunningNetworkedContainer wmqContainer = startDockerContainers(
-                new NetworkedContainer(
-                        "ibmcom/mq",
-                        List.of(1414, 9443),
-                        "wmqhost"),
-                rabbitContainer.getNetwork(),
-                        wmqMap);
+        RunningNetworkedContainer wmqContainer = startWmqContainer(rabbitContainer);
 
+        checkRabbitMqIntegration(rabbitContainer);
+        checkWMQIntegration(wmqContainer);
+    }
+
+    private void checkRabbitMqIntegration(RunningNetworkedContainer rabbitContainer)
+            throws IOException, TimeoutException, InterruptedException {
         try (Connection connection = CONNECTION_FACTORY.newConnection(
                 Collections.singletonList(
                         new Address("localhost", rabbitContainer.getContainer().getMappedPort(5672))
@@ -98,7 +94,7 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
             channel.basicPublish("", FIRST_QUEUE_NAME, null, message.getBytes());
             System.out.println(" [x] Sent amqp message: '" + message + "'");
 
-            RunningNetworkedContainer container = startDockerContainers(
+            RunningNetworkedContainer container = startDockerContainer(
                     new NetworkedContainer("hellomule-migrated:1.0-SNAPSHOT", List.of(9081), "spring"),
                     rabbitContainer.getNetwork(),
                     Collections.emptyMap());
@@ -106,11 +102,24 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
             checkReceivedMessage(channel, message, Map.of("TestProperty", "TestPropertyValue"));
             checkSendHttpMessage(container.getContainer().getMappedPort(9081));
             checkInboundGatewayHttpMessage(container.getContainer().getMappedPort(9081));
-            checkWMQMessage(wmqContainer);
         }
     }
 
-    private void checkWMQMessage(RunningNetworkedContainer wmqContainer) throws InterruptedException, JMSException {
+    private RunningNetworkedContainer startWmqContainer(RunningNetworkedContainer rabbitContainer) {
+        Map<String, String> wmqMap = new HashMap<>();
+        wmqMap.put("LICENSE", "accept");
+        wmqMap.put("MQ_QMGR_NAME", "QM1");
+        wmqMap.put("MQ_APP_PASSWORD", "passw0rd");
+
+        return startDockerContainer(new NetworkedContainer("ibmcom/mq",
+                        List.of(1414, 9443),
+                        "wmqhost"
+                ),
+                rabbitContainer.getNetwork(),
+                wmqMap);
+    }
+
+    private void checkWMQIntegration(RunningNetworkedContainer wmqContainer) throws InterruptedException, JMSException {
         WMQSender wmqSender = new WMQSender();
         CountDownLatch latch = new CountDownLatch(1);
         WMQListener wmqListener = new WMQListener();
@@ -158,7 +167,7 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         }
 
         @Override
-        public void handle(String s, Delivery delivery) throws IOException {
+        public void handle(String s, Delivery delivery) {
             String receivedMessage = new String(delivery.getBody(), StandardCharsets.UTF_8);
             Map<String, Object> receivedHeader = delivery.getProperties().getHeaders();
 

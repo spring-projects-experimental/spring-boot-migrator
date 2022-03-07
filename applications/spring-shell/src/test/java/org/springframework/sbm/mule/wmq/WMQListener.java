@@ -1,10 +1,4 @@
-package org.springframework.sbm.wmq;
-
-import com.ibm.msg.client.jms.JmsConnectionFactory;
-import com.ibm.msg.client.jms.JmsFactoryFactory;
-import com.ibm.msg.client.wmq.WMQConstants;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+package org.springframework.sbm.mule.wmq;
 
 import javax.jms.*;
 import java.util.function.Consumer;
