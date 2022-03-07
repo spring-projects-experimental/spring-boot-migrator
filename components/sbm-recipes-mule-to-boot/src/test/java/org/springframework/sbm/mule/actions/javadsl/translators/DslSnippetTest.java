@@ -36,7 +36,7 @@ class DslSnippetTest {
                         Set.of(new Bean("b", "bb"))
                 ));
 
-        String out = DslSnippet.getMethodParameters(input);
+        String out = DslSnippet.renderMethodParameters(input);
 
         assertThat(out).isEqualTo("bb b");
     }

@@ -100,8 +100,9 @@ public class JavaDSLAction2 extends AbstractAction {
                 .map(this::buildDependencies)
                 .flatMap(List::stream)
                 .collect(Collectors.toSet());
-        logEvent("Adding " + dependencies.size() + " dependencies");
+        startProcess("Adding " + dependencies.size() + " dependencies");
         buildFile.addDependencies(new ArrayList<>(dependencies));
+        endProcess();
 
         logEvent("Adding " + topLevelElements.size() + " methods");
         topLevelElements.forEach(topLevelElement -> {
