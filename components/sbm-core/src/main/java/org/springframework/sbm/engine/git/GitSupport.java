@@ -15,9 +15,6 @@
  */
 package org.springframework.sbm.engine.git;
 
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.RepositoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.*;
@@ -26,6 +23,9 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.RepositoryNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -128,7 +128,7 @@ public class GitSupport {
      *
      * @param repo the location of the repo to search for. {@code .git} is added to file location if not contained
      */
-    public static Repository getRepository(File repo) {
+    public Repository getRepository(File repo) {
         try {
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
             if (!repo.toString().endsWith(".git")) {
@@ -240,6 +240,15 @@ public class GitSupport {
                 Commit latestCommit = addAllAndCommit(repoDir, commitMessage, modifiedResources, deletedResources);
                 context.setRevision(latestCommit.getHash());
             }
+        }
+    }
+
+    public static Optional<String> getBranchName(File repo) {
+        Git git = initGit(repo);
+        try {
+            return Optional.of(git.getRepository().getBranch());
+        } catch (IOException e) {
+            return Optional.empty();
         }
     }
 

@@ -15,12 +15,19 @@
  */
 package org.springframework.sbm.project.resource;
 
+import org.jetbrains.annotations.NotNull;
+import org.openrewrite.Parser;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.migration.MavenPomCacheProvider;
 import org.springframework.sbm.build.resource.BuildFileResourceWrapper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
+import org.springframework.sbm.engine.precondition.PreconditionVerifier;
 import org.springframework.sbm.java.JavaSourceProjectResourceWrapper;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
@@ -32,11 +39,6 @@ import org.springframework.sbm.project.parser.DependencyHelper;
 import org.springframework.sbm.project.parser.PathScanner;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import org.springframework.sbm.project.parser.RewriteMavenParserFactory;
-import org.jetbrains.annotations.NotNull;
-import org.openrewrite.Parser;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.annotation.Order;
-import org.springframework.core.io.Resource;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -177,7 +179,7 @@ import static org.mockito.Mockito.when;
  */
 public class TestProjectContext {
 
-    private static final Path DEFAULT_PROJECT_ROOT = Path.of(".").resolve("dummy-test-path").normalize().toAbsolutePath();
+    private static final Path DEFAULT_PROJECT_ROOT = Path.of(".").resolve("target").resolve("dummy-test-path").normalize().toAbsolutePath();
 
     private static final String DEFAULT_PACKAGE_NAME = "not.found";
 
@@ -409,6 +411,12 @@ public class TestProjectContext {
             PathScanner pathScanner = mock(PathScanner.class);
             when(pathScanner.scan(projectRoot)).thenReturn(scannedResources);
 
+            // precondition verifier should check resorces
+            PreconditionVerifier preconditionVerifier = mock(PreconditionVerifier.class);
+            PreconditionVerificationResult preconditionVerificationResult = new PreconditionVerificationResult();
+            when(preconditionVerifier.verifyPreconditions(projectRoot, scannedResources)).thenReturn(preconditionVerificationResult);
+
+
             // create beans
             ProjectResourceSetHolder projectResourceSetHolder = new ProjectResourceSetHolder();
             JavaRefactoringFactory javaRefactoringFactory = new JavaRefactoringFactoryImpl(projectResourceSetHolder);
@@ -423,7 +431,7 @@ public class TestProjectContext {
 
             // create ProjectContextInitializer
             ProjectContextFactory projectContextFactory = new ProjectContextFactory(resourceWrapperRegistry, projectResourceSetHolder, javaRefactoringFactory, new BasePackageCalculator(applicationProperties));
-            ProjectContextInitializer projectContextInitializer = createProjectContextInitializer(pathScanner, projectContextFactory);
+            ProjectContextInitializer projectContextInitializer = createProjectContextInitializer(pathScanner, projectContextFactory, preconditionVerifier);
 
             // create ProjectContext
             ProjectContext projectContext = projectContextInitializer.initProjectContext(projectRoot, new RewriteExecutionContext(eventPublisher));
@@ -452,14 +460,14 @@ public class TestProjectContext {
         }
 
         @NotNull
-        private ProjectContextInitializer createProjectContextInitializer(PathScanner pathScanner, ProjectContextFactory projectContextFactory) {
+        private ProjectContextInitializer createProjectContextInitializer(PathScanner pathScanner, ProjectContextFactory projectContextFactory, PreconditionVerifier preconditionVerifier) {
             RewriteMavenParserFactory rewriteMavenParserFactory = new RewriteMavenParserFactory(new MavenPomCacheProvider(), eventPublisher);
 
             GitSupport gitSupport = mock(GitSupport.class);
             when(gitSupport.repoExists(projectRoot.toFile())).thenReturn(true);
             when(gitSupport.getLatestCommit(projectRoot.toFile())).thenReturn(Optional.empty());
 
-            ProjectContextInitializer projectContextInitializer = new ProjectContextInitializer(projectContextFactory, pathScanner, rewriteMavenParserFactory, gitSupport);
+            ProjectContextInitializer projectContextInitializer = new ProjectContextInitializer(projectContextFactory, pathScanner, rewriteMavenParserFactory, gitSupport, preconditionVerifier);
             return projectContextInitializer;
         }
 

@@ -15,13 +15,13 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.springframework.sbm.project.TestDummyResource;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.TestDummyResource;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.xml.parser.RewriteXmlParser;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -47,7 +47,7 @@ class RewriteXmlParserTest {
 
     @Test
     void testParse() {
-        Path file = Path.of("testcode/module1/src/main/resources/some.xml").toAbsolutePath();
+        Path file = Path.of("testcode/path-scanner/module1/src/main/resources/some.xml").toAbsolutePath();
         List<RewriteSourceFileHolder<Xml.Document>> rewriteSourceFileHolders = sut.parse(List.of(file), Path.of("./testcode").toAbsolutePath().normalize(), new RewriteExecutionContext());
         RewriteSourceFileHolder<Xml.Document> sourceFileHolder = rewriteSourceFileHolders.get(0);
         assertThat(sourceFileHolder.getSourceFile().getRoot().getName()).isEqualTo("shiporder");

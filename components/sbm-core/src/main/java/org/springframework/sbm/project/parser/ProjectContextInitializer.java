@@ -15,20 +15,22 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.springframework.sbm.engine.git.Commit;
-import org.springframework.sbm.engine.git.GitSupport;
+import lombok.RequiredArgsConstructor;
+import org.openrewrite.SourceFile;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
+import org.springframework.sbm.engine.events.ActionLogEvent;
+import org.springframework.sbm.engine.git.Commit;
+import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
+import org.springframework.sbm.engine.precondition.PreconditionVerifier;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import lombok.RequiredArgsConstructor;
-import org.openrewrite.SourceFile;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +44,8 @@ public class ProjectContextInitializer {
     private final PathScanner pathScanner;
     private final RewriteMavenParserFactory rewriteMavenParserFactory;
     private final GitSupport gitSupport;
+    private final PreconditionVerifier preconditionVerifier;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ProjectContext initProjectContext(Path projectDir, RewriteExecutionContext rewriteExecutionContext) {
         final Path absoluteProjectDir = projectDir.toAbsolutePath().normalize();
@@ -49,8 +53,10 @@ public class ProjectContextInitializer {
         initializeGitRepoIfNoneExists(absoluteProjectDir);
         MavenProjectParser mavenProjectParser = rewriteMavenParserFactory.createRewriteMavenParser(absoluteProjectDir, rewriteExecutionContext);
 
-        List<Resource> scannedResources = pathScanner.scan(absoluteProjectDir);
-        List<org.springframework.sbm.project.parser.Resource> resources = map(scannedResources);
+        List<Resource> resources = pathScanner.scan(absoluteProjectDir);
+
+        PreconditionVerificationResult preconditionVerificationResult = preconditionVerifier.verifyPreconditions(absoluteProjectDir, resources);
+        publishResult(preconditionVerificationResult);
 
         List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources);
         List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);
@@ -61,6 +67,12 @@ public class ProjectContextInitializer {
         storeGitCommitHash(projectDir, projectContext);
 
         return projectContext;
+    }
+
+    private void publishResult(PreconditionVerificationResult preconditionVerificationResult) {
+        preconditionVerificationResult.getResults().forEach(r -> {
+            eventPublisher.publishEvent(new ActionLogEvent());
+        });
     }
 
     private List<RewriteSourceFileHolder<? extends SourceFile>> wrapRewriteSourceFiles(Path absoluteProjectDir, List<SourceFile> parsedByRewrite) {
@@ -90,29 +102,6 @@ public class ProjectContextInitializer {
         if (!gitSupport.repoExists(absoluteProjectDir.toFile())) {
             gitSupport.initGit(absoluteProjectDir.toFile());
         }
-    }
-
-    private List<org.springframework.sbm.project.parser.Resource> map(List<Resource> notParsedByRewrite) {
-        List<org.springframework.sbm.project.parser.Resource> resources = notParsedByRewrite.stream().map(r -> new org.springframework.sbm.project.parser.Resource() {
-            @Override
-            public Path getPath() {
-                try {
-                    return r.getFile().toPath();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
-            public InputStream getContent() {
-                try {
-                    return r.getInputStream();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).collect(Collectors.toList());
-        return resources;
     }
 
 }
