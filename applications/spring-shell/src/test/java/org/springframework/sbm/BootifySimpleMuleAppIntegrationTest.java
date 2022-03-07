@@ -77,7 +77,7 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
                         "ibmcom/mq",
                         List.of(1414, 9443),
                         "wmqhost"),
-                null);
+                rabbitContainer.getNetwork());
 
         try (Connection connection = CONNECTION_FACTORY.newConnection(
                 Collections.singletonList(
@@ -101,18 +101,18 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
             checkReceivedMessage(channel, message, Map.of("TestProperty", "TestPropertyValue"));
             checkSendHttpMessage(container.getContainer().getMappedPort(9081));
             checkInboundGatewayHttpMessage(container.getContainer().getMappedPort(9081));
-            checkWMQMessage();
+            checkWMQMessage(wmqContainer);
         }
     }
 
-    private void checkWMQMessage() throws InterruptedException {
+    private void checkWMQMessage(RunningNetworkedContainer wmqContainer) throws InterruptedException {
         WMQSender wmqSender = new WMQSender();
         CountDownLatch latch = new CountDownLatch(1);
         WMQListener wmqListener = new WMQListener();
-        wmqListener.listenForMessage("DEV.QUEUE.2", message -> {
+        wmqListener.listenForMessage(wmqContainer.getContainer().getMappedPort(1414), "DEV.QUEUE.2", message -> {
             latch.countDown();
         });
-        wmqSender.sendMessage("DEV.QUEUE.1", "Test WMQ message");
+        wmqSender.sendMessage(wmqContainer.getContainer().getMappedPort(1414), "DEV.QUEUE.1", "Test WMQ message");
         latch.await(5000, TimeUnit.MILLISECONDS);
     }
 

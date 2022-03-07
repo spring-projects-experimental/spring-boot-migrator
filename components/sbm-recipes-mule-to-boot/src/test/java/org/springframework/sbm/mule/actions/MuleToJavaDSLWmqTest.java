@@ -116,14 +116,11 @@ public class MuleToJavaDSLWmqTest {
                                 "import org.springframework.integration.dsl.IntegrationFlows;\n" +
                                 "import org.springframework.integration.handler.LoggingHandler;\n" +
                                 "import org.springframework.integration.jms.dsl.Jms;\n" +
-                                "\n" +
-                                "import javax.jms.ConnectionFactory;\n" +
-                                "\n" +
                                 "@Configuration\n" +
                                 "public class FlowConfigurations {\n" +
                                 "    @Bean\n" +
                                 "    IntegrationFlow wmq_flow(javax.jms.ConnectionFactory connectionFactory) {\n" +
-                                "        IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"Q1\")).handle((p, h) -> p)\n" +
+                                "        return IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"Q1\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q2\"))\n" +
                                 "                .get();\n" +

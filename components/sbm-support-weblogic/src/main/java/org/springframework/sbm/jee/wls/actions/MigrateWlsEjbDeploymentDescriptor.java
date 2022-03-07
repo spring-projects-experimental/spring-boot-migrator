@@ -86,7 +86,7 @@ public class MigrateWlsEjbDeploymentDescriptor extends AbstractAction {
                 Dependency.builder()
                         .groupId("org.springframework.boot")
                         .artifactId("spring-boot-starter-data-jpa")
-                        .version("2.4.3")
+                        .version("2.6.3")
                         .build()
         );
     }

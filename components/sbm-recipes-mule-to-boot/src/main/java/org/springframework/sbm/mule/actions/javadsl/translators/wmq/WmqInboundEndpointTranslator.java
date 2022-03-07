@@ -37,8 +37,8 @@ public class WmqInboundEndpointTranslator implements MuleComponentToSpringIntegr
     @Override
     public DslSnippet translate(InboundEndpointType component, QName name, MuleConfigurations muleConfigurations) {
         return new DslSnippet(
-                "IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"" + component.getQueue() +"\")).handle((p, h) -> p)",
-                Set.of("javax.jms.ConnectionFactory", "org.springframework.integration.jms.dsl.Jms"),
+                "return IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"" + component.getQueue() +"\")).handle((p, h) -> p)",
+                Set.of("org.springframework.integration.jms.dsl.Jms"),
                 Set.of("com.ibm.mq:mq-jms-spring-boot-starter:2.6.4", "org.springframework.integration:spring-integration-jms:5.5.8"),
                 Set.of(new Bean("connectionFactory", "javax.jms.ConnectionFactory")));
     }

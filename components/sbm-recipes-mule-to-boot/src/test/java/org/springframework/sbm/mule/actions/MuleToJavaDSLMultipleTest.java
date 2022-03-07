@@ -179,7 +179,6 @@ public class MuleToJavaDSLMultipleTest {
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
-                                "import org.springframework.amqp.rabbit.connection.ConnectionFactory;\n" +
                                 "import org.springframework.amqp.rabbit.core.RabbitTemplate;\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +
                                 "import org.springframework.context.annotation.Configuration;\n" +
@@ -237,7 +236,6 @@ public class MuleToJavaDSLMultipleTest {
 
         assertThat(projectContext.getProjectJavaSources().list().get(0).print()).isEqualTo(
                 "package com.example.javadsl;\n" +
-                        "import org.springframework.amqp.rabbit.connection.ConnectionFactory;\n" +
                         "import org.springframework.amqp.rabbit.core.RabbitTemplate;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
