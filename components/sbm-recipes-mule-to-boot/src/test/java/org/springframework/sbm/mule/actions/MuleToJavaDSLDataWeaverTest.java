@@ -113,7 +113,7 @@ public class MuleToJavaDSLDataWeaverTest {
                         "    @Bean\n" +
                         "    IntegrationFlow customErrorResponseTransformSubFlow() {\n" +
                         "        return flow -> {\n" +
-                        "            //FIXME: element is not supported for conversion: <dw:transform-message/>\n" +
+                        "            // FIXME: Conversion is not supported for Mule type: org.mulesoft.schema.mule.ee.dw.TransformMessageType\n" +
                         "        };\n" +
                         "    }}");
     }

@@ -17,7 +17,6 @@ package org.springframework.sbm.mule.actions.javadsl.translators;
 
 import org.jetbrains.annotations.NotNull;
 import org.mulesoft.schema.mule.core.AbstractInboundEndpointType;
-import org.springframework.sbm.mule.api.MuleElementInfo;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 
 import javax.xml.namespace.QName;
@@ -31,9 +30,9 @@ public class UnknownStatementTranslator implements MuleComponentToSpringIntegrat
     }
 
     @Override
-    public DslSnippet translate(Object component, QName qname, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(Object component, QName name, MuleConfigurations muleConfigurations) {
         return new DslSnippet(
-                generateDSLStatement(component, qname),
+                generateDSLStatement(component),
                 Collections.emptySet(),
                 Collections.emptySet(),
                 Collections.emptySet(),
@@ -42,8 +41,8 @@ public class UnknownStatementTranslator implements MuleComponentToSpringIntegrat
     }
 
     @NotNull
-    private String generateDSLStatement(Object component, QName qname) {
-        String res = new UnknownStatementTranslatorTemplate(new MuleElementInfo(qname)).render();
+    private String generateDSLStatement(Object component) {
+        String res = "// FIXME: Conversion is not supported for Mule type: " + component.getClass().getName();
         return component instanceof AbstractInboundEndpointType ? res + "\nIntegrationFlows.from(\"\")" : res;
     }
 }
