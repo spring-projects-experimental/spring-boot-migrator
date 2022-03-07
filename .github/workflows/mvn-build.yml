@@ -1,9 +1,8 @@
 name: Java CI
 on:
-  push:
   pull_request:
     branches:
-      - master
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
