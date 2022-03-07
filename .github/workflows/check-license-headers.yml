@@ -1,9 +1,8 @@
 name: Check License Lines
 on:
-  push:
   pull_request:
     branches:
-      - master
+      - main
 jobs:
   check-license-lines:
     runs-on: ubuntu-latest
