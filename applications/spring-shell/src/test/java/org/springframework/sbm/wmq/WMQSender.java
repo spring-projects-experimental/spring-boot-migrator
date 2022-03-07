@@ -70,6 +70,7 @@ public class WMQSender {
             TextMessage message = context.createTextMessage(messageContent);
 
             producer = context.createProducer();
+            System.out.println(" [x] Sent wmq message: '" + message.getText() + "'");
             producer.send(destination, message);
 
             context.close();

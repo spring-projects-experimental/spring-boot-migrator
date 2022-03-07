@@ -51,6 +51,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -345,7 +346,7 @@ public abstract class IntegrationTestBaseClass {
         private GenericContainer container;
     }
 
-    protected RunningNetworkedContainer startDockerContainers(NetworkedContainer networkedContainer, Network attachNetwork) {
+    protected RunningNetworkedContainer startDockerContainers(NetworkedContainer networkedContainer, Network attachNetwork, Map<String, String> envMap) {
 
         Network network = attachNetwork == null ? Network.newNetwork() : attachNetwork;
 
@@ -353,7 +354,8 @@ public abstract class IntegrationTestBaseClass {
                 .withExposedPorts(networkedContainer.exposedPorts.toArray(new Integer[0]))
                 .withNetwork(network)
                 .withNetworkMode("host")
-                .withNetworkAliases(networkedContainer.networkAlias);
+                .withNetworkAliases(networkedContainer.networkAlias)
+                .withEnv(envMap);
         genericContainer.start();
 
         return new RunningNetworkedContainer(network, genericContainer);

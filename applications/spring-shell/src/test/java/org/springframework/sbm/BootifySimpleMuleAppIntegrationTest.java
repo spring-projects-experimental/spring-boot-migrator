@@ -25,10 +25,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -70,14 +67,20 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
                         "rabbitmq:3-management",
                         List.of(5672, 15672),
                         "amqphost"),
-                null);
+                null,
+                Collections.emptyMap());
 
+        Map<String, String> wmqMap = new HashMap<>();
+        wmqMap.put("LICENSE", "accept");
+        wmqMap.put("MQ_QMGR_NAME", "QM1");
+        wmqMap.put("MQ_APP_PASSWORD", "passw0rd");
         RunningNetworkedContainer wmqContainer = startDockerContainers(
                 new NetworkedContainer(
                         "ibmcom/mq",
                         List.of(1414, 9443),
                         "wmqhost"),
-                rabbitContainer.getNetwork());
+                rabbitContainer.getNetwork(),
+                        wmqMap);
 
         try (Connection connection = CONNECTION_FACTORY.newConnection(
                 Collections.singletonList(
@@ -92,11 +95,12 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
 
             String message = "{\"msgContent\": \"" + messageContent + "\"}";
             channel.basicPublish("", FIRST_QUEUE_NAME, null, message.getBytes());
-            System.out.println(" [x] Sent '" + message + "'");
+            System.out.println(" [x] Sent amqp message: '" + message + "'");
 
             RunningNetworkedContainer container = startDockerContainers(
-                    new NetworkedContainer("hellomule-migrated:1.0-SNAPSHOT", List.of(9081), "spring")
-                    , rabbitContainer.getNetwork());
+                    new NetworkedContainer("hellomule-migrated:1.0-SNAPSHOT", List.of(9081), "spring"),
+                    rabbitContainer.getNetwork(),
+                    Collections.emptyMap());
 
             checkReceivedMessage(channel, message, Map.of("TestProperty", "TestPropertyValue"));
             checkSendHttpMessage(container.getContainer().getMappedPort(9081));
@@ -109,11 +113,14 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         WMQSender wmqSender = new WMQSender();
         CountDownLatch latch = new CountDownLatch(1);
         WMQListener wmqListener = new WMQListener();
-        wmqListener.listenForMessage(wmqContainer.getContainer().getMappedPort(1414), "DEV.QUEUE.2", message -> {
+        int mappedPort = wmqContainer.getContainer().getMappedPort(1414);
+        wmqListener.listenForMessage(mappedPort, "DEV.QUEUE.2", message -> {
+            System.out.println(" [x] Received wmq message: '" + message + "'");
             latch.countDown();
         });
-        wmqSender.sendMessage(wmqContainer.getContainer().getMappedPort(1414), "DEV.QUEUE.1", "Test WMQ message");
-        latch.await(5000, TimeUnit.MILLISECONDS);
+        wmqSender.sendMessage(mappedPort, "DEV.QUEUE.2", "Test WMQ message");
+        boolean latchResult = latch.await(10000, TimeUnit.MILLISECONDS);
+        assertThat(latchResult).isTrue();
     }
 
     private void checkInboundGatewayHttpMessage(int port) {
@@ -158,8 +165,8 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
                     .allMatch(
                             p -> receivedHeader.get(p.getKey()).toString().equals(p.getValue())
                     );
-            System.out.println(" [x] Received '" + receivedMessage + "'");
-            System.out.println(" [x] Does header match? : " + headersMatch);
+            System.out.println(" [x] Received ampq message: '" + receivedMessage + "'");
+            System.out.println(" [x] Does amqp header match? : " + headersMatch);
             if (receivedMessage.equals(expectedMessage) && headersMatch) {
                 latch.countDown();
             }
