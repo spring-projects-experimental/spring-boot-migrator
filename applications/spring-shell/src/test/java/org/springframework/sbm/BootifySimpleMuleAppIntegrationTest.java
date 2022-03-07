@@ -118,8 +118,8 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
             System.out.println(" [x] Received wmq message: '" + message + "'");
             latch.countDown();
         });
-        wmqSender.sendMessage(mappedPort, "DEV.QUEUE.2", "Test WMQ message");
-        boolean latchResult = latch.await(10000, TimeUnit.MILLISECONDS);
+        wmqSender.sendMessage(mappedPort, "DEV.QUEUE.1", "Test WMQ message");
+        boolean latchResult = latch.await(1000000, TimeUnit.MILLISECONDS);
         assertThat(latchResult).isTrue();
     }
 

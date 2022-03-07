@@ -61,7 +61,7 @@ public class WMQListener {
                     }
                 }
             });
-            context.close();
+//            context.close();
         } catch (JMSException jmsex) {
             throw new RuntimeException("Cannot register listener: " + jmsex.getMessage(), jmsex);
         }
