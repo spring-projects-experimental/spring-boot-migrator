@@ -23,6 +23,7 @@ import org.springframework.sbm.wmq.WMQListener;
 import org.springframework.sbm.wmq.WMQSender;
 import org.springframework.web.client.RestTemplate;
 
+import javax.jms.JMSException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -54,7 +55,7 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
 
     @Test
     @Tag("integration")
-    public void springIntegrationWorks() throws IOException, TimeoutException, InterruptedException {
+    public void springIntegrationWorks() throws IOException, TimeoutException, InterruptedException, JMSException {
         intializeTestProject();
         scanProject();
         applyRecipe("initialize-spring-boot-migration");
@@ -109,7 +110,7 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         }
     }
 
-    private void checkWMQMessage(RunningNetworkedContainer wmqContainer) throws InterruptedException {
+    private void checkWMQMessage(RunningNetworkedContainer wmqContainer) throws InterruptedException, JMSException {
         WMQSender wmqSender = new WMQSender();
         CountDownLatch latch = new CountDownLatch(1);
         WMQListener wmqListener = new WMQListener();
