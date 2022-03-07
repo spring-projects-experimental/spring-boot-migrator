@@ -116,6 +116,7 @@ public class MuleToJavaDSLWmqTest {
                                 "import org.springframework.integration.dsl.IntegrationFlows;\n" +
                                 "import org.springframework.integration.handler.LoggingHandler;\n" +
                                 "import org.springframework.integration.jms.dsl.Jms;\n" +
+                                "\n" +
                                 "@Configuration\n" +
                                 "public class FlowConfigurations {\n" +
                                 "    @Bean\n" +
