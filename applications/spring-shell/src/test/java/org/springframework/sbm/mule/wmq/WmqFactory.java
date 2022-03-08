@@ -22,7 +22,7 @@ import com.ibm.msg.client.wmq.WMQConstants;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 
-public class WMQFactory {
+public class WmqFactory {
     private static final String HOST = "localhost"; // Host name or IP address
     private static final String CHANNEL = "DEV.APP.SVRCONN"; // Channel name
     private static final String QMGR = "QM1"; // Queue manager name
@@ -31,7 +31,7 @@ public class WMQFactory {
 
     private final JmsFactoryFactory ff;
 
-    public WMQFactory() throws JMSException {
+    public WmqFactory() throws JMSException {
         this.ff = JmsFactoryFactory.getInstance(WMQConstants.WMQ_PROVIDER);;
     }
 
