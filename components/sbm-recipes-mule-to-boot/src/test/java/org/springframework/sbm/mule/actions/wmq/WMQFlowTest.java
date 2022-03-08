@@ -111,7 +111,7 @@ public class WMQFlowTest {
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow wmqtestFlow() {\n" +
-                        "        // FIXME: Conversion is not supported for Mule type: org.mulesoft.schema.mule.ee.wmq.InboundEndpointType\n" +
+                        "        //FIXME: element is not supported for conversion: <wmq:inbound-endpoint/>\n" +
                         "        IntegrationFlows.from(\"\")\n" +
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                .get();\n" +
