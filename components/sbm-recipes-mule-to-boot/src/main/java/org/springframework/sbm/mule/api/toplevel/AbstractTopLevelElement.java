@@ -111,6 +111,13 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
         return sb.toString();
     }
 
+    @Override
+    public Set<String> getExternalClassContents() {
+        return dslSnippets.stream()
+                .map(DslSnippet::getExternalClassContent)
+                .collect(Collectors.toSet());
+    }
+
     protected String composePrefixDslCode() {
         return "";
     }

@@ -26,6 +26,7 @@ import org.springframework.sbm.mule.actions.javadsl.translators.core.FlowRefTran
 import org.springframework.sbm.mule.actions.javadsl.translators.core.SetPayloadTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.core.SetPropertyTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.core.TransformerTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.dwl.DwlTransformTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
@@ -61,7 +62,8 @@ public class JavaDSLActionBaseTest {
                 new SetPropertyTranslator(),
                 new TransformerTranslator(),
                 new WmqOutboundEndpointTranslator(),
-                new WmqInboundEndpointTranslator()
+                new WmqInboundEndpointTranslator(),
+                new DwlTransformTranslator()
         );
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
                 new FlowTopLevelElementFactory(translators),

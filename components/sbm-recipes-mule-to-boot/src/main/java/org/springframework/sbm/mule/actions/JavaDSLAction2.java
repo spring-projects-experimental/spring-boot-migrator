@@ -107,6 +107,7 @@ public class JavaDSLAction2 extends AbstractAction {
         logEvent("Adding " + topLevelElements.size() + " methods");
         topLevelElements.forEach(topLevelElement -> {
             flowConfigurationSource.getType().addMethod(topLevelElement.renderDslSnippet(), topLevelElement.getRequiredImports());
+//            flowConfigurationSource.getType().addMember(topLevelElement.renderDslSnippet(), topLevelElement.getRequiredImports());
         });
     }
 

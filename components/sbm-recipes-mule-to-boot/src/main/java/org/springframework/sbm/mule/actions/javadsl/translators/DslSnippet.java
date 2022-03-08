@@ -50,18 +50,26 @@ public class DslSnippet {
 
     private final boolean isUnknownStatement;
 
+    private final String externalClassContent;
+
     public DslSnippet(String renderedSnippet,
                       Set<String> requiredImports) {
-        this(renderedSnippet, requiredImports, Collections.emptySet(), Collections.emptySet(), false);
+        this(renderedSnippet, requiredImports, Collections.emptySet(), Collections.emptySet(), false, "");
     }
 
     public DslSnippet(String renderedSnippet,
                       Set<String> requiredImports,
                       Set<String> requiredDependencies,
                       Set<Bean> beans) {
-        this(renderedSnippet, requiredImports, requiredDependencies, beans, false);
+        this(renderedSnippet, requiredImports, requiredDependencies, beans, false, "");
     }
 
+    public DslSnippet(String renderedSnippet,
+                      Set<String> requiredImports,
+                      Set<String> requiredDependencies,
+                      String externalClassContent) {
+        this(renderedSnippet, requiredImports, requiredDependencies, Collections.emptySet(), false, externalClassContent);
+    }
 
     public static String renderMethodParameters(List<DslSnippet> dslSnippets) {
         return dslSnippets.stream()
