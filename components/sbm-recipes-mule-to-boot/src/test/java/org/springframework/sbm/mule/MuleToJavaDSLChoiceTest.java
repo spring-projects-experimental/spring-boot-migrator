@@ -17,9 +17,10 @@ package org.springframework.sbm.mule;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.mule.actions.JavaDSLActionBaseTest;
 
-public class MuleToJavaDSLChoiceTest {
-    private static final String choiceTest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
+    private static final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
             "<mule xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns:tracking=\"http://www.mulesoft.org/schema/mule/ee/tracking\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
             "    xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
@@ -48,4 +49,9 @@ public class MuleToJavaDSLChoiceTest {
             "        <logger message=\"#[payload]\" level=\"INFO\" doc:name=\"Logger\"/>\n" +
             "    </flow>\n" +
             "</mule>";
+
+    @Test
+    public void test() {
+
+    }
 }
