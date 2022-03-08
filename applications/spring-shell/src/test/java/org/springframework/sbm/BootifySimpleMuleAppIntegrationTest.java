@@ -15,11 +15,15 @@
  */
 package org.springframework.sbm;
 
-import com.rabbitmq.client.*;
-import org.junit.jupiter.api.*;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.ConnectionFactory;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.sbm.mule.amqp.RabbitMqChannelBuilder;
+import org.springframework.sbm.mule.amqp.RabbitMqListener;
 import org.springframework.sbm.mule.wmq.WmqListener;
 import org.springframework.sbm.mule.wmq.WmqSender;
 import org.springframework.web.client.RestTemplate;
@@ -27,7 +31,6 @@ import org.testcontainers.containers.Network;
 
 import javax.jms.JMSException;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -93,7 +96,7 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         amqpChannel.basicPublish("", FIRST_QUEUE_NAME, null, message.getBytes());
         System.out.println(" [x] Sent amqp message: '" + message + "'");
 
-        Receiver receiver = new Receiver(message, Map.of("TestProperty", "TestPropertyValue"));
+        RabbitMqListener receiver = new RabbitMqListener(message, Map.of("TestProperty", "TestPropertyValue"));
         amqpChannel.basicConsume(SECOND_QUEUE_NAME, true, receiver, consumerTag -> {
         });
         boolean latch = receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
@@ -138,44 +141,5 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
     private void checkSendHttpMessage(int port) {
         ResponseEntity<String> responseEntity = restTemplate.getForEntity("http://localhost:" + port + "/test", String.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    private void checkReceivedMessage(Channel channel, String expectedMessage, Map<String, String> expectedHeaders) throws IOException, InterruptedException {
-        Receiver receiver = new Receiver(expectedMessage, expectedHeaders);
-        channel.basicConsume(SECOND_QUEUE_NAME, true, receiver, consumerTag -> {
-        });
-        boolean latch = receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
-        assertThat(latch).isTrue();
-    }
-
-    public static class Receiver implements DeliverCallback {
-        private final String expectedMessage;
-        private final Map<String, String> expectedHeaders;
-        private final CountDownLatch latch = new CountDownLatch(1);
-
-        public Receiver(String expectedMessage, Map<String, String> expectedHeaders) {
-            this.expectedMessage = expectedMessage;
-            this.expectedHeaders = expectedHeaders;
-        }
-
-        public CountDownLatch getLatch() {
-            return latch;
-        }
-
-        @Override
-        public void handle(String s, Delivery delivery) {
-            String receivedMessage = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            Map<String, Object> receivedHeader = delivery.getProperties().getHeaders();
-
-            boolean headersMatch = expectedHeaders.entrySet().stream()
-                    .allMatch(
-                            p -> receivedHeader.get(p.getKey()).toString().equals(p.getValue())
-                    );
-            System.out.println(" [x] Received ampq message: '" + receivedMessage + "'");
-            System.out.println(" [x] Does amqp header match? : " + headersMatch);
-            if (receivedMessage.equals(expectedMessage) && headersMatch) {
-                latch.countDown();
-            }
-        }
     }
 }
