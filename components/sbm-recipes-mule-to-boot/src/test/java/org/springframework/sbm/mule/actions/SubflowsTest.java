@@ -226,7 +226,7 @@ public class SubflowsTest {
                         "    @Bean\n" +
                         "    IntegrationFlow outToUnknown() {\n" +
                         "        return flow -> {\n" +
-                        "            // FIXME: Conversion is not supported for Mule type: org.mulesoft.schema.mule.core.SetVariableType\n" +
+                        "            //FIXME: element is not supported for conversion: <set-variable/>\n" +
                         "        };\n" +
                         "    }}"
                 );
