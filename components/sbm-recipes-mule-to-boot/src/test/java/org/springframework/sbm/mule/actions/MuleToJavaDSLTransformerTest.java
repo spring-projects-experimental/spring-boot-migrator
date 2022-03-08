@@ -40,8 +40,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class MuleToJavaDSLTransformerTest {
-    private final String muleXmlHttp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+public class MuleToJavaDSLTransformerTest extends JavaDSLActionBaseTest {
+    private final static String muleXmlHttp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
             "<mule xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
             "xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
@@ -61,29 +61,6 @@ public class MuleToJavaDSLTransformerTest {
             "<logger message=\"payload to be sent: #[new String(payload)]\" level=\"INFO\" doc:name=\"Log the message content to be sent\"/>\n" +
             "</flow>\n" +
             "</mule>";
-
-    private JavaDSLAction2 myAction;
-
-    private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-
-    @BeforeEach
-    public void setup() {
-        List<MuleComponentToSpringIntegrationDslTranslator> translators =
-                List.of(
-                        new HttpListenerTranslator(),
-                        new LoggingTranslator(new ExpressionLanguageTranslator()),
-                        new TransformerTranslator()
-                );
-        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
-                new FlowTopLevelElementFactory(translators),
-                new SubflowTopLevelElementFactory(translators)
-        );
-
-        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new HttpListenerConfigTypeAdapter ()));
-        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
-        myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
-        myAction.setEventPublisher(eventPublisher);
-    }
 
     @Test
     public void shouldGenerateJavaDSLForFlowHttpMuleTag() {
