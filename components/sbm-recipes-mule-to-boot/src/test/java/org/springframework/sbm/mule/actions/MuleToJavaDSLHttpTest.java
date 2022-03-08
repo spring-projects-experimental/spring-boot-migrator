@@ -15,22 +15,9 @@
  */
 package org.springframework.sbm.mule.actions;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.*;
-import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -40,10 +27,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class MuleToJavaDSLHttpTest {
-    private final String muleXmlHttp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+public class MuleToJavaDSLHttpTest extends JavaDSLActionBaseTest {
+    private final static String muleXmlHttp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
             "<mule xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\"\n" +
             "  xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
@@ -55,25 +41,6 @@ public class MuleToJavaDSLHttpTest {
             "    <logger level=\"INFO\" doc:name=\"Logger\" doc:id=\"4585ec7f-2d4a-4d86-af24-b678d4a99227\" />\n" +
             "  </flow>\n" +
             "</mule>";
-
-    private JavaDSLAction2 myAction;
-    private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-
-    @BeforeEach
-    public void setup() {
-        List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
-                new HttpListenerTranslator(),
-                new LoggingTranslator(new ExpressionLanguageTranslator()));
-        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
-                new FlowTopLevelElementFactory(translators),
-                new SubflowTopLevelElementFactory(translators)
-        );
-
-        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new HttpListenerConfigTypeAdapter()));
-        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
-        myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
-        myAction.setEventPublisher(eventPublisher);
-    }
 
     @Test
     public void shouldGenerateJavaDSLForFlowHttpMuleTag() {

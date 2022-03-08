@@ -16,26 +16,10 @@
 
 package org.springframework.sbm.mule.actions;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqInboundEndpointTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqOutboundEndpointTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqConnectorTypeAdapter;
-import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
-import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -45,9 +29,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class MuleToJavaDSLWmqTest {
+public class MuleToJavaDSLWmqTest extends JavaDSLActionBaseTest {
     private final static String muleXml = "<mule xmlns:wmq=\"http://www.mulesoft.org/schema/mule/ee/wmq\" xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
             "xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
             "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -64,29 +47,6 @@ public class MuleToJavaDSLWmqTest {
             "<wmq:outbound-endpoint queue=\"Q2\" targetClient=\"JMS_COMPLIANT\" connector-ref=\"WMQ\" doc:name=\"WMQ\"/>\n" +
             "</flow>\n" +
             "</mule>";
-
-    private JavaDSLAction2 myAction;
-    private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-
-    @BeforeEach
-    public void setup() {
-        List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
-                new WmqOutboundEndpointTranslator(),
-                new WmqInboundEndpointTranslator(),
-                new LoggingTranslator(new ExpressionLanguageTranslator())
-        );
-        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
-                new FlowTopLevelElementFactory(translators),
-                new SubflowTopLevelElementFactory(translators)
-        );
-
-        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(
-                new HttpListenerConfigTypeAdapter(),
-                new WmqConnectorTypeAdapter()));
-        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
-        myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
-        myAction.setEventPublisher(eventPublisher);
-    }
 
     @Test
     public void shouldGenerateWmqOutboundStatements() {
