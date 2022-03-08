@@ -15,32 +15,14 @@
  */
 package org.springframework.sbm.mule.actions;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigTypeAdapter;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpInboundEndpointTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpOutboundEndpointTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.core.FlowRefTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.*;
-import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class SubflowsTest extends JavaDSLActionBaseTest {
 
@@ -109,31 +91,6 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
             "                      variableName=\"actionCode\" value=\"#[dw('payload.action_Code[0]')]\"  />" +
             "    </sub-flow>\n" +
             "</mule>\n";
-//
-//    private JavaDSLAction2 myAction2;
-//    private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-//
-//
-//    @BeforeEach
-//    public void setup() {
-//        List<MuleComponentToSpringIntegrationDslTranslator> translators =
-//                List.of(
-//                        new HttpListenerTranslator(),
-//                        new LoggingTranslator(new ExpressionLanguageTranslator()),
-//                        new FlowRefTranslator(),
-//                        new AmqpOutboundEndpointTranslator(),
-//                        new AmqpInboundEndpointTranslator()
-//                );
-//        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
-//                new FlowTopLevelElementFactory(translators),
-//                new SubflowTopLevelElementFactory(translators)
-//        );
-//
-//        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
-//        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
-//        myAction2 = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
-//        myAction2.setEventPublisher(eventPublisher);
-//    }
 
     @Test
     public void generatedFlowShouldHaveMethodParams() {
