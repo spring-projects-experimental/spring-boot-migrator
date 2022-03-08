@@ -96,12 +96,13 @@ public class JavaDSLAction2 extends AbstractAction {
                 topLevelElements.add(new UnknownTopLevelElement(tle));
             }
         }
-        List<Dependency> listOfDependencies = topLevelElements.stream()
+        Set<Dependency> dependencies = topLevelElements.stream()
                 .map(this::buildDependencies)
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
-        logEvent("Adding " + listOfDependencies.size() + " dependencies");
-        buildFile.addDependencies(listOfDependencies);
+                .collect(Collectors.toSet());
+        startProcess("Adding " + dependencies.size() + " dependencies");
+        buildFile.addDependencies(new ArrayList<>(dependencies));
+        endProcess();
 
         logEvent("Adding " + topLevelElements.size() + " methods");
         topLevelElements.forEach(topLevelElement -> {

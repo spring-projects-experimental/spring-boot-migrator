@@ -17,13 +17,15 @@ package org.springframework.sbm.mule.actions.javadsl.translators;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.sbm.java.util.Helper;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Keeps all information for a snippet of Spring Integration DSL.
- *
  */
 
 @Getter
@@ -39,7 +41,7 @@ public class DslSnippet {
 
     /**
      * Dependencies required to be added to the classpath
-     *
+     * <p>
      * the dependencies mst be provided as Maven coordinates
      */
     private final Set<String> requiredDependencies;
@@ -58,5 +60,15 @@ public class DslSnippet {
                       Set<String> requiredDependencies,
                       Set<Bean> beans) {
         this(renderedSnippet, requiredImports, requiredDependencies, beans, false);
+    }
+
+
+    public static String renderMethodParameters(List<DslSnippet> dslSnippets) {
+        return dslSnippets.stream()
+                .flatMap(dsl -> dsl.getBeans().stream())
+                .collect(Collectors.toSet())
+                .stream()
+                .map(b -> b.getBeanClass() + " " + b.getBeanName())
+                .collect(Collectors.joining(", "));
     }
 }

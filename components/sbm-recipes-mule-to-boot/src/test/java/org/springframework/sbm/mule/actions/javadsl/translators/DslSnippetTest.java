@@ -15,20 +15,29 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators;
 
+import org.junit.jupiter.api.Test;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import java.util.List;
+import java.util.Set;
 
-@Getter
-@ToString
-@AllArgsConstructor
-@EqualsAndHashCode
-public class Bean {
-    private final String beanName;
-    /**
-     * Fully qualified namd of the bean type
-     */
-    private final String beanClass;
+import static java.util.Collections.emptySet;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class DslSnippetTest {
+
+    @Test
+    public void shouldNotShowDuplicates() {
+
+        List<DslSnippet> input = List.of(
+                new DslSnippet("", emptySet(), emptySet(),
+                        Set.of(new Bean("b", "bb"))
+                ),
+                new DslSnippet("", emptySet(), emptySet(),
+                        Set.of(new Bean("b", "bb"))
+                ));
+
+        String out = DslSnippet.renderMethodParameters(input);
+
+        assertThat(out).isEqualTo("bb b");
+    }
 }

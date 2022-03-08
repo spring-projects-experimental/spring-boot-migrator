@@ -17,15 +17,17 @@
 package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqInboundEndpointTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqOutboundEndpointTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqConnectorTypeAdapter;
 import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
@@ -56,9 +58,10 @@ public class MuleToJavaDSLWmqTest {
             "http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/ee/wmq/current/mule-wmq-ee.xsd\">\n" +
             "<http:listener-config name=\"HTTP_Listener_Configuration\" host=\"0.0.0.0\" port=\"9081\" doc:name=\"HTTP Listener Configuration\"/>\n" +
             "<wmq:connector name=\"WMQ\" hostName=\"localhost\" port=\"1414\" queueManager=\"QM1\" channel=\"Channel1\" username=\"username\" password=\"password\" transportType=\"CLIENT_MQ_TCPIP\" targetClient=\"JMS_COMPLIANT\" validateConnections=\"true\" doc:name=\"WMQ\"/>\n" +
-            "<flow name=\"http-flow\">\n" +
-            "<http:listener doc:name=\"Listener\"  config-ref=\"HTTP_Listener_Configuration\" path=\"/test\"/>\n" +
-            "<wmq:outbound-endpoint queue=\"Q1\" targetClient=\"JMS_COMPLIANT\" connector-ref=\"WMQ\" doc:name=\"WMQ\"/>\n" +
+            "<flow name=\"wmq-flow\">\n" +
+            "<wmq:inbound-endpoint queue=\"Q1\" doc:name=\"WMQ\" connector-ref=\"WMQ\"/>\n" +
+            "<logger level=\"INFO\" doc:name=\"Logger\" doc:id=\"4585ec7f-2d4a-4d86-af24-b678d4a99227\" />\n" +
+            "<wmq:outbound-endpoint queue=\"Q2\" targetClient=\"JMS_COMPLIANT\" connector-ref=\"WMQ\" doc:name=\"WMQ\"/>\n" +
             "</flow>\n" +
             "</mule>";
 
@@ -68,8 +71,9 @@ public class MuleToJavaDSLWmqTest {
     @BeforeEach
     public void setup() {
         List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
-                new HttpListenerTranslator(),
-                new WmqOutboundEndpointTranslator()
+                new WmqOutboundEndpointTranslator(),
+                new WmqInboundEndpointTranslator(),
+                new LoggingTranslator(new ExpressionLanguageTranslator())
         );
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
                 new FlowTopLevelElementFactory(translators),
@@ -86,7 +90,6 @@ public class MuleToJavaDSLWmqTest {
 
     @Test
     public void shouldGenerateWmqOutboundStatements() {
-
         MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
         ApplicationProperties applicationProperties = new ApplicationProperties();
         applicationProperties.setDefaultBasePackage("com.example.javadsl");
@@ -98,7 +101,6 @@ public class MuleToJavaDSLWmqTest {
                         "org.springframework:spring-context:5.3.1",
                         "org.springframework:spring-beans:5.3.1",
                         "org.springframework.integration:spring-integration-core:5.5.8",
-                        "org.springframework.integration:spring-integration-http:5.5.8",
                         "org.springframework.boot:spring-boot-starter-integration:2.6.3"
                 )
                 .addRegistrar(registrar)
@@ -112,17 +114,16 @@ public class MuleToJavaDSLWmqTest {
                                 "import org.springframework.context.annotation.Configuration;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlow;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                                "import org.springframework.integration.http.dsl.Http;\n" +
+                                "import org.springframework.integration.handler.LoggingHandler;\n" +
                                 "import org.springframework.integration.jms.dsl.Jms;\n" +
-                                "\n" +
-                                "import javax.jms.ConnectionFactory;\n" +
                                 "\n" +
                                 "@Configuration\n" +
                                 "public class FlowConfigurations {\n" +
                                 "    @Bean\n" +
-                                "    IntegrationFlow http_flow(ConnectionFactory connectionFactory) {\n" +
-                                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
-                                "                .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q1\"))\n" +
+                                "    IntegrationFlow wmq_flow(javax.jms.ConnectionFactory connectionFactory) {\n" +
+                                "        return IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"Q1\")).handle((p, h) -> p)\n" +
+                                "                .log(LoggingHandler.Level.INFO)\n" +
+                                "                .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q2\"))\n" +
                                 "                .get();\n" +
                                 "    }}");
 

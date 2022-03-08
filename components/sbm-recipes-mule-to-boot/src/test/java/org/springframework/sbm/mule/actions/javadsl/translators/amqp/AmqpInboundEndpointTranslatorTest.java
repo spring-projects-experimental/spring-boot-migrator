@@ -81,7 +81,7 @@ class AmqpInboundEndpointTranslatorTest {
         DslSnippet snippet = apply(projectContext);
         assertThat(snippet.getBeans()).isNotNull();
         assertThat(snippet.getBeans()).contains(new Bean("connectionFactory", "org.springframework.amqp.rabbit.connection.ConnectionFactory"));
-        assertThat(snippet.getRequiredImports()).contains("org.springframework.amqp.rabbit.connection.ConnectionFactory");
+        assertThat(snippet.getRequiredImports()).contains("org.springframework.integration.amqp.dsl.Amqp");
         assertThat(snippet.getRenderedSnippet()).isEqualTo("return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))");
     }
 
