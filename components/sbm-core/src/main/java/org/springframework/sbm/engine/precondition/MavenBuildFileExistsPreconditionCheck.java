@@ -9,7 +9,7 @@ import java.util.List;
 
 @Order(1)
 @Component
-class MavenBuildFileExistsPrecondition extends PreconditionCheck {
+class MavenBuildFileExistsPreconditionCheck extends PreconditionCheck {
 
     @Override
     public PreconditionCheckResult verify(Path projectRoot, List<Resource> projectResources) {

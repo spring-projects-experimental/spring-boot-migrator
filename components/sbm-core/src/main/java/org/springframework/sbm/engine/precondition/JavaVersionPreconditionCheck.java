@@ -1,10 +1,12 @@
 package org.springframework.sbm.engine.precondition;
 
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
 
+@Component
 class JavaVersionPreconditionCheck extends PreconditionCheck {
     @Override
     public PreconditionCheckResult verify(Path projectRoot, List<Resource> projectResources) {

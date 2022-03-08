@@ -17,15 +17,11 @@ package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.SourceFile;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
-import org.springframework.sbm.engine.events.ActionLogEvent;
 import org.springframework.sbm.engine.git.Commit;
 import org.springframework.sbm.engine.git.GitSupport;
-import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
-import org.springframework.sbm.engine.precondition.PreconditionVerifier;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -41,22 +37,14 @@ import java.util.stream.Collectors;
 public class ProjectContextInitializer {
 
     private final ProjectContextFactory projectContextFactory;
-    private final PathScanner pathScanner;
     private final RewriteMavenParserFactory rewriteMavenParserFactory;
     private final GitSupport gitSupport;
-    private final PreconditionVerifier preconditionVerifier;
-    private final ApplicationEventPublisher eventPublisher;
 
-    public ProjectContext initProjectContext(Path projectDir, RewriteExecutionContext rewriteExecutionContext) {
+    public ProjectContext initProjectContext(Path projectDir, List<Resource> resources, RewriteExecutionContext rewriteExecutionContext) {
         final Path absoluteProjectDir = projectDir.toAbsolutePath().normalize();
 
         initializeGitRepoIfNoneExists(absoluteProjectDir);
         MavenProjectParser mavenProjectParser = rewriteMavenParserFactory.createRewriteMavenParser(absoluteProjectDir, rewriteExecutionContext);
-
-        List<Resource> resources = pathScanner.scan(absoluteProjectDir);
-
-        PreconditionVerificationResult preconditionVerificationResult = preconditionVerifier.verifyPreconditions(absoluteProjectDir, resources);
-        publishResult(preconditionVerificationResult);
 
         List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources);
         List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);
@@ -67,12 +55,6 @@ public class ProjectContextInitializer {
         storeGitCommitHash(projectDir, projectContext);
 
         return projectContext;
-    }
-
-    private void publishResult(PreconditionVerificationResult preconditionVerificationResult) {
-        preconditionVerificationResult.getResults().forEach(r -> {
-            eventPublisher.publishEvent(new ActionLogEvent());
-        });
     }
 
     private List<RewriteSourceFileHolder<? extends SourceFile>> wrapRewriteSourceFiles(Path absoluteProjectDir, List<SourceFile> parsedByRewrite) {

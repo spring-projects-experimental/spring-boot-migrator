@@ -15,14 +15,6 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.springframework.sbm.build.migration.MavenPomCacheProvider;
-import org.springframework.sbm.engine.git.GitSupport;
-import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.context.ProjectContextFactory;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.resource.*;
-import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -37,20 +29,36 @@ import org.openrewrite.yaml.tree.Yaml;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.sbm.build.migration.MavenPomCacheProvider;
+import org.springframework.sbm.engine.commands.ScanCommand;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectContextFactory;
+import org.springframework.sbm.engine.context.ProjectRootPathResolver;
+import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.engine.precondition.PreconditionVerifier;
+import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
+import org.springframework.sbm.java.util.BasePackageCalculator;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.resource.*;
+import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.springframework.sbm.project.parser.ResourceVerifier.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.springframework.sbm.project.parser.ResourceVerifier.*;
 
 
 @SpringBootTest(classes = {
         ProjectContextInitializer.class,
+        BasePackageCalculator.class,
+        ProjectRootPathResolver.class,
+        PreconditionVerifier.class,
         ProjectContextFactory.class,
         RewriteMavenParserFactory.class,
         MavenPomCacheProvider.class,
@@ -60,16 +68,20 @@ import static org.mockito.Mockito.mock;
         ResourceHelper.class,
         ResourceLoader.class,
         GitSupport.class,
+        ScanCommand.class,
         ProjectResourceSetHolder.class,
         JavaRefactoringFactoryImpl.class,
         ProjectResourceWrapperRegistry.class
 }, properties = {"sbm.gitSupportEnabled=false"})
 class ProjectContextInitializerTest {
 
-    private Path projectDirectory = Path.of("./testcode").toAbsolutePath().normalize();
+    private Path projectDirectory = Path.of("./testcode/path-scanner").toAbsolutePath().normalize();
 
     @Autowired
     private ProjectContextInitializer sut;
+
+    @Autowired
+    private ScanCommand scanCommand;
 
     @BeforeEach
     void beforeEach() throws IOException {
@@ -89,14 +101,15 @@ class ProjectContextInitializerTest {
 
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
         RewriteExecutionContext executionContext = new RewriteExecutionContext(eventPublisher);
-        ProjectContext projectContext = sut.initProjectContext(projectDirectory, executionContext);
+        List<Resource> resources = scanCommand.scanProjectRoot(projectDirectory.toString());
+        ProjectContext projectContext = sut.initProjectContext(projectDirectory, resources, executionContext);
         List<RewriteSourceFileHolder<? extends SourceFile>> projectResources = projectContext.getProjectResources().list();
 
         assertThat(projectDirectory.toAbsolutePath().resolve(".git")).exists();
 
         assertThat(projectResources).hasSize(18);
 
-        verifyResource("testcode/pom.xml")
+        verifyResource("testcode/path-scanner/pom.xml")
                 .wrappedInstanceOf(Maven.class)
                 .havingMarkers(
                         mavenModelMarker("com.example:example-project-parent:1.0.0-SNAPSHOT"),
@@ -108,7 +121,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/pom.xml")
+        verifyResource("testcode/path-scanner/module1/pom.xml")
                 .wrappedInstanceOf(Maven.class)
                 .havingMarkers(
                         mavenModelMarker("com.example:module1:1.0.0-SNAPSHOT"),
@@ -119,7 +132,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/java/com/example/SomeJavaClass.java")
+        verifyResource("testcode/path-scanner/module1/src/main/java/com/example/SomeJavaClass.java")
                 .wrappedInstanceOf(J.CompilationUnit.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -130,7 +143,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/resources/schema.sql")
+        verifyResource("testcode/path-scanner/module1/src/main/resources/schema.sql")
                 .wrappedInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -141,7 +154,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/resources/some.xml")
+        verifyResource("testcode/path-scanner/module1/src/main/resources/some.xml")
                 .wrappedInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -152,7 +165,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/resources/some.yaml")
+        verifyResource("testcode/path-scanner/module1/src/main/resources/some.yaml")
                 .wrappedInstanceOf(Yaml.Documents.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -163,7 +176,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/resources/some.properties")
+        verifyResource("testcode/path-scanner/module1/src/main/resources/some.properties")
                 .wrappedInstanceOf(Properties.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -174,7 +187,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/resources/some.html")
+        verifyResource("testcode/path-scanner/module1/src/main/resources/some.html")
                 .wrappedInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -185,7 +198,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/resources/some.jsp")
+        verifyResource("testcode/path-scanner/module1/src/main/resources/some.jsp")
                 .wrappedInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -196,7 +209,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/resources/some.txt")
+        verifyResource("testcode/path-scanner/module1/src/main/resources/some.txt")
                 .wrappedInstanceOf(PlainText.class)
                 .havingMarkers(buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
@@ -206,7 +219,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/resources/some.xhtml")
+        verifyResource("testcode/path-scanner/module1/src/main/resources/some.xhtml")
                 .wrappedInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -217,7 +230,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/resources/some.xsd")
+        verifyResource("testcode/path-scanner/module1/src/main/resources/some.xsd")
                 .wrappedInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -228,7 +241,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/webapp/META-INF/some.wsdl")
+        verifyResource("testcode/path-scanner/module1/src/main/webapp/META-INF/some.wsdl")
                 .wrappedInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -239,7 +252,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/webapp/META-INF/some.xsl")
+        verifyResource("testcode/path-scanner/module1/src/main/webapp/META-INF/some.xsl")
                 .wrappedInstanceOf(Xml.Document.class)
                 .havingMarkers(buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
@@ -249,7 +262,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module1/src/main/webapp/META-INF/some.xslt")
+        verifyResource("testcode/path-scanner/module1/src/main/webapp/META-INF/some.xslt")
                 .wrappedInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -261,7 +274,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         // module2
-        verifyResource("testcode/module2/pom.xml")
+        verifyResource("testcode/path-scanner/module2/pom.xml")
                 .wrappedInstanceOf(Maven.class)
                 .havingMarkers(
                         mavenModelMarker("com.example:module2:1.0.0-SNAPSHOT"),
@@ -272,7 +285,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module2/src/test/java/com/example/FooTest.java")
+        verifyResource("testcode/path-scanner/module2/src/test/java/com/example/FooTest.java")
                 .wrappedInstanceOf(J.CompilationUnit.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
@@ -283,7 +296,7 @@ class ProjectContextInitializerTest {
                 )
                 .isContainedIn(projectResources);
 
-        verifyResource("testcode/module2/src/test/resources/test.whatever")
+        verifyResource("testcode/path-scanner/module2/src/test/resources/test.whatever")
                 .wrappedInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),

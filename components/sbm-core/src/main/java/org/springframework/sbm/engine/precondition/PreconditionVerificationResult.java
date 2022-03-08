@@ -1,26 +1,27 @@
 package org.springframework.sbm.engine.precondition;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 public class PreconditionVerificationResult {
-    @Deprecated
-    private List<String> messages = new ArrayList<>();
     @Getter
     private List<PreconditionCheckResult> results = new ArrayList<>();
-
-    @Deprecated
-    public List<String> getMessages() {
-        return messages;
-    }
-
-    public void addMessage(String message) {
-        this.messages.add(message);
-    }
+    private final Path projectRoot;
 
     public void addResult(PreconditionCheckResult preconditionCheckResult) {
         this.results.add(preconditionCheckResult);
+    }
+
+    public boolean hasError() {
+        return results.stream().anyMatch(r -> r.getState().equals(PreconditionCheck.ResultState.FAILED));
+    }
+
+    public Path getProjectRoot() {
+        return projectRoot;
     }
 }

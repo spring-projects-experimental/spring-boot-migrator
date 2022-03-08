@@ -16,7 +16,7 @@ class BuildFileExistsPreconditionCheckTest {
 
     @Test
     void shouldReturnErrorMessageIfNoMavenBuildFileExists() {
-        MavenBuildFileExistsPrecondition sut = new MavenBuildFileExistsPrecondition();
+        MavenBuildFileExistsPreconditionCheck sut = new MavenBuildFileExistsPreconditionCheck();
         Path projectRoot = Path.of(".");
         PreconditionCheckResult checkResult = sut.verify(projectRoot, List.of());
         assertThat(checkResult.getState()).isEqualTo(PreconditionCheck.ResultState.FAILED);
@@ -25,7 +25,7 @@ class BuildFileExistsPreconditionCheckTest {
 
     @Test
     void shouldReturnSuccessIfMavenBuildFileExists() throws IOException {
-        MavenBuildFileExistsPrecondition sut = new MavenBuildFileExistsPrecondition();
+        MavenBuildFileExistsPreconditionCheck sut = new MavenBuildFileExistsPreconditionCheck();
         Resource buildGradle = mock(Resource.class);
         File buildGradleFile = mock(File.class);
         when(buildGradle.getFile()).thenReturn(buildGradleFile);

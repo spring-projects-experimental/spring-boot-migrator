@@ -15,12 +15,14 @@
  */
 package org.springframework.sbm.test;
 
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.sbm.engine.commands.ScanCommand;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.parser.ProjectContextInitializer;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -61,7 +63,9 @@ public class ProjectContextFileSystemTestSupport {
         final ProjectContextHolder projectContextHolder = new ProjectContextHolder();
         SpringBeanProvider.run(ctx -> {
                     ProjectContextInitializer projectContextBuilder = ctx.getBean(ProjectContextInitializer.class);
-                    ProjectContext projectContext = projectContextBuilder.initProjectContext(projectRoot, new RewriteExecutionContext());
+                    ScanCommand scanCommand = ctx.getBean(ScanCommand.class);
+                    List<Resource> resources = scanCommand.scanProjectRoot(to.toString());
+                    ProjectContext projectContext = projectContextBuilder.initProjectContext(projectRoot, resources, new RewriteExecutionContext());
                     projectContextHolder.setContext(projectContext);
                 },
                 beanClasses.toArray(new Class[]{})

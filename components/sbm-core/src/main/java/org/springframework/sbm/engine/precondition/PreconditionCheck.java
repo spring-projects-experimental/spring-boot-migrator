@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-abstract class PreconditionCheck {
+public abstract class PreconditionCheck {
 
 	private ResultState resultState;
 

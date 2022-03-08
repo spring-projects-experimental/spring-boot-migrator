@@ -16,13 +16,18 @@
 package org.springframework.sbm.engine.commands;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
+import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
+import org.springframework.sbm.engine.precondition.PreconditionVerifier;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.parser.PathScanner;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
+import java.util.List;
 
 @Component
 public class ScanCommand extends AbstractCommand<ProjectContext> {
@@ -31,17 +36,34 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
     private final ProjectRootPathResolver projectRootPathResolver;
     private final ProjectContextInitializer projectContextInitializer;
     private final ApplicationEventPublisher eventPublisher;
+    private final PathScanner pathScanner;
+    private final PreconditionVerifier preconditionVerifier;
 
     @Deprecated
-    public ScanCommand(ProjectRootPathResolver projectRootPathResolver, ProjectContextInitializer projectContextInitializer, ApplicationEventPublisher eventPublisher) {
+    public ScanCommand(ProjectRootPathResolver projectRootPathResolver, ProjectContextInitializer projectContextInitializer, ApplicationEventPublisher eventPublisher, PathScanner pathScanner, PreconditionVerifier preconditionVerifier) {
         super(COMMAND_NAME);
         this.projectRootPathResolver = projectRootPathResolver;
         this.projectContextInitializer = projectContextInitializer;
         this.eventPublisher = eventPublisher;
+        this.pathScanner = pathScanner;
+        this.preconditionVerifier = preconditionVerifier;
     }
 
     public ProjectContext execute(String... arguments) {
         Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
-        return projectContextInitializer.initProjectContext(projectRoot, new RewriteExecutionContext(eventPublisher));
+
+        List<Resource> resources = pathScanner.scan(projectRoot);
+
+        return projectContextInitializer.initProjectContext(projectRoot, resources, new RewriteExecutionContext(eventPublisher));
+    }
+
+    public List<Resource> scanProjectRoot(String projectRoot) {
+        Path projectRootPath = projectRootPathResolver.getProjectRootOrDefault(projectRoot);
+        return pathScanner.scan(projectRootPath);
+    }
+
+    public PreconditionVerificationResult checkPreconditions(String projectRoot, List<Resource> resources) {
+        Path projectRootPath = projectRootPathResolver.getProjectRootOrDefault(projectRoot);
+        return preconditionVerifier.verifyPreconditions(projectRootPath, resources);
     }
 }

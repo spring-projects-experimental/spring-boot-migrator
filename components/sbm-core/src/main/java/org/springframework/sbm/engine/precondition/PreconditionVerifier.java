@@ -14,7 +14,7 @@ public class PreconditionVerifier {
     private final List<PreconditionCheck> preconditions;
 
     public PreconditionVerificationResult verifyPreconditions(Path projectRoot, List<Resource> projectResources) {
-        PreconditionVerificationResult result = new PreconditionVerificationResult();
+        PreconditionVerificationResult result = new PreconditionVerificationResult(projectRoot);
         preconditions.stream().forEach(pc -> result.addResult(pc.verify(projectRoot, projectResources)));
         return result;
     }

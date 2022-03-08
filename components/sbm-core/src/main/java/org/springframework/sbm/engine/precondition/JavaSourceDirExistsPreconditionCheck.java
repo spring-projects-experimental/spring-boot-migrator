@@ -1,18 +1,24 @@
 package org.springframework.sbm.engine.precondition;
 
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
-class JavaSourceDirExistsPrecondition extends PreconditionCheck {
+@Component
+class JavaSourceDirExistsPreconditionCheck extends PreconditionCheck {
 
+	private static final String PATTERN = "/**/src/main/java/**";
 	private final String JAVA_SRC_DIR = "src/main/java";
+	private AntPathMatcher antPathMatcher = new AntPathMatcher(File.separator);
 
 	@Override
 	public PreconditionCheckResult verify(Path projectRoot, List<Resource> projectResources) {
 		if (projectResources.stream()
-				.noneMatch(r -> projectRoot.relativize(getPath(r)).startsWith(Path.of(JAVA_SRC_DIR).toString()))) {
+				.noneMatch(r -> antPathMatcher.match(projectRoot.resolve(PATTERN).normalize().toString(), getPath(r).toAbsolutePath().toString()))) {
 			return new PreconditionCheckResult(ResultState.FAILED, "PreconditionCheck check could not find a '" + JAVA_SRC_DIR + "' dir. This dir is required.");
 		}
 		return new PreconditionCheckResult(ResultState.PASSED, "Found required source dir 'src/main/java'.");
