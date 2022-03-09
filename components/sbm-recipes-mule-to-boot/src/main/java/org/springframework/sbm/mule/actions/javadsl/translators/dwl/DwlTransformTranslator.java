@@ -61,20 +61,30 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
         String suffix = replaceClassName(externalClassContentSuffixTemplate, className);
 
         if (component.getSetPayload().getContent().isEmpty()) {
-            prefix = replaceClassName(externalClassContentPrefixTemplate, "ActionTransform");
-            suffix = replaceClassName(externalClassContentSuffixTemplate, "ActionTransform");
+            String resource = component.getSetPayload().getResource();
+            className = capitalizeFirstLetter(getFileName(resource)) + "ActionTransform";
+            prefix = replaceClassName(externalClassContentPrefixTemplate, className);
+            suffix = replaceClassName(externalClassContentSuffixTemplate, className);
             String content =
                     prefix
                             + "     * from file "
-                            + component.getSetPayload().getResource().replace("classpath:", "")
+                            + resource.replace("classpath:", "")
                             + suffix;
-            return new DslSnippet(STATEMENT_CONTENT, Collections.emptySet(), Collections.emptySet(), content);
+            return new DslSnippet(replaceClassName(STATEMENT_CONTENT, className), Collections.emptySet(), Collections.emptySet(), content);
         }
 
         String dwlContent = component.getSetPayload().getContent().toString();
         String dwlContentCommented = "     * " + dwlContent.replace("\n", "\n     * ") + "\n";
         String externalClassContent = prefix + dwlContentCommented + suffix;
         return new DslSnippet(replaceClassName(STATEMENT_CONTENT, className), Collections.emptySet(), Collections.emptySet(), externalClassContent);
+    }
+
+    private String getFileName(String path) {
+
+        String[] fileParts = path.split("\\.");
+        String pathWithoutExtension = fileParts[fileParts.length - 2];
+        String[] fileNameParts = pathWithoutExtension.split("/");
+        return fileNameParts[fileNameParts.length - 1];
     }
 
 

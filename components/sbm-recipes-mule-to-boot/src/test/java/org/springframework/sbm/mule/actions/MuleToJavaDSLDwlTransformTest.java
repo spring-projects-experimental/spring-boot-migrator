@@ -1,6 +1,5 @@
 package org.springframework.sbm.mule.actions;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
@@ -79,9 +78,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                 .withBuildFileHavingDependencies(
                         "org.springframework.boot:spring-boot-starter-web:2.5.5",
                         "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-amqp:5.4.4",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
+                        "org.springframework.integration:spring-integration-stream:5.4.4"
                 )
                 .addRegistrar(registrar)
                 .build();
@@ -134,7 +131,6 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
     }
 
     @Test
-    @Disabled
     public void shouldTransformDWLWithFile() {
 
         MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
@@ -149,9 +145,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                 .withBuildFileHavingDependencies(
                         "org.springframework.boot:spring-boot-starter-web:2.5.5",
                         "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-amqp:5.4.4",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
+                        "org.springframework.integration:spring-integration-stream:5.4.4"
                 )
                 .addRegistrar(registrar)
                 .build();
@@ -175,7 +169,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dwlFlow() {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/dwl\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
-                                "                .transform(ActionTransformViaFile::transform)\n" +
+                                "                .transform(MapClientRiskRatingResponseActionTransform::transform)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .get();\n" +
                                 "    }}");
@@ -183,16 +177,16 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "\n" +
-                                "public class ActionTransformViaFile {\n" +
+                                "public class MapClientRiskRatingResponseActionTransform {\n" +
                                 "    /*\n" +
                                 "     * TODO:\n" +
                                 "     *\n" +
                                 "     * Please add necessary transformation for below snippet\n" +
                                 "     * from file dwl/mapClientRiskRatingResponse.dwl" +
                                 "     * */\n" +
-                                "    public static ActionTransformViaFile transform(Object payload) {\n" +
+                                "    public static MapClientRiskRatingResponseActionTransform transform(Object payload) {\n" +
                                 "\n" +
-                                "        return new ActionTransformViaFile();\n" +
+                                "        return new MapClientRiskRatingResponseActionTransform();\n" +
                                 "    }\n" +
                                 "}");
     }
