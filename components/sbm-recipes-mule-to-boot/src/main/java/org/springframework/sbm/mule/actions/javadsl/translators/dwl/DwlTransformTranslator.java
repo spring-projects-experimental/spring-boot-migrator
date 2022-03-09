@@ -28,7 +28,7 @@ import java.util.Collections;
 @Component
 public class DwlTransformTranslator implements MuleComponentToSpringIntegrationDslTranslator<TransformMessageType> {
     public static final String STATEMENT_CONTENT = ".transform(ActionTransform::createActionTransformer)";
-    private String externalClassContentPrefix = "package com.example.javadsl;\n" +
+    private static final String externalClassContentPrefix = "package com.example.javadsl;\n" +
             "\n" +
             "public class ActionTransform {\n" +
             "    /*\n" +
@@ -36,7 +36,7 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
             "     *\n" +
             "     * Please add necessary transformation for below snippet\n";
 
-    private String externalClassContentSuffix = "     * */\n" +
+    private static final String externalClassContentSuffix = "     * */\n" +
             "    public static ActionTransform createActionTransformer(Object payload) {\n" +
             "\n" +
             "        return new ActionTransform();\n" +
