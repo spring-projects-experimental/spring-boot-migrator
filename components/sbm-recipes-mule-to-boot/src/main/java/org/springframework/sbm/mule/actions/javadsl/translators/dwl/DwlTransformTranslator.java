@@ -16,7 +16,9 @@
 
 package org.springframework.sbm.mule.actions.javadsl.translators.dwl;
 
+import org.jetbrains.annotations.NotNull;
 import org.mulesoft.schema.mule.ee.dw.TransformMessageType;
+import org.springframework.sbm.java.util.Helper;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
@@ -56,27 +58,38 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
             String flowName
     ) {
 
-        String className = capitalizeFirstLetter(flowName) + "ActionTransform";
-        String prefix = replaceClassName(externalClassContentPrefixTemplate, className);
-        String suffix = replaceClassName(externalClassContentSuffixTemplate, className);
-
-        if (component.getSetPayload().getContent().isEmpty()) {
-            String resource = component.getSetPayload().getResource();
-            className = capitalizeFirstLetter(getFileName(resource)) + "ActionTransform";
-            prefix = replaceClassName(externalClassContentPrefixTemplate, className);
-            suffix = replaceClassName(externalClassContentSuffixTemplate, className);
-            String content =
-                    prefix
-                            + "     * from file "
-                            + resource.replace("classpath:", "")
-                            + suffix;
-            return new DslSnippet(replaceClassName(STATEMENT_CONTENT, className), Collections.emptySet(), Collections.emptySet(), content);
+        if (isComponentReferencingAnExternalFile(component)) {
+            return formExternalFileBasedDSLSnippet(component);
         }
+
+        return formEmbeddedDWLBasedDSLSnippet(component, Helper.sanitizeForBeanMethodName(flowName));
+    }
+
+    private DslSnippet formEmbeddedDWLBasedDSLSnippet(TransformMessageType component, String flowName) {
+        String className = capitalizeFirstLetter(flowName) + "ActionTransform";
 
         String dwlContent = component.getSetPayload().getContent().toString();
         String dwlContentCommented = "     * " + dwlContent.replace("\n", "\n     * ") + "\n";
-        String externalClassContent = prefix + dwlContentCommented + suffix;
+        String externalClassContent =
+                replaceClassName(externalClassContentPrefixTemplate, className) +
+                        dwlContentCommented +
+                        replaceClassName(externalClassContentSuffixTemplate, className);
         return new DslSnippet(replaceClassName(STATEMENT_CONTENT, className), Collections.emptySet(), Collections.emptySet(), externalClassContent);
+    }
+
+    private DslSnippet formExternalFileBasedDSLSnippet(TransformMessageType component) {
+        String resource = component.getSetPayload().getResource();
+        String className = capitalizeFirstLetter(getFileName(resource)) + "ActionTransform";
+        String content =
+                replaceClassName(externalClassContentPrefixTemplate, className)
+                        + "     * from file "
+                        + resource.replace("classpath:", "")
+                        + replaceClassName(externalClassContentSuffixTemplate, className);
+        return new DslSnippet(replaceClassName(STATEMENT_CONTENT, className), Collections.emptySet(), Collections.emptySet(), content);
+    }
+
+    private boolean isComponentReferencingAnExternalFile(TransformMessageType component) {
+        return component.getSetPayload().getContent().isEmpty();
     }
 
     private String getFileName(String path) {
