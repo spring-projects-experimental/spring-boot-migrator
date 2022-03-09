@@ -27,19 +27,19 @@ import java.util.Collections;
 
 @Component
 public class DwlTransformTranslator implements MuleComponentToSpringIntegrationDslTranslator<TransformMessageType> {
-    public static final String STATEMENT_CONTENT = ".transform(ActionTransform::createActionTransformer)";
-    private static final String externalClassContentPrefix = "package com.example.javadsl;\n" +
+    public static final String STATEMENT_CONTENT = ".transform(ActionTransform::transform)";
+    private static final String externalClassContentPrefixTemplate = "package com.example.javadsl;\n" +
             "\n" +
-            "public class ActionTransform {\n" +
+            "public class $CLASSNAME {\n" +
             "    /*\n" +
             "     * TODO:\n" +
             "     *\n" +
             "     * Please add necessary transformation for below snippet\n";
 
-    private static final String externalClassContentSuffix = "     * */\n" +
-            "    public static ActionTransform createActionTransformer(Object payload) {\n" +
+    private static final String externalClassContentSuffixTemplate = "     * */\n" +
+            "    public static $CLASSNAME transform(Object payload) {\n" +
             "\n" +
-            "        return new ActionTransform();\n" +
+            "        return new $CLASSNAME();\n" +
             "    }\n" +
             "}";
 
@@ -51,18 +51,26 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
     @Override
     public DslSnippet translate(TransformMessageType component, QName name, MuleConfigurations muleConfigurations) {
 
+        String prefix = replaceClassName(externalClassContentPrefixTemplate, "ActionTransform");
+        String suffix = replaceClassName(externalClassContentSuffixTemplate, "ActionTransform");
+
         if (component.getSetPayload().getContent().isEmpty()) {
             String content =
-                    externalClassContentPrefix
+                    externalClassContentPrefixTemplate
                             + "     * from file "
                             + component.getSetPayload().getResource().replace("classpath:", "")
-                            + externalClassContentSuffix;
+                            + externalClassContentSuffixTemplate;
             return new DslSnippet(STATEMENT_CONTENT, Collections.emptySet(), Collections.emptySet(), content);
         }
 
         String dwlContent = component.getSetPayload().getContent().toString();
         String dwlContentCommented = "     * " + dwlContent.replace("\n", "\n     * ") + "\n";
-        String externalClassContent = externalClassContentPrefix + dwlContentCommented + externalClassContentSuffix;
+        String externalClassContent = prefix + dwlContentCommented + suffix;
         return new DslSnippet(STATEMENT_CONTENT, Collections.emptySet(), Collections.emptySet(), externalClassContent);
+    }
+
+
+    private String replaceClassName(String template, String className) {
+        return template.replace("$CLASSNAME", className);
     }
 }
