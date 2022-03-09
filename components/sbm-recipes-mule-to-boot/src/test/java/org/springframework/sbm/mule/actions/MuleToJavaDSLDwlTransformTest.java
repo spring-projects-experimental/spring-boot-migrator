@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 - 2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.Test;
@@ -102,7 +117,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dwlFlow() {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/dwl\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
-                                "                .transform(DwlFlowActionTransform::transform)\n" +
+                                "                .transform(DwlFlowTransform::transform)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .get();\n" +
                                 "    }}");
@@ -110,7 +125,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "\n" +
-                                "public class DwlFlowActionTransform {\n" +
+                                "public class DwlFlowTransform {\n" +
                                 "    /*\n" +
                                 "     * TODO:\n" +
                                 "     *\n" +
@@ -123,9 +138,9 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "     *     returnCode:  20\n" +
                                 "     * }]\n" +
                                 "     * */\n" +
-                                "    public static DwlFlowActionTransform transform(Object payload) {\n" +
+                                "    public static DwlFlowTransform transform(Object payload) {\n" +
                                 "\n" +
-                                "        return new DwlFlowActionTransform();\n" +
+                                "        return new DwlFlowTransform();\n" +
                                 "    }\n" +
                                 "}");
     }
@@ -136,8 +151,6 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
         ApplicationProperties applicationProperties = new ApplicationProperties();
         applicationProperties.setDefaultBasePackage("com.example.javadsl");
-
-        System.out.println(dwlXMLWithExternalFile);
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-transform.xml", dwlXMLWithExternalFile)
@@ -169,7 +182,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dwlFlow() {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/dwl\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
-                                "                .transform(MapClientRiskRatingResponseActionTransform::transform)\n" +
+                                "                .transform(MapClientRiskRatingResponseTransform::transform)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .get();\n" +
                                 "    }}");
@@ -177,16 +190,16 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "\n" +
-                                "public class MapClientRiskRatingResponseActionTransform {\n" +
+                                "public class MapClientRiskRatingResponseTransform {\n" +
                                 "    /*\n" +
                                 "     * TODO:\n" +
                                 "     *\n" +
                                 "     * Please add necessary transformation for below snippet\n" +
                                 "     * from file dwl/mapClientRiskRatingResponse.dwl" +
                                 "     * */\n" +
-                                "    public static MapClientRiskRatingResponseActionTransform transform(Object payload) {\n" +
+                                "    public static MapClientRiskRatingResponseTransform transform(Object payload) {\n" +
                                 "\n" +
-                                "        return new MapClientRiskRatingResponseActionTransform();\n" +
+                                "        return new MapClientRiskRatingResponseTransform();\n" +
                                 "    }\n" +
                                 "}");
     }

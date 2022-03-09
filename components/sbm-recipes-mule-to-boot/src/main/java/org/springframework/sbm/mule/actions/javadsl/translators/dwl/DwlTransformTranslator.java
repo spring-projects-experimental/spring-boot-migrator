@@ -65,7 +65,7 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
     }
 
     private DslSnippet formEmbeddedDWLBasedDSLSnippet(TransformMessageType component, String flowName) {
-        String className = capitalizeFirstLetter(flowName) + "ActionTransform";
+        String className = capitalizeFirstLetter(flowName) + "Transform";
 
         String dwlContent = component.getSetPayload().getContent().toString();
         String dwlContentCommented = "     * " + dwlContent.replace("\n", "\n     * ") + "\n";
@@ -78,7 +78,7 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
 
     private DslSnippet formExternalFileBasedDSLSnippet(TransformMessageType component) {
         String resource = component.getSetPayload().getResource();
-        String className = capitalizeFirstLetter(getFileName(resource)) + "ActionTransform";
+        String className = capitalizeFirstLetter(getFileName(resource)) + "Transform";
         String content =
                 replaceClassName(externalClassContentPrefixTemplate, className)
                         + "     * from file "
