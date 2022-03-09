@@ -36,7 +36,7 @@ public class AmqpOutboundEndpointTranslator implements MuleComponentToSpringInte
     }
 
     @Override
-    public DslSnippet translate(OutboundEndpointType component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(OutboundEndpointType component, QName name, MuleConfigurations muleConfigurations, String flowName) {
 
 
         addExchange(snippet, component.getExchangeName());

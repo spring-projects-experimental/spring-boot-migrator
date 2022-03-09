@@ -27,7 +27,7 @@ import java.util.Collections;
 
 @Component
 public class DwlTransformTranslator implements MuleComponentToSpringIntegrationDslTranslator<TransformMessageType> {
-    public static final String STATEMENT_CONTENT = ".transform(ActionTransform::transform)";
+    public static final String STATEMENT_CONTENT = ".transform($CLASSNAME::transform)";
     private static final String externalClassContentPrefixTemplate = "package com.example.javadsl;\n" +
             "\n" +
             "public class $CLASSNAME {\n" +
@@ -49,28 +49,40 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
     }
 
     @Override
-    public DslSnippet translate(TransformMessageType component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(
+            TransformMessageType component,
+            QName name,
+            MuleConfigurations muleConfigurations,
+            String flowName
+    ) {
 
-        String prefix = replaceClassName(externalClassContentPrefixTemplate, "ActionTransform");
-        String suffix = replaceClassName(externalClassContentSuffixTemplate, "ActionTransform");
+        String className = capitalizeFirstLetter(flowName) + "ActionTransform";
+        String prefix = replaceClassName(externalClassContentPrefixTemplate, className);
+        String suffix = replaceClassName(externalClassContentSuffixTemplate, className);
 
         if (component.getSetPayload().getContent().isEmpty()) {
+            prefix = replaceClassName(externalClassContentPrefixTemplate, "ActionTransform");
+            suffix = replaceClassName(externalClassContentSuffixTemplate, "ActionTransform");
             String content =
-                    externalClassContentPrefixTemplate
+                    prefix
                             + "     * from file "
                             + component.getSetPayload().getResource().replace("classpath:", "")
-                            + externalClassContentSuffixTemplate;
+                            + suffix;
             return new DslSnippet(STATEMENT_CONTENT, Collections.emptySet(), Collections.emptySet(), content);
         }
 
         String dwlContent = component.getSetPayload().getContent().toString();
         String dwlContentCommented = "     * " + dwlContent.replace("\n", "\n     * ") + "\n";
         String externalClassContent = prefix + dwlContentCommented + suffix;
-        return new DslSnippet(STATEMENT_CONTENT, Collections.emptySet(), Collections.emptySet(), externalClassContent);
+        return new DslSnippet(replaceClassName(STATEMENT_CONTENT, className), Collections.emptySet(), Collections.emptySet(), externalClassContent);
     }
 
 
     private String replaceClassName(String template, String className) {
         return template.replace("$CLASSNAME", className);
+    }
+
+    private String capitalizeFirstLetter(String className) {
+        return className.substring(0, 1).toUpperCase() + className.substring(1);
     }
 }

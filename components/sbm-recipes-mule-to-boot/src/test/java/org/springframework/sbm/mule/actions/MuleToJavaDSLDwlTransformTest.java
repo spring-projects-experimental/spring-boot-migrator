@@ -105,7 +105,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dwlFlow() {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/dwl\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
-                                "                .transform(ActionTransform::transform)\n" +
+                                "                .transform(DwlFlowActionTransform::transform)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .get();\n" +
                                 "    }}");
@@ -113,7 +113,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "\n" +
-                                "public class ActionTransform {\n" +
+                                "public class DwlFlowActionTransform {\n" +
                                 "    /*\n" +
                                 "     * TODO:\n" +
                                 "     *\n" +
@@ -126,9 +126,9 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "     *     returnCode:  20\n" +
                                 "     * }]\n" +
                                 "     * */\n" +
-                                "    public static ActionTransform transform(Object payload) {\n" +
+                                "    public static DwlFlowActionTransform transform(Object payload) {\n" +
                                 "\n" +
-                                "        return new ActionTransform();\n" +
+                                "        return new DwlFlowActionTransform();\n" +
                                 "    }\n" +
                                 "}");
     }
@@ -175,7 +175,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dwlFlow() {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/dwl\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
-                                "                .transform(ActionTransformViaFile::createActionTransformer)\n" +
+                                "                .transform(ActionTransformViaFile::transform)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .get();\n" +
                                 "    }}");

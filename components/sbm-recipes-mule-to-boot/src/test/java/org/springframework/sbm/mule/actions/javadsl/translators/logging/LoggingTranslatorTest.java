@@ -287,7 +287,7 @@ class LoggingTranslatorTest {
         MuleType muleType = muleXmls.get(0).getMuleType();
         LoggerType loggerType = (LoggerType)  ((FlowType)((JAXBElement)muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractMessageProcessorOrAbstractOutboundEndpointOrAbstractMixedContentMessageProcessor().get(0).getValue();
 
-        DslSnippet snippet = sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()));
+        DslSnippet snippet = sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()), "");
 
         assertThat(snippet.getRenderedSnippet()).isEqualTo(
                 ".log(\"#{payload}\")"
@@ -310,6 +310,6 @@ class LoggingTranslatorTest {
 
         MuleType muleType = muleXmls.get(0).getMuleType();
         LoggerType loggerType = (LoggerType)  ((FlowType)((JAXBElement)muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractMessageProcessorOrAbstractOutboundEndpointOrAbstractMixedContentMessageProcessor().get(0).getValue();
-        return sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()));
+        return sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()), "");
     }
 }

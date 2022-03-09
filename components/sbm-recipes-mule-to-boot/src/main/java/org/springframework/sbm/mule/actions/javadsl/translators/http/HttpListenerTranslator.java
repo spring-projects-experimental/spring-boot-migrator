@@ -43,7 +43,7 @@ public class HttpListenerTranslator implements MuleComponentToSpringIntegrationD
     }
 
     @Override
-    public DslSnippet translate(ListenerType component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(ListenerType component, QName name, MuleConfigurations muleConfigurations, String flowName) {
         /*
         * In the connector component on your flow, the only required fields are the Path
         * (the path-absolute URL defining the resource location), which by default is /,

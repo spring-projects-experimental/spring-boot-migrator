@@ -31,7 +31,7 @@ public class UnknownStatementTranslator implements MuleComponentToSpringIntegrat
     }
 
     @Override
-    public DslSnippet translate(Object component, QName qname, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(Object component, QName qname, MuleConfigurations muleConfigurations, String flowName) {
         return new DslSnippet(
                 generateDSLStatement(component, qname),
                 Collections.emptySet(),

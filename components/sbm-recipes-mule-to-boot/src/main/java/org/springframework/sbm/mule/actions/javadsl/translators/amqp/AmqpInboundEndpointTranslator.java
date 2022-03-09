@@ -37,7 +37,7 @@ public class AmqpInboundEndpointTranslator implements MuleComponentToSpringInteg
     }
 
     @Override
-    public DslSnippet translate(InboundEndpointType inboundEndpointType, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(InboundEndpointType inboundEndpointType, QName name, MuleConfigurations muleConfigurations, String flowName) {
         String queueName = inboundEndpointType.getQueueName();
         String renderedSnippet = snippetTemplate.replace("${queueName}", queueName);
         Bean amqpConnectionFactoryBean = new Bean("connectionFactory", "org.springframework.amqp.rabbit.connection.ConnectionFactory");

@@ -33,7 +33,7 @@ public class SetPropertyTranslator implements MuleComponentToSpringIntegrationDs
     }
 
     @Override
-    public DslSnippet translate(SetPropertyType component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(SetPropertyType component, QName name, MuleConfigurations muleConfigurations, String flowName) {
         return new DslSnippet(
                 ".enrichHeaders(h -> h.header(\"" + component.getPropertyName() + "\", \"" + component.getValue() + "\"))",
                 Collections.emptySet()
