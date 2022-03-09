@@ -16,7 +16,6 @@
 
 package org.springframework.sbm.mule.actions.javadsl.translators.dwl;
 
-import org.jetbrains.annotations.NotNull;
 import org.mulesoft.schema.mule.ee.dw.TransformMessageType;
 import org.springframework.sbm.java.util.Helper;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
