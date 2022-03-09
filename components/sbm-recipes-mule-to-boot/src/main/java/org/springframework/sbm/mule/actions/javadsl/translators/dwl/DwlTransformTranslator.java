@@ -28,24 +28,20 @@ import java.util.Collections;
 @Component
 public class DwlTransformTranslator implements MuleComponentToSpringIntegrationDslTranslator<TransformMessageType> {
     public static final String STATEMENT_CONTENT = ".transform(ActionTransform::createActionTransformer)";
-    private String externalClassContent = "class ActionTransform {\n" +
+    private String externalClassContentPrefix = "package com.example.javadsl;\n" +
+            "\n" +
+            "public class ActionTransform {\n" +
             "    /*\n" +
             "     * TODO:\n" +
             "     *\n" +
-            "     * Please add necessary transformation for below snippet\n" +
-            "     * %dw 1.0\n" +
-            "     * %output application/json\n" +
-            "     * ---\n" +
-            "     * {\n" +
-            "     *     action_Code: 10,\n" +
-            "     *     returnCode:  20\n" +
-            "     * }\n" +
-            "     * */\n" +
+            "     * Please add necessary transformation for below snippet\n";
+
+    private String externalClassContentSuffix = "     * */\n" +
             "    public static ActionTransform createActionTransformer(Object payload) {\n" +
             "\n" +
             "        return new ActionTransform();\n" +
             "    }\n" +
-            "}\n";
+            "}";
 
     @Override
     public Class<TransformMessageType> getSupportedMuleType() {
@@ -54,6 +50,9 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
 
     @Override
     public DslSnippet translate(TransformMessageType component, QName name, MuleConfigurations muleConfigurations) {
+        String dwlContent = component.getSetPayload().getContent().toString();
+        String dwlContentCommented = "     * " + dwlContent.replace("\n", "\n     * ") + "\n";
+        String externalClassContent = externalClassContentPrefix + dwlContentCommented + externalClassContentSuffix;
         return new DslSnippet(STATEMENT_CONTENT, Collections.emptySet(), Collections.emptySet(), externalClassContent);
     }
 }

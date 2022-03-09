@@ -8,7 +8,7 @@ import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MuleToJavaDSLDWLTransformTest extends JavaDSLActionBaseTest {
+public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
 
     private static final String muleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
@@ -39,7 +39,7 @@ public class MuleToJavaDSLDWLTransformTest extends JavaDSLActionBaseTest {
             "</mule>\n";
 
     @Test
-    public void test() {
+    public void shouldTranslateDwlTransformation() {
         MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
         ApplicationProperties applicationProperties = new ApplicationProperties();
         applicationProperties.setDefaultBasePackage("com.example.javadsl");
@@ -59,6 +59,7 @@ public class MuleToJavaDSLDWLTransformTest extends JavaDSLActionBaseTest {
 
         myAction.apply(projectContext);
 
+        assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
@@ -69,27 +70,8 @@ public class MuleToJavaDSLDWLTransformTest extends JavaDSLActionBaseTest {
                                 "import org.springframework.integration.handler.LoggingHandler;\n" +
                                 "import org.springframework.integration.http.dsl.Http;\n" +
                                 "\n" +
-                                "class ActionTransform {\n" +
-                                "    /*\n" +
-                                "     * TODO:\n" +
-                                "     *\n" +
-                                "     * Please add necessary transformation for below snippet\n" +
-                                "     * %dw 1.0\n" +
-                                "     * %output application/json\n" +
-                                "     * ---\n" +
-                                "     * {\n" +
-                                "     *     action_Code: 10,\n" +
-                                "     *     returnCode:  20\n" +
-                                "     * }\n" +
-                                "     * */\n" +
-                                "    public static ActionTransform createActionTransformer(Object payload) {\n" +
-                                "\n" +
-                                "        return new ActionTransform();\n" +
-                                "    }\n" +
-                                "}\n" +
                                 "@Configuration\n" +
                                 "public class FlowConfigurations {\n" +
-                                "\n" +
                                 "    @Bean\n" +
                                 "    IntegrationFlow dwlFlow() {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/dwl\")).handle((p, h) -> p)\n" +
@@ -98,5 +80,27 @@ public class MuleToJavaDSLDWLTransformTest extends JavaDSLActionBaseTest {
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .get();\n" +
                                 "    }}");
+        assertThat(projectContext.getProjectJavaSources().list().get(1).print())
+                .isEqualTo(
+                        "package com.example.javadsl;\n" +
+                                "\n" +
+                                "public class ActionTransform {\n" +
+                                "    /*\n" +
+                                "     * TODO:\n" +
+                                "     *\n" +
+                                "     * Please add necessary transformation for below snippet\n" +
+                                "     * [%dw 1.0\n" +
+                                "     * %output application/json\n" +
+                                "     * ---\n" +
+                                "     * {\n" +
+                                "     *     action_Code: 10,\n" +
+                                "     *     returnCode:  20\n" +
+                                "     * }]\n" +
+                                "     * */\n" +
+                                "    public static ActionTransform createActionTransformer(Object payload) {\n" +
+                                "\n" +
+                                "        return new ActionTransform();\n" +
+                                "    }\n" +
+                                "}");
     }
 }

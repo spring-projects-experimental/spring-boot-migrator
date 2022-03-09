@@ -67,6 +67,14 @@ public class DslSnippet {
     public DslSnippet(String renderedSnippet,
                       Set<String> requiredImports,
                       Set<String> requiredDependencies,
+                      Set<Bean> beans,
+                      boolean isUnknownStatement) {
+        this(renderedSnippet, requiredImports, requiredDependencies, beans, isUnknownStatement, "");
+    }
+
+    public DslSnippet(String renderedSnippet,
+                      Set<String> requiredImports,
+                      Set<String> requiredDependencies,
                       String externalClassContent) {
         this(renderedSnippet, requiredImports, requiredDependencies, Collections.emptySet(), false, externalClassContent);
     }
