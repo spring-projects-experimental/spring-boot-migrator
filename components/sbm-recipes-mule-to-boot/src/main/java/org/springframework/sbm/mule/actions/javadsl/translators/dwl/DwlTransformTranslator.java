@@ -50,6 +50,16 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
 
     @Override
     public DslSnippet translate(TransformMessageType component, QName name, MuleConfigurations muleConfigurations) {
+
+        if (component.getSetPayload().getContent().isEmpty()) {
+            String content =
+                    externalClassContentPrefix
+                            + "     * from file "
+                            + component.getSetPayload().getResource().replace("classpath:", "")
+                            + externalClassContentSuffix;
+            return new DslSnippet(STATEMENT_CONTENT, Collections.emptySet(), Collections.emptySet(), content);
+        }
+
         String dwlContent = component.getSetPayload().getContent().toString();
         String dwlContentCommented = "     * " + dwlContent.replace("\n", "\n     * ") + "\n";
         String externalClassContent = externalClassContentPrefix + dwlContentCommented + externalClassContentSuffix;
