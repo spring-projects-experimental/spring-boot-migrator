@@ -46,7 +46,7 @@ public class LoggingTranslator implements MuleComponentToSpringIntegrationDslTra
         return LoggerType.class;
     }
 
-    public DslSnippet translate(LoggerType loggerType, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(LoggerType loggerType, QName name, MuleConfigurations muleConfigurations, String flowName) {
 
         StringBuffer sb = new StringBuffer();
 

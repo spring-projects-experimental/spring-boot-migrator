@@ -59,13 +59,13 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
 
     public List<DslSnippet> buildDslSnippets() {
         return elements.stream()
-                .map(o -> translate(o.getValue(), o.getName(), muleConfigurations))
+                .map(o -> translate(o.getValue(), o.getName(), muleConfigurations, flowName))
                 .collect(Collectors.toList());
     }
 
-    private DslSnippet translate(Object o, QName name, MuleConfigurations muleConfigurations) {
+    private DslSnippet translate(Object o, QName name, MuleConfigurations muleConfigurations, String flowName) {
         MuleComponentToSpringIntegrationDslTranslator translator = translatorsMap.getOrDefault(o.getClass(), new UnknownStatementTranslator());
-        return translator.translate(o, name, muleConfigurations);
+        return translator.translate(o, name, muleConfigurations, flowName);
     }
 
 
@@ -109,6 +109,13 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
             requiredImports.addAll(ds.getRequiredImports());
         });
         return sb.toString();
+    }
+
+    @Override
+    public Set<String> getExternalClassContents() {
+        return dslSnippets.stream()
+                .map(DslSnippet::getExternalClassContent)
+                .collect(Collectors.toSet());
     }
 
     protected String composePrefixDslCode() {

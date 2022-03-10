@@ -22,6 +22,7 @@ import org.springframework.sbm.mule.actions.javadsl.translators.UnknownStatement
 import org.springframework.sbm.mule.api.MuleElementInfo;
 
 import javax.xml.bind.JAXBElement;
+import java.util.Collections;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
@@ -44,6 +45,11 @@ public class UnknownTopLevelElement implements TopLevelElement {
     @Override
     public Set<String> getRequiredDependencies() {
         return emptySet();
+    }
+
+    @Override
+    public Set<String> getExternalClassContents() {
+        return Collections.emptySet();
     }
 
     @Override
