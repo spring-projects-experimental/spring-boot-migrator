@@ -16,10 +16,6 @@
 package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.TestProjectContext;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,18 +34,11 @@ public class UnknownFlowTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldTranslateUnknownFlow() {
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-multi-flow.xml", muleMultiFlow)
-                .addRegistrar(registrar)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-stream:5.4.4"
-                )
-                .build();
-        myAction.apply(projectContext);
-        assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
 
+        addXMLFileToResource(muleMultiFlow);
+        runAction();
+
+        assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
 
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +
