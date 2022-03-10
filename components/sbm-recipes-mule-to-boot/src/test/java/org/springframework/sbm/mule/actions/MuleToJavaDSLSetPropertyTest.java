@@ -17,10 +17,6 @@
 package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.TestProjectContext;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,20 +37,8 @@ public class MuleToJavaDSLSetPropertyTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldGenerateSetPropertyStatements() {
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-set-property-flow.xml", muleXml)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework:spring-context:5.3.1",
-                        "org.springframework:spring-beans:5.3.1",
-                        "org.springframework.integration:spring-integration-core:5.5.8",
-                        "org.springframework.integration:spring-integration-http:5.5.8",
-                        "org.springframework.boot:spring-boot-starter-integration:2.6.3"
-                )
-                .addRegistrar(registrar)
-                .build();
-        myAction.apply(projectContext);
+        addXMLFileToResource(muleXml);
+        runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(
