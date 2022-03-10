@@ -96,9 +96,6 @@ public class MuleToJavaDSLMultipleTest extends JavaDSLActionBaseTest {
 
     @Test
     public void detectsMuleXMLFiles() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-simple-amqp-flow.xml", muleXml)
@@ -120,10 +117,6 @@ public class MuleToJavaDSLMultipleTest extends JavaDSLActionBaseTest {
 
     @Test
     public void generatesAmqpDSLStatements() {
-
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-simple-amqp-flow.xml", muleInboundOutboundXml)
@@ -163,10 +156,6 @@ public class MuleToJavaDSLMultipleTest extends JavaDSLActionBaseTest {
 
     @Test
     public void generatesAMQPConnectorBean() {
-
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-simple-amqp-flow.xml", muleInboundOutboundXml)

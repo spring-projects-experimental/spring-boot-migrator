@@ -90,7 +90,7 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
     }
 
     private void checkRabbitMqIntegration(Channel amqpChannel)
-            throws IOException, TimeoutException, InterruptedException {
+            throws IOException, InterruptedException {
 
         String message = "{\"msgContent\": \"" + messageContent + "\"}";
         amqpChannel.basicPublish("", FIRST_QUEUE_NAME, null, message.getBytes());

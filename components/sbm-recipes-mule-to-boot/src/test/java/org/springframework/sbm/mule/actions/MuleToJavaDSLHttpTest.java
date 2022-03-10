@@ -18,8 +18,6 @@ package org.springframework.sbm.mule.actions;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -44,9 +42,6 @@ public class MuleToJavaDSLHttpTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldGenerateJavaDSLForFlowHttpMuleTag() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-simple-http-flow.xml", muleXmlHttp)

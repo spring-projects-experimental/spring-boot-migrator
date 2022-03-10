@@ -17,8 +17,6 @@ package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,9 +81,6 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldTranslateDwlTransformation() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-transform.xml", muleXml)
@@ -147,11 +142,6 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldTransformDWLWithFile() {
-
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
-
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-transform.xml", dwlXMLWithExternalFile)
                 .withApplicationProperties(applicationProperties)

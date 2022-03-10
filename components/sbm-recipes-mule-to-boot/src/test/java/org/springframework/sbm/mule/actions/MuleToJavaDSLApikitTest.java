@@ -17,8 +17,6 @@ package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 
@@ -37,10 +35,6 @@ public class MuleToJavaDSLApikitTest extends JavaDSLActionBaseTest {
 
     @Test
     public void generatesApikitDSLStatements() {
-
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-apikit-flow.xml", muleXml)

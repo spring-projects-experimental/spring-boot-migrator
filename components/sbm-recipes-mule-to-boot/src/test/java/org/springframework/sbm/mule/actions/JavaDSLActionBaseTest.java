@@ -39,6 +39,8 @@ import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
+import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
+import org.springframework.sbm.project.resource.ApplicationProperties;
 
 import java.util.List;
 
@@ -46,8 +48,9 @@ import static org.mockito.Mockito.mock;
 
 public class JavaDSLActionBaseTest {
 
-
     protected JavaDSLAction2 myAction;
+    protected MuleXmlProjectResourceRegistrar registrar;
+    protected ApplicationProperties applicationProperties;
     protected final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 
     @BeforeEach
@@ -80,5 +83,9 @@ public class JavaDSLActionBaseTest {
         MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
         myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
         myAction.setEventPublisher(eventPublisher);
+
+        registrar = new MuleXmlProjectResourceRegistrar();
+        applicationProperties = new ApplicationProperties();
+        applicationProperties.setDefaultBasePackage("com.example.javadsl");
     }
 }
