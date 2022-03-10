@@ -95,27 +95,6 @@ public class MuleToJavaDSLMultipleTest extends JavaDSLActionBaseTest {
             "</mule>\n";
 
     @Test
-    public void detectsMuleXMLFiles() {
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-simple-amqp-flow.xml", muleXml)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-amqp:5.4.4",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
-                )
-                .addRegistrar(registrar)
-                .build();
-
-        List<MuleXml> muleSearch = projectContext.search(new MuleXmlProjectResourceFilter());
-
-        assertThat(projectContext.getProjectResources().list()).hasSize(2);
-    }
-
-    @Test
     public void generatesAmqpDSLStatements() {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
