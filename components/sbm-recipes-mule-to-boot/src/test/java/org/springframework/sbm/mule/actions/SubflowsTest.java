@@ -94,10 +94,6 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
 
     @Test
     public void generatedFlowShouldHaveMethodParams() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
-
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-rabbit.xml", subflowWithRabbit)
                 .addRegistrar(registrar)
@@ -143,10 +139,6 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldTranslateSubflowWithUnknownElements() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
-
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-rabbit.xml", subflowUnknown)
                 .addRegistrar(registrar)

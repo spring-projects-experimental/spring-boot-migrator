@@ -64,9 +64,6 @@ public class MuleToJavaDSLTransformerTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldGenerateJavaDSLForFlowHttpMuleTag() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-simple-http-flow.xml", muleXmlHttp)

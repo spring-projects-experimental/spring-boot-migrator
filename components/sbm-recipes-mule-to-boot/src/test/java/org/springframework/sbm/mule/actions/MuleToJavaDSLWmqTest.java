@@ -50,9 +50,6 @@ public class MuleToJavaDSLWmqTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldGenerateWmqOutboundStatements() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-set-property-flow.xml", muleXml)

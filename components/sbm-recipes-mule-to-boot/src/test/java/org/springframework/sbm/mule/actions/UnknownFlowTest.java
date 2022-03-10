@@ -38,10 +38,6 @@ public class UnknownFlowTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldTranslateUnknownFlow() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
-
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-multi-flow.xml", muleMultiFlow)
                 .addRegistrar(registrar)
