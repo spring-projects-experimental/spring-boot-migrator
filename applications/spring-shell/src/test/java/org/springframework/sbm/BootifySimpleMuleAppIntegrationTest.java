@@ -42,7 +42,6 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
 
     private static final String FIRST_QUEUE_NAME = "sbm-integration-queue-one";
     private static final String SECOND_QUEUE_NAME = "sbm-integration-queue-two";
-    private static final ConnectionFactory CONNECTION_FACTORY = new ConnectionFactory();
     private String messageContent;
     private final RestTemplate restTemplate = new RestTemplate();
 
