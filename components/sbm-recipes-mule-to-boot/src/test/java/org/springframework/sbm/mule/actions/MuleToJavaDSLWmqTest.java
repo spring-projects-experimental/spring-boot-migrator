@@ -19,11 +19,7 @@ package org.springframework.sbm.mule.actions;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.springframework.sbm.build.api.Dependency;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,22 +46,8 @@ public class MuleToJavaDSLWmqTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldGenerateWmqOutboundStatements() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-set-property-flow.xml", muleXml)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework:spring-context:5.3.1",
-                        "org.springframework:spring-beans:5.3.1",
-                        "org.springframework.integration:spring-integration-core:5.5.8",
-                        "org.springframework.boot:spring-boot-starter-integration:2.6.3"
-                )
-                .addRegistrar(registrar)
-                .build();
-        myAction.apply(projectContext);
+        addXMLFileToResource(muleXml);
+        runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(

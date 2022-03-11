@@ -17,6 +17,7 @@ package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpInboundEndpointTranslator;
@@ -39,16 +40,26 @@ import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
+import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
+import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.TestProjectContext;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.mockito.Mockito.mock;
 
 public class JavaDSLActionBaseTest {
 
-
     protected JavaDSLAction2 myAction;
+    protected MuleXmlProjectResourceRegistrar registrar;
+    protected ApplicationProperties applicationProperties;
     protected final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+
+    protected ProjectContext projectContext;
+
+    private TestProjectContext.Builder projectContextBuilder;
 
     @BeforeEach
     public void setup() {
@@ -80,5 +91,40 @@ public class JavaDSLActionBaseTest {
         MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
         myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
         myAction.setEventPublisher(eventPublisher);
+
+        registrar = new MuleXmlProjectResourceRegistrar();
+        applicationProperties = new ApplicationProperties();
+        applicationProperties.setDefaultBasePackage("com.example.javadsl");
+
+        projectContextBuilder = TestProjectContext
+                .buildProjectContext(eventPublisher)
+                .withApplicationProperties(applicationProperties)
+                .addRegistrar(registrar)
+        ;
+    }
+
+    protected void setupProjectDependencies(String... dependencies) {
+
+        if (dependencies == null || dependencies.length == 0) {
+            return;
+        }
+
+        projectContextBuilder.withBuildFileHavingDependencies(
+                dependencies
+        );
+    }
+
+    protected void addXMLFileToResource(String... xmlFile) {
+
+        IntStream.range(0, xmlFile.length)
+                .forEach(i ->
+                        projectContextBuilder.addProjectResource("src/main/resources/xml-file-"+i+".xml", xmlFile[i])
+                )
+        ;
+    }
+
+    protected void runAction() {
+        projectContext = projectContextBuilder.build();
+        myAction.apply(projectContext);
     }
 }

@@ -16,10 +16,6 @@
 package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -83,23 +79,8 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldTranslateDwlTransformation() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-transform.xml", muleXml)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-stream:5.4.4"
-                )
-                .addRegistrar(registrar)
-                .build();
-
-        myAction.apply(projectContext);
-
+        addXMLFileToResource(muleXml);
+        runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(
@@ -147,24 +128,8 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldTransformDWLWithFile() {
-
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-transform.xml", dwlXMLWithExternalFile)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-stream:5.4.4"
-                )
-                .addRegistrar(registrar)
-                .build();
-
-        myAction.apply(projectContext);
-
+        addXMLFileToResource(dwlXMLWithExternalFile);
+        runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(

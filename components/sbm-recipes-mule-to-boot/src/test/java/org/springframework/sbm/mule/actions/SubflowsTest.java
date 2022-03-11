@@ -16,8 +16,6 @@
 package org.springframework.sbm.mule.actions;
 
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
 
@@ -94,23 +92,9 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
 
     @Test
     public void generatedFlowShouldHaveMethodParams() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
 
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-rabbit.xml", subflowWithRabbit)
-                .addRegistrar(registrar)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-amqp:5.4.4",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
-                )
-                .build();
-        myAction.apply(projectContext);
+        addXMLFileToResource(subflowWithRabbit);
+        runAction();
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +
@@ -143,23 +127,9 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldTranslateSubflowWithUnknownElements() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
+        addXMLFileToResource(subflowUnknown);
+        runAction();
 
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-rabbit.xml", subflowUnknown)
-                .addRegistrar(registrar)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-amqp:5.4.4",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
-                )
-                .build();
-        myAction.apply(projectContext);
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +
@@ -187,6 +157,5 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
                         "        };\n" +
                         "    }}"
                 );
-
     }
 }

@@ -16,15 +16,10 @@
 package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.TestProjectContext;
-
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MuleToJavaDSLApikitTest extends JavaDSLActionBaseTest {
+public class MuleToJavaDSLApiKitTest extends JavaDSLActionBaseTest {
     private final static String muleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<mule xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:apikit=\"http://www.mulesoft.org/schema/mule/apikit\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns:spring=\"http://www.springframework.org/schema/beans\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
             "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
@@ -36,24 +31,13 @@ public class MuleToJavaDSLApikitTest extends JavaDSLActionBaseTest {
             "</mule>";
 
     @Test
-    public void generatesApikitDSLStatements() {
-
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-apikit-flow.xml", muleXml)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
-                )
-                .addRegistrar(registrar)
-                .build();
-        myAction.apply(projectContext);
+    public void generatesApiKitDSLStatements() {
+        addXMLFileToResource(muleXml);
+        //TODO: This requirement may be hiding a bug
+        setupProjectDependencies(
+                "org.springframework.integration:spring-integration-http:5.4.4"
+        );
+        runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(

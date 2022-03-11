@@ -15,30 +15,9 @@
  */
 package org.springframework.sbm.mule.actions;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.core.TransformerTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
-import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.TestProjectContext;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class MuleToJavaDSLTransformerTest extends JavaDSLActionBaseTest {
     private final static String muleXmlHttp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -64,23 +43,8 @@ public class MuleToJavaDSLTransformerTest extends JavaDSLActionBaseTest {
 
     @Test
     public void shouldGenerateJavaDSLForFlowHttpMuleTag() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-simple-http-flow.xml", muleXmlHttp)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework:spring-context:5.3.1",
-                        "org.springframework:spring-beans:5.3.1",
-                        "org.springframework.integration:spring-integration-core:5.5.8",
-                        "org.springframework.integration:spring-integration-http:5.5.8",
-                        "org.springframework.boot:spring-boot-starter-integration:2.6.3"
-                )
-                .addRegistrar(registrar)
-                .build();
-        myAction.apply(projectContext);
+        addXMLFileToResource(muleXmlHttp);
+        runAction();
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +
