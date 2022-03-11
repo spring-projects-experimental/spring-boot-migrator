@@ -103,17 +103,6 @@ public class JavaDSLActionBaseTest {
         ;
     }
 
-    protected void setupProjectDependencies(String... dependencies) {
-
-        if (dependencies == null || dependencies.length == 0) {
-            return;
-        }
-
-        projectContextBuilder.withBuildFileHavingDependencies(
-                dependencies
-        );
-    }
-
     protected void addXMLFileToResource(String... xmlFile) {
 
         IntStream.range(0, xmlFile.length)
