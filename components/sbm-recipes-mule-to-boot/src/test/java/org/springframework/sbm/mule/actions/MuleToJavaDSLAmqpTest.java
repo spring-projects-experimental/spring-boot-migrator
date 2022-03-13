@@ -77,7 +77,7 @@ public class MuleToJavaDSLAmqpTest extends JavaDSLActionBaseTest {
                                 "@Configuration\n" +
                                 "public class FlowConfigurations {\n" +
                                 "    @Bean\n" +
-                                "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate, org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory) {\n" +
+                                "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory, org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate) {\n" +
                                 "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"))\n" +
