@@ -44,7 +44,6 @@ import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -101,17 +100,6 @@ public class JavaDSLActionBaseTest {
                 .withApplicationProperties(applicationProperties)
                 .addRegistrar(registrar)
         ;
-    }
-
-    protected void setupProjectDependencies(String... dependencies) {
-
-        if (dependencies == null || dependencies.length == 0) {
-            return;
-        }
-
-        projectContextBuilder.withBuildFileHavingDependencies(
-                dependencies
-        );
     }
 
     protected void addXMLFileToResource(String... xmlFile) {

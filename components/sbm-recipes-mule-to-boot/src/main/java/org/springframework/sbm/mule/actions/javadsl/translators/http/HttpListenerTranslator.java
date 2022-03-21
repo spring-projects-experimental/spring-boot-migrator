@@ -35,10 +35,11 @@ import java.util.Set;
 @Slf4j
 public class HttpListenerTranslator implements MuleComponentToSpringIntegrationDslTranslator<ListenerType> {
 
-    private String javaDslHttpListenerTemplate = "return IntegrationFlows.from(Http.inboundChannelAdapter(\"${path}\")).handle((p, h) -> p)";
+    private final static String javaDslHttpListenerTemplate =
+            "return IntegrationFlows.from(Http.inboundChannelAdapter(\"${path}\")).handle((p, h) -> p)";
 
     @Override
-    public Class getSupportedMuleType() {
+    public Class<ListenerType> getSupportedMuleType() {
         return ListenerType.class;
     }
 
@@ -54,8 +55,10 @@ public class HttpListenerTranslator implements MuleComponentToSpringIntegrationD
             log.error("Path attribute of <http:listener> must not be set.");
         }
 
-        String snippet = javaDslHttpListenerTemplate.replace("${path}", path);
-        DslSnippet dslSnippet = new DslSnippet(snippet,
+        String snippet = path == null ? javaDslHttpListenerTemplate :
+                javaDslHttpListenerTemplate.replace("${path}", path);
+
+        return new DslSnippet(snippet,
                 Set.of("org.springframework.context.annotation.Bean",
                         "org.springframework.context.annotation.Configuration",
                         "org.springframework.integration.dsl.IntegrationFlow",
@@ -69,6 +72,5 @@ public class HttpListenerTranslator implements MuleComponentToSpringIntegrationD
                         "org.springframework.integration:spring-integration-http:5.4.4"
                 ),
                 Collections.emptySet());
-        return dslSnippet;
     }
 }

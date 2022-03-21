@@ -33,10 +33,6 @@ public class MuleToJavaDSLApiKitTest extends JavaDSLActionBaseTest {
     @Test
     public void generatesApiKitDSLStatements() {
         addXMLFileToResource(muleXml);
-        //TODO: This requirement may be hiding a bug
-        setupProjectDependencies(
-                "org.springframework.integration:spring-integration-http:5.4.4"
-        );
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
