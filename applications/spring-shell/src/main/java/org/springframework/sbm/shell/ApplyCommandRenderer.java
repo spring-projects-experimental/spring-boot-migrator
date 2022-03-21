@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 @Component
 public class ApplyCommandRenderer {
 
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService scheduledExecutorService;
     private final RecipeProgressRenderer recipeProgressRenderer = new RecipeProgressRenderer(new Printer());
 
     /**
@@ -94,6 +94,10 @@ public class ApplyCommandRenderer {
 
     @EventListener
     public void onActionStarted(ActionStartedEvent e) {
+        if(scheduledExecutorService != null && ! scheduledExecutorService.isTerminated()) {
+            scheduledExecutorService.shutdown();
+        }
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         scheduledExecutorService.scheduleWithFixedDelay(() -> recipeProgressRenderer.render(), initialDelay, delay, TimeUnit.MILLISECONDS);
         recipeProgressRenderer.startProcess(e.getDescription());
     }
@@ -111,6 +115,7 @@ public class ApplyCommandRenderer {
     @EventListener
     public void onActionProcessFinished(ActionProcessFinishedEvent e) {
         recipeProgressRenderer.finishProcess();
+        scheduledExecutorService.shutdownNow();
     }
 
     @EventListener
