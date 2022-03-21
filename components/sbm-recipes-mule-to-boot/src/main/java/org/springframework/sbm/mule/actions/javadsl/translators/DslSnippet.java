@@ -82,8 +82,7 @@ public class DslSnippet {
     public static String renderMethodParameters(List<DslSnippet> dslSnippets) {
         return dslSnippets.stream()
                 .flatMap(dsl -> dsl.getBeans().stream())
-                .collect(Collectors.toSet())
-                .stream()
+                .distinct()
                 .map(b -> b.getBeanClass() + " " + b.getBeanName())
                 .collect(Collectors.joining(", "));
     }

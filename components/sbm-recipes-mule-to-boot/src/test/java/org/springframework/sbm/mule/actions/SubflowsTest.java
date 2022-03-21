@@ -109,7 +109,7 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow amqp_muleFlow(org.springframework.integration.dsl.IntegrationFlow outToAMQP, org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory) {\n" +
+                        "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory, org.springframework.integration.dsl.IntegrationFlow outToAMQP) {\n" +
                         "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" +
                         "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                         "                .gateway(outToAMQP)\n" +
@@ -143,7 +143,7 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow amqp_muleFlow(org.springframework.integration.dsl.IntegrationFlow outToUnknown, org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory) {\n" +
+                        "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory, org.springframework.integration.dsl.IntegrationFlow outToUnknown) {\n" +
                         "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" +
                         "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                         "                .gateway(outToUnknown)\n" +
