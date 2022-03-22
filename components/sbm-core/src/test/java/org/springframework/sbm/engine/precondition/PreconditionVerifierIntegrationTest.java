@@ -64,6 +64,7 @@ public class PreconditionVerifierIntegrationTest {
 
         assertThat(applicationProperties.isGitSupportEnabled()).isTrue();
         assertThat(preconditionVerificationResult.getResults()).hasSize(4);
+        assertThat(preconditionVerificationResult.hasError()).isTrue();
         assertThat(preconditionVerificationResult.getResults().get(0).getState()).isEqualTo(PreconditionCheck.ResultState.FAILED);
         assertThat(preconditionVerificationResult.getResults().get(0).getMessage()).isEqualTo("SBM requires a Maven build file. Please provide a minimal pom.xml.");
         assertThat(preconditionVerificationResult.getResults().get(1).getState()).isEqualTo(PreconditionCheck.ResultState.FAILED);

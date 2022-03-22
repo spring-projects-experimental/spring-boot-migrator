@@ -52,16 +52,15 @@ public class ScanShellCommand {
 	public AttributedString scan(@ShellOption(defaultValue = ".",
 			help = "The root directory of the target application.") String projectRoot) {
 
-		AttributedStringBuilder stringBuilder = buildHeader(projectRoot);
 
 		List<Resource> resources = scanCommand.scanProjectRoot(projectRoot);
 		PreconditionVerificationResult result = scanCommand.checkPreconditions(projectRoot, resources);
-        String renderedPreconditionCheckResults = preconditionVerificationRenderer.renderPreconditionCheckResults(result);
-        stringBuilder.append(renderedPreconditionCheckResults);
+		String renderedPreconditionCheckResults = preconditionVerificationRenderer.renderPreconditionCheckResults(result);
+		AttributedStringBuilder stringBuilder = buildHeader(projectRoot).append(renderedPreconditionCheckResults);
 
 		if ( ! result.hasError()) {
-			System.out.println(stringBuilder.toAnsi());
-			stringBuilder = new AttributedStringBuilder();
+//			System.out.println(stringBuilder.toAnsi());
+//			stringBuilder = new AttributedStringBuilder();
             ProjectContext projectContext = scanCommand.execute(projectRoot);
             contextHolder.setProjectContext(projectContext);
             List<Recipe> recipes = applicableRecipeListCommand.execute(projectContext);
