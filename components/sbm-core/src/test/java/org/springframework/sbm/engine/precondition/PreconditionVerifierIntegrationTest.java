@@ -98,8 +98,6 @@ public class PreconditionVerifierIntegrationTest {
         applicationProperties.setGitSupportEnabled(true);
 
         // .git exists
-//        Path git = Files.createDirectories(projectRoot.resolve(".git"));
-//        Resource gitResource = createResource(git);
         Path gitDir = projectRoot.resolve(".git");
         File repo = gitDir.toFile();
         Git git = gitSupport.initGit(repo);

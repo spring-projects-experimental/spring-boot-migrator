@@ -16,11 +16,8 @@
 package org.springframework.sbm.shell;
 
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
-import org.jline.utils.Colors;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ScanCommand;
@@ -46,21 +43,29 @@ public class ScanShellCommand {
 
 	private final ProjectContextHolder contextHolder;
     private final PreconditionVerificationRenderer preconditionVerificationRenderer;
+	private final ScanCommandHeaderRenderer scanCommandHeaderRenderer;
+	private final ConsolePrinter consolePrinter;
 
-    @ShellMethod(key = { "scan", "s" },
+	@ShellMethod(key = { "scan", "s" },
 			value = "Scans the target project directory and get the list of applicable recipes.")
 	public AttributedString scan(@ShellOption(defaultValue = ".",
 			help = "The root directory of the target application.") String projectRoot) {
 
 
 		List<Resource> resources = scanCommand.scanProjectRoot(projectRoot);
+		String scanCommandHeader = scanCommandHeaderRenderer.renderHeader(projectRoot);
 		PreconditionVerificationResult result = scanCommand.checkPreconditions(projectRoot, resources);
 		String renderedPreconditionCheckResults = preconditionVerificationRenderer.renderPreconditionCheckResults(result);
-		AttributedStringBuilder stringBuilder = buildHeader(projectRoot).append(renderedPreconditionCheckResults);
+		AttributedStringBuilder stringBuilder = new AttributedStringBuilder();
+		String output = stringBuilder
+				.append(scanCommandHeader)
+				.append(renderedPreconditionCheckResults)
+				.toAnsi();
 
+		consolePrinter.println(output);
+
+		stringBuilder = new AttributedStringBuilder();
 		if ( ! result.hasError()) {
-//			System.out.println(stringBuilder.toAnsi());
-//			stringBuilder = new AttributedStringBuilder();
             ProjectContext projectContext = scanCommand.execute(projectRoot);
             contextHolder.setProjectContext(projectContext);
             List<Recipe> recipes = applicableRecipeListCommand.execute(projectContext);
@@ -69,15 +74,6 @@ public class ScanShellCommand {
         }
 
         return stringBuilder.toAttributedString();
-	}
-
-	@NotNull
-	private AttributedStringBuilder buildHeader(String projectRoot) {
-		AttributedStringBuilder builder = new AttributedStringBuilder();
-		builder.append("\n");
-		builder.style(AttributedStyle.DEFAULT.italicDefault().boldDefault().foreground(Colors.rgbColor("green")));
-		builder.append("scanning '" + projectRoot + "'");
-		return builder;
 	}
 
 }

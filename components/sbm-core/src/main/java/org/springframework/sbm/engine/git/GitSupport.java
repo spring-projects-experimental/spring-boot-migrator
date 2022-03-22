@@ -258,4 +258,17 @@ public class GitSupport {
                 .map(Path::toString)
                 .collect(Collectors.toList());
     }
+
+    public GitStatus getStatus(File repo) {
+        try {
+            Git git = initGit(repo);
+            Status status = null;
+            status = git.status().call();
+            GitStatus gitStatus = new GitStatus(status);
+            return gitStatus;
+        } catch (GitAPIException e) {
+            throw new RuntimeException("Could not get git status.", e);
+        }
+    }
+
 }
