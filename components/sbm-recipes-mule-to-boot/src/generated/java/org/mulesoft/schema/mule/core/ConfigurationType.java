@@ -1,16 +1,12 @@
 
 package org.mulesoft.schema.mule.core;
 
+import org.mulesoft.schema.mule.http.HttpConfigType;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlType;
-import org.mulesoft.schema.mule.http.HttpConfigType;
 
 
 /**
@@ -241,8 +237,8 @@ public class ConfigurationType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link ReconnectForeverStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReconnectSimpleStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReconnectForeverStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReconnectCustomStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractReconnectionStrategyType }{@code >}
      *     
@@ -256,8 +252,8 @@ public class ConfigurationType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link ReconnectForeverStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReconnectSimpleStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReconnectForeverStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReconnectCustomStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractReconnectionStrategyType }{@code >}
      *     

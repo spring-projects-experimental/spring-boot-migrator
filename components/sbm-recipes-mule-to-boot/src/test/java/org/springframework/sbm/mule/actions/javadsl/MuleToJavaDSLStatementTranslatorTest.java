@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class MuleToJavaDSLStatementTranslatorTest {
     private static DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-    private String muleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+    private final String muleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
             "<mule xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns=\"http://www.mulesoft.org/schema/mule/core\"\n" +
             "xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
@@ -62,7 +62,7 @@ public class MuleToJavaDSLStatementTranslatorTest {
             "</flow>\n" +
             "</mule>";
 
-    private String httpListenerXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+    private final String httpListenerXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
             "<mule xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\"\n" +
             "xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
@@ -124,7 +124,6 @@ public class MuleToJavaDSLStatementTranslatorTest {
         XPath xPath = XPathFactory.newInstance().newXPath();
         XPathExpression listenerXPath = xPath.compile(expression);
         NodeList nodeList = (NodeList) listenerXPath.evaluate(xmlDocument, XPathConstants.NODESET);
-        Node item = nodeList.item(0);
-        return item;
+        return nodeList.item(0);
     }
 }

@@ -15,6 +15,10 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.logging;
 
+import org.junit.jupiter.api.Test;
+import org.mulesoft.schema.mule.core.FlowType;
+import org.mulesoft.schema.mule.core.LoggerType;
+import org.mulesoft.schema.mule.core.MuleType;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
@@ -23,10 +27,6 @@ import org.springframework.sbm.mule.resource.MuleXml;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.Test;
-import org.mulesoft.schema.mule.core.FlowType;
-import org.mulesoft.schema.mule.core.LoggerType;
-import org.mulesoft.schema.mule.core.MuleType;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -287,7 +287,7 @@ class LoggingTranslatorTest {
         MuleType muleType = muleXmls.get(0).getMuleType();
         LoggerType loggerType = (LoggerType)  ((FlowType)((JAXBElement)muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractMessageProcessorOrAbstractOutboundEndpointOrAbstractMixedContentMessageProcessor().get(0).getValue();
 
-        DslSnippet snippet = sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()));
+        DslSnippet snippet = sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()), "");
 
         assertThat(snippet.getRenderedSnippet()).isEqualTo(
                 ".log(\"#{payload}\")"
@@ -310,6 +310,6 @@ class LoggingTranslatorTest {
 
         MuleType muleType = muleXmls.get(0).getMuleType();
         LoggerType loggerType = (LoggerType)  ((FlowType)((JAXBElement)muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractMessageProcessorOrAbstractOutboundEndpointOrAbstractMixedContentMessageProcessor().get(0).getValue();
-        return sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()));
+        return sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()), "");
     }
 }

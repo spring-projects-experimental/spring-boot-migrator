@@ -15,34 +15,11 @@
  */
 package org.springframework.sbm.mule.actions;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigTypeAdapter;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpInboundEndpointTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpOutboundEndpointTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.core.FlowRefTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.*;
-import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class SubflowsTest {
+public class SubflowsTest extends JavaDSLActionBaseTest {
 
     private static final String subflowWithRabbit = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
@@ -110,54 +87,14 @@ public class SubflowsTest {
             "    </sub-flow>\n" +
             "</mule>\n";
 
-    private JavaDSLAction2 myAction2;
-    private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-
-
-    @BeforeEach
-    public void setup() {
-        List<MuleComponentToSpringIntegrationDslTranslator> translators =
-                List.of(
-                        new HttpListenerTranslator(),
-                        new LoggingTranslator(new ExpressionLanguageTranslator()),
-                        new FlowRefTranslator(),
-                        new AmqpOutboundEndpointTranslator(),
-                        new AmqpInboundEndpointTranslator()
-                );
-        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
-                new FlowTopLevelElementFactory(translators),
-                new SubflowTopLevelElementFactory(translators)
-        );
-
-        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
-        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
-        myAction2 = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
-        myAction2.setEventPublisher(eventPublisher);
-    }
-
     @Test
     public void generatedFlowShouldHaveMethodParams() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
 
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-rabbit.xml", subflowWithRabbit)
-                .addRegistrar(registrar)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-amqp:5.4.4",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
-                )
-                .build();
-        myAction2.apply(projectContext);
+        addXMLFileToResource(subflowWithRabbit);
+        runAction();
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +
-                        "import org.springframework.amqp.rabbit.connection.ConnectionFactory;\n" +
                         "import org.springframework.amqp.rabbit.core.RabbitTemplate;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
@@ -187,27 +124,12 @@ public class SubflowsTest {
 
     @Test
     public void shouldTranslateSubflowWithUnknownElements() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
+        addXMLFileToResource(subflowUnknown);
+        runAction();
 
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-rabbit.xml", subflowUnknown)
-                .addRegistrar(registrar)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-amqp:5.4.4",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
-                )
-                .build();
-        myAction2.apply(projectContext);
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +
-                        "import org.springframework.amqp.rabbit.connection.ConnectionFactory;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
                         "import org.springframework.integration.amqp.dsl.Amqp;\n" +
@@ -228,10 +150,9 @@ public class SubflowsTest {
                         "    @Bean\n" +
                         "    IntegrationFlow outToUnknown() {\n" +
                         "        return flow -> {\n" +
-                        "            // FIXME: Conversion is not supported for Mule type: org.mulesoft.schema.mule.core.SetVariableType\n" +
+                        "            //FIXME: element is not supported for conversion: <set-variable/>\n" +
                         "        };\n" +
                         "    }}"
                 );
-
     }
 }

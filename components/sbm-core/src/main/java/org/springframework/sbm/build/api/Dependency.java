@@ -95,13 +95,17 @@ public class Dependency {
     public static Dependency fromCoordinates(String coordinate) {
         String[] splitCoordinates = coordinate.split(":");
 
-        if (splitCoordinates.length != 3) {
-            return null;
+        if (splitCoordinates.length == 2) {
+            return Dependency.builder()
+                    .groupId(splitCoordinates[0])
+                    .artifactId(splitCoordinates[1]).build();
+        } else if (splitCoordinates.length == 3) {
+            return Dependency.builder()
+                    .groupId(splitCoordinates[0])
+                    .artifactId(splitCoordinates[1])
+                    .version(splitCoordinates[2]).build();
+        } else {
+            throw new IllegalArgumentException("Expected dependency in format groupid:artifactid[:version], but it is: " + coordinate);
         }
-        return Dependency.builder()
-                .groupId(splitCoordinates[0])
-                .artifactId(splitCoordinates[1])
-                .version(splitCoordinates[2]).build();
-
     }
 }

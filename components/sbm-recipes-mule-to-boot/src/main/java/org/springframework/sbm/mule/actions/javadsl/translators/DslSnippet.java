@@ -19,11 +19,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Keeps all information for a snippet of Spring Integration DSL.
- *
  */
 
 @Getter
@@ -39,7 +40,7 @@ public class DslSnippet {
 
     /**
      * Dependencies required to be added to the classpath
-     *
+     * <p>
      * the dependencies mst be provided as Maven coordinates
      */
     private final Set<String> requiredDependencies;
@@ -48,15 +49,40 @@ public class DslSnippet {
 
     private final boolean isUnknownStatement;
 
+    private final String externalClassContent;
+
     public DslSnippet(String renderedSnippet,
                       Set<String> requiredImports) {
-        this(renderedSnippet, requiredImports, Collections.emptySet(), Collections.emptySet(), false);
+        this(renderedSnippet, requiredImports, Collections.emptySet(), Collections.emptySet(), false, "");
     }
 
     public DslSnippet(String renderedSnippet,
                       Set<String> requiredImports,
                       Set<String> requiredDependencies,
                       Set<Bean> beans) {
-        this(renderedSnippet, requiredImports, requiredDependencies, beans, false);
+        this(renderedSnippet, requiredImports, requiredDependencies, beans, false, "");
+    }
+
+    public DslSnippet(String renderedSnippet,
+                      Set<String> requiredImports,
+                      Set<String> requiredDependencies,
+                      Set<Bean> beans,
+                      boolean isUnknownStatement) {
+        this(renderedSnippet, requiredImports, requiredDependencies, beans, isUnknownStatement, "");
+    }
+
+    public DslSnippet(String renderedSnippet,
+                      Set<String> requiredImports,
+                      Set<String> requiredDependencies,
+                      String externalClassContent) {
+        this(renderedSnippet, requiredImports, requiredDependencies, Collections.emptySet(), false, externalClassContent);
+    }
+
+    public static String renderMethodParameters(List<DslSnippet> dslSnippets) {
+        return dslSnippets.stream()
+                .flatMap(dsl -> dsl.getBeans().stream())
+                .distinct()
+                .map(b -> b.getBeanClass() + " " + b.getBeanName())
+                .collect(Collectors.joining(", "));
     }
 }

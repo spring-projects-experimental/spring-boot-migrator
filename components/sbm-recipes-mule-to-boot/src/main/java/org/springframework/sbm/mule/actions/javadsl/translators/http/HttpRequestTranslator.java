@@ -15,23 +15,26 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
-import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
-import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
-import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.mulesoft.schema.mule.http.RequestConfigType;
 import org.mulesoft.schema.mule.http.RequestType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
+import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
+import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Translator for {@code <http:request> } elements.spring integration
@@ -52,7 +55,10 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
     }
 
     @Override
-    public DslSnippet translate(RequestType component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(RequestType component,
+                                QName name,
+                                MuleConfigurations muleConfigurations,
+                                String flowName) {
 
 
         String templateStr = "return IntegrationFlows\n" +

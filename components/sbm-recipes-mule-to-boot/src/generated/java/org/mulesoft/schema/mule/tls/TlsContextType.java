@@ -1,16 +1,12 @@
 
 package org.mulesoft.schema.mule.tls;
 
+import org.mulesoft.schema.mule.core.AbstractExtensionType;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementRefs;
-import javax.xml.bind.annotation.XmlType;
-import org.mulesoft.schema.mule.core.AbstractExtensionType;
 
 
 /**
@@ -77,8 +73,8 @@ public class TlsContextType
      * <p>
      * You are getting this "catch-all" property because of the following reason: 
      * The field name "TrustStore" is used by two different parts of a schema. See: 
-     * line 166 of file:/Users/sanagaraj/workspace/spring-boot-migrator/components/sbm-recipes-mule-to-boot/src/main/xsd/mule/mule-tls.xsd
-     * line 162 of file:/Users/sanagaraj/workspace/spring-boot-migrator/components/sbm-recipes-mule-to-boot/src/main/xsd/mule/mule-tls.xsd
+     * line 166 of file:/Users/ashakirin/DevResources/SpringBootMigrator/spring-boot-migrator-sa/components/sbm-recipes-mule-to-boot/src/main/xsd/mule/mule-tls.xsd
+     * line 162 of file:/Users/ashakirin/DevResources/SpringBootMigrator/spring-boot-migrator-sa/components/sbm-recipes-mule-to-boot/src/main/xsd/mule/mule-tls.xsd
      * <p>
      * To get rid of this property, apply a property customization to one 
      * of both of the following declarations to change their names: 

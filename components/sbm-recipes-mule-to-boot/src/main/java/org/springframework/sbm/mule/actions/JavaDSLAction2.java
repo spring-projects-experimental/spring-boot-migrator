@@ -16,6 +16,7 @@
 package org.springframework.sbm.mule.actions;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.boot.properties.actions.AddSpringBootApplicationPropertiesAction;
@@ -29,7 +30,8 @@ import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.java.api.Type;
-import org.springframework.sbm.mule.api.*;
+import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElement;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.UnknownTopLevelElement;
@@ -38,9 +40,10 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.bind.JAXBElement;
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -71,7 +74,7 @@ public class JavaDSLAction2 extends AbstractAction {
         createJavaResource(context, muleMigrationContext.getMuleConfigurations().getConfigurations());
 
         startProcess("Converting Mulesoft files");
-        handleTopLevelElements(buildFile, muleMigrationContext, flowConfigurationSource);
+        handleTopLevelElements(buildFile, muleMigrationContext, flowConfigurationSource, context);
         endProcess();
 
         // TODO: Spring Beans need to be retrieved as well
@@ -83,7 +86,7 @@ public class JavaDSLAction2 extends AbstractAction {
 //          </spring:beans>
     }
 
-    private void handleTopLevelElements(BuildFile buildFile, MuleMigrationContext muleMigrationContext, JavaSourceAndType flowConfigurationSource) {
+    private void handleTopLevelElements(BuildFile buildFile, MuleMigrationContext muleMigrationContext, JavaSourceAndType flowConfigurationSource, ProjectContext context) {
         List<TopLevelElement> topLevelElements = new ArrayList<>();
         for(JAXBElement tle : muleMigrationContext.getTopLevelElements()) {
             if (MuleConfigurationsExtractor.isConfigType(tle)) {
@@ -96,17 +99,27 @@ public class JavaDSLAction2 extends AbstractAction {
                 topLevelElements.add(new UnknownTopLevelElement(tle));
             }
         }
-        List<Dependency> listOfDependencies = topLevelElements.stream()
+        Set<Dependency> dependencies = topLevelElements.stream()
                 .map(this::buildDependencies)
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
-        logEvent("Adding " + listOfDependencies.size() + " dependencies");
-        buildFile.addDependencies(listOfDependencies);
+                .collect(Collectors.toSet());
+        startProcess("Adding " + dependencies.size() + " dependencies");
+        buildFile.addDependencies(new ArrayList<>(dependencies));
+        endProcess();
 
         logEvent("Adding " + topLevelElements.size() + " methods");
         topLevelElements.forEach(topLevelElement -> {
             flowConfigurationSource.getType().addMethod(topLevelElement.renderDslSnippet(), topLevelElement.getRequiredImports());
+            createExternalClasses(context, topLevelElement);
         });
+    }
+
+    private void createExternalClasses(ProjectContext context, TopLevelElement topLevelElement) {
+        topLevelElement.getExternalClassContents().stream()
+                .filter(Predicate.not(StringUtils::isEmpty))
+                .forEach(ecc -> {
+                    createClass(context, ecc);
+                });
     }
 
     private List<Dependency> buildDependencies(TopLevelElement snippet) {
@@ -140,6 +153,13 @@ public class JavaDSLAction2 extends AbstractAction {
                         "@Configuration\n" +
                         "public class "+className+" {}";
         JavaSource javaSource = mainJavaSourceSet.addJavaSource(projectContext.getProjectRootDirectory(), source, packageName);
+        return new JavaSourceAndType(javaSource, javaSource.getTypes().get(0));
+    }
+
+    private JavaSourceAndType createClass(ProjectContext projectContext, String content) {
+        JavaSourceSet mainJavaSourceSet = projectContext.getApplicationModules().getTopmostApplicationModules().get(0).getMainJavaSourceSet();
+        String packageName = mainJavaSourceSet.getJavaSourceLocation().getPackageName();
+        JavaSource javaSource = mainJavaSourceSet.addJavaSource(projectContext.getProjectRootDirectory(), content, packageName);
         return new JavaSourceAndType(javaSource, javaSource.getTypes().get(0));
     }
 

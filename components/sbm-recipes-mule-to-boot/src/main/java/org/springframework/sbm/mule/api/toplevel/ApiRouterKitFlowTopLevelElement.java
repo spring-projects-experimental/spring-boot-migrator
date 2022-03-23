@@ -68,6 +68,13 @@ public class ApiRouterKitFlowTopLevelElement extends AbstractTopLevelElement {
         return requiredImports;
     }
 
+    @Override
+    public Set<String> getRequiredDependencies() {
+        Set<String> requiredDependencies = super.getRequiredDependencies();
+        requiredDependencies.add("org.springframework.integration:spring-integration-http:5.4.4");
+        return requiredDependencies;
+    }
+
     public static boolean isApiRouterKitName(String name) {
         return name.matches(apiRoutingKitNamingPattern);
     }

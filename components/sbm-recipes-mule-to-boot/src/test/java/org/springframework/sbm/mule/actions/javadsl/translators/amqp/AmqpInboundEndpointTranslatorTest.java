@@ -15,6 +15,10 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 
+import org.junit.jupiter.api.Test;
+import org.mulesoft.schema.mule.amqp.InboundEndpointType;
+import org.mulesoft.schema.mule.core.FlowType;
+import org.mulesoft.schema.mule.core.MuleType;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
@@ -23,10 +27,6 @@ import org.springframework.sbm.mule.resource.MuleXml;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.Test;
-import org.mulesoft.schema.mule.amqp.InboundEndpointType;
-import org.mulesoft.schema.mule.core.FlowType;
-import org.mulesoft.schema.mule.core.MuleType;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -81,7 +81,7 @@ class AmqpInboundEndpointTranslatorTest {
         DslSnippet snippet = apply(projectContext);
         assertThat(snippet.getBeans()).isNotNull();
         assertThat(snippet.getBeans()).contains(new Bean("connectionFactory", "org.springframework.amqp.rabbit.connection.ConnectionFactory"));
-        assertThat(snippet.getRequiredImports()).contains("org.springframework.amqp.rabbit.connection.ConnectionFactory");
+        assertThat(snippet.getRequiredImports()).contains("org.springframework.integration.amqp.dsl.Amqp");
         assertThat(snippet.getRenderedSnippet()).isEqualTo("return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))");
     }
 
@@ -93,6 +93,6 @@ class AmqpInboundEndpointTranslatorTest {
         MuleType muleType = muleXmls.get(0).getMuleType();
         InboundEndpointType inboundEndpointType = (InboundEndpointType) ((FlowType) ((JAXBElement) muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractInboundEndpoint().getValue();
 
-        return sut.translate(inboundEndpointType, new QName(""), new MuleConfigurations(new HashMap<>()));
+        return sut.translate(inboundEndpointType, new QName(""), new MuleConfigurations(new HashMap<>()), "");
     }
 }

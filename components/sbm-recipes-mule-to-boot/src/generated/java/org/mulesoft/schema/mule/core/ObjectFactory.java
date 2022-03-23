@@ -24,12 +24,7 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
-    private final static QName _AbstractConnector_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-connector");
-    private final static QName _AbstractInboundEndpoint_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-inbound-endpoint");
-    private final static QName _AbstractOutboundEndpoint_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-outbound-endpoint");
-    private final static QName _AbstractGlobalEndpoint_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-global-endpoint");
     private final static QName _AbstractMessageProcessor_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-message-processor");
-    private final static QName _AbstractTransformer_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-transformer");
     private final static QName _Mule_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "mule");
     private final static QName _GlobalProperty_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "global-property");
     private final static QName _Configuration_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "configuration");
@@ -40,6 +35,7 @@ public class ObjectFactory {
     private final static QName _ExpressionComponent_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "expression-component");
     private final static QName _AbstractMixedContentMessageProcessor_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-mixed-content-message-processor");
     private final static QName _AbstractSharedConnector_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-shared-connector");
+    private final static QName _AbstractConnector_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-connector");
     private final static QName _AbstractAgent_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-agent");
     private final static QName _CustomAgent_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "custom-agent");
     private final static QName _AbstractQueueStore_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-queue-store");
@@ -49,6 +45,9 @@ public class ObjectFactory {
     private final static QName _DefaultPersistentQueueStore_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "default-persistent-queue-store");
     private final static QName _SimpleInMemoryQueueStore_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "simple-in-memory-queue-store");
     private final static QName _FileQueueStore_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "file-queue-store");
+    private final static QName _AbstractGlobalEndpoint_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-global-endpoint");
+    private final static QName _AbstractInboundEndpoint_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-inbound-endpoint");
+    private final static QName _AbstractOutboundEndpoint_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-outbound-endpoint");
     private final static QName _AbstractObserverMessageProcessor_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-observer-message-processor");
     private final static QName _Processor_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "processor");
     private final static QName _CustomProcessor_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "custom-processor");
@@ -66,6 +65,7 @@ public class ObjectFactory {
     private final static QName _AbstractMessageSource_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-message-source");
     private final static QName _CustomSource_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "custom-source");
     private final static QName _CompositeSource_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "composite-source");
+    private final static QName _AbstractTransformer_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-transformer");
     private final static QName _AbstractCatchAllStrategy_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-catch-all-strategy");
     private final static QName _AbstractInboundRouter_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-inbound-router");
     private final static QName _AbstractFilter_QNAME = new QName("http://www.mulesoft.org/schema/mule/core", "abstract-filter");
@@ -364,59 +364,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link AbstractConnectorType }
-     * 
-     */
-    public AbstractConnectorType createAbstractConnectorType() {
-        return new AbstractConnectorType();
-    }
-
-    /**
-     * Create an instance of {@link AbstractInboundEndpointType }
-     * 
-     */
-    public AbstractInboundEndpointType createAbstractInboundEndpointType() {
-        return new AbstractInboundEndpointType();
-    }
-
-    /**
-     * Create an instance of {@link AbstractOutboundEndpointType }
-     * 
-     */
-    public AbstractOutboundEndpointType createAbstractOutboundEndpointType() {
-        return new AbstractOutboundEndpointType();
-    }
-
-    /**
-     * Create an instance of {@link AbstractGlobalEndpointType }
-     * 
-     */
-    public AbstractGlobalEndpointType createAbstractGlobalEndpointType() {
-        return new AbstractGlobalEndpointType();
-    }
-
-    /**
      * Create an instance of {@link AbstractMessageProcessorType }
      * 
      */
     public AbstractMessageProcessorType createAbstractMessageProcessorType() {
         return new AbstractMessageProcessorType();
-    }
-
-    /**
-     * Create an instance of {@link AbstractTransformerType }
-     * 
-     */
-    public AbstractTransformerType createAbstractTransformerType() {
-        return new AbstractTransformerType();
-    }
-
-    /**
-     * Create an instance of {@link CommonTransformerType }
-     * 
-     */
-    public CommonTransformerType createCommonTransformerType() {
-        return new CommonTransformerType();
     }
 
     /**
@@ -468,6 +420,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link AbstractConnectorType }
+     * 
+     */
+    public AbstractConnectorType createAbstractConnectorType() {
+        return new AbstractConnectorType();
+    }
+
+    /**
      * Create an instance of {@link AbstractAgentType }
      * 
      */
@@ -505,6 +465,30 @@ public class ObjectFactory {
      */
     public DefaultQueueStoreType createDefaultQueueStoreType() {
         return new DefaultQueueStoreType();
+    }
+
+    /**
+     * Create an instance of {@link AbstractGlobalEndpointType }
+     * 
+     */
+    public AbstractGlobalEndpointType createAbstractGlobalEndpointType() {
+        return new AbstractGlobalEndpointType();
+    }
+
+    /**
+     * Create an instance of {@link AbstractInboundEndpointType }
+     * 
+     */
+    public AbstractInboundEndpointType createAbstractInboundEndpointType() {
+        return new AbstractInboundEndpointType();
+    }
+
+    /**
+     * Create an instance of {@link AbstractOutboundEndpointType }
+     * 
+     */
+    public AbstractOutboundEndpointType createAbstractOutboundEndpointType() {
+        return new AbstractOutboundEndpointType();
     }
 
     /**
@@ -641,6 +625,14 @@ public class ObjectFactory {
      */
     public CompositeMessageSourceType createCompositeMessageSourceType() {
         return new CompositeMessageSourceType();
+    }
+
+    /**
+     * Create an instance of {@link CommonTransformerType }
+     * 
+     */
+    public CommonTransformerType createCommonTransformerType() {
+        return new CommonTransformerType();
     }
 
     /**
@@ -1273,6 +1265,14 @@ public class ObjectFactory {
      */
     public RefTransformerType createRefTransformerType() {
         return new RefTransformerType();
+    }
+
+    /**
+     * Create an instance of {@link AbstractTransformerType }
+     * 
+     */
+    public AbstractTransformerType createAbstractTransformerType() {
+        return new AbstractTransformerType();
     }
 
     /**
@@ -2652,58 +2652,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link AbstractConnectorType }{@code >}
-     * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link AbstractConnectorType }{@code >}
-     */
-    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "abstract-connector")
-    public JAXBElement<AbstractConnectorType> createAbstractConnector(AbstractConnectorType value) {
-        return new JAXBElement<AbstractConnectorType>(_AbstractConnector_QNAME, AbstractConnectorType.class, null, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link AbstractInboundEndpointType }{@code >}
-     * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link AbstractInboundEndpointType }{@code >}
-     */
-    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "abstract-inbound-endpoint")
-    public JAXBElement<AbstractInboundEndpointType> createAbstractInboundEndpoint(AbstractInboundEndpointType value) {
-        return new JAXBElement<AbstractInboundEndpointType>(_AbstractInboundEndpoint_QNAME, AbstractInboundEndpointType.class, null, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link AbstractOutboundEndpointType }{@code >}
-     * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link AbstractOutboundEndpointType }{@code >}
-     */
-    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "abstract-outbound-endpoint")
-    public JAXBElement<AbstractOutboundEndpointType> createAbstractOutboundEndpoint(AbstractOutboundEndpointType value) {
-        return new JAXBElement<AbstractOutboundEndpointType>(_AbstractOutboundEndpoint_QNAME, AbstractOutboundEndpointType.class, null, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link AbstractGlobalEndpointType }{@code >}
-     * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link AbstractGlobalEndpointType }{@code >}
-     */
-    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "abstract-global-endpoint")
-    public JAXBElement<AbstractGlobalEndpointType> createAbstractGlobalEndpoint(AbstractGlobalEndpointType value) {
-        return new JAXBElement<AbstractGlobalEndpointType>(_AbstractGlobalEndpoint_QNAME, AbstractGlobalEndpointType.class, null, value);
-    }
-
-    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link AbstractMessageProcessorType }{@code >}
      * 
      * @param value
@@ -2714,19 +2662,6 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "abstract-message-processor")
     public JAXBElement<AbstractMessageProcessorType> createAbstractMessageProcessor(AbstractMessageProcessorType value) {
         return new JAXBElement<AbstractMessageProcessorType>(_AbstractMessageProcessor_QNAME, AbstractMessageProcessorType.class, null, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link CommonTransformerType }{@code >}
-     * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link CommonTransformerType }{@code >}
-     */
-    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "abstract-transformer", substitutionHeadNamespace = "http://www.mulesoft.org/schema/mule/core", substitutionHeadName = "abstract-message-processor")
-    public JAXBElement<CommonTransformerType> createAbstractTransformer(CommonTransformerType value) {
-        return new JAXBElement<CommonTransformerType>(_AbstractTransformer_QNAME, CommonTransformerType.class, null, value);
     }
 
     /**
@@ -2860,6 +2795,19 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link AbstractConnectorType }{@code >}
+     * 
+     * @param value
+     *     Java instance representing xml element's value.
+     * @return
+     *     the new instance of {@link JAXBElement }{@code <}{@link AbstractConnectorType }{@code >}
+     */
+    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "abstract-connector")
+    public JAXBElement<AbstractConnectorType> createAbstractConnector(AbstractConnectorType value) {
+        return new JAXBElement<AbstractConnectorType>(_AbstractConnector_QNAME, AbstractConnectorType.class, null, value);
+    }
+
+    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link AbstractAgentType }{@code >}
      * 
      * @param value
@@ -2974,6 +2922,45 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "file-queue-store", substitutionHeadNamespace = "http://www.mulesoft.org/schema/mule/core", substitutionHeadName = "abstract-queue-store")
     public JAXBElement<DefaultQueueStoreType> createFileQueueStore(DefaultQueueStoreType value) {
         return new JAXBElement<DefaultQueueStoreType>(_FileQueueStore_QNAME, DefaultQueueStoreType.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link AbstractGlobalEndpointType }{@code >}
+     * 
+     * @param value
+     *     Java instance representing xml element's value.
+     * @return
+     *     the new instance of {@link JAXBElement }{@code <}{@link AbstractGlobalEndpointType }{@code >}
+     */
+    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "abstract-global-endpoint")
+    public JAXBElement<AbstractGlobalEndpointType> createAbstractGlobalEndpoint(AbstractGlobalEndpointType value) {
+        return new JAXBElement<AbstractGlobalEndpointType>(_AbstractGlobalEndpoint_QNAME, AbstractGlobalEndpointType.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link AbstractInboundEndpointType }{@code >}
+     * 
+     * @param value
+     *     Java instance representing xml element's value.
+     * @return
+     *     the new instance of {@link JAXBElement }{@code <}{@link AbstractInboundEndpointType }{@code >}
+     */
+    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "abstract-inbound-endpoint")
+    public JAXBElement<AbstractInboundEndpointType> createAbstractInboundEndpoint(AbstractInboundEndpointType value) {
+        return new JAXBElement<AbstractInboundEndpointType>(_AbstractInboundEndpoint_QNAME, AbstractInboundEndpointType.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link AbstractOutboundEndpointType }{@code >}
+     * 
+     * @param value
+     *     Java instance representing xml element's value.
+     * @return
+     *     the new instance of {@link JAXBElement }{@code <}{@link AbstractOutboundEndpointType }{@code >}
+     */
+    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "abstract-outbound-endpoint")
+    public JAXBElement<AbstractOutboundEndpointType> createAbstractOutboundEndpoint(AbstractOutboundEndpointType value) {
+        return new JAXBElement<AbstractOutboundEndpointType>(_AbstractOutboundEndpoint_QNAME, AbstractOutboundEndpointType.class, null, value);
     }
 
     /**
@@ -3195,6 +3182,19 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "composite-source", substitutionHeadNamespace = "http://www.mulesoft.org/schema/mule/core", substitutionHeadName = "abstract-message-source")
     public JAXBElement<CompositeMessageSourceType> createCompositeSource(CompositeMessageSourceType value) {
         return new JAXBElement<CompositeMessageSourceType>(_CompositeSource_QNAME, CompositeMessageSourceType.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link CommonTransformerType }{@code >}
+     * 
+     * @param value
+     *     Java instance representing xml element's value.
+     * @return
+     *     the new instance of {@link JAXBElement }{@code <}{@link CommonTransformerType }{@code >}
+     */
+    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "abstract-transformer", substitutionHeadNamespace = "http://www.mulesoft.org/schema/mule/core", substitutionHeadName = "abstract-message-processor")
+    public JAXBElement<CommonTransformerType> createAbstractTransformer(CommonTransformerType value) {
+        return new JAXBElement<CommonTransformerType>(_AbstractTransformer_QNAME, CommonTransformerType.class, null, value);
     }
 
     /**

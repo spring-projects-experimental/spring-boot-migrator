@@ -21,22 +21,22 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
 public class MuleXmlUnmarshaller {
     public MuleType unmarshal(String xml) {
         try {
-            XMLStreamReader xsr = XMLInputFactory.newFactory().createXMLStreamReader(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
-//            PersistenceXmlUnmarshaller.XMLReaderWithoutNamespace xr = new PersistenceXmlUnmarshaller.XMLReaderWithoutNamespace(xsr);
-            JAXBContext jaxbContext = JAXBContext.newInstance(MuleType.class);
+            JAXBContext jaxbContext = JAXBContext.newInstance(
+                    org.mulesoft.schema.mule.core.ObjectFactory.class,
+                    org.mulesoft.schema.mule.amqp.ObjectFactory.class,
+                    org.mulesoft.schema.mule.http.ObjectFactory.class,
+                    org.mulesoft.schema.mule.ee.wmq.ObjectFactory.class,
+                    org.mulesoft.schema.mule.ee.dw.ObjectFactory.class);
             Unmarshaller jc = jaxbContext.createUnmarshaller();
             JAXBElement<MuleType> unmarshal = (JAXBElement<MuleType>) jc.unmarshal(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
             return unmarshal.getValue();
-        } catch (JAXBException | XMLStreamException e) {
+        } catch (JAXBException e) {
             throw new RuntimeException(e);
         }
     }

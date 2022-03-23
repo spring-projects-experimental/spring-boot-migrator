@@ -15,17 +15,20 @@
  */
 package org.springframework.sbm.mule.api.toplevel;
 
-import org.springframework.sbm.java.util.Helper;
-import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.sbm.java.util.Helper;
+import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.UnknownStatementTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -59,13 +62,13 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
 
     public List<DslSnippet> buildDslSnippets() {
         return elements.stream()
-                .map(o -> translate(o.getValue(), o.getName(), muleConfigurations))
+                .map(o -> translate(o.getValue(), o.getName(), muleConfigurations, flowName))
                 .collect(Collectors.toList());
     }
 
-    private DslSnippet translate(Object o, QName name, MuleConfigurations muleConfigurations) {
+    private DslSnippet translate(Object o, QName name, MuleConfigurations muleConfigurations, String flowName) {
         MuleComponentToSpringIntegrationDslTranslator translator = translatorsMap.getOrDefault(o.getClass(), new UnknownStatementTranslator());
-        return translator.translate(o, name, muleConfigurations);
+        return translator.translate(o, name, muleConfigurations, flowName);
     }
 
 
@@ -94,7 +97,7 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
         StringBuilder sb = new StringBuilder();
         sb.append("@Bean\n");
         String methodName = Helper.sanitizeForBeanMethodName(getFlowName());
-        String methodParams = composeMethodParametersBeans(dslSnippets);
+        String methodParams = DslSnippet.renderMethodParameters(dslSnippets);
         sb.append("IntegrationFlow ").append(methodName).append("(").append(methodParams).append(") {\n");
         sb.append(composePrefixDslCode());
         String dsl = getDslSnippets().stream().map(DslSnippet::getRenderedSnippet).collect(Collectors.joining("\n"));
@@ -111,18 +114,18 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
         return sb.toString();
     }
 
+    @Override
+    public Set<String> getExternalClassContents() {
+        return dslSnippets.stream()
+                .map(DslSnippet::getExternalClassContent)
+                .collect(Collectors.toSet());
+    }
+
     protected String composePrefixDslCode() {
         return "";
     }
 
     protected String composeSuffixDslCode() {
         return "";
-    }
-
-    private String composeMethodParametersBeans(List<DslSnippet> dslSnippets) {
-        return dslSnippets.stream()
-                .flatMap(dsl -> dsl.getBeans().stream())
-                .map(b -> b.getBeanClass() + " " + Helper.sanitizeForBeanMethodName(b.getBeanName()))
-                .collect(Collectors.joining(", "));
     }
 }

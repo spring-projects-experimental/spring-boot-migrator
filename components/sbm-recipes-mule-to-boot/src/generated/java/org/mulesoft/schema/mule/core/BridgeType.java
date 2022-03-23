@@ -1,17 +1,12 @@
 
 package org.mulesoft.schema.mule.core;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -91,13 +86,13 @@ public class BridgeType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractInboundEndpointType }{@code >}
      *     
      */
@@ -110,13 +105,13 @@ public class BridgeType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractInboundEndpointType }{@code >}
      *     
      */
@@ -131,13 +126,13 @@ public class BridgeType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractOutboundEndpointType }{@code >}
      *     
      */
@@ -150,13 +145,13 @@ public class BridgeType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractOutboundEndpointType }{@code >}
      *     
      */
@@ -169,11 +164,11 @@ public class BridgeType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
@@ -189,11 +184,11 @@ public class BridgeType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}

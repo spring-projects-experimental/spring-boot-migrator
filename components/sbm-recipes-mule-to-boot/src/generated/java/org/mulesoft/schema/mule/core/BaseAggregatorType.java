@@ -2,12 +2,7 @@
 package org.mulesoft.schema.mule.core;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 
 /**
@@ -67,8 +62,8 @@ public class BaseAggregatorType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     
@@ -82,8 +77,8 @@ public class BaseAggregatorType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     

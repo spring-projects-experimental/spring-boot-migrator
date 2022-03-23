@@ -1,14 +1,16 @@
 
 package org.mulesoft.schema.mule.core;
 
+import org.mulesoft.schema.mule.amqp.BasicAckType;
+import org.mulesoft.schema.mule.amqp.BasicRejectType;
+import org.mulesoft.schema.mule.amqp.ReturnHandlerType;
+import org.mulesoft.schema.mule.ee.dw.TransformMessageType;
+import org.mulesoft.schema.mule.http.RequestType;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
-import org.mulesoft.schema.mule.amqp.BasicAckType;
-import org.mulesoft.schema.mule.amqp.BasicRejectType;
-import org.mulesoft.schema.mule.amqp.ReturnHandlerType;
-import org.mulesoft.schema.mule.http.RequestType;
 
 
 /**
@@ -31,9 +33,7 @@ import org.mulesoft.schema.mule.http.RequestType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "abstractMessageProcessorType")
 @XmlSeeAlso({
-    BasicAckType.class,
-    BasicRejectType.class,
-    ReturnHandlerType.class,
+    TransformMessageType.class,
     RefMessageProcessorType.class,
     CustomMessageProcessorType.class,
     MessageProcessorChainType.class,
@@ -48,6 +48,9 @@ import org.mulesoft.schema.mule.http.RequestType;
     SetPayloadTransformerType.class,
     CommonTransformerType.class,
     AbstractRoutingMessageProcessorType.class,
+    BasicAckType.class,
+    BasicRejectType.class,
+    ReturnHandlerType.class,
     AbstractEmptyMessageProcessorType.class,
     RequestType.class,
     AbstractComponentType.class,

@@ -15,6 +15,10 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 
+import org.junit.jupiter.api.Test;
+import org.mulesoft.schema.mule.amqp.OutboundEndpointType;
+import org.mulesoft.schema.mule.core.FlowType;
+import org.mulesoft.schema.mule.core.MuleType;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
@@ -23,10 +27,6 @@ import org.springframework.sbm.mule.resource.MuleXml;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.Test;
-import org.mulesoft.schema.mule.amqp.OutboundEndpointType;
-import org.mulesoft.schema.mule.core.FlowType;
-import org.mulesoft.schema.mule.core.MuleType;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -133,12 +133,11 @@ public class AmqpOutboundEndpointTranslatorTest {
 
     private DslSnippet apply(OutboundEndpointType outboundEndpointType) {
         AmqpOutboundEndpointTranslator sut = new AmqpOutboundEndpointTranslator();
-        return sut.translate(outboundEndpointType, new QName(""), new MuleConfigurations(new HashMap<>()));
+        return sut.translate(outboundEndpointType, new QName(""), new MuleConfigurations(new HashMap<>()), "");
     }
 
     private OutboundEndpointType getOutboundEndpointType(FlowType flowType) {
         List<JAXBElement<?>> processor = flowType.getAbstractMessageProcessorOrAbstractOutboundEndpointOrAbstractMixedContentMessageProcessor();
-        OutboundEndpointType outboundEndpointType = (OutboundEndpointType) processor.get(1).getValue();
-        return outboundEndpointType;
+        return (OutboundEndpointType) processor.get(1).getValue();
     }
 }

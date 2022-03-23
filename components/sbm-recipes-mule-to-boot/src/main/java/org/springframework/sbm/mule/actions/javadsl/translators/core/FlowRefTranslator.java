@@ -15,13 +15,13 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.core;
 
+import lombok.extern.slf4j.Slf4j;
+import org.mulesoft.schema.mule.core.FlowRef;
 import org.springframework.sbm.java.util.Helper;
 import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
-import lombok.extern.slf4j.Slf4j;
-import org.mulesoft.schema.mule.core.FlowRef;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
@@ -46,7 +46,7 @@ public class FlowRefTranslator implements MuleComponentToSpringIntegrationDslTra
     }
 
     @Override
-    public DslSnippet translate(FlowRef component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(FlowRef component, QName name, MuleConfigurations muleConfigurations, String flowName) {
         String subFlowName = Helper.sanitizeForBeanMethodName(translateToJavaName(component.getName()));
         String flowRefSnippet = javaDslFlowRefTemplate.replace(SUBFLOW_NAME, subFlowName);
         return new DslSnippet(flowRefSnippet,

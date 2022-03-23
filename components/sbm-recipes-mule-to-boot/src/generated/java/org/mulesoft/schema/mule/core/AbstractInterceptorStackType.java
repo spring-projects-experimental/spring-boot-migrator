@@ -1,14 +1,10 @@
 
 package org.mulesoft.schema.mule.core;
 
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -64,8 +60,8 @@ public class AbstractInterceptorStackType
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link JAXBElement }{@code <}{@link AbstractInterceptorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractInterceptorType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomInterceptorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractInterceptorType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInterceptorType }{@code >}
      * 
      * 

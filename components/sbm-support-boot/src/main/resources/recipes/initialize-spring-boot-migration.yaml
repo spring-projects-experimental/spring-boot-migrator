@@ -21,7 +21,7 @@
       name: "add managed dependency to Maven"
       groupId: org.springframework.boot
       artifactId: spring-boot-dependencies
-      version: 2.4.3
+      version: 2.6.3
       dependencyType: pom
       scope: import
       description: Add Spring Boot dependency management section to buildfile.
@@ -34,7 +34,7 @@
                   <dependency>
                       <groupId>org.springframework.boot</groupId>
                       <artifactId>spring-boot-dependencies</artifactId>
-                      <version>2.4.3</version>
+                      <version>2.6.3</version>
                       <type>pom</type>
                       <scope>import</scope>
                   </dependency>
@@ -49,10 +49,10 @@
       dependencies:
         - groupId: org.springframework.boot
           artifactId: spring-boot-starter
-          version: 2.4.3 # OR finds the managed version and ignores this field
+          version: 2.6.3 # OR finds the managed version and ignores this field
         - groupId: org.springframework.boot
           artifactId: spring-boot-starter-test
-          version: 2.4.3
+          version: 2.6.3
           scope: test
       description: Add spring dependencies 'spring-boot-starter' and 'spring-boot-starter-test'.
       detailedDescription: |-

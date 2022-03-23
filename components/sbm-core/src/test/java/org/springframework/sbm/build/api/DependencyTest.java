@@ -18,15 +18,35 @@ package org.springframework.sbm.build.api;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class DependencyTest {
 
     @Test
     public void handlesErroneousCoordinateInput() {
+        assertThrows(IllegalArgumentException.class, () -> Dependency.fromCoordinates("one"));
+    }
 
-        Dependency out = Dependency.fromCoordinates("helloWorld");
+    @Test
+    public void handlesErroneousCoordinateFourParts() {
+        assertThrows(IllegalArgumentException.class, () -> Dependency.fromCoordinates("one:two:three:four"));
+    }
 
-        assertThat(out).isNull();
+    @Test
+    public void handlesDependencyWithTwoParts() {
+        Dependency dependency = Dependency.fromCoordinates("one:two");
+
+        assertThat(dependency.getGroupId()).isEqualTo("one");
+        assertThat(dependency.getArtifactId()).isEqualTo("two");
+    }
+
+    @Test
+    public void handlesDependencyWithThreeParts() {
+        Dependency dependency = Dependency.fromCoordinates("one:two:three");
+
+        assertThat(dependency.getGroupId()).isEqualTo("one");
+        assertThat(dependency.getArtifactId()).isEqualTo("two");
+        assertThat(dependency.getVersion()).isEqualTo("three");
     }
 }

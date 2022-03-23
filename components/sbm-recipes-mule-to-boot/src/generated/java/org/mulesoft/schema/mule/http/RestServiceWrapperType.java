@@ -1,32 +1,15 @@
 
 package org.mulesoft.schema.mule.http;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.mulesoft.schema.mule.core.*;
+import org.mulesoft.schema.mule.jms.PropertyFilter;
+
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.mulesoft.schema.mule.core.CollectionFilterType;
-import org.mulesoft.schema.mule.core.CommonFilterType;
-import org.mulesoft.schema.mule.core.CustomFilterType;
-import org.mulesoft.schema.mule.core.DefaultComponentType;
-import org.mulesoft.schema.mule.core.ExpressionFilterType;
-import org.mulesoft.schema.mule.core.KeyValueType;
-import org.mulesoft.schema.mule.core.RefFilterType;
-import org.mulesoft.schema.mule.core.RegexFilterType;
-import org.mulesoft.schema.mule.core.ScopedPropertyFilterType;
-import org.mulesoft.schema.mule.core.TypeFilterType;
-import org.mulesoft.schema.mule.core.UnitaryFilterType;
-import org.mulesoft.schema.mule.core.ValueType;
-import org.mulesoft.schema.mule.core.WildcardFilterType;
-import org.mulesoft.schema.mule.jms.PropertyFilter;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -292,19 +275,19 @@ public class RestServiceWrapperType
          * 
          * @return
          *     possible object is
-         *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
          *     {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
          *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
          *     {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
          *     {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
          *     {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
          *     {@link JAXBElement }{@code <}{@link CommonFilterType }{@code >}
          *     
          */
@@ -317,19 +300,19 @@ public class RestServiceWrapperType
          * 
          * @param value
          *     allowed object is
-         *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
          *     {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
          *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
          *     {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
-         *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
          *     {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
          *     {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
+         *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
          *     {@link JAXBElement }{@code <}{@link CommonFilterType }{@code >}
          *     
          */

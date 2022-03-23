@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 
+import org.mulesoft.schema.mule.amqp.OutboundEndpointType;
 import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
-import org.mulesoft.schema.mule.amqp.OutboundEndpointType;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
@@ -36,7 +36,7 @@ public class AmqpOutboundEndpointTranslator implements MuleComponentToSpringInte
     }
 
     @Override
-    public DslSnippet translate(OutboundEndpointType component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(OutboundEndpointType component, QName name, MuleConfigurations muleConfigurations, String flowName) {
 
 
         addExchange(snippet, component.getExchangeName());

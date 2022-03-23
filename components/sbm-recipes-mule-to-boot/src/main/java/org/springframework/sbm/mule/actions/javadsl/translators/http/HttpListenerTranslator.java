@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
+import lombok.extern.slf4j.Slf4j;
+import org.mulesoft.schema.mule.http.ListenerType;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
-import lombok.extern.slf4j.Slf4j;
-import org.mulesoft.schema.mule.http.ListenerType;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
@@ -35,15 +35,16 @@ import java.util.Set;
 @Slf4j
 public class HttpListenerTranslator implements MuleComponentToSpringIntegrationDslTranslator<ListenerType> {
 
-    private String javaDslHttpListenerTemplate = "return IntegrationFlows.from(Http.inboundChannelAdapter(\"${path}\")).handle((p, h) -> p)";
+    private final static String javaDslHttpListenerTemplate =
+            "return IntegrationFlows.from(Http.inboundChannelAdapter(\"${path}\")).handle((p, h) -> p)";
 
     @Override
-    public Class getSupportedMuleType() {
+    public Class<ListenerType> getSupportedMuleType() {
         return ListenerType.class;
     }
 
     @Override
-    public DslSnippet translate(ListenerType component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(ListenerType component, QName name, MuleConfigurations muleConfigurations, String flowName) {
         /*
         * In the connector component on your flow, the only required fields are the Path
         * (the path-absolute URL defining the resource location), which by default is /,
@@ -54,8 +55,10 @@ public class HttpListenerTranslator implements MuleComponentToSpringIntegrationD
             log.error("Path attribute of <http:listener> must not be set.");
         }
 
-        String snippet = javaDslHttpListenerTemplate.replace("${path}", path);
-        DslSnippet dslSnippet = new DslSnippet(snippet,
+        String snippet = path == null ? javaDslHttpListenerTemplate :
+                javaDslHttpListenerTemplate.replace("${path}", path);
+
+        return new DslSnippet(snippet,
                 Set.of("org.springframework.context.annotation.Bean",
                         "org.springframework.context.annotation.Configuration",
                         "org.springframework.integration.dsl.IntegrationFlow",
@@ -69,6 +72,5 @@ public class HttpListenerTranslator implements MuleComponentToSpringIntegrationD
                         "org.springframework.integration:spring-integration-http:5.4.4"
                 ),
                 Collections.emptySet());
-        return dslSnippet;
     }
 }

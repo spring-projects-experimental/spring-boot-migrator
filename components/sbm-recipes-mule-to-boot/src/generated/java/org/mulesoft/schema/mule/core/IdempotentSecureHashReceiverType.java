@@ -2,11 +2,7 @@
 package org.mulesoft.schema.mule.core;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 
 /**
@@ -48,11 +44,11 @@ public class IdempotentSecureHashReceiverType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link SpringObjectStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ManagedObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMonitoredObjectStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ManagedObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link TextFileObjectStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link SpringObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractObjectStoreType }{@code >}
      *     
      */
@@ -65,11 +61,11 @@ public class IdempotentSecureHashReceiverType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link SpringObjectStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ManagedObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMonitoredObjectStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ManagedObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link TextFileObjectStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link SpringObjectStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractObjectStoreType }{@code >}
      *     
      */

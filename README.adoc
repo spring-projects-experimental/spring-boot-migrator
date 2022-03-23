@@ -2,20 +2,28 @@
 
 [quote]
 ____
-Spring Boot Migrator (SBM) aims to help developers upgrading or migrating to Spring Boot by providing recipes for automated migrations.
+Spring Boot Migrator (SBM) aims to help developers upgrade or migrate to https://spring.io/projects/spring-boot[Spring Boot] by providing recipes for automated migrations.
 ____
-
 
 == How SBM works
 
-A given codebase is scanned and a set of recipes gets evaluated against the codebase. +
-The list of applicable recipes is displayed and recipes can be selected from the list to be run against the codebase. +
-The recipes either apply automated migrations or guide users on their migration journey.
+Spring Boot Migrator uses and is compatible with https://github.com/openrewrite/rewrite[OpenRewrite,window=_blank],
+a powerful mass refactoring ecosystem for Java and other source code.
+
+Spring Boot Migrator offers a CLI to run recipes to migrate or upgrade a given application to Spring Boot.
+For developing new and custom recipes, SBM provides an opinionated API compatible with OpenRewrite recipes
+and a set of specialized resource representations to simplify recipe development for Spring Boot.
+
 
 === Scan application
+A given codebase is scanned and a set of recipes gets evaluated against the codebase. +
+
 image::images/scan.png[]
 
 === Apply a recipe
+The list of applicable recipes is displayed and recipes can be selected from the list to be run against the codebase. +
+The recipes either apply automated migrations or guide users on their migration journey.
+
 image::images/apply.png[]
 
 
@@ -25,8 +33,8 @@ image::images/apply.png[]
 * Start the application: `java -jar spring-boot-migrator.jar`
 * In the CLI start by scanning the application `scan <path-to-application>`
 * From the list of applicable recipes select the one you want to apply, +
-  e.g.: `apply initialize-spring-boot-migration` +
-  Spring Boot Migrator will now apply the migrations defined in the recipe to the codebase.
+e.g.: `apply initialize-spring-boot-migration` +
+Spring Boot Migrator will now apply the migrations defined in the recipe to the codebase.
 * To get help when using SBM use the `help` command
 
 WARNING: **The OpenRewrite `rewrite-java-11` module uses JDK internals and thus requires the project to run with JDK 11.**

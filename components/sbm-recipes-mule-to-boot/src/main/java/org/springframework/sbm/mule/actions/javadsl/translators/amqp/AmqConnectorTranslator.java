@@ -15,10 +15,10 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 
+import org.mulesoft.schema.mule.amqp.AmqpConnectorType;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
-import org.mulesoft.schema.mule.amqp.AmqpConnectorType;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
@@ -37,7 +37,10 @@ public class AmqConnectorTranslator implements MuleComponentToSpringIntegrationD
     }
 
     @Override
-    public DslSnippet translate(AmqpConnectorType component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(AmqpConnectorType component,
+                                QName name,
+                                MuleConfigurations muleConfigurations,
+                                String flowName) {
         return new DslSnippet("// FIXME: <amq:connector/>  cannot be translated yet.", Collections.emptySet(), Set.of(), Collections.emptySet());
     }
 }
