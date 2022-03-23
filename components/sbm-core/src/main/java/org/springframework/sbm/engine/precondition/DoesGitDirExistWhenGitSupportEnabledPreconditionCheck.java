@@ -54,7 +54,7 @@ class DoesGitDirExistWhenGitSupportEnabledPreconditionCheck extends Precondition
 	}
 
     private String getBranch(Path projectRoot) {
-        File repo = projectRoot.resolve(".git").normalize().toAbsolutePath().toFile();
+        File repo = projectRoot.normalize().toAbsolutePath().toFile();
         Optional<String> branchName = gitSupport.getBranchName(repo);
         if (branchName.isPresent()) {
             return branchName.get();
@@ -64,7 +64,7 @@ class DoesGitDirExistWhenGitSupportEnabledPreconditionCheck extends Precondition
     }
 
     private boolean isGitStatusClean(Path projectRoot) {
-        File repo = projectRoot.resolve(".git").normalize().toAbsolutePath().toFile();
+        File repo = projectRoot.normalize().toAbsolutePath().toFile();
         GitStatus status = gitSupport.getStatus(repo);
         return status.isClean();
 	}

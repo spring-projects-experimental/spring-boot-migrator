@@ -271,4 +271,12 @@ public class GitSupport {
         }
     }
 
+    public void switchToBranch(File repo, String branchName) {
+        try {
+            Git git = initGit(repo);
+            git.checkout().setName(branchName).setCreateBranch(true).call();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
+    }
 }
