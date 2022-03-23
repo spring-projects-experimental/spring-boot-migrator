@@ -15,20 +15,18 @@
  */
 package org.springframework.sbm.engine.commands;
 
+import org.springframework.sbm.common.filter.DeletedResourcePathStringFilter;
+import org.springframework.sbm.common.filter.ModifiedResourcePathStringFilter;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectContextSerializer;
+import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.context.ProjectContextSerializer;
-import org.springframework.sbm.engine.context.ProjectRootPathResolver;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
-import org.springframework.sbm.common.filter.DeletedResourcePathStringFilter;
-import org.springframework.sbm.common.filter.ModifiedResourcePathStringFilter;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
 import java.util.List;
 
 @Component
@@ -88,14 +86,15 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
     @Override
     @Deprecated
     public Recipe execute(String... arguments) {
-        if (arguments == null || arguments.length < 2) {
-            throw new IllegalArgumentException("Apply command needs project path (as first) and recipe name (as second) to be provided");
-        } else {
-            Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
-            // FIXME: This triggers a new scan which shouldn't be required. Retrieve current ProjectContext from...? and use it here.
-            ProjectContext context = projectContextBuilder.initProjectContext(projectRoot, new RewriteExecutionContext());
-            return applyCommandHelper.applyRecipe(context, arguments[1]);
-        }
+//        if (arguments == null || arguments.length < 2) {
+//            throw new IllegalArgumentException("Apply command needs project path (as first) and recipe name (as second) to be provided");
+//        } else {
+//            Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
+//            // FIXME: This triggers a new scan which shouldn't be required. Retrieve current ProjectContext from...? and use it here.
+//            ProjectContext context = projectContextBuilder.initProjectContext(projectRoot, new RewriteExecutionContext());
+//            return applyCommandHelper.applyRecipe(context, arguments[1]);
+//        }
+        return null;
     }
 
 }

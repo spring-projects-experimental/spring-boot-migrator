@@ -30,7 +30,8 @@ import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.java.api.Type;
-import org.springframework.sbm.mule.api.*;
+import org.springframework.sbm.mule.api.MuleMigrationContext;
+import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElement;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.UnknownTopLevelElement;
@@ -39,13 +40,11 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.bind.JAXBElement;
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Slf4j
 @Component

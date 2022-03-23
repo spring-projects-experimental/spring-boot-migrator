@@ -15,10 +15,7 @@
  */
 package org.springframework.sbm.mule.actions;
 
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
-
 
 import static org.assertj.core.api.Assertions.assertThat;
 

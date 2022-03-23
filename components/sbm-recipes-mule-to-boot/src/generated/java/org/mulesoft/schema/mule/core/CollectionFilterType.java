@@ -1,14 +1,15 @@
 
 package org.mulesoft.schema.mule.core;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.mulesoft.schema.mule.jms.PropertyFilter;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlType;
-import org.mulesoft.schema.mule.jms.PropertyFilter;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**

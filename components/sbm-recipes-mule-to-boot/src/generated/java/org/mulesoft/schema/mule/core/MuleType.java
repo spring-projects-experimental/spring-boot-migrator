@@ -1,32 +1,10 @@
 
 package org.mulesoft.schema.mule.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementRefs;
-import javax.xml.bind.annotation.XmlType;
 import org.mulesoft.schema.mule.amqp.AmqpConnectorType;
 import org.mulesoft.schema.mule.ee.wmq.WmqConnectorType;
-import org.mulesoft.schema.mule.http.GlobalNtlmProxyType;
-import org.mulesoft.schema.mule.http.GlobalProxyType;
-import org.mulesoft.schema.mule.http.GlobalRequestBuilderType;
-import org.mulesoft.schema.mule.http.GlobalResponseBuilderType;
-import org.mulesoft.schema.mule.http.HttpConnectorType;
-import org.mulesoft.schema.mule.http.HttpPollingConnectorType;
-import org.mulesoft.schema.mule.http.ListenerConfigType;
-import org.mulesoft.schema.mule.http.RequestConfigType;
-import org.mulesoft.schema.mule.jms.ActiveMqConnectorType;
-import org.mulesoft.schema.mule.jms.ConnectionFactoryPoolType;
-import org.mulesoft.schema.mule.jms.CustomConnector;
-import org.mulesoft.schema.mule.jms.GenericConnectorType;
-import org.mulesoft.schema.mule.jms.MuleMqConnectorType;
-import org.mulesoft.schema.mule.jms.PropertyFilter;
-import org.mulesoft.schema.mule.jms.VendorJmsConnectorType;
+import org.mulesoft.schema.mule.http.*;
+import org.mulesoft.schema.mule.jms.*;
 import org.mulesoft.schema.mule.tcp.PollingTcpConnectorType;
 import org.mulesoft.schema.mule.tcp.TcpClientSocketPropertiesType;
 import org.mulesoft.schema.mule.tcp.TcpConnectorType;
@@ -37,6 +15,11 @@ import org.springframework.schema.beans.Bean;
 import org.springframework.schema.beans.Beans;
 import org.springframework.schema.beans.Ref;
 import org.springframework.schema.context.PropertyPlaceholder;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**

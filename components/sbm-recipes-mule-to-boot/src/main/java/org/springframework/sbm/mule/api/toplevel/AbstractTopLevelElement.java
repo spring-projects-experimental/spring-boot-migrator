@@ -15,17 +15,20 @@
  */
 package org.springframework.sbm.mule.api.toplevel;
 
-import org.springframework.sbm.java.util.Helper;
-import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.sbm.java.util.Helper;
+import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.UnknownStatementTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

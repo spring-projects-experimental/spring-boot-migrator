@@ -16,7 +16,6 @@
 package org.springframework.sbm.mule.actions.javadsl.translators.wmq;
 
 import org.mulesoft.schema.mule.ee.wmq.WmqConnectorType;
-import org.mulesoft.schema.mule.http.ListenerConfigType;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
 import org.springframework.stereotype.Component;
 

@@ -1,14 +1,10 @@
 
 package org.mulesoft.schema.mule.tcp;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.mulesoft.schema.mule.tls.Connector;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.*;
 
 
 /**

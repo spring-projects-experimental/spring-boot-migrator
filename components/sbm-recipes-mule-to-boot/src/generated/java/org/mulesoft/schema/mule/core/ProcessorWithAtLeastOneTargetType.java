@@ -1,25 +1,17 @@
 
 package org.mulesoft.schema.mule.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementRefs;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.mulesoft.schema.mule.amqp.BasicAckType;
 import org.mulesoft.schema.mule.amqp.BasicRejectType;
 import org.mulesoft.schema.mule.amqp.ReturnHandlerType;
 import org.mulesoft.schema.mule.ee.dw.TransformMessageType;
-import org.mulesoft.schema.mule.http.BasicSecurityFilterType;
-import org.mulesoft.schema.mule.http.GlobalResponseBuilderType;
-import org.mulesoft.schema.mule.http.RequestType;
-import org.mulesoft.schema.mule.http.RestServiceWrapperType;
-import org.mulesoft.schema.mule.http.StaticResourceHandlerType;
+import org.mulesoft.schema.mule.http.*;
 import org.mulesoft.schema.mule.jms.PropertyFilter;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**

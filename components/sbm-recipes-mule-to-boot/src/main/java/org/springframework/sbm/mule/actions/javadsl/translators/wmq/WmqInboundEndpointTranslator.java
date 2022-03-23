@@ -16,7 +16,6 @@
 package org.springframework.sbm.mule.actions.javadsl.translators.wmq;
 
 import org.mulesoft.schema.mule.ee.wmq.InboundEndpointType;
-import org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType;
 import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
@@ -24,7 +23,6 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
-import java.util.Collections;
 import java.util.Set;
 
 @Component

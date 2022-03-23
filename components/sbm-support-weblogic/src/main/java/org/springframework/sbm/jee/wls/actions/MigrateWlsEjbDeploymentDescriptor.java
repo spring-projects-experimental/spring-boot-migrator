@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.jee.wls.actions;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -25,9 +28,6 @@ import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.jee.wls.EjbDeploymentDescriptor;
 import org.springframework.sbm.jee.wls.WlsEjbDeploymentDescriptor;
 import org.springframework.sbm.jee.wls.finder.JeeWlsEjbDeploymentDescriptorFilter;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.util.List;

@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.springframework.sbm.engine.events.*;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
@@ -42,6 +41,9 @@ import org.openrewrite.yaml.tree.Yaml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.sbm.engine.events.*;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -89,10 +91,10 @@ public class MavenProjectParser {
 
         List<Resource> filteredMavenPoms = filterMavenPoms(resources);
         List<Parser.Input> inputs = filteredMavenPoms.stream()
-                .map(r -> new Parser.Input(r.getPath(),
+                .map(r -> new Parser.Input(getPath(r),
                                 () -> {
-                                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(r.getPath()));
-                                    InputStream is = r.getContent();
+                                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(getPath(r)));
+                                    InputStream is = getInputStream(r);
                                     return is;
                                 }
                         )
@@ -125,9 +127,9 @@ public class MavenProjectParser {
 
             List<Resource> javaSources = getJavaSources(projectDirectory, resources, maven);
 
-            List<Parser.Input> javaSourcesInput = javaSources.stream().map(js -> new Parser.Input(js.getPath(), () -> {
-                eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(js.getPath()));
-                InputStream content = js.getContent();
+            List<Parser.Input> javaSourcesInput = javaSources.stream().map(js -> new Parser.Input(getPath(js), () -> {
+                eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(getPath(js)));
+                InputStream content = getInputStream(js);
                 return content;
             })).collect(Collectors.toList());
 
@@ -143,9 +145,9 @@ public class MavenProjectParser {
             javaParser.setClasspath(testDependencies);
 
             List<Resource> testJavaSources = getTestJavaSources(projectDirectory, resources, maven);
-            List<Parser.Input> testJavaSourcesInput = testJavaSources.stream().map(js -> new Parser.Input(js.getPath(), () -> {
-                eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(js.getPath()));
-                return js.getContent();
+            List<Parser.Input> testJavaSourcesInput = testJavaSources.stream().map(js -> new Parser.Input(getPath(js), () -> {
+                eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(getPath(js)));
+                return getInputStream(js);
             })).collect(Collectors.toList());
 
             eventPublisher.publishEvent(new StartedScanningProjectResourceSetEvent("Java [test]: '" + maven.getModel().getArtifactId() + "'", testJavaSourcesInput.size()));
@@ -163,13 +165,29 @@ public class MavenProjectParser {
         return ListUtils.map(sourceFiles, s -> s.withMarkers(s.getMarkers().addIfAbsent(gitProvenance)));
     }
 
+    private InputStream getInputStream(Resource r) {
+        try {
+            return r.getInputStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Path getPath(Resource r) {
+        try {
+            return r.getFile().toPath();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private List<Resource> getWebappResources(Path projectDir, List<Resource> resources, Maven maven) {
         if (!"jar".equals(maven.getMavenModel().getPom().getPackaging()) && !"bundle".equals(maven.getMavenModel().getPom().getPackaging())) {
             return emptyList();
         }
         Path inPath = projectDir.resolve(maven.getSourcePath()).getParent().resolve(Paths.get("src", "main", "webapp"));
         return resources.stream()
-                .filter(r -> r.getPath().startsWith(inPath) /* && Stream.of(".properties", ".xml", ".yml", ".yaml").anyMatch(fe -> r.getPath().toString().endsWith(fe))*/)
+                .filter(r -> getPath(r).startsWith(inPath) /* && Stream.of(".properties", ".xml", ".yml", ".yaml").anyMatch(fe -> r.getPath().toString().endsWith(fe))*/)
                 .collect(Collectors.toList());
     }
 
@@ -183,14 +201,14 @@ public class MavenProjectParser {
 //        Path mulePath = projectDir.resolve(maven.getSourcePath()).getParent().resolve(Paths.get("src", "main", "mule"));
 //        Path apiPath = projectDir.resolve(maven.getSourcePath()).getParent().resolve(Paths.get("src", "main", "api"));
         return resources.stream()
-                .filter(r -> mulePaths.stream().anyMatch(appPath -> r.getPath().startsWith(appPath.toString())) /* && Stream.of(".properties", ".xml", ".yml", ".yaml").anyMatch(fe -> r.getPath().toString().endsWith(fe))*/)
+                .filter(r -> mulePaths.stream().anyMatch(appPath -> getPath(r).startsWith(appPath.toString())) /* && Stream.of(".properties", ".xml", ".yml", ".yaml").anyMatch(fe -> r.getPath().toString().endsWith(fe))*/)
                 .collect(Collectors.toList());
     }
 
 
-    public static List<Resource> filterMavenPoms(List<Resource> resources) {
+    public List<Resource> filterMavenPoms(List<Resource> resources) {
         return resources.stream()
-                .filter(p -> p.getPath().getFileName().toString().equals("pom.xml") &&
+                .filter(p -> getPath(p).getFileName().toString().equals("pom.xml") &&
                         !p.toString().contains("/src/"))
                 .collect(Collectors.toList());
     }
@@ -201,7 +219,7 @@ public class MavenProjectParser {
 //        }
         Path inPath = projectDir.resolve(maven.getSourcePath()).getParent().resolve(Paths.get("src", "main", "java"));
         return resources.stream()
-                .filter(r -> r.getPath().startsWith(inPath) && r.getPath().toString().endsWith(".java"))
+                .filter(r -> getPath(r).startsWith(inPath) && getPath(r).toString().endsWith(".java"))
                 .collect(Collectors.toList());
     }
 
@@ -211,7 +229,7 @@ public class MavenProjectParser {
 //        }
         Path inPath = projectDir.resolve(maven.getSourcePath()).getParent().resolve(Paths.get("src", "test", "java"));
         return resources.stream()
-                .filter(r -> r.getPath().startsWith(inPath) && r.getPath().toString().endsWith(".java"))
+                .filter(r -> getPath(r).startsWith(inPath) && getPath(r).toString().endsWith(".java"))
                 .collect(Collectors.toList());
     }
 
@@ -222,7 +240,7 @@ public class MavenProjectParser {
 //        }
         Path inPath = projectDir.resolve(maven.getSourcePath()).getParent().resolve(Paths.get("src", "main", "resources"));
         return resources.stream()
-                .filter(r -> r.getPath().startsWith(inPath) /* && Stream.of(".properties", ".xml", ".yml", ".yaml").anyMatch(fe -> r.getPath().toString().endsWith(fe))*/)
+                .filter(r -> getPath(r).startsWith(inPath) /* && Stream.of(".properties", ".xml", ".yml", ".yaml").anyMatch(fe -> r.getPath().toString().endsWith(fe))*/)
                 .collect(Collectors.toList());
     }
 
@@ -232,29 +250,14 @@ public class MavenProjectParser {
 //        }
         Path inPath = projectDir.resolve(maven.getSourcePath()).getParent().resolve(Paths.get("src", "test", "resources"));
         return resources.stream()
-                .filter(r -> r.getPath().startsWith(inPath) /*&& Stream.of(".properties", ".xml", ".yml", ".yaml").anyMatch(fe -> r.getPath().toString().endsWith(fe))*/)
+                .filter(r -> getPath(r).startsWith(inPath) /*&& Stream.of(".properties", ".xml", ".yml", ".yaml").anyMatch(fe -> r.getPath().toString().endsWith(fe))*/)
                 .collect(Collectors.toList());
     }
 
     private List<Resource> mapToResource(List<Path> testResources) {
-        return testResources.stream()
-                .map(p ->
-                        new Resource() {
-                            @Override
-                            public Path getPath() {
-                                return p;
-                            }
 
-                            @Override
-                            public InputStream getContent() {
-                                try {
-                                    return Files.newInputStream(p);
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                        }
-                )
+        return testResources.stream()
+                .map(p -> new FileSystemResource(p))
                 .collect(Collectors.toList());
     }
 
@@ -306,10 +309,10 @@ public class MavenProjectParser {
         XmlParser xmlParser = new XmlParser();
 
         List<Parser.Input> xmlFiles = resources.stream()
-                .filter(p -> xmlParser.accept(p.getPath()))
-                .map(r -> new Parser.Input(r.getPath(), () -> {
-                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(r.getPath()));
-                    return r.getContent();
+                .filter(p -> xmlParser.accept(getPath(p)))
+                .map(r -> new Parser.Input(getPath(r), () -> {
+                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(getPath(r)));
+                    return getInputStream(r);
                 }))
                 .collect(Collectors.toList());
 
@@ -329,10 +332,10 @@ public class MavenProjectParser {
 
         YamlParser yamlParser = new YamlParser();
         List<Parser.Input> yamlFiles = resources.stream()
-                .filter(p -> yamlParser.accept(p.getPath()))
-                .map(r -> new Parser.Input(r.getPath(), () -> {
-                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(r.getPath()));
-                    return r.getContent();
+                .filter(p -> yamlParser.accept(getPath(p)))
+                .map(r -> new Parser.Input(getPath(r), () -> {
+                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(getPath(r)));
+                    return getInputStream(r);
                 }))
                 .collect(Collectors.toList());
 
@@ -351,10 +354,10 @@ public class MavenProjectParser {
 
         PropertiesParser propertiesParser = new PropertiesParser();
         List<Parser.Input> propertiesFiles = resources.stream()
-                .filter(p -> propertiesParser.accept(p.getPath()))
-                .map(r -> new Parser.Input(r.getPath(), () -> {
-                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(r.getPath()));
-                    return r.getContent();
+                .filter(p -> propertiesParser.accept(getPath(p)))
+                .map(r -> new Parser.Input(getPath(r), () -> {
+                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(getPath(r)));
+                    return getInputStream(r);
                 }))
                 .collect(Collectors.toList());
 
@@ -374,10 +377,10 @@ public class MavenProjectParser {
         eventPublisher.publishEvent(new StartedScanningProjectResourceSetEvent("other files", propertiesFiles.size()));
 
         List<Parser.Input> otherFiles = resources.stream()
-                .filter(p -> !xmlParser.accept(p.getPath()) && !yamlParser.accept(p.getPath()) && !propertiesParser.accept(p.getPath()))
-                .map(r -> new Parser.Input(r.getPath(), () -> {
-                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(r.getPath()));
-                    return r.getContent();
+                .filter(p -> !xmlParser.accept(getPath(p)) && !yamlParser.accept(getPath(p)) && !propertiesParser.accept(getPath(p)))
+                .map(r -> new Parser.Input(getPath(r), () -> {
+                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(getPath(r)));
+                    return getInputStream(r);
                 }))
                 .collect(Collectors.toList());
 

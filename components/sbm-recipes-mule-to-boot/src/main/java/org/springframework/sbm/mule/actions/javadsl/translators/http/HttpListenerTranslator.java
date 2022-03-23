@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
+import lombok.extern.slf4j.Slf4j;
+import org.mulesoft.schema.mule.http.ListenerType;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
-import lombok.extern.slf4j.Slf4j;
-import org.mulesoft.schema.mule.http.ListenerType;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;

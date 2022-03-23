@@ -21,7 +21,6 @@ import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComplexSubflowsTest extends JavaDSLActionBaseTest {

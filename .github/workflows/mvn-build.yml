@@ -1,8 +1,10 @@
 name: Java CI
 on:
-  pull_request:
-    branches:
-      - main
+  push:
+    branches: '**'
+#  pull_request:
+#    branches:
+#      - main
 jobs:
   build:
     runs-on: ubuntu-latest

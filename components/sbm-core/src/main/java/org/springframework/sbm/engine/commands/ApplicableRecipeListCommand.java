@@ -15,16 +15,14 @@
  */
 package org.springframework.sbm.engine.commands;
 
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.context.ProjectRootPathResolver;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
 import java.util.List;
 
 @Component
@@ -46,10 +44,11 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
     @Deprecated
     // FIXME: Refactor: inheriting AbstractCommand forces this method!
     public List<Recipe> execute(String... arguments) {
-        Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
-        // FIXME: This call creates a new ProjectResourceSet which is not correct.
-        ProjectContext context = projectContextBuilder.initProjectContext(projectRoot, new RewriteExecutionContext());
-        return getApplicableRecipes(context);
+//        Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
+//        // FIXME: This call creates a new ProjectResourceSet which is not correct.
+//        ProjectContext context = projectContextBuilder.initProjectContext(projectRoot, new RewriteExecutionContext());
+//        return getApplicableRecipes(context);
+        return null;
     }
 
     private List<Recipe> getApplicableRecipes(ProjectContext context) {

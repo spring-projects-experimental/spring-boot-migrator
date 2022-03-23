@@ -15,14 +15,10 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.recipes;
 
-import org.springframework.sbm.test.RecipeIntegrationTestSupport;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.test.RecipeIntegrationTestSupport;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,8 +37,7 @@ class Boot_24_25_SeparateCredentialsRecipeTest {
 
         Path datasourceInitializer = RecipeIntegrationTestSupport.getResultDir(applicationDir).resolve("src/main/java/com/example/springboot24to25example/DataSourceInitializerConfiguration.java");
         Path applicationProperties = RecipeIntegrationTestSupport.getResultDir(applicationDir).resolve("src/main/resources/application.properties");
-//        System.out.println(getContent(datasourceInitializer));
-//        System.out.println(getContent(applicationProperties));
+
         String expectedApplicationProperties =
                 "spring.jpa.hibernate.ddl-auto=none\n" +
                 "spring.h2.console.enabled=true\n" +
@@ -102,11 +97,5 @@ class Boot_24_25_SeparateCredentialsRecipeTest {
         assertThat(applicationProperties).hasContent(expectedApplicationProperties);
         assertThat(datasourceInitializer).hasContent(expectedDatasourceInitializer);
     }
-    @NotNull
-    private String getContent(Path report) throws IOException {
-        Charset charset = StandardCharsets.UTF_8;
-        return new String(Files.readAllBytes(report), charset);
-    }
-
 
 }

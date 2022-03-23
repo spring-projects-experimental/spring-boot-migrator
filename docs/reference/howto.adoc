@@ -1,5 +1,10 @@
 == How To
 
+
+=== Check Preconditions
+
+
+
 === Implement Actions
 First step on your journey to implement a new recipe will be the implementation of an `Action`.
 Every Action that needs access to the ProjectContext to modify resources should extend `AbstractAction`.

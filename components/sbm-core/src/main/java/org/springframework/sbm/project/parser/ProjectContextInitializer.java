@@ -15,20 +15,18 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.springframework.sbm.engine.git.Commit;
-import org.springframework.sbm.engine.git.GitSupport;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.context.ProjectContextFactory;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.SourceFile;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectContextFactory;
+import org.springframework.sbm.engine.git.Commit;
+import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -39,18 +37,14 @@ import java.util.stream.Collectors;
 public class ProjectContextInitializer {
 
     private final ProjectContextFactory projectContextFactory;
-    private final PathScanner pathScanner;
     private final RewriteMavenParserFactory rewriteMavenParserFactory;
     private final GitSupport gitSupport;
 
-    public ProjectContext initProjectContext(Path projectDir, RewriteExecutionContext rewriteExecutionContext) {
+    public ProjectContext initProjectContext(Path projectDir, List<Resource> resources, RewriteExecutionContext rewriteExecutionContext) {
         final Path absoluteProjectDir = projectDir.toAbsolutePath().normalize();
 
         initializeGitRepoIfNoneExists(absoluteProjectDir);
         MavenProjectParser mavenProjectParser = rewriteMavenParserFactory.createRewriteMavenParser(absoluteProjectDir, rewriteExecutionContext);
-
-        List<Resource> scannedResources = pathScanner.scan(absoluteProjectDir);
-        List<org.springframework.sbm.project.parser.Resource> resources = map(scannedResources);
 
         List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources);
         List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);
@@ -90,29 +84,6 @@ public class ProjectContextInitializer {
         if (!gitSupport.repoExists(absoluteProjectDir.toFile())) {
             gitSupport.initGit(absoluteProjectDir.toFile());
         }
-    }
-
-    private List<org.springframework.sbm.project.parser.Resource> map(List<Resource> notParsedByRewrite) {
-        List<org.springframework.sbm.project.parser.Resource> resources = notParsedByRewrite.stream().map(r -> new org.springframework.sbm.project.parser.Resource() {
-            @Override
-            public Path getPath() {
-                try {
-                    return r.getFile().toPath();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
-            public InputStream getContent() {
-                try {
-                    return r.getInputStream();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).collect(Collectors.toList());
-        return resources;
     }
 
 }

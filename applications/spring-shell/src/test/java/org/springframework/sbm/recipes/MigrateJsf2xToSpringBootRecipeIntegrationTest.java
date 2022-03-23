@@ -15,19 +15,18 @@
  */
 package org.springframework.sbm.recipes;
 
-import org.springframework.sbm.IntegrationTestBaseClass;
-import org.springframework.sbm.engine.git.Commit;
-import org.springframework.sbm.engine.git.GitSupport;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.eclipse.jgit.api.Git;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.IntegrationTestBaseClass;
+import org.springframework.sbm.engine.git.Commit;
+import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.project.resource.ApplicationProperties;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,9 +49,10 @@ public class MigrateJsf2xToSpringBootRecipeIntegrationTest extends IntegrationTe
         intializeTestProject();
         // create repo
         GitSupport gitSupport = initGitRepo();
-        List<String> modifiedResources = Files.list(getTestDir()).map(f -> f.toAbsolutePath().toString()).collect(Collectors.toList());
-        List<String> deletedResources = List.of();
-        Commit initialCommit = gitSupport.addAllAndCommit(getTestDir().toFile(), "initial commit", modifiedResources, deletedResources);
+        Commit initialCommit = gitSupport.getLatestCommit(getTestDir().toFile()).get();
+//        List<String> modifiedResources = Files.list(getTestDir()).map(f -> f.toAbsolutePath().toString()).collect(Collectors.toList());
+//        List<String> deletedResources = List.of();
+//        Commit initialCommit = gitSupport.addAllAndCommit(getTestDir().toFile(), "initial commit", modifiedResources, deletedResources);
 
         scanProject();
         assertApplicableRecipesContain(
@@ -75,7 +75,11 @@ public class MigrateJsf2xToSpringBootRecipeIntegrationTest extends IntegrationTe
         ApplicationProperties applicationProperties = new ApplicationProperties();
         applicationProperties.setGitSupportEnabled(true);
         GitSupport gitSupport = new GitSupport(applicationProperties);
-        gitSupport.initGit(getTestDir().toFile());
+        File repo = getTestDir().toFile();
+        Git git = gitSupport.initGit(repo);
+        gitSupport.add(repo, ".");
+        gitSupport.commit(repo, "initial commit");
+        gitSupport.switchToBranch(repo, "main");
         return gitSupport;
     }
 }

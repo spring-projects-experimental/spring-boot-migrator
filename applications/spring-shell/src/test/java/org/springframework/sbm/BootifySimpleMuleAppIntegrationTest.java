@@ -16,7 +16,6 @@
 package org.springframework.sbm;
 
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.ConnectionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
