@@ -118,7 +118,7 @@ public class PreconditionVerifierIntegrationTest {
         Git git = gitSupport.initGit(repo);
         gitSupport.add(repo, "*");
         gitSupport.commit(repo, "initial commit");
-        Resource gitResource = createResource(gitDir);
+        Resource gitResource = createResource(gitDir.toAbsolutePath().normalize());
 
         List<Resource> resources = List.of(javaResource, buildFileResource, gitResource);
 
