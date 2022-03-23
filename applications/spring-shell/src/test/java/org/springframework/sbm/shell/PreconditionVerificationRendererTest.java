@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PreconditionVerificationRendererTest {
+
     @Test
     void renderPreconditionCheckResult() {
         PreconditionVerificationRenderer sut = new PreconditionVerificationRenderer();
@@ -42,7 +43,7 @@ class PreconditionVerificationRendererTest {
         String s = sut.renderPreconditionCheckResults(checkResult);
         assertThat(s).isEqualTo("\u001B[30;1m\n" +
                 "\n" +
-                "Checked preconditions for '/Users/fkrueger/git/spring-boot-migrator-oss/experimental/applications/spring-shell/foo'\n" +
+                "Checked preconditions for '" +projectRoot+ "'\n" +
                 "\u001B[32;1m[ok]\u001B[0m passed\n" +
                 "\u001B[93;1m [!]\u001B[0m warn\n" +
                 "\u001B[91;1m [X]\u001B[0m failed\n" +
