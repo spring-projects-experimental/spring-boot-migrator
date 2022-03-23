@@ -82,6 +82,50 @@ void apply(ProjectContext context) {
 
 Read the <<Specialized_Resources, Specialized Resources>> section to learn how you can provide new Specialized Resources.
 
+=== Application Lifecycle
+
+==== Scan Application
+The user provides a root directory to scan a project.
+After scanning the given directory a set of preconditions is checked to verify that the scanned project can be successfully parsed.
+See <<Check Preconditions>> to learn how you can provide additional precondition checks.
+
+===== Parsing
+When all preconditions are met the project resources are parsed and the abstract syntax tree (AST) gets created in memory.
+
+===== Specialized Resources
+After parsing the project resources a set of ``ProjectResourceWrapper``s is called and generic resources can be replaced
+with more specialized resources providing a specialized API for these resources.
+Think of replacing a generic XML file representing `persistence.xml` (JPA deployment descriptor) with a specialized
+resource representation offering an API to act on a specialized "JPA deployment descriptor".
+See <<Specialized Resources>> to learn how yo can provide specialized resources.
+
+===== Creating the ProjectContext
+After replacing specialized resources the ProjectContext gets created.
+
+===== Display Applicable Recipes
+With the `ProjectContext` in place SBM checks all ``Condition``s of recipes and their ``Action``s to find applicable recipes.
+The resulting list of applicable recipes is then shown to the user to select and apply recipes against the scanned application.
+
+==== Apply Recipe
+The user applies a recipe of the list of applicable recipes.
+
+===== Applying Recipe Actions
+SBM provides the `ProjectContext` to the list of applicable ``Action``s and each `Action` modifies the AST through the
+`ProjectContext` API. These modifications are only represented in memory.
+
+===== Verify Application In Sync
+After applying all ``Action``s of the `Recipe` he changes need to be written back to filesystem.
+When `sbm.gitSupportEnabled` is `true` SBM verifies that nothing changed in the scanned project while the recipe was applied.
+If the git hash changed or non-indexed resources are found the changes are rolled back, the project must be synced,
+re-scanned and the recipe needs to be re-applied.
+
+===== Writing Back Changes
+When git support is disabled or the project is in sync the in-memory representation is written back to the file system.
+
+===== Commit Changes
+When git support is enabled SBM commits the changes applied by running the recipe and the next recipe can be applied.
+
+
 === Modules
 
 Since 0.9.0 SBM starts to support https://maven.apache.org/guides/mini/guide-multiple-modules.html#the-reactor[multi module applications].

@@ -15,13 +15,13 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.logging;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.mulesoft.schema.mule.core.LoggerType;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.mulesoft.schema.mule.core.LoggerType;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;

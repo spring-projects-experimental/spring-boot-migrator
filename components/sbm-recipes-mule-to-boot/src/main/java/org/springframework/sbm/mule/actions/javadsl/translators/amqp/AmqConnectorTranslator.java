@@ -15,10 +15,10 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.amqp;
 
+import org.mulesoft.schema.mule.amqp.AmqpConnectorType;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
-import org.mulesoft.schema.mule.amqp.AmqpConnectorType;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;

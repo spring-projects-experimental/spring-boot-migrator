@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.mule;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.migration.actions.AddDependencies;
 import org.springframework.sbm.build.migration.actions.RemoveDependenciesMatchingRegex;
@@ -26,9 +29,6 @@ import org.springframework.sbm.java.migration.conditions.HasNoTypeAnnotation;
 import org.springframework.sbm.java.migration.conditions.HasTypeAnnotation;
 import org.springframework.sbm.mule.actions.JavaDSLAction2;
 import org.springframework.sbm.mule.conditions.MuleConfigFileExist;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 

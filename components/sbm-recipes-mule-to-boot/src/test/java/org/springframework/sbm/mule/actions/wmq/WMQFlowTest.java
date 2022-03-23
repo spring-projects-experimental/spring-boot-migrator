@@ -28,7 +28,7 @@ import org.springframework.sbm.mule.actions.javadsl.translators.common.Expressio
 import org.springframework.sbm.mule.actions.javadsl.translators.core.FlowRefTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.*;
+import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
 import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;

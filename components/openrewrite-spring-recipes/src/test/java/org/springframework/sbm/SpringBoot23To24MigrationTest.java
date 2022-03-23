@@ -15,24 +15,26 @@
  */
 package org.springframework.sbm;
 
-import org.springframework.sbm.engine.recipe.UserInteractions;
-import org.springframework.sbm.test.ProjectContextFileSystemTestSupport;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.parser.ProjectContextInitializer;
-import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
-import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.sbm.spring.migration.actions.InitDataSourceAfterJpaInitAction;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.Resource;
+import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.Recipe;
+import org.springframework.sbm.engine.recipe.UserInteractions;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.parser.ProjectContextInitializer;
+import org.springframework.sbm.spring.migration.actions.InitDataSourceAfterJpaInitAction;
+import org.springframework.sbm.test.ProjectContextFileSystemTestSupport;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -111,8 +113,10 @@ public class SpringBoot23To24MigrationTest {
                 + "	</build>\n"
                 + "</project>\n";
 
+    List<Resource> resources = List.of();
 
-        ProjectContext projectContext = contextInitializer.initProjectContext(Path.of("./testcode/boot-23-app/given"), new RewriteExecutionContext());projectContext.getApplicationModules().getRootModule().getMainResourceSet().addStringResource("src/main/resources/data.sql", "# Empty file");
+        ProjectContext projectContext = contextInitializer.initProjectContext(Path.of("./testcode/boot-23-app/given"), resources, new RewriteExecutionContext());
+        projectContext.getApplicationModules().getRootModule().getMainResourceSet().addStringResource("src/main/resources/data.sql", "# Empty file");
 
 
         when(ui.askUserYesOrNo(InitDataSourceAfterJpaInitAction.QUESTION)).thenReturn(false);

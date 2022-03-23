@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.ResourceHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.ResourceHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PathScannerTest {
 
-    public static final String TESTCODE_DIR = "./testcode/module1/src/main/webapp/META-INF";
+    public static final String TESTCODE_DIR = "./testcode/path-scanner/module1/src/main/webapp/META-INF";
 
     @Test
     void returnsAllWhenNoPatternMatches() throws IOException {

@@ -17,7 +17,6 @@ package org.springframework.sbm.mule.actions.javadsl.translators;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.sbm.java.util.Helper;
 
 import java.util.Collections;
 import java.util.List;

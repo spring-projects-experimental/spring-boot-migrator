@@ -15,13 +15,13 @@
  */
 package org.springframework.sbm.mule.api;
 
+import org.junit.jupiter.api.Test;
+import org.mulesoft.schema.mule.core.MuleType;
 import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigTypeAdapter;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlUnmarshaller;
-import org.junit.jupiter.api.Test;
-import org.mulesoft.schema.mule.core.MuleType;
 
 import java.util.List;
 import java.util.Map;

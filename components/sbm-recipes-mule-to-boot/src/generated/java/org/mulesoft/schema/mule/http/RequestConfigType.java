@@ -1,18 +1,14 @@
 
 package org.mulesoft.schema.mule.http;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.mulesoft.schema.mule.core.AbstractExtensionType;
 import org.mulesoft.schema.mule.tcp.TcpClientSocketPropertiesType;
 import org.mulesoft.schema.mule.tls.TlsContextType;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 
 /**

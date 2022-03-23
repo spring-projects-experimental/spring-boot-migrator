@@ -15,6 +15,10 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
+import org.junit.jupiter.api.Test;
+import org.mulesoft.schema.mule.core.FlowType;
+import org.mulesoft.schema.mule.core.MuleType;
+import org.mulesoft.schema.mule.http.ListenerType;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
@@ -22,10 +26,6 @@ import org.springframework.sbm.mule.resource.MuleXml;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.Test;
-import org.mulesoft.schema.mule.core.FlowType;
-import org.mulesoft.schema.mule.core.MuleType;
-import org.mulesoft.schema.mule.http.ListenerType;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;

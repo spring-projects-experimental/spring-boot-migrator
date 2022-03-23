@@ -15,9 +15,6 @@
  */
 package org.springframework.sbm.engine.git;
 
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.RepositoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.*;
@@ -26,6 +23,9 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.RepositoryNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -128,7 +128,7 @@ public class GitSupport {
      *
      * @param repo the location of the repo to search for. {@code .git} is added to file location if not contained
      */
-    public static Repository getRepository(File repo) {
+    public Repository getRepository(File repo) {
         try {
             FileRepositoryBuilder builder = new FileRepositoryBuilder();
             if (!repo.toString().endsWith(".git")) {
@@ -150,6 +150,9 @@ public class GitSupport {
      */
     public static Git initGit(File repo) {
         try {
+            if(repo.toPath().toString().endsWith(".git")) {
+                repo = repo.toPath().getParent().toAbsolutePath().normalize().toFile();
+            }
             return Git.init().setDirectory(repo).call();
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
@@ -243,10 +246,40 @@ public class GitSupport {
         }
     }
 
+    public static Optional<String> getBranchName(File repo) {
+        Git git = initGit(repo);
+        try {
+            return Optional.of(git.getRepository().getBranch());
+        } catch (IOException e) {
+            return Optional.empty();
+        }
+    }
+
     private List<String> makeRelativeToRoot(List<String> paths, File projectRootDir) {
         return paths.stream()
                 .map(p -> projectRootDir.toPath().relativize(Path.of(p).toAbsolutePath().normalize()))
                 .map(Path::toString)
                 .collect(Collectors.toList());
+    }
+
+    public GitStatus getStatus(File repo) {
+        try {
+            Git git = initGit(repo);
+            Status status = null;
+            status = git.status().call();
+            GitStatus gitStatus = new GitStatus(status);
+            return gitStatus;
+        } catch (GitAPIException e) {
+            throw new RuntimeException("Could not get git status.", e);
+        }
+    }
+
+    public void switchToBranch(File repo, String branchName) {
+        try {
+            Git git = initGit(repo);
+            git.checkout().setName(branchName).setCreateBranch(true).call();
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
     }
 }
