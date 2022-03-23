@@ -79,8 +79,7 @@ class DoesGitDirExistWhenGitSupportEnabledPreconditionCheck extends Precondition
     }
 
     private boolean isGitStatusClean(Path projectRoot) {
-        File repo = projectRoot.resolve(".git").normalize().toAbsolutePath().toFile();
-        GitStatus status = gitSupport.getStatus(repo);
+        GitStatus status = gitSupport.getStatus(projectRoot.toFile());
         return status.isClean();
 	}
 

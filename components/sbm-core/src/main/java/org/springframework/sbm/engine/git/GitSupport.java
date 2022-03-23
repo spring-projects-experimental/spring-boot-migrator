@@ -150,6 +150,9 @@ public class GitSupport {
      */
     public static Git initGit(File repo) {
         try {
+            if(repo.toPath().toString().endsWith(".git")) {
+                repo = repo.toPath().getParent().toAbsolutePath().normalize().toFile();
+            }
             return Git.init().setDirectory(repo).call();
         } catch (GitAPIException e) {
             throw new RuntimeException(e);

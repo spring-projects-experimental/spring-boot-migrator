@@ -15,12 +15,12 @@
  */
 package org.springframework.sbm.shell;
 
-import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.sbm.engine.recipe.RecipeAutomation;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.jline.utils.Colors;
+import org.springframework.sbm.engine.recipe.Recipe;
+import org.springframework.sbm.engine.recipe.RecipeAutomation;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -37,13 +37,16 @@ public class RecipeRenderer {
         if (foundRecipes.isEmpty()) {
             builder.append(noRecipesTitle);
         } else {
+            AttributedString titleString = renderTitle(title);
+            builder.append(titleString);
 
             AttributedString emojiMapping = renderEmojiMapping();
             builder.append(emojiMapping);
             foundRecipes.forEach(recipe -> this.buildRecipePresentation(builder, recipe));
-            AttributedString titleString = renderTitle(title);
-            builder.append(titleString);
-            builder.append("\n\n");
+
+            builder.append("\n");
+            builder.append("Run command '> apply recipe-name' to apply a recipe.");
+            builder.append("\n");
         }
         return builder.toAttributedString();
     }
@@ -71,7 +74,9 @@ public class RecipeRenderer {
     private AttributedString renderTitle(String title) {
         AttributedStringBuilder builder = new AttributedStringBuilder();
         builder.style(AttributedStyle.DEFAULT.bold());
+        builder.append("\n");
         builder.append(title);
+        builder.append("\n\n");
         return builder.toAttributedString();
     }
 
