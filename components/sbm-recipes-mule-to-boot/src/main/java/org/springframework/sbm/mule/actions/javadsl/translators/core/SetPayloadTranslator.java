@@ -32,7 +32,7 @@ public class SetPayloadTranslator implements MuleComponentToSpringIntegrationDsl
     }
 
     @Override
-    public DslSnippet translate(SetPayloadTransformerType component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(SetPayloadTransformerType component, QName name, MuleConfigurations muleConfigurations, String flowName) {
         String valueWithoutNewLines = component.getValue().replace("\n", "");
         String withEscapedChars = valueWithoutNewLines.replace("\"", "\\\"");
         return new DslSnippet(".handle((p, h) -> " + "\"" + withEscapedChars + "\")", Collections.emptySet());

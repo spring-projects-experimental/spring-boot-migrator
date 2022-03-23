@@ -36,9 +36,6 @@ import java.util.List;
 public class MigrateMuleToBoot {
 
     @Autowired
-    private freemarker.template.Configuration configuration;
-
-    @Autowired
     private JavaDSLAction2 javaDSLAction2;
 
 

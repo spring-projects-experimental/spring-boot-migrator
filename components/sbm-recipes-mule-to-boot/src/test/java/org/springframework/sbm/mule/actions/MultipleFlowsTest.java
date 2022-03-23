@@ -15,34 +15,13 @@
  */
 package org.springframework.sbm.mule.actions;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigTypeAdapter;
-import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.core.FlowRefTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.*;
-import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.TestProjectContext;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class MultipleFlowsTest {
+public class MultipleFlowsTest extends JavaDSLActionBaseTest {
 
-    private final String muleMultiFlow = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+    private final static String muleMultiFlow = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
             "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\" xmlns:metadata=\"http://www.mulesoft.org/schema/mule/metadata\" xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
             "xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
@@ -61,45 +40,10 @@ public class MultipleFlowsTest {
             "</sub-flow>\n" +
             "</mule>";
 
-    private JavaDSLAction2 myAction2;
-    private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-
-    @BeforeEach
-    public void setup() {
-        List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
-                new HttpListenerTranslator(),
-                new LoggingTranslator(new ExpressionLanguageTranslator()),
-                new FlowRefTranslator());
-        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
-                new FlowTopLevelElementFactory(translators),
-                new SubflowTopLevelElementFactory(translators)
-        );
-
-        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
-        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
-        myAction2 = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
-        myAction2.setEventPublisher(eventPublisher);
-    }
-
     @Test
     public void shouldTranslateSubflow() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-multi-flow.xml", muleMultiFlow)
-                .addRegistrar(registrar)
-                .withApplicationProperties(applicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-amqp:5.4.4",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
-                )
-                .build();
-        myAction2.apply(projectContext);
+        addXMLFileToResource(muleMultiFlow);
+        runAction();
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
 
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())

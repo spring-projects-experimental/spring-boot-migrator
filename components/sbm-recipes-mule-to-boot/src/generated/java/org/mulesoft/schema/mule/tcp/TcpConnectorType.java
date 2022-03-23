@@ -56,14 +56,14 @@ public class TcpConnectorType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link LengthProtocolType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link LengthProtocolType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ByteOrMessageProtocolType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ByteOrMessageProtocolType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link LengthProtocolType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link LengthProtocolType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomProtocolType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ByteOrMessageProtocolType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomClassLoadingProtocolType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
      *     
@@ -77,14 +77,14 @@ public class TcpConnectorType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link LengthProtocolType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link LengthProtocolType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ByteOrMessageProtocolType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ByteOrMessageProtocolType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link LengthProtocolType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link LengthProtocolType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomProtocolType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ByteOrMessageProtocolType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomClassLoadingProtocolType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractProtocolType }{@code >}
      *     

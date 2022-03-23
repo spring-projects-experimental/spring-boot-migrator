@@ -20,5 +20,6 @@ import java.util.Set;
 public interface TopLevelElement {
     Set<String> getRequiredImports();
     Set<String> getRequiredDependencies();
+    Set<String> getExternalClassContents();
     String renderDslSnippet();
 }

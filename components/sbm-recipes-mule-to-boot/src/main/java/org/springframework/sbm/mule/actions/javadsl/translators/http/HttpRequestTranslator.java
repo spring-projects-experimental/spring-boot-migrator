@@ -52,7 +52,10 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
     }
 
     @Override
-    public DslSnippet translate(RequestType component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(RequestType component,
+                                QName name,
+                                MuleConfigurations muleConfigurations,
+                                String flowName) {
 
 
         String templateStr = "return IntegrationFlows\n" +

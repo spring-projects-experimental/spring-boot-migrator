@@ -15,34 +15,16 @@
  */
 package org.springframework.sbm.mule.actions;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigTypeAdapter;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpInboundEndpointTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpOutboundEndpointTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.core.FlowRefTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.*;
-import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.SubflowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class ComplexSubflowsTest {
+public class ComplexSubflowsTest extends JavaDSLActionBaseTest {
 
     private static final String subflowWithRabbit = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<mule \n" +
@@ -131,29 +113,7 @@ public class ComplexSubflowsTest {
             "   \n" +
             "</mule>\n";
 
-    private JavaDSLAction2 myAction2;
-    private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 
-
-    @BeforeEach
-    public void setup() {
-        List<MuleComponentToSpringIntegrationDslTranslator> translators = List.of(
-                        new HttpListenerTranslator(),
-                        new LoggingTranslator(new ExpressionLanguageTranslator()),
-                        new FlowRefTranslator(),
-                        new AmqpOutboundEndpointTranslator(),
-                        new AmqpInboundEndpointTranslator()
-                );
-        List<TopLevelElementFactory> topLevelTypeFactories = List.of(
-                new FlowTopLevelElementFactory(translators),
-                new SubflowTopLevelElementFactory(translators)
-                );
-
-        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
-        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
-        myAction2 = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
-        myAction2.setEventPublisher(eventPublisher);
-    }
 
     @Test
     public void shouldHaveMethodsForSubflows() {
@@ -173,7 +133,7 @@ public class ComplexSubflowsTest {
                         "org.springframework.integration:spring-integration-http:5.4.4"
                 )
                 .build();
-        myAction2.apply(projectContext);
+        myAction.apply(projectContext);
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +
@@ -191,7 +151,7 @@ public class ComplexSubflowsTest {
                         "    IntegrationFlow hbfr_bil_risk_client_rating_mb05_hub_sys_main(org.springframework.integration.dsl.IntegrationFlow set_hbfr_headers_out) {\n" +
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"${http.listener.path}/*\")).handle((p, h) -> p)\n" +
                         "                .gateway(set_hbfr_headers_out)\n" +
-                        "                // FIXME: Conversion is not supported for Mule type: org.mulesoft.schema.mule.core.MessagePropertiesTransformerType\n" +
+                        "                //FIXME: element is not supported for conversion: <message-properties-transformer/>\n" +
                         "                .log(LoggingHandler.Level.INFO, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\", extCorrelationId=\\\"${flowVars.extCorrelationId}\\\", step=\\\"RequestParametersReceived\\\",functionalId=\\\"${flowVars.functionalId}\\\", requesterAppId=\\\"${flowVars.requesterAppId}\\\", requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\", requesterUserId=\\\"${flowVars.requesterUserId}\\\", httpMethod=\\\"#[message.inboundProperties.'http.method']\\\", httpScheme=\\\"#[message.inboundProperties.'http.scheme']\\\", httpHost=\\\"#[message.inboundProperties.'host']\\\", httpRequestUri=\\\"#[message.inboundProperties.'http.request.uri']\\\", httpQueryString=\\\"#[message.inboundProperties.'http.query.string']\\\" httpVersion=\\\"#[message.inboundProperties.'http.version']\\\", contentType=\\\"#[message.inboundProperties.'content-type']\\\", proxyClientId=\\\"#[message.inboundProperties.'client_id']\\\"\")\n" +
                         "                .get();\n" +
                         "    }\n" +
@@ -294,7 +254,7 @@ public class ComplexSubflowsTest {
                         "org.springframework.integration:spring-integration-http:5.4.4"
                 )
                 .build();
-        myAction2.apply(projectContext);
+        myAction.apply(projectContext);
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +

@@ -39,6 +39,7 @@ http://www.mulesoft.org/schema/mule/amqp http://www.mulesoft.org/schema/mule/amq
 		<flow-ref name="outToAMQP" />
 	</flow>
 	<sub-flow name="outToAMQP">
+		<set-property propertyName="TestProperty" value="TestPropertyValue"/>
 		<amqp:outbound-endpoint
 				exchangeName="sbm-integration-exchange"
 				routingKey="sbm-integration-queue-two"

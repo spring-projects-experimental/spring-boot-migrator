@@ -22,5 +22,5 @@ import javax.xml.namespace.QName;
 public interface MuleComponentToSpringIntegrationDslTranslator<T> {
     Class<T> getSupportedMuleType();
 
-    DslSnippet translate(T component, QName name, MuleConfigurations muleConfigurations);
+    DslSnippet translate(T component, QName name, MuleConfigurations muleConfigurations, String flowName);
 }

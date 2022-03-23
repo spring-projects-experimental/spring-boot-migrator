@@ -37,7 +37,10 @@ public class AmqConnectorTranslator implements MuleComponentToSpringIntegrationD
     }
 
     @Override
-    public DslSnippet translate(AmqpConnectorType component, QName name, MuleConfigurations muleConfigurations) {
+    public DslSnippet translate(AmqpConnectorType component,
+                                QName name,
+                                MuleConfigurations muleConfigurations,
+                                String flowName) {
         return new DslSnippet("// FIXME: <amq:connector/>  cannot be translated yet.", Collections.emptySet(), Set.of(), Collections.emptySet());
     }
 }
