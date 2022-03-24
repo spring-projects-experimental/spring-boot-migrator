@@ -15,16 +15,16 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
-import org.springframework.sbm.java.migration.visitor.VisitorUtils;
-import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
-import org.springframework.sbm.java.impl.JavaParserFactory;
-import org.springframework.sbm.search.recipe.CommentJavaSearchResult;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Tree;
 import org.openrewrite.java.*;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J.MethodInvocation;
+import org.springframework.sbm.java.impl.JavaParserFactory;
+import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
+import org.springframework.sbm.java.migration.visitor.VisitorUtils;
+import org.springframework.sbm.search.recipe.CommentJavaSearchResult;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -359,7 +359,7 @@ public class SwapResponseWithResponseEntity extends Recipe {
 
         doNext(new ReplaceResponseEntityBuilder());
 
-        doNext(new ChangeType("javax.ws.rs.core.Response", "org.springframework.http.ResponseEntity"));
+        doNext(new ChangeType("javax.ws.rs.core.Response", "org.springframework.http.ResponseEntity", false));
     }
 
     private void markTopLevelInvocationWithTemplate(JavaVisitor<ExecutionContext> v, MethodInvocation m, String template) {

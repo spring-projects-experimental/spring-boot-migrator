@@ -15,11 +15,6 @@
  */
 package org.springframework.sbm.java.impl;
 
-import org.springframework.sbm.java.api.*;
-import org.springframework.sbm.java.migration.visitor.ReplaceLiteralVisitor;
-import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.search.recipe.CommentJavaSearchResult;
 import org.openrewrite.*;
 import org.openrewrite.java.ChangeMethodName;
 import org.openrewrite.java.JavaPrinter;
@@ -29,6 +24,11 @@ import org.openrewrite.java.search.FindReferencedTypes;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.Marker;
+import org.springframework.sbm.java.api.*;
+import org.springframework.sbm.java.migration.visitor.ReplaceLiteralVisitor;
+import org.springframework.sbm.java.refactoring.JavaRefactoring;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.search.recipe.CommentJavaSearchResult;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -132,7 +132,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
 
     @Override
     public void renameMethodCalls(String methodMatchingPattern, String newName) {
-        ChangeMethodName changeMethodName = new ChangeMethodName(methodMatchingPattern, newName, true);
+        ChangeMethodName changeMethodName = new ChangeMethodName(methodMatchingPattern, newName, true, false);
         refactoring.refactor(getResource(), changeMethodName);
     }
 

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.properties.tree.Properties;
 import org.openrewrite.text.PlainText;
 import org.openrewrite.xml.tree.Xml;
@@ -35,6 +36,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
+import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.*;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
@@ -43,6 +45,7 @@ import org.springframework.util.FileSystemUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -51,6 +54,7 @@ import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.
 
 @SpringBootTest(classes = {
         ProjectContextInitializer.class,
+        BasePackageCalculator.class,
         ProjectContextFactory.class,
         RewriteMavenParserFactory.class,
         MavenPomCacheProvider.class,
@@ -99,7 +103,15 @@ class ProjectContextInitializerTest {
         verifyResource("testcode/pom.xml")
                 .wrappedInstanceOf(Xml.Document.class)
                 .havingMarkers(
-                        mavenModelMarker("com.example:example-project-parent:1.0.0-SNAPSHOT"),
+                        mavenModelMarker("com.example:example-project-parent:1.0.0-SNAPSHOT",
+                                List.of("com.example:module1:1.0.0-SNAPSHOT", "com.example:module2:1.0.0-SNAPSHOT"),
+                                Map.of(
+                                    Scope.Compile, List.of(),
+                                    Scope.Provided, List.of(),
+                                    Scope.Test, List.of(),
+                                    Scope.Runtime, List.of()
+                                )
+                        ),
                         buildToolMarker("Maven", "3.6"), // TODO: does this work in all env (taken from .mvn)?
                         javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
                         javaProjectMarker(null, "com.example:example-project-parent:1.0.0-SNAPSHOT"),

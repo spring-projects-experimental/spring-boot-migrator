@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
-import org.springframework.sbm.java.migration.recipes.RewriteConstructorInvocation;
-import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.JavaTemplate;
+import org.springframework.sbm.java.migration.recipes.RewriteConstructorInvocation;
+import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 
 public class SwapCacheControl extends Recipe {
 
@@ -67,7 +67,7 @@ public class SwapCacheControl extends Recipe {
             return c.withTemplate(t, c.getCoordinates().replace());
         }));
 
-        doNext(new ChangeType("javax.ws.rs.core.CacheControl", "org.springframework.http.CacheControl"));
+        doNext(new ChangeType("javax.ws.rs.core.CacheControl", "org.springframework.http.CacheControl", false));
     }
 
     @Override

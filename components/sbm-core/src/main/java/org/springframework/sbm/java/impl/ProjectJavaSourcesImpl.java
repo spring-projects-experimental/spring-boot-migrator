@@ -15,15 +15,6 @@
  */
 package org.springframework.sbm.java.impl;
 
-import org.springframework.sbm.java.api.MethodCall;
-import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.java.api.JavaSourceAndType;
-import org.springframework.sbm.java.api.ProjectJavaSources;
-import org.springframework.sbm.java.api.Type;
-import org.springframework.sbm.java.filter.JavaSourceListFilter;
-import org.springframework.sbm.java.refactoring.JavaGlobalRefactoring;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeType;
@@ -32,6 +23,11 @@ import org.openrewrite.java.search.FindMethods;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
+import org.springframework.sbm.java.api.*;
+import org.springframework.sbm.java.filter.JavaSourceListFilter;
+import org.springframework.sbm.java.refactoring.JavaGlobalRefactoring;
+import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +67,7 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
 
     @Override
     public void replaceType(String annotation, String withAnnotation) {
-        ChangeType visitor = new ChangeType(annotation, withAnnotation);
+        ChangeType visitor = new ChangeType(annotation, withAnnotation, false);
         globalRefactoring.refactor(visitor);
     }
 

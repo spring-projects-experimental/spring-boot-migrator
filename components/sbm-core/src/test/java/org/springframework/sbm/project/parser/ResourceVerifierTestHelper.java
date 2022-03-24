@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaSourceSet;
@@ -23,10 +22,14 @@ import org.openrewrite.java.marker.JavaVersion;
 import org.openrewrite.marker.BuildTool;
 import org.openrewrite.marker.GitProvenance;
 import org.openrewrite.marker.Marker;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.Scope;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -61,8 +64,8 @@ class ResourceVerifierTestHelper {
         return new BuildToolMarkerVerifier(name, version);
     }
 
-    public static MarkerVerifier mavenModelMarker(String coordinate) {
-        return new MavenModelMarkerVerifier(coordinate);
+    public static MarkerVerifier mavenModelMarker(String coordinate, List<String> modules, Map<Scope, List> dependencies) {
+        return new MavenModelMarkerVerifier(coordinate, modules, dependencies);
     }
 
     public static MarkerVerifier modulesMarker(String... modules) {
@@ -235,16 +238,22 @@ class ResourceVerifierTestHelper {
 
     private static class MavenModelMarkerVerifier extends MarkerVerifier {
         private final String coordinate;
+        private List<String> modules;
+        private Map<Scope, List> dependencies;
 
-        public MavenModelMarkerVerifier(String coordinate) {
+        public MavenModelMarkerVerifier(String coordinate, List<String> modules, Map<Scope, List> dependencies) {
             this.coordinate = coordinate;
+            this.modules = modules;
+            this.dependencies = dependencies;
         }
 
         @Override
         public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
-//            MavenModel mavenModel = getMarker(rewriteSourceFileHolder, MavenModel.class);
-//            String coordinate = mavenModel.getPom().getGroupId() + ":" + mavenModel.getPom().getArtifactId() + ":" + mavenModel.getPom().getVersion();
-            assertThat(coordinate).isEqualTo(""); //coordinate);
+            MavenResolutionResult mavenModel = rewriteSourceFileHolder.getSourceFile().getMarkers().findFirst(MavenResolutionResult.class).get();
+            String coordinate = mavenModel.getPom().getGroupId() + ":" + mavenModel.getPom().getArtifactId() + ":" + mavenModel.getPom().getVersion();
+            assertThat(mavenModel.getModules().stream().map(m -> m.getPom().getGav().toString()).collect(Collectors.toList())).containsExactlyInAnyOrder(modules.toArray(new String[]{}));
+            assertThat(mavenModel.getDependencies())
+            assertThat(coordinate).isEqualTo(coordinate);
         }
     }
 

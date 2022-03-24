@@ -15,10 +15,6 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
-import org.springframework.sbm.java.migration.recipes.FindReplaceFieldAccessors;
-import org.springframework.sbm.java.migration.recipes.RewriteConstructorInvocation;
-import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
-import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.JavaParser;
@@ -26,6 +22,10 @@ import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
+import org.springframework.sbm.java.impl.JavaParserFactory;
+import org.springframework.sbm.java.migration.recipes.FindReplaceFieldAccessors;
+import org.springframework.sbm.java.migration.recipes.RewriteConstructorInvocation;
+import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 
 import java.util.HashMap;
 import java.util.List;
@@ -95,9 +95,9 @@ public class ReplaceMediaType extends Recipe {
         doNext(new RewriteMethodInvocation(RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.MediaType isCompatible(javax.ws.rs.core.MediaType)"), (v, m, addImport) -> {
             JavaType type = JavaType.buildType("org.springframework.http.MediaType");
             return m
-                    .withName(m.getName().withName("isCompatibleWith"))
+                    .withName(m.getName().withSimpleName("isCompatibleWith"))
                     .withSelect(m.getSelect().withType(type))
-                    .withType(m.getType().withDeclaringType(TypeUtils.asFullyQualified(type)))
+                    .withType(m.withDeclaringType(TypeUtils.asFullyQualified(type)).getType())
                     .withArguments(List.of(m.getArguments().get(0).withType(type)));
         }));
 
@@ -160,7 +160,7 @@ public class ReplaceMediaType extends Recipe {
         }));
 
         // Type references
-        doNext(new ChangeType("javax.ws.rs.core.MediaType", "org.springframework.http.MediaType"));
+        doNext(new ChangeType("javax.ws.rs.core.MediaType", "org.springframework.http.MediaType", false));
     }
 
     @Override
