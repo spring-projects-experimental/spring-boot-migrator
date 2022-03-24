@@ -15,12 +15,12 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
-import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
-import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
+import org.springframework.sbm.java.impl.JavaParserFactory;
+import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 
 public class SwapFamilyForSeries extends Recipe {
 
@@ -39,7 +39,7 @@ public class SwapFamilyForSeries extends Recipe {
                 )
         );
 
-        doNext(new ChangeType("javax.ws.rs.core.Response.Status.Family", "org.springframework.http.HttpStatus.Series"));
+        doNext(new ChangeType("javax.ws.rs.core.Response.Status.Family", "org.springframework.http.HttpStatus.Series", false));
 
     }
 

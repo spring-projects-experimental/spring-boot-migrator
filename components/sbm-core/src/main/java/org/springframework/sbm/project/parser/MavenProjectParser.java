@@ -126,7 +126,7 @@ public class MavenProjectParser {
             List<ResolvedDependency> resolvedDependencies = mavenResolution.getDependencies().get(Scope.Compile);
             List<Path> dependencies = downloadArtifacts(resolvedDependencies);
             JavaTypeCache typeCache = new JavaTypeCache();
-            JavaSourceSet mainProvenance = JavaSourceSet.build("main", dependencies,  typeCache, ctx);
+            JavaSourceSet mainProvenance = JavaSourceSet.build("main", dependencies,  typeCache, true);
             javaParser.setClasspath(dependencies);
 
             List<Resource> javaSources = getJavaSources(projectDirectory, resources, maven);
@@ -145,7 +145,7 @@ public class MavenProjectParser {
             sourceFiles.addAll(ListUtils.map(compilationUnits, addProvenance(projectProvenance, mainProvenance)));
 
             List<Path> testDependencies = downloadArtifacts(mavenResolution.getDependencies().get(Scope.Test));
-            JavaSourceSet testProvenance = JavaSourceSet.build("test", testDependencies, typeCache, ctx);
+            JavaSourceSet testProvenance = JavaSourceSet.build("test", testDependencies, typeCache, true);
             javaParser.setClasspath(testDependencies);
 
             List<Resource> testJavaSources = getTestJavaSources(projectDirectory, resources, maven);

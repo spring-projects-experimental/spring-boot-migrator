@@ -24,9 +24,11 @@ import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.xml.AddToTagVisitor;
 import org.openrewrite.xml.ChangeTagValueVisitor;
 import org.openrewrite.xml.XPathMatcher;
+import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.build.api.Plugin;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -51,10 +53,11 @@ public class AddMavenPlugin extends Recipe {
 
 			Xml.Tag root = maven.getRoot();
 			if (!root.getChild("build").isPresent()) {
+				List<Content> collect = root.getContent().stream().map(Content.class::cast).collect(Collectors.toList());
 				doAfterVisit(new AddToTagVisitor<>(root,
 						Xml.Tag.build(
 								"<build>\n" + "<plugins>\n" + createPluginTagString() + "</plugins>\n" + "</build>"),
-						new MavenTagInsertionComparator(root.getChildren())));
+						new MavenTagInsertionComparator(collect)));
 			}
 
 			return m;

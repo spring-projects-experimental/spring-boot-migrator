@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.jee.jaxrs;
 
+import org.openrewrite.java.ChangeType;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.migration.actions.AddDependencies;
 import org.springframework.sbm.build.migration.conditions.NoExactDependencyExist;
@@ -29,9 +32,6 @@ import org.springframework.sbm.jee.jaxrs.recipes.ReplaceMediaType;
 import org.springframework.sbm.jee.jaxrs.recipes.SwapCacheControl;
 import org.springframework.sbm.jee.jaxrs.recipes.SwapHttHeaders;
 import org.springframework.sbm.jee.jaxrs.recipes.SwapResponseWithResponseEntity;
-import org.openrewrite.java.ChangeType;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
@@ -102,7 +102,7 @@ public class MigrateJaxRsRecipe {
                                 JavaRecipeAction.builder()
                                         .condition(HasImportStartingWith.builder().value("javax.ws.rs.core.MultivaluedMap").build())
                                         .description("Replace JaxRs MultivaluedMap with it's Spring equivalent.")
-                                        .recipe(new ChangeType("javax.ws.rs.core.MultivaluedMap", "org.springframework.util.MultiValueMap"))
+                                        .recipe(new ChangeType("javax.ws.rs.core.MultivaluedMap", "org.springframework.util.MultiValueMap", false))
                                         .build(),
 
                                 JavaRecipeAction.builder()

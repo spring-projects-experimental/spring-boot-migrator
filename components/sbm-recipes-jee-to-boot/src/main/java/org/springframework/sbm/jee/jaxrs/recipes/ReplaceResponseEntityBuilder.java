@@ -15,12 +15,6 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
-import org.springframework.sbm.java.migration.visitor.VisitorUtils;
-import org.springframework.sbm.java.migration.visitor.VisitorUtils.AdjustTypesFromExpressionMarkers;
-import org.springframework.sbm.java.migration.visitor.VisitorUtils.MarkReturnType;
-import org.springframework.sbm.java.migration.visitor.VisitorUtils.MarkWithTemplate;
-import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
-import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.openrewrite.Recipe;
 import org.openrewrite.Tree;
 import org.openrewrite.java.ChangeType;
@@ -28,6 +22,12 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.JavaTemplate.Builder;
 import org.openrewrite.java.MethodMatcher;
+import org.springframework.sbm.java.impl.JavaParserFactory;
+import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
+import org.springframework.sbm.java.migration.visitor.VisitorUtils;
+import org.springframework.sbm.java.migration.visitor.VisitorUtils.AdjustTypesFromExpressionMarkers;
+import org.springframework.sbm.java.migration.visitor.VisitorUtils.MarkReturnType;
+import org.springframework.sbm.java.migration.visitor.VisitorUtils.MarkWithTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -238,7 +238,7 @@ public class ReplaceResponseEntityBuilder extends Recipe {
         doNext(new AdjustTypesFromExpressionMarkers());
 
         // Finally replace type with BodyBuilder if nothing else replaced it previously
-        doNext(new ChangeType("javax.ws.rs.core.Response.ResponseBuilder", "org.springframework.http.ResponseEntity.BodyBuilder"));
+        doNext(new ChangeType("javax.ws.rs.core.Response.ResponseBuilder", "org.springframework.http.ResponseEntity.BodyBuilder", false));
 
     }
 

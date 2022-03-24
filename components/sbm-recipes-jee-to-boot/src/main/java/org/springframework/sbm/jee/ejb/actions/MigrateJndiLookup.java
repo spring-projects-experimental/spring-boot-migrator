@@ -15,10 +15,6 @@
  */
 package org.springframework.sbm.jee.ejb.actions;
 
-import org.springframework.sbm.engine.recipe.AbstractAction;
-import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
@@ -30,6 +26,10 @@ import org.openrewrite.java.RemoveUnusedImports;
 import org.openrewrite.java.cleanup.RemoveUnusedLocalVariables;
 import org.openrewrite.java.format.AutoFormat;
 import org.openrewrite.java.tree.*;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.java.api.JavaSource;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -48,7 +48,7 @@ public class MigrateJndiLookup extends AbstractAction {
 
     private void migrateJndiLookup(JavaSource sourceWithLookup) {
         Recipe recipe = new GenericOpenRewriteRecipe<>(() -> new MigrateJndiLookupVisitor())
-                .doNext(new RemoveUnusedLocalVariables())
+                .doNext(new RemoveUnusedLocalVariables(null))
                 .doNext(new RemoveUnusedImports())
                 .doNext(new GenericOpenRewriteRecipe<>(() -> new AddImport<>("org.springframework.beans.factory.annotation.Autowired", null, false)))
                 .doNext(new AutoFormat());

@@ -27,7 +27,8 @@ public class HasSpringBoot24Parent implements Condition {
     @Override
     public boolean evaluate(ProjectContext context) {
         return context.getBuildFile().hasParent() &&
-                context.getBuildFile().getParentPomDeclaration().getArtifactId().equals("spring-boot-starter-parent") &&
-                context.getBuildFile().getParentPomDeclaration().getVersion().startsWith("2.4.");
+                context.getBuildFile().getParentPomDeclaration().isPresent() &&
+                context.getBuildFile().getParentPomDeclaration().get().getArtifactId().equals("spring-boot-starter-parent") &&
+                context.getBuildFile().getParentPomDeclaration().get().getVersion().startsWith("2.4.");
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.migration.recipe;
 
+import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
 
 import java.util.*;
@@ -28,7 +29,7 @@ import java.util.*;
  * GAV coordinates, SCM, properties, but before plugins.
  * "After" ordering preference takes priority over "before".
  */
-class MavenTagInsertionComparator implements Comparator<Xml.Tag> {
+class MavenTagInsertionComparator implements Comparator<Content> {
     private static final List<String> canonicalOrdering = Arrays.asList(
             "modelVersion",
             "parent",
@@ -62,15 +63,14 @@ class MavenTagInsertionComparator implements Comparator<Xml.Tag> {
             "profiles"
     );
 
-    private final Map<Xml.Tag, Integer> existingIndices = new IdentityHashMap<>();
+    private final Map<Content, Integer> existingIndices = new IdentityHashMap<>();
 
-    MavenTagInsertionComparator(List<Xml.Tag> existingTags) {
+    MavenTagInsertionComparator(List<Content> existingTags) {
         for (int i = 0; i < existingTags.size(); i++) {
             existingIndices.put(existingTags.get(i), i);
         }
     }
 
-    @Override
     public int compare(Xml.Tag t1, Xml.Tag t2) {
         int i1 = existingIndices.getOrDefault(t1, -1);
         int i2 = existingIndices.getOrDefault(t2, -1);
@@ -101,5 +101,13 @@ class MavenTagInsertionComparator implements Comparator<Xml.Tag> {
                 return i1 - i2;
             }
         }
+    }
+
+    @Override
+    public int compare(Content o1, Content o2) {
+        if(Xml.Tag.class.isInstance(o1) && Xml.Tag.class.isInstance(o2)) {
+            return compare(Xml.Tag.class.cast(o1), Xml.Tag.class.cast(o2));
+        }
+        return o1.getPrefix().compareTo(o2.getPrefix());
     }
 }
