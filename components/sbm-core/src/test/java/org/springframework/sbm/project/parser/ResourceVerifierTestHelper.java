@@ -23,6 +23,7 @@ import org.openrewrite.marker.BuildTool;
 import org.openrewrite.marker.GitProvenance;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 
@@ -64,8 +65,8 @@ class ResourceVerifierTestHelper {
         return new BuildToolMarkerVerifier(name, version);
     }
 
-    public static MarkerVerifier mavenModelMarker(String coordinate, List<String> modules, Map<Scope, List> dependencies) {
-        return new MavenModelMarkerVerifier(coordinate, modules, dependencies);
+    public static MarkerVerifier mavenResolutionResult(String parentPomCoordinate, String coordinate, List<String> modules, Map<? extends Scope, ? extends List<ResolvedDependency>> dependencies) {
+        return new MavenResolutionResultMarkerVerifier(parentPomCoordinate, coordinate, modules, dependencies);
     }
 
     public static MarkerVerifier modulesMarker(String... modules) {
@@ -236,12 +237,14 @@ class ResourceVerifierTestHelper {
         }
     }
 
-    private static class MavenModelMarkerVerifier extends MarkerVerifier {
+    private static class MavenResolutionResultMarkerVerifier extends MarkerVerifier {
+        private String parentPomCoordinate;
         private final String coordinate;
         private List<String> modules;
-        private Map<Scope, List> dependencies;
+        private Map<? extends Scope, ? extends List<ResolvedDependency>> dependencies;
 
-        public MavenModelMarkerVerifier(String coordinate, List<String> modules, Map<Scope, List> dependencies) {
+        public MavenResolutionResultMarkerVerifier(String parentPomCoordinate, String coordinate, List<String> modules, Map<? extends Scope, ? extends List<ResolvedDependency>> dependencies) {
+            this.parentPomCoordinate = parentPomCoordinate;
             this.coordinate = coordinate;
             this.modules = modules;
             this.dependencies = dependencies;
@@ -251,8 +254,14 @@ class ResourceVerifierTestHelper {
         public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
             MavenResolutionResult mavenModel = rewriteSourceFileHolder.getSourceFile().getMarkers().findFirst(MavenResolutionResult.class).get();
             String coordinate = mavenModel.getPom().getGroupId() + ":" + mavenModel.getPom().getArtifactId() + ":" + mavenModel.getPom().getVersion();
+            if(parentPomCoordinate == null) {
+                assertThat(mavenModel.getParent()).isNull();
+            } else {
+                assertThat(mavenModel.getParent().getPom().getGav().toString()).isEqualTo(parentPomCoordinate);
+            }
+
             assertThat(mavenModel.getModules().stream().map(m -> m.getPom().getGav().toString()).collect(Collectors.toList())).containsExactlyInAnyOrder(modules.toArray(new String[]{}));
-            assertThat(mavenModel.getDependencies())
+            assertThat(mavenModel.getDependencies()).containsExactlyInAnyOrderEntriesOf(dependencies);
             assertThat(coordinate).isEqualTo(coordinate);
         }
     }
@@ -266,8 +275,8 @@ class ResourceVerifierTestHelper {
 
         @Override
         public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
-//            Modules modulesMarker = getMarker(rewriteSourceFileHolder, Modules.class);
-            List<String> modulesList = List.of(); //modulesMarker.getModules().stream().map(m -> m.getGroupId() + ":" + m.getArtifactId() + ":" + m.getVersion()).collect(Collectors.toList());
+            MavenResolutionResult marker = getMarker(rewriteSourceFileHolder, MavenResolutionResult.class);
+            List<String> modulesList = marker.getModules().stream().map(m -> m.getPom().getGav().toString()).collect(Collectors.toList());
 
             assertThat(modulesList)
                     .as("Invalid marker [Modules] for resource '%s'. Expected modules to be '%s' but was '%s'", rewriteSourceFileHolder, modules, modulesList)
