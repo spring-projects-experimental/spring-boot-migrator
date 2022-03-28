@@ -44,9 +44,9 @@
     </properties>
 
     <scm>
-        <developerConnection>scm:git:https://github.com/pivotal/spring-boot-migrator.git</developerConnection>
-        <connection>scm:git:https://github.com/pivotal/spring-boot-migrator.git</connection>
-        <url>http://github.com/pivotal/spring-boot-migrator</url>
+        <developerConnection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</developerConnection>
+        <connection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator</connection>
+        <url>https://github.com/spring-projects-experimental/spring-boot-migrator</url>
         <tag>0.7.1</tag>
     </scm>
 
