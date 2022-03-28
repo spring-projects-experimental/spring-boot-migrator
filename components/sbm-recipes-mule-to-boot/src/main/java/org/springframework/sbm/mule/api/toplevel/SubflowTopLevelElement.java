@@ -27,7 +27,7 @@ public class SubflowTopLevelElement extends AbstractTopLevelElement {
     private boolean generateEmptyFlow;
 
     public SubflowTopLevelElement(String flowName,
-                                  List<JAXBElement> elements,
+                                  List<JAXBElement<?>> elements,
                                   MuleConfigurations muleConfigurations,
                                   Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
         super(flowName, elements, muleConfigurations, translatorsMap);

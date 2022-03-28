@@ -1,14 +1,15 @@
 package org.springframework.sbm.mule.actions.javadsl.translators.core;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.mulesoft.schema.mule.core.SelectiveOutboundRouterType;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
+import org.springframework.sbm.mule.api.toplevel.ChoiceTopLevelElement;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -21,30 +22,58 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
 
     private final static String subflowTemplate =
                     "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to $TRANSLATE_EXPRESSION*/,\n" +
-                    "                                        sf -> sf.handle((p , h) -> \"Bonjur!\")\n" +
+                    "                                        sf -> sf$SUBFLOW_CONTENT\n" +
                     "                                )\n";
 
     @Override
     public DslSnippet translate(SelectiveOutboundRouterType component,
                                 QName name,
                                 MuleConfigurations muleConfigurations,
-                                String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
+                                String flowName,
+                                Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
 
-        String subflowMappings = component.getWhen()
+        List<ImmutablePair<String, ChoiceTopLevelElement>> list = component
+                .getWhen()
                 .stream()
-                .map(item -> subflowTemplate.replace("$TRANSLATE_EXPRESSION", item.getExpression())).collect(Collectors.joining());
+                .map(item -> new ImmutablePair<>(item.getExpression(), new ChoiceTopLevelElement(
+                        flowName,
+                        item.getMessageProcessorOrOutboundEndpoint(),
+                        muleConfigurations,
+                        translatorsMap)))
+                .collect(Collectors.toList());
+
+        String subflowMappings = list
+                .stream()
+                .map(item ->
+                        subflowTemplate
+                                .replace("$TRANSLATE_EXPRESSION", item.getLeft())
+                                .replace("$SUBFLOW_CONTENT",  item.getValue().getDslSnippets().get(0).getRenderedSnippet())
+                )
+                .collect(Collectors.joining());
+
+
+        Set<String> requiredImports = list.stream()
+                .map(item -> item.getValue().getRequiredImports())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        Set<String> requiredDependencies = list.stream()
+                .map(item -> item.getValue().getRequiredDependencies())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
         return new DslSnippet(
                 "/*\n" +
                         "                * TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
                         "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
                         "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
                         "                        m -> m\n" +
-                        subflowMappings +
+                                                        subflowMappings +
                         "                                .resolutionRequired(false)\n" +
                         "                                .defaultSubFlowMapping(sf -> sf.handle((p, h) -> \"Hello\" ))\n" +
                         "                )",
-                Collections.emptySet(),
-                Collections.emptySet(),
+                requiredImports,
+                requiredDependencies,
                 Collections.emptySet()
         );
     }

@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractTopLevelElement implements TopLevelElement {
     private final Set<String> requiredImports = new HashSet<>();
     private String flowName;
-    private List<JAXBElement> elements;
+    private List<JAXBElement<?>> elements;
     private final Set<String> requiredDependencies = new HashSet<>();
     private final MuleConfigurations muleConfigurations;
     private List<DslSnippet> dslSnippets;
@@ -48,7 +48,7 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
 
 
     public AbstractTopLevelElement(String flowName,
-                                   List<JAXBElement> elements,
+                                   List<JAXBElement<?>> elements,
                                    MuleConfigurations muleConfigurations,
                                    Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
         this.flowName = flowName;

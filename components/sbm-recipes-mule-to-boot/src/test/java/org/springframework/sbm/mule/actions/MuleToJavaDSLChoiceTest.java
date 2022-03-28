@@ -20,9 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * TODO: Fix import issues
- */
 public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
     private static final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
@@ -75,10 +72,10 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
                         "                        m -> m\n" +
                         "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[flowVars.language == 'Spanish']*/,\n" +
-                        "                                        sf -> sf.handle((p, h) -> \"Bonjur!\")\n" +
+                        "                                        sf -> sf.handle((p, h) -> \"Hola!\")\n" +
                         "                                )\n" +
                         "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[flowVars.language == 'French']*/,\n" +
-                        "                                        sf -> sf.handle((p, h) -> \"Bonjur!\")\n" +
+                        "                                        sf -> sf.handle((p, h) -> \"Bonjour!\")\n" +
                         "                                )\n" +
                         "                                .resolutionRequired(false)\n" +
                         "                                .defaultSubFlowMapping(sf -> sf.handle((p, h) -> \"Hello\"))\n" +
