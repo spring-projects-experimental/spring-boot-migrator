@@ -15,10 +15,10 @@
  */
 package org.springframework.sbm.build.migration.visitor;
 
-import org.springframework.sbm.build.api.Dependency;
-import org.springframework.sbm.openrewrite.MavenRefactoringTestHelper;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.build.api.Dependency;
+import org.springframework.sbm.openrewrite.MavenRefactoringTestHelper;
 
 @Tag("integration")
 public class AddOrUpdateDependencyManagementTest {
@@ -26,7 +26,7 @@ public class AddOrUpdateDependencyManagementTest {
     public void shouldCreateDependencyManagementWithDependencyWhenNoneExists() {
 
         String before =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?xml  version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.openrewrite.maven</groupId>\n" +
@@ -37,7 +37,7 @@ public class AddOrUpdateDependencyManagementTest {
                         "</project>";
 
         String expected =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?xml  version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.openrewrite.maven</groupId>\n" +
@@ -72,7 +72,7 @@ public class AddOrUpdateDependencyManagementTest {
     public void shouldAddDependencyWhenDependencyManagementAlreadyExists() {
 
         String before =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?xml  version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.openrewrite.maven</groupId>\n" +
@@ -92,7 +92,7 @@ public class AddOrUpdateDependencyManagementTest {
                         "</project>";
 
         String expected =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?xml  version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.openrewrite.maven</groupId>\n" +
@@ -127,7 +127,7 @@ public class AddOrUpdateDependencyManagementTest {
     public void shouldUpdateVersionIfDifferent() {
 
         String before =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?xml  version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.openrewrite.maven</groupId>\n" +
@@ -148,7 +148,7 @@ public class AddOrUpdateDependencyManagementTest {
                         "</project>";
 
         String expected =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?xml  version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.openrewrite.maven</groupId>\n" +
@@ -182,7 +182,7 @@ public class AddOrUpdateDependencyManagementTest {
     public void shouldUpdateScopeIfDifferent() {
 
         String before =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?xml  version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.openrewrite.maven</groupId>\n" +
@@ -203,7 +203,7 @@ public class AddOrUpdateDependencyManagementTest {
                         "</project>";
 
         String expected =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?xml  version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.openrewrite.maven</groupId>\n" +
@@ -238,7 +238,7 @@ public class AddOrUpdateDependencyManagementTest {
     public void shouldRemoveScopeIfRemoved() {
 
         String before =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?xml  version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.openrewrite.maven</groupId>\n" +
@@ -259,7 +259,7 @@ public class AddOrUpdateDependencyManagementTest {
                         "</project>";
 
         String expected =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?xml  version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.openrewrite.maven</groupId>\n" +

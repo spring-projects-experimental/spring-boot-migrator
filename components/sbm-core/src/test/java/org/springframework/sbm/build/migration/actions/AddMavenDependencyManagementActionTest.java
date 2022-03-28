@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +40,7 @@ class AddMavenDependencyManagementActionTest {
                         "</project>\n";
 
         String expected =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?xml  version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
                         "    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
