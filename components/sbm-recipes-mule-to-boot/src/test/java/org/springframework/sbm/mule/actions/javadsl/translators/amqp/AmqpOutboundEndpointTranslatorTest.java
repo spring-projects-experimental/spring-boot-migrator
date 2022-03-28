@@ -32,6 +32,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -133,7 +134,7 @@ public class AmqpOutboundEndpointTranslatorTest {
 
     private DslSnippet apply(OutboundEndpointType outboundEndpointType) {
         AmqpOutboundEndpointTranslator sut = new AmqpOutboundEndpointTranslator();
-        return sut.translate(outboundEndpointType, new QName(""), new MuleConfigurations(new HashMap<>()), "");
+        return sut.translate(outboundEndpointType, new QName(""), new MuleConfigurations(new HashMap<>()), "", Map.of());
     }
 
     private OutboundEndpointType getOutboundEndpointType(FlowType flowType) {

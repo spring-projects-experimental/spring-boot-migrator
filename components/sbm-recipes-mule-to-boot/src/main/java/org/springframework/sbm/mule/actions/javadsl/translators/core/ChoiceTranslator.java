@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -26,14 +27,15 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
     @Override
     public DslSnippet translate(SelectiveOutboundRouterType component,
                                 QName name,
-                                MuleConfigurations muleConfigurations, String flowName) {
+                                MuleConfigurations muleConfigurations,
+                                String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
 
         String subflowMappings = component.getWhen()
                 .stream()
                 .map(item -> subflowTemplate.replace("$TRANSLATE_EXPRESSION", item.getExpression())).collect(Collectors.joining());
         return new DslSnippet(
                 "/*\n" +
-                        "                * TODO: LinkedMultiValueMap might not be apt, double check*/\n" +
+                        "                * TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
                         "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
                         "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
                         "                        m -> m\n" +

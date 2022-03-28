@@ -32,6 +32,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -287,7 +288,7 @@ class LoggingTranslatorTest {
         MuleType muleType = muleXmls.get(0).getMuleType();
         LoggerType loggerType = (LoggerType)  ((FlowType)((JAXBElement)muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractMessageProcessorOrAbstractOutboundEndpointOrAbstractMixedContentMessageProcessor().get(0).getValue();
 
-        DslSnippet snippet = sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()), "");
+        DslSnippet snippet = sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()), "", Map.of());
 
         assertThat(snippet.getRenderedSnippet()).isEqualTo(
                 ".log(\"#{payload}\")"
@@ -310,6 +311,6 @@ class LoggingTranslatorTest {
 
         MuleType muleType = muleXmls.get(0).getMuleType();
         LoggerType loggerType = (LoggerType)  ((FlowType)((JAXBElement)muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractMessageProcessorOrAbstractOutboundEndpointOrAbstractMixedContentMessageProcessor().get(0).getValue();
-        return sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()), "");
+        return sut.translate(loggerType, new QName(""), new MuleConfigurations(new HashMap<>()), "", Map.of());
     }
 }

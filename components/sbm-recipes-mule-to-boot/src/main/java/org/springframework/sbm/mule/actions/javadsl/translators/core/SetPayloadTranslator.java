@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
+import java.util.Map;
 
 @Component
 public class SetPayloadTranslator implements MuleComponentToSpringIntegrationDslTranslator<SetPayloadTransformerType>  {
@@ -32,7 +33,7 @@ public class SetPayloadTranslator implements MuleComponentToSpringIntegrationDsl
     }
 
     @Override
-    public DslSnippet translate(SetPayloadTransformerType component, QName name, MuleConfigurations muleConfigurations, String flowName) {
+    public DslSnippet translate(SetPayloadTransformerType component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
         String valueWithoutNewLines = component.getValue().replace("\n", "");
         String withEscapedChars = valueWithoutNewLines.replace("\"", "\\\"");
         return new DslSnippet(".handle((p, h) -> " + "\"" + withEscapedChars + "\")", Collections.emptySet());

@@ -22,16 +22,16 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
+import java.util.Map;
 
-public class UnknownStatementTranslator implements MuleComponentToSpringIntegrationDslTranslator {
+public class UnknownStatementTranslator implements MuleComponentToSpringIntegrationDslTranslator<Object> {
 
     @Override
     public Class getSupportedMuleType() {
         return null;
     }
 
-    @Override
-    public DslSnippet translate(Object component, QName qname, MuleConfigurations muleConfigurations, String flowName) {
+    public DslSnippet translate(Object component, QName qname, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
         return new DslSnippet(
                 generateDSLStatement(component, qname),
                 Collections.emptySet(),

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -44,7 +45,7 @@ public class HttpListenerTranslator implements MuleComponentToSpringIntegrationD
     }
 
     @Override
-    public DslSnippet translate(ListenerType component, QName name, MuleConfigurations muleConfigurations, String flowName) {
+    public DslSnippet translate(ListenerType component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
         /*
         * In the connector component on your flow, the only required fields are the Path
         * (the path-absolute URL defining the resource location), which by default is /,

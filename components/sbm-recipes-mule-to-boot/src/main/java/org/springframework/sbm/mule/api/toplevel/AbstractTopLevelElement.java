@@ -68,7 +68,7 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
 
     private DslSnippet translate(Object o, QName name, MuleConfigurations muleConfigurations, String flowName) {
         MuleComponentToSpringIntegrationDslTranslator translator = translatorsMap.getOrDefault(o.getClass(), new UnknownStatementTranslator());
-        return translator.translate(o, name, muleConfigurations, flowName);
+        return translator.translate(o, name, muleConfigurations, flowName, this.translatorsMap);
     }
 
 

@@ -57,14 +57,20 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
         runAction();
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +
+                        "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                        "import org.springframework.integration.handler.LoggingHandler;\n" +
+                        "import org.springframework.integration.http.dsl.Http;\n" +
+                        "\n" +
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow choiceFlow() {\n" +
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/choice\")).handle((p, h) -> p)\n" +
                         "                /*\n" +
-                        "                                * TODO: LinkedMultiValueMap might not be apt, double check*/\n" +
+                        "                                * TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
                         "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
                         "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
                         "                        m -> m\n" +
