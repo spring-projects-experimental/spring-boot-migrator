@@ -39,7 +39,7 @@
         <lombok.version>1.18.20</lombok.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
-        <jackson.version>2.12.2</jackson.version>
+        <jackson.version>2.13.2</jackson.version>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
     </properties>
 
