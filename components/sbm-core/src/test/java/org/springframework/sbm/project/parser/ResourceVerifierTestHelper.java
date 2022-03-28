@@ -115,8 +115,15 @@ class ResourceVerifierTestHelper {
     }
 
 
-    private static <T extends Marker> T getMarker(RewriteSourceFileHolder r1, Class<T> markerClass) {
+    private static <T extends Marker> T getFirstMarker(RewriteSourceFileHolder r1, Class<T> markerClass) {
         return r1.getSourceFile().getMarkers().findFirst(markerClass).orElseThrow(() -> new RuntimeException("Could not find marker '" + markerClass + "' on '" + r1.getAbsolutePath() + "'"));
+    }
+
+    private static <T extends Marker> List<T> getMarkers(RewriteSourceFileHolder r1, Class<T> markerClass) {
+        return r1.getSourceFile().getMarkers().getMarkers().stream()
+                .filter(m -> markerClass.isInstance(m))
+                .map(markerClass::cast)
+                .collect(Collectors.toList());
     }
 
 
@@ -132,7 +139,7 @@ class ResourceVerifierTestHelper {
 
         @Override
         public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
-            BuildTool buildToolMarker = getMarker(rewriteSourceFileHolder, BuildTool.class);
+            BuildTool buildToolMarker = getFirstMarker(rewriteSourceFileHolder, BuildTool.class);
 
             assertThat(buildToolMarker.getType().name())
                     .as("Invalid marker [BuildTool] for resource '%s'. Expected name to be '%s' but was '%s'", rewriteSourceFileHolder, name, buildToolMarker.getType().name())
@@ -157,7 +164,7 @@ class ResourceVerifierTestHelper {
 
         @Override
         public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
-            JavaVersion javaVersion = getMarker(rewriteSourceFileHolder, JavaVersion.class);
+            JavaVersion javaVersion = getFirstMarker(rewriteSourceFileHolder, JavaVersion.class);
 
             assertThat(javaVersion.getCreatedBy())
                     .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", rewriteSourceFileHolder, version, javaVersion.getSourceCompatibility())
@@ -184,7 +191,7 @@ class ResourceVerifierTestHelper {
 
         @Override
         public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
-            JavaProject javaProjectMarker = getMarker(rewriteSourceFileHolder, JavaProject.class);
+            JavaProject javaProjectMarker = getFirstMarker(rewriteSourceFileHolder, JavaProject.class);
             assertThat(javaProjectMarker.getProjectName()).isEqualTo(projectName);
             assertThat(javaProjectMarker.getPublication().getGroupId() + ":" + javaProjectMarker.getPublication().getArtifactId() + ":" + javaProjectMarker.getPublication().getVersion()).isEqualTo(publication);
         }
@@ -201,13 +208,16 @@ class ResourceVerifierTestHelper {
 
         @Override
         public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
-            JavaSourceSet javaSourceSetMarker = getMarker(rewriteSourceFileHolder, JavaSourceSet.class);
+            List<JavaSourceSet> javaSourceSetMarker = getMarkers(rewriteSourceFileHolder, JavaSourceSet.class);
 
-            assertThat(javaSourceSetMarker.getName())
-                    .as("Invalid marker [JavaSourceSet] for resource '%s'. Expected name to be '%s' but was '%s'", rewriteSourceFileHolder, name, javaSourceSetMarker.getName())
-                    .isEqualTo(name);
+            assertThat(javaSourceSetMarker).filteredOn(js -> name.equals(js.getName()))
+                    .as("Invalid marker [JavaSourceSet] for resource '%s'. Expected name to be '%s' but no Marker with this name was found.", rewriteSourceFileHolder, name)
+                    .isNotEmpty();
 
-            List<String> dependencies = javaSourceSetMarker.getClasspath().stream().map(fq -> fq.getFullyQualifiedName()).collect(Collectors.toList());
+            List<String> dependencies = javaSourceSetMarker.stream().filter(js -> "main".equals(js.getName()))
+                    .flatMap(js -> js.getClasspath().stream())
+                    .map(fq -> fq.getFullyQualifiedName())
+                    .collect(Collectors.toList());
 
             String[] split = classpath.split(", ");
             if (classpath.equals("")) {
@@ -218,6 +228,7 @@ class ResourceVerifierTestHelper {
                     .as("Invalid marker [JavaSourceSet] for resource '%s'. Expected dependencies to be '%s' but was '%s'", rewriteSourceFileHolder, classpath, dependencies)
                     .contains(split);
         }
+
     }
 
     private static class GitProvenanceMarkerverifier extends MarkerVerifier {
@@ -229,7 +240,7 @@ class ResourceVerifierTestHelper {
 
         @Override
         public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
-            GitProvenance gitProvenanceMarker = getMarker(rewriteSourceFileHolder, GitProvenance.class);
+            GitProvenance gitProvenanceMarker = getFirstMarker(rewriteSourceFileHolder, GitProvenance.class);
 
             assertThat(gitProvenanceMarker.getBranch())
                     .as("Invalid marker [GitProvenance] for resource '%s'. Expected branch to be '%s' but was '%s'", rewriteSourceFileHolder, branch, gitProvenanceMarker.getBranch())
@@ -275,7 +286,7 @@ class ResourceVerifierTestHelper {
 
         @Override
         public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
-            MavenResolutionResult marker = getMarker(rewriteSourceFileHolder, MavenResolutionResult.class);
+            MavenResolutionResult marker = getFirstMarker(rewriteSourceFileHolder, MavenResolutionResult.class);
             List<String> modulesList = marker.getModules().stream().map(m -> m.getPom().getGav().toString()).collect(Collectors.toList());
 
             assertThat(modulesList)

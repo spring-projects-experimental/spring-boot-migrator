@@ -308,6 +308,7 @@ class ProjectContextInitializerTest {
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
+                        javaSourceSetMarker("main", "java.awt.dnd.DragGestureRecognizer, java.nio.channels.ClosedByInterruptException, java.lang.management.ThreadMXBean"),
                         javaSourceSetMarker("test", "java.awt.dnd.DragGestureRecognizer, java.nio.channels.ClosedByInterruptException, java.lang.management.ThreadMXBean"),
                         gitProvenanceMarker("master")
                 )
@@ -319,7 +320,7 @@ class ProjectContextInitializerTest {
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
-                        javaSourceSetMarker("test", "java.awt.dnd.DragGestureRecognizer, java.nio.channels.ClosedByInterruptException, java.lang.management.ThreadMXBean"),
+                        javaSourceSetMarker("test", ""),
                         gitProvenanceMarker("master")
                 )
                 .isContainedIn(projectResources);
