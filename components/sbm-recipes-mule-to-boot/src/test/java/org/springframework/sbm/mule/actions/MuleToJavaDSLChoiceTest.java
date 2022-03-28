@@ -20,6 +20,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * TODO: Fix import issues
+ */
 public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
     private static final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
@@ -54,13 +57,7 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
         runAction();
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo("package com.example.javadsl;\n" +
-                        "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                        "import org.springframework.integration.handler.LoggingHandler;\n" +
-                        "import org.springframework.integration.http.dsl.Http;\n" +
-                        "\n" +
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
@@ -71,11 +68,11 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
                         "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
                         "                        m -> m\n" +
-                        "                                .subFlowMapping(\"dataValue\" /*TODO: Translate: #[flowVars.language == 'Spanish']*/,\n" +
+                        "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[flowVars.language == 'Spanish']*/,\n" +
                         "                                        sf -> sf.handle((p, h) -> \"Bonjur!\")\n" +
                         "                                )\n" +
-                        "                                .subFlowMapping(\"dataValue\", /*TODO: #[flowVars.language == 'French']*/\n" +
-                        "                                        sf -> sf.handle((p, h) -> \"Hola!\")\n" +
+                        "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[flowVars.language == 'French']*/,\n" +
+                        "                                        sf -> sf.handle((p, h) -> \"Bonjur!\")\n" +
                         "                                )\n" +
                         "                                .resolutionRequired(false)\n" +
                         "                                .defaultSubFlowMapping(sf -> sf.handle((p, h) -> \"Hello\"))\n" +
@@ -83,7 +80,6 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "                .log(LoggingHandler.Level.INFO, \"${payload}\")\n" +
                         "                .get();\n" +
                         "    }}");
-
     }
 
     @Test

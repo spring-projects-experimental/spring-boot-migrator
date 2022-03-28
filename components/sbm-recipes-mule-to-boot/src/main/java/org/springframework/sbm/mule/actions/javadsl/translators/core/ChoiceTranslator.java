@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 @Component
 public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTranslator<SelectiveOutboundRouterType> {
@@ -17,21 +18,32 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
         return SelectiveOutboundRouterType.class;
     }
 
+    private final static String subflowTemplate =
+                    "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to $TRANSLATE_EXPRESSION*/,\n" +
+                    "                                        sf -> sf.handle((p , h) -> \"Bonjur!\")\n" +
+                    "                                )\n";
+
     @Override
-    public DslSnippet translate(SelectiveOutboundRouterType component, QName name, MuleConfigurations muleConfigurations, String flowName) {
-        return new DslSnippet("/*\n" +
-                "                * TODO: LinkedMultiValueMap might not be apt, double check*/\n" +
-                "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
-                "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
-                "                        m -> m\n" +
-                "                                .subFlowMapping(\"dataValue\" /*TODO: Translate: #[flowVars.language == 'Spanish']*/,\n" +
-                "                                        sf -> sf.handle((p , h) -> \"Bonjur!\")\n" +
-                "                                )\n" +
-                "                                .subFlowMapping(\"dataValue\", /*TODO: #[flowVars.language == 'French']*/\n" +
-                "                                        sf -> sf.handle((p , h) -> \"Hola!\")\n" +
-                "                                )\n" +
-                "                                .resolutionRequired(false)\n" +
-                "                                .defaultSubFlowMapping(sf -> sf.handle((p, h) -> \"Hello\" ))\n" +
-                "                )", Collections.emptySet());
+    public DslSnippet translate(SelectiveOutboundRouterType component,
+                                QName name,
+                                MuleConfigurations muleConfigurations, String flowName) {
+
+        String subflowMappings = component.getWhen()
+                .stream()
+                .map(item -> subflowTemplate.replace("$TRANSLATE_EXPRESSION", item.getExpression())).collect(Collectors.joining());
+        return new DslSnippet(
+                "/*\n" +
+                        "                * TODO: LinkedMultiValueMap might not be apt, double check*/\n" +
+                        "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
+                        "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
+                        "                        m -> m\n" +
+                        subflowMappings +
+                        "                                .resolutionRequired(false)\n" +
+                        "                                .defaultSubFlowMapping(sf -> sf.handle((p, h) -> \"Hello\" ))\n" +
+                        "                )",
+                Collections.emptySet(),
+                Collections.emptySet(),
+                Collections.emptySet()
+        );
     }
 }
