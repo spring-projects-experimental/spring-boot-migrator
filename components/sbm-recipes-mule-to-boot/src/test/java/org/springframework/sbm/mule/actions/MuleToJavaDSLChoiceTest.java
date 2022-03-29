@@ -73,11 +73,9 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "                        m -> m\n" +
                         "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[flowVars.language == 'Spanish']*/,\n" +
                         "                                        sf -> sf.handle((p, h) -> \"Hola!\")\n" +
-                        "\n" +
                         "                                )\n" +
                         "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[flowVars.language == 'French']*/,\n" +
                         "                                        sf -> sf.handle((p, h) -> \"Bonjour!\")\n" +
-                        "\n" +
                         "                                )\n" +
                         "                                .resolutionRequired(false)\n" +
                         "                                .defaultSubFlowMapping(sf -> sf.handle((p, h) -> \"Hello\"))\n" +

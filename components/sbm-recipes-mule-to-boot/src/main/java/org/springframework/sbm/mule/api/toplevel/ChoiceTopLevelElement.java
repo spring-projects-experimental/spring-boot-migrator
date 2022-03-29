@@ -17,7 +17,7 @@ public class ChoiceTopLevelElement extends AbstractTopLevelElement {
         StringBuilder sb = new StringBuilder();
         sb.append(composePrefixDslCode());
         String dsl = getDslSnippets().stream().map(DslSnippet::getRenderedSnippet).collect(Collectors.joining("\n"));
-        sb.append(dsl).append("\n");
+        sb.append(dsl);
         Set<String> requiredImports = getRequiredImports();
         requiredImports.add("org.springframework.integration.dsl.IntegrationFlow");
         requiredImports.add("org.springframework.integration.dsl.IntegrationFlows");

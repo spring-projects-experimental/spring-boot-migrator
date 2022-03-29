@@ -22,9 +22,11 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
 
     private final static String subflowTemplate =
                     "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to $TRANSLATE_EXPRESSION*/,\n" +
-                    "                                        $SUBFLOW_CONTENT\n" +
+                    "                                       $SUBFLOW_CONTENT\n" +
                     "                                )\n";
 
+    private final static String defaultSubflowMapping =
+            "                                .defaultSubFlowMapping($OTHERWISE_STATEMENTS)\n";
     @Override
     public DslSnippet translate(SelectiveOutboundRouterType component,
                                 QName name,
@@ -32,7 +34,7 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                                 String flowName,
                                 Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
 
-        List<ImmutablePair<String, ChoiceTopLevelElement>> list = component
+        List<ImmutablePair<String, ChoiceTopLevelElement>> whenStatements = component
                 .getWhen()
                 .stream()
                 .map(item -> new ImmutablePair<>(item.getExpression(), new ChoiceTopLevelElement(
@@ -42,7 +44,18 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                         translatorsMap)))
                 .collect(Collectors.toList());
 
-        String subflowMappings = list
+        ChoiceTopLevelElement otherWiseStatement = new ChoiceTopLevelElement(
+                flowName,
+                component.getOtherwise().getMessageProcessorOrOutboundEndpoint(),
+                muleConfigurations,
+                translatorsMap);
+
+        String otherwiseSubflowMappings = defaultSubflowMapping.replace(
+                "$OTHERWISE_STATEMENTS",
+                otherWiseStatement.renderDslSnippet()
+        );
+
+        String whenSubflowMappings = whenStatements
                 .stream()
                 .map(item ->
                         subflowTemplate
@@ -52,12 +65,12 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                 .collect(Collectors.joining());
 
 
-        Set<String> requiredImports = list.stream()
+        Set<String> requiredImports = whenStatements.stream()
                 .map(item -> item.getValue().getRequiredImports())
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        Set<String> requiredDependencies = list.stream()
+        Set<String> requiredDependencies = whenStatements.stream()
                 .map(item -> item.getValue().getRequiredDependencies())
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
@@ -68,9 +81,9 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                         "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
                         "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
                         "                        m -> m\n" +
-                                                        subflowMappings +
+                                                        whenSubflowMappings +
                         "                                .resolutionRequired(false)\n" +
-                        "                                .defaultSubFlowMapping(sf -> sf.handle((p, h) -> \"Hello\" ))\n" +
+                        otherwiseSubflowMappings +
                         "                )",
                 requiredImports,
                 requiredDependencies,
