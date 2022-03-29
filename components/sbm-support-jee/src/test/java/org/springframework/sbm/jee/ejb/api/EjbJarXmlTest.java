@@ -15,15 +15,15 @@
  */
 package org.springframework.sbm.jee.ejb.api;
 
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.jee.ejb.filter.EjbJarXmlResourceFilter;
-import org.springframework.sbm.jee.ejb.resource.JeeEjbJarXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.TestProjectContext;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.xml.XmlParser;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.jee.ejb.filter.EjbJarXmlResourceFilter;
+import org.springframework.sbm.jee.ejb.resource.JeeEjbJarXmlProjectResourceRegistrar;
+import org.springframework.sbm.project.resource.TestProjectContext;
 
 import javax.xml.bind.JAXBException;
 import java.lang.String;
@@ -38,6 +38,51 @@ class EjbJarXmlTest {
     public static final String EJB_CLASS_FQNAME = "com.example.jee.ejb.stateless.local.deploymentdescriptor.NoInterfaceViewBean";
     public static final String EJB_TYPE = "Stateless";
     private static final String EJB_NAME = "noInterfaceView";
+
+
+    @Test
+    void unmarshal_21_ejb_jarXml() {
+        String ejbJarXmlContent =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<ejb-jar id=\"ejb-jar_1\" xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\n" +
+                "   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "   xsi:schemaLocation=\"http://java.sun.com/xml/ns/j2ee\n" +
+                "   http://xmlns.jcp.org/xml/ns/javaee/ejb-jar_2_1.xsd\" version=\"2.1\">\n" +
+                "   <description>Example of a session bean</description>\n" +
+                "   <display-name>MyTimeBeanEJBName</display-name>\n" +
+                "   <enterprise-beans>\n" +
+                "      <session id=\"Session_MyTime\">\n" +
+                "         <description>An EJB named MyTimeBean</description>\n" +
+                "         <display-name>MyTimeBeanName</display-name>\n" +
+                "         <ejb-name>MyTimeBean</ejb-name>\n" +
+                "         <local-home>mytimepak.MyTimeLocalHome</local-home>\n" +
+                "         <local>mytimepak.MyTimeLocal</local>\n" +
+                "         <ejb-class>mytimepak.MyTimeBean</ejb-class>\n" +
+                "         <session-type>Stateless</session-type>\n" +
+                "         <transaction-type>Container</transaction-type>\n" +
+                "      </session>\n" +
+                "   </enterprise-beans>\n" +
+                "</ejb-jar>";
+
+        ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                .addRegistrar(new JeeEjbJarXmlProjectResourceRegistrar())
+                .addProjectResource("src/main/resources/ejb-jar.xml", ejbJarXmlContent)
+                .build();
+
+        Optional<EjbJarXml> ejbJarXmlOptional = projectContext.search(new EjbJarXmlResourceFilter());
+        EjbJarType ejbJarXml = ejbJarXmlOptional.get().getEjbJarXml();
+        assertThat(ejbJarXml.getEnterpriseBeans().getSessionOrEntityOrMessageDriven()).hasSize(1);
+        assertThat(ejbJarXml.getEnterpriseBeans().getSessionOrEntityOrMessageDriven().get(0)).isInstanceOf(SessionBeanType.class);
+        SessionBeanType sb = (SessionBeanType) ejbJarXml.getEnterpriseBeans().getSessionOrEntityOrMessageDriven().get(0);
+        assertThat(sb.getDescription().get(0).getValue()).isEqualTo("An EJB named MyTimeBean");
+        assertThat(sb.getDisplayName().get(0).getValue()).isEqualTo("MyTimeBeanName");
+        assertThat(sb.getEjbName().getValue()).isEqualTo("MyTimeBean");
+        assertThat(sb.getLocalHome().getValue()).isEqualTo("mytimepak.MyTimeLocalHome");
+        assertThat(sb.getLocal().getValue()).isEqualTo("mytimepak.MyTimeLocal");
+        assertThat(sb.getEjbClass().getValue()).isEqualTo("mytimepak.MyTimeBean");
+        assertThat(sb.getSessionType().getValue()).isEqualTo("Stateless");
+        assertThat(sb.getTransactionType().getValue()).isEqualTo("Container");
+    }
 
     @Test
     void unmarshal_jcp_3_2_schema() throws JAXBException {
