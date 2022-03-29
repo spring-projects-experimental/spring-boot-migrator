@@ -94,4 +94,10 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
     @Disabled
     public void choiceDoesNotHaveOtherwise() {
     }
+
+    @Test
+    @Disabled
+    public void choiceInsideAChoiceInsideAChoiceInsideAChoiceChoice() {
+
+    }
 }
