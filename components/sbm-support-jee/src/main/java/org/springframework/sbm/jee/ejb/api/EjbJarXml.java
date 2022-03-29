@@ -15,22 +15,26 @@
  */
 package org.springframework.sbm.jee.ejb.api;
 
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.xml.sax.InputSource;
 
 import javax.xml.bind.*;
 import javax.xml.namespace.QName;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.util.StreamReaderDelegate;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.String;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
-import java.lang.String;
 
 public class EjbJarXml extends RewriteSourceFileHolder<Xml.Document> {
 
@@ -63,20 +67,43 @@ public class EjbJarXml extends RewriteSourceFileHolder<Xml.Document> {
     }
 
     EjbJarType unmarshal(String content) {
-        try {
-            System.setProperty("javax.xml.accessExternalDTD", "all");
-            JAXBContext jaxbContext = JAXBContext.newInstance(EjbJarType.class);
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            jaxbUnmarshaller.setSchema(null); // disable validation
-//        jaxbUnmarshaller.setProperty(NAMESPACE_PREFIX_MAPPER, new YahooNamespacePrefixMapper());
-            Source s = new StreamSource(new StringReader(content));
-            JAXBElement<EjbJarType> jarTypeJAXBElement = null;
-            jarTypeJAXBElement = jaxbUnmarshaller.unmarshal(s, EjbJarType.class);
-            return jarTypeJAXBElement.getValue();
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
+        return new EjbJarXmlUnmarshaller().unmarshal(content);
+    }
+
+
+    static class EjbJarXmlUnmarshaller {
+
+        /**
+         * Takes the raw ejb-jar.xml source and attempts to map it to JAXB classes created from a EJB 3.1 schema.
+         * Namespace information will be removed to allow unmarshalling all versions into the same JAXB model classes.
+         */
+        public EjbJarType unmarshal(String xml) {
+            try {
+                XMLStreamReader xsr = XMLInputFactory.newFactory().createXMLStreamReader(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+                EjbJarXml.EjbJarXmlUnmarshaller.XMLReaderWithoutNamespace xr = new EjbJarXml.EjbJarXmlUnmarshaller.XMLReaderWithoutNamespace(xsr);
+                JAXBContext jaxbContext = JAXBContext.newInstance(EjbJarType.class);
+                Unmarshaller jc = jaxbContext.createUnmarshaller();
+                return jc.unmarshal(xr, EjbJarType.class).getValue();
+            } catch (JAXBException | XMLStreamException e) {
+                throw new RuntimeException(e);
+            }
         }
 
+        class XMLReaderWithoutNamespace extends StreamReaderDelegate {
+            public XMLReaderWithoutNamespace(XMLStreamReader reader) {
+                super(reader);
+            }
+
+            @Override
+            public String getAttributeNamespace(int arg0) {
+                return "";
+            }
+
+            @Override
+            public String getNamespaceURI() {
+                return "";
+            }
+        }
     }
 
     public boolean isEmpty() {

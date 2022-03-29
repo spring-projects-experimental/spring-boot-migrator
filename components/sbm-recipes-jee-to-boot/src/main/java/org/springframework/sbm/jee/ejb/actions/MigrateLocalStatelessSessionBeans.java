@@ -15,12 +15,12 @@
  */
 package org.springframework.sbm.jee.ejb.actions;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.SuperTypeHierarchy;
 import org.springframework.sbm.java.api.Type;
-import org.springframework.sbm.engine.context.ProjectContext;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
