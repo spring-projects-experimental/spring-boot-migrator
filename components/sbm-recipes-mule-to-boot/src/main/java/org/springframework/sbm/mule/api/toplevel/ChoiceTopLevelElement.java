@@ -28,7 +28,7 @@ public class ChoiceTopLevelElement extends AbstractTopLevelElement {
 
 
     protected String composePrefixDslCode() {
-        return "sf -> sf.";
+        return "sf -> sf";
     }
 
     public ChoiceTopLevelElement(String flowName,

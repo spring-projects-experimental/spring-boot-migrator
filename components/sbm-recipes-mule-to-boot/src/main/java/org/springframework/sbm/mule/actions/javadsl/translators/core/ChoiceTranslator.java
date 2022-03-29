@@ -22,7 +22,7 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
 
     private final static String subflowTemplate =
                     "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to $TRANSLATE_EXPRESSION*/,\n" +
-                    "                                        sf -> sf$SUBFLOW_CONTENT\n" +
+                    "                                        $SUBFLOW_CONTENT\n" +
                     "                                )\n";
 
     @Override
@@ -47,7 +47,7 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                 .map(item ->
                         subflowTemplate
                                 .replace("$TRANSLATE_EXPRESSION", item.getLeft())
-                                .replace("$SUBFLOW_CONTENT",  item.getValue().getDslSnippets().get(0).getRenderedSnippet())
+                                .replace("$SUBFLOW_CONTENT",  item.getValue().renderDslSnippet())
                 )
                 .collect(Collectors.joining());
 
