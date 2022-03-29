@@ -26,14 +26,15 @@ import java.util.List;
 @Component
 class JavaSourceDirExistsPreconditionCheck extends PreconditionCheck {
 
-	private static final String PATTERN = "/**/src/main/java/**";
+	private static final String PATTERN = "**" + File.separator + "src" + File.separator + "main" + File.separator + "java" + File.separator + "**";
 	private final String JAVA_SRC_DIR = "src/main/java";
 	private AntPathMatcher antPathMatcher = new AntPathMatcher(File.separator);
 
 	@Override
 	public PreconditionCheckResult verify(Path projectRoot, List<Resource> projectResources) {
+		String pattern = projectRoot.toString() + File.separator + PATTERN;
 		if (projectResources.stream()
-				.noneMatch(r -> antPathMatcher.match(projectRoot.resolve(PATTERN).normalize().toString(), getPath(r).toAbsolutePath().toString()))) {
+				.noneMatch(r -> antPathMatcher.match(pattern, getPath(r).toAbsolutePath().toString()))) {
 			return new PreconditionCheckResult(ResultState.FAILED, "PreconditionCheck check could not find a '" + JAVA_SRC_DIR + "' dir. This dir is required.");
 		}
 		return new PreconditionCheckResult(ResultState.PASSED, "Found required source dir 'src/main/java'.");

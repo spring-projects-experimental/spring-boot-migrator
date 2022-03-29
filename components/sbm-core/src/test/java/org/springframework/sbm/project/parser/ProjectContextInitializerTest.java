@@ -109,6 +109,8 @@ class ProjectContextInitializerTest {
 
         assertThat(projectResources).hasSize(18);
 
+        verifyIgnored(projectResources, "testcode/path-scanner/.git");
+
         verifyResource("testcode/path-scanner/pom.xml")
                 .wrappedInstanceOf(Maven.class)
                 .havingMarkers(
@@ -306,5 +308,10 @@ class ProjectContextInitializerTest {
                         gitProvenanceMarker("master")
                 )
                 .isContainedIn(projectResources);
+    }
+
+    private void verifyIgnored(List<RewriteSourceFileHolder<? extends SourceFile>> projectResources, String s) {
+        assertThat(Path.of(s).toFile()).exists();
+        assertThat(projectResources.stream().noneMatch(r -> s.equals(r.getAbsolutePath().toString()))).isTrue();
     }
 }
