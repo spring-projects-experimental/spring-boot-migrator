@@ -32,7 +32,7 @@ class JavaSourceDirExistsPreconditionCheck extends PreconditionCheck {
 
 	@Override
 	public PreconditionCheckResult verify(Path projectRoot, List<Resource> projectResources) {
-		String pattern = projectRoot.toString() + File.separator + PATTERN;
+		String pattern = projectRoot.resolve(PATTERN).toAbsolutePath().normalize().toString();
 		if (projectResources.stream()
 				.noneMatch(r -> antPathMatcher.match(pattern, getPath(r).toAbsolutePath().toString()))) {
 			return new PreconditionCheckResult(ResultState.FAILED, "PreconditionCheck check could not find a '" + JAVA_SRC_DIR + "' dir. This dir is required.");

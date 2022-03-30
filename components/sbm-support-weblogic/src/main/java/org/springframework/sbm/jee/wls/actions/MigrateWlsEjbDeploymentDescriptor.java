@@ -62,12 +62,17 @@ public class MigrateWlsEjbDeploymentDescriptor extends AbstractAction {
             if (transactionTimeoutSeconds != null) {
                 int timeoutInMillis = calclateTimeoutForSpringBoot(transactionTimeoutSeconds);
                 if (!javaSourceWithEjb.getType().hasAnnotation("org.springframework.transaction.annotation.Transactional")) {
-                    // TODO: provide some means to print this information on CLI as it takes a while, see #175
+
+                    this.startProcess("Annotate " + javaSourceWithEjb.getType().getFullyQualifiedName() + " with @Transactional");
+
                     // FIXME: #466
                     if (!buildFile.hasDeclaredDependencyMatchingRegex("org\\.springframework\\:spring-tx\\:.*")) {
                         addDataJpaDependency = true;
                     }
                     javaSourceWithEjb.getType().addAnnotation("@Transactional(timeout=" + timeoutInMillis + ")", "org.springframework.transaction.annotation.Transactional");
+
+                    this.endProcess();
+
                 } else {
                     Annotation annotation = javaSourceWithEjb.getType().getAnnotation("org.springframework.transaction.annotation.Transactional");
                     annotation.setAttribute("timeout", timeoutInMillis, Integer.class);

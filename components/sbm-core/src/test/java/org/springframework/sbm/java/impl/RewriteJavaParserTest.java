@@ -43,7 +43,7 @@ public class RewriteJavaParserTest {
         String out = sysOutBuffer.toString();
         System.setOut(realSysOut);
         assertThat(out).containsPattern(
-                ".*org.openrewrite.java.Java11Parser.*compile error\n");
+                ".*org.openrewrite.java.Java11Parser.*compile error.*");
 //        System.out.println(out);
     }
 

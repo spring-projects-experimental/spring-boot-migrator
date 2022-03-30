@@ -15,16 +15,16 @@
  */
 package org.springframework.sbm.project.buildfile;
 
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.Plugin;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -127,87 +127,88 @@ public class OpenRewriteMavenBuildFileTest {
                 .build()
                 .getBuildFile();
 
-        List<String> actualPaths = sut.getResolvedDependenciesPaths().stream()
-                .map(dp -> dp.toString().substring(dp.toString().lastIndexOf("repository/") + "repository/".length())) // strip of path to Maven repository
-                .collect(Collectors.toList());
+        List<Path> actualPaths = sut.getResolvedDependenciesPaths().stream()
+                                    .map(dp -> dp.toString().substring(dp.toString().lastIndexOf("repository") + "repository".length() + 1)) // strip of path to Maven repository
+                                    .map(Path::of)
+                    .collect(Collectors.toList());
 
         assertThat(actualPaths).hasSize(75);
 
         assertThat(actualPaths)
-                .contains("org/apache/tomee/mbean-annotation-api/8.0.5/mbean-annotation-api-8.0.5.jar")
-                .contains("org/apache/tomee/openejb-jpa-integration/8.0.5/openejb-jpa-integration-8.0.5.jar")
-                .contains("org/apache/tomee/javaee-api/8.0-5/javaee-api-8.0-5.jar")
-                .contains("org/apache/commons/commons-lang3/3.11/commons-lang3-3.11.jar")
-                .contains("org/apache/tomee/openejb-api/8.0.5/openejb-api-8.0.5.jar")
-                .contains("org/apache/tomee/openejb-loader/8.0.5/openejb-loader-8.0.5.jar")
-                .contains("org/apache/tomee/openejb-javaagent/8.0.5/openejb-javaagent-8.0.5.jar")
-                .contains("org/apache/tomee/openejb-jee/8.0.5/openejb-jee-8.0.5.jar")
-                .contains("jakarta/xml/bind/jakarta.xml.bind-api/2.3.2/jakarta.xml.bind-api-2.3.2.jar")
-                .contains("jakarta/activation/jakarta.activation-api/1.2.1/jakarta.activation-api-1.2.1.jar")
-                .contains("org/apache/tomee/openejb-jee-accessors/8.0.5/openejb-jee-accessors-8.0.5.jar")
-                .contains("org/metatype/sxc/sxc-jaxb-core/0.8/sxc-jaxb-core-0.8.jar")
-                .contains("org/metatype/sxc/sxc-runtime/0.8/sxc-runtime-0.8.jar")
-                .contains("commons-cli/commons-cli/1.4/commons-cli-1.4.jar")
-                .contains("commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar")
-                .contains("com/sun/activation/jakarta.activation/1.2.1/jakarta.activation-1.2.1.jar")
-                .contains("org/apache/activemq/activemq-ra/5.16.0/activemq-ra-5.16.0.jar")
-                .contains("org/apache/activemq/activemq-kahadb-store/5.16.0/activemq-kahadb-store-5.16.0.jar")
-                .contains("org/apache/activemq/protobuf/activemq-protobuf/1.1/activemq-protobuf-1.1.jar")
-                .contains("org/apache/activemq/activemq-broker/5.16.0/activemq-broker-5.16.0.jar")
-                .contains("org/apache/activemq/activemq-client/5.16.0/activemq-client-5.16.0.jar")
-                .contains("org/fusesource/hawtbuf/hawtbuf/1.11/hawtbuf-1.11.jar")
-                .contains("org/apache/activemq/activemq-openwire-legacy/5.16.0/activemq-openwire-legacy-5.16.0.jar")
-                .contains("org/apache/activemq/activemq-jdbc-store/5.16.0/activemq-jdbc-store-5.16.0.jar")
-                .contains("org/apache/geronimo/components/geronimo-connector/3.1.4/geronimo-connector-3.1.4.jar")
-                .contains("org/apache/geronimo/specs/geronimo-j2ee-connector_1.6_spec/1.0/geronimo-j2ee-connector_1.6_spec-1.0.jar")
-                .contains("org/apache/geronimo/components/geronimo-transaction/3.1.4/geronimo-transaction-3.1.4.jar")
-                .contains("org/objectweb/howl/howl/1.0.1-1/howl-1.0.1-1.jar")
-                .contains("com/fasterxml/jackson/core/jackson-databind/2.12.0-rc1/jackson-databind-2.12.0-rc1.jar")
-                .contains("com/fasterxml/jackson/core/jackson-annotations/2.12.0-rc1/jackson-annotations-2.12.0-rc1.jar")
-                .contains("com/fasterxml/jackson/core/jackson-core/2.12.0-rc1/jackson-core-2.12.0-rc1.jar")
-                .contains("org/apache/geronimo/javamail/geronimo-javamail_1.6_mail/1.0.0/geronimo-javamail_1.6_mail-1.0.0.jar")
-                .contains("org/apache/xbean/xbean-asm7-shaded/4.14/xbean-asm7-shaded-4.14.jar")
-                .contains("org/apache/xbean/xbean-finder-shaded/4.14/xbean-finder-shaded-4.14.jar")
-                .contains("org/apache/xbean/xbean-reflect/4.14/xbean-reflect-4.14.jar")
-                .contains("org/apache/xbean/xbean-naming/4.14/xbean-naming-4.14.jar")
-                .contains("org/apache/xbean/xbean-bundleutils/4.14/xbean-bundleutils-4.14.jar")
-                .contains("org/hsqldb/hsqldb/2.3.2/hsqldb-2.3.2.jar")
-                .contains("org/apache/commons/commons-dbcp2/2.1/commons-dbcp2-2.1.jar")
-                .contains("org/apache/commons/commons-pool2/2.3/commons-pool2-2.3.jar")
-                .contains("org/codehaus/swizzle/swizzle-stream/1.6.2/swizzle-stream-1.6.2.jar")
-                .contains("commons-logging/commons-logging/1.2/commons-logging-1.2.jar")
-                .contains("org/apache/openejb/shade/quartz-openejb-shade/2.2.1/quartz-openejb-shade-2.2.1.jar")
-                .contains("org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.jar")
-                .contains("org/apache/openwebbeans/openwebbeans-impl/2.0.12/openwebbeans-impl-2.0.12.jar")
-                .contains("org/apache/openwebbeans/openwebbeans-spi/2.0.12/openwebbeans-spi-2.0.12.jar")
-                .contains("org/apache/openwebbeans/openwebbeans-ejb/2.0.12/openwebbeans-ejb-2.0.12.jar")
-                .contains("org/apache/openwebbeans/openwebbeans-ee/2.0.12/openwebbeans-ee-2.0.12.jar")
-                .contains("org/apache/openwebbeans/openwebbeans-ee-common/2.0.12/openwebbeans-ee-common-2.0.12.jar")
-                .contains("org/apache/openwebbeans/openwebbeans-web/2.0.12/openwebbeans-web-2.0.12.jar")
-                .contains("org/apache/openwebbeans/openwebbeans-el22/2.0.12/openwebbeans-el22-2.0.12.jar")
-                .contains("org/hibernate/hibernate-entitymanager/5.4.10.Final/hibernate-entitymanager-5.4.10.Final.jar")
-                .contains("org/hibernate/hibernate-core/5.4.10.Final/hibernate-core-5.4.10.Final.jar")
-                .contains("org/javassist/javassist/3.24.0-GA/javassist-3.24.0-GA.jar")
-                .contains("antlr/antlr/2.7.7/antlr-2.7.7.jar")
-                .contains("org/jboss/jandex/2.1.1.Final/jandex-2.1.1.Final.jar")
-                .contains("javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar")
-                .contains("javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar")
-                .contains("org/glassfish/jaxb/jaxb-runtime/2.3.1/jaxb-runtime-2.3.1.jar")
-                .contains("org/glassfish/jaxb/txw2/2.3.1/txw2-2.3.1.jar")
-                .contains("com/sun/istack/istack-commons-runtime/3.0.7/istack-commons-runtime-3.0.7.jar")
-                .contains("org/jvnet/staxex/stax-ex/1.8/stax-ex-1.8.jar")
-                .contains("com/sun/xml/fastinfoset/FastInfoset/1.2.15/FastInfoset-1.2.15.jar")
-                .contains("org/dom4j/dom4j/2.1.1/dom4j-2.1.1.jar")
-                .contains("org/hibernate/common/hibernate-commons-annotations/5.1.0.Final/hibernate-commons-annotations-5.1.0.Final.jar")
-                .contains("javax/persistence/javax.persistence-api/2.2/javax.persistence-api-2.2.jar")
-                .contains("net/bytebuddy/byte-buddy/1.10.2/byte-buddy-1.10.2.jar")
-                .contains("org/jboss/spec/javax/transaction/jboss-transaction-api_1.2_spec/1.1.1.Final/jboss-transaction-api_1.2_spec-1.1.1.Final.jar")
-                .contains("org/hibernate/hibernate-validator/5.1.3.Final/hibernate-validator-5.1.3.Final.jar")
-                .contains("com/fasterxml/classmate/1.0.0/classmate-1.0.0.jar")
-                .contains("org/hibernate/hibernate-ehcache/5.4.10.Final/hibernate-ehcache-5.4.10.Final.jar")
-                .contains("org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar")
-                .contains("net/sf/ehcache/ehcache/2.10.3/ehcache-2.10.3.jar")
-                .contains("org/slf4j/slf4j-jdk14/1.7.21/slf4j-jdk14-1.7.21.jar");
+                .contains(Path.of("org/apache/tomee/mbean-annotation-api/8.0.5/mbean-annotation-api-8.0.5.jar"))
+                .contains(Path.of("org/apache/tomee/openejb-jpa-integration/8.0.5/openejb-jpa-integration-8.0.5.jar"))
+                .contains(Path.of("org/apache/tomee/javaee-api/8.0-5/javaee-api-8.0-5.jar"))
+                .contains(Path.of("org/apache/commons/commons-lang3/3.11/commons-lang3-3.11.jar"))
+                .contains(Path.of("org/apache/tomee/openejb-api/8.0.5/openejb-api-8.0.5.jar"))
+                .contains(Path.of("org/apache/tomee/openejb-loader/8.0.5/openejb-loader-8.0.5.jar"))
+                .contains(Path.of("org/apache/tomee/openejb-javaagent/8.0.5/openejb-javaagent-8.0.5.jar"))
+                .contains(Path.of("org/apache/tomee/openejb-jee/8.0.5/openejb-jee-8.0.5.jar"))
+                .contains(Path.of("jakarta/xml/bind/jakarta.xml.bind-api/2.3.2/jakarta.xml.bind-api-2.3.2.jar"))
+                .contains(Path.of("jakarta/activation/jakarta.activation-api/1.2.1/jakarta.activation-api-1.2.1.jar"))
+                .contains(Path.of("org/apache/tomee/openejb-jee-accessors/8.0.5/openejb-jee-accessors-8.0.5.jar"))
+                .contains(Path.of("org/metatype/sxc/sxc-jaxb-core/0.8/sxc-jaxb-core-0.8.jar"))
+                .contains(Path.of("org/metatype/sxc/sxc-runtime/0.8/sxc-runtime-0.8.jar"))
+                .contains(Path.of("commons-cli/commons-cli/1.4/commons-cli-1.4.jar"))
+                .contains(Path.of("commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar"))
+                .contains(Path.of("com/sun/activation/jakarta.activation/1.2.1/jakarta.activation-1.2.1.jar"))
+                .contains(Path.of("org/apache/activemq/activemq-ra/5.16.0/activemq-ra-5.16.0.jar"))
+                .contains(Path.of("org/apache/activemq/activemq-kahadb-store/5.16.0/activemq-kahadb-store-5.16.0.jar"))
+                .contains(Path.of("org/apache/activemq/protobuf/activemq-protobuf/1.1/activemq-protobuf-1.1.jar"))
+                .contains(Path.of("org/apache/activemq/activemq-broker/5.16.0/activemq-broker-5.16.0.jar"))
+                .contains(Path.of("org/apache/activemq/activemq-client/5.16.0/activemq-client-5.16.0.jar"))
+                .contains(Path.of("org/fusesource/hawtbuf/hawtbuf/1.11/hawtbuf-1.11.jar"))
+                .contains(Path.of("org/apache/activemq/activemq-openwire-legacy/5.16.0/activemq-openwire-legacy-5.16.0.jar"))
+                .contains(Path.of("org/apache/activemq/activemq-jdbc-store/5.16.0/activemq-jdbc-store-5.16.0.jar"))
+                .contains(Path.of("org/apache/geronimo/components/geronimo-connector/3.1.4/geronimo-connector-3.1.4.jar"))
+                .contains(Path.of("org/apache/geronimo/specs/geronimo-j2ee-connector_1.6_spec/1.0/geronimo-j2ee-connector_1.6_spec-1.0.jar"))
+                .contains(Path.of("org/apache/geronimo/components/geronimo-transaction/3.1.4/geronimo-transaction-3.1.4.jar"))
+                .contains(Path.of("org/objectweb/howl/howl/1.0.1-1/howl-1.0.1-1.jar"))
+                .contains(Path.of("com/fasterxml/jackson/core/jackson-databind/2.12.0-rc1/jackson-databind-2.12.0-rc1.jar"))
+                .contains(Path.of("com/fasterxml/jackson/core/jackson-annotations/2.12.0-rc1/jackson-annotations-2.12.0-rc1.jar"))
+                .contains(Path.of("com/fasterxml/jackson/core/jackson-core/2.12.0-rc1/jackson-core-2.12.0-rc1.jar"))
+                .contains(Path.of("org/apache/geronimo/javamail/geronimo-javamail_1.6_mail/1.0.0/geronimo-javamail_1.6_mail-1.0.0.jar"))
+                .contains(Path.of("org/apache/xbean/xbean-asm7-shaded/4.14/xbean-asm7-shaded-4.14.jar"))
+                .contains(Path.of("org/apache/xbean/xbean-finder-shaded/4.14/xbean-finder-shaded-4.14.jar"))
+                .contains(Path.of("org/apache/xbean/xbean-reflect/4.14/xbean-reflect-4.14.jar"))
+                .contains(Path.of("org/apache/xbean/xbean-naming/4.14/xbean-naming-4.14.jar"))
+                .contains(Path.of("org/apache/xbean/xbean-bundleutils/4.14/xbean-bundleutils-4.14.jar"))
+                .contains(Path.of("org/hsqldb/hsqldb/2.3.2/hsqldb-2.3.2.jar"))
+                .contains(Path.of("org/apache/commons/commons-dbcp2/2.1/commons-dbcp2-2.1.jar"))
+                .contains(Path.of("org/apache/commons/commons-pool2/2.3/commons-pool2-2.3.jar"))
+                .contains(Path.of("org/codehaus/swizzle/swizzle-stream/1.6.2/swizzle-stream-1.6.2.jar"))
+                .contains(Path.of("commons-logging/commons-logging/1.2/commons-logging-1.2.jar"))
+                .contains(Path.of("org/apache/openejb/shade/quartz-openejb-shade/2.2.1/quartz-openejb-shade-2.2.1.jar"))
+                .contains(Path.of("org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.jar"))
+                .contains(Path.of("org/apache/openwebbeans/openwebbeans-impl/2.0.12/openwebbeans-impl-2.0.12.jar"))
+                .contains(Path.of("org/apache/openwebbeans/openwebbeans-spi/2.0.12/openwebbeans-spi-2.0.12.jar"))
+                .contains(Path.of("org/apache/openwebbeans/openwebbeans-ejb/2.0.12/openwebbeans-ejb-2.0.12.jar"))
+                .contains(Path.of("org/apache/openwebbeans/openwebbeans-ee/2.0.12/openwebbeans-ee-2.0.12.jar"))
+                .contains(Path.of("org/apache/openwebbeans/openwebbeans-ee-common/2.0.12/openwebbeans-ee-common-2.0.12.jar"))
+                .contains(Path.of("org/apache/openwebbeans/openwebbeans-web/2.0.12/openwebbeans-web-2.0.12.jar"))
+                .contains(Path.of("org/apache/openwebbeans/openwebbeans-el22/2.0.12/openwebbeans-el22-2.0.12.jar"))
+                .contains(Path.of("org/hibernate/hibernate-entitymanager/5.4.10.Final/hibernate-entitymanager-5.4.10.Final.jar"))
+                .contains(Path.of("org/hibernate/hibernate-core/5.4.10.Final/hibernate-core-5.4.10.Final.jar"))
+                .contains(Path.of("org/javassist/javassist/3.24.0-GA/javassist-3.24.0-GA.jar"))
+                .contains(Path.of("antlr/antlr/2.7.7/antlr-2.7.7.jar"))
+                .contains(Path.of("org/jboss/jandex/2.1.1.Final/jandex-2.1.1.Final.jar"))
+                .contains(Path.of("javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar"))
+                .contains(Path.of("javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar"))
+                .contains(Path.of("org/glassfish/jaxb/jaxb-runtime/2.3.1/jaxb-runtime-2.3.1.jar"))
+                .contains(Path.of("org/glassfish/jaxb/txw2/2.3.1/txw2-2.3.1.jar"))
+                .contains(Path.of("com/sun/istack/istack-commons-runtime/3.0.7/istack-commons-runtime-3.0.7.jar"))
+                .contains(Path.of("org/jvnet/staxex/stax-ex/1.8/stax-ex-1.8.jar"))
+                .contains(Path.of("com/sun/xml/fastinfoset/FastInfoset/1.2.15/FastInfoset-1.2.15.jar"))
+                .contains(Path.of("org/dom4j/dom4j/2.1.1/dom4j-2.1.1.jar"))
+                .contains(Path.of("org/hibernate/common/hibernate-commons-annotations/5.1.0.Final/hibernate-commons-annotations-5.1.0.Final.jar"))
+                .contains(Path.of("javax/persistence/javax.persistence-api/2.2/javax.persistence-api-2.2.jar"))
+                .contains(Path.of("net/bytebuddy/byte-buddy/1.10.2/byte-buddy-1.10.2.jar"))
+                .contains(Path.of("org/jboss/spec/javax/transaction/jboss-transaction-api_1.2_spec/1.1.1.Final/jboss-transaction-api_1.2_spec-1.1.1.Final.jar"))
+                .contains(Path.of("org/hibernate/hibernate-validator/5.1.3.Final/hibernate-validator-5.1.3.Final.jar"))
+                .contains(Path.of("com/fasterxml/classmate/1.0.0/classmate-1.0.0.jar"))
+                .contains(Path.of("org/hibernate/hibernate-ehcache/5.4.10.Final/hibernate-ehcache-5.4.10.Final.jar"))
+                .contains(Path.of("org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar"))
+                .contains(Path.of("net/sf/ehcache/ehcache/2.10.3/ehcache-2.10.3.jar"))
+                .contains(Path.of("org/slf4j/slf4j-jdk14/1.7.21/slf4j-jdk14-1.7.21.jar"));
     }
 
     @Test
@@ -321,7 +322,7 @@ public class OpenRewriteMavenBuildFileTest {
         ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(DependenciesChangedEvent.class);
         verify(eventPublisher, times(46)).publishEvent(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().getResolvedDependencies()).hasSize(1);
-        assertThat(argumentCaptor.getValue().getResolvedDependencies().get(0).toString()).endsWith("org/apiguardian/apiguardian-api/1.1.0/apiguardian-api-1.1.0.jar");
+        assertThat(argumentCaptor.getValue().getResolvedDependencies().get(0).toString()).endsWith(Path.of("org/apiguardian/apiguardian-api/1.1.0/apiguardian-api-1.1.0.jar").toString());
     }
 
     @Test

@@ -15,13 +15,13 @@
  */
 package org.springframework.sbm.common.migration.actions;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.sbm.common.filter.PathMatchingProjectResourceFilter;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.InternalProjectResource;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.springframework.sbm.common.filter.PathMatchingProjectResourceFilter;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -40,11 +40,11 @@ class MoveFilesActionTest {
         Path projectRoot = TestProjectContext.getDefaultProjectRoot();
 
         // file 1
-        String someFilePath = "src/main/resources/a/SomeFile.foo";
+        String someFilePath = Path.of("src/main/resources/a/SomeFile.foo").toString();
         String fileContent1 = "file content";
 
         // file 2
-        String anotherFilePath = "src/main/resources/b/AnotherFile.foo";
+        String anotherFilePath = Path.of("src/main/resources/b/AnotherFile.foo").toString();
         String fileContent2 = "file content 2";
 
         // target dir
