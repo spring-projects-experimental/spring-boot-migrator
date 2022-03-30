@@ -24,7 +24,6 @@ import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,8 +55,8 @@ class MoveFilesActionTest {
                 .addProjectResource(anotherFilePath, fileContent2)
                 .build();
 
-        ProjectResource someFile = projectContext.search(new PathMatchingProjectResourceFilter(List.of("/**/SomeFile.foo"))).get(0);
-        ProjectResource anotherFile = projectContext.search(new PathMatchingProjectResourceFilter(List.of("/**/AnotherFile.foo"))).get(0);
+        ProjectResource someFile = projectContext.search(new PathMatchingProjectResourceFilter("/**/SomeFile.foo")).get(0);
+        ProjectResource anotherFile = projectContext.search(new PathMatchingProjectResourceFilter("/**/AnotherFile.foo")).get(0);
 
         verifyPrecondition(someFile, projectRoot.resolve(someFilePath), fileContent1);
         verifyPrecondition(anotherFile, projectRoot.resolve(anotherFilePath), fileContent2);
