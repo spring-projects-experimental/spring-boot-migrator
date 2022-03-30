@@ -33,6 +33,8 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
             "        <http:listener-config name=\"HTTP_Listener_Configuration\" host=\"0.0.0.0\" port=\"9081\" doc:name=\"HTTP Listener Configuration\"/>\n" +
             "    <flow name=\"choiceFlow\">\n" +
             "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/choice\" doc:name=\"HTTP\"/>\n" +
+            "        <expression-filter expression=\"#[message.inboundProperties.'http.request.uri' != '/favicon.ico']\" doc:name=\"Expression\"/>\n" +
+            "        <set-variable variableName=\"language\" value=\"#[message.inboundProperties.'http.query.params'.language]\" doc:name=\"Set Language Variable\"/>\n" +
             "        <choice doc:name=\"Choice\">\n" +
             "            <when expression=\"#[flowVars.language == 'Spanish']\">\n" +
             "                <set-payload doc:name=\"Reply in Spanish\" value=\"Hola!\"/>\n" +
@@ -66,6 +68,8 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "    @Bean\n" +
                         "    IntegrationFlow choiceFlow() {\n" +
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/choice\")).handle((p, h) -> p)\n" +
+                        "                //FIXME: element is not supported for conversion: <expression-filter/>\n" +
+                        "                //FIXME: element is not supported for conversion: <set-variable/>\n" +
                         "                /*\n" +
                         "                                * TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
                         "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
