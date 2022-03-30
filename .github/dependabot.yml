@@ -4,3 +4,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "org.openrewrite"
+      - dependency-name: "org.glassfish.jaxb:jaxb-runtime"
