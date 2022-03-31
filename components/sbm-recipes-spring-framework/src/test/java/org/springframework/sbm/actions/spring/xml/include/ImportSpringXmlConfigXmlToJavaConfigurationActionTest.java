@@ -61,6 +61,7 @@ public class ImportSpringXmlConfigXmlToJavaConfigurationActionTest {
                 "    <groupId>org.springframework.sbm</groupId>\n" +
                 "    <artifactId>something</artifactId>\n" +
                 "    <version>0.6.1-SNAPSHOT</version>\n" +
+                "    <properties/>\n" +
                 "    <modelVersion>4.0.0</modelVersion>\n" +
                 "    <dependencies>\n" +
                 "        <dependency>\n" +
@@ -138,7 +139,8 @@ public class ImportSpringXmlConfigXmlToJavaConfigurationActionTest {
                 "    <dependencies>\n" + 
                 "        <dependency>\n" + 
                 "            <groupId>org.springframework</groupId>\n" + 
-                "            <artifactId>spring-context</artifactId>\n" + 
+                "            <artifactId>spring-context</artifactId>\n" +
+                "            <version>5.3.16</version>\n" +
                 "        </dependency>\n" + 
                 "    </dependencies>\n" + 
                 "\n" + 

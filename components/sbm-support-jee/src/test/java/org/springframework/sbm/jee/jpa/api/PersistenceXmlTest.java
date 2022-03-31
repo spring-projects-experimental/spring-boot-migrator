@@ -16,6 +16,7 @@
 package org.springframework.sbm.jee.jpa.api;
 
 import org.junit.jupiter.api.Test;
+import org.openrewrite.xml.XmlParser;
 import org.openrewrite.xml.tree.Xml;
 
 import javax.xml.bind.JAXBException;
@@ -23,8 +24,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class PersistenceXmlTest {
 
@@ -331,8 +330,7 @@ class PersistenceXmlTest {
     }
 
     private Persistence getPersistence(String xml) {
-        Xml.Document xmlDocument = mock(Xml.Document.class);
-        when(xmlDocument.printAll()).thenReturn(xml);
+        Xml.Document xmlDocument = new XmlParser().parse(xml).get(0);
         PersistenceXml sut = new PersistenceXml(Path.of("./target/testdummy/src/main/resources/META-INF/persistence.xml").normalize().toAbsolutePath(), xmlDocument);
         Persistence persistence = sut.getPersistence();
         return persistence;
