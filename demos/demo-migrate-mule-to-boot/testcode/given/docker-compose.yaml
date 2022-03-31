@@ -8,3 +8,6 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
+    volumes:
+      - ./init/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./init/definitions.json:/etc/rabbitmq/definitions.json
