@@ -29,7 +29,9 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -42,10 +44,11 @@ public class DependenciesChangedEventHandler {
     public void onDependenciesChanged(DependenciesChangedEvent event) {
         if (projectContextHolder.getProjectContext() != null) {
             JavaParser currentJavaParser = JavaParserFactory.getCurrentJavaParser();
-            List<Parser.Input> compilationUnits = projectContextHolder.getProjectContext().getProjectJavaSources().asStream()
+            Set<Parser.Input> compilationUnitsSet = projectContextHolder.getProjectContext().getProjectJavaSources().asStream()
                     .map(js -> js.getResource().getSourceFile())
                     .map(js -> new Parser.Input(js.getSourcePath(), () -> new ByteArrayInputStream(js.printAll().getBytes(StandardCharsets.UTF_8))))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
+            List<Parser.Input> compilationUnits = new ArrayList<>(compilationUnitsSet);
 
             Path projectRootDirectory = projectContextHolder.getProjectContext().getProjectRootDirectory();
             List<J.CompilationUnit> parsedCompilationUnits = currentJavaParser.parseInputs(compilationUnits, projectRootDirectory, new RewriteExecutionContext(applicationEventPublisher));
