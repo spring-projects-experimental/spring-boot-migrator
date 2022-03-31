@@ -36,9 +36,9 @@ mkdir $resultDir
 cp -R ./testcode/given/* $resultDir
 
 # start infrastructure
-docker-compose -f ./testcode/expected/docker-compose.yaml stop && docker-compose -f ./testcode/expected/docker-compose.yaml rm -f
-docker-compose -f ./testcode/expected/docker-compose.yaml rm -v
-docker-compose -f ./testcode/expected/docker-compose.yaml up -d --no-recreate
+docker-compose -f $resultDir/docker-compose.yaml stop && docker-compose -f $resultDir/docker-compose.yaml rm -f
+docker-compose -f $resultDir/docker-compose.yaml rm -v
+docker-compose -f $resultDir/docker-compose.yaml up -d --no-recreate
 
 # init git
 pushd $resultAppDir
@@ -55,11 +55,17 @@ popd
 echo "start sbm"
 java -jar $sbmRootDir/applications/spring-shell/target/spring-boot-migrator.jar @commands.txt
 
+# start migrated spring boot application
+
+# call migrated application
+curl --location --request POST 'http://localhost:8081/' --header 'Content-Type: text/plain' --data-raw '{"hello": "from mule spring world"}'
+
+
 pause "shutdown"
 # run migration
 
 # shutdown infrastructure
-docker-compose -f ./testcode/expected/docker-compose.yaml stop && docker-compose -f ./testcode/expected/docker-compose.yaml rm -f
-docker-compose -f ./testcode/expected/docker-compose.yaml rm -vs
+docker-compose -f $resultDir/docker-compose.yaml stop && docker-compose -f $resultDir/docker-compose.yaml rm -f
+docker-compose -f $resultDir/docker-compose.yaml rm -vs
 
 # cleanup

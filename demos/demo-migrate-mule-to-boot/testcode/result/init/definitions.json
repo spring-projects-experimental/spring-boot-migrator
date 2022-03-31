@@ -12,7 +12,7 @@
   ],
   "exchanges": [
     {
-      "name": "sales_queue_exchange",
+      "name": "sales_exchange",
       "vhost": "/",
       "type": "direct",
       "durable": true,
@@ -23,7 +23,7 @@
   ],
   "bindings": [
     {
-      "source": "sales_queue_exchange",
+      "source": "sales_exchange",
       "vhost": "/",
       "destination": "sales_queue",
       "destination_type": "queue",
