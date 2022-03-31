@@ -20,6 +20,7 @@ import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 import org.springframework.util.AntPathMatcher;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ public class PathMatchingProjectResourceFilter implements ProjectResourceFinder<
      */
     private final List<String> matchingPatterns;
 
-    private final AntPathMatcher matcher = new AntPathMatcher();
+    private final AntPathMatcher matcher = new AntPathMatcher(File.separator);
 
     public PathMatchingProjectResourceFilter(List<String> matchingPatterns) {
         this.matchingPatterns = matchingPatterns;
