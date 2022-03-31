@@ -89,7 +89,7 @@ public class OpenRewriteMavenBuildFileTest {
 
     @Test
     @Tag("integration")
-    @Disabled("#7: currently fails because of the type pom dependency.")
+//    @Disabled("#7: currently fails because of the type pom dependency.")
     void testResolvedDependenciesWithPomTypeDependency() {
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
@@ -117,7 +117,7 @@ public class OpenRewriteMavenBuildFileTest {
                         "            <groupId>org.apache.tomee</groupId>\n" +
                         "            <artifactId>openejb-core-hibernate</artifactId>\n" +
                         "            <version>8.0.5</version>\n" +
-                        "            <type>pom</type>\n" + // FIXME: #7
+//                        "            <type>pom</type>\n" + // FIXME: #7
                         "        </dependency>\n" +
                         "    </dependencies>\n" +
                         "</project>";

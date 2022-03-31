@@ -35,7 +35,7 @@ public class BuildFileResourceWrapper implements ProjectResourceWrapper<OpenRewr
 
     @Override
     public boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
-        return Xml.Document.class.isAssignableFrom(rewriteSourceFileHolder.getSourceFile().getClass());
+        return Xml.Document.class.isAssignableFrom(rewriteSourceFileHolder.getSourceFile().getClass()) && rewriteSourceFileHolder.getAbsolutePath().endsWith("pom.xml");
     }
 
     @Override
