@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.engine.recipe;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,6 +39,7 @@ public abstract class AbstractAction implements Action {
     private Condition condition = Condition.TRUE;
 
     @Autowired
+    @JsonIgnore
     @Getter
     private ApplicationEventPublisher eventPublisher;
 

@@ -16,6 +16,7 @@
 package org.springframework.sbm.jee.wls.actions;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.jee.wls.JeeWlsEjbJarProjectResourceRegistrar;
@@ -24,6 +25,7 @@ import org.springframework.sbm.project.resource.TestProjectContext;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 class MigrateWlsEjbDeploymentDescriptorTest {
     @Test
@@ -93,6 +95,7 @@ class MigrateWlsEjbDeploymentDescriptorTest {
 
 
         MigrateWlsEjbDeploymentDescriptor sut = new MigrateWlsEjbDeploymentDescriptor();
+        sut.setEventPublisher(mock(ApplicationEventPublisher.class));
         sut.apply(projectContext);
 
         String resultingJavaSource = projectContext.getProjectJavaSources().list().get(0).getResource().print();
