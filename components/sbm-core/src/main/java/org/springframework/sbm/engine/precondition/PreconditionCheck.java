@@ -24,8 +24,6 @@ import java.util.List;
 
 public abstract class PreconditionCheck {
 
-	private ResultState resultState;
-
 	public abstract PreconditionCheckResult verify(Path projectRoot, List<Resource> projectResources);
 
 	public enum ResultState {

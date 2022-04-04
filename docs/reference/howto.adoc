@@ -2,7 +2,28 @@
 
 
 === Check Preconditions
+Preconditions that must be met to allow a successful migration can be checked before scanning an application.
+This allows a user to be informed about unmet preconditions that would prevent a successful migration before the
+sometimes lengthy parsing is done.
 
+To add a new precondition check you need to provide a component extending abstract `PreconditionCheck` class
+and return the result of the precondition check as `PreconditionCheckResult`.
+
+[source,java]
+....
+@Component
+public class MyPreconditionCheck extends PreconditionCheck {
+    @Override
+    public PreconditionCheckResult verify(Path projectRoot, List<Resource> projectResources) {
+        // verify precondition is met...
+    }
+}
+....
+
+This class must be placed under `org.springframework.sbm` to be picked up by component scan and gets executed after scanning
+the project but before parsing resources into an AST.
+If one of the preconditions fails (`ResultState.WARN` or `ResultState.FAILED`), the scan is interrupted and a message is
+shown to the user.
 
 
 === Implement Actions
