@@ -1,0 +1,34 @@
+{
+  "queues": [
+    {
+      "name": "sales_queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "classic"
+      }
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "sales_exchange",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "sales_exchange",
+      "vhost": "/",
+      "destination": "sales_queue",
+      "destination_type": "queue",
+      "routing_key": "sales_queue",
+      "arguments": {}
+    }
+  ]
+}

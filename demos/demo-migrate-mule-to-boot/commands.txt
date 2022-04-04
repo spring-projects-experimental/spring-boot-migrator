@@ -1,0 +1,4 @@
+s ./testcode/result/spring-amqp-mule
+a initialize-spring-boot-migration
+a migrate-mule-to-boot
+exit
