@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
+import java.util.Set;
 
 @Component
 public class DwlTransformTranslator implements MuleComponentToSpringIntegrationDslTranslator<TransformMessageType> {
@@ -57,11 +58,20 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
             String flowName
     ) {
 
-        if (isComponentReferencingAnExternalFile(component)) {
-            return formExternalFileBasedDSLSnippet(component);
+        if (component.getSetPayload() != null) {
+            if (isComponentReferencingAnExternalFile(component)) {
+                return formExternalFileBasedDSLSnippet(component);
+            }
+
+            return formEmbeddedDWLBasedDSLSnippet(component, Helper.sanitizeForBeanMethodName(flowName));
         }
 
-        return formEmbeddedDWLBasedDSLSnippet(component, Helper.sanitizeForBeanMethodName(flowName));
+        return noSupportDslSnippet();
+    }
+
+    private DslSnippet noSupportDslSnippet() {
+        String noSupport = "// FIXME: No support for following DW transformation: <dw:set-property/> <dw:set-session-variable /> <dw:set-variable />";
+        return new DslSnippet(noSupport, Set.of(), Set.of(), Set.of());
     }
 
     private DslSnippet formEmbeddedDWLBasedDSLSnippet(TransformMessageType component, String flowName) {
