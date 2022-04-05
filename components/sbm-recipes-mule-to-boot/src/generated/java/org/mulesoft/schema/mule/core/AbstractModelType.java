@@ -1,10 +1,15 @@
 
 package org.mulesoft.schema.mule.core;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -60,11 +65,11 @@ public class AbstractModelType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
@@ -80,11 +85,11 @@ public class AbstractModelType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
@@ -100,9 +105,9 @@ public class AbstractModelType
      * 
      * @return
      *     possible object is
+     *     {@link JAXBElement }{@code <}{@link ExtensibleEntryPointResolverSet }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ExtensibleEntryPointResolverSet }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomEntryPointResolverSetType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ExtensibleEntryPointResolverSet }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ExtensibleEntryPointResolverSet }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverSetType }{@code >}
      *     
      */
@@ -115,9 +120,9 @@ public class AbstractModelType
      * 
      * @param value
      *     allowed object is
+     *     {@link JAXBElement }{@code <}{@link ExtensibleEntryPointResolverSet }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ExtensibleEntryPointResolverSet }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomEntryPointResolverSetType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ExtensibleEntryPointResolverSet }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ExtensibleEntryPointResolverSet }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverSetType }{@code >}
      *     
      */
@@ -133,9 +138,9 @@ public class AbstractModelType
      *     {@link JAXBElement }{@code <}{@link PropertyEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReflectionEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CustomEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link MethodEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
      *     
@@ -152,9 +157,9 @@ public class AbstractModelType
      *     {@link JAXBElement }{@code <}{@link PropertyEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReflectionEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CustomEntryPointResolverType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link MethodEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
      *     

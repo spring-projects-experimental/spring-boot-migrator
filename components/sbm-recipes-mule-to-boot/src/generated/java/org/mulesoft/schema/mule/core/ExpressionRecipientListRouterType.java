@@ -1,14 +1,20 @@
 
 package org.mulesoft.schema.mule.core;
 
-import org.mulesoft.schema.mule.jms.PropertyFilter;
-
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.mulesoft.schema.mule.jms.PropertyFilter;
 
 
 /**
@@ -23,8 +29,8 @@ import java.util.List;
  *       &lt;sequence&gt;
  *         &lt;group ref="{http://www.mulesoft.org/schema/mule/core}defaultFilteredOutboundRouterElements"/&gt;
  *       &lt;/sequence&gt;
- *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}defaultFilteredOutboundRouterAttributes"/&gt;
  *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}expressionAttributes"/&gt;
+ *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}defaultFilteredOutboundRouterAttributes"/&gt;
  *       &lt;attribute name="synchronous" type="{http://www.w3.org/2001/XMLSchema}boolean" /&gt;
  *       &lt;anyAttribute processContents='lax' namespace='##other'/&gt;
  *     &lt;/extension&gt;
@@ -58,6 +64,12 @@ public class ExpressionRecipientListRouterType
     protected List<JAXBElement<? extends CommonTransformerType>> abstractTransformer;
     @XmlAttribute(name = "synchronous")
     protected Boolean synchronous;
+    @XmlAttribute(name = "evaluator")
+    protected String evaluator;
+    @XmlAttribute(name = "expression", required = true)
+    protected String expression;
+    @XmlAttribute(name = "custom-evaluator")
+    protected String customEvaluator;
     @XmlAttribute(name = "useTemplates")
     protected String useTemplates;
     @XmlAttribute(name = "transformer-refs")
@@ -66,12 +78,6 @@ public class ExpressionRecipientListRouterType
     @XmlAttribute(name = "enableCorrelation")
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     protected String enableCorrelation;
-    @XmlAttribute(name = "evaluator")
-    protected String evaluator;
-    @XmlAttribute(name = "expression", required = true)
-    protected String expression;
-    @XmlAttribute(name = "custom-evaluator")
-    protected String customEvaluator;
 
     /**
      * Gets the value of the replyTo property.
@@ -105,8 +111,8 @@ public class ExpressionRecipientListRouterType
      * @return
      *     possible object is
      *     {@link JAXBElement }{@code <}{@link CustomTransactionType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link XaTransactionType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractTransactionType }{@code >}
@@ -122,8 +128,8 @@ public class ExpressionRecipientListRouterType
      * @param value
      *     allowed object is
      *     {@link JAXBElement }{@code <}{@link CustomTransactionType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link XaTransactionType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractTransactionType }{@code >}
@@ -141,19 +147,19 @@ public class ExpressionRecipientListRouterType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
      *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CommonFilterType }{@code >}
      *     
      */
@@ -166,19 +172,19 @@ public class ExpressionRecipientListRouterType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
      *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CommonFilterType }{@code >}
      *     
      */
@@ -206,54 +212,54 @@ public class ExpressionRecipientListRouterType
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link RefTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link SetPropertyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CopyPropertiesType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ValueExtractorTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ParseTemplateTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CopyAttachmentType }{@code >}
-     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link SetAttachmentType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MessagePropertiesTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link SetVariableType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemoveAttachmentType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AppendStringTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemoveAttachmentType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link BeanBuilderTransformer }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemovePropertyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link SetPropertyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RefTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ValueExtractorTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CopyAttachmentType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ParseTemplateTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link SetVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CopyPropertiesType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MessagePropertiesTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link SetVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link SetAttachmentType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AppendStringTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemovePropertyType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link CommonTransformerType }{@code >}
      * 
@@ -288,6 +294,78 @@ public class ExpressionRecipientListRouterType
      */
     public void setSynchronous(Boolean value) {
         this.synchronous = value;
+    }
+
+    /**
+     * Gets the value of the evaluator property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getEvaluator() {
+        return evaluator;
+    }
+
+    /**
+     * Sets the value of the evaluator property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setEvaluator(String value) {
+        this.evaluator = value;
+    }
+
+    /**
+     * Gets the value of the expression property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getExpression() {
+        return expression;
+    }
+
+    /**
+     * Sets the value of the expression property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setExpression(String value) {
+        this.expression = value;
+    }
+
+    /**
+     * Gets the value of the customEvaluator property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCustomEvaluator() {
+        return customEvaluator;
+    }
+
+    /**
+     * Sets the value of the customEvaluator property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCustomEvaluator(String value) {
+        this.customEvaluator = value;
     }
 
     /**
@@ -373,78 +451,6 @@ public class ExpressionRecipientListRouterType
      */
     public void setEnableCorrelation(String value) {
         this.enableCorrelation = value;
-    }
-
-    /**
-     * Gets the value of the evaluator property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEvaluator() {
-        return evaluator;
-    }
-
-    /**
-     * Sets the value of the evaluator property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEvaluator(String value) {
-        this.evaluator = value;
-    }
-
-    /**
-     * Gets the value of the expression property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getExpression() {
-        return expression;
-    }
-
-    /**
-     * Sets the value of the expression property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setExpression(String value) {
-        this.expression = value;
-    }
-
-    /**
-     * Gets the value of the customEvaluator property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCustomEvaluator() {
-        return customEvaluator;
-    }
-
-    /**
-     * Sets the value of the customEvaluator property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCustomEvaluator(String value) {
-        this.customEvaluator = value;
     }
 
 }

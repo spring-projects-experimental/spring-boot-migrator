@@ -1,14 +1,18 @@
 
 package org.mulesoft.schema.mule.core;
 
-import org.mulesoft.schema.mule.http.RestServiceWrapperType;
-
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.mulesoft.schema.mule.http.RestServiceWrapperType;
 
 
 /**
@@ -85,13 +89,13 @@ public class SimpleServiceType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractInboundEndpointType }{@code >}
      *     
      */
@@ -104,13 +108,13 @@ public class SimpleServiceType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractInboundEndpointType }{@code >}
      *     
      */
@@ -125,13 +129,13 @@ public class SimpleServiceType
      * 
      * @return
      *     possible object is
+     *     {@link JAXBElement }{@code <}{@link RestServiceWrapperType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link StaticComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link PooledJavaComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RestServiceWrapperType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link StaticComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractComponentType }{@code >}
      *     
      */
@@ -144,13 +148,13 @@ public class SimpleServiceType
      * 
      * @param value
      *     allowed object is
+     *     {@link JAXBElement }{@code <}{@link RestServiceWrapperType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link StaticComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link PooledJavaComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RestServiceWrapperType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link StaticComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractComponentType }{@code >}
      *     
      */
@@ -163,11 +167,11 @@ public class SimpleServiceType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
@@ -183,11 +187,11 @@ public class SimpleServiceType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}

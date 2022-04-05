@@ -1,13 +1,13 @@
 
 package org.mulesoft.schema.mule.core;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlType;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -61,9 +61,9 @@ public class ExtensibleEntryPointResolverSet
      * {@link JAXBElement }{@code <}{@link PropertyEntryPointResolverType }{@code >}
      * {@link JAXBElement }{@code <}{@link ReflectionEntryPointResolverType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomEntryPointResolverType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
      * {@link JAXBElement }{@code <}{@link MethodEntryPointResolverType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomEntryPointResolverType }{@code >}
      * {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
      * 

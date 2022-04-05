@@ -5,6 +5,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import org.mulesoft.schema.mule.db.DatabaseConfigType;
+import org.mulesoft.schema.mule.db.TemplateSqlDefinitionType;
 import org.mulesoft.schema.mule.http.ListenerConfigType;
 import org.mulesoft.schema.mule.http.ProxyType;
 import org.mulesoft.schema.mule.http.RequestBuilderType;
@@ -37,6 +39,8 @@ import org.mulesoft.schema.mule.tls.TlsContextType;
 @XmlType(name = "abstractExtensionType")
 @XmlSeeAlso({
     AbstractCachingStrategyType.class,
+    TemplateSqlDefinitionType.class,
+    DatabaseConfigType.class,
     ListenerConfigType.class,
     RequestConfigType.class,
     ResponseBuilderType.class,
