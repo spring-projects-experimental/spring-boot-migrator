@@ -133,8 +133,8 @@ public class RequestConfigType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link NtlmAuthenticationType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DigestAuthenticationType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link NtlmAuthenticationType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BasicAuthenticationType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractHttpRequestAuthenticationProvider }{@code >}
      *     
@@ -148,8 +148,8 @@ public class RequestConfigType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link NtlmAuthenticationType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DigestAuthenticationType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link NtlmAuthenticationType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BasicAuthenticationType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractHttpRequestAuthenticationProvider }{@code >}
      *     

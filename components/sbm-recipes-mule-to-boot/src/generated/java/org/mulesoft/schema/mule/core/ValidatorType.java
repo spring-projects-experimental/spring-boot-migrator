@@ -89,12 +89,12 @@ public class ValidatorType
      * @return
      *     possible object is
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractInboundEndpointType }{@code >}
      *     
      */
@@ -108,12 +108,12 @@ public class ValidatorType
      * @param value
      *     allowed object is
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.InboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.InboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractInboundEndpointType }{@code >}
      *     
      */
@@ -128,19 +128,19 @@ public class ValidatorType
      * 
      * @return
      *     possible object is
+     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
+     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CommonFilterType }{@code >}
      *     
      */
@@ -153,19 +153,19 @@ public class ValidatorType
      * 
      * @param value
      *     allowed object is
+     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
+     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CommonFilterType }{@code >}
      *     
      */
@@ -180,12 +180,12 @@ public class ValidatorType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractOutboundEndpointType }{@code >}
      *     
@@ -199,12 +199,12 @@ public class ValidatorType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.OutboundEndpointType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.OutboundEndpointType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.OutboundEndpointType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractOutboundEndpointType }{@code >}
      *     
@@ -218,13 +218,13 @@ public class ValidatorType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     
@@ -238,13 +238,13 @@ public class ValidatorType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     

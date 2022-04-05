@@ -67,8 +67,8 @@ public class AbstractComponentType
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link CustomInterceptorType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInterceptorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomInterceptorType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInterceptorType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInterceptorType }{@code >}
      * {@link JAXBElement }{@code <}{@link RefInterceptorStackType }{@code >}
