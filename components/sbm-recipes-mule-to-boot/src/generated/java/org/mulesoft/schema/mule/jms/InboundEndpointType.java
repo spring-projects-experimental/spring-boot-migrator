@@ -1,15 +1,84 @@
 
 package org.mulesoft.schema.mule.jms;
 
-import org.mulesoft.schema.mule.core.*;
-import org.mulesoft.schema.mule.http.BasicSecurityFilterType;
-
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlElementRefs;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.mulesoft.schema.mule.core.AbstractGlobalInterceptingMessageProcessorType;
+import org.mulesoft.schema.mule.core.AbstractInboundEndpointType;
+import org.mulesoft.schema.mule.core.AbstractInterceptingMessageProcessorType;
+import org.mulesoft.schema.mule.core.AbstractMixedContentMessageProcessorType;
+import org.mulesoft.schema.mule.core.AbstractObserverMessageProcessorType;
+import org.mulesoft.schema.mule.core.AbstractRedeliveryPolicyType;
+import org.mulesoft.schema.mule.core.AbstractSecurityFilterType;
+import org.mulesoft.schema.mule.core.AbstractTransactionType;
+import org.mulesoft.schema.mule.core.AbstractTransformerType;
+import org.mulesoft.schema.mule.core.AppendStringTransformerType;
+import org.mulesoft.schema.mule.core.BaseAggregatorType;
+import org.mulesoft.schema.mule.core.BaseTransactionType;
+import org.mulesoft.schema.mule.core.BeanBuilderTransformer;
+import org.mulesoft.schema.mule.core.CollectionFilterType;
+import org.mulesoft.schema.mule.core.CollectionSplitter;
+import org.mulesoft.schema.mule.core.CombineCollectionsTransformer;
+import org.mulesoft.schema.mule.core.CommonFilterType;
+import org.mulesoft.schema.mule.core.CommonTransformerType;
+import org.mulesoft.schema.mule.core.CopyAttachmentType;
+import org.mulesoft.schema.mule.core.CopyPropertiesType;
+import org.mulesoft.schema.mule.core.CustomAggregator;
+import org.mulesoft.schema.mule.core.CustomFilterType;
+import org.mulesoft.schema.mule.core.CustomMessageProcessorType;
+import org.mulesoft.schema.mule.core.CustomSecurityFilterType;
+import org.mulesoft.schema.mule.core.CustomSplitter;
+import org.mulesoft.schema.mule.core.CustomTransactionType;
+import org.mulesoft.schema.mule.core.CustomTransformerType;
+import org.mulesoft.schema.mule.core.EncryptionSecurityFilterType;
+import org.mulesoft.schema.mule.core.EncryptionTransformerType;
+import org.mulesoft.schema.mule.core.ExpressionComponent;
+import org.mulesoft.schema.mule.core.ExpressionFilterType;
+import org.mulesoft.schema.mule.core.ExpressionTransformerType;
+import org.mulesoft.schema.mule.core.ForeachProcessorType;
+import org.mulesoft.schema.mule.core.IdempotentMessageFilterType;
+import org.mulesoft.schema.mule.core.IdempotentRedeliveryPolicyType;
+import org.mulesoft.schema.mule.core.IdempotentSecureHashMessageFilter;
+import org.mulesoft.schema.mule.core.KeyValueType;
+import org.mulesoft.schema.mule.core.LoggerType;
+import org.mulesoft.schema.mule.core.MapSplitter;
+import org.mulesoft.schema.mule.core.MapType;
+import org.mulesoft.schema.mule.core.MessageChunkSplitter;
+import org.mulesoft.schema.mule.core.MessageFilterType;
+import org.mulesoft.schema.mule.core.MessagePropertiesTransformerType;
+import org.mulesoft.schema.mule.core.ParseTemplateTransformerType;
+import org.mulesoft.schema.mule.core.RefFilterType;
+import org.mulesoft.schema.mule.core.RefMessageProcessorType;
+import org.mulesoft.schema.mule.core.RefTransformerType;
+import org.mulesoft.schema.mule.core.RegexFilterType;
+import org.mulesoft.schema.mule.core.RemoveAttachmentType;
+import org.mulesoft.schema.mule.core.RemovePropertyType;
+import org.mulesoft.schema.mule.core.RemoveVariableType;
+import org.mulesoft.schema.mule.core.Response;
+import org.mulesoft.schema.mule.core.ScopedPropertyFilterType;
+import org.mulesoft.schema.mule.core.SetAttachmentType;
+import org.mulesoft.schema.mule.core.SetPropertyType;
+import org.mulesoft.schema.mule.core.SetVariableType;
+import org.mulesoft.schema.mule.core.Splitter;
+import org.mulesoft.schema.mule.core.TypeFilterType;
+import org.mulesoft.schema.mule.core.UnitaryFilterType;
+import org.mulesoft.schema.mule.core.UsernamePasswordFilterType;
+import org.mulesoft.schema.mule.core.ValueExtractorTransformerType;
+import org.mulesoft.schema.mule.core.WildcardFilterType;
+import org.mulesoft.schema.mule.core.WireTap;
+import org.mulesoft.schema.mule.core.XaTransactionType;
+import org.mulesoft.schema.mule.http.BasicSecurityFilterType;
 
 
 /**
@@ -22,9 +91,9 @@ import java.util.List;
  *   &lt;complexContent&gt;
  *     &lt;extension base="{http://www.mulesoft.org/schema/mule/core}abstractInboundEndpointType"&gt;
  *       &lt;group ref="{http://www.mulesoft.org/schema/mule/jms}defaultEndpointElements"/&gt;
- *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}defaultEndpointAttributes"/&gt;
- *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}allExchangePatterns"/&gt;
  *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/jms}addressAttributes"/&gt;
+ *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}allExchangePatterns"/&gt;
+ *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/core}defaultEndpointAttributes"/&gt;
  *       &lt;attribute name="durableName" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
  *       &lt;attribute name="xaPollingTimeout" type="{http://www.mulesoft.org/schema/mule/core}substitutableInt" /&gt;
  *       &lt;anyAttribute processContents='lax' namespace='##other'/&gt;
@@ -78,6 +147,15 @@ public class InboundEndpointType
     protected String durableName;
     @XmlAttribute(name = "xaPollingTimeout")
     protected String xaPollingTimeout;
+    @XmlAttribute(name = "queue")
+    protected String queue;
+    @XmlAttribute(name = "topic")
+    protected String topic;
+    @XmlAttribute(name = "disableTemporaryReplyToDestinations")
+    protected Boolean disableTemporaryReplyToDestinations;
+    @XmlAttribute(name = "exchange-pattern")
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    protected String exchangePattern;
     @XmlAttribute(name = "ref")
     protected String ref;
     @XmlAttribute(name = "address")
@@ -98,15 +176,6 @@ public class InboundEndpointType
     protected String disableTransportTransformer;
     @XmlAttribute(name = "mimeType")
     protected String mimeType;
-    @XmlAttribute(name = "exchange-pattern")
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    protected String exchangePattern;
-    @XmlAttribute(name = "queue")
-    protected String queue;
-    @XmlAttribute(name = "topic")
-    protected String topic;
-    @XmlAttribute(name = "disableTemporaryReplyToDestinations")
-    protected Boolean disableTemporaryReplyToDestinations;
 
     /**
      * Gets the value of the endpointMessageProcessorElements property.
@@ -126,91 +195,91 @@ public class InboundEndpointType
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link RefTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link SetVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CopyAttachmentType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link SetPropertyType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CopyPropertiesType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link BeanBuilderTransformer }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RefTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemovePropertyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MessagePropertiesTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemoveAttachmentType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link ValueExtractorTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CopyPropertiesType }{@code >}
      * {@link JAXBElement }{@code <}{@link ParseTemplateTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CopyAttachmentType }{@code >}
-     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link SetAttachmentType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MessagePropertiesTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link SetVariableType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemoveAttachmentType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AppendStringTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link BeanBuilderTransformer }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemovePropertyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link SetVariableType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link CommonTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
      * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CommonFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomSecurityFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link UsernamePasswordFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link BasicSecurityFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link EncryptionSecurityFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link UsernamePasswordFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomSecurityFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractSecurityFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomSplitter }{@code >}
-     * {@link JAXBElement }{@code <}{@link MessageChunkSplitter }{@code >}
      * {@link JAXBElement }{@code <}{@link BaseAggregatorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link BaseAggregatorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MapSplitter }{@code >}
-     * {@link JAXBElement }{@code <}{@link WireTap }{@code >}
-     * {@link JAXBElement }{@code <}{@link Splitter }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomAggregator }{@code >}
      * {@link JAXBElement }{@code <}{@link BaseAggregatorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ForeachProcessorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CollectionSplitter }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomSplitter }{@code >}
      * {@link JAXBElement }{@code <}{@link IdempotentMessageFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link MessageFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CombineCollectionsTransformer }{@code >}
      * {@link JAXBElement }{@code <}{@link IdempotentSecureHashMessageFilter }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractGlobalInterceptingMessageProcessorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link WireTap }{@code >}
+     * {@link JAXBElement }{@code <}{@link BaseAggregatorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MapSplitter }{@code >}
+     * {@link JAXBElement }{@code <}{@link CollectionSplitter }{@code >}
+     * {@link JAXBElement }{@code <}{@link Splitter }{@code >}
+     * {@link JAXBElement }{@code <}{@link ForeachProcessorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MessageChunkSplitter }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInterceptingMessageProcessorType }{@code >}
      * {@link JAXBElement }{@code <}{@link LoggerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractObserverMessageProcessorType }{@code >}
@@ -283,10 +352,10 @@ public class InboundEndpointType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link CustomTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link XaTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractTransactionType }{@code >}
      *     
@@ -300,10 +369,10 @@ public class InboundEndpointType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link CustomTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link XaTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link BaseTransactionType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractTransactionType }{@code >}
      *     
@@ -459,6 +528,102 @@ public class InboundEndpointType
      */
     public void setXaPollingTimeout(String value) {
         this.xaPollingTimeout = value;
+    }
+
+    /**
+     * Gets the value of the queue property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getQueue() {
+        return queue;
+    }
+
+    /**
+     * Sets the value of the queue property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setQueue(String value) {
+        this.queue = value;
+    }
+
+    /**
+     * Gets the value of the topic property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getTopic() {
+        return topic;
+    }
+
+    /**
+     * Sets the value of the topic property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setTopic(String value) {
+        this.topic = value;
+    }
+
+    /**
+     * Gets the value of the disableTemporaryReplyToDestinations property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Boolean }
+     *     
+     */
+    public Boolean isDisableTemporaryReplyToDestinations() {
+        return disableTemporaryReplyToDestinations;
+    }
+
+    /**
+     * Sets the value of the disableTemporaryReplyToDestinations property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Boolean }
+     *     
+     */
+    public void setDisableTemporaryReplyToDestinations(Boolean value) {
+        this.disableTemporaryReplyToDestinations = value;
+    }
+
+    /**
+     * Gets the value of the exchangePattern property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getExchangePattern() {
+        return exchangePattern;
+    }
+
+    /**
+     * Sets the value of the exchangePattern property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setExchangePattern(String value) {
+        this.exchangePattern = value;
     }
 
     /**
@@ -685,102 +850,6 @@ public class InboundEndpointType
      */
     public void setMimeType(String value) {
         this.mimeType = value;
-    }
-
-    /**
-     * Gets the value of the exchangePattern property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getExchangePattern() {
-        return exchangePattern;
-    }
-
-    /**
-     * Sets the value of the exchangePattern property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setExchangePattern(String value) {
-        this.exchangePattern = value;
-    }
-
-    /**
-     * Gets the value of the queue property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getQueue() {
-        return queue;
-    }
-
-    /**
-     * Sets the value of the queue property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setQueue(String value) {
-        this.queue = value;
-    }
-
-    /**
-     * Gets the value of the topic property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getTopic() {
-        return topic;
-    }
-
-    /**
-     * Sets the value of the topic property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setTopic(String value) {
-        this.topic = value;
-    }
-
-    /**
-     * Gets the value of the disableTemporaryReplyToDestinations property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
-     */
-    public Boolean isDisableTemporaryReplyToDestinations() {
-        return disableTemporaryReplyToDestinations;
-    }
-
-    /**
-     * Sets the value of the disableTemporaryReplyToDestinations property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
-     */
-    public void setDisableTemporaryReplyToDestinations(Boolean value) {
-        this.disableTemporaryReplyToDestinations = value;
     }
 
 }

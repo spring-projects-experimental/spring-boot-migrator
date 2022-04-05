@@ -1,10 +1,32 @@
 
 package org.mulesoft.schema.mule.core;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlElementRefs;
+import javax.xml.bind.annotation.XmlType;
 import org.mulesoft.schema.mule.amqp.AmqpConnectorType;
 import org.mulesoft.schema.mule.ee.wmq.WmqConnectorType;
-import org.mulesoft.schema.mule.http.*;
-import org.mulesoft.schema.mule.jms.*;
+import org.mulesoft.schema.mule.http.GlobalNtlmProxyType;
+import org.mulesoft.schema.mule.http.GlobalProxyType;
+import org.mulesoft.schema.mule.http.GlobalRequestBuilderType;
+import org.mulesoft.schema.mule.http.GlobalResponseBuilderType;
+import org.mulesoft.schema.mule.http.HttpConnectorType;
+import org.mulesoft.schema.mule.http.HttpPollingConnectorType;
+import org.mulesoft.schema.mule.http.ListenerConfigType;
+import org.mulesoft.schema.mule.http.RequestConfigType;
+import org.mulesoft.schema.mule.jms.ActiveMqConnectorType;
+import org.mulesoft.schema.mule.jms.ConnectionFactoryPoolType;
+import org.mulesoft.schema.mule.jms.CustomConnector;
+import org.mulesoft.schema.mule.jms.GenericConnectorType;
+import org.mulesoft.schema.mule.jms.MuleMqConnectorType;
+import org.mulesoft.schema.mule.jms.PropertyFilter;
+import org.mulesoft.schema.mule.jms.VendorJmsConnectorType;
 import org.mulesoft.schema.mule.tcp.PollingTcpConnectorType;
 import org.mulesoft.schema.mule.tcp.TcpClientSocketPropertiesType;
 import org.mulesoft.schema.mule.tcp.TcpConnectorType;
@@ -15,11 +37,6 @@ import org.springframework.schema.beans.Bean;
 import org.springframework.schema.beans.Beans;
 import org.springframework.schema.beans.Ref;
 import org.springframework.schema.context.PropertyPlaceholder;
-
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -146,16 +163,16 @@ public class MuleType
      * {@link JAXBElement }{@code <}{@link ConfigurationType }{@code >}
      * {@link JAXBElement }{@code <}{@link NotificationManagerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractCachingStrategyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link GlobalRequestBuilderType }{@code >}
      * {@link JAXBElement }{@code <}{@link TcpServerSocketPropertiesType }{@code >}
-     * {@link JAXBElement }{@code <}{@link GlobalNtlmProxyType }{@code >}
      * {@link JAXBElement }{@code <}{@link GlobalProxyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link GlobalNtlmProxyType }{@code >}
      * {@link JAXBElement }{@code <}{@link TcpClientSocketPropertiesType }{@code >}
+     * {@link JAXBElement }{@code <}{@link GlobalRequestBuilderType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractExtensionType }{@code >}
      * {@link JAXBElement }{@code <}{@link ListenerConfigType }{@code >}
-     * {@link JAXBElement }{@code <}{@link TlsContextType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ConnectionFactoryPoolType }{@code >}
      * {@link JAXBElement }{@code <}{@link RequestConfigType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ConnectionFactoryPoolType }{@code >}
+     * {@link JAXBElement }{@code <}{@link TlsContextType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractExtensionType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractMixedContentExtensionType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomAgentType }{@code >}
@@ -164,45 +181,45 @@ public class MuleType
      * {@link JAXBElement }{@code <}{@link AbstractSecurityManagerType }{@code >}
      * {@link JAXBElement }{@code <}{@link TransactionManagerType }{@code >}
      * {@link JAXBElement }{@code <}{@link TransactionManagerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomTransactionManagerType }{@code >}
      * {@link JAXBElement }{@code <}{@link JndiTransactionManager }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomTransactionManagerType }{@code >}
      * {@link JAXBElement }{@code <}{@link TransactionManagerType }{@code >}
      * {@link JAXBElement }{@code <}{@link JndiTransactionManagerType }{@code >}
      * {@link JAXBElement }{@code <}{@link TransactionManagerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransactionManagerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransactionManagerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link HttpPollingConnectorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link VendorJmsConnectorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link TcpConnectorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link PollingTcpConnectorType }{@code >}
      * {@link JAXBElement }{@code <}{@link MuleMqConnectorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link VendorJmsConnectorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MuleMqConnectorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link Connector }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomConnectorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link HttpPollingConnectorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link Connector }{@code >}
+     * {@link JAXBElement }{@code <}{@link MuleMqConnectorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link PollingTcpConnectorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link TcpConnectorType }{@code >}
      * {@link JAXBElement }{@code <}{@link AmqpConnectorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link VendorJmsConnectorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link VendorJmsConnectorType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractConnectorType }{@code >}
      * {@link JAXBElement }{@code <}{@link HttpConnectorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link WmqConnectorType }{@code >}
      * {@link JAXBElement }{@code <}{@link GenericConnectorType }{@code >}
      * {@link JAXBElement }{@code <}{@link WmqConnectorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link WmqConnectorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ActiveMqConnectorType }{@code >}
      * {@link JAXBElement }{@code <}{@link ActiveMqConnectorType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomConnector }{@code >}
+     * {@link JAXBElement }{@code <}{@link ActiveMqConnectorType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractConnectorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.GlobalEndpointType }{@code >}
-     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.GlobalEndpointType }{@code >}
-     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.GlobalEndpointType }{@code >}
-     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.GlobalEndpointType }{@code >}
      * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tcp.GlobalEndpointType }{@code >}
      * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.amqp.GlobalEndpointType }{@code >}
+     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.jms.GlobalEndpointType }{@code >}
+     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.core.GlobalEndpointType }{@code >}
+     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.tls.GlobalEndpointType }{@code >}
+     * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.http.GlobalEndpointType }{@code >}
      * {@link JAXBElement }{@code <}{@link org.mulesoft.schema.mule.ee.wmq.GlobalEndpointType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractGlobalEndpointType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
      * {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      * {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
      * {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      * {@link JAXBElement }{@code <}{@link SimpleServiceType }{@code >}
      * {@link JAXBElement }{@code <}{@link BridgeType }{@code >}
@@ -210,74 +227,74 @@ public class MuleType
      * {@link JAXBElement }{@code <}{@link AbstractFlowConstructType }{@code >}
      * {@link JAXBElement }{@code <}{@link FlowType }{@code >}
      * {@link JAXBElement }{@code <}{@link SubFlowType }{@code >}
-     * {@link JAXBElement }{@code <}{@link SedaModelType }{@code >}
      * {@link JAXBElement }{@code <}{@link DefaultModelType }{@code >}
+     * {@link JAXBElement }{@code <}{@link SedaModelType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractModelType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInterceptorStackType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInterceptorStackType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link RefFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link PropertyFilter }{@code >}
      * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link UnitaryFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ScopedPropertyFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CollectionFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link TypeFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link WildcardFilterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RegexFilterType }{@code >}
      * {@link JAXBElement }{@code <}{@link CommonFilterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RefTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link SetVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CopyAttachmentType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link SetPropertyType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CopyPropertiesType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link BeanBuilderTransformer }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RefTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemovePropertyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MessagePropertiesTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RemoveAttachmentType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link ValueExtractorTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CopyPropertiesType }{@code >}
      * {@link JAXBElement }{@code <}{@link ParseTemplateTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CopyAttachmentType }{@code >}
-     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link SetAttachmentType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MessagePropertiesTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link SetVariableType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemoveAttachmentType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link EncryptionTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link AppendStringTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemoveVariableType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link BeanBuilderTransformer }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RemovePropertyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
-     * {@link JAXBElement }{@code <}{@link SetVariableType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link CommonTransformerType }{@code >}
      * {@link JAXBElement }{@code <}{@link MessageProcessorChainType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomMessageProcessorType }{@code >}
@@ -291,11 +308,11 @@ public class MuleType
      * {@link JAXBElement }{@code <}{@link IdempotentSecureHashMessageFilter }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractGlobalInterceptingMessageProcessorType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomQueueStoreType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AsynchronousProcessingStrategy }{@code >}
+     * {@link JAXBElement }{@code <}{@link QueuedAsynchronousProcessingStrategy }{@code >}
      * {@link JAXBElement }{@code <}{@link NonBlockingProcessingStrategy }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomProcessingStrategy }{@code >}
      * {@link JAXBElement }{@code <}{@link QueuedAsynchronousProcessingStrategy }{@code >}
-     * {@link JAXBElement }{@code <}{@link QueuedAsynchronousProcessingStrategy }{@code >}
-     * {@link JAXBElement }{@code <}{@link AsynchronousProcessingStrategy }{@code >}
      * {@link JAXBElement }{@code <}{@link AsynchronousProcessingStrategy }{@code >}
      * {@link JAXBElement }{@code <}{@link ProcessingStrategyType }{@code >}
      * 

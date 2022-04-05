@@ -1,10 +1,14 @@
 
 package org.mulesoft.schema.mule.core;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -60,20 +64,20 @@ public class OutboundCollectionType {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link RoundRobinSplitterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionSplitterOutboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionRecipientListRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionOrStaticRecipientListRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link SingleEndpointFilteringOutboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomOutboundRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link EndpointSelectorRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ChunkingRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionRecipientListRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link OutboundRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link StaticRecipientListRouterType }{@code >}
      * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MultipleEndpointFilteringOutboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link OutboundRouterType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExpressionOrStaticRecipientListRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ExpressionSplitterOutboundRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ChunkingRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomOutboundRouterType }{@code >}
+     * {@link JAXBElement }{@code <}{@link RoundRobinSplitterType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractOutboundRouterType }{@code >}
      * 
      * 

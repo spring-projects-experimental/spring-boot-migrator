@@ -1,16 +1,15 @@
 
 package org.mulesoft.schema.mule.core;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
 import org.mulesoft.schema.mule.amqp.BasicAckType;
 import org.mulesoft.schema.mule.amqp.BasicRejectType;
 import org.mulesoft.schema.mule.amqp.ReturnHandlerType;
 import org.mulesoft.schema.mule.ee.dw.TransformMessageType;
 import org.mulesoft.schema.mule.http.RequestType;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**

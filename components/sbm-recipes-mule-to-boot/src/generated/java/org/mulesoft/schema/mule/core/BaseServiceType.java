@@ -1,12 +1,17 @@
 
 package org.mulesoft.schema.mule.core;
 
-import org.mulesoft.schema.mule.http.RestServiceWrapperType;
-
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.mulesoft.schema.mule.http.RestServiceWrapperType;
 
 
 /**
@@ -136,13 +141,13 @@ public class BaseServiceType
      * 
      * @return
      *     possible object is
+     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link PooledJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RestServiceWrapperType }{@code >}
      *     {@link JAXBElement }{@code <}{@link StaticComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link PooledJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractComponentType }{@code >}
      *     
      */
@@ -155,13 +160,13 @@ public class BaseServiceType
      * 
      * @param value
      *     allowed object is
+     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link PooledJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RestServiceWrapperType }{@code >}
      *     {@link JAXBElement }{@code <}{@link StaticComponentType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultComponentType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link PooledJavaComponentType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractComponentType }{@code >}
      *     
      */
@@ -222,13 +227,13 @@ public class BaseServiceType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     
@@ -242,13 +247,13 @@ public class BaseServiceType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ServiceExceptionStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      *     
@@ -268,9 +273,9 @@ public class BaseServiceType
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     
      */
@@ -283,9 +288,9 @@ public class BaseServiceType
      * 
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ExpressionMessageInfoMappingType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractMessageInfoMappingType }{@code >}
      *     
      */
