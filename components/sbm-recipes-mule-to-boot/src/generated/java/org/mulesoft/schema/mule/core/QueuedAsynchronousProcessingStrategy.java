@@ -2,7 +2,11 @@
 package org.mulesoft.schema.mule.core;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -49,11 +53,11 @@ public class QueuedAsynchronousProcessingStrategy
      * 
      * @return
      *     possible object is
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RefQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractQueueStoreType }{@code >}
      *     
@@ -67,11 +71,11 @@ public class QueuedAsynchronousProcessingStrategy
      * 
      * @param value
      *     allowed object is
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link CustomQueueStoreType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link RefQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link DefaultQueueStoreType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractQueueStoreType }{@code >}
      *     

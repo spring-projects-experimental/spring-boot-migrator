@@ -1,10 +1,14 @@
 
 package org.mulesoft.schema.mule.core;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -59,11 +63,11 @@ public class ChoiceExceptionStrategyType
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
      * {@link JAXBElement }{@code <}{@link ChoiceExceptionStrategyType }{@code >}
      * {@link JAXBElement }{@code <}{@link RollbackExceptionStrategyType }{@code >}
      * {@link JAXBElement }{@code <}{@link CatchExceptionStrategyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ReferenceExceptionStrategyType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomExceptionStrategyType }{@code >}
      * {@link JAXBElement }{@code <}{@link ExceptionStrategyType }{@code >}
      * 
      * 

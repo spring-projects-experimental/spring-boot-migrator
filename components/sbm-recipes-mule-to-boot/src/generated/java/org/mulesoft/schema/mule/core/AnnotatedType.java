@@ -9,6 +9,11 @@ import javax.xml.bind.annotation.XmlAnyAttribute;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
+import org.mulesoft.schema.mule.db.AbstractQueryResultSetHandlerType;
+import org.mulesoft.schema.mule.db.ConnectionPropertiesType;
+import org.mulesoft.schema.mule.db.CustomDataType;
+import org.mulesoft.schema.mule.db.CustomDataTypes;
+import org.mulesoft.schema.mule.db.PropertyType;
 import org.mulesoft.schema.mule.http.AbstractHttpRequestAuthenticationProvider;
 import org.mulesoft.schema.mule.http.CacheControlType;
 import org.mulesoft.schema.mule.http.CookieType;
@@ -64,6 +69,11 @@ import org.mulesoft.schema.mule.http.HeaderType;
     AbstractFlowConstructType.class,
     AggregationStrategyType.class,
     AbstractOutboundRouterType.class,
+    AbstractQueryResultSetHandlerType.class,
+    ConnectionPropertiesType.class,
+    CustomDataTypes.class,
+    PropertyType.class,
+    CustomDataType.class,
     AbstractMessageSourceType.class,
     AbstractHttpRequestAuthenticationProvider.class,
     AbstractConfigurationExtensionType.class,
