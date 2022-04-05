@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.test;
 
-import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 
@@ -29,7 +29,7 @@ public class JavaMigrationActionTestSupport {
 
     /**
      * Verifies that applying action against a <code>JavaSource</code> results in expected <code>JavaSource</code>.
-     *
+     *w
      * @param given the given Java source code
      * @param expected the expected Java source code
      * @param action the action to apply

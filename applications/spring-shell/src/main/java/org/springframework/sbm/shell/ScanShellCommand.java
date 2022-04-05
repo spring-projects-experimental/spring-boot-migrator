@@ -35,37 +35,39 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ScanShellCommand {
 
-	private final ScanCommand scanCommand;
+    private final ScanCommand scanCommand;
 
-	private final ApplicableRecipeListRenderer applicableRecipeListRenderer;
+    private final ApplicableRecipeListRenderer applicableRecipeListRenderer;
 
-	private final ApplicableRecipeListCommand applicableRecipeListCommand;
+    private final ApplicableRecipeListCommand applicableRecipeListCommand;
 
-	private final ProjectContextHolder contextHolder;
+    private final ProjectContextHolder contextHolder;
     private final PreconditionVerificationRenderer preconditionVerificationRenderer;
-	private final ScanCommandHeaderRenderer scanCommandHeaderRenderer;
-	private final ConsolePrinter consolePrinter;
+    private final ScanCommandHeaderRenderer scanCommandHeaderRenderer;
+    private final ConsolePrinter consolePrinter;
 
-	@ShellMethod(key = { "scan", "s" },
-			value = "Scans the target project directory and get the list of applicable recipes.")
-	public AttributedString scan(@ShellOption(defaultValue = ".",
-			help = "The root directory of the target application.") String projectRoot) {
+    @ShellMethod(key = {"scan", "s"},
+            value = "Scans the target project directory and get the list of applicable recipes.")
+    public AttributedString scan(
+            @ShellOption(defaultValue = ".", help = "The root directory of the target application.")
+                    //@Pattern(regexp = "")
+                    String projectRoot) {
 
 
-		List<Resource> resources = scanCommand.scanProjectRoot(projectRoot);
-		String scanCommandHeader = scanCommandHeaderRenderer.renderHeader(projectRoot);
-		PreconditionVerificationResult result = scanCommand.checkPreconditions(projectRoot, resources);
-		String renderedPreconditionCheckResults = preconditionVerificationRenderer.renderPreconditionCheckResults(result);
-		AttributedStringBuilder stringBuilder = new AttributedStringBuilder();
-		String output = stringBuilder
-				.append(scanCommandHeader)
-				.append(renderedPreconditionCheckResults)
-				.toAnsi();
+        List<Resource> resources = scanCommand.scanProjectRoot(projectRoot);
+        String scanCommandHeader = scanCommandHeaderRenderer.renderHeader(projectRoot);
+        PreconditionVerificationResult result = scanCommand.checkPreconditions(projectRoot, resources);
+        String renderedPreconditionCheckResults = preconditionVerificationRenderer.renderPreconditionCheckResults(result);
+        AttributedStringBuilder stringBuilder = new AttributedStringBuilder();
+        String output = stringBuilder
+                .append(scanCommandHeader)
+                .append(renderedPreconditionCheckResults)
+                .toAnsi();
 
-		consolePrinter.println(output);
+        consolePrinter.println(output);
 
-		stringBuilder = new AttributedStringBuilder();
-		if ( ! result.hasError()) {
+        stringBuilder = new AttributedStringBuilder();
+        if (!result.hasError()) {
             ProjectContext projectContext = scanCommand.execute(projectRoot);
             contextHolder.setProjectContext(projectContext);
             List<Recipe> recipes = applicableRecipeListCommand.execute(projectContext);
@@ -74,6 +76,6 @@ public class ScanShellCommand {
         }
 
         return stringBuilder.toAttributedString();
-	}
+    }
 
 }
