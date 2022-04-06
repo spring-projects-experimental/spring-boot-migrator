@@ -37,7 +37,9 @@ e.g.: `apply initialize-spring-boot-migration` +
 Spring Boot Migrator will now apply the migrations defined in the recipe to the codebase.
 * To get help when using SBM use the `help` command
 
-WARNING: **The OpenRewrite `rewrite-java-11` module uses JDK internals and thus requires the project to run with JDK 11.**
+NOTE: When using Windows you must either escape `\` or use `/` as path separator, e.g. `C:\\my\\app` or `C:/my/app`
+
+NOTE: **The OpenRewrite `rewrite-java-11` module uses JDK internals and thus requires the project to run with JDK 11.**
 
 
 === Building from source
