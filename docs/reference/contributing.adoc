@@ -2,7 +2,7 @@
 You want to contribute to the Spring Boot Migrator project? Great!
 
 
-Please see link:../../CONTRIBUTING.adoc["CONTRIBUTING.adoc"] for further information.
+Please see link:../../CONTRIBUTING.adoc[CONTRIBUTING.adoc] for further information.
 
 All files need to have a license header. Please use this copyright text:
 

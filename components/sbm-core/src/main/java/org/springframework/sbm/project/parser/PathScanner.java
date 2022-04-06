@@ -17,12 +17,12 @@ package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -33,35 +33,37 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PathScanner {
 
-    private final ApplicationProperties applicationProperties;
-    private final ResourceHelper resourceHelper;
-    private AntPathMatcher antPathMatcher = new AntPathMatcher(File.separator);
+	private final ApplicationProperties applicationProperties;
 
-    public List<Resource> scan(Path projectRoot) {
-        String pattern = "**";
-        Path absoluteRootPath = projectRoot.toAbsolutePath();
-        Resource[] resources = resourceHelper.loadResources("file:" + absoluteRootPath + "/" + pattern);
+	private final ResourceHelper resourceHelper;
 
-        return Arrays.asList(resources).stream()
-                .filter(p -> this.isRelevant(p, absoluteRootPath))
-                .collect(Collectors.toList());
-    }
+	private final PathMatcher pathMatcher = new OsAgnosticPathMatcher();
 
-    private boolean isRelevant(Resource givenResource, Path rootPath) {
-        if (getPath(givenResource).toFile().isDirectory()) {
-            return false;
-        }
-        return applicationProperties.getIgnoredPathsPatterns().stream()
-                .noneMatch(ir -> antPathMatcher.match(rootPath.resolve(ir).toString(), getPath(givenResource).toAbsolutePath().normalize().toString()));
-    }
+	public List<Resource> scan(Path projectRoot) {
+		String pattern = "**";
+		Path absoluteRootPath = projectRoot.toAbsolutePath();
+		Resource[] resources = resourceHelper.loadResources("file:" + absoluteRootPath + "/" + pattern);
 
-    private Path getPath(Resource r) {
-        try {
-            return r.getFile().toPath().toAbsolutePath().normalize();
-        } catch (IOException e) {
-            throw new ProjectParserException(String.format("Error retrieving path for Resource '%s'", r), e);
-        }
-    }
+		return Arrays.asList(resources).stream().filter(p -> this.isRelevant(p, absoluteRootPath))
+				.collect(Collectors.toList());
+	}
 
+	private boolean isRelevant(Resource givenResource, Path rootPath) {
+		if (getPath(givenResource).toFile().isDirectory()) {
+			return false;
+		}
+		return applicationProperties.getIgnoredPathsPatterns().stream()
+				.noneMatch(ir -> pathMatcher.match(rootPath.resolve(ir).toString(),
+						getPath(givenResource).toAbsolutePath().normalize().toString()));
+	}
+
+	private Path getPath(Resource r) {
+		try {
+			return r.getFile().toPath().toAbsolutePath().normalize();
+		}
+		catch (IOException e) {
+			throw new ProjectParserException(String.format("Error retrieving path for Resource '%s'", r), e);
+		}
+	}
 
 }

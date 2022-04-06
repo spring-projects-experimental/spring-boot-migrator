@@ -79,7 +79,7 @@ public class SetPackaging extends Recipe {
         public Maven visitMaven(Maven maven, ExecutionContext ctx) {
             Maven m = super.visitMaven(maven, ctx);
             Pom pom = m.getModel();
-            // TODO: Remove reflective access, pom.getEffectiveProperties() has been removed in 7.14.0
+            // TODO: Replace this Recipe with ChangePackaging from Rewrite
             Field reflectionOverridesField = ReflectionUtils.findField(Pom.class, "propertyOverrides");
             ReflectionUtils.makeAccessible(reflectionOverridesField);
             Map<String, String> effectiveProperties = (Map<String, String>) ReflectionUtils.getField(reflectionOverridesField, pom);
