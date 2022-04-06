@@ -15,13 +15,14 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.ResourceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -32,12 +33,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PathScanner {
 
-    // TODO: read ignored resources from .gitignore
-//    private final List<String> IGNORED_RESOURCES;
-
     private final ApplicationProperties applicationProperties;
     private final ResourceHelper resourceHelper;
-    private AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private AntPathMatcher antPathMatcher = new AntPathMatcher(File.separator);
 
     public List<Resource> scan(Path projectRoot) {
         String pattern = "**";
