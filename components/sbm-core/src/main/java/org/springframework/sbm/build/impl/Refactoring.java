@@ -15,17 +15,15 @@
  */
 package org.springframework.sbm.build.impl;
 
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.maven.tree.Maven;
-import org.springframework.util.ReflectionUtils;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,9 +65,7 @@ class Refactoring<P> {
                 .builder()
                 .build();
         Maven wrappedMavenFile = parser.parse(result.getAfter().printAll()).get(0);
-        Field sourcePath = ReflectionUtils.findField(Maven.class, "sourcePath");
-        ReflectionUtils.makeAccessible(sourcePath);
-        ReflectionUtils.setField(sourcePath, wrappedMavenFile, pom.getSourceFile().getSourcePath());
+        wrappedMavenFile = (Maven) wrappedMavenFile.withSourcePath(pom.getSourceFile().getSourcePath());
         pom.replaceWith(wrappedMavenFile);
     }
 }
