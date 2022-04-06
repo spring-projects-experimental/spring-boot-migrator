@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.common.util;
 
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 
@@ -32,7 +33,7 @@ import java.util.Map;
  */
 public class OsAgnosticPathMatcher implements PathMatcher {
 
-	private PathMatcher pathMatcher = new OsAgnosticPathMatcher();
+	private PathMatcher pathMatcher = new AntPathMatcher();
 
 	@Override
 	public boolean isPattern(String s) {
