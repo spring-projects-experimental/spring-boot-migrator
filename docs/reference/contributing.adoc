@@ -1,8 +1,11 @@
 == Contributing
-You want to contribute to the Spring Boot Migrator project? Great!
+You want to contribute to the Spring Boot Migrator project?
 
+Great! All contributions are welcome.
 
-Please see link:../../CONTRIBUTING.adoc[CONTRIBUTING.adoc] for further information.
+If you have not previously done so, please sign the https://cla.pivotal.io/sign/spring[Contributor License Agreement]. You will be reminded automatically when you submit the pull request.
+
+Please also see link:../../CONTRIBUTING.adoc[CONTRIBUTING.adoc] for further information.
 
 All files need to have a license header. Please use this copyright text:
 
