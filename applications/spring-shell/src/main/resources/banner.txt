@@ -7,12 +7,12 @@
     |_|                 |___/                                       |___/
 
 Find us...
-on GitHub:      https://github.com/pivotal/spring-boot-migrator
+on GitHub:      https://github.com/spring-projects-experimental/spring-boot-migrator
 on Slack:       https://vmware.slack.com/archives/CKB9VJE68 #spring-boot-migrator
 
-This project contains a lot of ❤️❤️❤️️ but still, there will be 🐞🐞🐞
-So please, give us Feedback:   https://github.com/pivotal/spring-boot-migrator/issues
-Also if you 👍 or 👎 something or have an 💡
+This project contains a lot of love️️ but still, there will be bugs...
+So please, give us Feedback:   https://github.com/spring-projects-experimental/spring-boot-migrator/issues
+Also, if you like the project please give a star on GitHub.
 
 THANK YOU!
 
