@@ -88,7 +88,7 @@ public class OsAgnosticPathMatcher implements PathMatcher {
 	}
 
 	boolean isWindows() {
-		return "Windows".equals(System.getProperty("os.name"));
+		return System.getProperty("os.name").contains("Windows");
 	}
 
 }
