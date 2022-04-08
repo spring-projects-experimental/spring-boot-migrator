@@ -17,7 +17,6 @@ package org.springframework.sbm.common.util;
 
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
-import org.springframework.util.StringUtils;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -34,6 +33,7 @@ import java.util.Map;
 public class OsAgnosticPathMatcher implements PathMatcher {
 
 	private PathMatcher pathMatcher = new AntPathMatcher();
+	private LinuxWindowsPathUnifier pathUnifier = new LinuxWindowsPathUnifier();
 
 	@Override
 	public boolean isPattern(String s) {
@@ -47,11 +47,7 @@ public class OsAgnosticPathMatcher implements PathMatcher {
 	}
 
 	private String unifyPath(String path) {
-		path = StringUtils.cleanPath(path);
-		if (isWindows()) {
-			path = tranformToLinuxPath(path);
-		}
-		return path;
+		return pathUnifier.unifyPath(path);
 	}
 
 	@Override
@@ -83,12 +79,5 @@ public class OsAgnosticPathMatcher implements PathMatcher {
 		return pathMatcher.combine(pattern1, pattern2);
 	}
 
-	private String tranformToLinuxPath(String path) {
-		return path.replaceAll("^[\\w]+:\\/?", "/");
-	}
-
-	boolean isWindows() {
-		return System.getProperty("os.name").contains("Windows");
-	}
 
 }

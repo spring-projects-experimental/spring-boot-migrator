@@ -20,8 +20,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.util.PathMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
 
 public class OsAgnosticPathMatcherTest {
 
@@ -51,8 +49,10 @@ public class OsAgnosticPathMatcherTest {
     })
     @ParameterizedTest
     void testWindowsPathWithUnixPattern(String os, String pattern, String path, boolean expectMatch) {
-        OsAgnosticPathMatcher sut = spy(OsAgnosticPathMatcher.class);
-        doReturn("Win".equals(os)).when(sut).isWindows();
+        OsAgnosticPathMatcher sut = new OsAgnosticPathMatcher();
+        if("Win".equals(os)) {
+            System.setProperty("os.name", "Windows");
+        }
         boolean match = sut.match(pattern, path);
         assertThat(match).isSameAs(expectMatch);
     }
