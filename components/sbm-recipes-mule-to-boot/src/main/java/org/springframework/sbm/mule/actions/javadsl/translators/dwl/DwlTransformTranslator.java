@@ -88,7 +88,7 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
 
     private DslSnippet formExternalFileBasedDSLSnippet(TransformMessageType component) {
         String resource = component.getSetPayload().getResource();
-        String className = capitalizeFirstLetter(getFileName(resource)) + "Transform";
+        String className = sanitizeForClassName(resource);
         String content =
                 replaceClassName(externalClassContentPrefixTemplate, className)
                         + "     * from file "
@@ -97,14 +97,20 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
         return new DslSnippet(replaceClassName(STATEMENT_CONTENT, className), Collections.emptySet(), Collections.emptySet(), content);
     }
 
+    public static String sanitizeForClassName(String classNameCandidate) {
+        String sanitizedClassName = getFileName(classNameCandidate)
+                .replaceAll("[^a-zA-Z0-9]", "");
+        return (capitalizeFirstLetter(sanitizedClassName) + "Transform");
+    }
+
     private boolean isComponentReferencingAnExternalFile(TransformMessageType component) {
         return component.getSetPayload().getContent().isEmpty();
     }
 
-    private String getFileName(String path) {
-
-        String[] fileParts = path.split("\\.");
-        String pathWithoutExtension = fileParts[fileParts.length - 2];
+    private static String getFileName(String path) {
+        String[] fileParts = path.replace("classpath:", "").split("\\.");
+        String pathWithoutExtension = fileParts.length == 1 ?
+                fileParts[0] : fileParts[fileParts.length - 2];
         String[] fileNameParts = pathWithoutExtension.split("/");
         return fileNameParts[fileNameParts.length - 1];
     }
@@ -114,7 +120,7 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
         return template.replace("$CLASSNAME", className);
     }
 
-    private String capitalizeFirstLetter(String className) {
+    private static String capitalizeFirstLetter(String className) {
         return className.substring(0, 1).toUpperCase() + className.substring(1);
     }
 }
