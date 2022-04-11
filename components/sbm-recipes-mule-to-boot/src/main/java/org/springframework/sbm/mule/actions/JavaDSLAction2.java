@@ -156,11 +156,10 @@ public class JavaDSLAction2 extends AbstractAction {
         return new JavaSourceAndType(javaSource, javaSource.getTypes().get(0));
     }
 
-    private JavaSourceAndType createClass(ProjectContext projectContext, String content) {
+    private void createClass(ProjectContext projectContext, String content) {
         JavaSourceSet mainJavaSourceSet = projectContext.getApplicationModules().getTopmostApplicationModules().get(0).getMainJavaSourceSet();
         String packageName = mainJavaSourceSet.getJavaSourceLocation().getPackageName();
-        JavaSource javaSource = mainJavaSourceSet.addJavaSource(projectContext.getProjectRootDirectory(), content, packageName);
-        return new JavaSourceAndType(javaSource, javaSource.getTypes().get(0));
+        mainJavaSourceSet.addJavaSource(projectContext.getProjectRootDirectory(), content, packageName);
     }
 
     // TODO: fina a cohesive name
