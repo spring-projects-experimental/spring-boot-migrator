@@ -15,25 +15,15 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import org.mulesoft.schema.mule.http.RequestConfigType;
 import org.mulesoft.schema.mule.http.RequestType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.*;
 
-import static java.util.Collections.emptySet;
 
 /**
  * Translator for {@code <http:request> } elements.spring integration
@@ -50,21 +40,33 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
         return RequestType.class;
     }
 
+    private static final String template = "                .headerFilter(\"accept-encoding\", false)\n" +
+            "                .handle(\n" +
+            "                        Http.outboundGateway(\"https://catfact.ninja:443$PATH\")\n" +
+            "                        .httpMethod(HttpMethod.$METHOD)\n" +
+            "                        //FIXME: Use appropriate response class type here instead of String.class\n" +
+            "                        .expectedResponseType(String.class)\n" +
+            "                )";
+
     @Override
     public DslSnippet translate(RequestType component,
                                 QName name,
                                 MuleConfigurations muleConfigurations,
                                 String flowName) {
-
         return new DslSnippet(
-                "                .headerFilter(\"accept-encoding\", false)\n" +
-                        "                .handle(\n" +
-                        "                        Http.outboundGateway(\"https://catfact.ninja:443/fact\")\n" +
-                        "                        .httpMethod(HttpMethod.GET)\n" +
-                        "                        //FIXME: Use appropriate response class type here instead of String.class\n" +
-                        "                        .expectedResponseType(String.class)\n" +
-                        "                )",
+                template
+                        .replace("$PATH", emptyStringIfNull(component.getPath()))
+                        .replace("$METHOD", defaultToGetIfNull(component.getMethod()))
+                ,
                 Set.of("org.springframework.http.HttpMethod")
         );
+    }
+
+    private String defaultToGetIfNull(String originalValue) {
+        return originalValue == null ? "GET" : originalValue;
+    }
+
+    private String emptyStringIfNull(String value) {
+        return value == null ? "" : value;
     }
 }
