@@ -19,6 +19,7 @@ import org.mulesoft.schema.mule.http.RequestConfigType;
 import org.mulesoft.schema.mule.http.RequestType;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
+import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.stereotype.Component;
 
@@ -55,9 +56,7 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
                                 MuleConfigurations muleConfigurations,
                                 String flowName) {
 
-        // TODO: What if config is null ?
-        RequestConfigType config =
-                (RequestConfigType) muleConfigurations.getConfigurations().get(component.getConfigRef()).getMuleConfiguration();
+        RequestConfigType config = getRequestConfiguration(component, muleConfigurations);
         return new DslSnippet(
                 template
                         .replace("$PATH", emptyStringIfNull(component.getPath()))
@@ -68,6 +67,23 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
                 ,
                 Set.of("org.springframework.http.HttpMethod")
         );
+    }
+
+    private RequestConfigType getRequestConfiguration(RequestType component, MuleConfigurations muleConfigurations) {
+        RequestConfigType emptyRequestConfig = new RequestConfigType();
+
+        ConfigurationTypeAdapter<RequestConfigType> configurationTypeAdapter =
+                muleConfigurations.getConfigurations().get(component.getConfigRef());
+
+        if (configurationTypeAdapter == null) {
+
+            return emptyRequestConfig;
+        }
+
+        RequestConfigType requestConfig = configurationTypeAdapter
+                .getMuleConfiguration();
+
+        return requestConfig != null ? requestConfig : emptyRequestConfig;
     }
 
     private String defaultToValueIfNull(String originalValue, String defaultValue) {
