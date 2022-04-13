@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MuleToJavaDSLHttpOutbound extends JavaDSLActionBaseTest  {
+public class MuleToJavaDSLHttpOutbound extends JavaDSLActionBaseTest {
     private static final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
             "<mule xmlns:json=\"http://www.mulesoft.org/schema/mule/json\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
@@ -30,14 +30,13 @@ public class MuleToJavaDSLHttpOutbound extends JavaDSLActionBaseTest  {
             "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
             "http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd\">\n" +
             "    <http:listener-config name=\"HTTP_Listener_Configuration1\" host=\"0.0.0.0\" port=\"9082\" doc:name=\"HTTP Listener Configuration\"/>\n" +
-            "    <http:request-config name=\"HTTP_Request_Configuration\" host=\"baconipsum.com\" port=\"80\" doc:name=\"HTTP Request Configuration\"/>\n" +
+            "    <http:request-config name=\"HTTP_Request_Configuration\" host=\"catfact.ninja\" port=\"443\" doc:name=\"HTTP Request Configuration\" protocol=\"HTTPS\"/>\n" +
             "    <flow name=\"httpFlow\">\n" +
-            "        <http:listener config-ref=\"HTTP_Listener_Configuration1\" path=\"/testdwl\" doc:name=\"HTTP\"/>\n" +
-            "        <logger level=\"INFO\" doc:name=\"Logger\" message=\"RX a request will call weather API\"/>\n" +
-            "        <http:request config-ref=\"HTTP_Request_Configuration\" path=\"/api/?type=meat-and-filler\" method=\"GET\" doc:name=\"HTTP\"/>\n" +
+            "        <http:listener config-ref=\"HTTP_Listener_Configuration1\" path=\"/gimme-a-cat-fact\" doc:name=\"HTTP\"/>\n" +
+            "        <http:request config-ref=\"HTTP_Request_Configuration\" path=\"/fact\" method=\"GET\" doc:name=\"HTTP\"/>\n" +
             "        <set-payload doc:name=\"Set Payload\" value=\"#[payload]\"/>\n" +
             "    </flow>\n" +
-            "</mule>\n";
+            "</mule>";
 
     @Test
     public void supportForHttpOutboundRequest() {
@@ -45,6 +44,28 @@ public class MuleToJavaDSLHttpOutbound extends JavaDSLActionBaseTest  {
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
-                .isEqualTo("Hello World");
+                .isEqualTo("package com.example.javadsl;\n" +
+                        "import org.springframework.context.annotation.Bean;\n" +
+                        "import org.springframework.context.annotation.Configuration;\n" +
+                        "import org.springframework.http.HttpMethod;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                        "import org.springframework.integration.http.dsl.Http;\n" +
+                        "\n" +
+                        "@Configuration\n" +
+                        "public class FlowConfigurations {\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow httpFlow() {\n" +
+                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/gimme-a-cat-fact\")).handle((p, h) -> p)\n" +
+                        "                .headerFilter(\"accept-encoding\", false)\n" +
+                        "                .handle(\n" +
+                        "                        Http.outboundGateway(\"https://catfact.ninja:443/fact\")\n" +
+                        "                                .httpMethod(HttpMethod.GET)\n" +
+                        "                                //FIXME: Use appropriate response class type here instead of String.class\n" +
+                        "                                .expectedResponseType(String.class)\n" +
+                        "                )\n" +
+                        "                .handle((p, h) -> \"#[payload]\")\n" +
+                        "                .get();\n" +
+                        "    }}");
     }
 }
