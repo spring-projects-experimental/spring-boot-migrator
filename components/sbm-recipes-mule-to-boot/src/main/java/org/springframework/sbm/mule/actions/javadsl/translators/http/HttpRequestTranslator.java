@@ -43,7 +43,7 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
 
     private static final String template = "                .headerFilter(\"accept-encoding\", false)\n" +
             "                .handle(\n" +
-            "                        Http.outboundGateway(\"https://$HOST:$PORT$PATH\")\n" +
+            "                        Http.outboundGateway(\"$PROTOCOL://$HOST:$PORT$PATH\")\n" +
             "                        .httpMethod(HttpMethod.$METHOD)\n" +
             "                        //FIXME: Use appropriate response class type here instead of String.class\n" +
             "                        .expectedResponseType(String.class)\n" +
@@ -55,21 +55,24 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
                                 MuleConfigurations muleConfigurations,
                                 String flowName) {
 
+        // TODO: What if config is null ?
         RequestConfigType config =
                 (RequestConfigType) muleConfigurations.getConfigurations().get(component.getConfigRef()).getMuleConfiguration();
         return new DslSnippet(
                 template
                         .replace("$PATH", emptyStringIfNull(component.getPath()))
-                        .replace("$METHOD", defaultToGetIfNull(component.getMethod()))
+                        .replace("$METHOD", defaultToValueIfNull(component.getMethod(), "GET"))
                         .replace("$HOST", emptyStringIfNull(config.getHost()))
                         .replace("$PORT", emptyStringIfNull(config.getPort()))
+                        .replace("$PROTOCOL", defaultToValueIfNull(config.getProtocol(), "http").toLowerCase())
                 ,
                 Set.of("org.springframework.http.HttpMethod")
         );
     }
 
-    private String defaultToGetIfNull(String originalValue) {
-        return originalValue == null ? "GET" : originalValue;
+    private String defaultToValueIfNull(String originalValue, String defaultValue) {
+
+        return originalValue == null ? defaultValue : originalValue;
     }
 
     private String emptyStringIfNull(String value) {
