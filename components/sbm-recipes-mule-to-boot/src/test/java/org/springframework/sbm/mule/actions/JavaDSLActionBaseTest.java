@@ -31,6 +31,7 @@ import org.springframework.sbm.mule.actions.javadsl.translators.dwl.DwlTransform
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpRequestTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.http.RequestConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqConnectorTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.wmq.WmqInboundEndpointTranslator;
@@ -86,7 +87,8 @@ public class JavaDSLActionBaseTest {
                 List.of(
                         new AmqpConfigTypeAdapter(),
                         new HttpListenerConfigTypeAdapter(),
-                        new WmqConnectorTypeAdapter()
+                        new WmqConnectorTypeAdapter(),
+                        new RequestConfigTypeAdapter()
                 )
         );
         MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));

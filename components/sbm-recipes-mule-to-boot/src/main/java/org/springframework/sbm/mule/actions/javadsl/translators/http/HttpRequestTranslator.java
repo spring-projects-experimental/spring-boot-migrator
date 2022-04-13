@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
+import org.mulesoft.schema.mule.http.RequestConfigType;
 import org.mulesoft.schema.mule.http.RequestType;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
@@ -42,7 +43,7 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
 
     private static final String template = "                .headerFilter(\"accept-encoding\", false)\n" +
             "                .handle(\n" +
-            "                        Http.outboundGateway(\"https://catfact.ninja:443$PATH\")\n" +
+            "                        Http.outboundGateway(\"https://$HOST:$PORT$PATH\")\n" +
             "                        .httpMethod(HttpMethod.$METHOD)\n" +
             "                        //FIXME: Use appropriate response class type here instead of String.class\n" +
             "                        .expectedResponseType(String.class)\n" +
@@ -53,10 +54,15 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
                                 QName name,
                                 MuleConfigurations muleConfigurations,
                                 String flowName) {
+
+        RequestConfigType config =
+                (RequestConfigType) muleConfigurations.getConfigurations().get(component.getConfigRef()).getMuleConfiguration();
         return new DslSnippet(
                 template
                         .replace("$PATH", emptyStringIfNull(component.getPath()))
                         .replace("$METHOD", defaultToGetIfNull(component.getMethod()))
+                        .replace("$HOST", emptyStringIfNull(config.getHost()))
+                        .replace("$PORT", emptyStringIfNull(config.getPort()))
                 ,
                 Set.of("org.springframework.http.HttpMethod")
         );
