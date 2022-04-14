@@ -51,7 +51,11 @@ public class MuleConfigurationsExtractor {
 
     public static boolean isConfigType(JAXBElement jaxbElement) {
         Class<?> aClass = jaxbElement.getValue().getClass();
-        Set<Class> configTypes = Set.of(RequestConfigType.class, ConfigurationType.class, AbstractConnectorType.class, ListenerConfigType.class);
+        Set<Class> configTypes = Set.of(RequestConfigType.class,
+                ConfigurationType.class,
+                AbstractConnectorType.class,
+                ListenerConfigType.class
+        );
         return configTypes.stream()
                 .anyMatch(ct -> ct.isAssignableFrom(aClass));
     }

@@ -15,12 +15,8 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.http;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import org.mulesoft.schema.mule.http.RequestConfigType;
 import org.mulesoft.schema.mule.http.RequestType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapter;
@@ -28,13 +24,8 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
 
 /**
  * Translator for {@code <http:request> } elements.spring integration
@@ -46,13 +37,18 @@ import java.util.Optional;
 @Component
 public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDslTranslator<RequestType> {
 
-    @Autowired
-    private Configuration configuration;
-
     @Override
     public Class getSupportedMuleType() {
         return RequestType.class;
     }
+
+    private static final String template = "                .headerFilter(\"accept-encoding\", false)\n" +
+            "                .handle(\n" +
+            "                        Http.outboundGateway(\"$PROTOCOL://$HOST:$PORT$PATH\")\n" +
+            "                        .httpMethod(HttpMethod.$METHOD)\n" +
+            "                        //FIXME: Use appropriate response class type here instead of String.class\n" +
+            "                        .expectedResponseType(String.class)\n" +
+            "                )";
 
     @Override
     public DslSnippet translate(RequestType component,
@@ -60,45 +56,42 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
                                 MuleConfigurations muleConfigurations,
                                 String flowName) {
 
+        RequestConfigType config = getRequestConfiguration(component, muleConfigurations);
+        return new DslSnippet(
+                template
+                        .replace("$PATH", emptyStringIfNull(component.getPath()))
+                        .replace("$METHOD", defaultToValueIfNull(component.getMethod(), "GET"))
+                        .replace("$HOST", emptyStringIfNull(config.getHost()))
+                        .replace("$PORT", emptyStringIfNull(config.getPort()))
+                        .replace("$PROTOCOL", defaultToValueIfNull(config.getProtocol(), "http").toLowerCase())
+                ,
+                Set.of("org.springframework.http.HttpMethod")
+        );
+    }
 
-        String templateStr = "return IntegrationFlows\n" +
-                "  .from\n" +
-                "    (\n" +
-                "      Http.inboundChannelAdapter(\"${host}<#if port?has_content>:${port}</#if>/${basePath}\")\n" +
-                "        .requestMapping(m -> m.methods(HttpMethod.GET))\n" +
-                "<#if responseTimeout?has_content>" +
-                "        .replyTimeout(${responseTimeout})\n" +
-                "</#if>" +
-                "      )\n" +
-                "  .channel(INBOUND_DEMO_CHANNEL)\n" +
-                "  .get();";
+    private RequestConfigType getRequestConfiguration(RequestType component, MuleConfigurations muleConfigurations) {
+        RequestConfigType emptyRequestConfig = new RequestConfigType();
 
-        try {
-            Map<String, Object> data = new HashMap<>();
+        ConfigurationTypeAdapter<RequestConfigType> configurationTypeAdapter =
+                muleConfigurations.getConfigurations().get(component.getConfigRef());
 
-            // TODO: requires access to config, e.g. muleMigrationContext.getConfigRef("...")
-            String configRef = component.getConfigRef();
-            Optional<? extends ConfigurationTypeAdapter> configurationTypeAdapter = muleConfigurations.find(configRef);
-            if(configurationTypeAdapter.isPresent()) {
-                RequestConfigType cast = (RequestConfigType) configurationTypeAdapter.get().getMuleConfiguration();
-                data.put("host", cast.getHost());
-                data.put("port", cast.getPort());
-            }
+        if (configurationTypeAdapter == null) {
 
-
-            data.put("basePath", component.getPath());
-            data.put("method", component.getMethod());
-            data.put("responseTimeout", component.getResponseTimeout());
-            Template t = new Template("name", new StringReader(templateStr), configuration);
-            StringWriter stringWriter = new StringWriter();
-            t.process(data,
-                    stringWriter);
-            return new DslSnippet(stringWriter.toString(), Collections.emptySet());
-        } catch (IOException | TemplateException e) {
-            e.printStackTrace();
+            return emptyRequestConfig;
         }
 
+        RequestConfigType requestConfig = configurationTypeAdapter
+                .getMuleConfiguration();
 
-        return null;
+        return requestConfig != null ? requestConfig : emptyRequestConfig;
+    }
+
+    private String defaultToValueIfNull(String originalValue, String defaultValue) {
+
+        return originalValue == null ? defaultValue : originalValue;
+    }
+
+    private String emptyStringIfNull(String value) {
+        return value == null ? "" : value;
     }
 }
