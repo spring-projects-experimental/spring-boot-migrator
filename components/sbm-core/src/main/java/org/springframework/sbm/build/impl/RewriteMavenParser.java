@@ -65,4 +65,9 @@ public class RewriteMavenParser implements Parser<Xml.Document> {
     public boolean accept(Path path) {
         return parser.accept(path);
     }
+
+    @Override
+    public Path sourcePathFromSourceText(Path prefix, String sourceCode) {
+        return parser.sourcePathFromSourceText(prefix, sourceCode);
+    }
 }
