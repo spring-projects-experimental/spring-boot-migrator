@@ -3,6 +3,7 @@
 ### Adds
 - Unmarshalling ejb-jar.xml for EJB 2.1 (#62) 
 - Demo for Mule to Boot migration (#80)
+- Bump some dependency versions, removes CVEs
 - Fix SBM when using Windows (#58) 
 
 ### Fixes
