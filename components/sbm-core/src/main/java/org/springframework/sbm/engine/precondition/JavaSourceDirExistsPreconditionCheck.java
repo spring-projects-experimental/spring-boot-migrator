@@ -16,25 +16,26 @@
 package org.springframework.sbm.engine.precondition;
 
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.common.util.LinuxWindowsPathUnifier;
+import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
 @Component
 class JavaSourceDirExistsPreconditionCheck extends PreconditionCheck {
 
-	private static final String PATTERN = "**" + File.separator + "src" + File.separator + "main" + File.separator + "java" + File.separator + "**";
-	private final String JAVA_SRC_DIR = "src/main/java";
-	private AntPathMatcher antPathMatcher = new AntPathMatcher(File.separator);
+	private static final String JAVA_SRC_DIR = "src/main/java";
+	private static final String PATTERN = "/**/src/main/java/**";
+	private final PathMatcher pathMatcher = new OsAgnosticPathMatcher();
+	private final LinuxWindowsPathUnifier pathUnifier = new LinuxWindowsPathUnifier();
 
 	@Override
 	public PreconditionCheckResult verify(Path projectRoot, List<Resource> projectResources) {
-		String pattern = projectRoot.resolve(PATTERN).toAbsolutePath().normalize().toString();
 		if (projectResources.stream()
-				.noneMatch(r -> antPathMatcher.match(pattern, getPath(r).toAbsolutePath().toString()))) {
+				.noneMatch(r -> pathMatcher.match(PATTERN, pathUnifier.unifyPath(getPath(r).toAbsolutePath().toString())))) {
 			return new PreconditionCheckResult(ResultState.FAILED, "PreconditionCheck check could not find a '" + JAVA_SRC_DIR + "' dir. This dir is required.");
 		}
 		return new PreconditionCheckResult(ResultState.PASSED, "Found required source dir 'src/main/java'.");

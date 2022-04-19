@@ -15,10 +15,9 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.recipes;
 
-import org.springframework.sbm.test.RecipeIntegrationTestSupport;
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.test.RecipeIntegrationTestSupport;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +26,7 @@ import static org.assertj.core.api.Assertions.contentOf;
 public class Boot_24_25_UpdateDependenciesRecipeTest {
 
     @Test
-    void updateWithParentPom() throws IOException {
+    void updateWithParentPom() {
         // TODO: Move to a more generic Action to be reused, e.g. 'UpgradeParentVersion'
         String applicationDir = "spring-boot-2.4-to-2.5-example";
         Path from = Path.of("./testcode").resolve(applicationDir).resolve("given");

@@ -71,6 +71,8 @@ public class ProjectContext {
     }
 
     public <T> T search(ProjectResourceFinder<T> finder) {
+
+
         return finder.apply(getProjectResources());
     }
 

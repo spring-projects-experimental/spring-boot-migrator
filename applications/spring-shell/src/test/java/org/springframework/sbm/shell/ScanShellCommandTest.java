@@ -84,7 +84,7 @@ class ScanShellCommandTest {
         String renderedVerificationResult = new AttributedStringBuilder().style(AttributedStyle.DEFAULT.italicDefault().boldDefault().foreground(Colors.rgbColor("green"))).append("result").toAnsi();
         when(preconditionVerificationRenderer.renderPreconditionCheckResults(verificationResult)).thenReturn(renderedVerificationResult);
 
-        AttributedString result = sut.scan(projectRoot);
+        String result = sut.scan(projectRoot);
 
         ArgumentCaptor<String> capturedOutput = ArgumentCaptor.forClass(String.class);
         verify(consolePrinter).println(capturedOutput.capture());
@@ -92,7 +92,7 @@ class ScanShellCommandTest {
         // header and validation result rendered
         assertThat(capturedOutput.getValue()).isEqualTo("header\u001B[32mresult\u001B[0m");
 
-        assertThat(result.toAnsi()).isEqualTo(attributedString.toAnsi());
+        assertThat(result).isEqualTo(attributedString.toAnsi());
     }
 
     @Test
@@ -124,10 +124,10 @@ class ScanShellCommandTest {
         AttributedString applicableRecipes = new AttributedStringBuilder().style(AttributedStyle.DEFAULT.italicDefault().boldDefault().foreground(Colors.rgbColor("red"))).append(recipeName).toAttributedString();
         when(applicableRecipeListRenderer.render(recipes)).thenReturn(applicableRecipes);
 
-        AttributedString result = sut.scan(projectRoot);
+        String result = sut.scan(projectRoot);
 
         // list of recipes returned
-        assertThat(result.toAnsi()).isEqualTo("\u001B[91mThe applicable recipe\u001B[0m");
+        assertThat(result).isEqualTo("\u001B[91mThe applicable recipe\u001B[0m");
         // header and validation result rendered
         ArgumentCaptor<String> capturedOutput = ArgumentCaptor.forClass(String.class);
         verify(consolePrinter).println(capturedOutput.capture());

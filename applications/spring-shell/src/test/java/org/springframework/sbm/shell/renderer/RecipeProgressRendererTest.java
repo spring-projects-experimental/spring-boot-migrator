@@ -116,7 +116,7 @@ public class RecipeProgressRendererTest {
         System.setOut(initialOut);
         System.out.println(actual);
 
-        assertThat(actual).isEqualTo(
+        assertThat(actual).isEqualToIgnoringNewLines(
                 parse(".    A|b|b|b|b|b|b" +
                         "[..] A\n" +
                         "    [ok] A log1\n" +

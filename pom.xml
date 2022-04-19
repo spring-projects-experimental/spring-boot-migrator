@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.springframework.sbm</groupId>
@@ -45,7 +46,8 @@
     </properties>
 
     <scm>
-        <developerConnection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git
+        </developerConnection>
         <connection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator</connection>
         <url>https://github.com/spring-projects-experimental/spring-boot-migrator</url>
         <tag>0.7.1</tag>
@@ -59,12 +61,12 @@
     <!--	</scm>-->
 
     <repositories>
-		<!--  OR Snapshots repo -->    
-    	<repository>
-    		<id>rewrite-snapshots</id>
-    		<name>rewrite-snapshots</name>
-    		<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-    	</repository>
+        <!--  OR Snapshots repo -->
+        <repository>
+            <id>rewrite-snapshots</id>
+            <name>rewrite-snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
         <repository>
             <id>jcenter</id>
             <name>jcenter</name>
@@ -301,9 +303,8 @@
                 <version>2.22.2</version>
                 <configuration>
                     <excludedGroups>integration</excludedGroups>
-                    <excludes>
-                        <exclude>**/TestHarness.java</exclude>
-                    </excludes>
+                    <parallel>methods</parallel>
+                    <threadCount>10</threadCount>
                 </configuration>
             </plugin>
 

@@ -13,24 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell;
+package org.springframework.sbm.shell.converter;
 
-import org.junit.jupiter.api.Test;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.nio.file.Path;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class ConsolePrinterTest {
-
-    @Test
-    void shouldPrintToConsole() {
-        ByteArrayOutputStream sysOutBuffer = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(sysOutBuffer));
-
-        ConsolePrinter sut = new ConsolePrinter();
-        sut.println("some text");
-        assertThat(sysOutBuffer.toString()).isEqualTo("some text" + System.lineSeparator());
+@Component
+public class StringToPathConverter implements Converter<String, Path> {
+    @Override
+    public Path convert(String source) {
+        return Path.of(source);
     }
 }

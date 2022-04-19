@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.jee.ejb.recipes;
 
-import org.springframework.sbm.common.migration.conditions.FileMatchingAntPathExist;
-import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.sbm.jee.ejb.actions.MigrateEjbDeploymentDescriptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.sbm.common.migration.conditions.FileMatchingPatternExist;
+import org.springframework.sbm.engine.recipe.Recipe;
+import org.springframework.sbm.jee.ejb.actions.MigrateEjbDeploymentDescriptor;
 
 @Configuration
 public class MigrateEjbJarDeploymentDescriptorRecipe {
@@ -29,11 +29,11 @@ public class MigrateEjbJarDeploymentDescriptorRecipe {
                 .name("migrate-ejb-jar-deployment-descriptor")
                 .order(90)
                 .description("Add or overrides @Stateless annotation as defined in ejb deployment descriptor")
-                .condition(new FileMatchingAntPathExist("/**/ejb-jar.xml")) // Recipe condition is True thus it'll be applicable based on applicability of actions
+                .condition(new FileMatchingPatternExist("/**/ejb-jar.xml")) // Recipe condition is True thus it'll be applicable based on applicability of actions
                 .action(
                         MigrateEjbDeploymentDescriptor.builder()
                                 .condition(
-                                        FileMatchingAntPathExist.builder()
+                                        FileMatchingPatternExist.builder()
                                                 .pattern("/**/ejb-jar.xml")
                                                 .build()
                                 )

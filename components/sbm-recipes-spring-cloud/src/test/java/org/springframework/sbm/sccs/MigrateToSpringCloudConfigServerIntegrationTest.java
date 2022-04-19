@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +30,6 @@ public class MigrateToSpringCloudConfigServerIntegrationTest {
 
     String applicationDir = "sccs-client";
     private String applicationConfigDir = "sccs-client-config";
-    private Path applicationConfigPath = Path.of("./target/testcode/").resolve(applicationConfigDir);
 
     @BeforeEach
     void beforeEach() throws IOException {
@@ -52,7 +52,8 @@ public class MigrateToSpringCloudConfigServerIntegrationTest {
         assertThat(migratedProjectDir.resolve("src/main/resources/application-foo.properties")).doesNotExist();
 
         // application.properties has connection property to config server
-        assertThat(migratedProjectDir.resolve("src/main/resources/application.properties")).hasContent(
+        assertThat(migratedProjectDir.resolve("src/main/resources/application.properties"))
+                .usingCharset(StandardCharsets.UTF_8).hasContent(
                 "spring.application.name=sccs-client\n" +
                         "spring.profiles.active=default,foo\n" +
                         "property1=yes\n" +

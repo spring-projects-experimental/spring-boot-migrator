@@ -15,15 +15,15 @@
  */
 package org.springframework.sbm.jee.ejb.recipes;
 
-import org.springframework.sbm.common.migration.conditions.FileMatchingAntPathExist;
+import org.junit.jupiter.api.Test;
+import org.springframework.sbm.common.migration.conditions.FileMatchingPatternExist;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.jee.ejb.actions.MigrateEjbDeploymentDescriptor;
-import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.springframework.sbm.test.RecipeTestSupport.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.sbm.test.RecipeTestSupport.*;
 
 public class EjbJarDeploymentDescriptorTest {
 
@@ -38,9 +38,9 @@ public class EjbJarDeploymentDescriptorTest {
         );
 
         MigrateEjbDeploymentDescriptor migrateEjbDeploymentDescriptor = getAction(recipe, MigrateEjbDeploymentDescriptor.class);
-        assertThatActionHasCondition(migrateEjbDeploymentDescriptor, FileMatchingAntPathExist.class);
-        FileMatchingAntPathExist fileMatchingAntPathExist = getConditionFor(migrateEjbDeploymentDescriptor, FileMatchingAntPathExist.class);
-        assertThat(fileMatchingAntPathExist.getPattern()).isEqualTo("/**/ejb-jar.xml");
+        assertThatActionHasCondition(migrateEjbDeploymentDescriptor, FileMatchingPatternExist.class);
+        FileMatchingPatternExist fileMatchingPatternExist = getConditionFor(migrateEjbDeploymentDescriptor, FileMatchingPatternExist.class);
+        assertThat(fileMatchingPatternExist.getPattern()).isEqualTo("/**/ejb-jar.xml");
     }
 
 }

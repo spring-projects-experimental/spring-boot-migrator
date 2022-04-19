@@ -179,7 +179,7 @@ public class RecipeTestSupport {
         @Override
         public Resource[] loadResources(String pattern) {
             if(recipeFile != null) {
-                return super.loadResources(recipeFile.toString());
+                return super.loadResources("classpath:" + recipeFile.toString());
             } else {
                  return super.loadResources(pattern);
             }

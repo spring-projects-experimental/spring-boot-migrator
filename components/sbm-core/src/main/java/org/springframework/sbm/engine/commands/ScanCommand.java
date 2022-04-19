@@ -62,6 +62,11 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
         return pathScanner.scan(projectRootPath);
     }
 
+    public List<Resource> scanProjectRoot(Path projectRootPath) {
+       // Path projectRootPath = pro//projectRootPathResolver.getProjectRootOrDefault(projectRoot);
+        return pathScanner.scan(projectRootPath);
+    }
+
     public PreconditionVerificationResult checkPreconditions(String projectRoot, List<Resource> resources) {
         Path projectRootPath = projectRootPathResolver.getProjectRootOrDefault(projectRoot);
         return preconditionVerifier.verifyPreconditions(projectRootPath, resources);

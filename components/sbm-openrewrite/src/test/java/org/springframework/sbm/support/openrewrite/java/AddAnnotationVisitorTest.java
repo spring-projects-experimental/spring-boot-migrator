@@ -15,12 +15,12 @@
  */
 package org.springframework.sbm.support.openrewrite.java;
 
-import org.springframework.sbm.java.OpenRewriteTestSupport;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Result;
 import org.openrewrite.java.tree.J;
+import org.springframework.sbm.java.OpenRewriteTestSupport;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ class AddAnnotationVisitorTest {
         List<Result> run = new GenericOpenRewriteRecipe<>(() -> sut).run(List.of(compilationUnit), new InMemoryExecutionContext());
         J.CompilationUnit afterVisit = (J.CompilationUnit) run.get(0).getAfter();
 
-        assertThat(afterVisit.print()).isEqualTo(
+        assertThat(afterVisit.printAll()).isEqualTo(
                 "import javax.ejb.Stateless;\n" +
                         "\n" +
                         snippet + "\n" +
@@ -83,7 +83,7 @@ class AddAnnotationVisitorTest {
 
         J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(code);
 
-        AddAnnotationVisitor sut = new AddAnnotationVisitor(OpenRewriteTestSupport.getJavaParser(), compilationUnit.getClasses().get(0).getBody().getStatements().get(0), "@Deprecated", "java.lang.Deprecated"); // TODO: merge last two imports params for AddAnnotationVisitor
+        AddAnnotationVisitor sut = new AddAnnotationVisitor(OpenRewriteTestSupport.getJavaParser(), compilationUnit.getClasses().get(0).getBody().getStatements().get(0), "@Deprecated", "java.lang.Deprecated");
         List<Result> result = new GenericOpenRewriteRecipe<>(() -> sut).run(List.of(compilationUnit));
         assertThat(result).isNotEmpty();
         assertThat(result.get(0).getAfter().printAll()).isEqualTo(

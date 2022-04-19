@@ -15,12 +15,14 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.springframework.sbm.project.resource.ApplicationProperties;
-import org.springframework.sbm.project.resource.ResourceHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.common.util.LinuxWindowsPathUnifier;
+import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
+import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -32,38 +34,38 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PathScanner {
 
-    // TODO: read ignored resources from .gitignore
-//    private final List<String> IGNORED_RESOURCES;
+	private final ApplicationProperties applicationProperties;
+	private final ResourceHelper resourceHelper;
+	private final PathMatcher pathMatcher = new OsAgnosticPathMatcher();
+	private final LinuxWindowsPathUnifier pathUnifier = new LinuxWindowsPathUnifier();
 
-    private final ApplicationProperties applicationProperties;
-    private final ResourceHelper resourceHelper;
-    private AntPathMatcher antPathMatcher = new AntPathMatcher();
+	public List<Resource> scan(Path projectRoot) {
+		Path absoluteRootPath = projectRoot.toAbsolutePath();
+		String pattern = new LinuxWindowsPathUnifier().unifyPath(absoluteRootPath.toString() + "/**");
+		Resource[] resources = resourceHelper.loadResources("file:" + pattern);
 
-    public List<Resource> scan(Path projectRoot) {
-        String pattern = "**";
-        Path absoluteRootPath = projectRoot.toAbsolutePath();
-        Resource[] resources = resourceHelper.loadResources("file:" + absoluteRootPath + "/" + pattern);
+		return Arrays.asList(resources)
+				.stream()
+				.filter(p -> this.isRelevant(projectRoot, getPath(p)))
+				.collect(Collectors.toList());
+	}
 
-        return Arrays.asList(resources).stream()
-                .filter(p -> this.isRelevant(p, absoluteRootPath))
-                .collect(Collectors.toList());
-    }
+	private boolean isRelevant(Path projectRoot, Path givenResource) {
+		if (givenResource.toFile().isDirectory()) {
+			return false;
+		}
+		return applicationProperties.getIgnoredPathsPatterns().stream()
+				.noneMatch(ir -> pathMatcher.match(ir,
+						pathUnifier.unifyPath(projectRoot.relativize(givenResource))));
+	}
 
-    private boolean isRelevant(Resource givenResource, Path rootPath) {
-        if (getPath(givenResource).toFile().isDirectory()) {
-            return false;
-        }
-        return applicationProperties.getIgnoredPathsPatterns().stream()
-                .noneMatch(ir -> antPathMatcher.match(rootPath.resolve(ir).toString(), getPath(givenResource).toAbsolutePath().normalize().toString()));
-    }
-
-    private Path getPath(Resource r) {
-        try {
-            return r.getFile().toPath().toAbsolutePath().normalize();
-        } catch (IOException e) {
-            throw new ProjectParserException(String.format("Error retrieving path for Resource '%s'", r), e);
-        }
-    }
-
+	private Path getPath(Resource r) {
+		try {
+			return r.getFile().toPath().toAbsolutePath().normalize();
+		}
+		catch (IOException e) {
+			throw new ProjectParserException(String.format("Error retrieving path for Resource '%s'", r), e);
+		}
+	}
 
 }

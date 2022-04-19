@@ -15,15 +15,16 @@
  */
 package org.springframework.sbm.boot.properties;
 
-import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.api.SpringProfile;
-import org.springframework.sbm.project.resource.ProjectResourceWrapper;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.SourceFile;
 import org.openrewrite.properties.tree.Properties;
+import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
+import org.springframework.sbm.boot.properties.api.SpringProfile;
+import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
+import org.springframework.sbm.project.resource.ProjectResourceWrapper;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
 import java.nio.file.Path;
 import java.util.regex.Matcher;
@@ -34,13 +35,13 @@ public class SpringBootApplicationPropertiesRegistrar implements ProjectResource
 
     private static final String PATTERN = "/**/src/main/resources/application*.properties";
     public static final String PATTERN1 = "/**/src/main/resources/config/application*.properties";
-    private AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private PathMatcher pathMatcher = new OsAgnosticPathMatcher();
     private final SpringApplicationPropertiesPathMatcher springApplicationPropertiesPathMatcher;
 
     @Override
     public boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
         boolean assignableFrom = Properties.File.class.isAssignableFrom(rewriteSourceFileHolder.getSourceFile().getClass());
-        boolean match = antPathMatcher.match(PATTERN, rewriteSourceFileHolder.getAbsolutePath().toString()) || antPathMatcher.match(PATTERN1, rewriteSourceFileHolder.getAbsolutePath().toString());
+        boolean match = pathMatcher.match(PATTERN, rewriteSourceFileHolder.getAbsolutePath().toString()) || pathMatcher.match(PATTERN1, rewriteSourceFileHolder.getAbsolutePath().toString());
         return match && assignableFrom;
     }
 

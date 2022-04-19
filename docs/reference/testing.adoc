@@ -2,6 +2,17 @@
 
 Different classes exist to help writing tests for ``Recipe``s, ``Condition``s and ``Action``s.
 
+=== Windows & Linux
+
+Linebreaks, encoding and path separator do (most probably will) differ depending on the OS the tests and the application
+is executed on.
+
+To make the tests and application run on Windows, Linux and OSX you must take precautions in some cases.
+
+==== Ignoring Line separator in assertions
+
+
+
 === TestProjectContext
 
 When testing ``Action``s and ``Condition``s you'll need a initialized ProjectContext as test fixture.

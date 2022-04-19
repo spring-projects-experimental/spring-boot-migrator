@@ -27,12 +27,12 @@ import java.util.Optional;
 import static org.springframework.sbm.test.RecipeTestSupport.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BootifyAnnotatedServletRecipeTest {
+public class MigrateAnnotatedServletRecipeTest {
 
     @Test
-    void testBootifyAnnotatedServletRecipe() {
+    void testMigrateAnnotatedServletRecipe() {
 
-        Path recipePath = Path.of("classpath:/recipes/migrate-annotated-servlets.yaml");
+        Path recipePath = Path.of("recipes/migrate-annotated-servlets.yaml");
 
         testRecipe(recipePath, recipes -> {
 

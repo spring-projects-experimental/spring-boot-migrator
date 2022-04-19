@@ -15,9 +15,6 @@
  */
 package org.springframework.sbm.support.openrewrite.java;
 
-import org.springframework.sbm.java.OpenRewriteTestSupport;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
-import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.Result;
@@ -27,6 +24,9 @@ import org.openrewrite.java.RemoveAnnotation;
 import org.openrewrite.java.search.FindAnnotations;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType.FullyQualified;
+import org.springframework.sbm.java.OpenRewriteTestSupport;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.testhelper.common.utils.TestDiff;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FindInterfacesAnnotatedWithTest {
 
     @Test
-    @Disabled("Adding imports fails when sing AddAnnotation because JavaParser used misses dependencies")
+    @Disabled("Adding imports fails when using AddAnnotation because JavaParser used misses dependencies")
     void test() {
         String source =
                 "@javax.ejb.Local\n" +
@@ -169,14 +169,20 @@ public class FindInterfacesAnnotatedWithTest {
         String source5 =
                 "public class AnotherBean implements Baz {}";
 
-        List<J.CompilationUnit> compilationUnits = OpenRewriteTestSupport.createCompilationUnitsFromStrings(List.of("javax.ejb:javax.ejb-api:3.2", "org.springframework:spring-context:5.3.5"), source3, source5);
+        List<String> classpath = List.of("javax.ejb:javax.ejb-api:3.2", "org.springframework:spring-context:5.3.5");
+        List<J.CompilationUnit> compilationUnits = OpenRewriteTestSupport.createCompilationUnitsFromStrings(classpath, source3, source5);
 
         J.ClassDeclaration classDeclaration = compilationUnits.get(1).getClasses().get(0);
-        JavaParser javaParser = JavaParser.fromJavaVersion().build();
+        JavaParser javaParser = OpenRewriteTestSupport.getJavaParser(classpath.toArray(new String[]{}));
         List<Result> list = new GenericOpenRewriteRecipe<>(() -> new AddAnnotationVisitor(javaParser, classDeclaration, "@Service", "org.springframework.stereotype.Service")).run(List.of(compilationUnits.get(1)));
         J.CompilationUnit j = (J.CompilationUnit) list.get(0).getAfter();
 
-        System.out.println(j.printAll());
+        assertThat(j.printAll()).isEqualTo(
+                "import org.springframework.stereotype.Service;\n" +
+                "\n" +
+                "@Service\n" +
+                "public class AnotherBean implements Baz {}"
+        );
     }
 
 }

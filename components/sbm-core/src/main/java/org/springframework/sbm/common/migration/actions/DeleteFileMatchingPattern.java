@@ -15,18 +15,18 @@
  */
 package org.springframework.sbm.common.migration.actions;
 
-import org.springframework.sbm.common.filter.PathMatchingProjectResourceFilter;
+import lombok.Setter;
+import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.project.resource.ProjectResource;
-import lombok.Setter;
 
 import java.util.List;
 
 /**
  * Delete files matching path pattern.
  *
- * see <a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/util/AntPathMatcher.html">AntPathMatcher</a>
+ * see <a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/util/AntPathMatcher.html">AntPathMatcher</a> for pattern reference.
  */
 public class DeleteFileMatchingPattern extends AbstractAction {
 
@@ -35,7 +35,7 @@ public class DeleteFileMatchingPattern extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
-        List<ProjectResource> search = context.search(new PathMatchingProjectResourceFilter(pattern));
+        List<ProjectResource> search = context.search(new PathPatternMatchingProjectResourceFinder(pattern));
         search.stream().forEach(ProjectResource::delete);
     }
 }

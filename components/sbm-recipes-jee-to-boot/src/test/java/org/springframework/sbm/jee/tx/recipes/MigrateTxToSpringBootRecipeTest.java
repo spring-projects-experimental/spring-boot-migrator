@@ -31,7 +31,7 @@ public class MigrateTxToSpringBootRecipeTest {
 
     @Test
     void testRecipe() {
-        RecipeTestSupport.testRecipe(Path.of("classpath:/recipes/migrate-tx-to-spring-boot.yaml"), recipes -> {
+        RecipeTestSupport.testRecipe(Path.of("recipes/migrate-tx-to-spring-boot.yaml"), recipes -> {
             Optional<Recipe> recipe = recipes.getRecipeByName("migrate-tx-to-spring-boot");
             RecipeTestSupport.assertThatRecipeExists(recipe);
             RecipeTestSupport.assertThatRecipeHasCondition(recipe, HasImportStartingWith.class);

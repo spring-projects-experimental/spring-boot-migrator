@@ -21,3 +21,5 @@ include::concepts.adoc[repo]
 include::howto.adoc[]
 
 include::testing.adoc[]
+
+include::contributing.adoc[]

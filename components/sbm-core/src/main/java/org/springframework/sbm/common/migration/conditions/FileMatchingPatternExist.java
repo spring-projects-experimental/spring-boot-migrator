@@ -15,10 +15,11 @@
  */
 package org.springframework.sbm.common.migration.conditions;
 
-import org.springframework.sbm.engine.recipe.Condition;
-import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.*;
-import org.springframework.util.AntPathMatcher;
+import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.Condition;
+import org.springframework.util.PathMatcher;
 
 /**
  * Condition resolves to {@code true} if given {@code antPath} matches any file.
@@ -33,9 +34,10 @@ import org.springframework.util.AntPathMatcher;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileMatchingAntPathExist implements Condition {
+public class FileMatchingPatternExist implements Condition {
 
     private String pattern;
+    private final PathMatcher pathMatcher = new OsAgnosticPathMatcher();
 
     @Override
     public String getDescription() {
@@ -44,8 +46,7 @@ public class FileMatchingAntPathExist implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        AntPathMatcher antPathMatcher = new AntPathMatcher();
         return context.getProjectResources().stream()
-                .anyMatch(f -> !f.isDeleted() && antPathMatcher.match(pattern, f.getAbsolutePath().toString()));
+                .anyMatch(f -> !f.isDeleted() && pathMatcher.match(pattern, f.getAbsolutePath().toString()));
     }
 }

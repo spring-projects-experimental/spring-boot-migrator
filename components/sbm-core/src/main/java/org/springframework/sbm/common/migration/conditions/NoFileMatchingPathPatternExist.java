@@ -15,9 +15,9 @@
  */
 package org.springframework.sbm.common.migration.conditions;
 
+import lombok.*;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
-import lombok.*;
 
 /**
  * Condition resolves to {@code true} if given {@code antPath} matches any file.
@@ -32,7 +32,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class NoFileMatchingAntPathExist implements Condition {
+public class NoFileMatchingPathPatternExist implements Condition {
 
     private String pattern;
 
@@ -43,6 +43,6 @@ public class NoFileMatchingAntPathExist implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return false == new FileMatchingAntPathExist(pattern).evaluate(context);
+        return false == new FileMatchingPatternExist(pattern).evaluate(context);
     }
 }

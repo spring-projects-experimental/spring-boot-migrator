@@ -40,7 +40,7 @@ public class MigrateJpaToSpringBootRecipeTest {
 
     @Test
     void migrateJpaToSpringBootRecipe() {
-        testRecipe(Path.of("classpath:recipes/migrate-jpa-to-spring-boot.yaml"), recipes -> {
+        testRecipe(Path.of("recipes/migrate-jpa-to-spring-boot.yaml"), recipes -> {
 
             Optional<Recipe> recipe = recipes.getRecipeByName("migrate-jpa-to-spring-boot");
 

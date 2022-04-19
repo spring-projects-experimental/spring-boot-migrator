@@ -15,13 +15,13 @@
  */
 package org.springframework.sbm.mule;
 
-import org.springframework.sbm.common.migration.conditions.FileMatchingAntPathExist;
-import org.springframework.sbm.engine.recipe.Action;
-import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.sbm.mule.actions.MigrateRamlToSpringMvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.sbm.common.migration.conditions.FileMatchingPatternExist;
+import org.springframework.sbm.engine.recipe.Action;
+import org.springframework.sbm.engine.recipe.Recipe;
+import org.springframework.sbm.mule.actions.MigrateRamlToSpringMvc;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +39,7 @@ public class MigrateRamlToSpringController {
         List<Action> actions = Stream.concat(Stream.of(MigrateRamlToSpringMvc.builder().build()), jaxRs.getActions().stream()).collect(Collectors.toList());
 
         return Recipe.builder()
-                .condition(FileMatchingAntPathExist.builder().pattern("/**/*.raml").build())
+                .condition(FileMatchingPatternExist.builder().pattern("/**/*.raml").build())
                 .name("migrate-raml-to-spring-mvc")
                 .description("Create Spring Boot @RestController from .raml files.")
                 .actions(
