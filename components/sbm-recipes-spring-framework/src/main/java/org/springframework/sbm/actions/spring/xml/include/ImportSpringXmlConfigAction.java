@@ -16,6 +16,7 @@
 package org.springframework.sbm.actions.spring.xml.include;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.sbm.common.util.LinuxWindowsPathUnifier;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -88,12 +89,13 @@ public class ImportSpringXmlConfigAction extends AbstractAction {
         mainJavaSourceSet.addJavaSource(module.getProjectRootDirectory(), javaSourceFolder, src, pkg);
     }
 
-    private Path makeRelativeTo(Path absolutePath, List<Path> classpathRoots) {
+    private String makeRelativeTo(Path absolutePath, List<Path> classpathRoots) {
         // FIXME: can just return sourcePath if sourcePath becomes relative path to projectRootDir
         Assert.isTrue(absolutePath.isAbsolute(), "must be absolute");
         for (Path cpr : classpathRoots) {
             if (absolutePath.startsWith(cpr)) {
-                return cpr.relativize(absolutePath);
+                Path relativePath = cpr.relativize(absolutePath);
+                return new LinuxWindowsPathUnifier().unifyPath(relativePath.toString());
             }
         }
         throw new RuntimeException(String.format("Absolute path '%s' is not contained in any classpath root", absolutePath));

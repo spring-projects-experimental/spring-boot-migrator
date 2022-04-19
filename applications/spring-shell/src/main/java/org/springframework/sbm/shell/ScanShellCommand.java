@@ -48,7 +48,7 @@ public class ScanShellCommand {
 
     @ShellMethod(key = {"scan", "s"},
             value = "Scans the target project directory and get the list of applicable recipes.")
-    public AttributedString scan(
+    public String scan(
             @ShellOption(defaultValue = ".", help = "The root directory of the target application.")
                     //@Pattern(regexp = "")
                     String projectRoot) {
@@ -61,8 +61,8 @@ public class ScanShellCommand {
         AttributedStringBuilder stringBuilder = new AttributedStringBuilder();
         String output = stringBuilder
                 .append(scanCommandHeader)
-                .append(renderedPreconditionCheckResults)
-                .toAnsi();
+                .ansiAppend(renderedPreconditionCheckResults)
+                .toAttributedString().toAnsi();
 
         consolePrinter.println(output);
 
@@ -75,7 +75,7 @@ public class ScanShellCommand {
             stringBuilder.append(recipeList);
         }
 
-        return stringBuilder.toAttributedString();
+        return stringBuilder.toAttributedString().toAnsi();
     }
 
 }

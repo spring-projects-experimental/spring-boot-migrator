@@ -24,10 +24,11 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
+@Disabled("TODO: Maven Reactor")
 class ApplicationModuleTest {
 
     @Test
-    @Disabled("TODO: Maven Reactor")
     void testGetModuleResources() {
         String parentPom =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

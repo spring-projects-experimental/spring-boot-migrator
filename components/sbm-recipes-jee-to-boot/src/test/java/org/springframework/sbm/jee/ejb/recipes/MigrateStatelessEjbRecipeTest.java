@@ -42,7 +42,7 @@ public class MigrateStatelessEjbRecipeTest {
 
     @Test
     void migrateStatelessEjbRecipe() {
-        testRecipe(Path.of("classpath:recipes/migrate-stateless-ejb.yaml"), recipes -> {
+        testRecipe(Path.of("recipes/migrate-stateless-ejb.yaml"), recipes -> {
             Optional<Recipe> recipe = recipes.getRecipeByName("migrate-stateless-ejb");
 
             assertThatRecipeExists(recipe);

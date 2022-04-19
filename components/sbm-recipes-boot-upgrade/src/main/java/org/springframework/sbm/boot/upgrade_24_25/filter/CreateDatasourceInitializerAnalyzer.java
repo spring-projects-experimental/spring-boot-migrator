@@ -19,7 +19,7 @@ import org.springframework.sbm.build.api.ApplicationModule;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 import org.springframework.sbm.project.resource.ProjectResource;
-import org.springframework.sbm.common.filter.PathMatchingProjectResourceFilter;
+import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +41,7 @@ public class CreateDatasourceInitializerAnalyzer {
     }
 
     public List<ProjectResource> findSchemaAndDataFiles(ApplicationModule module) {
-        return module.search(new PathMatchingProjectResourceFilter(List.of("**/resources/**/schema.sql", "**/resources/**/data.sql")));
+        return module.search(new PathPatternMatchingProjectResourceFinder(List.of("**/resources/**/schema.sql", "**/resources/**/data.sql")));
     }
 
     public List<SpringBootApplicationProperties> findPropertyFilesContainingDataUsernameProperty(ApplicationModule module) {

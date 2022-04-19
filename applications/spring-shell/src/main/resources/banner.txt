@@ -10,13 +10,11 @@ Find us...
 on GitHub:      https://github.com/spring-projects-experimental/spring-boot-migrator
 on Slack:       https://vmware.slack.com/archives/CKB9VJE68 #spring-boot-migrator
 
-This project contains a lot of love️️ but still, there will be bugs...
+This project contains a lot of love. But still, there will be bugs...
 So please, give us Feedback:   https://github.com/spring-projects-experimental/spring-boot-migrator/issues
 Also, if you like the project please give a star on GitHub.
 
 THANK YOU!
-
-Use "help" command to list all of the available commands.
 
 Properties:
 -----------
@@ -39,5 +37,13 @@ Base Package: ${sbm.defaultBasePackage}
     - The package for new classes when no base package can be calculated
 
     Use -Dsbm.defaultBasePackage=com.acme.packagename as VM parameter on startup to set the property.
+
+
+Get Started:
+------------
+Type
+
+"help" - to display a list all of the available commands.
+"scan <dir>" - to scan an application
 
 --------------------------------------------------------------------------------------------------

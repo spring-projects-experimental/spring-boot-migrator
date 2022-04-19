@@ -16,7 +16,7 @@
 package org.springframework.sbm.common.migration.actions;
 
 import lombok.Setter;
-import org.springframework.sbm.common.filter.PathMatchingProjectResourceFilter;
+import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.project.resource.ProjectResource;
@@ -35,7 +35,7 @@ public class DeleteFileMatchingPattern extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
-        List<ProjectResource> search = context.search(new PathMatchingProjectResourceFilter(pattern));
+        List<ProjectResource> search = context.search(new PathPatternMatchingProjectResourceFinder(pattern));
         search.stream().forEach(ProjectResource::delete);
     }
 }

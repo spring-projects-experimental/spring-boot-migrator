@@ -17,6 +17,7 @@ package org.springframework.sbm.engine.precondition;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.common.util.LinuxWindowsPathUnifier;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;

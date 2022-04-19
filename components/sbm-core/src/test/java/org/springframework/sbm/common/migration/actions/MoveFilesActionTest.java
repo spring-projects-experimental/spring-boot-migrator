@@ -17,14 +17,13 @@ package org.springframework.sbm.common.migration.actions;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.common.filter.PathMatchingProjectResourceFilter;
+import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.InternalProjectResource;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,15 +54,11 @@ class MoveFilesActionTest {
                 .addProjectResource(anotherFilePath, fileContent2)
                 .build();
 
-        ProjectResource someFile = projectContext.search(new PathMatchingProjectResourceFilter("/**/SomeFile.foo")).get(0);
-        ProjectResource anotherFile = projectContext.search(new PathMatchingProjectResourceFilter("/**/AnotherFile.foo")).get(0);
+        ProjectResource someFile = projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/SomeFile.foo")).get(0);
+        ProjectResource anotherFile = projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/AnotherFile.foo")).get(0);
 
         verifyPrecondition(someFile, projectRoot.resolve(someFilePath), fileContent1);
         verifyPrecondition(anotherFile, projectRoot.resolve(anotherFilePath), fileContent2);
-
-        // TODO: #486
-        System.out.println("Current ProjectContext: " + projectContext.getProjectResources().stream()
-                .map(pr -> pr.getAbsolutePath().toString()).collect(Collectors.joining("\n")));
 
         MoveFilesAction sut = new MoveFilesAction();
         sut.setFromPattern("/**/*File.foo");
@@ -71,18 +66,14 @@ class MoveFilesActionTest {
 
         sut.apply(projectContext);
 
-        // TODO: #486
-        System.out.println("Migrated ProjectContext: " + projectContext.getProjectResources().stream()
-                .map(pr -> pr.getAbsolutePath().toString()).collect(Collectors.joining("\n")));
-
-//        verifyResult(projectContext, target.resolve("SomeFile.foo"), someFile); // TODO: #486
-        verifyResult(projectContext, target.resolve("AnotherFile.foo"), anotherFile);
-        assertThat(projectContext.search(new PathMatchingProjectResourceFilter(someFilePath))).isEmpty();
-        assertThat(projectContext.search(new PathMatchingProjectResourceFilter(anotherFilePath))).isEmpty();
+        verifyResult(projectContext, target.resolve("SomeFile.foo"), "/**/src/main/resources/new-location/SomeFile.foo", someFile);
+        verifyResult(projectContext, target.resolve("AnotherFile.foo"), "/**/src/main/resources/new-location/AnotherFile.foo", anotherFile);
+        assertThat(projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/a/SomeFile.foo"))).isEmpty();
+        assertThat(projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/b/AnotherFile.foo"))).isEmpty();
     }
 
-    private void verifyResult(ProjectContext projectContext, Path newPath, ProjectResource resource) {
-        InternalProjectResource newResource = (InternalProjectResource) projectContext.search(new PathMatchingProjectResourceFilter(newPath.toString())).get(0);
+    private void verifyResult(ProjectContext projectContext, Path newPath, String pattern, ProjectResource resource) {
+        InternalProjectResource newResource = (InternalProjectResource) projectContext.search(new PathPatternMatchingProjectResourceFinder(pattern)).get(0);
         assertThat(newResource.hasChanges()).isTrue();
         assertThat(newResource.getAbsolutePath()).isEqualTo(newPath);
         assertThat(newResource.print()).isEqualTo(resource.print());

@@ -33,7 +33,7 @@ public class MigrateJsf2xToSpringBootRecipeTest {
 
     @Test
     void recipe() {
-        RecipeTestSupport.testRecipe(Path.of("classpath:/recipes/migrate-jsf-2.x-to-spring-boot.yaml"), recipes -> {
+        RecipeTestSupport.testRecipe(Path.of("recipes/migrate-jsf-2.x-to-spring-boot.yaml"), recipes -> {
 
             Optional<Recipe> recipe = recipes.getRecipeByName("migrate-jsf-2.x-to-spring-boot");
             RecipeTestSupport.assertThatRecipeExists(recipe);

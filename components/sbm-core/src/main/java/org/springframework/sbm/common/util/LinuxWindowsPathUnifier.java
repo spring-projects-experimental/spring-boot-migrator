@@ -18,7 +18,13 @@ package org.springframework.sbm.common.util;
 
 import org.springframework.util.StringUtils;
 
+import java.nio.file.Path;
+
 public class LinuxWindowsPathUnifier {
+
+    public String unifyPath(Path path) {
+        return unifyPath(path.toString());
+    }
 
     public String unifyPath(String path) {
         path = StringUtils.cleanPath(path);

@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PathMatchingProjectResourceFilter implements ProjectResourceFinder<List<ProjectResource>> {
+public class PathPatternMatchingProjectResourceFinder implements ProjectResourceFinder<List<ProjectResource>> {
 
     /**
      * Ant-style path patterns to filter resources.
@@ -34,12 +34,21 @@ public class PathMatchingProjectResourceFilter implements ProjectResourceFinder<
 
     private final PathMatcher matcher = new OsAgnosticPathMatcher();
 
-    public PathMatchingProjectResourceFilter(List<String> matchingPatterns) {
+    public PathPatternMatchingProjectResourceFinder(List<String> matchingPatterns) {
+        validateMatchingPatterns(matchingPatterns);
         this.matchingPatterns = matchingPatterns;
     }
 
-    public PathMatchingProjectResourceFilter(String... matchingPatterns) {
+    public PathPatternMatchingProjectResourceFinder(String... matchingPatterns) {
         this(Arrays.asList(matchingPatterns));
+    }
+
+    private void validateMatchingPatterns(List<String> matchingPatterns) {
+        for(String pattern : matchingPatterns) {
+            if( ! matcher.isPattern(pattern)) {
+                throw new RuntimeException("The provided pattern '"+pattern+"' is invalid. Please check AntPathMatcher javadoc for examples of valid patterns.");
+            }
+        }
     }
 
     private boolean filterResources(ProjectResource projectResource) {

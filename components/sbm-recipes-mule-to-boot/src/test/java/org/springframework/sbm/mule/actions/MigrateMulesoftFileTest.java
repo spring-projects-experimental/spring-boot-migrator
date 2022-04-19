@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.mule.actions;
 
+import org.springframework.sbm.common.filter.AbsolutePathResourceFinder;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.springframework.sbm.common.filter.PathMatchingProjectResourceFilter;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -91,7 +92,8 @@ class MigrateMulesoftFileTest {
 
         sut.apply(projectContext);
 
-        ProjectResource springIntegration = projectContext.search(new PathMatchingProjectResourceFilter(TestProjectContext.getDefaultProjectRoot().resolve("src/main/resources/spring-integration-flow.xml").toString())).get(0);
+        Path path = TestProjectContext.getDefaultProjectRoot().resolve("src/main/resources/spring-integration-flow.xml");
+        ProjectResource springIntegration = projectContext.search(new AbsolutePathResourceFinder(path)).get();
         assertThat(springIntegration.print()).isEqualTo(expected);
     }
 }

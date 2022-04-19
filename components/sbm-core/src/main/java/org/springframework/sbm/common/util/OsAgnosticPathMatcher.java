@@ -37,7 +37,7 @@ public class OsAgnosticPathMatcher implements PathMatcher {
 
 	@Override
 	public boolean isPattern(String s) {
-		return false;
+		return pathMatcher.isPattern(s);
 	}
 
 	@Override

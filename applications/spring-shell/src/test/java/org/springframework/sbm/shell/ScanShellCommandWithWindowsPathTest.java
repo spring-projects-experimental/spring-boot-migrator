@@ -40,6 +40,7 @@ public class ScanShellCommandWithWindowsPathTest {
     private ScanCommand scanCommand;
     private ApplicableRecipeListRenderer applicationRecipeListRenderer;
     private ApplicableRecipeListCommand applicableRecipeListCommand;
+    private PreconditionVerificationRenderer preconditionVerificationRenderer;
     private List<Resource> resources;
     private List<Recipe> recipes;
     private ProjectContext projectContext;
@@ -50,7 +51,7 @@ public class ScanShellCommandWithWindowsPathTest {
         applicationRecipeListRenderer = mock(ApplicableRecipeListRenderer.class);
         applicableRecipeListCommand = mock(ApplicableRecipeListCommand.class);
         ProjectContextHolder contextHolder = mock(ProjectContextHolder.class);
-        PreconditionVerificationRenderer preconditionVerificationRenderer = mock(PreconditionVerificationRenderer.class);
+        preconditionVerificationRenderer = mock(PreconditionVerificationRenderer.class);
         ScanCommandHeaderRenderer scanCommandHeaderRenderer = mock(ScanCommandHeaderRenderer.class);
         ConsolePrinter consolePrinter = mock(ConsolePrinter.class);
 
@@ -67,6 +68,7 @@ public class ScanShellCommandWithWindowsPathTest {
         when(applicableRecipeListCommand.execute(projectContext)).thenReturn(recipes);
         when(applicableRecipeListCommand.execute(projectContext)).thenReturn(recipes);
         when(scanCommand.checkPreconditions(projectRoot, resources)).thenReturn(result);
+        when(preconditionVerificationRenderer.renderPreconditionCheckResults(result)).thenReturn("");
         when(applicationRecipeListRenderer.render(recipes)).thenReturn(new AttributedString(""));
     }
 

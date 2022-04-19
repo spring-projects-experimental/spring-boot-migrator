@@ -22,7 +22,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.*;
 import org.apache.maven.shared.utils.cli.CommandLineException;
 import org.jetbrains.annotations.NotNull;
-import org.jline.utils.AttributedString;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -114,7 +113,7 @@ public abstract class IntegrationTestBaseClass {
 
     private Path testDir;
 
-    private AttributedString output;
+    private String output;
 
     @BeforeAll
     public static void beforeAll() {
@@ -290,7 +289,6 @@ public abstract class IntegrationTestBaseClass {
             Path classFile = classPath.resolve(className + ".java");
             classFile.toFile().createNewFile();
             Files.writeString(classFile, code);
-            Files.setPosixFilePermissions(classFile, Set.of(GROUP_WRITE, GROUP_READ, OWNER_WRITE, OWNER_READ, OTHERS_WRITE, OTHERS_READ));
         } catch (IOException e) {
             e.printStackTrace();
         }

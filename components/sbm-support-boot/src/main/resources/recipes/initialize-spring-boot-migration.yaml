@@ -6,7 +6,6 @@
   description: "Initialize an application as Spring Boot application."
 
   actions:
-
     - type: org.springframework.sbm.build.migration.actions.AddMinimalPomXml
       description: Adds a blank pom.xml to the project if none exists.
       condition:

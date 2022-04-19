@@ -31,6 +31,6 @@ class ConsolePrinterTest {
 
         ConsolePrinter sut = new ConsolePrinter();
         sut.println("some text");
-        assertThat(sysOutBuffer.toString()).isEqualTo("some text\n");
+        assertThat(sysOutBuffer.toString()).isEqualTo("some text" + System.lineSeparator());
     }
 }

@@ -31,7 +31,7 @@ import static org.springframework.sbm.test.RecipeTestSupport.testRecipe;
 public class InitializeSpringBootMigrationRecipeTest {
     @Test
     void initializeSpringBootMigrationRecipe() {
-        testRecipe(Path.of("classpath:recipes/initialize-spring-boot-migration.yaml"), recipes -> {
+        testRecipe(Path.of("recipes/initialize-spring-boot-migration.yaml"), recipes -> {
 
             Optional<Recipe> recipe = recipes.getRecipeByName("initialize-spring-boot-migration");
 

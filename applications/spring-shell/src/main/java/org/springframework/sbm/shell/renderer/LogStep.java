@@ -39,7 +39,7 @@ public class LogStep implements ProgressStep {
         AttributedStringBuilder builder = new AttributedStringBuilder();
         builder.style(AttributedStyle.DEFAULT.bold().foreground(Colors.rgbColor("green")));
         builder.append("[ok]");
-        return " ".repeat(indent.get()) + "    " + builder.toAnsi() + " " + logMessage;
+        return " ".repeat(indent.get()) + "    " + builder.toAttributedString().toAnsi() + " " + logMessage;
     }
 
     public String renderError() {
@@ -51,7 +51,7 @@ public class LogStep implements ProgressStep {
                 .style(AttributedStyle.DEFAULT)
                 .append(" ")
                 .append(logMessage);
-        return builder.toAnsi();
+        return builder.toAttributedString().toAnsi();
     }
 
     public String renderWarning() {
@@ -63,6 +63,6 @@ public class LogStep implements ProgressStep {
                 .style(AttributedStyle.DEFAULT)
                 .append(" ")
                 .append(logMessage);
-        return builder.toAnsi();
+        return builder.toAttributedString().toAnsi();
     }
 }

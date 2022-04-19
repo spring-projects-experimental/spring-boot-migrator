@@ -18,7 +18,7 @@ package org.springframework.sbm.common.migration.actions;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.ProjectResource;
-import org.springframework.sbm.common.filter.PathMatchingProjectResourceFilter;
+import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -51,14 +51,14 @@ public class MoveFilesAction extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
         List<String> matchingPatterns = List.of(fromPattern);
-        List<ProjectResource> resources = context.search(new PathMatchingProjectResourceFilter(matchingPatterns));
+        List<ProjectResource> resources = context.search(new PathPatternMatchingProjectResourceFinder(matchingPatterns));
         resources.forEach(r -> this.move(context, r));
     }
 
     private void move(ProjectContext context, ProjectResource projectResource) {
         Path newPath = context.getProjectRootDirectory().resolve(toDir).normalize();
-        projectResource.moveTo(newPath);
         maybeCreateTargetDirectory();
+        projectResource.moveTo(newPath);
     }
 
     // FIXME: Move to Serialization phase

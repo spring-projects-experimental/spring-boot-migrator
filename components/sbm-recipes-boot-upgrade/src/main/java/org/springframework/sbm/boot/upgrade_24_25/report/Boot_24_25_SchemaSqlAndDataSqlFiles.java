@@ -21,7 +21,7 @@ import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.ProjectResource;
-import org.springframework.sbm.common.filter.PathMatchingProjectResourceFilter;
+import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -34,7 +34,7 @@ public class Boot_24_25_SchemaSqlAndDataSqlFiles implements UpgradeSectionBuilde
     @Override
     public boolean isApplicable(ProjectContext projectContext) {
         // TODO: relative path for PathMatcher better?!
-        dbInitFiles = projectContext.search(new PathMatchingProjectResourceFilter(List.of("/**/resources/**/schema.sql", "/**/resources/**/data.sql")));
+        dbInitFiles = projectContext.search(new PathPatternMatchingProjectResourceFinder(List.of("/**/resources/**/schema.sql", "/**/resources/**/data.sql")));
         return !dbInitFiles.isEmpty();
     }
 

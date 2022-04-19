@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -31,4 +32,17 @@ public class ApplicationProperties {
     private boolean gitSupportEnabled;
     private String defaultBasePackage;
     private List<String> ignoredPathsPatterns = new ArrayList<>();
+
+    public void setIgnoredPathsPatterns(List<String> patterns) {
+        List<String> absolutePatterns = patterns.stream()
+                .filter(pattern -> pattern.startsWith("/"))
+                .collect(Collectors.toList());
+
+        if( ! absolutePatterns.isEmpty()) {
+            throw new IllegalArgumentException("Found absolute ignore paths patterns defined in sbm.ignoredPathsPatterns. Patterns must be relative and not start with '/'. Invalid patterns found: ['" + absolutePatterns.stream().collect(Collectors.joining("', '")) + "'].");
+        }
+
+        this.ignoredPathsPatterns = patterns;
+    }
+
 }
