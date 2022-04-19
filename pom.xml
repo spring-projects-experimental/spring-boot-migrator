@@ -30,7 +30,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <openrewrite.version>7.16.3</openrewrite.version>
         <openrewrite.spring.version>4.14.1</openrewrite.spring.version>
-        <spring-boot.version>2.4.4</spring-boot.version>
+        <spring-boot.version>2.5.12</spring-boot.version>
         <progressbar.version>0.9.0</progressbar.version>
         <testcontainers.version>1.16.3</testcontainers.version>
         <maven-invoker.version>3.0.1</maven-invoker.version>
@@ -39,7 +39,7 @@
         <lombok.version>1.18.20</lombok.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
-        <jackson.version>2.12.2</jackson.version>
+        <jackson.version>2.12.5</jackson.version>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
     </properties>
 
