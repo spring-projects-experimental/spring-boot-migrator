@@ -83,12 +83,6 @@
             <artifactId>junit-jupiter</artifactId>
             <version>1.16.3</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.rabbitmq</groupId>
