@@ -105,6 +105,12 @@
             <artifactId>mq-jms-spring-boot-starter</artifactId>
             <version>2.6.4</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.json</groupId>
+                    <artifactId>json</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Override Jackson coming from spring boot -->
