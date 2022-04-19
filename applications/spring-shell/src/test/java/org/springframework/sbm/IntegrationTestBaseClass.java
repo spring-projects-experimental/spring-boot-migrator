@@ -51,15 +51,12 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.nio.file.attribute.PosixFilePermission.*;
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 /**
  * Base class to be extended by integrationTests.
@@ -67,303 +64,305 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Provides helper methods to initialize example projects to migrate in integration tests.
  * MAVEN_HOME must be set on the system running the tests!
  * <p>
- * Projects can either be copied from <code>TESTCODE_DIR</code> or written from inline code.
+ * Projects can either be copied from <code>TESTCODE_DIR</code> or written from inline
+ * code.
  * <p>
- * See also:
- * {@link #intializeTestProject()},
- * {@link #writeFile} and
+ * See also: {@link #intializeTestProject()}, {@link #writeFile} and
  * {@link #writeJavaFile(String)}
  */
-@SpringBootTest(properties = {
-        InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
-        ScriptShellApplicationRunner.SPRING_SHELL_SCRIPT_ENABLED + "=false",
-        "sbm.gitSupportEnabled=false"
-})
+@SpringBootTest(properties = { InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
+		ScriptShellApplicationRunner.SPRING_SHELL_SCRIPT_ENABLED + "=false", "sbm.gitSupportEnabled=false" })
 @DirtiesContext // paralel runs
 public abstract class IntegrationTestBaseClass {
 
-    /**
-     * Points to the source root directory where example projects are expected.
-     *
-     * @see {@link #getTestSubDir()}.
-     */
-    public static final String TESTCODE_DIR = "src/test/resources/testcode/";
+	/**
+	 * Points to the source root directory where example projects are expected.
+	 *
+	 * @see {@link #getTestSubDir()}.
+	 */
+	public static final String TESTCODE_DIR = "src/test/resources/testcode/";
 
-    /**
-     * Points to the target root directory where example projects will be copied to.
-     *
-     * @see {@link #getTestSubDir()}.
-     */
-    public static final String INTEGRATION_TEST_DIR = "./target/sbm-integration-test/";
+	/**
+	 * Points to the target root directory where example projects will be copied to.
+	 *
+	 * @see {@link #getTestSubDir()}.
+	 */
+	public static final String INTEGRATION_TEST_DIR = "./target/sbm-integration-test/";
+	@Autowired
+	protected ApplicableRecipeListCommand applicableRecipeListCommand;
+	@Autowired
+	ScanShellCommand scanShellCommand;
+	@Autowired
+	ApplyShellCommand applyShellCommand;
+	@Autowired
+	ProjectContextHolder projectContextHolder;
+	@Autowired
+	private ApplicationProperties applicationProperties;
+	private Path testDir;
 
-    @Autowired
-    ScanShellCommand scanShellCommand;
+	private String output;
 
-    @Autowired
-    private ApplicationProperties applicationProperties;
+	@BeforeAll
+	public static void beforeAll() {
+		if (System.getenv("MAVEN_HOME") == null) {
+			throw new RuntimeException("You must set $MAVEN_HOME on your system for the integration test to run.");
+		}
+		System.setProperty("maven.home", System.getenv("MAVEN_HOME"));
+	}
 
-    @Autowired
-    protected ApplicableRecipeListCommand applicableRecipeListCommand;
+	@BeforeEach
+	public void beforeEach() throws IOException {
+		testDir = Path.of(INTEGRATION_TEST_DIR).resolve(getTestSubDir());
+		clearTestDir();
+		testDir.resolve(this.getClass().getName());
+		FileUtils.forceMkdir(testDir.toFile());
+		testDir = testDir.toRealPath();
+	}
 
-    @Autowired
-    ApplyShellCommand applyShellCommand;
+	protected void enableGitSupport() {
+		applicationProperties.setGitSupportEnabled(true);
+		System.out.println("Programmatically enabled git support!");
+	}
 
-    @Autowired
-    ProjectContextHolder projectContextHolder;
+	/**
+	 * Copies example project used for integrationTest.
+	 */
+	protected void intializeTestProject() {
+		try {
+			Path s = Path.of(TESTCODE_DIR).resolve(getTestSubDir());
+			FileUtils.copyDirectory(s.toFile(), getTestDir().toFile());
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    private Path testDir;
+	protected int springBootStart() {
+		int port = SocketUtils.findAvailableTcpPort();
+		executeMavenGoals(getTestDir(), "package",
+				"spring-boot:start  -Dspring-boot.run.jmxPort=9999 -Drun.arguments=\"--server.port=" + port + "\"");
+		return port;
+	}
 
-    private String output;
+	protected void springBootStop() {
+		executeMavenGoals(getTestDir(), "-Dspring-boot.run.jmxPort=9999 -Dspring-boot.stop.fork=true spring-boot:stop");
+	}
 
-    @BeforeAll
-    public static void beforeAll() {
-        if (System.getenv("MAVEN_HOME") == null) {
-            throw new RuntimeException("You must set $MAVEN_HOME on your system for the integration test to run.");
-        }
-        System.setProperty("maven.home", System.getenv("MAVEN_HOME"));
-    }
+	/**
+	 * defines the subdirectory of {@link #INTEGRATION_TEST_DIR} for this test.
+	 * <p>
+	 * All resources for this test will either be copied to or created in this directory.
+	 */
+	protected abstract String getTestSubDir();
 
-    @BeforeEach
-    public void beforeEach() throws IOException {
-        testDir = Path.of(INTEGRATION_TEST_DIR).resolve(getTestSubDir());
-        clearTestDir();
-        testDir.resolve(this.getClass().getName());
-        FileUtils.forceMkdir(testDir.toFile());
-        testDir = testDir.toRealPath();
-    }
+	protected Path getTestDir() {
+		return testDir;
+	}
 
-    protected void enableGitSupport() {
-        applicationProperties.setGitSupportEnabled(true);
-        System.out.println("Programmatically enabled git support!");
-    }
+	/**
+	 * Assert that exactly the given recipes are applicable and shown.
+	 * @param applicableRecipes
+	 */
+	protected void assertApplicableRecipesContain(String... applicableRecipes) {
+		List<String> recipeNames = getRecipeNames();
+		assertThat(recipeNames).contains(applicableRecipes);
+	}
 
-    /**
-     * Copies example project used for integrationTest.
-     */
-    protected void intializeTestProject() {
-        try {
-            Path s = Path.of(TESTCODE_DIR).resolve(getTestSubDir());
-            FileUtils.copyDirectory(s.toFile(), getTestDir().toFile());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	@NotNull
+	private List<String> getRecipeNames() {
+		return applicableRecipeListCommand.execute(projectContextHolder.getProjectContext()).stream()
+				.map(r -> r.getName()).collect(Collectors.toList());
+	}
 
-    protected int springBootStart() {
-        int port = SocketUtils.findAvailableTcpPort();
-        executeMavenGoals(getTestDir(), "package", "spring-boot:start  -Dspring-boot.run.jmxPort=9999 -Drun.arguments=\"--server.port=" + port + "\"");
-        return port;
-    }
+	protected void assertRecipeApplicable(String recipeName) {
+		List<String> recipeNames = getRecipeNames();
+		assertThat(recipeNames).contains(recipeName);
+	}
 
-    protected void springBootStop() {
-        executeMavenGoals(getTestDir(), "-Dspring-boot.run.jmxPort=9999 -Dspring-boot.stop.fork=true spring-boot:stop");
-    }
+	protected void assertRecipeNotApplicable(String recipeName) {
+		List<String> recipeNames = getRecipeNames();
+		assertThat(recipeNames).doesNotContain(recipeName);
+	}
 
-    /**
-     * defines the subdirectory of {@link #INTEGRATION_TEST_DIR} for this test.
-     * <p>
-     * All resources for this test will either be copied to or created in this directory.
-     */
-    protected abstract String getTestSubDir();
+	/**
+	 * Applies the <code>Recipe</code>s matching the given names.
+	 */
+	protected void applyRecipe(String... recipeNames) {
+		for (String recipeName : recipeNames) {
+			applyShellCommand.apply(recipeName);
+		}
+	}
 
-    protected Path getTestDir() {
-        return testDir;
-    }
+	protected void scanProject() {
+		try {
+			output = scanShellCommand.scan(getTestDir().toRealPath().toString());
+			System.out.println(output);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    /**
-     * Assert that exactly the given recipes are applicable and shown.
-     *
-     * @param applicableRecipes
-     */
-    protected void assertApplicableRecipesContain(String... applicableRecipes) {
-        List<String> recipeNames = getRecipeNames();
-        assertThat(recipeNames).contains(applicableRecipes);
-    }
+	/**
+	 * Execute a list of Maven goals in directory.
+	 * @param executionDir to run the 'mvn' command from
+	 * @param goals to run in given order
+	 */
+	protected void executeMavenGoals(Path executionDir, String... goals) {
+		try {
+			Invoker invoker = new DefaultInvoker();
+			InvocationRequest request = new DefaultInvocationRequest();
+			request.setInputStream(InputStream.nullInputStream());
+			File pomXml = executionDir.resolve("pom.xml").toFile();
+			request.setPomFile(pomXml);
+			request.setGoals(List.of(goals));
+			InvocationResult invocationResult = invoker.execute(request);
+			CommandLineException executionException = invocationResult.getExecutionException();
+			int exitCode = invocationResult.getExitCode();
+			if (executionException != null) {
+				Assert.fail("Maven build 'mvn " + Arrays.asList(goals).stream().collect(Collectors.joining(" "))
+						+ "' failed with Exception: " + executionException.getMessage());
+			}
+			if (exitCode == 1) {
+				Assert.fail("Maven build 'mvn " + Arrays.asList(goals).stream().collect(Collectors.joining(" "))
+						+ "' failed with exitCode: " + exitCode);
+			}
+		}
+		catch (MavenInvocationException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    @NotNull
-    private List<String> getRecipeNames() {
-        return applicableRecipeListCommand.execute(projectContextHolder.getProjectContext())
-                .stream()
-                .map(r -> r.getName())
-                .collect(Collectors.toList());
-    }
+	/**
+	 *
+	 */
+	protected Path writeFile(String content, String fileName) {
+		try {
+			return Files.writeString(getTestDir().resolve(fileName), content);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    protected void assertRecipeApplicable(String recipeName) {
-        List<String> recipeNames = getRecipeNames();
-        assertThat(recipeNames).contains(recipeName);
-    }
+	@AfterEach
+	public void afterEach() throws IOException {
+		clearTestDir();
+	}
 
-    protected void assertRecipeNotApplicable(String recipeName) {
-        List<String> recipeNames = getRecipeNames();
-        assertThat(recipeNames).doesNotContain(recipeName);
-    }
+	private void clearTestDir() throws IOException {
+		if (getTestDir().toFile().exists()) {
+			FileUtils.forceDelete(getTestDir().toFile());
+		}
+	}
 
-    /**
-     * Applies the <code>Recipe</code>s matching the given names.
-     */
-    protected void applyRecipe(String... recipeNames) {
-        for (String recipeName : recipeNames) {
-            applyShellCommand.apply(recipeName);
-        }
-    }
+	protected void writeJavaFile(String code) {
+		try {
+			Pattern packagePattern = Pattern.compile("package ([\\w\\d\\.]*);");
+			Pattern classPattern = Pattern.compile("(class|interface|enum)\\s([\\w]+).*");
+			Matcher packageMatcher = packagePattern.matcher(code);
+			Matcher classMatcher = classPattern.matcher(code);
 
-    protected void scanProject() {
-        try {
-            output = scanShellCommand.scan(getTestDir().toRealPath().toString());
-            System.out.println(output);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+			if (!packageMatcher.find())
+				throw new RuntimeException("Could not extract package from code.");
+			String packageName = packageMatcher.group(1);
 
-    /**
-     * Execute a list of Maven goals in directory.
-     *
-     * @param executionDir to run the 'mvn' command from
-     * @param goals        to run in given order
-     */
-    protected void executeMavenGoals(Path executionDir, String... goals) {
-        try {
-            Invoker invoker = new DefaultInvoker();
-            InvocationRequest request = new DefaultInvocationRequest();
-            request.setInputStream(InputStream.nullInputStream());
-            File pomXml = executionDir.resolve("pom.xml").toFile();
-            request.setPomFile(pomXml);
-            request.setGoals(List.of(goals));
-            InvocationResult invocationResult = invoker.execute(request);
-            CommandLineException executionException = invocationResult.getExecutionException();
-            int exitCode = invocationResult.getExitCode();
-            if (executionException != null) {
-                Assert.fail("Maven build 'mvn " + Arrays.asList(goals).stream().collect(Collectors.joining(" ")) + "' failed with Exception: " + executionException.getMessage());
-            }
-            if (exitCode == 1) {
-                Assert.fail("Maven build 'mvn " + Arrays.asList(goals).stream().collect(Collectors.joining(" ")) + "' failed with exitCode: " + exitCode);
-            }
-        } catch (MavenInvocationException e) {
-            throw new RuntimeException(e);
-        }
-    }
+			if (!classMatcher.find())
+				throw new RuntimeException("Could not extract classname from code.");
+			String className = classMatcher.group(2);
+			Path classPath = testDir.resolve("src/main/java").resolve(packageName.replace(".", "/"));
 
-    /**
-     *
-     */
-    protected Path writeFile(String content, String fileName) {
-        try {
-            return Files.writeString(getTestDir().resolve(fileName), content);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+			FileUtils.forceMkdir(classPath.toFile());
 
-    @AfterEach
-    public void afterEach() throws IOException {
-        clearTestDir();
-    }
+			Path classFile = classPath.resolve(className + ".java");
+			classFile.toFile().createNewFile();
+			Files.writeString(classFile, code);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-    private void clearTestDir() throws IOException {
-        if (getTestDir().toFile().exists()) {
-            FileUtils.forceDelete(getTestDir().toFile());
-        }
-    }
+	protected void replaceInFile(Path file, String search, String replace) {
+		try {
+			String content = new ResourceHelper(new DefaultResourceLoader())
+					.getResourceAsString(new FileSystemResource(file.toString()));
+			String replaced = content.replace(search, replace);
+			Files.writeString(file, replaced);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    protected void writeJavaFile(String code) {
-        try {
-            Pattern packagePattern = Pattern.compile(
-                    "package ([\\w\\d\\.]*);"
-            );
-            Pattern classPattern = Pattern.compile(
-                    "(class|interface|enum)\\s([\\w]+).*"
-            );
-            Matcher packageMatcher = packagePattern.matcher(code);
-            Matcher classMatcher = classPattern.matcher(code);
+	protected void replaceFile(Path target, Path source) {
+		try {
+			Files.move(source, target, REPLACE_EXISTING);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-            if (!packageMatcher.find()) throw new RuntimeException("Could not extract package from code.");
-            String packageName = packageMatcher.group(1);
+	protected String loadJavaFile(String packageName, String className) {
+		try {
+			Path classPath = testDir.resolve("src/main/java").resolve(packageName.replace(".", "/"));
+			Path classFile = classPath.resolve(className + ".java");
+			return Files.readString(classFile);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-            if (!classMatcher.find()) throw new RuntimeException("Could not extract classname from code.");
-            String className = classMatcher.group(2);
-            Path classPath = testDir.resolve("src/main/java").resolve(packageName.replace(".", "/"));
+	protected int startDockerContainer(String image, Integer... ports) {
+		GenericContainer genericContainer = new GenericContainer(DockerImageName.parse(image)).withExposedPorts(ports);
+		genericContainer.start();
+		return genericContainer.getFirstMappedPort();
+	}
 
-            FileUtils.forceMkdir(classPath.toFile());
+	protected RunningNetworkedContainer startDockerContainer(NetworkedContainer networkedContainer,
+			Network attachNetwork, Map<String, String> envMap) {
 
-            Path classFile = classPath.resolve(className + ".java");
-            classFile.toFile().createNewFile();
-            Files.writeString(classFile, code);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+		Network network = attachNetwork == null ? Network.newNetwork() : attachNetwork;
 
-    protected void replaceInFile(Path file, String search, String replace) {
-        try {
-            String content = new ResourceHelper(new DefaultResourceLoader()).getResourceAsString(new FileSystemResource(file.toString()));
-            String replaced = content.replace(search, replace);
-            Files.writeString(file, replaced);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		GenericContainer genericContainer = new GenericContainer(networkedContainer.image)
+				.withExposedPorts(networkedContainer.exposedPorts.toArray(new Integer[0])).withNetwork(network)
+				.withNetworkMode("host").withNetworkAliases(networkedContainer.networkAlias).withEnv(envMap);
+		genericContainer.start();
 
-    protected void replaceFile(Path target, Path source) {
-        try {
-            Files.move(source, target, REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		return new RunningNetworkedContainer(network, genericContainer);
+	}
 
-    protected String loadJavaFile(String packageName, String className) {
-        try {
-            Path classPath = testDir.resolve("src/main/java").resolve(packageName.replace(".", "/"));
-            Path classFile = classPath.resolve(className + ".java");
-            return Files.readString(classFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	protected String loadFile(Path of) {
+		try {
+			return Files.readString(getTestDir().resolve(of));
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    protected int startDockerContainer(String image, Integer... ports) {
-        GenericContainer genericContainer = new GenericContainer(DockerImageName.parse(image))
-                .withExposedPorts(ports);
-        genericContainer.start();
-        return genericContainer.getFirstMappedPort();
-    }
+	@Getter
+	@AllArgsConstructor
+	public static class NetworkedContainer {
 
-    @Getter
-    @AllArgsConstructor
-    public static class NetworkedContainer {
-        private String image;
-        private List<Integer> exposedPorts;
-        private String networkAlias;
-    }
+		private String image;
 
-    @Getter
-    @AllArgsConstructor
-    public static class RunningNetworkedContainer {
-        private Network network;
-        private GenericContainer container;
-    }
+		private List<Integer> exposedPorts;
 
-    protected RunningNetworkedContainer startDockerContainer(NetworkedContainer networkedContainer, Network attachNetwork, Map<String, String> envMap) {
+		private String networkAlias;
 
-        Network network = attachNetwork == null ? Network.newNetwork() : attachNetwork;
+	}
 
-        GenericContainer genericContainer = new GenericContainer(networkedContainer.image)
-                .withExposedPorts(networkedContainer.exposedPorts.toArray(new Integer[0]))
-                .withNetwork(network)
-                .withNetworkMode("host")
-                .withNetworkAliases(networkedContainer.networkAlias)
-                .withEnv(envMap);
-        genericContainer.start();
+	@Getter
+	@AllArgsConstructor
+	public static class RunningNetworkedContainer {
 
-        return new RunningNetworkedContainer(network, genericContainer);
-    }
+		private Network network;
 
-    protected String loadFile(Path of) {
-        try {
-            return Files.readString(getTestDir().resolve(of));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		private GenericContainer container;
+
+	}
+
 }
