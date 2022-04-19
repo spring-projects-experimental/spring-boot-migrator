@@ -27,8 +27,8 @@ import java.util.List;
 @Component
 class JavaSourceDirExistsPreconditionCheck extends PreconditionCheck {
 
+	private static final String JAVA_SRC_DIR = "src/main/java";
 	private static final String PATTERN = "/**/src/main/java/**";
-	private final String JAVA_SRC_DIR = "src/main/java";
 	private final PathMatcher pathMatcher = new OsAgnosticPathMatcher();
 	private final LinuxWindowsPathUnifier pathUnifier = new LinuxWindowsPathUnifier();
 
