@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.common.util;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.util.PathMatcher;
@@ -23,7 +26,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OsAgnosticPathMatcherTest {
 
-    private PathMatcher sut = new OsAgnosticPathMatcher();
+    private final PathMatcher sut = new OsAgnosticPathMatcher();
+    private String originalOsName;
+
+    @BeforeEach
+    void beforeEach() {
+        originalOsName = System.getProperty("os.name");
+    }
+
+    @AfterEach
+    void afterEach() {
+        originalOsName = System.setProperty("os.name", originalOsName);
+    }
 
     @CsvSource({
         "Win, **/*Foo.txt, my\\win\\path\\SomeFoo.txt, true",
