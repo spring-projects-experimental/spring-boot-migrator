@@ -17,6 +17,7 @@ package org.springframework.sbm.mule.actions.javadsl.translators.core;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.mulesoft.schema.mule.core.SelectiveOutboundRouterType;
+import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.ChoiceTopLevelElement;
@@ -59,16 +60,23 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                         translatorsMap)))
                 .collect(Collectors.toList());
 
-        ChoiceTopLevelElement otherWiseStatement = new ChoiceTopLevelElement(
-                flowName,
-                component.getOtherwise().getMessageProcessorOrOutboundEndpoint(),
-                muleConfigurations,
-                translatorsMap);
+        String otherwiseSubflowMappings = "";
 
-        String otherwiseSubflowMappings = defaultSubflowMapping.replace(
-                "$OTHERWISE_STATEMENTS",
-                otherWiseStatement.renderDslSnippet()
-        );
+        if (component.getOtherwise() != null) {
+            ChoiceTopLevelElement otherWiseStatement = new ChoiceTopLevelElement(
+                    flowName,
+                    component.getOtherwise().getMessageProcessorOrOutboundEndpoint(),
+                    muleConfigurations,
+                    translatorsMap);
+
+            otherwiseSubflowMappings = defaultSubflowMapping.replace(
+                    "$OTHERWISE_STATEMENTS",
+                    otherWiseStatement.renderDslSnippet()
+            );
+
+            otherwiseSubflowMappings = "                                .resolutionRequired(false)\n" +
+                    otherwiseSubflowMappings;
+        }
 
         String whenSubflowMappings = whenStatements
                 .stream()
@@ -85,24 +93,31 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
+        requiredImports.add("org.springframework.util.LinkedMultiValueMap");
+
+        Set<Bean> requiredBeans = whenStatements.stream()
+                .map(item -> item.getValue().getDslSnippets())
+                .flatMap(Collection::stream)
+                .map(DslSnippet::getBeans)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
         Set<String> requiredDependencies = whenStatements.stream()
                 .map(item -> item.getValue().getRequiredDependencies())
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
         return new DslSnippet(
-                "/*\n" +
-                        "                * TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
+                "/* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
                         "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
                         "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
                         "                        m -> m\n" +
                                                         whenSubflowMappings +
-                        "                                .resolutionRequired(false)\n" +
                         otherwiseSubflowMappings +
                         "                )",
                 requiredImports,
                 requiredDependencies,
-                Collections.emptySet()
+                requiredBeans
         );
     }
 }
