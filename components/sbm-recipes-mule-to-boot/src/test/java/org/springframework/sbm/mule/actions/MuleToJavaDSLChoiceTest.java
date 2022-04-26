@@ -248,14 +248,55 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
     }
 
     @Test
-    @Disabled
-    public void choiceInsideAChoiceInsideAChoiceInsideAChoiceChoice() {
+    public void nestedChoiceDoesNotError() {
 
-    }
+        String xmlNestedChoice = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "\n" +
+                "<mule xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns:tracking=\"http://www.mulesoft.org/schema/mule/ee/tracking\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
+                "    xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "    xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd\">\n" +
+                "    <flow name=\"choicechoiceFlow\">\n" +
+                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/chchoiceoice\" doc:name=\"HTTP\"/>\n" +
+                "        <expression-filter expression=\"#[message.inboundProperties.'http.request.uri' != '/favicon.ico']\" doc:name=\"Expression\"/>\n" +
+                "        <set-variable variableName=\"language\" value=\"#[message.inboundProperties.'http.query.params'.language]\" doc:name=\"Set Language Variable\"/>\n" +
+                "        <set-variable variableName=\"sayHello\" value=\"#[message.inboundProperties.'http.query.params'.sayHello]\" doc:name=\"Set  Variable\"/>\n" +
+                "        \n" +
+                "        <choice doc:name=\"Choice\">\n" +
+                "            <when expression=\"#[flowVars.language == 'Spanish']\">\n" +
+                "                <logger message=\"#[payload] jkhjkhx\" level=\"INFO\" doc:name=\"Logger\"/>\n" +
+                "                \n" +
+                "                <choice>\n" +
+                "                    <when expression=\"#[flowVars.sayHello == 'true']\">\n" +
+                "                        <set-payload value=\"Hola!\"/>\n" +
+                "                    </when>\n" +
+                "                    <otherwise>\n" +
+                "                        <set-payload value=\"Adiós\"/>\n" +
+                "                    </otherwise>\n" +
+                "                </choice>\n" +
+                "            </when>\n" +
+                "            <when expression=\"#[flowVars.language == 'French']\">\n" +
+                "                <choice>\n" +
+                "                    <when expression=\"#[flowVars.sayHello == 'true']\">\n" +
+                "                        <set-payload doc:name=\"Reply in French\" value=\"Bonjour!\"/>\n" +
+                "                    </when>\n" +
+                "                    <otherwise>\n" +
+                "                        <set-payload doc:name=\"Reply in French\" value=\"Au revoir\"/>\n" +
+                "                    </otherwise>\n" +
+                "                </choice>\n" +
+                "            </when>\n" +
+                "            <otherwise>\n" +
+                "                <set-variable variableName=\"langugae\" value=\"English\" doc:name=\"Set Language to English\"/>\n" +
+                "                <set-payload doc:name=\"Reply in English\" value=\"Hello\"/>\n" +
+                "            </otherwise>\n" +
+                "        </choice>\n" +
+                "    </flow>\n" +
+                "</mule>";
 
-    @Test
-    @Disabled
-    public void choiceComponentUsesSpringBeansExampleAMQP() {
-
+        addXMLFileToResource(xmlNestedChoice);
+        runAction();
     }
 }
