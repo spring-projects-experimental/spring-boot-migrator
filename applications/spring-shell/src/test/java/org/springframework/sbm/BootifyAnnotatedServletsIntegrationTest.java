@@ -110,7 +110,7 @@ public class BootifyAnnotatedServletsIntegrationTest extends IntegrationTestBase
 
         executeMavenGoals(getTestDir(), "package", "spring-boot:build-image");
 
-        int port = startDockerContainer("jboss-sample:1.0.0", 8080);
+        Integer port = startDockerContainer("jboss-sample:1.0.0", "/HelloWorld", 8080);
 
         TestRestTemplate testRestTemplate = new TestRestTemplate();
         String response = testRestTemplate.getForObject("http://localhost:" + port + "/HelloWorld", String.class);

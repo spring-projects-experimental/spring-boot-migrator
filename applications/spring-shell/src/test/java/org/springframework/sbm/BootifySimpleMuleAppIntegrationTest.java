@@ -26,7 +26,9 @@ import org.springframework.sbm.mule.amqp.RabbitMqListener;
 import org.springframework.sbm.mule.wmq.WmqListener;
 import org.springframework.sbm.mule.wmq.WmqSender;
 import org.springframework.web.client.RestTemplate;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.utility.DockerImageName;
 
 import javax.jms.JMSException;
 import java.io.IOException;
@@ -66,6 +68,13 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
 
         executeMavenGoals(getTestDir(), "clean", "package", "spring-boot:build-image");
 
+        GenericContainer rabbitMqContainer = new GenericContainer(DockerImageName.parse("rabbitmq:3-management"))
+                .withNetwork(Network.newNetwork())
+                .withNetworkAliases("amqphost")
+                .withExposedPorts(5672, 15672);
+        rabbitMqContainer.start();
+        int amqpPort = rabbitMqContainer.getMappedPort(5672);
+/*
         RunningNetworkedContainer rabbitMqContainer = startDockerContainer(
                 new NetworkedContainer(
                         "rabbitmq:3-management",
@@ -74,15 +83,27 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
                 null,
                 Collections.emptyMap());
         int amqpPort = rabbitMqContainer.getContainer().getMappedPort(5672);
-        Channel ampqChannel = new RabbitMqChannelBuilder().initializeChannelAndQueues(amqpPort);
 
-        RunningNetworkedContainer container = startDockerContainer(
+ */
+        Channel ampqChannel = new RabbitMqChannelBuilder().initializeChannelAndQueues(amqpPort);
+/*
+        GenericContainer migratedMuleContainer = new GenericContainer(DockerImageName.parse("hellomule-migrated:1.0-SNAPSHOT"))
+                .withExposedPorts(9081)
+                .withNetwork(rabbitMqContainer.getNetwork())
+                .withNetworkMode("host")
+                .withNetworkAliases("spring");
+        migratedMuleContainer.start();
+*/
+        RunningNetworkedContainer migratedMuleContainer = startDockerContainer(
                 new NetworkedContainer("hellomule-migrated:1.0-SNAPSHOT", List.of(9081), "spring"),
                 rabbitMqContainer.getNetwork(),
                 Collections.emptyMap());
-
-        checkSendHttpMessage(container.getContainer().getMappedPort(9081));
-        checkInboundGatewayHttpMessage(container.getContainer().getMappedPort(9081));
+/*
+        startDockerContainer(new GenericContainer(DockerImageName.parse("hellomule-migrated:1.0-SNAPSHOT"))
+                .withNetwork(rabbitMqContainer.getNetwork()).withExposedPorts())
+*/
+        checkSendHttpMessage(migratedMuleContainer.getContainer().getMappedPort(9081));
+        checkInboundGatewayHttpMessage(migratedMuleContainer.getContainer().getMappedPort(9081));
         checkRabbitMqIntegration(ampqChannel);
         checkWmqIntegration(rabbitMqContainer.getNetwork());
     }
