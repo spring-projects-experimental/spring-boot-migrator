@@ -37,12 +37,13 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
     }
 
     private final static String subflowTemplate =
-                    "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to $TRANSLATE_EXPRESSION*/,\n" +
+            "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to $TRANSLATE_EXPRESSION*/,\n" +
                     "                                       $SUBFLOW_CONTENT\n" +
                     "                                )\n";
 
     private final static String defaultSubflowMapping =
             "                                .defaultSubFlowMapping($OTHERWISE_STATEMENTS)\n";
+
     @Override
     public DslSnippet translate(SelectiveOutboundRouterType component,
                                 QName name,
@@ -83,7 +84,7 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                 .map(item ->
                         subflowTemplate
                                 .replace("$TRANSLATE_EXPRESSION", item.getLeft())
-                                .replace("$SUBFLOW_CONTENT",  item.getValue().renderDslSnippet())
+                                .replace("$SUBFLOW_CONTENT", item.getValue().renderDslSnippet())
                 )
                 .collect(Collectors.joining());
 
@@ -112,7 +113,7 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                         "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
                         "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
                         "                        m -> m\n" +
-                                                        whenSubflowMappings +
+                        whenSubflowMappings +
                         otherwiseSubflowMappings +
                         "                )",
                 requiredImports,
