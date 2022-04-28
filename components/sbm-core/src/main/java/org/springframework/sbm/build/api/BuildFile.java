@@ -25,7 +25,7 @@ import java.util.Set;
 
 public interface BuildFile extends ProjectResource {
 
-    List<Dependency> getDeclaredDependencies();
+    List<Dependency> getDeclaredDependencies(Scope... scopes);
 
     /**
      * Returns any available dependency (declared or transitive) with given scope.

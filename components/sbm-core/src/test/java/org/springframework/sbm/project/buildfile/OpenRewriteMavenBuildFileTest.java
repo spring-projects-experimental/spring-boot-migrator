@@ -396,8 +396,8 @@ public class OpenRewriteMavenBuildFileTest {
 
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                         + "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n"
-                        + "  xmlns=\"http://maven.apache.org/POM/4.0.0\"\n"
-                        + "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+                        + "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n"
+                        + "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
                         + "  <modelVersion>4.0.0</modelVersion>\n"
                         + "  <groupId>org.springframework.sbm</groupId>\n"
                         + "  <artifactId>dummy-test-artifact</artifactId>\n"
@@ -486,8 +486,7 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
-    @Disabled("#7")
-    void testGetDependencies() {
+    void testGetDeclaredDependencies() {
         String pomSource =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -528,7 +527,7 @@ public class OpenRewriteMavenBuildFileTest {
                         "            <groupId>org.apache.tomee</groupId>\n" +
                         "            <artifactId>openejb-core-hibernate</artifactId>\n" +
                         "            <version>8.0.5</version>\n" +
-//                        "            <type>pom</type>\n" + // FIXME: #7
+                        "            <type>pom</type>\n" +
                         "        </dependency>\n" +
                         "    </dependencies>\n" +
                         "</project>\n";

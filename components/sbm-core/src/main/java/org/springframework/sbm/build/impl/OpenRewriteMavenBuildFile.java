@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.impl;
 
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.*;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
@@ -47,6 +48,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     private final ApplicationEventPublisher eventPublisher;
 
+
+    // TODO: #7 clarify if RefreshPomModel is still required?
     // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
     public static class RefreshPomModel extends Recipe {
 
@@ -154,34 +157,29 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .anyMatch(d -> d.equals(dependency));
     }
 
-    public List<Dependency> getDeclaredDependencies() {
-        Optional<Xml.Tag> dependenciesTag = getSourceFile()
-                .getRoot()
-                .getChild("dependencies");
-        if(dependenciesTag.isPresent()) {
-            Xml.Tag dependencies = dependenciesTag.get();
-            return dependencies.getChildren()
-                    .stream()
-                    .map(t ->
-                            {
-                                Dependency.DependencyBuilder dependencyBuilder = Dependency.builder()
-                                        .groupId(t.getChildren("groupId").get(0).getValue().get())
-                                        .artifactId(t.getChildren("artifactId").get(0).getValue().get());
-                                if(t.getChild("version").isPresent()) {
-                                    dependencyBuilder.version(t.getChild("version").get().getValue().get());
-                                }
-                                if(t.getChild("type").isPresent()) {
-                                    dependencyBuilder.type(t.getChild("type").get().getValue().get());
-                                }
-                                if(t.getChild("scope").isPresent()) {
-                                    dependencyBuilder.scope(t.getChild("scope").get().getValue().get());
-                                }
-                                return dependencyBuilder.build();
-                            }
-                    ).collect(Collectors.toList());
-        } else {
-            return new ArrayList<>();
-        }
+    /*
+    * TODO: write tests:
+    * - with all scopes
+    * - Managed versions with type and classifier given
+    * - exclusions
+    * - type
+    * */
+    @Override
+    public List<Dependency> getDeclaredDependencies(Scope... scopes) {
+        // returns dependencies as declared in xml
+        List<org.openrewrite.maven.tree.Dependency> requestedDependencies = getPom().getPom().getRequestedDependencies();
+        List<Dependency> declaredDependenciesWithEffectiveVersions = requestedDependencies.stream()
+                .filter(d -> {
+                    if(scopes.length == 0) {
+                        return true;
+                    } else {
+                        // FIXME: scope test should also return compile!
+                        return Arrays.asList(scopes).stream().anyMatch(scope -> scope.toString().equals(d.getScope()));
+                    }
+                })
+                .map(d -> mapDependency(d))
+                .collect(Collectors.toList());
+        return declaredDependenciesWithEffectiveVersions;
     }
 
     /**
@@ -231,6 +229,47 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public void addToDependencyManagement(Dependency dependency) {
         addToDependencyManagementInner(dependency);
         eventPublisher.publishEvent(new DependenciesChangedEvent(getResolvedDependenciesPaths()));
+    }
+
+    private org.springframework.sbm.build.api.Dependency mapDependency(org.openrewrite.maven.tree.Dependency d) {
+        Dependency.DependencyBuilder dependencyBuilder = Dependency.builder()
+                .groupId(d.getGroupId())
+                .artifactId(d.getArtifactId())
+                .version(calculateVersion(d))
+                .scope(calculateScope(d))
+                .type(d.getType());
+        if(d.getExclusions() != null && ! d.getExclusions().isEmpty()) {
+            dependencyBuilder.exclusions(d.getExclusions().stream()
+                    .map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build())
+                    .collect(Collectors.toList()));
+        }
+        return dependencyBuilder.build();
+    }
+
+    private String calculateScope(org.openrewrite.maven.tree.Dependency d) {
+        String scope = null;
+        if(d.getScope() != null) {
+            scope = d.getScope();
+        } else {
+            Scope managedScope = getPom().getPom().getManagedScope(d.getGroupId(), d.getArtifactId(), null, null);
+            if(managedScope != null) {
+                scope = managedScope.name().toLowerCase();
+            }
+        }
+        return scope;
+    }
+
+    private String calculateVersion(org.openrewrite.maven.tree.Dependency d) {
+        String version = null;
+        if(d.getVersion() != null) {
+            version = d.getVersion();
+        } else {
+            String managedVersion = getPom().getPom().getManagedVersion(d.getGroupId(), d.getArtifactId(), null, null);
+            if(managedVersion != null) {
+                version = managedVersion;
+            }
+        }
+        return version;
     }
 
     private org.springframework.sbm.build.api.Dependency mapDependency(Scope scope, ResolvedDependency d) {
