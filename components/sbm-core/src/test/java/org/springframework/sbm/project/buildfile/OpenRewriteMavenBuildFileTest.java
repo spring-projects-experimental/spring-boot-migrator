@@ -683,7 +683,7 @@ public class OpenRewriteMavenBuildFileTest {
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .withProjectRoot(fakedProjectPath)
                 .withMavenRootBuildFileSource(givenPomXml)
-                // FIXME: onlyIfUsed temporary deactivated by sing AlwaysAddDependency
+                // FIXME: onlyIfUsed temporary deactivated by using AlwaysAddDependency
                 .withJavaSources(
                         "import java.lang.String;\n" +
                                 "class Foo {\n" +

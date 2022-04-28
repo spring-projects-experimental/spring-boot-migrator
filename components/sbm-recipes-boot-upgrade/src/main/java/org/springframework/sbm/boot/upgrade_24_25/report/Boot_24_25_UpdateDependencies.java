@@ -35,8 +35,8 @@ public class Boot_24_25_UpdateDependencies implements UpgradeSectionBuilder {
     @Override
     public Section build(ProjectContext projectContext) {
         OpenRewriteMavenBuildFile buildFile = (OpenRewriteMavenBuildFile) projectContext.getBuildFile();
-        String version = buildFile.getPom().getMavenModel().getPom().getParent().getVersion();
-        Path pathToPom = buildFile.getPom().getSourcePath().normalize();
+        String version = buildFile.getPom().getPom().getVersion();
+        Path pathToPom = buildFile.getPom().getPom().getRequested().getSourcePath().normalize();
 
         return RelevantChangeSection.builder()
                 .title("Update dependencies")

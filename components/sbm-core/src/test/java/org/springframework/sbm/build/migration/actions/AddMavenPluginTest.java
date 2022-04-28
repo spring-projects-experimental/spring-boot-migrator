@@ -62,7 +62,7 @@ class AddMavenPluginTest {
 
         String expected =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
+                        "        xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>some.group.id</groupId>\n" +
                         "    <artifactId>with-artifact</artifactId>\n" +

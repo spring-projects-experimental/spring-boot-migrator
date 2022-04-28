@@ -92,7 +92,7 @@ public class MavenParserTest {
 						"            <groupId>org.apache.tomee</groupId>\n" +
 						"            <artifactId>openejb-core-hibernate</artifactId>\n" +
 						"            <version>8.0.5</version>\n" +
-//						"            <type>pom</type>\n" + // FIXME:
+						"            <type>pom</type>\n" +
 						"        </dependency>\n" +
 						"    </dependencies>\n" +
 						"</project>";
@@ -107,7 +107,7 @@ public class MavenParserTest {
 		MavenPomDownloader mavenPomDownloader = new MavenPomDownloader(projectPoms, ctx);
 		List<ResolvedDependency> resolvedDependencies = r.getDependencies().get(Scope.Compile);
 		assertThat(r.getDependencies()).hasSize(4);
-		assertThat(resolvedDependencies).hasSize(78);
+		assertThat(resolvedDependencies).hasSize(81);
 	}
 
 }

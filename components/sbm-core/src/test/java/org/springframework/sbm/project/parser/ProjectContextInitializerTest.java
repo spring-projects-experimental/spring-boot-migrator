@@ -326,11 +326,11 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
     }
 
-<<<<<<< HEAD
     private void verifyIgnored(List<RewriteSourceFileHolder<? extends SourceFile>> projectResources, String s) {
         assertThat(Path.of(s).toFile()).exists();
         assertThat(projectResources.stream().noneMatch(r -> s.equals(r.getAbsolutePath().toString()))).isTrue();
-=======
+    }
+
     @NotNull
     private Map<? extends Scope, ? extends List<ResolvedDependency>> noDependencies() {
         return Map.of(
@@ -339,6 +339,5 @@ class ProjectContextInitializerTest {
             Scope.Test, List.of(),
             Scope.Runtime, List.of()
         );
->>>>>>> 255aeca (wip)
     }
 }

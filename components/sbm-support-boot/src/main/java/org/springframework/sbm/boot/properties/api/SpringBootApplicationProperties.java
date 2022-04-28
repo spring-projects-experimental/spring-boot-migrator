@@ -23,6 +23,7 @@ import org.openrewrite.Tree;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.properties.tree.Properties.File;
 
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class SpringBootApplicationProperties extends PropertiesSource {
     }
 
     public static SpringBootApplicationProperties newApplicationProperties(Path absoluteProjectDir, Path path) {
-        File file = new File(Tree.randomId(), "", Markers.EMPTY, path, List.of(), "");
+        File file = new File(Tree.randomId(), "", Markers.EMPTY, path, List.of(), "", null, false);
         SpringBootApplicationProperties springBootApplicationProperties = new SpringBootApplicationProperties(absoluteProjectDir, file);
         springBootApplicationProperties.markChanged();
         return springBootApplicationProperties;
