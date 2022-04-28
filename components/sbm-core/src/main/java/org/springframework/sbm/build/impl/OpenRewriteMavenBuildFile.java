@@ -141,9 +141,6 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         eventPublisher.publishEvent(new DependenciesChangedEvent(getResolvedDependenciesPaths()));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean hasDeclaredDependencyMatchingRegex(String... regex) {
         return getDeclaredDependencies().stream()
@@ -158,12 +155,64 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     /*
-    * TODO: write tests:
-    * - with all scopes
-    * - Managed versions with type and classifier given
-    * - exclusions
-    * - type
-    * */
+     * TODO: write tests:
+     * - with all scopes
+     * - Managed versions with type and classifier given
+     * - exclusions
+     * - type
+     */
+
+    /**
+     * == Asciidoc
+     *
+     * Retrieve dependencies declared in buildfile with version and scope from dependency management if not explicitly declared.
+     *
+     * Given this pom.xml and a call without any given `scope` parameter
+     *
+     * [source,xml]
+     * ----
+     * <dependencyManagement>
+     *         <dependencies>
+     *            <dependency>
+     *                 <groupId>org.junit.jupiter</groupId>
+     *                 <artifactId>junit-jupiter</artifactId>
+     *                 <version>5.7.1</version>
+     *                 <scope>test</scope>
+     *             </dependency>
+     *         </dependencies>
+     *     </dependencyManagement>
+     *     <dependencies>
+     *         <dependency>
+     *             <groupId>org.junit.jupiter</groupId>
+     *             <artifactId>junit-jupiter</artifactId>
+     *         </dependency>
+     *     </dependencies>
+     * ----
+     *
+     * a dependency `org.junit.jupiter:junit-jupiter:5.7.1` with scope `test` will be returned.
+     *
+     * [source, xml]
+     * ----
+     * <dependencyManagement>
+     *         <dependencies>
+     *            <dependency>
+     *                 <groupId>org.junit.jupiter</groupId>
+     *                 <artifactId>junit-jupiter</artifactId>
+     *                 <version>5.7.1</version>
+     *                 <scope>test</scope>
+     *             </dependency>
+     *         </dependencies>
+     *     </dependencyManagement>
+     *     <dependencies>
+     *         <dependency>
+     *             <groupId>org.junit.jupiter</groupId>
+     *             <artifactId>junit-jupiter</artifactId>
+     *             <scope>compile</scope>
+     *             <version>5.6.3</version>
+     *         </dependency>
+     *     </dependencies>
+     * ----
+     */
     @Override
     public List<Dependency> getDeclaredDependencies(Scope... scopes) {
         // returns dependencies as declared in xml
