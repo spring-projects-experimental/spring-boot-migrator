@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.verification.VerificationMode;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
@@ -89,7 +91,7 @@ public class OpenRewriteMavenBuildFileTest {
 
     @Test
     @Tag("integration")
-//    @Disabled("#7: currently fails because of the type pom dependency.")
+    @Disabled("#7")
     void testResolvedDependenciesWithPomTypeDependency() {
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
@@ -117,7 +119,7 @@ public class OpenRewriteMavenBuildFileTest {
                         "            <groupId>org.apache.tomee</groupId>\n" +
                         "            <artifactId>openejb-core-hibernate</artifactId>\n" +
                         "            <version>8.0.5</version>\n" +
-//                        "            <type>pom</type>\n" + // FIXME: #7
+                        "            <type>pom</type>\n" +
                         "        </dependency>\n" +
                         "    </dependencies>\n" +
                         "</project>";
@@ -127,11 +129,17 @@ public class OpenRewriteMavenBuildFileTest {
                 .build()
                 .getBuildFile();
 
+        // TODO: #7 remove logging
+        sut.getResolvedDependenciesPaths().stream()
+                .sorted()
+                .forEach(System.out::println);
+
         List<String> actualPaths = sut.getResolvedDependenciesPaths().stream()
                 .map(dp -> dp.toString().substring(dp.toString().lastIndexOf("repository/") + "repository/".length())) // strip of path to Maven repository
                 .collect(Collectors.toList());
 
-        assertThat(actualPaths).containsExactlyInAnyOrder(
+
+        assertThat(actualPaths.stream().sorted()).containsExactlyInAnyOrder(
                 "org/apache/tomee/mbean-annotation-api/8.0.5/mbean-annotation-api-8.0.5.jar",
 				"org/apache/tomee/openejb-jpa-integration/8.0.5/openejb-jpa-integration-8.0.5.jar",
 				"org/apache/tomee/javaee-api/8.0-5/javaee-api-8.0-5.jar",
@@ -166,6 +174,12 @@ public class OpenRewriteMavenBuildFileTest {
 				"org/apache/geronimo/javamail/geronimo-javamail_1.6_mail/1.0.0/geronimo-javamail_1.6_mail-1.0.0.jar",
 				"org/apache/xbean/xbean-asm7-shaded/4.14/xbean-asm7-shaded-4.14.jar",
 				"org/apache/xbean/xbean-finder-shaded/4.14/xbean-finder-shaded-4.14.jar",
+
+                "commons-net/commons-net/3.6/commons-net-3.6.jar",
+                "org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.1.1/geronimo-jms_1.1_spec-1.1.1.jar",
+                "org/apache/geronimo/specs/geronimo-j2ee-management_1.1_spec/1.0.1/geronimo-j2ee-management_1.1_spec-1.0.1.jar",
+                "stax/stax-api/1.0.1/stax-api-1.0.1.jar",
+
 				"org/apache/xbean/xbean-reflect/4.14/xbean-reflect-4.14.jar",
 				"org/apache/xbean/xbean-naming/4.14/xbean-naming-4.14.jar",
 				"org/apache/xbean/xbean-bundleutils/4.14/xbean-bundleutils-4.14.jar",
@@ -316,11 +330,26 @@ public class OpenRewriteMavenBuildFileTest {
 
         sut.addDependency(dependency);
 
+        sut.getResolvedDependenciesPaths()
+                        .stream()
+                        .sorted()
+                        .forEach(System.out::println);
+
         assertThat(sut.getDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(1);
         assertThat(sut.getDeclaredDependencies()).contains(dependency);
         ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(DependenciesChangedEvent.class);
-        verify(eventPublisher, times(46)).publishEvent(argumentCaptor.capture());
+
+        // verify that DependenciesChangedEvent was published exactly once. ArgumentCaptor not type aware.
+        // Don't know about a better way, see https://github.com/mockito/mockito/issues/565
+        verify(eventPublisher, Mockito.atLeastOnce()).publishEvent(argumentCaptor.capture());
+        List<?> allEvents = argumentCaptor.getAllValues();
+        long timesDependenciesChangedEventPublished = allEvents
+                .stream()
+                .filter(e -> DependenciesChangedEvent.class.isInstance(e))
+                .count();
+        assertThat(timesDependenciesChangedEventPublished).isEqualTo(1);
+
         assertThat(argumentCaptor.getValue().getResolvedDependencies()).hasSize(1);
         assertThat(argumentCaptor.getValue().getResolvedDependencies().get(0).toString()).endsWith("org/apiguardian/apiguardian-api/1.1.0/apiguardian-api-1.1.0.jar");
     }
