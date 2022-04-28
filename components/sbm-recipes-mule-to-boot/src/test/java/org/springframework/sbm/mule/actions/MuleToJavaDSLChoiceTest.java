@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.mule.actions;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -247,6 +248,7 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
     }
 
     @Test
+    @Disabled("Placeholder test, enable this test and add assertion when the feature is ready")
     public void nestedChoiceDoesNotError() {
 
         String xmlNestedChoice = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
