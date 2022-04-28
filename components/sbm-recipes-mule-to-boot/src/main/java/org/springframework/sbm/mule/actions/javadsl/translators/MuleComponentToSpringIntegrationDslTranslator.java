@@ -18,9 +18,10 @@ package org.springframework.sbm.mule.actions.javadsl.translators;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 
 import javax.xml.namespace.QName;
+import java.util.Map;
 
 public interface MuleComponentToSpringIntegrationDslTranslator<T> {
     Class<T> getSupportedMuleType();
 
-    DslSnippet translate(T component, QName name, MuleConfigurations muleConfigurations, String flowName);
+    DslSnippet translate(T component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap);
 }

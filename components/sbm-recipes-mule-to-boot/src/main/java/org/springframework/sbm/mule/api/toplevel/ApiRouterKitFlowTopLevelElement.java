@@ -35,7 +35,7 @@ public class ApiRouterKitFlowTopLevelElement extends AbstractTopLevelElement {
     private final String configRef;
 
     public ApiRouterKitFlowTopLevelElement(String flowName,
-                                           List<JAXBElement> elements,
+                                           List<JAXBElement<?>> elements,
                                            MuleConfigurations muleConfigurations,
                                            Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
         super(flowName, elements, muleConfigurations, translatorsMap);

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,7 +41,7 @@ public class AmqConnectorTranslator implements MuleComponentToSpringIntegrationD
     public DslSnippet translate(AmqpConnectorType component,
                                 QName name,
                                 MuleConfigurations muleConfigurations,
-                                String flowName) {
+                                String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
         return new DslSnippet("// FIXME: <amq:connector/>  cannot be translated yet.", Collections.emptySet(), Set.of(), Collections.emptySet());
     }
 }

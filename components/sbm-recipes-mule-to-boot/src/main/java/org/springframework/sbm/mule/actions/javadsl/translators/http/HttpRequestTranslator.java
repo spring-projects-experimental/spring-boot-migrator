@@ -54,7 +54,7 @@ public class HttpRequestTranslator implements MuleComponentToSpringIntegrationDs
     public DslSnippet translate(RequestType component,
                                 QName name,
                                 MuleConfigurations muleConfigurations,
-                                String flowName) {
+                                String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
 
         RequestConfigType config = getRequestConfiguration(component, muleConfigurations);
         return new DslSnippet(

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
+import java.util.Map;
 
 @Component
 public class SetPropertyTranslator implements MuleComponentToSpringIntegrationDslTranslator<SetPropertyType> {
@@ -33,7 +34,7 @@ public class SetPropertyTranslator implements MuleComponentToSpringIntegrationDs
     }
 
     @Override
-    public DslSnippet translate(SetPropertyType component, QName name, MuleConfigurations muleConfigurations, String flowName) {
+    public DslSnippet translate(SetPropertyType component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
         return new DslSnippet(
                 ".enrichHeaders(h -> h.header(\"" + component.getPropertyName() + "\", \"" + component.getValue() + "\"))",
                 Collections.emptySet()

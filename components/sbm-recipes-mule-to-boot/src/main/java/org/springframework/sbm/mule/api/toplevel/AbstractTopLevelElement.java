@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractTopLevelElement implements TopLevelElement {
     private final Set<String> requiredImports = new HashSet<>();
     private String flowName;
-    private List<JAXBElement> elements;
+    private List<JAXBElement<?>> elements;
     private final Set<String> requiredDependencies = new HashSet<>();
     private final MuleConfigurations muleConfigurations;
     private List<DslSnippet> dslSnippets;
@@ -48,7 +48,7 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
 
 
     public AbstractTopLevelElement(String flowName,
-                                   List<JAXBElement> elements,
+                                   List<JAXBElement<?>> elements,
                                    MuleConfigurations muleConfigurations,
                                    Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
         this.flowName = flowName;
@@ -68,7 +68,7 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
 
     private DslSnippet translate(Object o, QName name, MuleConfigurations muleConfigurations, String flowName) {
         MuleComponentToSpringIntegrationDslTranslator translator = translatorsMap.getOrDefault(o.getClass(), new UnknownStatementTranslator());
-        return translator.translate(o, name, muleConfigurations, flowName);
+        return translator.translate(o, name, muleConfigurations, flowName, this.translatorsMap);
     }
 
 
@@ -108,9 +108,7 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
         requiredImports.add("org.springframework.integration.dsl.IntegrationFlow");
         requiredImports.add("org.springframework.integration.dsl.IntegrationFlows");
         requiredImports.add("org.springframework.integration.amqp.dsl.Amqp");
-        getDslSnippets().forEach(ds -> {
-            requiredImports.addAll(ds.getRequiredImports());
-        });
+        getDslSnippets().forEach(ds -> requiredImports.addAll(ds.getRequiredImports()));
         return sb.toString();
     }
 

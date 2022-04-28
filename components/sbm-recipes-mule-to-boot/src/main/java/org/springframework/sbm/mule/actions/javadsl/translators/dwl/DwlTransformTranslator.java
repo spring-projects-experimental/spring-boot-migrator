@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -55,7 +56,8 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
             TransformMessageType component,
             QName name,
             MuleConfigurations muleConfigurations,
-            String flowName
+            String flowName,
+            Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap
     ) {
 
         if (component.getSetPayload() != null) {

@@ -31,6 +31,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,6 +72,6 @@ class HttpListenerTranslatorTest {
 
         MuleType muleType = muleXmls.get(0).getMuleType();
         ListenerType listenerType = ((ListenerType) ((JAXBElement) ((FlowType) ((JAXBElement) muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractMessageSource()).getValue());
-        return sut.translate(listenerType, new QName(""), new MuleConfigurations(new HashMap<>()), "");
+        return sut.translate(listenerType, new QName(""), new MuleConfigurations(new HashMap<>()), "", Map.of());
     }
 }

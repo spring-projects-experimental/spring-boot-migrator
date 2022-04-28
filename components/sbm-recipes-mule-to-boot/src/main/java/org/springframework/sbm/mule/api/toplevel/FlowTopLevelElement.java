@@ -25,7 +25,7 @@ import java.util.Map;
 public class FlowTopLevelElement extends AbstractTopLevelElement {
 
     public FlowTopLevelElement(String flowName,
-                               List<JAXBElement> elements,
+                               List<JAXBElement<?>> elements,
                                MuleConfigurations muleConfigurations,
                                Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap)  {
         super(flowName, elements, muleConfigurations, translatorsMap);

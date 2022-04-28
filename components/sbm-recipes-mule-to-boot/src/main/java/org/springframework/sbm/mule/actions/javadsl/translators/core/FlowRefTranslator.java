@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -46,7 +47,7 @@ public class FlowRefTranslator implements MuleComponentToSpringIntegrationDslTra
     }
 
     @Override
-    public DslSnippet translate(FlowRef component, QName name, MuleConfigurations muleConfigurations, String flowName) {
+    public DslSnippet translate(FlowRef component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
         String subFlowName = Helper.sanitizeForBeanMethodName(translateToJavaName(component.getName()));
         String flowRefSnippet = javaDslFlowRefTemplate.replace(SUBFLOW_NAME, subFlowName);
         return new DslSnippet(flowRefSnippet,

@@ -23,6 +23,7 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -36,7 +37,7 @@ public class AmqpOutboundEndpointTranslator implements MuleComponentToSpringInte
     }
 
     @Override
-    public DslSnippet translate(OutboundEndpointType component, QName name, MuleConfigurations muleConfigurations, String flowName) {
+    public DslSnippet translate(OutboundEndpointType component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
 
 
         addExchange(snippet, component.getExchangeName());

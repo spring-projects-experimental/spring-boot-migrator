@@ -53,8 +53,8 @@ public class FlowTopLevelElementFactory implements TopLevelElementFactory {
         }
     }
 
-    private List<JAXBElement> extractFlowElements(FlowType ft) {
-        List<JAXBElement> l = new ArrayList<>();
+    private List<JAXBElement<?>> extractFlowElements(FlowType ft) {
+        List<JAXBElement<?>> l = new ArrayList<>();
         if (ft.getAbstractMessageSource() != null) {
             l.add(ft.getAbstractMessageSource());
         }

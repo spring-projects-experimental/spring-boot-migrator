@@ -47,8 +47,7 @@ public class SubflowTopLevelElementFactory implements TopLevelElementFactory {
         SubFlowType sft = ((SubFlowType) topLevelElement.getValue());
         String flowName = translateToJavaName(sft.getName());
 
-        List<JAXBElement> l = new ArrayList<>();
-        l.addAll(sft.getMessageProcessorOrOutboundEndpoint());
+        List<JAXBElement<?>> l = new ArrayList<>(sft.getMessageProcessorOrOutboundEndpoint());
 
         return new SubflowTopLevelElement(flowName, l, muleConfigurations, translatorsMap);
     }
