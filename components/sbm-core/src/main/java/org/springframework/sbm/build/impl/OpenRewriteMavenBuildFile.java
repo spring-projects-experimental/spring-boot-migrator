@@ -154,17 +154,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .anyMatch(d -> d.equals(dependency));
     }
 
-    /*
-     * TODO: write tests:
-     * - with all scopes
-     * - Managed versions with type and classifier given
-     * - exclusions
-     * - type
-     */
-
     /**
-     * == Asciidoc
-     *
      * Retrieve dependencies declared in buildfile with version and scope from dependency management if not explicitly declared.
      *
      * Given this pom.xml and a call without any given `scope` parameter
@@ -191,27 +181,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
      *
      * a dependency `org.junit.jupiter:junit-jupiter:5.7.1` with scope `test` will be returned.
      *
-     * [source, xml]
-     * ----
-     * <dependencyManagement>
-     *         <dependencies>
-     *            <dependency>
-     *                 <groupId>org.junit.jupiter</groupId>
-     *                 <artifactId>junit-jupiter</artifactId>
-     *                 <version>5.7.1</version>
-     *                 <scope>test</scope>
-     *             </dependency>
-     *         </dependencies>
-     *     </dependencyManagement>
-     *     <dependencies>
-     *         <dependency>
-     *             <groupId>org.junit.jupiter</groupId>
-     *             <artifactId>junit-jupiter</artifactId>
-     *             <scope>compile</scope>
-     *             <version>5.6.3</version>
-     *         </dependency>
-     *     </dependencies>
-     * ----
+     * TODO: tests...
+     * - with all scopes
+     * - Managed versions with type and classifier given
+     * - exclusions
+     * - type
      */
     @Override
     public List<Dependency> getDeclaredDependencies(Scope... scopes) {
