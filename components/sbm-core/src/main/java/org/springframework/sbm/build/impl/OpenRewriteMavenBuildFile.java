@@ -415,7 +415,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     private Recipe getDeleteDependencyVisitor(Dependency dependency) {
         // FIXME: Test that RemoveDependency considers scope
-        RemoveDependency v = new RemoveDependency(dependency.getGroupId(), dependency.getArtifactId(), null);
+        RemoveDependency v = new RemoveDependency(dependency.getGroupId(), dependency.getArtifactId(), dependency.getScope());
         return v;
     }
 
