@@ -442,6 +442,7 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
+    @Disabled("#7 deleted dependencies not reflected in marker, see https://rewriteoss.slack.com/archives/G01J94KRH70/p1651168478382839")
     void testDeleteDependencies() {
 
         String pomXml =
