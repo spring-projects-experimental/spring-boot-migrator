@@ -15,6 +15,8 @@
  */
 package org.springframework.sbm.boot.properties.api;
 
+import org.openrewrite.properties.PropertiesParser;
+import org.openrewrite.properties.tree.Properties;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.properties.api.PropertiesSource;
 import lombok.Getter;
@@ -44,7 +46,7 @@ public class SpringBootApplicationProperties extends PropertiesSource {
     }
 
     public static SpringBootApplicationProperties newApplicationProperties(Path absoluteProjectDir, Path path) {
-        File file = new File(Tree.randomId(), "", Markers.EMPTY, path, List.of(), "", null, false);
+        File file = new PropertiesParser().parse("").get(0).withSourcePath(path);
         SpringBootApplicationProperties springBootApplicationProperties = new SpringBootApplicationProperties(absoluteProjectDir, file);
         springBootApplicationProperties.markChanged();
         return springBootApplicationProperties;
