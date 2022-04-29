@@ -101,7 +101,6 @@ public class MavenProjectParser {
                 )
                 .collect(Collectors.toList());
 
-        // -1 sets the max to infinite as new pom files might be added to the collection during scan
         eventPublisher.publishEvent(new StartedScanningProjectResourceSetEvent("Maven", inputs.size()));
         List<Xml.Document> mavens = mavenParser.parseInputs(inputs, projectDirectory, ctx);
         eventPublisher.publishEvent(new FinishedScanningProjectResourceSetEvent());
