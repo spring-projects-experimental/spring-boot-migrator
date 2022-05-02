@@ -88,9 +88,13 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(dependenciesPaths.get(0).toFile().exists()).isTrue();
     }
 
+    /*
+    * Resolves pom type dependency and verifies the paths of all retrieved dependencies.
+    * Currently, the behaviour is related to configuration in DependencyHelper.
+    * All dependencies that do not exist in ~/.m2/repository get downloaded to ~/.rewrite/cache/artifacts.
+    */
     @Test
     @Tag("integration")
-    @Disabled("#7")
     void testResolvedDependenciesWithPomTypeDependency() {
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
@@ -133,12 +137,19 @@ public class OpenRewriteMavenBuildFileTest {
                 .sorted()
                 .forEach(System.out::println);
 
-        List<String> actualPaths = sut.getResolvedDependenciesPaths().stream()
-                .map(dp -> dp.toString().substring(dp.toString().lastIndexOf("repository/") + "repository/".length())) // strip of path to Maven repository
+        List<String> unifiedPaths = sut.getResolvedDependenciesPaths().stream()
+                .map(dp -> {
+                    String dep = dp.toString();
+                    if(dep.contains(".rewrite/cache/artifacts/")) {
+                        return dep.substring(dep.lastIndexOf(".rewrite/cache/artifacts/") + ".rewrite/cache/artifacts/".length());
+                    } else {
+                        return dep.substring(dep.lastIndexOf("repository/") + "repository/".length());
+                    }
+                }) // strip of path to Maven repository
                 .collect(Collectors.toList());
 
 
-        assertThat(actualPaths.stream().sorted()).containsExactlyInAnyOrder(
+        assertThat(unifiedPaths.stream().sorted()).containsExactlyInAnyOrder(
                 "org/apache/tomee/mbean-annotation-api/8.0.5/mbean-annotation-api-8.0.5.jar",
 				"org/apache/tomee/openejb-jpa-integration/8.0.5/openejb-jpa-integration-8.0.5.jar",
 				"org/apache/tomee/javaee-api/8.0-5/javaee-api-8.0-5.jar",
@@ -147,6 +158,7 @@ public class OpenRewriteMavenBuildFileTest {
 				"org/apache/tomee/openejb-loader/8.0.5/openejb-loader-8.0.5.jar",
 				"org/apache/tomee/openejb-javaagent/8.0.5/openejb-javaagent-8.0.5.jar",
 				"org/apache/tomee/openejb-jee/8.0.5/openejb-jee-8.0.5.jar",
+                "org/apache/tomee/openejb-core/8.0.5/openejb-core-8.0.5.jar",
 				"jakarta/xml/bind/jakarta.xml.bind-api/2.3.2/jakarta.xml.bind-api-2.3.2.jar",
 				"jakarta/activation/jakarta.activation-api/1.2.1/jakarta.activation-api-1.2.1.jar",
 				"org/apache/tomee/openejb-jee-accessors/8.0.5/openejb-jee-accessors-8.0.5.jar",
@@ -220,8 +232,6 @@ public class OpenRewriteMavenBuildFileTest {
 				"net/sf/ehcache/ehcache/2.10.3/ehcache-2.10.3.jar",
 				"org/slf4j/slf4j-jdk14/1.7.21/slf4j-jdk14-1.7.21.jar"
         );
-
-        assertThat(actualPaths).hasSize(75);
     }
 
     @Test
