@@ -1,3 +1,12 @@
+---
+name: feature
+about: Feature to be implemented
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 ### What needs to be done
 
 ### Why it needs to be done
