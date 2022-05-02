@@ -90,7 +90,7 @@ public class OpenRewriteMavenBuildFileTest {
 
     /*
     * Resolves pom type dependency and verifies the paths of all retrieved dependencies.
-    * Currently, the behaviour is related to configuration in DependencyHelper.
+    * Currently, the behaviour is related to caching configuration in DependencyHelper.
     * All dependencies that do not exist in ~/.m2/repository get downloaded to ~/.rewrite/cache/artifacts.
     */
     @Test
@@ -452,7 +452,6 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
-    @Disabled("#7 deleted dependencies not reflected in marker, see https://rewriteoss.slack.com/archives/G01J94KRH70/p1651168478382839")
     void testDeleteDependencies() {
 
         String pomXml =
@@ -578,7 +577,6 @@ public class OpenRewriteMavenBuildFileTest {
 
     @Test
     @Tag("integration")
-    @Disabled("#7 deleted dependencies not reflected in marker, see https://rewriteoss.slack.com/archives/G01J94KRH70/p1651168478382839")
     void testDeleteTypePomDependencies() {
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
@@ -621,7 +619,7 @@ public class OpenRewriteMavenBuildFileTest {
         );
 
         assertThat(sut.getDependencyManagement()).hasSize(0);
-        assertThat(sut.getDeclaredDependencies()).hasSize(0);
+        assertThat(sut.getDeclaredDependencies()).hasSize(1);
         assertThat(sut.print()).isEqualTo("<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
                 "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
                 "    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
@@ -642,7 +640,6 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
-    @Disabled("#7 deleted dependencies not reflected in marker, see https://rewriteoss.slack.com/archives/G01J94KRH70/p1651168478382839")
     void testDeleteTypePomDependenciesAll() {
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
@@ -683,7 +680,6 @@ public class OpenRewriteMavenBuildFileTest {
                         "    <groupId>foo</groupId>\n" +
                         "    <artifactId>bar</artifactId>\n" +
                         "    <version>0.0.1-SNAPSHOT</version>\n" +
-                        "    <name>foobat</name>\n" +
                         "</project>");
     }
 

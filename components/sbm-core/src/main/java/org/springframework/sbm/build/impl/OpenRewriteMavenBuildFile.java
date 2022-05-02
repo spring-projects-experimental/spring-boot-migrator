@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.build.impl;
 
-import org.jetbrains.annotations.NotNull;
 import org.openrewrite.*;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
@@ -47,7 +46,7 @@ import java.util.stream.Stream;
 public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Document> implements BuildFile {
 
     private final ApplicationEventPublisher eventPublisher;
-
+    private final RewriteMavenParser mavenParser = new RewriteMavenParser();
 
     // TODO: #7 clarify if RefreshPomModel is still required?
     // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
@@ -229,6 +228,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     @Override
     public void removeDependencies(List<Dependency> dependencies) {
         removeDependenciesInner(dependencies);
+
         eventPublisher.publishEvent(new DependenciesChangedEvent(getResolvedDependenciesPaths()));
     }
 
@@ -410,6 +410,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             Recipe r = getDeleteDependencyVisitor(dependencies.get(0));
             dependencies.stream().skip(1).forEach(d -> r.doNext(getDeleteDependencyVisitor(d)));
             apply(r);
+            apply(new RefreshPomModel());
         }
     }
 
