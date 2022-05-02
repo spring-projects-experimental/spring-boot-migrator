@@ -121,7 +121,9 @@ class ProjectContextInitializerTest {
                 .wrappedInstanceOf(Maven.class)
                 .havingMarkers(
                         mavenResolutionResult(null, "com.example:example-project-parent:1.0.0-SNAPSHOT",
-                                List.of("com.example:module1:1.0.0-SNAPSHOT", "com.example:module2:1.0.0-SNAPSHOT"),
+                                List.of(
+                                        "com.example:module1:1.0.0-SNAPSHOT",
+                                        "com.example:module2:1.0.0-SNAPSHOT"),
                                 noDependencies()
                         ),
                         buildToolMarker("Maven", "3.6"), // TODO: does this work in all env (taken from .mvn)?
@@ -136,7 +138,14 @@ class ProjectContextInitializerTest {
                 .havingMarkers(
                         mavenResolutionResult(
                                 "com.example:example-project-parent:1.0.0-SNAPSHOT",
-                                "com.example:module1:1.0.0-SNAPSHOT", List.of(), noDependencies()),
+                                "com.example:module1:1.0.0-SNAPSHOT",
+                                List.of(),
+                                Map.of(
+                                        Scope.Provided, List.of(),
+                                        Scope.Compile, List.of(),
+                                        Scope.Runtime, List.of(),
+                                        Scope.Test, List.of("org.jetbrains:annotations:23.0.0")
+                                )),
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
@@ -294,7 +303,13 @@ class ProjectContextInitializerTest {
                                 "com.example:example-project-parent:1.0.0-SNAPSHOT",
                                 "com.example:module2:1.0.0-SNAPSHOT",
                                 List.of(),
-                                noDependencies()),
+                                Map.of(
+                                        Scope.Provided, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2"),
+                                        Scope.Compile, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2"),
+                                        Scope.Runtime, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2"),
+                                        Scope.Test, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2")
+                                )
+                        ),
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
@@ -332,7 +347,7 @@ class ProjectContextInitializerTest {
     }
 
     @NotNull
-    private Map<? extends Scope, ? extends List<ResolvedDependency>> noDependencies() {
+    private Map<? extends Scope, ? extends List<String>> noDependencies() {
         return Map.of(
             Scope.Compile, List.of(),
             Scope.Provided, List.of(),

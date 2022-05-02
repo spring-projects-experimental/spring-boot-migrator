@@ -65,7 +65,7 @@ class ResourceVerifierTestHelper {
         return new BuildToolMarkerVerifier(name, version);
     }
 
-    public static MarkerVerifier mavenResolutionResult(String parentPomCoordinate, String coordinate, List<String> modules, Map<? extends Scope, ? extends List<ResolvedDependency>> dependencies) {
+    public static MarkerVerifier mavenResolutionResult(String parentPomCoordinate, String coordinate, List<String> modules, Map<? extends Scope, ? extends List<String>> dependencies) {
         return new MavenResolutionResultMarkerVerifier(parentPomCoordinate, coordinate, modules, dependencies);
     }
 
@@ -252,9 +252,9 @@ class ResourceVerifierTestHelper {
         private String parentPomCoordinate;
         private final String coordinate;
         private List<String> modules;
-        private Map<? extends Scope, ? extends List<ResolvedDependency>> dependencies;
+        private Map<? extends Scope, ? extends List<String>> dependencies;
 
-        public MavenResolutionResultMarkerVerifier(String parentPomCoordinate, String coordinate, List<String> modules, Map<? extends Scope, ? extends List<ResolvedDependency>> dependencies) {
+        public MavenResolutionResultMarkerVerifier(String parentPomCoordinate, String coordinate, List<String> modules, Map<? extends Scope, ? extends List<String>> dependencies) {
             this.parentPomCoordinate = parentPomCoordinate;
             this.coordinate = coordinate;
             this.modules = modules;
@@ -272,7 +272,16 @@ class ResourceVerifierTestHelper {
             }
 
             assertThat(mavenModel.getModules().stream().map(m -> m.getPom().getGav().toString()).collect(Collectors.toList())).containsExactlyInAnyOrder(modules.toArray(new String[]{}));
-            assertThat(mavenModel.getDependencies()).containsExactlyInAnyOrderEntriesOf(dependencies);
+            Map<Scope, List<String>> dependenciesGav = mavenModel.getDependencies().entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey(),
+                            entry -> entry.getValue().stream()
+                                    .map(resolvedDependency -> resolvedDependency.getGav().toString())
+                                    .collect(Collectors.toList())
+                            )
+                    );
+
+            assertThat(dependenciesGav).containsExactlyInAnyOrderEntriesOf(dependencies);
             assertThat(coordinate).isEqualTo(coordinate);
         }
     }
