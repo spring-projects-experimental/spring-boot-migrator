@@ -3,6 +3,7 @@
 ### Adds
 - Unmarshalling ejb-jar.xml for EJB 2.1 (#62) 
 - Demo for Mule to Boot migration (#80)
+- Bumped OpenRewrite version to 7.20.0 (#7) 
 
 ### Fixes
 - Paths and CLI rendering under Windows (#58)
