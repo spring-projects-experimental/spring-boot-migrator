@@ -1,5 +1,5 @@
 ---
-name: feature
+name: Feature
 about: Feature to be implemented
 title: ''
 labels: ''
