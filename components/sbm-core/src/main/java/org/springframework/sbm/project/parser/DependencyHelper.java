@@ -18,6 +18,7 @@ package org.springframework.sbm.project.parser;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
+import org.openrewrite.maven.cache.MavenArtifactCache;
 import org.openrewrite.maven.cache.ReadOnlyLocalMavenArtifactCache;
 import org.openrewrite.maven.internal.MavenParsingException;
 import org.openrewrite.maven.tree.*;
@@ -33,9 +34,13 @@ import java.util.stream.Collectors;
 public class DependencyHelper {
 
     public List<Path> downloadArtifacts(Consumer<Throwable> errorHandler, Set<ResolvedDependency> dependencies) {
+// TODO: #111
+//        String userDirStr = System.getProperty("user.home");
+//        Path m2Repository = Path.of(userDirStr).resolve(".m2/repository");
+//        new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository"));
         MavenArtifactDownloader artifactDownloader = new MavenArtifactDownloader(
-                ReadOnlyLocalMavenArtifactCache.mavenLocal().orElse(
-                        new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".rewrite", "cache", "artifacts"))
+                        ReadOnlyLocalMavenArtifactCache.mavenLocal().orElse(
+                            new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".rewrite", "cache", "artifacts"))
                 ),
                 null,
                 errorHandler
