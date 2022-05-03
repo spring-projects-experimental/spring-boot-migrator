@@ -94,7 +94,7 @@ public class ReplaceResponseEntityBuilder extends Recipe {
         doNext(renameMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder contentLocation(java.net.URI)"), "location", "org.springframework.http.ResponseEntity.HeadersBuilder"));
 
         // #tag(String)
-        doNext(renameMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder tag(java.lang.String)"), "etag", "org.springframework.http.ResponseEntity.HeadersBuilder"));
+        doNext(renameMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder tag(java.lang.String)"), "eTag", "org.springframework.http.ResponseEntity.HeadersBuilder"));
 
         // #entity(Object)
         // #entity(Object, Annotation[])

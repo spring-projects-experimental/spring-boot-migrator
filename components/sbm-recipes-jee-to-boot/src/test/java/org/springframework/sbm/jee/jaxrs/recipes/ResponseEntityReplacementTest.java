@@ -15,12 +15,16 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
+import org.openrewrite.java.tree.J;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.Recipe;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -96,7 +100,7 @@ public class ResponseEntityReplacementTest {
                 + "public class TestController {\n"
                 + "\n"
                 + "    public ResponseEntity respond() {\n"
-                + "       return ResponseEntity.status(200).etag(\"My Tag\").build();\n"
+                + "       return ResponseEntity.status(200).eTag(\"My Tag\").build();\n"
                 + "    }\n"
                 + "}\n"
                 + "";
@@ -144,7 +148,7 @@ public class ResponseEntityReplacementTest {
     }
 
     @Test
-    void testOnlyRetunStatementBuilder() {
+    void testOnlyReturnStatementBuilder() {
 
         String javaSource = ""
                 + "import javax.ws.rs.core.Response;\n"

@@ -80,7 +80,7 @@ public class RewriteMethodInvocation extends Recipe {
 			return m
 					.withName(m.getName().withSimpleName(newName))
 					.withSelect(m.getSelect().withType(type))
-					.withType(m.getType()); // TODO: #497 verify this still works
+					.withMethodType(m.getMethodType());
 		});
 	}
 
