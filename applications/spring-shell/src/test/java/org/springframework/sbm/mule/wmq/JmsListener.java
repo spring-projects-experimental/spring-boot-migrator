@@ -15,12 +15,12 @@
  */
 package org.springframework.sbm.mule.wmq;
 
-
 import javax.jms.*;
+import java.util.function.Consumer;
 
-public class WmqSender {
+public class JmsListener {
 
-    public void sendMessage(int port, String queueName, String messageContent) throws JMSException {
+    public void listenForMessage(int port, String queueName, final Consumer<String> messageConsumer) throws JMSException {
         WmqFactory wmqFactory = new WmqFactory();
         ConnectionFactory cf = wmqFactory.createFactory(port);
 
@@ -28,12 +28,17 @@ public class WmqSender {
         JMSContext context = cf.createContext();
         Destination destination = context.createQueue("queue:///" + queueName);
 
-        TextMessage message = context.createTextMessage(messageContent);
-
-        JMSProducer producer = context.createProducer();
-        System.out.println(" [x] Sent wmq message: '" + message.getText() + "'");
-        producer.send(destination, message);
-
-        context.close();
-    }
+        // autoclosable
+        JMSConsumer consumer = context.createConsumer(destination);
+        consumer.setMessageListener(new MessageListener() {
+            @Override
+            public void onMessage(Message message) {
+                try {
+                    messageConsumer.accept(message.getBody(String.class));
+                } catch (JMSException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    } // end main()
 }
