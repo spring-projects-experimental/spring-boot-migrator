@@ -197,7 +197,7 @@ public class SwapResponseWithResponseEntity extends Recipe {
 
         // notModified(String)
         doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response notModified(java.lang.String)"), (v, m, addImport) -> {
-            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "ResponseEntity.status(HttpStatus.NOT_MODIFIED).etag(#{any()})")
+            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(#{any()})")
                     .imports("org.springframework.http.ResponseEntity", "org.springframework.http.HttpStatus")
                     .build();
             addImport.accept("org.springframework.http.ResponseEntity");

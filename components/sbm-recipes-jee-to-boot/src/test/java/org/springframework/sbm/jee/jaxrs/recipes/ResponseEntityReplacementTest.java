@@ -30,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResponseEntityReplacementTest {
 
+    private final static String SPRING_VERSION = "5.3.13";
+
     final private AbstractAction action =
             new AbstractAction() {
                 @Override
@@ -66,7 +68,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -106,7 +111,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
