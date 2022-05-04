@@ -346,14 +346,13 @@ public class ResponseBuilderTest {
                 + "";
 
         String expected = ""
-                + "import org.springframework.http.ResponseEntity;\n"
-                + "\n"
                 + "import javax.ws.rs.core.MediaType;\n"
+                + "import org.springframework.http.ResponseEntity.BodyBuilder;\n"
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
-                + "    public ResponseEntity.BodyBuilder test() {\n"
-                + "        ResponseEntity.BodyBuilder b;\n"
+                + "    public BodyBuilder test() {\n"
+                + "        BodyBuilder b;\n"
                 + "        b.contentType(MediaType.APPLICATION_JSON_TYPE);\n"
                 + "        b.headers(h -> h.set(HttpHeaders.CONTENT_TYPE, \"application/json\"));\n"
                 + "        return b;\n"
