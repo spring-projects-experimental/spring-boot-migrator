@@ -186,6 +186,7 @@ public class ReplaceResponseEntityBuilder extends Recipe {
         doNext(renameMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder type(javax.ws.rs.core.MediaType)"), "contentType", "org.springframework.http.ResponseEntity.HeadersBuilder"));
 
         // #build()
+        // FIXME: org.springframework.http.ResponseEntity.build() does not exist. Invalid: ResponseEntity r = ResponseEntity.ok("...").build();
         doNext(new RewriteMethodInvocation(
                         RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder build()"),
                         (v, m, addImport) -> {

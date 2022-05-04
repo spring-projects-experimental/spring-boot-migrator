@@ -20,6 +20,7 @@ import org.openrewrite.Recipe;
 import org.openrewrite.Tree;
 import org.openrewrite.java.*;
 import org.openrewrite.java.tree.Expression;
+import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.MethodInvocation;
 import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
@@ -92,13 +93,17 @@ public class SwapResponseWithResponseEntity extends Recipe {
         // #ok(Object)
         doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response ok(java.lang.Object)"), (v, m, addImport) -> {
             List<Expression> args = m.getArguments();
-            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "ResponseEntity.ok()")
-                    .imports("org.springframework.http.ResponseEntity")
-                    .build();
-            addImport.accept("org.springframework.http.ResponseEntity");
-            v.maybeRemoveImport("javax.ws.rs.core.Response");
-            m = m.withTemplate(template, m.getCoordinates().replace());
-            markTopLevelInvocationWithTemplate(v, m, args.get(0).print());
+            if(J.Literal.class.isInstance(m.getArguments().get(0))) {
+                String argumentValue = ((J.Literal)m.getArguments().get(0)).getValueSource();
+                JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "ResponseEntity.ok(" + argumentValue + ")")
+                        .imports("org.springframework.http.ResponseEntity")
+                        .build();
+                addImport.accept("org.springframework.http.ResponseEntity");
+                v.maybeRemoveImport("javax.ws.rs.core.Response");
+                m = m.withTemplate(template, m.getCoordinates().replace());
+               // markTopLevelInvocationWithTemplate(v, m, args.get(0).print());
+
+            }
             return m;
         }));
 

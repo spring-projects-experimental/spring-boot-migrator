@@ -80,7 +80,7 @@ public class SwapStatusForHttpStatus extends Recipe {
         fieldsMapping.put("UNSUPPORTED_MEDIA_TYPE", "UNSUPPORTED_MEDIA_TYPE");
         fieldsMapping.put("USE_PROXY", "USE_PROXY");
 
-        doNext(new FindReplaceFieldAccessors(() -> JavaParserFactory.getCurrentJavaParser(), "javax.ws.rs.core.Response.Status", "org.springframework.http.HttpStatus", fieldsMapping));
+        doNext(new FindReplaceFieldAccessors(() -> JavaParserFactory.getCurrentJavaParser(), "javax.ws.rs.core.Response$Status", "org.springframework.http.HttpStatus", fieldsMapping));
 
 
         // Instance methods
@@ -106,8 +106,8 @@ public class SwapStatusForHttpStatus extends Recipe {
 
         // Type reference replacement
 
-        doNext(new ChangeType("javax.ws.rs.core.Response.StatusType", "org.springframework.http.HttpStatus", false));
-        doNext(new ChangeType("javax.ws.rs.core.Response.Status", "org.springframework.http.HttpStatus", false));
+        doNext(new ChangeType("javax.ws.rs.core.Response$StatusType", "org.springframework.http.HttpStatus", false));
+        doNext(new ChangeType("javax.ws.rs.core.Response$Status", "org.springframework.http.HttpStatus", false));
     }
 
     @Override

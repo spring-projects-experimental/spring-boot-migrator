@@ -57,19 +57,20 @@ public class ResponseStatusFamilyTest {
 
         String expected = ""
                 + "import org.springframework.http.HttpStatus;\n" // TODO: HttpStatus.Series was added after upgrading to 7.14.0 now HttpStatus is not required anymore
+                + "\n"
                 + "import org.springframework.http.HttpStatus.Series;\n"
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
                 + "    public void test() {\n"
-                + "       HttpStatus.Series f1 = HttpStatus.Series.INFORMATIONAL;\n"
-                + "       HttpStatus.Series f2 = HttpStatus.Series.SUCCESSFUL;\n"
-                + "       HttpStatus.Series f3 = HttpStatus.Series.REDIRECTION;\n"
-                + "       HttpStatus.Series f4 = HttpStatus.Series.CLIENT_ERROR;\n"
-                + "       HttpStatus.Series f5 = HttpStatus.Series.SERVER_ERROR;\n"
+                + "       Series f1 = Series.INFORMATIONAL;\n"
+                + "       Series f2 = Series.SUCCESSFUL;\n"
+                + "       Series f3 = Series.REDIRECTION;\n"
+                + "       Series f4 = Series.CLIENT_ERROR;\n"
+                + "       Series f5 = Series.SERVER_ERROR;\n"
                 + "       \n"
                 + "       int code = 201;\n"
-                + "       HttpStatus.Series custom = HttpStatus.Series.resolve(code);\n"
+                + "       Series custom = HttpStatus.Series.resolve(code);\n" // FIXME: #116
                 + "    }\n"
                 + "}\n"
                 + "";
@@ -102,13 +103,12 @@ public class ResponseStatusFamilyTest {
                 + "";
 
         String expected = ""
-                + "import org.springframework.http.HttpStatus;\n" // TODO: HttpStatus.Series was added after upgrading to 7.14.0 now HttpStatus is not required anymore
                 + "import org.springframework.http.HttpStatus.Series;\n"
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
                 + "    public void test() {\n"
-                + "       HttpStatus.Series f = HttpStatus.Series.OTHER;\n"
+                + "       Series f = Series.OTHER;\n"
                 + "    }\n"
                 + "}\n"
                 + "";
@@ -143,13 +143,15 @@ public class ResponseStatusFamilyTest {
                 + "";
 
         String expected = ""
+                + "import org.springframework.http.HttpStatus.Series;\n"
+                + "\n"
                 + "import org.springframework.http.HttpStatus;\n"
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
                 + "    public void test() {\n"
                 + "       int code = 201;\n"
-                + "       HttpStatus.Series custom = HttpStatus.Series.resolve(code);\n"
+                + "       Series custom = HttpStatus.Series.resolve(code);\n"  // FIXME: #116
                 + "    }\n"
                 + "}\n"
                 + "";

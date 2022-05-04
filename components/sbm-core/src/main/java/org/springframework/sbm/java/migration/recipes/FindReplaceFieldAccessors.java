@@ -87,13 +87,6 @@ public class FindReplaceFieldAccessors extends Recipe {
             		maybeRemoveImportAndParentTypeImports(fqName.substring(0, idx));
             	}
             }
-                        
-			@Override
-			public @Nullable J preVisit(J tree, ExecutionContext p) {
-				// FIXME: remove parser passing
-				getCursor().putMessage("java-parser", javaParserSupplier);
-				return super.preVisit(tree, p);
-			}
             
         };
 	}
