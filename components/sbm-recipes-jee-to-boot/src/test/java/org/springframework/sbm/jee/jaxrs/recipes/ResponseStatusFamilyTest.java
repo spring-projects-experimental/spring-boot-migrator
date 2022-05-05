@@ -25,6 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResponseStatusFamilyTest {
 
+    private final static String SPRING_VERSION = "5.3.13";
+
     final private AbstractAction action =
             new AbstractAction() {
                 @Override
@@ -56,7 +58,7 @@ public class ResponseStatusFamilyTest {
                 + "";
 
         String expected = ""
-                + "import org.springframework.http.HttpStatus;\n" // TODO: HttpStatus.Series was added after upgrading to 7.14.0 now HttpStatus is not required anymore
+                + "import org.springframework.http.HttpStatus;\n"
                 + "\n"
                 + "import org.springframework.http.HttpStatus.Series;\n"
                 + "\n"
@@ -76,7 +78,10 @@ public class ResponseStatusFamilyTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 

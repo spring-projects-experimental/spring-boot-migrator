@@ -20,6 +20,7 @@ import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.tree.Expression;
+import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
 import org.springframework.sbm.java.impl.JavaParserFactory;
@@ -94,11 +95,17 @@ public class ReplaceMediaType extends Recipe {
         // #isCompatible(MediaType)
         doNext(new RewriteMethodInvocation(RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.MediaType isCompatible(javax.ws.rs.core.MediaType)"), (v, m, addImport) -> {
             JavaType type = JavaType.buildType("org.springframework.http.MediaType");
+
+            J.Identifier newMethodName = m.getName().withSimpleName("isCompatibleWith");
+            Expression newSelect = m.getSelect().withType(type);
+            JavaType.Method newMethodType = m.getMethodType().withReturnType(type).withDeclaringType(TypeUtils.asFullyQualified(type));
+            List<Expression> newMethodArguments = List.of(m.getArguments().get(0).withType(type));
+
             return m
-                    .withName(m.getName().withSimpleName("isCompatibleWith"))
-                    .withSelect(m.getSelect().withType(type))
-                    .withType(m.withDeclaringType(TypeUtils.asFullyQualified(type)).getType())
-                    .withArguments(List.of(m.getArguments().get(0).withType(type)));
+                    .withName(newMethodName)
+                    .withSelect(newSelect)
+                    .withMethodType(newMethodType)
+                    .withArguments(newMethodArguments);
         }));
 
         // #withCharset(String)

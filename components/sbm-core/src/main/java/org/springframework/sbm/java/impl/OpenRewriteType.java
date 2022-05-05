@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.java.format.WrappingAndBraces;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
@@ -152,13 +153,13 @@ public class OpenRewriteType implements Type {
             public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
                 J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
                 JavaTemplate template = JavaTemplate.builder(() -> getCursor().getParent(), methodTemplate).javaParser(() -> JavaParserFactory.getCurrentJavaParser())
-                        .imports(requiredImports.toArray(new String[]{}))
+                        .imports(requiredImports.toArray(new String[0]))
                         .build();
                 requiredImports.forEach(this::maybeAddImport);
                 cd = cd.withTemplate(template, cd.getBody().getCoordinates().lastStatement());
                 return cd;
             }
-        }));
+        }).doNext(new WrappingAndBraces()));
     }
 
     private List<J.Annotation> findORAnnotations(String annotation) {

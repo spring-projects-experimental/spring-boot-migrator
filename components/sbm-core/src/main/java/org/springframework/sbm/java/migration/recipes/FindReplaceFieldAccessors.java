@@ -69,7 +69,7 @@ public class FindReplaceFieldAccessors extends Recipe {
                 if (asClass != null && asClass.getFullyQualifiedName().equals(findFqName) &&
                 		replaceField != null) {
                 	maybeRemoveImportAndParentTypeImports(findFqName);
-                	maybeAddImport(replaceFqName);
+					maybeAddImport(replaceFqName);
                    	JavaType replaceType = JavaType.buildType(replaceFqName);
 					fa = fa
                    			.withName(fa.getName().withSimpleName(replaceField))

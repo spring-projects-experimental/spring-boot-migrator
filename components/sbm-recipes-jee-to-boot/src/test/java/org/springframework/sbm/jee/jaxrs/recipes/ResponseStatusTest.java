@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResponseStatusTest {
 
-    private final static String SPRING_VERSION = "5.3.13";
+    private final static String SPRING_VERSION = "5.3.5";
 
     final private AbstractAction action =
             new AbstractAction() {
@@ -190,7 +190,7 @@ public class ResponseStatusTest {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies(
                         "javax:javaee-api:8.0",
-                        "org.springframework:spring-core:"+SPRING_VERSION
+                        "org.springframework:spring-web:"+SPRING_VERSION
                 )
                 .withJavaSources(javaSource)
                 .build();
@@ -312,7 +312,7 @@ public class ResponseStatusTest {
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
-                + "    public HttpStatus.Series respond() {\n"
+                + "    public Series respond() {\n"
                 + "       HttpStatus s =  HttpStatus.OK;\n"
                 + "       return s.series();\n"
                 + "    }\n"

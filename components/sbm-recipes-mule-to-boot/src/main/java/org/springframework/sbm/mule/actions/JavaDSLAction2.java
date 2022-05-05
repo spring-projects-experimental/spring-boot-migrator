@@ -162,7 +162,7 @@ public class JavaDSLAction2 extends AbstractAction {
         mainJavaSourceSet.addJavaSource(projectContext.getProjectRootDirectory(), content, packageName);
     }
 
-    // TODO: fina a cohesive name
+    // TODO: [SN] find a cohesive name
     private void createJavaResource(ProjectContext projectContext,
                                     Map<String, ? extends ConfigurationTypeAdapter> configurations) {
 

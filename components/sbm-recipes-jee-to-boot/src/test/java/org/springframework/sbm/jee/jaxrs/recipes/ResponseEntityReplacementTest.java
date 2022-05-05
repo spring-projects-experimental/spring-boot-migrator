@@ -263,7 +263,7 @@ public class ResponseEntityReplacementTest {
                 + "public class TestController {\n"
                 + "\n"
                 + "    public ResponseEntity respond() {\n"
-                + "       return ResponseEntity.ok(\"All good!\").build();\n" // FIXME: #115
+                + "       return ResponseEntity.ok().body(\"All good!\");\n"
                 + "    }\n"
                 + "}\n"
                 + "";
@@ -305,7 +305,7 @@ public class ResponseEntityReplacementTest {
                 + "public class TestController {\n"
                 + "\n"
                 + "    public ResponseEntity respond() {\n"
-                + "       ResponseEntity r = ResponseEntity.ok(\"great!\").build();\n" // FIXME: #115
+                + "       ResponseEntity r = ResponseEntity.ok().body(\"great!\");\n"
                 + "       return r;\n"
                 + "    }\n"
                 + "}\n"
@@ -562,7 +562,7 @@ public class ResponseEntityReplacementTest {
                 + "public class TestController {\n"
                 + "\n"
                 + "    public ResponseEntity respond() {\n"
-                + "       ResponseEntity r = ResponseEntity.ok(\"great!\").build();\n" // FIXME: #115
+                + "       ResponseEntity r = ResponseEntity.ok().body(\"great!\");\n"
                 + "       return ResponseEntity.status(r.getStatusCode()).headers(r.getHeaders()).body(r.getBody());\n"
                 + "    }\n"
                 + "}\n"

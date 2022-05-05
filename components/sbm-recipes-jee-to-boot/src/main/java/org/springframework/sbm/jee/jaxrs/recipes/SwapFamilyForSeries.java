@@ -28,23 +28,24 @@ public class SwapFamilyForSeries extends Recipe {
 
         // All constants seem to match on both types - let ChangeType take care of type changing for field accesses
         doNext(new RewriteMethodInvocation(
-                        RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.Response$Status$Family familyOf(int)"),
+                        RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.Response.Status.Family familyOf(int)"),
                         (v, m, addImport) -> {
-                            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "HttpStatus$Series.resolve(#{any(int)})").build();
-                            // v.maybeAddImport("org.springframework.http.HttpStatus.Series");
+                            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "HttpStatus.Series.resolve(#{any(int)})").build();
+                            v.maybeAddImport("org.springframework.http.HttpStatus.Series");
                             addImport.accept("org.springframework.http.HttpStatus");
                             return m.withTemplate(template, m.getCoordinates().replace(), m.getArguments().get(0));
                         }
                 )
         );
 
-        doNext(new ChangeType("javax.ws.rs.core.Response$Status$Family", "org.springframework.http.HttpStatus$Series", false));
+        // TODO: FQName now with '$' instead of '.' ?!
+        doNext(new ChangeType("javax.ws.rs.core.Response.Status.Family", "org.springframework.http.HttpStatus.Series", false));
 
     }
 
     @Override
     public String getDisplayName() {
-        return "Swap JAX-RS Family with Spring HttpStaus.Series";
+        return "Swap JAX-RS Family with Spring HttpStatus.Series";
     }
 
 }

@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HttpHeadersTest {
+public class SwapHttpHeadersTest {
 
     private final static String SPRING_VERSION = "5.3.13";
 
@@ -101,6 +101,7 @@ public class HttpHeadersTest {
                 + "}\n"
                 + "";
 
+        // TODO: add return types to test complete method migration
         String expected = ""
                 + "import org.springframework.http.HttpHeaders;\n"
                 + "\n"
@@ -125,7 +126,7 @@ public class HttpHeadersTest {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies(
                         "javax:javaee-api:8.0",
-                        "org.springframework:spring-core:"+SPRING_VERSION
+                        "org.springframework:spring-web:"+SPRING_VERSION
                 )
                 .withJavaSources(javaSource)
                 .build();

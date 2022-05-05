@@ -84,7 +84,6 @@ public class SwapStatusForHttpStatus extends Recipe {
 
 
         // Instance methods
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
         doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.StatusType getStatusCode()")
                 .or(methodInvocationMatcher("javax.ws.rs.core.Response.Status getStatusCode()")),
                 (v, m, addImport) -> {
