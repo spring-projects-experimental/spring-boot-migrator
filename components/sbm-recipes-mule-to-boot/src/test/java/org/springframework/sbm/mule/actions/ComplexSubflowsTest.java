@@ -262,7 +262,8 @@ public class ComplexSubflowsTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    void tlsContext() {\n" +
                         "        //FIXME: element is not supported for conversion: <tls:context/>\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
 
     }

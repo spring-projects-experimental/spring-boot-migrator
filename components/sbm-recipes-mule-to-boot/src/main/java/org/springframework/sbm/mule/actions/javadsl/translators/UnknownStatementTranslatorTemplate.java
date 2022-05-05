@@ -24,7 +24,7 @@ public class UnknownStatementTranslatorTemplate {
     private final MuleElementInfo elementInfo;
 
     public String render() {
-        String indent = "        "; // 4 to method and another 4 inside method
+        String indent = " "; // 4 to method and another 4 inside method
         return indent + "//FIXME: element is not supported for conversion: " + elementInfo.getQualifiedTagName();
     }
 }
