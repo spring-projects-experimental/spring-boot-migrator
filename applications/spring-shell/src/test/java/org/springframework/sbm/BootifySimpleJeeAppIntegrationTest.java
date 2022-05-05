@@ -91,7 +91,7 @@ public class BootifySimpleJeeAppIntegrationTest extends IntegrationTestBaseClass
         assertThat(ejbJarXml).doesNotExist();
 
         executeMavenGoals(getTestDir(), "clean", "package", "spring-boot:build-image");
-        int port = startDockerContainer("jee-app:8.0.5-SNAPSHOT", 8080);
+        Integer port = startDockerContainer("jee-app:8.0.5-SNAPSHOT", "/HelloWorld", 8080);
 
         TestRestTemplate testRestTemplate = new TestRestTemplate();
 

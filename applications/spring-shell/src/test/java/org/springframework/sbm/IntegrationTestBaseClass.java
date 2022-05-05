@@ -41,6 +41,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.SocketUtils;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
@@ -78,14 +79,14 @@ public abstract class IntegrationTestBaseClass {
 	/**
 	 * Points to the source root directory where example projects are expected.
 	 *
-	 * @see {@link #getTestSubDir()}.
+	 * See {@link #getTestSubDir()}.
 	 */
 	public static final String TESTCODE_DIR = "src/test/resources/testcode/";
 
 	/**
 	 * Points to the target root directory where example projects will be copied to.
 	 *
-	 * @see {@link #getTestSubDir()}.
+	 * See {@link #getTestSubDir()}.
 	 */
 	public static final String INTEGRATION_TEST_DIR = "./target/sbm-integration-test/";
 	@Autowired
@@ -105,7 +106,8 @@ public abstract class IntegrationTestBaseClass {
 	@BeforeAll
 	public static void beforeAll() {
 		if (System.getenv("MAVEN_HOME") == null) {
-			throw new RuntimeException("You must set $MAVEN_HOME on your system for the integration test to run.");
+			System.err.println("You must set $MAVEN_HOME on your system for the integration test to run.");
+			throw new RuntimeException();
 		}
 		System.setProperty("maven.home", System.getenv("MAVEN_HOME"));
 	}
@@ -233,9 +235,6 @@ public abstract class IntegrationTestBaseClass {
 		}
 	}
 
-	/**
-	 *
-	 */
 	protected Path writeFile(String content, String fileName) {
 		try {
 			return Files.writeString(getTestDir().resolve(fileName), content);
@@ -315,14 +314,19 @@ public abstract class IntegrationTestBaseClass {
 		}
 	}
 
-	protected int startDockerContainer(String image, Integer... ports) {
-		GenericContainer genericContainer = new GenericContainer(DockerImageName.parse(image)).withExposedPorts(ports);
+	/**
+	 * Starts {@code image} as Docker container exposing {@code ports} and waiting for {@code httpEndpoint} to be available.
+	 */
+	protected Integer startDockerContainer(String image, String httpEndpoint, Integer... ports) {
+		GenericContainer genericContainer = new GenericContainer(DockerImageName.parse(image))
+				.withExposedPorts(ports)
+				.waitingFor(Wait.forHttp(httpEndpoint));
 		genericContainer.start();
 		return genericContainer.getFirstMappedPort();
 	}
 
-	protected RunningNetworkedContainer startDockerContainer(NetworkedContainer networkedContainer,
-			Network attachNetwork, Map<String, String> envMap) {
+	protected static RunningNetworkedContainer startDockerContainer(NetworkedContainer networkedContainer,
+																	Network attachNetwork, Map<String, String> envMap) {
 
 		Network network = attachNetwork == null ? Network.newNetwork() : attachNetwork;
 
