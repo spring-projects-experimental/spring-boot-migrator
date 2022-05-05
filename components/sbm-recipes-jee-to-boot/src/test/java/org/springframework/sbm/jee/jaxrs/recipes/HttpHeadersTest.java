@@ -25,6 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HttpHeadersTest {
 
+    private final static String SPRING_VERSION = "5.3.13";
+
     final private AbstractAction action =
             new AbstractAction() {
                 @Override
@@ -62,7 +64,10 @@ public class HttpHeadersTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -118,7 +123,10 @@ public class HttpHeadersTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
