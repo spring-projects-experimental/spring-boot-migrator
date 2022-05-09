@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.properties.tree.Properties;
 import org.openrewrite.text.PlainText;
@@ -114,11 +113,11 @@ class ProjectContextInitializerTest {
 
         assertThat(projectResources).hasSize(18);
 
-        verifyResource("testcode/pom.xml").wrappedInstanceOf(Xml.Document.class);
+        verifyResource("testcode/pom.xml").wrapsInstanceOf(Xml.Document.class);
         verifyIgnored(projectResources, "testcode/path-scanner/.git");
 
         verifyResource("testcode/path-scanner/pom.xml")
-                .wrappedInstanceOf(Maven.class)
+                .wrapsInstanceOf(Maven.class)
                 .havingMarkers(
                         mavenResolutionResult(null, "com.example:example-project-parent:1.0.0-SNAPSHOT",
                                 List.of(
@@ -134,7 +133,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/pom.xml")
-                .wrappedInstanceOf(Maven.class)
+                .wrapsInstanceOf(Maven.class)
                 .havingMarkers(
                         mavenResolutionResult(
                                 "com.example:example-project-parent:1.0.0-SNAPSHOT",
@@ -154,7 +153,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/java/com/example/SomeJavaClass.java")
-                .wrappedInstanceOf(J.CompilationUnit.class)
+                .wrapsInstanceOf(J.CompilationUnit.class)
                 .havingMarkers(
                         javaSourceSetMarker("main", ""),
                         buildToolMarker("Maven", "3.6"),
@@ -166,7 +165,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/schema.sql")
-                .wrappedInstanceOf(PlainText.class)
+                .wrapsInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
@@ -177,7 +176,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.xml")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
@@ -188,7 +187,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.yaml")
-                .wrappedInstanceOf(Yaml.Documents.class)
+                .wrapsInstanceOf(Yaml.Documents.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
@@ -199,7 +198,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.properties")
-                .wrappedInstanceOf(Properties.class)
+                .wrapsInstanceOf(Properties.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
@@ -210,7 +209,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.html")
-                .wrappedInstanceOf(PlainText.class)
+                .wrapsInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
@@ -221,7 +220,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.jsp")
-                .wrappedInstanceOf(PlainText.class)
+                .wrapsInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
@@ -232,7 +231,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.txt")
-                .wrappedInstanceOf(PlainText.class)
+                .wrapsInstanceOf(PlainText.class)
                 .havingMarkers(buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
@@ -242,7 +241,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.xhtml")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
@@ -253,7 +252,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.xsd")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
@@ -264,7 +263,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/webapp/META-INF/some.wsdl")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
@@ -275,7 +274,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/webapp/META-INF/some.xsl")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
@@ -285,7 +284,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/webapp/META-INF/some.xslt")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
@@ -297,7 +296,7 @@ class ProjectContextInitializerTest {
 
         // module2
         verifyResource("testcode/path-scanner/module2/pom.xml")
-                .wrappedInstanceOf(Maven.class)
+                .wrapsInstanceOf(Maven.class)
                 .havingMarkers(
                         mavenResolutionResult(
                                 "com.example:example-project-parent:1.0.0-SNAPSHOT",
@@ -318,7 +317,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module2/src/test/java/com/example/FooTest.java")
-                .wrappedInstanceOf(J.CompilationUnit.class)
+                .wrapsInstanceOf(J.CompilationUnit.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),
@@ -330,7 +329,7 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module2/src/test/resources/test.whatever")
-                .wrappedInstanceOf(PlainText.class)
+                .wrapsInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(11, "11", "11"),

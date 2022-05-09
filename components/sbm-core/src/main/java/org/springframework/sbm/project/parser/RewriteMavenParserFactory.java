@@ -37,6 +37,7 @@ public class RewriteMavenParserFactory {
 
     private final MavenPomCacheProvider mavenPomCacheProvider;
     private final ApplicationEventPublisher eventPublisher;
+    private JavaProvenanceMarkerFactory javaProvenanceMarkerFactory;
 
     MavenProjectParser createRewriteMavenParser(Path absoluteProjectDir, RewriteExecutionContext rewriteExecutionContext) {
         Consumer<Throwable> onError = rewriteExecutionContext.getOnError();
@@ -57,6 +58,7 @@ public class RewriteMavenParserFactory {
                 mavenParserBuilder,
                 JavaParser.fromJavaVersion(),
                 eventPublisher,
+                javaProvenanceMarkerFactory,
                 rewriteExecutionContext
         );
         return mavenProjectParser;

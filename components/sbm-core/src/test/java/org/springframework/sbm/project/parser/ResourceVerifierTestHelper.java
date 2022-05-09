@@ -23,8 +23,8 @@ import org.openrewrite.marker.BuildTool;
 import org.openrewrite.marker.GitProvenance;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.tree.MavenResolutionResult;
-import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
+import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 
 import java.nio.file.Path;
@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ResourceVerifierTestHelper {
 
     private final Path resourcePath;
-    private Class wrappedType;
+    private Class<? extends SourceFile> wrappedType;
     private List<MarkerVerifier> markerVerifer;
 
     public ResourceVerifierTestHelper(String resourcePathString) {
@@ -50,7 +50,7 @@ class ResourceVerifierTestHelper {
         return new ResourceVerifierTestHelper(resourcePath);
     }
 
-    public ResourceVerifierTestHelper wrappedInstanceOf(Class wrappedType) {
+    public ResourceVerifierTestHelper wrapsInstanceOf(Class wrappedType) {
         this.wrappedType = wrappedType;
         return this;
     }
@@ -82,11 +82,11 @@ class ResourceVerifierTestHelper {
     }
 
     public static MarkerVerifier javaSourceSetMarker(String name, String classpath) {
-        return new JavaSourceSetMarkerVerifier(name, classpath);
+        return new JavaSourceSetMarkersVerifier(name, classpath);
     }
 
     public static MarkerVerifier gitProvenanceMarker(String branch) {
-        return new GitProvenanceMarkerverifier(branch);
+        return new GitProvenanceMarkerVerifier(branch);
     }
 
     private RewriteSourceFileHolder findByPath(List<RewriteSourceFileHolder<? extends SourceFile>> projectResources, String toAbsolutePath) {
@@ -107,7 +107,7 @@ class ResourceVerifierTestHelper {
 
         assertThat(rewriteSourceFileHolder.getSourceFile().getClass()).isInstanceOf(wrappedType.getClass());
 
-        this.markerVerifer.forEach(v -> v.verify(rewriteSourceFileHolder));
+        this.markerVerifer.forEach(v -> v.check(rewriteSourceFileHolder));
 
         assertThat(rewriteSourceFileHolder.getSourceFile().getMarkers().getMarkers())
                 .as("Invalid number of markers for resource '%s'. Expected '%s' but found '%s'", rewriteSourceFileHolder, markerVerifer.size(), rewriteSourceFileHolder.getSourceFile().getMarkers().getMarkers().size())
@@ -127,7 +127,7 @@ class ResourceVerifierTestHelper {
     }
 
 
-    static class BuildToolMarkerVerifier extends MarkerVerifier {
+    static class BuildToolMarkerVerifier implements MarkerVerifier<SourceFile, BuildTool> {
 
         private final String name;
         private final String version;
@@ -138,20 +138,29 @@ class ResourceVerifierTestHelper {
         }
 
         @Override
-        public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
+        public void check(RewriteSourceFileHolder rewriteSourceFileHolder) {
             BuildTool buildToolMarker = getFirstMarker(rewriteSourceFileHolder, BuildTool.class);
+            assertMarker(rewriteSourceFileHolder.getSourceFile(), buildToolMarker);
+        }
 
-            assertThat(buildToolMarker.getType().name())
-                    .as("Invalid marker [BuildTool] for resource '%s'. Expected name to be '%s' but was '%s'", rewriteSourceFileHolder, name, buildToolMarker.getType().name())
+        @Override
+        public void assertMarker(SourceFile sourceFile, BuildTool marker) {
+            assertThat(marker.getType().name())
+                    .as("Invalid marker [BuildTool] for resource '%s'. Expected name to be '%s' but was '%s'", sourceFile, name, marker.getType().name())
                     .isEqualTo(name);
 
-            assertThat(buildToolMarker.getVersion())
-                    .as("Invalid marker [BuildTool] for resource '%s'. Expected version to be '%s' but was '%s'", rewriteSourceFileHolder, version, buildToolMarker.getVersion())
+            assertThat(marker.getVersion())
+                    .as("Invalid marker [BuildTool] for resource '%s'. Expected version to be '%s' but was '%s'", sourceFile, version, marker.getVersion())
                     .isEqualTo(version);
+        }
+
+        @Override
+        public void assertMarkers(SourceFile rewriteSourceFileHolder, List<BuildTool> markers) {
+            throw new UnsupportedOperationException();
         }
     }
 
-    private static class JavaVersionMarkerVerifier extends MarkerVerifier {
+    private static class JavaVersionMarkerVerifier implements MarkerVerifier<SourceFile, JavaVersion> {
         private final int version;
         private final String source;
         private final String target;
@@ -163,24 +172,35 @@ class ResourceVerifierTestHelper {
         }
 
         @Override
-        public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
+        public void check(RewriteSourceFileHolder rewriteSourceFileHolder) {
             JavaVersion javaVersion = getFirstMarker(rewriteSourceFileHolder, JavaVersion.class);
 
-            assertThat(javaVersion.getCreatedBy())
-                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", rewriteSourceFileHolder, version, javaVersion.getSourceCompatibility())
+            assertMarker(rewriteSourceFileHolder.getSourceFile(), javaVersion);
+        }
+
+        @Override
+        public void assertMarker(SourceFile sourceFile, JavaVersion marker) {
+            assertThat(marker.getCreatedBy())
+                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", sourceFile, version, marker.getSourceCompatibility())
                     .startsWith(Integer.toString(version));
 
-            assertThat(javaVersion.getSourceCompatibility())
-                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected sourceCompatibility to be '%s' but was '%s'", rewriteSourceFileHolder, source, javaVersion.getSourceCompatibility())
+            assertThat(marker.getSourceCompatibility())
+                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected sourceCompatibility to be '%s' but was '%s'", sourceFile, source, marker.getSourceCompatibility())
                     .isEqualTo(source);
 
-            assertThat(javaVersion.getTargetCompatibility())
-                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", rewriteSourceFileHolder, target, javaVersion.getSourceCompatibility())
+            assertThat(marker.getTargetCompatibility())
+                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", sourceFile, target, marker.getSourceCompatibility())
                     .isEqualTo(target);
+        }
+
+
+        @Override
+        public void assertMarkers(SourceFile rewriteSourceFileHolder, List<JavaVersion> markers) {
+            throw new UnsupportedOperationException();
         }
     }
 
-    private static class JavaProjectMarkerVerifier extends MarkerVerifier {
+    private static class JavaProjectMarkerVerifier implements MarkerVerifier<SourceFile, JavaProject> {
         private final String projectName;
         private final String publication;
 
@@ -190,26 +210,45 @@ class ResourceVerifierTestHelper {
         }
 
         @Override
-        public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
+        public void check(RewriteSourceFileHolder rewriteSourceFileHolder) {
             JavaProject javaProjectMarker = getFirstMarker(rewriteSourceFileHolder, JavaProject.class);
-            assertThat(javaProjectMarker.getProjectName()).isEqualTo(projectName);
-            assertThat(javaProjectMarker.getPublication().getGroupId() + ":" + javaProjectMarker.getPublication().getArtifactId() + ":" + javaProjectMarker.getPublication().getVersion()).isEqualTo(publication);
+            assertMarker(rewriteSourceFileHolder.getSourceFile(), javaProjectMarker);
+        }
+
+        @Override
+        public void assertMarker(SourceFile sourceFile, JavaProject marker) {
+            assertThat(marker.getProjectName()).isEqualTo(projectName);
+            assertThat(marker.getPublication().getGroupId() + ":" + marker.getPublication().getArtifactId() + ":" + marker.getPublication().getVersion()).isEqualTo(publication);
+        }
+
+        @Override
+        public void assertMarkers(SourceFile rewriteSourceFileHolder, List<JavaProject> markers) {
+            throw new UnsupportedOperationException();
         }
     }
 
-    private static class JavaSourceSetMarkerVerifier extends MarkerVerifier {
+    private static class JavaSourceSetMarkersVerifier implements MarkerVerifier<SourceFile, JavaSourceSet> {
         private final String name;
         private final String classpath;
 
-        public JavaSourceSetMarkerVerifier(String name, String classpathPattern) {
+        public JavaSourceSetMarkersVerifier(String name, String classpathPattern) {
             this.name = name;
             this.classpath = classpathPattern;
         }
 
         @Override
-        public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
+        public void check(RewriteSourceFileHolder rewriteSourceFileHolder) {
             List<JavaSourceSet> javaSourceSetMarker = getMarkers(rewriteSourceFileHolder, JavaSourceSet.class);
+            assertMarkers(rewriteSourceFileHolder.getSourceFile(), javaSourceSetMarker);
+        }
 
+        @Override
+        public void assertMarker(SourceFile sourceFile, JavaSourceSet marker) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void assertMarkers(SourceFile rewriteSourceFileHolder, List<JavaSourceSet> javaSourceSetMarker) {
             assertThat(javaSourceSetMarker).filteredOn(js -> name.equals(js.getName()))
                     .as("Invalid marker [JavaSourceSet] for resource '%s'. Expected name to be '%s' but no Marker with this name was found.", rewriteSourceFileHolder, name)
                     .isNotEmpty();
@@ -231,24 +270,34 @@ class ResourceVerifierTestHelper {
 
     }
 
-    private static class GitProvenanceMarkerverifier extends MarkerVerifier {
+    private static class GitProvenanceMarkerVerifier implements MarkerVerifier<SourceFile, GitProvenance> {
         private final String branch;
 
-        public GitProvenanceMarkerverifier(String branch) {
+        public GitProvenanceMarkerVerifier(String branch) {
             this.branch = branch;
         }
 
         @Override
-        public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
+        public void check(RewriteSourceFileHolder<SourceFile> rewriteSourceFileHolder) {
             GitProvenance gitProvenanceMarker = getFirstMarker(rewriteSourceFileHolder, GitProvenance.class);
 
-            assertThat(gitProvenanceMarker.getBranch())
-                    .as("Invalid marker [GitProvenance] for resource '%s'. Expected branch to be '%s' but was '%s'", rewriteSourceFileHolder, branch, gitProvenanceMarker.getBranch())
+
+        }
+
+        @Override
+        public void assertMarker(SourceFile sourceFile, GitProvenance marker) {
+            assertThat(marker.getBranch())
+                    .as("Invalid marker [GitProvenance] for resource '%s'. Expected branch to be '%s' but was '%s'", sourceFile, branch, marker.getBranch())
                     .isEqualTo(branch);
+        }
+
+        @Override
+        public void assertMarkers(SourceFile rewriteSourceFileHolder, List<GitProvenance> markers) {
+            throw new UnsupportedOperationException();
         }
     }
 
-    private static class MavenResolutionResultMarkerVerifier extends MarkerVerifier {
+    private static class MavenResolutionResultMarkerVerifier implements MarkerVerifier<Xml.Document, MavenResolutionResult> {
         private String parentPomCoordinate;
         private final String coordinate;
         private List<String> modules;
@@ -262,31 +311,42 @@ class ResourceVerifierTestHelper {
         }
 
         @Override
-        public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
+        public void check(RewriteSourceFileHolder<Xml.Document> rewriteSourceFileHolder) {
             MavenResolutionResult mavenModel = rewriteSourceFileHolder.getSourceFile().getMarkers().findFirst(MavenResolutionResult.class).get();
-            String coordinate = mavenModel.getPom().getGroupId() + ":" + mavenModel.getPom().getArtifactId() + ":" + mavenModel.getPom().getVersion();
+            assertMarker(rewriteSourceFileHolder.getSourceFile(), mavenModel);
+        }
+
+        @Override
+        public void assertMarker(Xml.Document mavenModel, MavenResolutionResult marker) {
+            String coordinate = marker.getPom().getGroupId() + ":" + marker.getPom().getArtifactId() + ":" + marker.getPom().getVersion();
             if(parentPomCoordinate == null) {
-                assertThat(mavenModel.getParent()).isNull();
+                assertThat(marker.getParent()).isNull();
             } else {
-                assertThat(mavenModel.getParent().getPom().getGav().toString()).isEqualTo(parentPomCoordinate);
+                assertThat(marker.getParent().getPom().getGav().toString()).isEqualTo(parentPomCoordinate);
             }
 
-            assertThat(mavenModel.getModules().stream().map(m -> m.getPom().getGav().toString()).collect(Collectors.toList())).containsExactlyInAnyOrder(modules.toArray(new String[]{}));
-            Map<Scope, List<String>> dependenciesGav = mavenModel.getDependencies().entrySet().stream()
+            assertThat(marker.getModules().stream().map(m -> m.getPom().getGav().toString()).collect(Collectors.toList())).containsExactlyInAnyOrder(modules.toArray(new String[]{}));
+            Map<Scope, List<String>> dependenciesGav = marker.getDependencies().entrySet().stream()
                     .collect(Collectors.toMap(
-                            entry -> entry.getKey(),
-                            entry -> entry.getValue().stream()
-                                    .map(resolvedDependency -> resolvedDependency.getGav().toString())
-                                    .collect(Collectors.toList())
+                                    entry -> entry.getKey(),
+                                    entry -> entry.getValue().stream()
+                                            .map(resolvedDependency -> resolvedDependency.getGav().toString())
+                                            .collect(Collectors.toList())
                             )
                     );
 
             assertThat(dependenciesGav).containsExactlyInAnyOrderEntriesOf(dependencies);
             assertThat(coordinate).isEqualTo(coordinate);
         }
+
+        @Override
+        public void assertMarkers(Xml.Document rewriteSourceFileHolder, List<MavenResolutionResult> markers) {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
-    private static class ModulesMarkerVerifier extends MarkerVerifier {
+    private static class ModulesMarkerVerifier implements MarkerVerifier<Xml.Document, MavenResolutionResult> {
         private final String[] modules;
 
         public ModulesMarkerVerifier(String... modules) {
@@ -294,17 +354,30 @@ class ResourceVerifierTestHelper {
         }
 
         @Override
-        public void verify(RewriteSourceFileHolder rewriteSourceFileHolder) {
+        public void check(RewriteSourceFileHolder<Xml.Document> rewriteSourceFileHolder) {
             MavenResolutionResult marker = getFirstMarker(rewriteSourceFileHolder, MavenResolutionResult.class);
+            assertMarker(rewriteSourceFileHolder.getSourceFile(), marker);
+        }
+
+        @Override
+        public void assertMarker(Xml.Document sourceFile, MavenResolutionResult marker) {
             List<String> modulesList = marker.getModules().stream().map(m -> m.getPom().getGav().toString()).collect(Collectors.toList());
 
             assertThat(modulesList)
-                    .as("Invalid marker [Modules] for resource '%s'. Expected modules to be '%s' but was '%s'", rewriteSourceFileHolder, modules, modulesList)
+                    .as("Invalid marker [Modules] for resource '%s'. Expected modules to be '%s' but was '%s'", sourceFile, modules, modulesList)
                     .containsExactlyInAnyOrder(modules);
+        }
+
+        @Override
+        public void assertMarkers(Xml.Document rewriteSourceFileHolder, List<MavenResolutionResult> markers) {
+            throw new UnsupportedOperationException();
         }
     }
 }
 
-abstract class MarkerVerifier {
-    public abstract void verify(RewriteSourceFileHolder rewriteSourceFileHolder);
+interface MarkerVerifier<S extends SourceFile, M extends Marker> {
+    void check(RewriteSourceFileHolder<S> rewriteSourceFileHolder);
+    void assertMarker(S sourceFile, M marker);
+
+    void assertMarkers(S rewriteSourceFileHolder, List<M> markers);
 }
