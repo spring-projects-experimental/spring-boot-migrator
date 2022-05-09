@@ -166,13 +166,18 @@ public class OpenRewriteType implements Type {
         return getClassDeclaration().getLeadingAnnotations()
                 .stream()
                 .filter(a -> {
-                    JavaType.Class type = (JavaType.Class) a.getAnnotationType().getType();
-                    if (type == null) {
-                        String simpleName = ((J.Identifier) a.getAnnotationType()).getSimpleName();
+                    Object typeObject = a.getAnnotationType().getType();
+                    String simpleName = ((J.Identifier) a.getAnnotationType()).getSimpleName();
+                    if (JavaType.Unknown.class.isInstance(typeObject)) {
                         log.warn("Could not resolve Type for annotation: '" + simpleName + "' while comparing with '" + annotation + "'.");
                         return false;
+                    } else if (JavaType.Class.class.isInstance(typeObject)) {
+                        Class type = Class.class.cast(typeObject);
+                        return annotation.equals(type.getFullyQualifiedName());
+                    } else {
+                        log.warn("Could not resolve Type for annotation: '" + simpleName + "' (" + typeObject + ") while comparing with '" + annotation + "'.");
+                        return false;
                     }
-                    return annotation.equals(type.getFullyQualifiedName());
                 })
                 .collect(Collectors.toList());
     }
@@ -309,8 +314,8 @@ public class OpenRewriteType implements Type {
      * .....
      *
      * @param visibility of the member
-     * @param type the fully qualified type of the member
-     * @param name of the member
+     * @param type       the fully qualified type of the member
+     * @param name       of the member
      */
     @Override
     public void addMember(Visibility visibility, String type, String name) {
@@ -319,9 +324,9 @@ public class OpenRewriteType implements Type {
             public ClassDeclaration visitClassDeclaration(ClassDeclaration classDecl, ExecutionContext executionContext) {
                 ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
                 JavaType javaType = JavaType.buildType(type);
-                String className = ((JavaType.FullyQualified)javaType).getClassName();
+                String className = ((JavaType.FullyQualified) javaType).getClassName();
 
-                JavaTemplate javaTemplate = JavaTemplate.builder(() -> getCursor().getParent(), "@Autowired\n"+ visibility.getVisibilityName() +" "+className+" "+name+";")
+                JavaTemplate javaTemplate = JavaTemplate.builder(() -> getCursor().getParent(), "@Autowired\n" + visibility.getVisibilityName() + " " + className + " " + name + ";")
                         .imports(type, "org.springframework.beans.factory.annotation.Autowired")
                         .javaParser(() -> JavaParserFactory.getCurrentJavaParser())
                         .build();

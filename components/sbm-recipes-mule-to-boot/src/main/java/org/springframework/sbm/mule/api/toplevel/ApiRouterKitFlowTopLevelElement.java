@@ -49,9 +49,10 @@ public class ApiRouterKitFlowTopLevelElement extends AbstractTopLevelElement {
 
     @Override
     protected String composePrefixDslCode() {
-        return "// FIXME: the base path for Http.inboundGateway must be extracted from http:listener in flow containing apikit:router with config-ref=\"" + configRef + "\"\n" +
-                "// FIXME: add all JavaDSL generated components between http:listener and apikit:router with config-ref=\"" + configRef + "\" into this flow\n" +
-                "// FIXME: remove the JavaDSL generated method containing apikit:router with config-ref=\"" + configRef + "\"\n" +
+        // A space before the comment triggers formatting in OpenRewrite, comments on pos 0 are kept at this position
+        return " // FIXME: the base path for Http.inboundGateway must be extracted from http:listener in flow containing apikit:router with config-ref=\"" + configRef + "\"\n" +
+                " // FIXME: add all JavaDSL generated components between http:listener and apikit:router with config-ref=\"" + configRef + "\" into this flow\n" +
+                " // FIXME: remove the JavaDSL generated method containing apikit:router with config-ref=\"" + configRef + "\"\n" +
                 "return IntegrationFlows.from(\n" +
                 "                Http.inboundGateway(\"" + route + "\").requestMapping(r -> r.methods(HttpMethod." + method.toUpperCase() + ")))\n";
     }

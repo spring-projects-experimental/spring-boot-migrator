@@ -129,7 +129,7 @@ public class JavaDSLAction2 extends AbstractAction {
     }
 
     private JavaSourceAndType findOrCreateFlowConfigurationClass(ProjectContext projectContext) {
-        Optional<JavaSourceAndType> matchingConfigClass = projectContext.getProjectJavaSources().list().stream()
+        Optional<JavaSourceAndType> matchingConfigClass = projectContext.getProjectJavaSources().asStream()
                 .filter(js -> js.getTypes().stream().anyMatch(t -> t.hasAnnotation(SPRING_CONFIGURATION_ANNOTATION)))
                 .map(js -> {
                     Type match = js.getTypes().stream().filter(t -> t.hasAnnotation(SPRING_CONFIGURATION_ANNOTATION)).findFirst().get();

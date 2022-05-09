@@ -115,7 +115,8 @@ public class WMQFlowTest {
                         "        IntegrationFlows.from(\"\")\n" +
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                .get();\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
     }
 }

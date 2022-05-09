@@ -110,7 +110,7 @@ public class ApplicationModule {
     }
 
     public List<ApplicationModule> getModules() {
-        Optional<MavenResolutionResult> mavenResolution = MavenBuildFileUtil.getMavenResolution(((OpenRewriteMavenBuildFile) buildFile).getSourceFile());
+        Optional<MavenResolutionResult> mavenResolution = MavenBuildFileUtil.findMavenResolution(((OpenRewriteMavenBuildFile) buildFile).getSourceFile());
         List<MavenResolutionResult> modulesMarker = mavenResolution.get().getModules();
         if ( ! modulesMarker.isEmpty()) {
             return modulesMarker

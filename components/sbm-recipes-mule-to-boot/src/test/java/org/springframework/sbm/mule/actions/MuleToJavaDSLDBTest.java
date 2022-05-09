@@ -66,6 +66,7 @@ public class MuleToJavaDSLDBTest extends JavaDSLActionBaseTest  {
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                //FIXME: element is not supported for conversion: <db:select/>\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
     }
 }

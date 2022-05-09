@@ -68,6 +68,7 @@ public class MultipleFlowsTest extends JavaDSLActionBaseTest {
                         "    IntegrationFlow logging() {\n" +
                         "        return flow -> flow\n" +
                         "                .log(LoggingHandler.Level.INFO);\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 }

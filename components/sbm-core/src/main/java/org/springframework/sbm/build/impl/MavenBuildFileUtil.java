@@ -24,7 +24,11 @@ import java.util.Optional;
  * @author Fabian Krüger
  */
 public class MavenBuildFileUtil {
-    public static Optional<MavenResolutionResult> getMavenResolution(Xml.Document pom) {
+    public static Optional<MavenResolutionResult> findMavenResolution(Xml.Document pom) {
         return pom.getMarkers().findFirst(MavenResolutionResult.class);
+    }
+
+    public static MavenResolutionResult getMavenResolution(Xml.Document pom) {
+        return pom.getMarkers().findFirst(MavenResolutionResult.class).orElseThrow(() -> new IllegalStateException("Maven AST without a MavenResolutionResult marker"));
     }
 }

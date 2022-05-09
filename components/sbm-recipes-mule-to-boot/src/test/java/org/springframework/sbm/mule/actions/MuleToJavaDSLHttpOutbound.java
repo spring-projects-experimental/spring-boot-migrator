@@ -66,6 +66,7 @@ public class MuleToJavaDSLHttpOutbound extends JavaDSLActionBaseTest {
                         "                )\n" +
                         "                .handle((p, h) -> \"#[payload]\")\n" +
                         "                .get();\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 }

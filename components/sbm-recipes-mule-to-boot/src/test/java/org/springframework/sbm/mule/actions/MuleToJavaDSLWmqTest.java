@@ -67,7 +67,8 @@ public class MuleToJavaDSLWmqTest extends JavaDSLActionBaseTest {
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q2\"))\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
 
         List<RewriteSourceFileHolder<? extends SourceFile>> applicationProperty = projectContext
                 .getProjectResources()

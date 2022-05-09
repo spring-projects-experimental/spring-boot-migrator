@@ -55,6 +55,7 @@ public class MuleToJavaDSLSetPropertyTest extends JavaDSLActionBaseTest {
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
                                 "                .enrichHeaders(h -> h.header(\"TestProperty\", \"TestPropertyValue\"))\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
     }
 }

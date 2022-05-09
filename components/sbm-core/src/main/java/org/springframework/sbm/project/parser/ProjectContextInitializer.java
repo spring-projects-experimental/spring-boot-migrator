@@ -42,7 +42,7 @@ public class ProjectContextInitializer {
 
     public ProjectContext initProjectContext(Path projectDir, List<Resource> resources, RewriteExecutionContext rewriteExecutionContext) {
         final Path absoluteProjectDir = projectDir.toAbsolutePath().normalize();
-
+        // TODO: remove git initialization, handled by precondition check
         initializeGitRepoIfNoneExists(absoluteProjectDir);
         MavenProjectParser mavenProjectParser = rewriteMavenParserFactory.createRewriteMavenParser(absoluteProjectDir, rewriteExecutionContext);
 

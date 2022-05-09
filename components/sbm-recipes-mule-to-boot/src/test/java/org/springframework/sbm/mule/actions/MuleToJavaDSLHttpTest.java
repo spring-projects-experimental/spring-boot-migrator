@@ -59,7 +59,8 @@ public class MuleToJavaDSLHttpTest extends JavaDSLActionBaseTest {
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                .get();\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
         List<RewriteSourceFileHolder<? extends SourceFile>> applicationProperty = projectContext
                 .getProjectResources()
                 .list()

@@ -46,7 +46,8 @@ public class UnknownFlowTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    void catch_exception_strategy() {\n" +
                         "        //FIXME: element is not supported for conversion: <catch-exception-strategy/>\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
     }
 }

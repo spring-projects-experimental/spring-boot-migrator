@@ -61,7 +61,7 @@ public class ApplicationModules {
     }
 
     public List<ApplicationModule> getModules(ApplicationModule module) {
-        MavenResolutionResult mavenResolutionResult = MavenBuildFileUtil.getMavenResolution(((OpenRewriteMavenBuildFile) module.getBuildFile()).getSourceFile()).get();
+        MavenResolutionResult mavenResolutionResult = MavenBuildFileUtil.findMavenResolution(((OpenRewriteMavenBuildFile) module.getBuildFile()).getSourceFile()).get();
         List<MavenResolutionResult> modulesMarker = mavenResolutionResult.getModules();
         if (!modulesMarker.isEmpty()) {
             return filterModulesContainingMavens(modulesMarker);

@@ -78,8 +78,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx);
 
                 for (int i = 0; i < newMavenFiles.size(); i++) {
-                    Optional<MavenResolutionResult> mavenModels = MavenBuildFileUtil.getMavenResolution(mavenFiles.get(i));
-                    Optional<MavenResolutionResult> newMavenModels = MavenBuildFileUtil.getMavenResolution(newMavenFiles.get(i));
+                    Optional<MavenResolutionResult> mavenModels = MavenBuildFileUtil.findMavenResolution(mavenFiles.get(i));
+                    Optional<MavenResolutionResult> newMavenModels = MavenBuildFileUtil.findMavenResolution(newMavenFiles.get(i));
                     mavenFiles.get(i).withMarkers(Markers.build(Arrays.asList(newMavenModels.get())));
 //                    Xml.Document m = mavenFiles.get(i).getMarkers().withModel(newMavenFiles.get(i).getModel());
                     // FIXME: 497 verify correctness
@@ -125,7 +125,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     public MavenResolutionResult getPom() {
-        return MavenBuildFileUtil.getMavenResolution(getSourceFile()).get();
+        return MavenBuildFileUtil.findMavenResolution(getSourceFile()).get();
     }
 
     @Override
@@ -410,7 +410,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             Recipe r = getDeleteDependencyVisitor(dependencies.get(0));
             dependencies.stream().skip(1).forEach(d -> r.doNext(getDeleteDependencyVisitor(d)));
             apply(r);
-            apply(new RefreshPomModel());
+            apply(new RefreshPomModel()); // TODO: Should be obsolete with 7.23.0, see https://github.com/openrewrite/rewrite/issues/1754
         }
     }
 

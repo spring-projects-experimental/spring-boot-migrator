@@ -70,7 +70,7 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
     }
 
     private DslSnippet noSupportDslSnippet() {
-        String noSupport = "// FIXME: No support for following DW transformation: <dw:set-property/> <dw:set-session-variable /> <dw:set-variable />";
+        String noSupport = " // FIXME: No support for following DW transformation: <dw:set-property/> <dw:set-session-variable /> <dw:set-variable />";
         return new DslSnippet(noSupport, Set.of(), Set.of(), Set.of());
     }
 

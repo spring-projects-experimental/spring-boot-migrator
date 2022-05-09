@@ -102,6 +102,7 @@ public class JavaDSLActionBaseTest {
         projectContextBuilder = TestProjectContext
                 .buildProjectContext(eventPublisher)
                 .withApplicationProperties(applicationProperties)
+                .withBuildFileHavingDependencies("org.springframework.amqp:spring-rabbit:2.4.4") // required for type resolution in generatedFlowShouldHaveMethodParams()
                 .addRegistrar(registrar)
         ;
     }
