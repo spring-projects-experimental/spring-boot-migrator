@@ -38,7 +38,8 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
     @Override
     public DslSnippet translate(SelectMessageProcessorType component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
         return new DslSnippet("// TODO: substitute expression language with appropriate java code \n" +
-                "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS LIMIT 500\"))",
+                "                .handle((p, h) -> jdbcTemplate.queryForList(\"" + component.getDynamicQuery()
+                + " LIMIT " + component.getMaxRows() + "\"))",
                 Collections.emptySet(),
                 Set.of(
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
