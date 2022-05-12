@@ -16,6 +16,7 @@
 package org.springframework.sbm.mule.actions.javadsl.translators.db;
 
 import org.mulesoft.schema.mule.db.SelectMessageProcessorType;
+import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
@@ -43,7 +44,7 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
                         "org.springframework.integration:spring-integration-jdbc:5.5.4"
                 ),
-                Collections.emptySet()
+                Set.of(new Bean("jdbcTemplate", "org.springframework.jdbc.core.JdbcTemplate"))
         );
     }
 }

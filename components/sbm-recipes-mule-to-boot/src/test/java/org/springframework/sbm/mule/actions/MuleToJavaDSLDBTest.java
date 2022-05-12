@@ -20,11 +20,10 @@ import org.springframework.sbm.build.api.Dependency;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MuleToJavaDSLDBTest extends JavaDSLActionBaseTest  {
+public class MuleToJavaDSLDBTest extends JavaDSLActionBaseTest {
 
     @Test
     public void translateDbSelectQuery() {
@@ -77,10 +76,10 @@ public class MuleToJavaDSLDBTest extends JavaDSLActionBaseTest  {
                                 "    }\n" +
                                 "\n" +
                                 "    @Bean\n" +
-                                "    IntegrationFlow dbFlow() {\n" +
+                                "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
-                                "                // TODO: substitute expression language with appropriate java code \n"+
+                                "                // TODO: substitute expression language with appropriate java code \n" +
                                 "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS LIMIT 500\"))\n" +
                                 "                .get();\n" +
                                 "    }}");
