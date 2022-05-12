@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MuleToJavaDSLDBTest extends JavaDSLActionBaseTest  {
 
     @Test
-    public void sbmHasKnowledgeOfDBNamespace() {
+    public void translateDbSelectQuery() {
         String muleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "\n" +
                 "<mule xmlns:db=\"http://www.mulesoft.org/schema/mule/db\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
@@ -36,11 +36,12 @@ public class MuleToJavaDSLDBTest extends JavaDSLActionBaseTest  {
                 "    <flow name=\"dbFlow\">\n" +
                 "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/\" doc:name=\"HTTP\"/>\n" +
                 "        <logger level=\"INFO\" doc:name=\"Logger\"/>\n" +
-                "        <db:select config-ref=\"MySQL_Configuration\" doc:name=\"Database\">\n" +
-                "            <db:parameterized-query/>\n" +
-                "        </db:select>\n" +
+                "        <db:select config-ref=\"MySQL_Configuration\" doc:name=\"Database\" fetchSize=\"500\" maxRows=\"500\">\n" +
+                "            <db:dynamic-query><![CDATA[SELECT * FROM STUDENTS]]></db:dynamic-query>\n" +
+                "        </db:select>" +
                 "    </flow>\n" +
                 "</mule>\n";
+
         addXMLFileToResource(muleXml);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
@@ -64,7 +65,8 @@ public class MuleToJavaDSLDBTest extends JavaDSLActionBaseTest  {
                                 "    IntegrationFlow dbFlow() {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
-                                "                //FIXME: element is not supported for conversion: <db:select/>\n" +
+                                "                // TODO: substitute expression language with appropriate java code \n"+
+                                "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS LIMIT 500\"))\n" +
                                 "                .get();\n" +
                                 "    }}");
     }
