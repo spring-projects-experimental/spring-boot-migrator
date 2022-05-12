@@ -16,6 +16,11 @@
 package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.build.api.Dependency;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,6 +49,16 @@ public class MuleToJavaDSLDBTest extends JavaDSLActionBaseTest  {
 
         addXMLFileToResource(muleXml);
         runAction();
+
+        Set<String> listOfImportedArtifacts = projectContext
+                .getBuildFile()
+                .getDeclaredDependencies()
+                .stream()
+                .map(Dependency::getArtifactId)
+                .collect(Collectors.toSet());
+
+        assertThat(listOfImportedArtifacts).contains("spring-integration-jdbc");
+        assertThat(listOfImportedArtifacts).contains("spring-boot-starter-jdbc");
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print())
                 .isEqualTo(
