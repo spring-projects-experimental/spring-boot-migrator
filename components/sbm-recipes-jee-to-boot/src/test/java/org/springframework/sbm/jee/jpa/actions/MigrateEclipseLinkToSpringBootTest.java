@@ -18,7 +18,7 @@ package org.springframework.sbm.jee.jpa.actions;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.jee.jpa.resource.PersistenceXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
@@ -42,10 +42,10 @@ class MigrateEclipseLinkToSpringBootTest {
         configuration = new Configuration(version);
         configuration.setTemplateLoader(new FileTemplateLoader(new File("./src/main/resources/templates")));
 
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.vmware.example");
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setDefaultBasePackage("com.vmware.example");
 
-        BasePackageCalculator basePackageCalculator = new BasePackageCalculator(applicationProperties);
+        BasePackageCalculator basePackageCalculator = new BasePackageCalculator(sbmApplicationProperties);
 
         sut = new MigrateEclipseLinkToSpringBoot();
         sut.setConfiguration(configuration);

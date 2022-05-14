@@ -18,7 +18,7 @@ package org.springframework.sbm.mule.actions;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -117,13 +117,13 @@ public class ComplexSubflowsTest extends JavaDSLActionBaseTest {
     @Test
     public void shouldHaveMethodsForSubflows() {
         MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-rabbit.xml", subflowWithRabbit)
                 .addRegistrar(registrar)
-                .withApplicationProperties(applicationProperties)
+                .withSbmApplicationProperties(sbmApplicationProperties)
                 .withBuildFileHavingDependencies(
                         "org.springframework.boot:spring-boot-starter-web:2.5.5",
                         "org.springframework.boot:spring-boot-starter-integration:2.5.5",
@@ -238,13 +238,13 @@ public class ComplexSubflowsTest extends JavaDSLActionBaseTest {
                 "</mule>\n";
 
         MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .addProjectResource("src/main/resources/mule-rabbit.xml", xml)
                 .addRegistrar(registrar)
-                .withApplicationProperties(applicationProperties)
+                .withSbmApplicationProperties(sbmApplicationProperties)
                 .withBuildFileHavingDependencies(
                         "org.springframework.boot:spring-boot-starter-web:2.5.5",
                         "org.springframework.boot:spring-boot-starter-integration:2.5.5",

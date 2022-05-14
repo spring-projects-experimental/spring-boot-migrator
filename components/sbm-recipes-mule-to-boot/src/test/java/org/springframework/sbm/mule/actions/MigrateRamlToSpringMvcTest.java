@@ -20,7 +20,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.java.filter.FindJavaSourceContainingType;
 import org.springframework.sbm.java.util.BasePackageCalculator;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
@@ -80,12 +80,12 @@ public class MigrateRamlToSpringMvcTest {
                         "                \"totalValue\" : 600\n" +
                         "            }\n";
 
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.foo.bar");
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setDefaultBasePackage("com.foo.bar");
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withProjectRoot(Path.of("./target/testcode/raml-to-jaxrs").toAbsolutePath())
-                .withApplicationProperties(applicationProperties)
+                .withSbmApplicationProperties(sbmApplicationProperties)
                 .withBuildFileHavingDependencies(
                         "javax.ws.rs:javax.ws.rs-api:2.1.1",
                         "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
@@ -96,7 +96,7 @@ public class MigrateRamlToSpringMvcTest {
 
         // generate JAX-RS from RAML
 
-        new org.springframework.sbm.mule.actions.MigrateRamlToSpringMvc(new BasePackageCalculator(applicationProperties)).apply(context);
+        new org.springframework.sbm.mule.actions.MigrateRamlToSpringMvc(new BasePackageCalculator(sbmApplicationProperties)).apply(context);
 
         Optional<JavaSourceAndType> sales = context.search(new FindJavaSourceContainingType("com.foo.bar.resource.Sales"));
         assertThat(sales.get().getJavaSource().print()).isEqualTo(

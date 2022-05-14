@@ -16,7 +16,7 @@
 package org.springframework.sbm.java.util;
 
 import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,9 +37,9 @@ class BasePackageCalculatorTest {
     private BasePackageCalculator sut;
     @BeforeEach
     void beforeEach() {
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage(DEFAULT_PACKAGENAME);
-        sut = new BasePackageCalculator(applicationProperties);
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setDefaultBasePackage(DEFAULT_PACKAGENAME);
+        sut = new BasePackageCalculator(sbmApplicationProperties);
     }
 
 

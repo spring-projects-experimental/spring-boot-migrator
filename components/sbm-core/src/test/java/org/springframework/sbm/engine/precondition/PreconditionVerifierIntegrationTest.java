@@ -27,7 +27,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.project.TestDummyResource;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = {
-        ApplicationProperties.class,
+        SbmApplicationProperties.class,
         PreconditionVerifier.class,
         GitSupport.class,
         PreconditionVerifierIntegrationTest.TestConfig.class
@@ -60,7 +60,7 @@ public class PreconditionVerifierIntegrationTest {
     private PreconditionVerifier sut;
 
     @Autowired
-    private ApplicationProperties applicationProperties;
+    private SbmApplicationProperties sbmApplicationProperties;
 
     @Autowired
     private GitSupport gitSupport;
@@ -73,11 +73,11 @@ public class PreconditionVerifierIntegrationTest {
 
         System.setProperty("java.specification.version", "9");
 
-        applicationProperties.setGitSupportEnabled(true);
+        sbmApplicationProperties.setGitSupportEnabled(true);
 
         PreconditionVerificationResult preconditionVerificationResult = sut.verifyPreconditions(projectRoot, resources);
 
-        assertThat(applicationProperties.isGitSupportEnabled()).isTrue();
+        assertThat(sbmApplicationProperties.isGitSupportEnabled()).isTrue();
         assertThat(preconditionVerificationResult.getResults()).hasSize(4);
         assertThat(preconditionVerificationResult.hasError()).isTrue();
         assertThat(preconditionVerificationResult.getResults().get(0).getState()).isEqualTo(PreconditionCheck.ResultState.FAILED);
@@ -110,7 +110,7 @@ public class PreconditionVerifierIntegrationTest {
         System.setProperty("java.specification.version", "11");
 
         // git enabled
-        applicationProperties.setGitSupportEnabled(true);
+        sbmApplicationProperties.setGitSupportEnabled(true);
 
         // .git exists
         Path gitDir = projectRoot;
@@ -125,7 +125,7 @@ public class PreconditionVerifierIntegrationTest {
 
         PreconditionVerificationResult preconditionVerificationResult = sut.verifyPreconditions(projectRoot, resources);
 
-        assertThat(applicationProperties.isGitSupportEnabled()).isTrue();
+        assertThat(sbmApplicationProperties.isGitSupportEnabled()).isTrue();
         assertThat(preconditionVerificationResult.getResults()).hasSize(4);
         assertThat(preconditionVerificationResult.getResults().get(0).getState()).isEqualTo(PreconditionCheck.ResultState.PASSED);
         assertThat(preconditionVerificationResult.getResults().get(0).getMessage()).isEqualTo("Found pom.xml.");

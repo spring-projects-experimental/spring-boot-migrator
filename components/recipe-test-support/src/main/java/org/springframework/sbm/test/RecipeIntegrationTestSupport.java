@@ -20,7 +20,7 @@ import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import freemarker.template.Configuration;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -96,8 +96,8 @@ public class RecipeIntegrationTestSupport {
 
                     ScanCommand scanCommand = ctx.getBean(ScanCommand.class);
                     
-                    ApplicationProperties applicationProperties = ctx.getBean(ApplicationProperties.class);
-                    applicationProperties.setDefaultBasePackage("org.springframework.sbm");
+                    SbmApplicationProperties sbmApplicationProperties = ctx.getBean(SbmApplicationProperties.class);
+                    sbmApplicationProperties.setDefaultBasePackage("org.springframework.sbm");
                     
                     ApplicableRecipeListCommand applicableRecipeListCommand = ctx.getBean(ApplicableRecipeListCommand.class);
                     ProjectContext projectContext = scanCommand.execute(rootDir.toString());
@@ -110,7 +110,7 @@ public class RecipeIntegrationTestSupport {
                     applyCommand.execute(projectContext, recipe.getName());
                 },
                 SpringBeanProvider.ComponentScanConfiguration.class,
-                ApplicationProperties.class,
+                SbmApplicationProperties.class,
                 Configuration.class,
                 UserInteractionsDummy.class
         );

@@ -31,7 +31,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.shell.ApplyShellCommand;
 import org.springframework.sbm.shell.ScanShellCommand;
@@ -98,7 +98,7 @@ public abstract class IntegrationTestBaseClass {
 	@Autowired
 	ProjectContextHolder projectContextHolder;
 	@Autowired
-	private ApplicationProperties applicationProperties;
+	private SbmApplicationProperties sbmApplicationProperties;
 	private Path testDir;
 
 	private String output;
@@ -122,7 +122,7 @@ public abstract class IntegrationTestBaseClass {
 	}
 
 	protected void enableGitSupport() {
-		applicationProperties.setGitSupportEnabled(true);
+		sbmApplicationProperties.setGitSupportEnabled(true);
 		System.out.println("Programmatically enabled git support!");
 	}
 

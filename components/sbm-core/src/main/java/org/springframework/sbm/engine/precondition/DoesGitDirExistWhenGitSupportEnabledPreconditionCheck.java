@@ -20,7 +20,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.git.GitStatus;
 import org.springframework.sbm.engine.git.GitSupport;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -45,7 +45,7 @@ import static org.springframework.sbm.engine.precondition.PreconditionCheck.Resu
 @RequiredArgsConstructor
 class DoesGitDirExistWhenGitSupportEnabledPreconditionCheck extends PreconditionCheck {
 
-    private final ApplicationProperties applicationProperties;
+    private final SbmApplicationProperties sbmApplicationProperties;
 
     private static final String NO_GIT_DIR_EXISTS = "'sbm.gitSupportEnabled' is 'true' but no '.git' dir exists in project dir. Either disable git support or initialize git.";
     private static final String HAS_UNCOMMITTED_CHANGES = "'sbm.gitSupportEnabled' is 'true' but Git status is not clean. Commit all changes and add or ignore all resources before scan.";
@@ -55,7 +55,7 @@ class DoesGitDirExistWhenGitSupportEnabledPreconditionCheck extends Precondition
 
 	@Override
 	public PreconditionCheckResult verify(Path projectRoot, List<Resource> projectResources) {
-		if (applicationProperties.isGitSupportEnabled()) {
+		if (sbmApplicationProperties.isGitSupportEnabled()) {
 			if (noGitDirExists(projectRoot)) {
                 return new PreconditionCheckResult(FAILED, NO_GIT_DIR_EXISTS);
 			}

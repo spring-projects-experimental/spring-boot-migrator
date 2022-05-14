@@ -18,7 +18,7 @@ package org.springframework.sbm.engine.precondition;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.git.GitSupport;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -29,10 +29,10 @@ class DoesGitDirExistWhenGitSupportEnabledPreconditionCheckTest {
 
     @Test
     void gitSupportDisabled() {
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setGitSupportEnabled(false);
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setGitSupportEnabled(false);
 
-        DoesGitDirExistWhenGitSupportEnabledPreconditionCheck sut = new DoesGitDirExistWhenGitSupportEnabledPreconditionCheck(applicationProperties, new GitSupport(applicationProperties));
+        DoesGitDirExistWhenGitSupportEnabledPreconditionCheck sut = new DoesGitDirExistWhenGitSupportEnabledPreconditionCheck(sbmApplicationProperties, new GitSupport(sbmApplicationProperties));
 
         Path projectRoot = Path.of("./test-dummy").toAbsolutePath().normalize();
         List<Resource> projectResources = List.of();

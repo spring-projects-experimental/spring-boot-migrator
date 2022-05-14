@@ -18,7 +18,7 @@ package org.springframework.sbm.build.impl;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -66,12 +66,12 @@ class JavaSourceSetImplTest {
                         "}                                      " +
                         "";
 
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("org.springframework.sbm");
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setDefaultBasePackage("org.springframework.sbm");
 
         JavaSourceSet sut = TestProjectContext.buildProjectContext()
                 .withDummyRootBuildFile()
-                .withApplicationProperties(applicationProperties)
+                .withSbmApplicationProperties(sbmApplicationProperties)
                 .withJavaSources(sourceCode1, sourceCode2)
                 .build()
                 .getApplicationModules()
@@ -79,7 +79,7 @@ class JavaSourceSetImplTest {
                 .getMainJavaSourceSet();
 
         JavaSourceLocation location = sut.getJavaSourceLocation();
-        assertThat(location.getPackageName()).isEqualTo(applicationProperties.getDefaultBasePackage());
+        assertThat(location.getPackageName()).isEqualTo(sbmApplicationProperties.getDefaultBasePackage());
         assertThat(location.getSourceFolder()).isEqualTo(TestProjectContext.getDefaultProjectRoot().resolve("src/main/java"));
     }
 
@@ -92,12 +92,12 @@ class JavaSourceSetImplTest {
                 "package org.springframework.sbmanotherLevel1;    " +
                         "public class Class2 {}";
 
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("org.springframework.sbm");
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setDefaultBasePackage("org.springframework.sbm");
 
         JavaSourceSet sut = TestProjectContext.buildProjectContext()
                 .withDummyRootBuildFile()
-                .withApplicationProperties(applicationProperties)
+                .withSbmApplicationProperties(sbmApplicationProperties)
                 .withJavaSources(sourceCode1, sourceCode2)
                 .build()
                 .getApplicationModules()
@@ -105,7 +105,7 @@ class JavaSourceSetImplTest {
                 .getMainJavaSourceSet();
 
         JavaSourceLocation location = sut.getJavaSourceLocation();
-        assertThat(location.getPackageName()).isEqualTo(applicationProperties.getDefaultBasePackage());
+        assertThat(location.getPackageName()).isEqualTo(sbmApplicationProperties.getDefaultBasePackage());
     }
 
     @Test

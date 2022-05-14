@@ -16,7 +16,7 @@
 package org.springframework.sbm.java.util;
 
 import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -29,10 +29,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BasePackageCalculator {
 
-    private final ApplicationProperties applicationProperties;
+    private final SbmApplicationProperties sbmApplicationProperties;
 
     public String calculateBasePackage(List<JavaSource> javaSources) {
-       if(javaSources.isEmpty()) return applicationProperties.getDefaultBasePackage();
+       if(javaSources.isEmpty()) return sbmApplicationProperties.getDefaultBasePackage();
 
         List<JavaSource> sortableJavaSources = new ArrayList<>();
         sortableJavaSources.addAll(javaSources);
@@ -48,7 +48,7 @@ public class BasePackageCalculator {
                     .findFirst();
 
             if(javaSourceInDifferentBasePackage.isPresent()) {
-                return applicationProperties.getDefaultBasePackage();
+                return sbmApplicationProperties.getDefaultBasePackage();
                 /*
                 throw new RuntimeException(String.format("Could not calculate base package. Found at least two conflicting candidates: [%s] and [%s] found in these resources [%s] and [%s]",
                         javaSources.get(0).getPackageName(),

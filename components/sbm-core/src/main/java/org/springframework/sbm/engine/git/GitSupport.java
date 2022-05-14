@@ -24,7 +24,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.RepositoryNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GitSupport {
 
-    private final ApplicationProperties applicationProperties;
+    private final SbmApplicationProperties sbmApplicationProperties;
 
     /**
      * Adds files to git index.
@@ -234,7 +234,7 @@ public class GitSupport {
 
     // TODO: test this method
     public void commitWhenGitAvailable(ProjectContext context, String appliedRecipeName, List<String> modifiedResources, List<String> deletedResources) {
-        if (applicationProperties.isGitSupportEnabled()) {
+        if (sbmApplicationProperties.isGitSupportEnabled()) {
             File repoDir = context.getProjectRootDirectory().toFile();
             modifiedResources = makeRelativeToRoot(modifiedResources, repoDir);
             deletedResources = makeRelativeToRoot(deletedResources, repoDir);
