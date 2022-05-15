@@ -58,7 +58,7 @@ public class DependencyHelper {
             if (t instanceof MavenParsingException) {
                 log.error(t.getMessage());
             } else {
-                t.printStackTrace();
+                throw new RuntimeException(t);
             }
         };
         return errorConsumer;
