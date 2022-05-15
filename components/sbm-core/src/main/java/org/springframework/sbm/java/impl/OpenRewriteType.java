@@ -268,7 +268,8 @@ public class OpenRewriteType implements Type {
         return getFullyQualifiedName();
     }
 
-    private void apply(Recipe r) {
+    @Override
+    public void apply(Recipe r) {
         refactoring.refactor(rewriteSourceFileHolder, r);
     }
 
