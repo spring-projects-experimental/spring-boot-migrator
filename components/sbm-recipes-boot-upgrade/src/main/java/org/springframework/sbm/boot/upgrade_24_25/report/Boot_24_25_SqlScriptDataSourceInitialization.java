@@ -35,7 +35,6 @@ public class Boot_24_25_SqlScriptDataSourceInitialization implements UpgradeSect
     public boolean isApplicable(ProjectContext projectContext) {
         List<SpringBootApplicationProperties> filteredResources = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
         List<SqlScriptDataSourceInitializationPropertiesAnalyzer.DeperecatedPropertyMatch> properties = new SqlScriptDataSourceInitializationPropertiesAnalyzer().findDeprecatedProperties(filteredResources);
-        properties.sort(Comparator.comparing(SqlScriptDataSourceInitializationPropertiesAnalyzer.DeperecatedPropertyMatch::getDeprecatedPropery));
         return !properties.isEmpty();
     }
 
@@ -47,7 +46,7 @@ public class Boot_24_25_SqlScriptDataSourceInitialization implements UpgradeSect
 
             Table.Builder tableBuilder = Table.builder();
             tableBuilder.headerCols("File", "Old (2.4)", "New (2.5)");
-
+            deprecatedProperties.sort(Comparator.comparing(SqlScriptDataSourceInitializationPropertiesAnalyzer.DeperecatedPropertyMatch::getDeprecatedPropery));
             for (SqlScriptDataSourceInitializationPropertiesAnalyzer.DeperecatedPropertyMatch match : deprecatedProperties) {
                 tableBuilder.row("`" + match.getPath() + "`", "`" + match.getDeprecatedPropery() + "`", "`" + match.getNewProperty() + "`");
             }
