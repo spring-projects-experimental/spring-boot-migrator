@@ -160,12 +160,19 @@
                 <version>${spring-boot.version}</version>
                 <executions>
                     <execution>
-                        <configuration>
-                            <mainClass>org.springframework.sbm.SpringShellApplication</mainClass>
-                        </configuration>
+                        <id>repackage</id>
                         <goals>
                             <goal>repackage</goal>
                         </goals>
+                        <configuration>
+                            <requiresUnpack>
+                                <dependency>
+                                    <groupId>org.asciidoctor</groupId>
+                                    <artifactId>asciidoctorj</artifactId>
+                                </dependency>
+                            </requiresUnpack>
+                            <mainClass>org.springframework.sbm.SpringShellApplication</mainClass>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
