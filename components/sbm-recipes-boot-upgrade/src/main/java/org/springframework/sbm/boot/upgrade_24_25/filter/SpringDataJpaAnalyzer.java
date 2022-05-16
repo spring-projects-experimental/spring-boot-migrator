@@ -31,14 +31,16 @@ public class SpringDataJpaAnalyzer {
 
     public List<MatchingMethod> getJpaRepositoriesWithGetByIdMethod(ProjectContext context) {
         String jpaRepositoryInterface = "org.springframework.data.jpa.repository.JpaRepository";
-        return getJpaRepositoriesWithGetByIdMethod(context, jpaRepositoryInterface);
-    }
-
-    private List<MatchingMethod> getJpaRepositoriesWithGetByIdMethod(ProjectContext context, String jpaRepositoryInterface) {
         List<JavaSourceAndType> jpaRepositories = context.getProjectJavaSources().findTypesImplementing(jpaRepositoryInterface);
         // FIXME: type of PK must be retrieved, moves to rewrite when these migrations are provided as OpenRewrite recipes
         String methodPattern = "getById(java.lang.Long)";
-        return findRepositoriesDeclaring(jpaRepositories, methodPattern);
+        return jpaRepositories.stream()
+                .filter(jat -> jat.getType().hasMethod(methodPattern))
+                .map(jat -> {
+                    return new MatchingMethod(jat, methodPattern, jat.getType().getMethod(methodPattern));
+                })
+                .collect(Collectors.toList());
+        //return findRepositoriesDeclaring(jpaRepositories, methodPattern);
     }
 
     private List<MatchingMethod> findRepositoriesDeclaring(List<JavaSourceAndType> jpaRepositories, String methodPattern) {
