@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class ApplicationProperties {
     private boolean gitSupportEnabled;
     private String defaultBasePackage;
+    private boolean writeInMavenLocal;
     private List<String> ignoredPathsPatterns = new ArrayList<>();
 
     public void setIgnoredPathsPatterns(List<String> patterns) {
