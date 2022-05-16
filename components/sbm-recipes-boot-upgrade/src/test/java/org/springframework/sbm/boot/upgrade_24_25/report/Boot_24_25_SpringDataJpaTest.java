@@ -16,6 +16,10 @@
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.project.resource.TestProjectContext;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class Boot_24_25_SpringDataJpaTest {
 
@@ -40,7 +44,15 @@ class Boot_24_25_SpringDataJpaTest {
                 "    }\n" +
                 "}";
 
-        // TODO: add tests after merge with upgrade branch update-to-rewrite-7.14.0
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .addJavaSource("src/main/java", model)
+                .addJavaSource("src/main/java", repo)
+                .addJavaSource("src/main/java", caller)
+                .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-data-jpa:2.4.12")
+                .build();
+
+        Boot_24_25_SpringDataJpa sut = new Boot_24_25_SpringDataJpa();
+        assertThat(sut.isApplicable(context)).isTrue();
 
     }
 
