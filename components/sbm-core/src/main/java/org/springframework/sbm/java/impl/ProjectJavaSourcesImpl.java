@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.java.tree.TypeTree;
 import org.springframework.sbm.java.api.MethodCall;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceAndType;
@@ -91,6 +92,11 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
                 .findFirst();
     }
 
+    /**
+     * Find method calls matching given {@code methodPattern}.
+     *
+     * @param methodPattern the pattern for the method like {@code com.example.TheType theMethod(com.example.Arg1, com.example.Arg2)}
+     */
     @Override
     public List<MethodCall> findMethodCalls(String methodPattern) {
         List<MethodCall> matches = new ArrayList<>();
@@ -120,15 +126,17 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
 
     private boolean hasTypeImplementing(J.ClassDeclaration c, String type) {
         try {
-            return c.getImplements() != null &&
-                    c.getImplements()
+            List<TypeTree> implmeneting = c.getImplements();
+            return implmeneting != null &&
+                    implmeneting
                             .stream()
                             .anyMatch(intaface -> {
                                         JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(
                                                 intaface.getType()
                                         );
                                         if(fullyQualified == null) {
-                                            log.error("Could not resolve implemented type '" + ((J.Identifier)intaface).getSimpleName() + "'");
+                                            String simpleName = ((J.Identifier) ((J.ParameterizedType) intaface).getClazz()).getSimpleName();
+                                            log.error("Could not resolve implemented type '" + simpleName + "'");
                                             return false;
                                         }
                                         return fullyQualified
