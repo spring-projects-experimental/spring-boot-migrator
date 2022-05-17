@@ -15,9 +15,12 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.java.tree.JavaSourceFile;
+import org.openrewrite.marker.SearchResult;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
@@ -278,9 +281,13 @@ public class OpenRewriteType implements Type {
         // TODO: parse and validate methodPattern
         methodPattern = this.getFullyQualifiedName() + " " + methodPattern;
         DeclaresMethod<ExecutionContext> declaresMethod = new DeclaresMethod(new MethodMatcher(methodPattern, true));
-        List<RewriteSourceFileHolder<J.CompilationUnit>> matches = refactoring.find(rewriteSourceFileHolder, new GenericOpenRewriteRecipe<>(() -> declaresMethod));
+        JavaSourceFile javaSourceFile = declaresMethod.visitJavaSourceFile(rewriteSourceFileHolder.getSourceFile(), new RewriteExecutionContext());
+        Optional<SearchResult> match = javaSourceFile.getMarkers().findFirst(SearchResult.class);
+        return match.isPresent() ? true : false;
+        // this.getClassDeclaration()
+        // List<RewriteSourceFileHolder<J.CompilationUnit>> matches = refactoring.find(rewriteSourceFileHolder, new GenericOpenRewriteRecipe<>(() -> declaresMethod));
         // TODO: searches in all classes, either filter result list or provide findInCurrent() or similar
-        return !matches.isEmpty();
+        // return !matches.isEmpty();
     }
 
     @Override
