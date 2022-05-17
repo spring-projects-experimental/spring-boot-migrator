@@ -289,12 +289,12 @@ public class TestProjectContext {
          * The source Path is ' src/main/java' in the root module and the path inside is calculated from package declaration if exists.
          */
         @Deprecated
-        public Builder addJavaSource(String sourceCode) {
+        public Builder withJavaSource(String sourceCode) {
             return withJavaSources(sourceCode);
         }
 
 
-        public Builder addJavaSource(Path sourcePathDir, String sourceCode) {
+        public Builder withJavaSource(Path sourcePathDir, String sourceCode) {
             if (sourcePathDir.isAbsolute()) {
                 throw new IllegalArgumentException("Source path must be relative to project root dir.");
             }
@@ -304,8 +304,8 @@ public class TestProjectContext {
             return this;
         }
 
-        public Builder addJavaSource(String sourcePath, String sourceCode) {
-            return addJavaSource(Path.of(sourcePath), sourceCode);
+        public Builder withJavaSource(String sourcePath, String sourceCode) {
+            return withJavaSource(Path.of(sourcePath), sourceCode);
         }
 
         public Builder addJavaSourceToModule(String modulePath, String sourceCode) {

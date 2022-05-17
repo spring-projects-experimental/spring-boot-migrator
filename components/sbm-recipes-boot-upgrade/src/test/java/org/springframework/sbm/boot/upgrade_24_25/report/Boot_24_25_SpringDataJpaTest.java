@@ -45,9 +45,9 @@ class Boot_24_25_SpringDataJpaTest {
                 "}";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", model)
-                .addJavaSource("src/main/java", repo)
-                .addJavaSource("src/main/java", caller)
+                .withJavaSource("src/main/java", model)
+                .withJavaSource("src/main/java", repo)
+                .withJavaSource("src/main/java", caller)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-data-jpa:2.4.12")
                 .build();
 
