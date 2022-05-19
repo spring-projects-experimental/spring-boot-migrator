@@ -1,0 +1,52 @@
+= Spring Boot Migrator Demos
+
+== Running A Demo
+
+Every demo should contain a `README.adoc` which describes the goal of the demo.
+After reading through the README the demo can be executed by running the `run-demo.sh` script(s).
+
+NOTE: The demos were created and tested under MacOSX and require a shell!
+
+
+== Providing A Demo
+* create a new directory `demo-` under `demos`
+* create a README.adoc in this dir, use the template below
+* create a shell script `run-demo.sh` or more if required `run-demo-1`, `run-demo-2.sh`, ...
+* The Shell script should reset and clear artifacts from a previous run
+
+=== README.adoc Template
+[source, asciidoc]
+....
+= Title of the demo
+
+== Introduction
+
+Describe what the demo does.
+
+=== Requirements
+
+Describe the requirements
+
+* Java version
+* Required build tool
+* Is Docker required
+* Any other tools expected to be executable to run the demo
+
+== The Demo
+
+Describe what the demo does and what the expected outcome is.
+
+=== Run the demo
+
+* Call the `run-demo.sh` shell script to run the full demo +
+`./run-demo.sh`
+
+The script
+
+* Describe step by step
+* what the demo script does
+* and which manual steps might be required
+* and what to highlight
+* what was changed and why
+
+....
