@@ -78,8 +78,8 @@ class ApplicationModuleTest {
                 .addProjectResource("pom.xml", parentPom)
                 .addProjectResource("module1/pom.xml", pom1)
                 .addProjectResource("module2/pom.xml", pom2)
-                .addJavaSource("module1/src/main/java", javaSource2)
-                .addJavaSource("module2/src/main/java", javaSource3)
+                .withJavaSource("module1/src/main/java", javaSource2)
+                .withJavaSource("module2/src/main/java", javaSource3)
                 .build();
 
         ApplicationModule parentModule = context.getApplicationModules().getModule(Path.of(""));

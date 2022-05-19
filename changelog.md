@@ -1,13 +1,20 @@
-## [0.11.0](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.10.0) -  
+## [0.11.0](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.11.0) -  
 
 ### Adds
 - Unmarshalling ejb-jar.xml for EJB 2.1 (#62) 
 - Demo for Mule to Boot migration (#80)
+- Demo for Spring Boot 2.4 to 2.5 upgrade (#120)
+- New Mule 3.9 components and schemas (#110, #95, #87)
+- Bumped some dependency versions
 
 ### Fixes
 - Paths and CLI rendering under Windows (#58)
 - Fix SBM when using Windows (#58)
 - Bump some dependency versions, removes CVEs
+- SBM generates Asciidoc report when started as jar
+- 2.4 to 2.5 upgrade does not randomly fail anymore
+- Full Windows support (#91)
+- Builds on Mac M1 (#114) 
 
 ## [0.10.0](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.10.0) -  2022-03-28
 

@@ -25,6 +25,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class Boot_24_25_SqlScriptDataSourceInitialization implements UpgradeSectionBuilder {
@@ -45,7 +46,7 @@ public class Boot_24_25_SqlScriptDataSourceInitialization implements UpgradeSect
 
             Table.Builder tableBuilder = Table.builder();
             tableBuilder.headerCols("File", "Old (2.4)", "New (2.5)");
-
+            deprecatedProperties.sort(Comparator.comparing(SqlScriptDataSourceInitializationPropertiesAnalyzer.DeperecatedPropertyMatch::getDeprecatedPropery));
             for (SqlScriptDataSourceInitializationPropertiesAnalyzer.DeperecatedPropertyMatch match : deprecatedProperties) {
                 tableBuilder.row("`" + match.getPath() + "`", "`" + match.getDeprecatedPropery() + "`", "`" + match.getNewProperty() + "`");
             }

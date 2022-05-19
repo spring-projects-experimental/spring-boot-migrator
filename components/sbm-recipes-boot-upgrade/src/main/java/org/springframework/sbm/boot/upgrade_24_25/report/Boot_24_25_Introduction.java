@@ -23,6 +23,7 @@ import org.springframework.sbm.build.api.BuildFile;
 
 import java.nio.file.Path;
 import java.util.Date;
+import java.util.Optional;
 
 public class Boot_24_25_Introduction implements UpgradeSectionBuilder {
     @Override
@@ -39,7 +40,11 @@ public class Boot_24_25_Introduction implements UpgradeSectionBuilder {
         String groupId = buildFile.getGroupId();
         String artifactId = buildFile.getArtifactId();
         String version = buildFile.getVersion();
-        String bootVersion = buildFile.getDeclaredDependencies().stream().filter(d -> d.getGroupId().equals("org.springframework.boot")).map(d -> d.getVersion()).findFirst().get();
+        Optional<String> foundSpringVersion = buildFile.getDeclaredDependencies().stream().filter(d -> d.getGroupId().equals("org.springframework.boot")).map(d -> d.getVersion()).findFirst();
+        if(foundSpringVersion.isEmpty()) {
+            throw new RuntimeException(String.format("Could not retrieve Spring version from declared dependencies in %s", buildFile.getAbsolutePath()));
+        }
+        String bootVersion = foundSpringVersion.get();
 
         IntroductionSection introductionSection = IntroductionSection.builder()
                 .projectName(applicationName)

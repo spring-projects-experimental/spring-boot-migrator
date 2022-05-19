@@ -18,6 +18,7 @@ package org.springframework.sbm.project.parser;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.cache.ReadOnlyLocalMavenArtifactCache;
+import org.openrewrite.maven.internal.MavenDownloadingException;
 import org.openrewrite.maven.internal.MavenParsingException;
 import org.openrewrite.maven.tree.MavenRepository;
 import org.openrewrite.maven.tree.Pom;
@@ -55,10 +56,10 @@ public class DependencyHelper {
 
     private static Consumer<Throwable> createErrorHandler() {
         Consumer<Throwable> errorConsumer = (t) -> {
-            if (t instanceof MavenParsingException) {
+            if (MavenParsingException.class.isInstance(t) || MavenDownloadingException.class.isInstance(t)) {
                 log.error(t.getMessage());
             } else {
-                t.printStackTrace();
+                throw new RuntimeException(t);
             }
         };
         return errorConsumer;

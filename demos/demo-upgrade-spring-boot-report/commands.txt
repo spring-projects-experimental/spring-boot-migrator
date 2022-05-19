@@ -1,3 +1,0 @@
-scan /Users/fkrueger/demo-boot-upgrade/spring-boot-2.4-app
-apply boot-2.4-2.5-upgrade-report
-exit

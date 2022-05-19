@@ -17,7 +17,6 @@ package org.springframework.sbm.boot.upgrade_24_25.recipes;
 
 import org.springframework.sbm.test.RecipeIntegrationTestSupport;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -34,7 +33,6 @@ public class Boot_24_25_UpgradeReportRecipeTest {
 
     @Test
     @Tag("integration")
-    @Disabled("Properties spring.sql.init.continue-on-error and .platform iterate randomly")
     void generateReportTest() throws IOException {
         // copy 'testcode/spring-boot-2.4-to-2.5-example/given' to target and run recipe 'boot-2.4-2.5-upgrade-report' against it
         String applicationDir = "spring-boot-2.4-to-2.5-example";
