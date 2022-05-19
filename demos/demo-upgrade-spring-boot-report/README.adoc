@@ -1,0 +1,36 @@
+= Upgrade Spring Boot 2.4 to 2.5
+
+== Introduction
+
+The demo shows how to create a migration report
+
+=== Requirements
+
+Describe the requirements
+
+* SBM v0.10.0+
+* JDK 11
+* Maven
+* Intellij IDEA (and https://www.jetbrains.com/help/idea/working-with-the-ide-features-from-command-line.html[support to start from commandline])
+
+== The Demo
+
+In this demo a Spring Boot 2.4 application is scanned and the `boot-2.4-2.5-upgrade-report` recipe gets applied.
+
+The recipe generated a HTML report with information about what needs to be changed to upgrade the application to Spring Boot 2.5.
+
+The report shows a list of recipes that can be applied in a second step to
+fully migrate the application to 2.5.
+
+=== Run the demo
+
+* Call the `run-demo.sh` shell script to run the full demo +
+`./run-demo.sh`
+
+The script
+
+* Describe step by step
+* what the demo script does
+* and which manual steps might be required
+* and what to highlight
+* what was changed and why
