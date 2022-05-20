@@ -19,6 +19,7 @@ import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.jee.ejb.api.DescriptionType;
 import org.springframework.sbm.jee.ejb.api.SessionBeanType;
 import org.springframework.sbm.jee.ejb.api.EjbJarXml;
 import org.springframework.sbm.jee.ejb.filter.EjbJarXmlResourceFilter;
@@ -89,23 +90,99 @@ public class MigrateEjbDeploymentDescriptor extends AbstractAction {
             }
 
             // add @Stateless annotation as defined in deployment descriptor
-            String snippet = "@Stateless";
-            if (ejbNameGiven(sbt)) {
-                // TODO: #470
-                snippet += "(name=\"" + getEjbName(sbt) + "\")";
-            }
-            type.addAnnotation(snippet, "javax.ejb.Stateless");
+            final StringBuilder statelessSnippet =
+                    new StringBuilder("@Stateless(")
+                            .append(getEjbName(sbt)
+                                    .map(n -> "name=" + n + ",")
+                                    .orElse("")
+                            ).append(getMappedName(sbt)
+                                    .map(m -> "mappedName=" + m + ",")
+                                    .orElse("")
+                            ).append(getDescription(sbt)
+                                    .map(d -> "description=" + d)
+                                    .orElse("")
+                            ).append(")");
+
+            if(statelessSnippet.length() == "@Statlesss()".length())
+                statelessSnippet.deleteCharAt("@Statlesss".length() - 1);
+
+            type.addAnnotation(statelessSnippet.toString(), "javax.ejb.Stateless");
+
+            getRemote(sbt)
+                    .map( r -> "@Remote(value=" + r + ".class)")
+                    .ifPresent( a -> type.addAnnotation(a,"javax.ejb.Remote"));
+
+            getRemoteHome(sbt)
+                    .map( r -> "@RemoteHome(value=" + r + ".class)")
+                    .ifPresent( a -> type.addAnnotation(a,"javax.ejb.RemoteHome"));
+
+            getLocal(sbt)
+                    .map( r -> "@Local(value=" + r + ".class)")
+                    .ifPresent( a -> type.addAnnotation(a,"javax.ejb.Local"));
+
+            getLocalHome(sbt)
+                    .map( r -> "@LocalHome(value=" + r + ".class)")
+                    .ifPresent( a -> type.addAnnotation(a,"javax.ejb.LocalHome"));
+
+            getTransactionType(sbt)
+                    .map( r -> "@TransactionManagement(value=javax.ejb.TransactionManagementType." + r.toUpperCase() + ")")
+                    .ifPresent( a -> type.addAnnotation(a,"javax.ejb.TransactionManagement"));
 
         } else {
             throw new RuntimeException("Could not find any Java file declaring type '" + fqName + "'");
         }
     }
 
-    private String getEjbName(SessionBeanType sbt) {
-        return sbt.getEjbName().getValue();
+    private Optional<String> getEjbName(SessionBeanType sbt) {
+        return sbt.getEjbName() != null && !sbt.getEjbName().getValue().isEmpty()
+                ? Optional.ofNullable(sbt.getEjbName().getValue())
+                : Optional.empty();
+    }
+    private Optional<String> getMappedName(SessionBeanType sbt){
+        return sbt.getMappedName() != null  && !sbt.getMappedName().getValue().isEmpty()
+                ? Optional.ofNullable(sbt.getMappedName().getValue())
+                : Optional.empty();
+
     }
 
-    private boolean ejbNameGiven(SessionBeanType sbt) {
-        return sbt.getEjbName() != null && !sbt.getEjbName().getValue().isEmpty();
+    //FIXME Add support for other languages in description. Currently description attribute of
+    // @Stateless annotation is not a list
+    private Optional<String> getDescription(SessionBeanType sbt) {
+        return sbt.getDescription() != null ? sbt.getDescription()
+                                                 .stream()
+                                                 .filter( d ->"en".equalsIgnoreCase(d.getLang()))
+                                                 .map(DescriptionType::getValue)
+                                                 .findFirst()
+                                            : Optional.empty();
+    }
+
+    private Optional<String> getRemote(SessionBeanType sbt){
+        return sbt.getRemote() != null && !sbt.getRemote().getValue().isEmpty()
+                ? Optional.ofNullable(sbt.getRemote().getValue())
+                : Optional.empty();
+    }
+
+    private Optional<String> getRemoteHome(SessionBeanType sbt){
+        return sbt.getHome() != null && !sbt.getHome().getValue().isEmpty()
+                ? Optional.ofNullable(sbt.getHome().getValue())
+                : Optional.empty();
+    }
+
+    private Optional<String> getLocal(SessionBeanType sbt){
+        return sbt.getLocal() != null && !sbt.getLocal().getValue().isEmpty()
+                ? Optional.ofNullable(sbt.getLocal().getValue())
+                : Optional.empty();
+    }
+
+    private Optional<String> getLocalHome(SessionBeanType sbt){
+        return sbt.getLocalHome() != null && !sbt.getLocalHome().getValue().isEmpty()
+                ? Optional.ofNullable(sbt.getLocalHome().getValue())
+                : Optional.empty();
+    }
+
+    private Optional<String> getTransactionType(SessionBeanType sbt){
+        return sbt.getTransactionType() != null && !sbt.getTransactionType().getValue().isEmpty()
+                ? Optional.ofNullable(sbt.getTransactionType().getValue())
+                : Optional.empty();
     }
 }
