@@ -41,9 +41,10 @@ public class RewriteMavenParserFactory {
     MavenProjectParser createRewriteMavenParser(Path absoluteProjectDir, RewriteExecutionContext rewriteExecutionContext) {
         Consumer<Throwable> onError = rewriteExecutionContext.getOnError();
         MavenArtifactDownloader downloader = new MavenArtifactDownloader(
-                ReadOnlyLocalMavenArtifactCache.mavenLocal().orElse(
-                        new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".rewrite", "cache", "artifacts"))
-                ),
+                new LocalMavenArtifactCache(Path.of(System.getProperty("user.home"), ".m2", "repository")),
+//                ReadOnlyLocalMavenArtifactCache.mavenLocal().orElse(
+//                        new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".rewrite", "cache", "artifacts"))
+//                ),
                 null,
                 onError
         );
