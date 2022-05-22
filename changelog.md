@@ -1,4 +1,4 @@
-## [0.11.0](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.11.0) -  
+## [0.11.0](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.11.0) - 2022-05-22 
 
 ### Adds
 - Unmarshalling ejb-jar.xml for EJB 2.1 (#62) 
