@@ -34,7 +34,7 @@ public class MavenPomCacheProvider {
 
     @PostConstruct
     void postConstruct() {
-        pomCache = rocksdb(); // mapdb();
+        pomCache = inMemory(); //rocksdb(); // mapdb();
     }
 
     public MavenPomCache getPomCache() {
