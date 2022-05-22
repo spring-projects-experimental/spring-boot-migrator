@@ -323,7 +323,7 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>3.0.0-M4</version>
                 <configuration>
-                    <connectionUrl>scm:git:https://github.com/pivotal/spring-boot-migrator.git</connectionUrl>
+                    <connectionUrl>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</connectionUrl>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>@{project.version}</tagNameFormat>
                     <releaseProfiles>release</releaseProfiles>
@@ -336,9 +336,9 @@
                 <version>1.4.0</version>
                 <configuration>
                     <description>Description of your release</description>
-                    <releaseName>0.8.0</releaseName>
+                    <releaseName>0.11.0</releaseName>
                     <!-- <tag>${project.version}</tag> -->
-                    <tag>0.8.0</tag>
+                    <tag>0.11.0</tag>
 
                     <!-- If your project has additional artifacts, such as ones produced by
                          the maven-assembly-plugin, you can define the following
@@ -351,7 +351,7 @@
                             </includes>
                         </fileSet>
                     </fileSets>
-                    <repositoryId>pivotal/spring-boot-migrator</repositoryId>
+                    <repositoryId>spring-projects-experimental/spring-boot-migrator</repositoryId>
                 </configuration>
             </plugin>
 
