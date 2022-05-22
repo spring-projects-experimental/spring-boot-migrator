@@ -43,7 +43,7 @@ The Relevant Changes section lists all potentially required changes to upgrade t
     </#if>
     </#list>
 </#list>
-<#if recipesFound>
+<#if recipesFound??>
 Some changes listed in 'Relevant Changes' can be automated. +
 It is advisable to read through 'Relevant Changes' to see if you want to apply all or just a subset of the applicable
 recipes.
