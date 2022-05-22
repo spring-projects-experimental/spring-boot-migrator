@@ -93,13 +93,13 @@ public class MigrateEjbDeploymentDescriptor extends AbstractAction {
             final StringBuilder statelessSnippet =
                     new StringBuilder("@Stateless(")
                             .append(getEjbName(sbt)
-                                    .map(n -> "name=" + n + ",")
+                                    .map(n -> "name = \"" + n + "\"")
                                     .orElse("")
                             ).append(getMappedName(sbt)
-                                    .map(m -> "mappedName=" + m + ",")
+                                    .map(m -> ", mappedName = \"" + m + "\"")
                                     .orElse("")
                             ).append(getDescription(sbt)
-                                    .map(d -> "description=" + d)
+                                    .map(d -> ", description = \"" + d + "\"")
                                     .orElse("")
                             ).append(")");
 
@@ -109,23 +109,23 @@ public class MigrateEjbDeploymentDescriptor extends AbstractAction {
             type.addAnnotation(statelessSnippet.toString(), "javax.ejb.Stateless");
 
             getRemote(sbt)
-                    .map( r -> "@Remote(value=" + r + ".class)")
+                    .map( r -> "@Remote(" + r + ".class)")
                     .ifPresent( a -> type.addAnnotation(a,"javax.ejb.Remote"));
 
             getRemoteHome(sbt)
-                    .map( r -> "@RemoteHome(value=" + r + ".class)")
+                    .map( r -> "@RemoteHome(" + r + ".class)")
                     .ifPresent( a -> type.addAnnotation(a,"javax.ejb.RemoteHome"));
 
             getLocal(sbt)
-                    .map( r -> "@Local(value=" + r + ".class)")
+                    .map( r -> "@Local(" + r + ".class)")
                     .ifPresent( a -> type.addAnnotation(a,"javax.ejb.Local"));
 
             getLocalHome(sbt)
-                    .map( r -> "@LocalHome(value=" + r + ".class)")
+                    .map( r -> "@LocalHome(" + r + ".class)")
                     .ifPresent( a -> type.addAnnotation(a,"javax.ejb.LocalHome"));
 
             getTransactionType(sbt)
-                    .map( r -> "@TransactionManagement(value=javax.ejb.TransactionManagementType." + r.toUpperCase() + ")")
+                    .map( r -> "@TransactionManagement(javax.ejb.TransactionManagementType." + r.toUpperCase() + ")")
                     .ifPresent( a -> type.addAnnotation(a,"javax.ejb.TransactionManagement"));
 
         } else {
