@@ -2,6 +2,7 @@
 
 ### Adds
 - Migrate all properties to @Stateless when migrating ejb-jar.xml to annotation (#56). Thanks, @ravig-kant
+- Support for <db:select /> in mule (#119). Thanks @sanagaraj-pivotal
 
 ### Fixes
 - recipesFound null in upgrade-asciidoc.ftl:46 breaks HTML report generation (#124). Thanks, @timtebeek
