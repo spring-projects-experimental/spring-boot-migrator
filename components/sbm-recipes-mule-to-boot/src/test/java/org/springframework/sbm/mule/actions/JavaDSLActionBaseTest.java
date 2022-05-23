@@ -24,6 +24,7 @@ import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpInbound
 import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpOutboundEndpointTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.core.*;
+import org.springframework.sbm.mule.actions.javadsl.translators.db.SelectTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.dwl.DwlTransformTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
@@ -74,7 +75,8 @@ public class JavaDSLActionBaseTest {
                 new WmqInboundEndpointTranslator(),
                 new DwlTransformTranslator(),
                 new HttpRequestTranslator(),
-                new ChoiceTranslator()
+                new ChoiceTranslator(),
+                new SelectTranslator()
         );
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
                 new FlowTopLevelElementFactory(translators),
