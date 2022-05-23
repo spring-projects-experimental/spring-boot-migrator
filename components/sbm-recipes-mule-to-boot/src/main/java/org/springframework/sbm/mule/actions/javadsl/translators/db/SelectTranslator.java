@@ -21,7 +21,6 @@ import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
