@@ -290,4 +290,53 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "    }\n" +
                                 "}");
     }
+
+
+    @Test
+    public void multipleDWLTransformInSameFlowShouldProduceMultipleClasses() {
+        final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>    " +
+                "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"    " +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"    " +
+                "    xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd    " +
+                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd    " +
+                "http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd    " +
+                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd\">    " +
+                "    <flow name=\"multipleTransforms\">    " +
+                "        <dw:transform-message doc:name=\"Transform Message\">    " +
+                "            <dw:set-payload><![CDATA[%dw 1.0    " +
+                "%output application/json indent = true, skipNullOn = \"everywhere\"    " +
+                "---    " +
+                "{    " +
+                "    \"hello\": {    " +
+                "        \"world\": {    " +
+                "            \"hello\": \"indeed!\",    " +
+                "        },    " +
+                "    }    " +
+                "}]]></dw:set-payload>    " +
+                "        </dw:transform-message>    " +
+                "        <logger />    " +
+                "        <dw:transform-message doc:name=\"Build Response Message\">    " +
+                "            <dw:set-payload><![CDATA[%dw 1.0    " +
+                "%output application/json indent = true, skipNullOn = \"everywhere\"    " +
+                "---    " +
+                "{    " +
+                "    \"responseBody\": {    " +
+                "        \"responseInfo\": {    " +
+                "            \"responseStatus\": \"200\"    " +
+                "        },    " +
+                "    }    " +
+                "}]]></dw:set-payload>    " +
+                "        </dw:transform-message>    " +
+                "    </flow>    " +
+                "</mule>";
+
+        addXMLFileToResource(xml);
+        runAction();
+
+        assertThat(projectContext.getProjectJavaSources().list()).hasSize(3);
+        assertThat(projectContext.getProjectJavaSources().list().get(0).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.FlowConfigurations");
+        assertThat(projectContext.getProjectJavaSources().list().get(1).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransform");
+        assertThat(projectContext.getProjectJavaSources().list().get(2).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransform_2");
+    }
+
 }
