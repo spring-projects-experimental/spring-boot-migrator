@@ -21,6 +21,7 @@ import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurations;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
@@ -36,10 +37,18 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
     }
 
     @Override
-    public DslSnippet translate(SelectMessageProcessorType component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
+    public DslSnippet translate(SelectMessageProcessorType component,
+                                QName name,
+                                MuleConfigurations muleConfigurations,
+                                String flowName,
+                                Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
+
+        String limitString = component.getMaxRows() == null ? "" : " LIMIT " + component.getMaxRows();
+
         return new DslSnippet("// TODO: substitute expression language with appropriate java code \n" +
-                "                .handle((p, h) -> jdbcTemplate.queryForList(\"" + component.getDynamicQuery()
-                + " LIMIT " + component.getMaxRows() + "\"))",
+                "                .handle((p, h) -> jdbcTemplate.queryForList(\"" +
+                escapeDoubleQuotes(component.getDynamicQuery())
+                + limitString + "\"))",
                 Collections.emptySet(),
                 Set.of(
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
@@ -47,5 +56,9 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
                 ),
                 Set.of(new Bean("jdbcTemplate", "org.springframework.jdbc.core.JdbcTemplate"))
         );
+    }
+
+    private String escapeDoubleQuotes(String str) {
+        return str.replace("\"", "\\\"");
     }
 }
