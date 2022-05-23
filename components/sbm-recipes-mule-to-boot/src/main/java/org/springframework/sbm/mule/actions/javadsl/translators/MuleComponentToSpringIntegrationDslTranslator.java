@@ -23,5 +23,5 @@ import java.util.Map;
 public interface MuleComponentToSpringIntegrationDslTranslator<T> {
     Class<T> getSupportedMuleType();
 
-    DslSnippet translate(T component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap);
+    DslSnippet translate(int id, T component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap);
 }

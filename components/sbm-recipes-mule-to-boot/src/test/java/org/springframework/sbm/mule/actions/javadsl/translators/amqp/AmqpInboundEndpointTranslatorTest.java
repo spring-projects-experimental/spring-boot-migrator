@@ -94,6 +94,6 @@ class AmqpInboundEndpointTranslatorTest {
         MuleType muleType = muleXmls.get(0).getMuleType();
         InboundEndpointType inboundEndpointType = (InboundEndpointType) ((FlowType) ((JAXBElement) muleType.getBeansOrBeanOrPropertyPlaceholder().get(1)).getValue()).getAbstractInboundEndpoint().getValue();
 
-        return sut.translate(inboundEndpointType, new QName(""), new MuleConfigurations(new HashMap<>()), "", Map.of());
+        return sut.translate(1, inboundEndpointType, new QName(""), new MuleConfigurations(new HashMap<>()), "", Map.of());
     }
 }

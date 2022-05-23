@@ -47,7 +47,7 @@ public class FlowRefTranslator implements MuleComponentToSpringIntegrationDslTra
     }
 
     @Override
-    public DslSnippet translate(FlowRef component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
+    public DslSnippet translate(int id, FlowRef component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
         String subFlowName = Helper.sanitizeForBeanMethodName(translateToJavaName(component.getName()));
         String flowRefSnippet = javaDslFlowRefTemplate.replace(SUBFLOW_NAME, subFlowName);
         return new DslSnippet(flowRefSnippet,

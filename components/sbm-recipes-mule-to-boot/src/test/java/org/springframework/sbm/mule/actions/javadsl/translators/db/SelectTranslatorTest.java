@@ -22,7 +22,7 @@ class SelectTranslatorTest {
 
         input.setMaxRows("500");
         input.setDynamicQuery("Select * from Students where name like \"Sandeep\"");
-        DslSnippet output = target.translate(input, null, null, null, null);
+        DslSnippet output = target.translate(1, input, null, null, null, null);
 
         assertThat(output.getRenderedSnippet()).isEqualTo("// TODO: substitute expression language with appropriate java code \n " + "               .handle((p, h) -> jdbcTemplate.queryForList(\"Select * from Students where name like \\\"Sandeep\\\" LIMIT 500\"))");
     }
@@ -30,7 +30,7 @@ class SelectTranslatorTest {
     @Test
     public void itShouldOmitLimitWhenMaxRowsIsNotAvailable() {
         input.setDynamicQuery("Select * from Students where name like \"Sandeep\"");
-        DslSnippet output = target.translate(input, null, null, null, null);
+        DslSnippet output = target.translate(1, input, null, null, null, null);
 
         assertThat(output.getRenderedSnippet()).isEqualTo("// TODO: substitute expression language with appropriate java code \n " + "               .handle((p, h) -> jdbcTemplate.queryForList(\"Select * from Students where name like \\\"Sandeep\\\"\"))");
     }

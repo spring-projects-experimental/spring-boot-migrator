@@ -36,7 +36,7 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
     }
 
     @Override
-    public DslSnippet translate(SelectMessageProcessorType component,
+    public DslSnippet translate(int id, SelectMessageProcessorType component,
                                 QName name,
                                 MuleConfigurations muleConfigurations,
                                 String flowName,

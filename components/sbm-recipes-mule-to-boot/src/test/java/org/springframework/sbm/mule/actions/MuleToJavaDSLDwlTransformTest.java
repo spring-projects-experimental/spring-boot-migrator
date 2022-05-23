@@ -98,7 +98,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dwlFlow() {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/dwl\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
-                                "                .transform(DwlFlowTransform::transform)\n" +
+                                "                .transform(DwlFlowTransform_2::transform)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .get();\n" +
                                 "    }}");
@@ -106,7 +106,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "\n" +
-                                "public class DwlFlowTransform {\n" +
+                                "public class DwlFlowTransform_2 {\n" +
                                 "    /*\n" +
                                 "     * TODO:\n" +
                                 "     *\n" +
@@ -119,9 +119,9 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "     *     returnCode:  20\n" +
                                 "     * }]\n" +
                                 "     * */\n" +
-                                "    public static DwlFlowTransform transform(Object payload) {\n" +
+                                "    public static DwlFlowTransform_2 transform(Object payload) {\n" +
                                 "\n" +
-                                "        return new DwlFlowTransform();\n" +
+                                "        return new DwlFlowTransform_2();\n" +
                                 "    }\n" +
                                 "}");
     }
@@ -335,8 +335,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
 
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(3);
         assertThat(projectContext.getProjectJavaSources().list().get(0).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.FlowConfigurations");
-        assertThat(projectContext.getProjectJavaSources().list().get(1).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransform");
-        assertThat(projectContext.getProjectJavaSources().list().get(2).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransform_2");
+        assertThat(projectContext.getProjectJavaSources().list().get(1).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransform_2");
+        assertThat(projectContext.getProjectJavaSources().list().get(2).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransform_0");
     }
-
 }
