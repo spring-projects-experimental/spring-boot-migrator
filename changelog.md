@@ -1,4 +1,12 @@
-## [0.11.0](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.11.0) - 2022-05-22 
+## [0.11.1](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.11.1) - 2022-05-23
+
+### Adds
+- Migrate all properties to @Stateless when migrating ejb-jar.xml to annotation (#56). Thanks, @ravig-kant
+
+### Fixes
+- recipesFound null in upgrade-asciidoc.ftl:46 breaks HTML report generation (#124). Thanks, @timtebeek
+
+## [0.11.0](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.11.0) -  
 
 ### Adds
 - Unmarshalling ejb-jar.xml for EJB 2.1 (#62) 
