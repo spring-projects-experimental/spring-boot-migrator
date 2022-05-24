@@ -38,7 +38,7 @@ public class AmqConnectorTranslator implements MuleComponentToSpringIntegrationD
     }
 
     @Override
-    public DslSnippet translate(AmqpConnectorType component,
+    public DslSnippet translate(int id, AmqpConnectorType component,
                                 QName name,
                                 MuleConfigurations muleConfigurations,
                                 String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {

@@ -45,7 +45,7 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
             "                                .defaultSubFlowMapping($OTHERWISE_STATEMENTS)\n";
 
     @Override
-    public DslSnippet translate(SelectiveOutboundRouterType component,
+    public DslSnippet translate(int id, SelectiveOutboundRouterType component,
                                 QName name,
                                 MuleConfigurations muleConfigurations,
                                 String flowName,

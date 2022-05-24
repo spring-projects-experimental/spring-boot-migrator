@@ -25,10 +25,7 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -61,14 +58,21 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
     }
 
     public List<DslSnippet> buildDslSnippets() {
-        return elements.stream()
-                .map(o -> translate(o.getValue(), o.getName(), muleConfigurations, flowName))
-                .collect(Collectors.toList());
+
+        List<DslSnippet> dslSnippets = new ArrayList<>();
+
+        for (int i = 0; i < elements.size(); i++) {
+            JAXBElement<?> o = elements.get(i);
+            dslSnippets.add(
+                    translate(i, o.getValue(), o.getName(), muleConfigurations, flowName)
+            );
+        }
+        return dslSnippets;
     }
 
-    private DslSnippet translate(Object o, QName name, MuleConfigurations muleConfigurations, String flowName) {
+    private DslSnippet translate(int id, Object o, QName name, MuleConfigurations muleConfigurations, String flowName) {
         MuleComponentToSpringIntegrationDslTranslator translator = translatorsMap.getOrDefault(o.getClass(), new UnknownStatementTranslator());
-        return translator.translate(o, name, muleConfigurations, flowName, this.translatorsMap);
+        return translator.translate(id, o, name, muleConfigurations, flowName, this.translatorsMap);
     }
 
 

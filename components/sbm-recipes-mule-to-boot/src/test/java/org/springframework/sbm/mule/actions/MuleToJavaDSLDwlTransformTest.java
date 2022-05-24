@@ -49,34 +49,6 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
             "    </flow>\n" +
             "</mule>\n";
 
-    private static final String dwlXMLWithExternalFile = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "\n" +
-            "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\"\n" +
-            "      xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-            "      xmlns:spring=\"http://www.springframework.org/schema/beans\"\n" +
-            "      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-            "      xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-            "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-            "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
-            "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd\">\n" +
-            "    <flow name=\"dwlFlow\">\n" +
-            "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/dwl\" doc:name=\"HTTP\"/>\n" +
-            "\n" +
-            "        <logger message=\"payload to be sent: #[new String(payload)]\" level=\"INFO\"\n" +
-            "                doc:name=\"Log the message content to be sent\"/>\n" +
-            "\n" +
-            "        <dw:transform-message doc:name=\"action transform via file\">\n" +
-            "            <dw:input-payload mimeType=\"text/plain\">\n" +
-            "                <dw:reader-property name=\"schemaPath\" value=\"schemas/MQOutput.ffd\"/>\n" +
-            "            </dw:input-payload>\n" +
-            "            <dw:set-payload resource=\"classpath:dwl/mapClientRiskRatingResponse.dwl\"/>\n" +
-            "        </dw:transform-message>\n" +
-            "\n" +
-            "        <logger message=\"payload to be sent: #[new String(payload)]\" level=\"INFO\"\n" +
-            "                doc:name=\"Log the message content to be sent\"/>\n" +
-            "    </flow>\n" +
-            "</mule>";
-
     @Test
     public void shouldTranslateDwlTransformationWithSetPayload() {
         addXMLFileToResource(muleXmlSetPayload);
@@ -98,7 +70,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dwlFlow() {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/dwl\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
-                                "                .transform(DwlFlowTransform::transform)\n" +
+                                "                .transform(DwlFlowTransform_2::transform)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .get();\n" +
                                 "    }}");
@@ -106,7 +78,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "\n" +
-                                "public class DwlFlowTransform {\n" +
+                                "public class DwlFlowTransform_2 {\n" +
                                 "    /*\n" +
                                 "     * TODO:\n" +
                                 "     *\n" +
@@ -119,15 +91,42 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "     *     returnCode:  20\n" +
                                 "     * }]\n" +
                                 "     * */\n" +
-                                "    public static DwlFlowTransform transform(Object payload) {\n" +
+                                "    public static DwlFlowTransform_2 transform(Object payload) {\n" +
                                 "\n" +
-                                "        return new DwlFlowTransform();\n" +
+                                "        return new DwlFlowTransform_2();\n" +
                                 "    }\n" +
                                 "}");
     }
 
     @Test
     public void shouldTransformDWLWithFileWithSetPayload() {
+        final String dwlXMLWithExternalFile = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "\n" +
+                "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\"\n" +
+                "      xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
+                "      xmlns:spring=\"http://www.springframework.org/schema/beans\"\n" +
+                "      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "      xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd\">\n" +
+                "    <flow name=\"dwlFlow\">\n" +
+                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/dwl\" doc:name=\"HTTP\"/>\n" +
+                "\n" +
+                "        <logger message=\"payload to be sent: #[new String(payload)]\" level=\"INFO\"\n" +
+                "                doc:name=\"Log the message content to be sent\"/>\n" +
+                "\n" +
+                "        <dw:transform-message doc:name=\"action transform via file\">\n" +
+                "            <dw:input-payload mimeType=\"text/plain\">\n" +
+                "                <dw:reader-property name=\"schemaPath\" value=\"schemas/MQOutput.ffd\"/>\n" +
+                "            </dw:input-payload>\n" +
+                "            <dw:set-payload resource=\"classpath:dwl/mapClientRiskRatingResponse.dwl\"/>\n" +
+                "        </dw:transform-message>\n" +
+                "\n" +
+                "        <logger message=\"payload to be sent: #[new String(payload)]\" level=\"INFO\"\n" +
+                "                doc:name=\"Log the message content to be sent\"/>\n" +
+                "    </flow>\n" +
+                "</mule>";
         addXMLFileToResource(dwlXMLWithExternalFile);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
@@ -289,5 +288,52 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "        return new MapclientriskratingresponseTransform();\n" +
                                 "    }\n" +
                                 "}");
+    }
+
+    @Test
+    public void multipleDWLTransformInSameFlowShouldProduceMultipleClasses() {
+        final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>    " +
+                "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"    " +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"    " +
+                "    xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd    " +
+                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd    " +
+                "http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd    " +
+                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd\">    " +
+                "    <flow name=\"multipleTransforms\">    " +
+                "        <dw:transform-message doc:name=\"Transform Message\">    " +
+                "            <dw:set-payload><![CDATA[%dw 1.0    " +
+                "%output application/json indent = true, skipNullOn = \"everywhere\"    " +
+                "---    " +
+                "{    " +
+                "    \"hello\": {    " +
+                "        \"world\": {    " +
+                "            \"hello\": \"indeed!\",    " +
+                "        },    " +
+                "    }    " +
+                "}]]></dw:set-payload>    " +
+                "        </dw:transform-message>    " +
+                "        <logger />    " +
+                "        <dw:transform-message doc:name=\"Build Response Message\">    " +
+                "            <dw:set-payload><![CDATA[%dw 1.0    " +
+                "%output application/json indent = true, skipNullOn = \"everywhere\"    " +
+                "---    " +
+                "{    " +
+                "    \"responseBody\": {    " +
+                "        \"responseInfo\": {    " +
+                "            \"responseStatus\": \"200\"    " +
+                "        },    " +
+                "    }    " +
+                "}]]></dw:set-payload>    " +
+                "        </dw:transform-message>    " +
+                "    </flow>    " +
+                "</mule>";
+
+        addXMLFileToResource(xml);
+        runAction();
+
+        assertThat(projectContext.getProjectJavaSources().list()).hasSize(3);
+        assertThat(projectContext.getProjectJavaSources().list().get(0).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.FlowConfigurations");
+        assertThat(projectContext.getProjectJavaSources().list().get(1).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransform_2");
+        assertThat(projectContext.getProjectJavaSources().list().get(2).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransform_0");
     }
 }

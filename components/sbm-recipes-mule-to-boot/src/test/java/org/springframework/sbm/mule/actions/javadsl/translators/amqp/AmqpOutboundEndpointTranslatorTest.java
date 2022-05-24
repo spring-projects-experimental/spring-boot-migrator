@@ -134,7 +134,7 @@ public class AmqpOutboundEndpointTranslatorTest {
 
     private DslSnippet apply(OutboundEndpointType outboundEndpointType) {
         AmqpOutboundEndpointTranslator sut = new AmqpOutboundEndpointTranslator();
-        return sut.translate(outboundEndpointType, new QName(""), new MuleConfigurations(new HashMap<>()), "", Map.of());
+        return sut.translate(1, outboundEndpointType, new QName(""), new MuleConfigurations(new HashMap<>()), "", Map.of());
     }
 
     private OutboundEndpointType getOutboundEndpointType(FlowType flowType) {

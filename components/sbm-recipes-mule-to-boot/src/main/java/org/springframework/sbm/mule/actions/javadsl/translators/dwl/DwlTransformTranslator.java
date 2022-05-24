@@ -53,6 +53,7 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
 
     @Override
     public DslSnippet translate(
+            int id,
             TransformMessageType component,
             QName name,
             MuleConfigurations muleConfigurations,
@@ -65,7 +66,7 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
                 return formExternalFileBasedDSLSnippet(component);
             }
 
-            return formEmbeddedDWLBasedDSLSnippet(component, Helper.sanitizeForBeanMethodName(flowName));
+            return formEmbeddedDWLBasedDSLSnippet(component, Helper.sanitizeForBeanMethodName(flowName), id);
         }
 
         return noSupportDslSnippet();
@@ -76,8 +77,8 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
         return new DslSnippet(noSupport, Set.of(), Set.of(), Set.of());
     }
 
-    private DslSnippet formEmbeddedDWLBasedDSLSnippet(TransformMessageType component, String flowName) {
-        String className = capitalizeFirstLetter(flowName) + "Transform";
+    private DslSnippet formEmbeddedDWLBasedDSLSnippet(TransformMessageType component, String flowName, int id) {
+        String className = capitalizeFirstLetter(flowName) + "Transform_" + id;
 
         String dwlContent = component.getSetPayload().getContent().toString();
         String dwlContentCommented = "     * " + dwlContent.replace("\n", "\n     * ") + "\n";
