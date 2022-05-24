@@ -54,12 +54,6 @@ public class ProjectContext {
         return projectResources;
     }
 
-    public List<ApplicationModule> getModules() {
-        return search(new BuildFileProjectResourceFilter()).stream()
-                .map(this::mapToModule)
-                .collect(Collectors.toList());
-    }
-
     private ApplicationModule mapToModule(BuildFile buildFile) {
         String buildFileName = "";
         Path modulePath = projectRootDirectory.relativize(buildFile.getAbsolutePath().getParent());
@@ -82,7 +76,10 @@ public class ProjectContext {
     }
 
     public ApplicationModules getApplicationModules() {
-        return new ApplicationModules(getModules());
+        List<ApplicationModule> applicationModules = search(new BuildFileProjectResourceFilter()).stream()
+                .map(this::mapToModule)
+                .collect(Collectors.toList());
+        return new ApplicationModules(applicationModules);
     }
 
 }

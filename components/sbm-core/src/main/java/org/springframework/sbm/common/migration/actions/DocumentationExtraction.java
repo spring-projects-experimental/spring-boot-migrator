@@ -32,7 +32,7 @@ public class DocumentationExtraction extends AbstractAction {
     public void apply(ProjectContext context) {
         Path rootDirectory = context.getProjectRootDirectory();
 
-        context.getModules().forEach(module -> {
+        context.getApplicationModules().list().forEach(module -> {
             Path sourcePath = module.getBaseJavaSourceLocation().getSourceFolder();
             Path sourceDir = rootDirectory.relativize(sourcePath);
             module.getMainJavaSources().stream()
