@@ -58,13 +58,13 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow foreach() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundGateway(\"/foreachtest\"))\n" +
+                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/foreach\")).handle((p, h) -> p)\n" +
                         "                //TODO: translate expression #[['apple', 'banana', 'orange']] which must produces an array\n" +
                         "                // to iterate over\n" +
                         "                .split()\n" +
-                        "                .log()\n" +
+                        "                .log(LoggingHandler.Level.INFO, \"${payload}\")\n" +
                         "                .aggregate()\n" +
-                        "                .log()\n" +
+                        "                .log(LoggingHandler.Level.INFO, \"Done with for looping\")\n" +
                         "                .get();\n" +
                         "    }}");
     }

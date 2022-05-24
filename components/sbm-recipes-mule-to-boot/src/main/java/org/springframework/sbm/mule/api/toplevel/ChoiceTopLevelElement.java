@@ -35,7 +35,6 @@ public class ChoiceTopLevelElement extends AbstractTopLevelElement {
         Set<String> requiredImports = getRequiredImports();
         requiredImports.add("org.springframework.integration.dsl.IntegrationFlow");
         requiredImports.add("org.springframework.integration.dsl.IntegrationFlows");
-        requiredImports.add("org.springframework.integration.amqp.dsl.Amqp");
         getDslSnippets().forEach(ds -> requiredImports.addAll(ds.getRequiredImports()));
         return sb.toString();
     }

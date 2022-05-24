@@ -76,7 +76,8 @@ public class JavaDSLActionBaseTest {
                 new DwlTransformTranslator(),
                 new HttpRequestTranslator(),
                 new ChoiceTranslator(),
-                new SelectTranslator()
+                new SelectTranslator(),
+                new ForeachTranslator()
         );
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
                 new FlowTopLevelElementFactory(translators),
