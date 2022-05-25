@@ -20,6 +20,7 @@ import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.Table;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
+import org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_SqlScriptDataSourceInitializationCondition;
 import org.springframework.sbm.boot.upgrade_24_25.filter.SqlScriptDataSourceInitializationPropertiesAnalyzer;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
@@ -33,9 +34,7 @@ public class Boot_24_25_SqlScriptDataSourceInitialization implements UpgradeSect
 
     @Override
     public boolean isApplicable(ProjectContext projectContext) {
-        List<SpringBootApplicationProperties> filteredResources = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
-        List<SqlScriptDataSourceInitializationPropertiesAnalyzer.DeperecatedPropertyMatch> properties = new SqlScriptDataSourceInitializationPropertiesAnalyzer().findDeprecatedProperties(filteredResources);
-        return !properties.isEmpty();
+        return new Boot_24_25_SqlScriptDataSourceInitializationCondition().evaluate(projectContext);
     }
 
     @Override

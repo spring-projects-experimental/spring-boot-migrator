@@ -20,7 +20,7 @@ import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.Table;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
-import org.springframework.sbm.boot.upgrade_24_25.actions.Boot_24_25_SpringDataJpaActionCondition;
+import org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_SpringDataJpaActionCondition;
 import org.springframework.sbm.boot.upgrade_24_25.filter.SpringDataJpaAnalyzer;
 import org.springframework.sbm.java.api.MethodCall;
 import org.springframework.sbm.engine.context.ProjectContext;

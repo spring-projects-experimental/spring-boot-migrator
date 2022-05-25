@@ -15,10 +15,19 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.conditions;
 
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
-public class HasSpringBoot24Parent implements Condition {
+public class HasSpringBootParentOfVersion implements Condition {
+
+    /**
+     * VersionPattern will be used for {@code startsWith} check against the version number found.
+     */
+    @Setter
+    private String versionPattern;
+
     @Override
     public String getDescription() {
         return "Check if updating Spring Boot version from 2.4.x to 2.5.x is applicable.";
@@ -28,6 +37,6 @@ public class HasSpringBoot24Parent implements Condition {
     public boolean evaluate(ProjectContext context) {
         return context.getBuildFile().hasParent() &&
                 context.getBuildFile().getParentPomDeclaration().getArtifactId().equals("spring-boot-starter-parent") &&
-                context.getBuildFile().getParentPomDeclaration().getVersion().startsWith("2.4.");
+                context.getBuildFile().getParentPomDeclaration().getVersion().startsWith(versionPattern);
     }
 }
