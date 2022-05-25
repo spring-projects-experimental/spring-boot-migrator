@@ -1,7 +1,8 @@
 - name: boot-2.4-2.5-upgrade-report
   description: Create Upgrade Report for a Spring Boot 2.4 Application
   condition:
-    type: org.springframework.sbm.common.migration.conditions.TrueCondition
+    type: org.springframework.sbm.boot.upgrade_24_25.conditions.IsAnyMatchingSpringBootVersion
+    versionPatterns: 2.4.,2.5.
   actions:
     - type: org.springframework.sbm.boot.upgrade_24_25.actions.Boot_24_25_UpgradeReportAction
       description: Create Upgrade Report for a Spring Boot 2.4 Application

@@ -1,8 +1,9 @@
 - name: boot-2.4-2.5-spring-data-jpa
+  description: Rename JpaRepository methods getId() and calls to getOne()
   condition:
-    type: org.springframework.sbm.common.migration.conditions.TrueCondition
+    type: org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_SpringDataJpaActionCondition
   actions:
     - type: org.springframework.sbm.boot.upgrade_24_25.actions.Boot_24_25_SpringDataJpaAction
-      description: Rename JpaRepository mehtods getId() and calls to getOne()
+      description: Rename JpaRepository methods getId() and calls to getOne()
       condition:
-        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+        type: org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_SpringDataJpaActionCondition

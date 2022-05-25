@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
+import org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_SpringDataJpaActionCondition;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.boot.upgrade_24_25.filter.SpringDataJpaAnalyzer;
 import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.boot.upgrade_24_25.actions;
+package org.springframework.sbm.boot.upgrade_24_25.conditions;
 
 import org.springframework.sbm.boot.upgrade_24_25.filter.SpringDataJpaAnalyzer;
 import org.springframework.sbm.engine.recipe.Condition;
