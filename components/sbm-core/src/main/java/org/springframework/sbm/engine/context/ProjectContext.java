@@ -54,19 +54,13 @@ public class ProjectContext {
         return projectResources;
     }
 
-    private ApplicationModule mapToModule(BuildFile buildFile) {
-        String buildFileName = "";
-        Path modulePath = projectRootDirectory.relativize(buildFile.getAbsolutePath().getParent());
-        return new ApplicationModule(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator);
-    }
+
 
     public BuildFile getBuildFile() {
         return search(new RootBuildFileFilter());
     }
 
     public <T> T search(ProjectResourceFinder<T> finder) {
-
-
         return finder.apply(getProjectResources());
     }
 
@@ -82,4 +76,9 @@ public class ProjectContext {
         return new ApplicationModules(applicationModules);
     }
 
+    private ApplicationModule mapToModule(BuildFile buildFile) {
+        String buildFileName = "";
+        Path modulePath = projectRootDirectory.relativize(buildFile.getAbsolutePath().getParent());
+        return new ApplicationModule(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator);
+    }
 }
