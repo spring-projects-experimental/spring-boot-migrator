@@ -92,10 +92,82 @@ A recipe can be defined as Spring bean using @Bean annotated method, see link:{r
 NOTE: Remember to provide a description to all Actions to display the description to the user when the Action is applied.
 
 === Create a Condition
+Every `Action` and every `Recipe` must have a `Condition` which defines if the `Recipe` or `Action` is applicable.
+Therefore the `Condition` interface must be implemented which defines a `evaluate(ProjectContext)` method which must return true if the Recipe or Action is applicable and false otherwise.
+A condition should only read from the `ProjectContext` and never modify the AST.
+
+[source, java]
+....
+public class MyCondition implements Condition {
+    @Override
+    public boolean evaluate(ProjectContext context) {
+        // analyze ProjectContext to evaluate condition
+    }
+}
+....
+
+=== Single and Multi module projects
+Projects can come as single module or multi-module project.
+Working with single module projects is significantly easier because only one `BuildFile` exists.
+With multi-module projects the application modules play a central role and there must be means to
+select a module.
+
+==== Application Modules
+A common multi-module project has a root modules which consists of one or more child modules which again can consist of multiple child modules and so on.
+
+* The root module
+* The application module(s), bundle all modules of an application and define the composition of deployable artifact buulding a runnable application, e.g. a war module
+* The component module(s), define reusable components which are not deployable in isolation
+
+[source, java]
+....
+public void apply(ProjectContext context) {
+    // Retrieve ApplicationModules
+    // TODO: Maybe ProjectModules ?
+    Modules modules = context.getModules();
+
+    // TODO: is this sufficient --> must all child modules share same groupId?
+    Module module = modules.getModule("module-artifact-id");
+
+    boolean isMultiModule = modules.isMultiModuleProject();
+    Module root = modules.getRootModule(); // type="pom" or type="ear"
+    modules.getApplicationModules(); // type="war", containing "main" method
+    modules.getComponentModules(); // type="jar" without main method
+
+    List<Module> parentModules = module.getParentModules();
+    List<Module> subModules = module.getSubModules();
+}
+....
+
 
 === BuildFile and Dependencies
+The buildfiles of the scanned project are represented by `BuildFile`.
+The `BuildFile` API offers methods to read and modify the buildfile.
+``BuildFile``s can be retrieved through the `ProjectContext`.
+
+[source, java]
+....
+    // Retrieve the root build file
+    BuildFile rootBuildFile = projectContext.getBuildFile();
+
+....
+
 
 ==== Adding a Dependency
+[source, java]
+....
+public void apply(ProjectContext context) {
+    // ...get buildFile for module
+    BuildFile buildFile = context...
+    Dependency dependency = Dependency.builder()
+                                .groupId("...")
+                                .artifactId("...")
+                                .version("...")
+                                .scope("test")
+                                .build();
+    buildFile.addDependency(dependency);
+}
+....
 
 ==== Removing a Dependency
 
