@@ -65,6 +65,7 @@ public class ApiRouterKitFlowTopLevelElement extends AbstractTopLevelElement {
     public Set<String> getRequiredImports() {
         Set<String> requiredImports = super.getRequiredImports();
         requiredImports.add("org.springframework.http.HttpMethod");
+        requiredImports.add("org.springframework.integration.http.dsl.Http");
         return requiredImports;
     }
 
