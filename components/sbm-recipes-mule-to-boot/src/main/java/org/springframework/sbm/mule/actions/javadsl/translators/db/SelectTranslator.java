@@ -44,9 +44,11 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
 
         String limitString = component.getMaxRows() == null ? "" : " LIMIT " + component.getMaxRows();
 
+        String query = component.getDynamicQuery() == null ? component.getParameterizedQuery()
+                : component.getDynamicQuery();
         return new DslSnippet("// TODO: substitute expression language with appropriate java code \n" +
                 "                .handle((p, h) -> jdbcTemplate.queryForList(\"" +
-                escapeDoubleQuotes(component.getDynamicQuery())
+                escapeDoubleQuotes(query)
                 + limitString + "\"))",
                 Collections.emptySet(),
                 Set.of(
