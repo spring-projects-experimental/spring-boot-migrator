@@ -77,8 +77,10 @@ public class JavaDSLActionBaseTest {
                 new HttpRequestTranslator(),
                 new ChoiceTranslator(),
                 new SelectTranslator(),
-                new ForeachTranslator()
+                new ForeachTranslator(),
+                new AbstractTransactionalTranslator()
         );
+
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
                 new FlowTopLevelElementFactory(translators),
                 new SubflowTopLevelElementFactory(translators)

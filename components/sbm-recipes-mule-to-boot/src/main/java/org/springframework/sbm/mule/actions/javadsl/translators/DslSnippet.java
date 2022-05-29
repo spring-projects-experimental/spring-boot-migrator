@@ -51,16 +51,18 @@ public class DslSnippet {
 
     private final String externalClassContent;
 
+    private final String renderedDependentFlows;
+
     public DslSnippet(String renderedSnippet,
                       Set<String> requiredImports) {
-        this(renderedSnippet, requiredImports, Collections.emptySet(), Collections.emptySet(), false, "");
+        this(renderedSnippet, requiredImports, Collections.emptySet(), Collections.emptySet(), false,"", "");
     }
 
     public DslSnippet(String renderedSnippet,
                       Set<String> requiredImports,
                       Set<String> requiredDependencies,
                       Set<Bean> beans) {
-        this(renderedSnippet, requiredImports, requiredDependencies, beans, false, "");
+        this(renderedSnippet, requiredImports, requiredDependencies, beans, false, "","");
     }
 
     public DslSnippet(String renderedSnippet,
@@ -68,14 +70,25 @@ public class DslSnippet {
                       Set<String> requiredDependencies,
                       Set<Bean> beans,
                       boolean isUnknownStatement) {
-        this(renderedSnippet, requiredImports, requiredDependencies, beans, isUnknownStatement, "");
+        this(renderedSnippet, requiredImports, requiredDependencies, beans, isUnknownStatement, "","");
     }
 
     public DslSnippet(String renderedSnippet,
                       Set<String> requiredImports,
                       Set<String> requiredDependencies,
                       String externalClassContent) {
-        this(renderedSnippet, requiredImports, requiredDependencies, Collections.emptySet(), false, externalClassContent);
+        this(renderedSnippet, requiredImports, requiredDependencies, Collections.emptySet(), false, externalClassContent, "");
+    }
+
+    public DslSnippet(String renderedSnippet,
+                      Set<String> requiredImports,
+                      Set<String> requiredDependencies,
+                      Set<Bean> beans,
+                      String externalClassContent,
+                      String renderedDependentFlows
+    ) {
+        this(renderedSnippet, requiredImports, requiredDependencies, beans, false,
+                externalClassContent,renderedDependentFlows);
     }
 
     public static String renderMethodParameters(List<DslSnippet> dslSnippets) {

@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MuleToJavaDSLTransactionalTest extends JavaDSLActionBaseTest {
 
     @Test
-    public void detectsTransactional() {
+    public void transactionalComponentTest() {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "\n" +
                 "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
@@ -19,8 +19,8 @@ public class MuleToJavaDSLTransactionalTest extends JavaDSLActionBaseTest {
                 "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
                 "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
                 "http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd\">\n" +
-                "    <flow name=\"foreach\">\n" +
-                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/foreach\" doc:name=\"HTTP\"/>\n" +
+                "    <flow name=\"example\">\n" +
+                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/transactional\" doc:name=\"HTTP\"/>\n" +
                 "        <transactional>\n" +
                 "            <foreach collection=\"#[['apple', 'banana', 'orange']]\">\n" +
                 "                <logger message=\"#[payload]\" level=\"INFO\" />\n" +
@@ -38,15 +38,27 @@ public class MuleToJavaDSLTransactionalTest extends JavaDSLActionBaseTest {
                 "import org.springframework.context.annotation.Configuration;\n" +
                 "import org.springframework.integration.dsl.IntegrationFlow;\n" +
                 "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                "import org.springframework.integration.handler.LoggingHandler;\n" +
                 "import org.springframework.integration.http.dsl.Http;\n" +
                 "\n" +
                 "@Configuration\n" +
                 "public class FlowConfigurations {\n" +
                 "    @Bean\n" +
-                "    IntegrationFlow foreach() {\n" +
-                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/foreach\")).handle((p, h) -> p)\n" +
-                "                //FIXME: element is not supported for conversion: <transactional/>\n" +
+                "    IntegrationFlow example(org.springframework.integration.dsl.IntegrationFlow exampleTransactional_1) {\n" +
+                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/transactional\")).handle((p, h) -> p)\n" +
+                "                .gateway(exampleTransactional_1, e -> e.transactional(true))\n" +
                 "                .get();\n" +
+                "    }\n" +
+                "\n" +
+                "    @Bean\n" +
+                "    IntegrationFlow exampleTransactional_1() {\n" +
+                "        return flow -> flow\n" +
+                "                //TODO: translate expression #[['apple', 'banana', 'orange']] which must produces an array\n" +
+                "                // to iterate over\n" +
+                "                .split()\n" +
+                "                .log(LoggingHandler.Level.INFO, \"${payload}\")\n" +
+                "                .aggregate()\n" +
+                "                .log(LoggingHandler.Level.INFO, \"Done with for looping\");\n" +
                 "    }}");
     }
 

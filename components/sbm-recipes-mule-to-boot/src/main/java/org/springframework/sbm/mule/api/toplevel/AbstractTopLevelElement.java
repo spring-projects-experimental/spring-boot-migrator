@@ -100,9 +100,8 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
     public String renderDslSnippet() {
         StringBuilder sb = new StringBuilder();
         sb.append("@Bean\n");
-        String methodName = Helper.sanitizeForBeanMethodName(getFlowName());
         String methodParams = DslSnippet.renderMethodParameters(dslSnippets);
-        sb.append("IntegrationFlow ").append(methodName).append("(").append(methodParams).append(") {\n");
+        sb.append("IntegrationFlow ").append(getGeneratedIdentity()).append("(").append(methodParams).append(") {\n");
         sb.append(composePrefixDslCode());
         String dsl = getDslSnippets().stream().map(DslSnippet::getRenderedSnippet).collect(Collectors.joining("\n"));
         sb.append(dsl).append("\n");
@@ -111,9 +110,12 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
         Set<String> requiredImports = getRequiredImports();
         requiredImports.add("org.springframework.integration.dsl.IntegrationFlow");
         requiredImports.add("org.springframework.integration.dsl.IntegrationFlows");
-        requiredImports.add("org.springframework.integration.amqp.dsl.Amqp");
         getDslSnippets().forEach(ds -> requiredImports.addAll(ds.getRequiredImports()));
         return sb.toString();
+    }
+
+    public String getGeneratedIdentity() {
+        return Helper.sanitizeForBeanMethodName(getFlowName());
     }
 
     @Override
@@ -121,6 +123,22 @@ public abstract class AbstractTopLevelElement implements TopLevelElement {
         return dslSnippets.stream()
                 .map(DslSnippet::getExternalClassContent)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean hasGeneratedDependentFlows() {
+        return dslSnippets
+                .stream()
+                .anyMatch(f -> f.getRenderedDependentFlows() != null);
+    }
+
+    @Override
+    public List<String> generatedDependentFlows() {
+        return dslSnippets
+                .stream()
+                .map(DslSnippet::getRenderedDependentFlows)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     protected String composePrefixDslCode() {
