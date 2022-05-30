@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import javax.xml.namespace.QName;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -76,12 +77,19 @@ public class TransactionalTranslator implements MuleComponentToSpringIntegration
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
+        Optional<String> optionalExternalClassContent = transactionalTopLevelElement
+                .getDslSnippets()
+                .stream()
+                .map(DslSnippet::getExternalClassContent)
+                .filter(k -> k !=null && !k.isBlank())
+                .findFirst();
+
         return new DslSnippet(
                 ".gateway(" + beanName + ", e -> e.transactional(true))",
                 requiredImports,
                 dependencies,
                 beans,
-                "",
+                optionalExternalClassContent.orElse(null),
                 transactionalTopLevelElement.renderDslSnippet()
         );
     }

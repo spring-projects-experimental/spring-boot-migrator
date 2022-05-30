@@ -24,9 +24,7 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -76,6 +74,13 @@ public class ForeachTranslator implements MuleComponentToSpringIntegrationDslTra
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
+        Optional<String> optionalExternalClassContent = forEachTopLevelTranslations
+                .getDslSnippets()
+                .stream()
+                .map(DslSnippet::getExternalClassContent)
+                .filter(k -> k !=null && !k.isBlank())
+                .findFirst();
+
         return new DslSnippet(
                 "                //TODO: translate expression " + component.getCollection() + " which must produces an array\n" +
                         "                // to iterate over\n" +
@@ -84,7 +89,9 @@ public class ForeachTranslator implements MuleComponentToSpringIntegrationDslTra
                         "                .aggregate()",
                 requiredImports,
                 dependencies,
-                beans
+                beans,
+                optionalExternalClassContent.orElse(null),
+                ""
         );
     }
 }
