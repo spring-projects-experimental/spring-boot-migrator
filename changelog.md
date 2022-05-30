@@ -1,3 +1,11 @@
+## [0.11.2](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.11.2) - 2022-05-27
+
+### Adds
+- 
+
+### Fixes
+- Fix Conditions for Spring Boot 2.4 to 2.5 Upgrade recipes (#133). Thanks @Turbots
+
 ## [0.11.1](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.11.1) - 2022-05-23
 
 ### Adds
