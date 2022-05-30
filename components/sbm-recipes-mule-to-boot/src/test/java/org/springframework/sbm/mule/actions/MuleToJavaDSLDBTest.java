@@ -59,7 +59,7 @@ public class MuleToJavaDSLDBTest extends JavaDSLActionBaseTest {
         assertThat(listOfImportedArtifacts).contains("spring-integration-jdbc");
         assertThat(listOfImportedArtifacts).contains("spring-boot-starter-jdbc");
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +

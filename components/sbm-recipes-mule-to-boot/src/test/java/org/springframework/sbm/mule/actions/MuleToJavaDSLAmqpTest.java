@@ -63,7 +63,7 @@ public class MuleToJavaDSLAmqpTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(muleInboundOutboundXml);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "import org.springframework.amqp.rabbit.core.RabbitTemplate;\n" +
