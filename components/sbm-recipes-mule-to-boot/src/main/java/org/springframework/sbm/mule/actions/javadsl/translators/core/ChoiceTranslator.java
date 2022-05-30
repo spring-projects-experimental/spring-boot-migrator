@@ -125,10 +125,10 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                         "                        m -> m\n" +
                         whenSubflowMappings +
                         otherwiseSubflowMappings +
-                        "                )")
-                .requiredImports(requiredImports)
-                .requiredDependencies(requiredDependencies)
-                .beans(requiredBeans)
-                .build();
+                        "                )",
+                requiredImports,
+                requiredDependencies,
+                requiredBeans
+        );
     }
 }
