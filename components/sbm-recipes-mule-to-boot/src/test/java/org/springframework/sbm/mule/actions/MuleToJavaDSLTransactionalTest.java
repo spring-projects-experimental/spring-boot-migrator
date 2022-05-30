@@ -77,6 +77,44 @@ public class MuleToJavaDSLTransactionalTest extends JavaDSLActionBaseTest {
                 "    }}");
     }
 
+    @Test
+    public void transactionalChildNodeUsesDWLTransformation() {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "\n" +
+                "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
+                "      xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns:tracking=\"http://www.mulesoft.org/schema/mule/ee/tracking\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
+                "      xmlns:spring=\"http://www.springframework.org/schema/beans\"\n" +
+                "      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "      xsi:schemaLocation=\"\n" +
+                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd\">\n" +
+                "    <flow name=\"example\">\n" +
+                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/transactional\" doc:name=\"HTTP\"/>\n" +
+                "        <transactional>\n" +
+                "            <foreach collection=\"#[['apple', 'banana', 'orange']]\">\n" +
+                "                <logger message=\"#[payload]\" level=\"INFO\" />\n" +
+                "                <dw:transform-message doc:name=\"action transform\">\n" +
+                "                    <dw:set-payload><![CDATA[%dw 1.0\n" +
+                "%output application/json\n" +
+                "---\n" +
+                "{\n" +
+                "    action_Code: 10,\n" +
+                "    returnCode:  20\n" +
+                "}]]></dw:set-payload>\n" +
+                "                </dw:transform-message>\n" +
+                "            </foreach>\n" +
+                "            <logger message=\"Done with for looping\" level=\"INFO\" />\n" +
+                "        </transactional>\n" +
+                "    </flow>\n" +
+                "</mule>";
+
+        addXMLFileToResource(xml);
+        runAction();
+        assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
+    }
+
     private String getGeneratedConfigFile() {
         return projectContext.getProjectJavaSources().list().get(0).print();
     }
