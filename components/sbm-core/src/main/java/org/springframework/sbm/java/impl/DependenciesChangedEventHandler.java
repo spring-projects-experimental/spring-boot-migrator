@@ -39,11 +39,10 @@ import java.util.stream.Collectors;
 public class DependenciesChangedEventHandler {
     private final ProjectContextHolder projectContextHolder;
     private final ApplicationEventPublisher applicationEventPublisher;
-
+    private final JavaParser javaParser;
     @EventListener
     public void onDependenciesChanged(DependenciesChangedEvent event) {
         if (projectContextHolder.getProjectContext() != null) {
-            JavaParser currentJavaParser = JavaParserFactory.getCurrentJavaParser();
             Set<Parser.Input> compilationUnitsSet = projectContextHolder.getProjectContext().getProjectJavaSources().asStream()
                     .map(js -> js.getResource().getSourceFile())
                     .map(js -> new Parser.Input(js.getSourcePath(), () -> new ByteArrayInputStream(js.printAll().getBytes(StandardCharsets.UTF_8))))
@@ -51,7 +50,7 @@ public class DependenciesChangedEventHandler {
             List<Parser.Input> compilationUnits = new ArrayList<>(compilationUnitsSet);
 
             Path projectRootDirectory = projectContextHolder.getProjectContext().getProjectRootDirectory();
-            List<J.CompilationUnit> parsedCompilationUnits = currentJavaParser.parseInputs(compilationUnits, projectRootDirectory, new RewriteExecutionContext(applicationEventPublisher));
+            List<J.CompilationUnit> parsedCompilationUnits = javaParser.parseInputs(compilationUnits, projectRootDirectory, new RewriteExecutionContext(applicationEventPublisher));
 
             parsedCompilationUnits.forEach(cu -> {
                 projectContextHolder.getProjectContext().getProjectJavaSources().asStream()

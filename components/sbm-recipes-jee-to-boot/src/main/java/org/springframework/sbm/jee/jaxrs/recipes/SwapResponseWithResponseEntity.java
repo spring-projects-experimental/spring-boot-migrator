@@ -22,12 +22,12 @@ import org.openrewrite.java.*;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.MethodInvocation;
-import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 import org.springframework.sbm.java.migration.visitor.VisitorUtils;
 import org.springframework.sbm.search.recipe.CommentJavaSearchResult;
 
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation.methodInvocationMatcher;
@@ -35,10 +35,9 @@ import static org.springframework.sbm.java.migration.recipes.RewriteMethodInvoca
 
 public class SwapResponseWithResponseEntity extends Recipe {
 
-    public SwapResponseWithResponseEntity() {
+    public SwapResponseWithResponseEntity(Supplier<JavaParser> javaParserSupplier) {
 
-        doNext(new SwapStatusForHttpStatus());
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
+        doNext(new SwapStatusForHttpStatus(javaParserSupplier));
         // #status(int)
         doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response status(int)"), (v, m, addImport) -> {
             String args = m.getArguments().stream().map(a -> "#{any()}").collect(Collectors.joining(", "));

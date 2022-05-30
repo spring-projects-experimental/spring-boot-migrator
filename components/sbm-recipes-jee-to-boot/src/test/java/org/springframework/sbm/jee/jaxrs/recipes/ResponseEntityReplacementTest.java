@@ -15,16 +15,17 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
-import org.openrewrite.java.tree.J;
+import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.java.impl.JavaParserFactory;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.Recipe;
 
-import java.util.List;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +37,8 @@ public class ResponseEntityReplacementTest {
             new AbstractAction() {
                 @Override
                 public void apply(ProjectContext context) {
-                    Recipe r = new SwapResponseWithResponseEntity().doNext(new ReplaceMediaType());
+                    Supplier<JavaParser> javaParserSupplier = () -> new RewriteJavaParser(new ApplicationProperties());
+                    Recipe r = new SwapResponseWithResponseEntity(javaParserSupplier).doNext(new ReplaceMediaType(javaParserSupplier));
                     context.getProjectJavaSources().apply(r);
                 }
             };

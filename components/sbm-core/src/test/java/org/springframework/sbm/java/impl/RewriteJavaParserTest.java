@@ -19,6 +19,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
+import org.springframework.sbm.project.resource.ApplicationProperties;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -36,7 +37,8 @@ public class RewriteJavaParserTest {
         ByteArrayOutputStream sysOutBuffer = new ByteArrayOutputStream();
         System.setOut(new PrintStream(sysOutBuffer));
 
-        RewriteJavaParser rewriteJavaParser = new RewriteJavaParser();
+        ApplicationProperties applicationProperties = new ApplicationProperties();
+        RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(applicationProperties);
         sysOutBuffer.reset();
         rewriteJavaParser.parse("compile error");
 

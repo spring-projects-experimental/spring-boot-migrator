@@ -23,7 +23,6 @@ import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
-import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.springframework.sbm.java.migration.recipes.FindReplaceFieldAccessors;
 import org.springframework.sbm.java.migration.recipes.RewriteConstructorInvocation;
 import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
@@ -31,12 +30,13 @@ import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static org.springframework.sbm.java.migration.recipes.RewriteConstructorInvocation.constructorMatcher;
 
 public class ReplaceMediaType extends Recipe {
 
-    public ReplaceMediaType() {
+    public ReplaceMediaType(Supplier<JavaParser> javaParserSupplier) {
 
         // Constants
         Map<String, String> mappings = new HashMap<>();
@@ -82,16 +82,15 @@ public class ReplaceMediaType extends Recipe {
         mappings.put("WILDCARD", "ALL_VALUE");
         mappings.put("WILDCARD_TYPE", "ALL");
 
-        doNext(new FindReplaceFieldAccessors(() -> JavaParserFactory.getCurrentJavaParser(), "javax.ws.rs.core.MediaType", "org.springframework.http.MediaType", mappings));
+        doNext(new FindReplaceFieldAccessors(javaParserSupplier, "javax.ws.rs.core.MediaType", "org.springframework.http.MediaType", mappings));
 
-        doNext(new FindReplaceFieldAccessors(() -> JavaParserFactory.getCurrentJavaParser(), "javax.ws.rs.core.MediaType", "org.springframework.util.MimeType", Map.of(
+        doNext(new FindReplaceFieldAccessors(javaParserSupplier, "javax.ws.rs.core.MediaType", "org.springframework.util.MimeType", Map.of(
                 "CHARSET_PARAMETER", "PARAM_CHARSET",
                 "MEDIA_TYPE_WILDCARD", "WILDCARD_TYPE"
         )));
 
 
         // instance methods
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
         // #isCompatible(MediaType)
         doNext(new RewriteMethodInvocation(RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.MediaType isCompatible(javax.ws.rs.core.MediaType)"), (v, m, addImport) -> {
             JavaType type = JavaType.buildType("org.springframework.http.MediaType");

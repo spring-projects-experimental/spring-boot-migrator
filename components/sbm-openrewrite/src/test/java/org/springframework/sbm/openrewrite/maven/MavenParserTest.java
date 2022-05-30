@@ -107,7 +107,7 @@ public class MavenParserTest {
 		MavenPomDownloader mavenPomDownloader = new MavenPomDownloader(projectPoms, ctx);
 		List<ResolvedDependency> resolvedDependencies = r.getDependencies().get(Scope.Compile);
 		assertThat(r.getDependencies()).hasSize(4);
-		assertThat(resolvedDependencies).hasSize(81);
+		assertThat(resolvedDependencies).hasSize(81); // FIXME: #7 was 81 before ?!
 	}
 
 }

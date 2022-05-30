@@ -17,9 +17,7 @@ package org.springframework.sbm.jee.jaxrs.recipes;
 
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeType;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
-import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 
 public class SwapFamilyForSeries extends Recipe {

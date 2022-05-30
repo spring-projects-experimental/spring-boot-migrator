@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.java.api.Annotation;
 import org.springframework.sbm.java.api.Expression;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
@@ -35,10 +36,12 @@ public class OpenRewriteAnnotation implements Annotation {
 
     private final J.Annotation wrapped;
     private final JavaRefactoring refactoring;
+    private final JavaParser javaParser;
 
-    public OpenRewriteAnnotation(J.Annotation a, JavaRefactoring refactoring) {
+    public OpenRewriteAnnotation(J.Annotation a, JavaRefactoring refactoring, JavaParser javaParser) {
         this.wrapped = a;
         this.refactoring = refactoring;
+        this.javaParser = javaParser;
     }
 
     // FIXME: [FK] thoroughly test this method
@@ -76,7 +79,7 @@ public class OpenRewriteAnnotation implements Annotation {
 
     @Override
     public void setAttribute(String attribute, Object value, Class valueType) {
-        AddOrReplaceAnnotationAttribute visitor = new AddOrReplaceAnnotationAttribute(() -> JavaParserFactory.getCurrentJavaParser(), wrapped, attribute, value, valueType);
+        AddOrReplaceAnnotationAttribute visitor = new AddOrReplaceAnnotationAttribute(() -> javaParser, wrapped, attribute, value, valueType);
         refactoring.refactor(visitor);
     }
 

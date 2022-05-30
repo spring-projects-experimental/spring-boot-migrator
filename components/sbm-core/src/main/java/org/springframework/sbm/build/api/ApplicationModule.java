@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.api;
 
+import org.openrewrite.java.JavaParser;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.springframework.sbm.build.impl.JavaSourceSetImpl;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
@@ -50,6 +51,7 @@ public class ApplicationModule {
     private final ProjectResourceSet projectResourceSet;
     private final JavaRefactoringFactory javaRefactoringFactory;
     private final BasePackageCalculator basePackageCalculator;
+    private final JavaParser javaParser;
 
     public JavaSourceLocation getBaseJavaSourceLocation() {
         return getMainJavaSourceSet().getJavaSourceLocation();
@@ -61,7 +63,7 @@ public class ApplicationModule {
 
     public JavaSourceSet getTestJavaSourceSet() {
         Path testJavaPath = Path.of("src/test/java");
-        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, testJavaPath, javaRefactoringFactory, basePackageCalculator);
+        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, testJavaPath, javaRefactoringFactory, basePackageCalculator, javaParser);
     }
 
     public List<? extends JavaSource> getMainJavaSources() {
@@ -77,7 +79,7 @@ public class ApplicationModule {
     public JavaSourceSet getMainJavaSourceSet() {
         Path mainJavaPath = Path.of("src/main/java");
 //        return new JavaSourceSetImpl(projectResourceSet, projectRootDir.resolve(modulePath).resolve(mainJavaPath), javaRefactoringFactory);
-        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, mainJavaPath, javaRefactoringFactory, basePackageCalculator);
+        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, mainJavaPath, javaRefactoringFactory, basePackageCalculator, javaParser);
     }
 
     private List<JavaSource> cast(List<RewriteSourceFileHolder<? extends SourceFile>> filter) {
@@ -122,7 +124,8 @@ public class ApplicationModule {
                             modulePath,
                             projectResourceSet,
                             javaRefactoringFactory,
-                            basePackageCalculator
+                            basePackageCalculator,
+                            javaParser
                     ))
                     .collect(Collectors.toList());
         } else {

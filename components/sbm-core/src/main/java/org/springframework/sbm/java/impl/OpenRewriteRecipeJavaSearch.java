@@ -34,16 +34,17 @@ import java.util.stream.Collectors;
 public class OpenRewriteRecipeJavaSearch {
 
     private final Function<List<J.CompilationUnit>, List<Result>> searchRecipe;
+    private final JavaParser javaParser;
 
-    public OpenRewriteRecipeJavaSearch(Function<List<J.CompilationUnit>, List<Result>> searchRecipe) {
+    public OpenRewriteRecipeJavaSearch(Function<List<J.CompilationUnit>, List<Result>> searchRecipe, JavaParser javaParser) {
         this.searchRecipe = searchRecipe;
+        this.javaParser = javaParser;
     }
 
     public void commentFindings(List<? extends JavaSource> javaSources, String commentText) {
         List<J.CompilationUnit> cus = getCompilationUnits(javaSources);
         List<Result> results = this.searchRecipe.apply(cus);
         String comment = "\n/*\n" + commentText + "\n*/\n";
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
         results.stream()
                 .forEach(result -> {
                     OpenRewriteJavaSource affectedJavaSource = javaSources.stream()

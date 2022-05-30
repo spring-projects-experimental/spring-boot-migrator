@@ -18,8 +18,8 @@ package org.springframework.sbm.jee.jaxrs.recipes;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.java.impl.JavaParserFactory;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.junit.jupiter.api.Test;
@@ -370,7 +370,7 @@ public class ResponseBuilderTest {
         String actual = projectContext.getProjectJavaSources().list().get(0).print();
 
         // verify it compiles
-        List<J.CompilationUnit> parse = JavaParserFactory.getCurrentJavaParser().parse(actual);
+        List<J.CompilationUnit> parse = new RewriteJavaParser(new ApplicationProperties()).parse(actual);
 
         assertThat(actual)
                 .as(TestDiff.of(actual, expected))

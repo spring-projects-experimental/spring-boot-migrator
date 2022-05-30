@@ -18,11 +18,9 @@ package org.springframework.sbm.jee.jaxrs.recipes;
 import org.openrewrite.Recipe;
 import org.openrewrite.Tree;
 import org.openrewrite.java.ChangeType;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.JavaTemplate.Builder;
 import org.openrewrite.java.MethodMatcher;
-import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 import org.springframework.sbm.java.migration.visitor.VisitorUtils;
 import org.springframework.sbm.java.migration.visitor.VisitorUtils.AdjustTypesFromExpressionMarkers;
@@ -39,7 +37,6 @@ import static org.springframework.sbm.java.migration.recipes.RewriteMethodInvoca
 public class ReplaceResponseEntityBuilder extends Recipe {
 
     public ReplaceResponseEntityBuilder() {
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
         // #allow(String...)
         doNext(new RewriteMethodInvocation(
                         RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder allow(java.lang.String...)"),

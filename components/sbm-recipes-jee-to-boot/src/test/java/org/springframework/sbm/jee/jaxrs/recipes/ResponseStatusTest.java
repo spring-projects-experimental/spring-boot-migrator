@@ -15,8 +15,11 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
+import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.junit.jupiter.api.Test;
@@ -31,7 +34,7 @@ public class ResponseStatusTest {
             new AbstractAction() {
                 @Override
                 public void apply(ProjectContext context) {
-                    SwapStatusForHttpStatus r = new SwapStatusForHttpStatus();
+                    SwapStatusForHttpStatus r = new SwapStatusForHttpStatus(() -> new RewriteJavaParser(new ApplicationProperties()));
                     context.getProjectJavaSources().apply(r);
                 }
             };

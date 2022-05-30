@@ -45,21 +45,23 @@ public class OpenRewriteMember implements Member {
     private final NamedVariable namedVar;
 
     private final JavaRefactoring refactoring;
+    private final JavaParser javaParser;
 
     public OpenRewriteMember(
             J.VariableDeclarations variableDecls, NamedVariable namedVar,
-            RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring) {
+            RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring, JavaParser javaParser) {
         this.variableDeclId = variableDecls.getId();
         this.namedVar = namedVar;
         this.rewriteSourceFileHolder = rewriteSourceFileHolder;
         this.refactoring = refactoring;
+        this.javaParser = javaParser;
     }
 
     @Override
     public List<Annotation> getAnnotations() {
         return getVariableDeclarations().getLeadingAnnotations()
                 .stream()
-                .map(la -> new OpenRewriteAnnotation(la, refactoring))
+                .map(la -> new OpenRewriteAnnotation(la, refactoring, javaParser))
                 .collect(Collectors.toList());
     }
 
@@ -80,7 +82,7 @@ public class OpenRewriteMember implements Member {
                     return annotation.equals(fullyQualifiedName);
                 })
                 .findFirst()
-                .map(a -> Wrappers.wrap(a, refactoring))
+                .map(a -> Wrappers.wrap(a, refactoring, javaParser))
                 .orElse(null);
     }
 
@@ -95,13 +97,12 @@ public class OpenRewriteMember implements Member {
     @Override
     public void addAnnotation(String fqName) {
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
-        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> JavaParserFactory.getCurrentJavaParser(), getVariableDeclarations(), snippet, fqName);
+        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> javaParser, getVariableDeclarations(), snippet, fqName);
         refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
     }
 
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
         AddAnnotationVisitor visitor = new AddAnnotationVisitor(() -> javaParser, getVariableDeclarations(), snippet, annotationImport, otherImports);
         refactoring.refactor(rewriteSourceFileHolder, visitor);
     }

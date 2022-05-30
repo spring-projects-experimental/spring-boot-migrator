@@ -187,9 +187,10 @@ public class OpenRewriteMavenBuildFileTest {
 				"org/apache/xbean/xbean-finder-shaded/4.14/xbean-finder-shaded-4.14.jar",
 
                 "commons-net/commons-net/3.6/commons-net-3.6.jar",
-                "org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.1.1/geronimo-jms_1.1_spec-1.1.1.jar",
-                "org/apache/geronimo/specs/geronimo-j2ee-management_1.1_spec/1.0.1/geronimo-j2ee-management_1.1_spec-1.0.1.jar",
-                "stax/stax-api/1.0.1/stax-api-1.0.1.jar",
+                // FIXME: #7 with OR 7.23.0 these dependencies are not there anymore
+                // "org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.1.1/geronimo-jms_1.1_spec-1.1.1.jar",
+                // "org/apache/geronimo/specs/geronimo-j2ee-management_1.1_spec/1.0.1/geronimo-j2ee-management_1.1_spec-1.0.1.jar",
+                // "stax/stax-api/1.0.1/stax-api-1.0.1.jar",
 
 				"org/apache/xbean/xbean-reflect/4.14/xbean-reflect-4.14.jar",
 				"org/apache/xbean/xbean-naming/4.14/xbean-naming-4.14.jar",

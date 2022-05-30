@@ -15,45 +15,38 @@
  */
 package org.springframework.sbm.java.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
-import org.springframework.stereotype.Component;
+import org.springframework.sbm.engine.annotations.StatefulComponent;
+import org.springframework.sbm.project.resource.ApplicationProperties;
 
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-@Component
+@StatefulComponent
 public class RewriteJavaParser implements JavaParser {
 
-    private final boolean javaParserShouldLogCompilationWarningsAndErrors = true;
-    private final boolean javaParserRelaxedClassTypeMatching = true;
-
-    private JavaParser javaParser;
-    private String sourceSet;
+    private final ApplicationProperties applicationProperties;
+    private final JavaParser javaParser;
 
     // satisfies DI
-    public RewriteJavaParser() {
-        this(List.of());
-    }
-
-    public RewriteJavaParser(Path... classpath) {
-        this(Arrays.asList(classpath));
-    }
-
-    public RewriteJavaParser(List<Path> classpath) {
-        javaParser = buildJavaParser(classpath);
+    public RewriteJavaParser(ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
+        javaParser = buildJavaParser(Collections.emptySet());
     }
 
     @NotNull
     private JavaParser buildJavaParser(Collection<Path> classpath) {
         Builder<? extends JavaParser, ?> builder = JavaParser.fromJavaVersion()
-                .logCompilationWarningsAndErrors(javaParserShouldLogCompilationWarningsAndErrors);
+                .logCompilationWarningsAndErrors(applicationProperties.isJavaParserLoggingCompilationWarningsAndErrors());
         if (!classpath.isEmpty()) {
             builder.classpath(classpath);
         }
@@ -63,7 +56,7 @@ public class RewriteJavaParser implements JavaParser {
     @Override
     public List<J.CompilationUnit> parseInputs(Iterable<Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
         reset();
-        return this.javaParser.parseInputs(sources, null, ctx);
+        return this.javaParser.parseInputs(sources, relativeTo, ctx);
     }
 
     @Override
@@ -73,25 +66,21 @@ public class RewriteJavaParser implements JavaParser {
 
     @Override
     public void setClasspath(Collection<Path> classpath) {
-        this.javaParser = buildJavaParser(classpath);
+        this.javaParser.setClasspath(classpath);
     }
 
     @Override
     public void setSourceSet(String sourceSet) {
-        this.sourceSet = sourceSet;
+        this.javaParser.setSourceSet(sourceSet);
     }
 
     @Override
     public JavaSourceSet getSourceSet(ExecutionContext ctx) {
-        return null; // FIXME: #497
+        return this.javaParser.getSourceSet(ctx);
     }
 
     public List<J.CompilationUnit> parse(List<Path> javaResources, ExecutionContext executionContext) {
         reset();
         return this.parse(javaResources, null, executionContext);
-    }
-
-    public JavaParser getDelegateJavaParser() {
-        return javaParser;
     }
 }

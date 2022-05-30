@@ -15,7 +15,9 @@
  */
 package org.springframework.sbm.jee.jaxrs;
 
+import lombok.RequiredArgsConstructor;
 import org.openrewrite.java.ChangeType;
+import org.openrewrite.java.JavaParser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.sbm.build.api.Dependency;
@@ -34,10 +36,14 @@ import org.springframework.sbm.jee.jaxrs.recipes.SwapHttHeaders;
 import org.springframework.sbm.jee.jaxrs.recipes.SwapResponseWithResponseEntity;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 @Configuration
+@RequiredArgsConstructor
 public class MigrateJaxRsRecipe {
 
+
+    private final Supplier<JavaParser> javaParserSupplier;
 
     @Bean
     public Recipe jaxRs() {
@@ -90,7 +96,7 @@ public class MigrateJaxRsRecipe {
                                 JavaRecipeAction.builder()
                                         .condition(HasImportStartingWith.builder().value("javax.ws.rs.core.MediaType").build())
                                         .description("Replace JaxRs MediaType with it's Spring equivalent.")
-                                        .recipe(new ReplaceMediaType())
+                                        .recipe(new ReplaceMediaType(javaParserSupplier))
                                         .build(),
 
                                 JavaRecipeAction.builder()
@@ -114,7 +120,7 @@ public class MigrateJaxRsRecipe {
                                 JavaRecipeAction.builder()
                                         .condition(HasImportStartingWith.builder().value("javax.ws.rs.core.Response").build())
                                         .description("Replace JaxRs Response and ResponseBuilder with it's Spring equivalent.")
-                                        .recipe(new SwapResponseWithResponseEntity())
+                                        .recipe(new SwapResponseWithResponseEntity(javaParserSupplier))
                                         .build()
                         )
                 )

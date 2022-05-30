@@ -48,12 +48,14 @@ public class OpenRewriteMethod implements Method {
     private final RewriteSourceFileHolder<J.CompilationUnit> sourceFile;
 
     private final JavaRefactoring refactoring;
+    private final JavaParser javaParser;
 
     public OpenRewriteMethod(
-            RewriteSourceFileHolder<J.CompilationUnit> sourceFile, J.MethodDeclaration methodDecl, JavaRefactoring refactoring) {
+            RewriteSourceFileHolder<J.CompilationUnit> sourceFile, J.MethodDeclaration methodDecl, JavaRefactoring refactoring, JavaParser javaParser) {
         this.sourceFile = sourceFile;
         methodDeclId = methodDecl.getId();
         this.refactoring = refactoring;
+        this.javaParser = javaParser;
     }
 
     @Override
@@ -63,7 +65,7 @@ public class OpenRewriteMethod implements Method {
             return List.of();
         }
         return typeParameters.stream()
-                .map(p -> new OpenRewriteMethodParam(sourceFile, p, refactoring))
+                .map(p -> new OpenRewriteMethodParam(sourceFile, p, refactoring, javaParser))
                 .collect(Collectors.toList());
     }
 
@@ -71,7 +73,7 @@ public class OpenRewriteMethod implements Method {
     public List<Annotation> getAnnotations() {
         return getMethodDecl().getLeadingAnnotations()
                 .stream()
-                .map(a -> new OpenRewriteAnnotation(a, refactoring))
+                .map(a -> new OpenRewriteAnnotation(a, refactoring, javaParser))
                 .collect(Collectors.toList());
     }
 
@@ -102,7 +104,6 @@ public class OpenRewriteMethod implements Method {
 
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
         Recipe visitor = new GenericOpenRewriteRecipe<>(() -> new AddAnnotationVisitor(javaParser, getMethodDecl(), snippet, annotationImport, otherImports));
         refactoring.refactor(sourceFile, visitor);
     }

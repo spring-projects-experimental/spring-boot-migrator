@@ -17,6 +17,7 @@ package org.springframework.sbm.java.impl;
 
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.java.JavaParser;
+import org.springframework.sbm.project.resource.ApplicationProperties;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -25,17 +26,22 @@ import java.util.Set;
 /**
  *
  */
+@Deprecated(since = "0.12.0", forRemoval = true)
 public class JavaParserFactory {
 
+    @Deprecated
     public static @NotNull JavaParser getInitialJavaParser() {
         Set<Path> dependencies = ClasspathRegistry.getInstance().getInitialDependencies();
-        JavaParser javaParser = new RewriteJavaParser(new ArrayList<>(dependencies));
+        JavaParser javaParser = new RewriteJavaParser(new ApplicationProperties());
+        javaParser.setClasspath(new ArrayList<>(dependencies));
         return javaParser;
     }
 
+    @Deprecated
     public static @NotNull JavaParser getCurrentJavaParser() {
         Set<Path> dependencies = ClasspathRegistry.getInstance().getCurrentDependencies();
-        JavaParser javaParser = new RewriteJavaParser(new ArrayList<>(dependencies));
+        JavaParser javaParser = new RewriteJavaParser(new ApplicationProperties());
+        javaParser.setClasspath(new ArrayList<>(dependencies));
         return javaParser;
     }
 }

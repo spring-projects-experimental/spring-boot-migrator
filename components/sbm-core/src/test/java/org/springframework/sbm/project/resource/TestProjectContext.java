@@ -27,6 +27,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.java.JavaSourceProjectResourceWrapper;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
@@ -222,10 +223,13 @@ public class TestProjectContext {
         private OpenRewriteMavenBuildFile mockedBuildFile;
         private DependencyHelper dependencyHelper = new DependencyHelper();
         private ApplicationProperties applicationProperties = new ApplicationProperties();
+        private JavaParser javaParser;
 
         public Builder(Path projectRoot) {
             this.projectRoot = projectRoot;
             applicationProperties.setDefaultBasePackage(DEFAULT_PACKAGE_NAME);
+            applicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
+            this.javaParser = new RewriteJavaParser(applicationProperties);
         }
 
         public Builder(Path projectRoot, ApplicationEventPublisher eventPublisher) {
@@ -422,13 +426,13 @@ public class TestProjectContext {
             // create ProjectResourceWrapperRegistry and register Java and Maven resource wrapper
             BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(eventPublisher);
             resourceWrapperList.add(buildFileResourceWrapper);
-            JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(javaRefactoringFactory);
+            JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(javaRefactoringFactory, javaParser);
             resourceWrapperList.add(javaSourceProjectResourceWrapper);
             orderByOrderAnnotationValue(resourceWrapperList);
             resourceWrapperRegistry = new ProjectResourceWrapperRegistry(resourceWrapperList);
 
             // create ProjectContextInitializer
-            ProjectContextFactory projectContextFactory = new ProjectContextFactory(resourceWrapperRegistry, projectResourceSetHolder, javaRefactoringFactory, new BasePackageCalculator(applicationProperties));
+            ProjectContextFactory projectContextFactory = new ProjectContextFactory(resourceWrapperRegistry, projectResourceSetHolder, javaRefactoringFactory, new BasePackageCalculator(applicationProperties), javaParser);
             ProjectContextInitializer projectContextInitializer = createProjectContextInitializer(projectContextFactory);
 
             // create ProjectContext

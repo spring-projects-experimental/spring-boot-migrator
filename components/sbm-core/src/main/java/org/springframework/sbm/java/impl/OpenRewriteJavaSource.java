@@ -17,6 +17,7 @@ package org.springframework.sbm.java.impl;
 
 import org.openrewrite.*;
 import org.openrewrite.java.ChangeMethodName;
+import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaPrinter;
 import org.openrewrite.java.RemoveUnusedImports;
 import org.openrewrite.java.search.FindAnnotations;
@@ -40,16 +41,12 @@ import java.util.stream.Collectors;
 public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.CompilationUnit> implements JavaSource {
 
     private final JavaRefactoring refactoring;
+    private final JavaParser javaParser;
 
-    @Deprecated
-    public OpenRewriteJavaSource(J.CompilationUnit wrapped, JavaRefactoring refactoring) {
-        super(Path.of("DOES_NOT_EXIST"), wrapped);
-        this.refactoring = refactoring;
-    }
-
-    public OpenRewriteJavaSource(Path absoluteProjectPath, J.CompilationUnit compilationUnit, JavaRefactoring refactoring) {
+    public OpenRewriteJavaSource(Path absoluteProjectPath, J.CompilationUnit compilationUnit, JavaRefactoring refactoring, JavaParser javaParser) {
         super(absoluteProjectPath, compilationUnit);
         this.refactoring = refactoring;
+        this.javaParser = javaParser;
     }
 
     @Deprecated
@@ -69,7 +66,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
     @Override
     public List<OpenRewriteType> getTypes() {
         return getCompilationUnit().getClasses().stream()
-                .map(cd -> new OpenRewriteType(cd, getResource(), refactoring))
+                .map(cd -> new OpenRewriteType(cd, getResource(), refactoring, javaParser))
                 .collect(Collectors.toList());
     }
 
@@ -157,7 +154,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
     @Override
     public List<Annotation> getAnnotations(String fqName, Expression scope) {
         return FindAnnotations.find(((OpenRewriteExpression) scope).getWrapped(), fqName).stream()
-                .map(e -> Wrappers.wrap(e, refactoring))
+                .map(e -> Wrappers.wrap(e, refactoring, javaParser))
                 .collect(Collectors.toList());
     }
 
