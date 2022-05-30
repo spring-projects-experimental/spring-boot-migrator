@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.mule.actions;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +48,7 @@ public class MuleToJavaDSLTransactionalTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(xml);
         runAction();
 
-        assertThat(getGeneratedConfigFile()).isEqualTo("package com.example.javadsl;\n" +
+        assertThat(getGeneratedJavaFile()).isEqualTo("package com.example.javadsl;\n" +
                 "import org.springframework.context.annotation.Bean;\n" +
                 "import org.springframework.context.annotation.Configuration;\n" +
                 "import org.springframework.integration.dsl.IntegrationFlow;\n" +
@@ -114,9 +113,27 @@ public class MuleToJavaDSLTransactionalTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(xml);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
-    }
-
-    private String getGeneratedConfigFile() {
-        return projectContext.getProjectJavaSources().list().get(0).print();
+        assertThat(projectContext.getProjectJavaSources().list().get(1).print())
+                .isEqualTo(
+                        "package com.example.javadsl;\n" +
+                                "\n" +
+                                "public class ExampleTransactional_1Transform_1 {\n" +
+                                "    /*\n" +
+                                "     * TODO:\n" +
+                                "     *\n" +
+                                "     * Please add necessary transformation for below snippet\n" +
+                                "     * [%dw 1.0\n" +
+                                "     * %output application/json\n" +
+                                "     * ---\n" +
+                                "     * {\n" +
+                                "     *     action_Code: 10,\n" +
+                                "     *     returnCode:  20\n" +
+                                "     * }]\n" +
+                                "     * */\n" +
+                                "    public static ExampleTransactional_1Transform_1 transform(Object payload) {\n" +
+                                "\n" +
+                                "        return new ExampleTransactional_1Transform_1();\n" +
+                                "    }\n" +
+                                "}");
     }
 }

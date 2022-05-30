@@ -122,4 +122,8 @@ public class JavaDSLActionBaseTest {
         projectContext = projectContextBuilder.build();
         myAction.apply(projectContext);
     }
+
+    protected String getGeneratedJavaFile() {
+        return projectContext.getProjectJavaSources().list().get(0).print();
+    }
 }
