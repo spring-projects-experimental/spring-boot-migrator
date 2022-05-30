@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 
 @Component
-public class AbstractTransactionalTranslator implements MuleComponentToSpringIntegrationDslTranslator<AbstractTransactional> {
+public class TransactionalTranslator implements MuleComponentToSpringIntegrationDslTranslator<AbstractTransactional> {
     @Override
     public Class<AbstractTransactional> getSupportedMuleType() {
         return AbstractTransactional.class;

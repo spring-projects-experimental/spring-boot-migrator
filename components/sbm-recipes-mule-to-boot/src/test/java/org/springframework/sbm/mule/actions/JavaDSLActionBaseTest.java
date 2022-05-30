@@ -78,7 +78,7 @@ public class JavaDSLActionBaseTest {
                 new ChoiceTranslator(),
                 new SelectTranslator(),
                 new ForeachTranslator(),
-                new AbstractTransactionalTranslator()
+                new TransactionalTranslator()
         );
 
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
