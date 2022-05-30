@@ -50,7 +50,8 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
                         "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                        "import org.springframework.integr" +
+                        "ation.dsl.IntegrationFlows;\n" +
                         "import org.springframework.integration.handler.LoggingHandler;\n" +
                         "import org.springframework.integration.http.dsl.Http;\n" +
                         "\n" +
