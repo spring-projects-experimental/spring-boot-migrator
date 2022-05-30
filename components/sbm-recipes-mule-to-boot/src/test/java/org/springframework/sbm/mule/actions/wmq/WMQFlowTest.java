@@ -49,13 +49,13 @@ public class WMQFlowTest extends JavaDSLActionBaseTest {
                         "import org.springframework.integration.dsl.IntegrationFlow;\n" +
                         "import org.springframework.integration.dsl.IntegrationFlows;\n" +
                         "import org.springframework.integration.handler.LoggingHandler;\n" +
+                        "import org.springframework.integration.jms.dsl.Jms;\n" +
                         "\n" +
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow wmqtestFlow() {\n" +
-                        "        //FIXME: element is not supported for conversion: <wmq:inbound-endpoint/>\n" +
-                        "        IntegrationFlows.from(\"\")\n" +
+                        "    IntegrationFlow wmqtestFlow(javax.jms.ConnectionFactory connectionFactory) {\n" +
+                        "        return IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"TestQueue\")).handle((p, h) -> p)\n" +
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                .get();\n" +
                         "    }}"
