@@ -38,6 +38,7 @@ public class RewriteJavaParserTest {
         System.setOut(new PrintStream(sysOutBuffer));
 
         ApplicationProperties applicationProperties = new ApplicationProperties();
+        applicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
         RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(applicationProperties);
         sysOutBuffer.reset();
         rewriteJavaParser.parse("compile error");

@@ -181,6 +181,31 @@ public class MavenProjectParser {
         return ListUtils.map(sourceFiles, s -> s.withMarkers(s.getMarkers().addIfAbsent(gitProvenance)));
     }
 
+    private List<J.CompilationUnit> parseTestJavaSources(Path projectDirectory, List<Resource> resources, ExecutionContext ctx, JavaParser javaParser, Xml.Document pomXml, Xml.Document mavenWithMarkers, Path mavenProjectDirectory, List<Marker> javaProvenanceMarkers) {
+        MavenResolutionResult mavenResolution = MavenBuildFileUtil.getMavenResolution(mavenWithMarkers);
+        List<ResolvedDependency> resolvedDependencies = mavenResolution.getDependencies().get(Scope.Test);
+        List<Path> dependencies = downloadArtifacts(resolvedDependencies);
+        javaParser.setClasspath(dependencies);
+
+        // --------
+        // Main Java sources
+        javaParser.setSourceSet("test");
+        List<Resource> testJavaSources = getTestJavaSources(projectDirectory, resources, pomXml);
+        List<Parser.Input> testJavaSourcesInput = testJavaSources.stream().map(js -> {
+            Path jsPath = getPath(js);
+            return new Parser.Input(jsPath, () -> {
+                eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(jsPath));
+                InputStream content = getInputStream(js);
+                return content;
+            });
+        }).collect(Collectors.toList());
+        List<J.CompilationUnit> testCompilationUnits = javaParser.parseInputs(testJavaSourcesInput, projectDirectory, ctx);
+        // FIXME: #7 JavaParser and adding markers is required when adding java sources and should go into dedicated component
+        testCompilationUnits.stream()
+                .forEach(cu -> cu.getMarkers().getMarkers().addAll(javaProvenanceMarkers));
+        return testCompilationUnits;
+    }
+
     private Path normalizeSourcePath(Path projectDirectory, Path sourcePath) {
         return null;
     }

@@ -16,13 +16,18 @@
 package org.springframework.sbm.java.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.tree.ParsingEventListener;
+import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.sbm.engine.annotations.StatefulComponent;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 
 import java.nio.file.Path;
@@ -82,5 +87,11 @@ public class RewriteJavaParser implements JavaParser {
     public List<J.CompilationUnit> parse(List<Path> javaResources, ExecutionContext executionContext) {
         reset();
         return this.parse(javaResources, null, executionContext);
+    }
+
+    @Override
+    public List<J.CompilationUnit> parse(String... sources) {
+        ExecutionContext ctx = new RewriteExecutionContext();
+        return this.parse(ctx, sources);
     }
 }
