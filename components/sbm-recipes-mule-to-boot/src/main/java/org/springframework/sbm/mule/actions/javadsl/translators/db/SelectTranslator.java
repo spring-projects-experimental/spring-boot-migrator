@@ -46,17 +46,18 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
 
         String query = component.getDynamicQuery() == null ? component.getParameterizedQuery()
                 : component.getDynamicQuery();
-        return new DslSnippet("// TODO: substitute expression language with appropriate java code \n" +
-                "                .handle((p, h) -> jdbcTemplate.queryForList(\"" +
-                escapeDoubleQuotes(query)
-                + limitString + "\"))",
-                Collections.emptySet(),
-                Set.of(
+
+        return DslSnippet.builder()
+                .renderedSnippet("// TODO: substitute expression language with appropriate java code \n" +
+                        "                .handle((p, h) -> jdbcTemplate.queryForList(\"" +
+                        escapeDoubleQuotes(query)
+                        + limitString + "\"))")
+                .requiredDependencies(Set.of(
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
                         "org.springframework.integration:spring-integration-jdbc:5.5.4"
-                ),
-                Set.of(new Bean("jdbcTemplate", "org.springframework.jdbc.core.JdbcTemplate"))
-        );
+                ))
+                .beans(Set.of(new Bean("jdbcTemplate", "org.springframework.jdbc.core.JdbcTemplate")))
+                .build();
     }
 
     private String escapeDoubleQuotes(String str) {

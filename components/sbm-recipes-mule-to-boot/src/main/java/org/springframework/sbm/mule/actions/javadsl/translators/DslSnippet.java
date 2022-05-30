@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -28,68 +29,32 @@ import java.util.stream.Collectors;
  */
 
 @Getter
-@RequiredArgsConstructor
+@Builder
 public class DslSnippet {
 
-    private final String renderedSnippet;
+    private String renderedSnippet;
 
-    /**
-     * Imports for the types required for this snippet
-     */
-    private final Set<String> requiredImports;
+    @Builder.Default
+    private Set<String> requiredImports = Collections.emptySet();
 
     /**
      * Dependencies required to be added to the classpath
      * <p>
-     * the dependencies mst be provided as Maven coordinates
+     * the dependencies must be provided as Maven coordinates
      */
-    private final Set<String> requiredDependencies;
+    @Builder.Default
+    private Set<String> requiredDependencies = Collections.emptySet();
 
-    private final Set<Bean> beans;
+    @Builder.Default
+    private Set<Bean> beans = Collections.emptySet();
 
-    private final boolean isUnknownStatement;
+    private boolean isUnknownStatement;
 
-    private final String externalClassContent;
+    @Builder.Default
+    private String externalClassContent = "";
 
-    private final String renderedDependentFlows;
-
-    public DslSnippet(String renderedSnippet,
-                      Set<String> requiredImports) {
-        this(renderedSnippet, requiredImports, Collections.emptySet(), Collections.emptySet(), false,"", "");
-    }
-
-    public DslSnippet(String renderedSnippet,
-                      Set<String> requiredImports,
-                      Set<String> requiredDependencies,
-                      Set<Bean> beans) {
-        this(renderedSnippet, requiredImports, requiredDependencies, beans, false, "","");
-    }
-
-    public DslSnippet(String renderedSnippet,
-                      Set<String> requiredImports,
-                      Set<String> requiredDependencies,
-                      Set<Bean> beans,
-                      boolean isUnknownStatement) {
-        this(renderedSnippet, requiredImports, requiredDependencies, beans, isUnknownStatement, "","");
-    }
-
-    public DslSnippet(String renderedSnippet,
-                      Set<String> requiredImports,
-                      Set<String> requiredDependencies,
-                      String externalClassContent) {
-        this(renderedSnippet, requiredImports, requiredDependencies, Collections.emptySet(), false, externalClassContent, "");
-    }
-
-    public DslSnippet(String renderedSnippet,
-                      Set<String> requiredImports,
-                      Set<String> requiredDependencies,
-                      Set<Bean> beans,
-                      String externalClassContent,
-                      String renderedDependentFlows
-    ) {
-        this(renderedSnippet, requiredImports, requiredDependencies, beans, false,
-                externalClassContent,renderedDependentFlows);
-    }
+    @Builder.Default
+    private String renderedDependentFlows = "";
 
     public static String renderMethodParameters(List<DslSnippet> dslSnippets) {
         return dslSnippets.stream()

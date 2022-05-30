@@ -81,17 +81,16 @@ public class ForeachTranslator implements MuleComponentToSpringIntegrationDslTra
                 .filter(k -> k !=null && !k.isBlank())
                 .findFirst();
 
-        return new DslSnippet(
-                "                //TODO: translate expression " + component.getCollection() + " which must produces an array\n" +
+        return DslSnippet.builder()
+                .renderedSnippet("                //TODO: translate expression " + component.getCollection() + " which must produces an array\n" +
                         "                // to iterate over\n" +
                         "                .split()\n" +
                         "                " + forEachTopLevelTranslations.renderDslSnippet() + "\n" +
-                        "                .aggregate()",
-                requiredImports,
-                dependencies,
-                beans,
-                optionalExternalClassContent.orElse(null),
-                ""
-        );
+                        "                .aggregate()")
+                .requiredImports(requiredImports)
+                .requiredDependencies(dependencies)
+                .beans(beans)
+                .externalClassContent(optionalExternalClassContent.orElse(null))
+                .build();
     }
 }

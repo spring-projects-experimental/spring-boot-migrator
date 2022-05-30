@@ -84,13 +84,13 @@ public class TransactionalTranslator implements MuleComponentToSpringIntegration
                 .filter(k -> k !=null && !k.isBlank())
                 .findFirst();
 
-        return new DslSnippet(
-                ".gateway(" + beanName + ", e -> e.transactional(true))",
-                requiredImports,
-                dependencies,
-                beans,
-                optionalExternalClassContent.orElse(null),
-                transactionalTopLevelElement.renderDslSnippet()
-        );
+        return DslSnippet.builder()
+                .renderedSnippet(".gateway(" + beanName + ", e -> e.transactional(true))")
+                .requiredImports(requiredImports)
+                .requiredDependencies(dependencies)
+                .beans(beans)
+                .externalClassContent(optionalExternalClassContent.orElse(null))
+                .renderedDependentFlows(transactionalTopLevelElement.renderDslSnippet())
+                .build();
     }
 }

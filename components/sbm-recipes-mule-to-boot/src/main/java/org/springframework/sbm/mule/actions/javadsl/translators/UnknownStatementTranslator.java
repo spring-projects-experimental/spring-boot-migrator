@@ -32,13 +32,10 @@ public class UnknownStatementTranslator implements MuleComponentToSpringIntegrat
     }
 
     public DslSnippet translate(int id, Object component, QName qname, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
-        return new DslSnippet(
-                generateDSLStatement(component, qname),
-                Collections.emptySet(),
-                Collections.emptySet(),
-                Collections.emptySet(),
-                true
-        );
+        return DslSnippet.builder()
+                .renderedSnippet(generateDSLStatement(component, qname))
+                .isUnknownStatement(true)
+                .build();
     }
 
     @NotNull
