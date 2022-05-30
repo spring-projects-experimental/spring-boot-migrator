@@ -17,11 +17,9 @@ package org.springframework.sbm.mule.actions.javadsl.translators;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.springframework.sbm.mule.api.toplevel.AbstractTopLevelElement;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -29,7 +27,7 @@ import java.util.stream.Collectors;
  */
 
 @Getter
-@Builder
+@Builder(toBuilder=true)
 public class DslSnippet {
 
     private String renderedSnippet;
@@ -62,5 +60,43 @@ public class DslSnippet {
                 .distinct()
                 .map(b -> b.getBeanClass() + " " + b.getBeanName())
                 .collect(Collectors.joining(", "));
+    }
+
+    public static DslSnippet createDSLSnippetFromTopLevelElement(AbstractTopLevelElement topLevelElement) {
+        Set<Bean> beans = topLevelElement
+                .getDslSnippets()
+                .stream()
+                .map(DslSnippet::getBeans)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        Set<String> requiredImports = topLevelElement
+                .getDslSnippets()
+                .stream()
+                .map(DslSnippet::getRequiredImports)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        Set<String> dependencies = topLevelElement
+                .getDslSnippets()
+                .stream()
+                .map(DslSnippet::getRequiredDependencies)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+
+        Optional<String> optionalExternalClassContent = topLevelElement
+                .getDslSnippets()
+                .stream()
+                .map(DslSnippet::getExternalClassContent)
+                .filter(k -> k !=null && !k.isBlank())
+                .findFirst();
+
+        return DslSnippet.builder()
+                .beans(beans)
+                .requiredImports(requiredImports)
+                .requiredDependencies(dependencies)
+                .externalClassContent(optionalExternalClassContent.orElse(null))
+                .build();
     }
 }

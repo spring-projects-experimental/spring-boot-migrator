@@ -54,43 +54,16 @@ public class TransactionalTranslator implements MuleComponentToSpringIntegration
 
         String beanName = transactionalTopLevelElement.getGeneratedIdentity();
 
-        Set<Bean> beans = transactionalTopLevelElement
-                .getDslSnippets()
-                .stream()
-                .map(DslSnippet::getBeans)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
+        DslSnippet toplevelDSLSnippet = DslSnippet.createDSLSnippetFromTopLevelElement(transactionalTopLevelElement);
+        Set<Bean> beans = toplevelDSLSnippet.getBeans();
         beans.add(new Bean(beanName, "org.springframework.integration.dsl.IntegrationFlow"));
 
-        Set<String> requiredImports = transactionalTopLevelElement
-                .getDslSnippets()
-                .stream()
-                .map(DslSnippet::getRequiredImports)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        Set<String> dependencies = transactionalTopLevelElement
-                .getDslSnippets()
-                .stream()
-                .map(DslSnippet::getRequiredDependencies)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        Optional<String> optionalExternalClassContent = transactionalTopLevelElement
-                .getDslSnippets()
-                .stream()
-                .map(DslSnippet::getExternalClassContent)
-                .filter(k -> k !=null && !k.isBlank())
-                .findFirst();
-
-        return DslSnippet.builder()
+        return toplevelDSLSnippet
+                .toBuilder()
                 .renderedSnippet(".gateway(" + beanName + ", e -> e.transactional(true))")
-                .requiredImports(requiredImports)
-                .requiredDependencies(dependencies)
-                .beans(beans)
-                .externalClassContent(optionalExternalClassContent.orElse(null))
                 .renderedDependentFlows(transactionalTopLevelElement.renderDslSnippet())
+                .beans(beans)
                 .build();
+
     }
 }
