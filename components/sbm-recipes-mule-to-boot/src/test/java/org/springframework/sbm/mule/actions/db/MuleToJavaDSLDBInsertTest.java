@@ -58,7 +58,7 @@ public class MuleToJavaDSLDBInsertTest extends JavaDSLActionBaseTest {
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow dbFlow() {\n" +
+                        "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                // TODO: payload type might not be always LinkedMultiValueMap please change it to appropriate type \n" +
