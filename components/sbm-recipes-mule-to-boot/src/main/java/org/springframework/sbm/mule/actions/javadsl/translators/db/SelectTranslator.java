@@ -23,9 +23,10 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+
+import static org.springframework.sbm.mule.actions.javadsl.translators.db.DBCommons.escapeDoubleQuotes;
 
 @Component
 public class SelectTranslator implements MuleComponentToSpringIntegrationDslTranslator<SelectMessageProcessorType> {
@@ -58,9 +59,5 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
                 ))
                 .beans(Set.of(new Bean("jdbcTemplate", "org.springframework.jdbc.core.JdbcTemplate")))
                 .build();
-    }
-
-    private String escapeDoubleQuotes(String str) {
-        return str.replace("\"", "\\\"");
     }
 }

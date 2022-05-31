@@ -30,25 +30,29 @@ public class MuleToJavaDSLDBInsertTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(muleXml);
         runAction();
 
-        assertThat(getGeneratedJavaFile()).isEqualTo("package com.example.javadsl;\n" +
-                "import org.springframework.context.annotation.Bean;\n" +
-                "import org.springframework.context.annotation.Configuration;\n" +
-                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                "import org.springframework.integration.handler.LoggingHandler;\n" +
-                "import org.springframework.integration.http.dsl.Http;\n" +
-                "\n" +
-                "@Configuration\n" +
-                "public class FlowConfigurations {\n" +
-                "    @Bean\n" +
-                "    IntegrationFlow dbFlow() {\n" +
-                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
-                "                .log(LoggingHandler.Level.INFO)\n" +
-                "                .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
-                "                      jdbcTemplate.execute(\"INSERT INTO STUDENTS (NAME, AGE, CITY) VALUES (#[payload.name], #[payload.age], #[payload.city])\");\n" +
-                "                      return p;\n" +
-                "                })\n" +
-                "                .get();\n" +
-                "    }}");
+        assertThat(getGeneratedJavaFile()).isEqualTo(
+                "package com.example.javadsl;\n" +
+                        "import org.springframework.context.annotation.Bean;\n" +
+                        "import org.springframework.context.annotation.Configuration;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                        "import org.springframework.integration.handler.LoggingHandler;\n" +
+                        "import org.springframework.integration.http.dsl.Http;\n" +
+                        "import org.springframework.util.LinkedMultiValueMap;\n" +
+                        "\n" +
+                        "@Configuration\n" +
+                        "public class FlowConfigurations {\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow dbFlow() {\n" +
+                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
+                        "                .log(LoggingHandler.Level.INFO)\n" +
+                        "                // TODO: payload type might not be always LinkedMultiValueMap please change it to appropriate type \n" +
+                        "                // TODO: mule expression language is not converted to java, do it manually. example: #[payload] etc \n" +
+                        "                .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
+                        "                    jdbcTemplate.execute(\"INSERT INTO STUDENTS (NAME, AGE, CITY) VALUES (#[payload.name], #[payload.age], #[payload.city])\");\n" +
+                        "                    return p;\n" +
+                        "                })\n" +
+                        "                .get();\n" +
+                        "    }}");
     }
 }
