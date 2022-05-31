@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.mule.actions;
+package org.springframework.sbm.mule.actions.db;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.build.api.Dependency;
+import org.springframework.sbm.mule.actions.JavaDSLActionBaseTest;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MuleToJavaDSLDBTest extends JavaDSLActionBaseTest {
+public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
 
     @Test
     public void translateDbSelectDynamicQuery() {

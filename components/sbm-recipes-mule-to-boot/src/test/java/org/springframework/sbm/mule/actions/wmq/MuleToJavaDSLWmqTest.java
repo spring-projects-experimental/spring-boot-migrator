@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.springframework.sbm.mule.actions;
+package org.springframework.sbm.mule.actions.wmq;
 
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.springframework.sbm.build.api.Dependency;
+import org.springframework.sbm.mule.actions.JavaDSLActionBaseTest;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 
 import java.util.List;
