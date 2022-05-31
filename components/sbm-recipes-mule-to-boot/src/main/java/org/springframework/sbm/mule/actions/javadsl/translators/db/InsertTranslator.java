@@ -48,7 +48,10 @@ public class InsertTranslator implements MuleComponentToSpringIntegrationDslTran
                                 "                      jdbcTemplate.execute(\"" + DBCommons.escapeDoubleQuotes(component.getParameterizedQuery()) + "\");\n" +
                                 "                      return p;\n" +
                                 "                })")
-                .requiredImports(Set.of("org.springframework.util.LinkedMultiValueMap"))
+                .requiredImports(Set.of(
+                        "org.springframework.util.LinkedMultiValueMap",
+                        "org.springframework.jdbc.core.JdbcTemplate"
+                ))
                 .requiredDependencies(Set.of(
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
                         "org.springframework.integration:spring-integration-jdbc:5.5.4"

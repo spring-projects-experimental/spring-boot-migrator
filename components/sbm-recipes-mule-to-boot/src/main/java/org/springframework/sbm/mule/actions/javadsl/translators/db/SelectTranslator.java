@@ -57,7 +57,14 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
                         "org.springframework.integration:spring-integration-jdbc:5.5.4"
                 ))
-                .beans(Set.of(new Bean("jdbcTemplate", "org.springframework.jdbc.core.JdbcTemplate")))
+                .beans(
+                        Set.of(
+                                new Bean(
+                                        "jdbcTemplate",
+                                        "org.springframework.jdbc.core.JdbcTemplate"
+                                )
+                        )
+                )
                 .build();
     }
 }

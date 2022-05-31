@@ -61,24 +61,6 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                         translatorsMap)))
                 .collect(Collectors.toList());
 
-        String otherwiseSubflowMappings = "";
-
-        if (component.getOtherwise() != null) {
-            ChoiceTopLevelElement otherWiseStatement = new ChoiceTopLevelElement(
-                    flowName,
-                    component.getOtherwise().getMessageProcessorOrOutboundEndpoint(),
-                    muleConfigurations,
-                    translatorsMap);
-
-            otherwiseSubflowMappings = defaultSubflowMapping.replace(
-                    "$OTHERWISE_STATEMENTS",
-                    otherWiseStatement.renderDslSnippet()
-            );
-
-            otherwiseSubflowMappings = "                                .resolutionRequired(false)\n" +
-                    otherwiseSubflowMappings;
-        }
-
         String whenSubflowMappings = whenStatements
                 .stream()
                 .map(item ->
@@ -88,25 +70,53 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                 )
                 .collect(Collectors.joining());
 
+        List<DslSnippet> whenStatementDslSnippets = whenStatements
+                .stream()
+                .map(item -> DslSnippet.createDSLSnippetFromTopLevelElement(item.getValue()))
+                .collect(Collectors.toList());
 
-        Set<String> requiredImports = whenStatements.stream()
-                .map(item -> item.getValue().getRequiredImports())
+        Set<String> requiredImports = whenStatementDslSnippets
+                .stream()
+                .map(DslSnippet::getRequiredImports)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
+
         requiredImports.add("org.springframework.util.LinkedMultiValueMap");
 
-        Set<Bean> requiredBeans = whenStatements.stream()
-                .map(item -> item.getValue().getDslSnippets())
-                .flatMap(Collection::stream)
+        Set<Bean> requiredBeans = whenStatementDslSnippets.stream()
                 .map(DslSnippet::getBeans)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        Set<String> requiredDependencies = whenStatements.stream()
-                .map(item -> item.getValue().getRequiredDependencies())
+        Set<String> requiredDependencies = whenStatementDslSnippets.stream()
+                .map(DslSnippet::getRequiredDependencies)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
+
+        String otherwiseSubflowMappings = "";
+
+        if (component.getOtherwise() != null) {
+            ChoiceTopLevelElement otherWiseStatement = new ChoiceTopLevelElement(
+                    flowName,
+                    component.getOtherwise().getMessageProcessorOrOutboundEndpoint(),
+                    muleConfigurations,
+                    translatorsMap);
+
+            DslSnippet otherWiseDSLSnippet = DslSnippet.createDSLSnippetFromTopLevelElement(otherWiseStatement);
+
+            requiredImports.addAll(otherWiseDSLSnippet.getRequiredImports());
+            requiredDependencies.addAll(otherWiseDSLSnippet.getRequiredDependencies());
+            requiredBeans.addAll(otherWiseDSLSnippet.getBeans());
+
+            otherwiseSubflowMappings = defaultSubflowMapping.replace(
+                    "$OTHERWISE_STATEMENTS",
+                    otherWiseStatement.renderDslSnippet()
+            );
+
+            otherwiseSubflowMappings = "                                .resolutionRequired(false)\n" +
+                    otherwiseSubflowMappings;
+        }
 
         return DslSnippet.builder()
                 .renderedSnippet("/* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
