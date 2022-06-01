@@ -1,65 +1,86 @@
 package org.springframework.sbm.project.parser;
 
-import io.github.resilience4j.core.EventPublisher;
-import org.junit.jupiter.api.Test;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.openrewrite.SourceFile;
-import org.openrewrite.json.JsonParser;
-import org.openrewrite.json.tree.Json;
-import org.openrewrite.json.tree.JsonValue;
-import org.openrewrite.json.tree.Space;
-import org.openrewrite.marker.Markers;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.events.StartedScanningProjectResourceEvent;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.TestDummyResource;
+import org.springframework.sbm.properties.parser.RewritePropertiesParser;
+import org.springframework.sbm.xml.parser.RewriteXmlParser;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 
+@ExtendWith(MockitoExtension.class)
 class ResourceParserTest {
 
-    @Test
-    void shouldParseJsonResourcesWithJsonParser() {
-        JsonParser jsonParser = new RewriteJsonParser();
-        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-        ResourceParser sut = new ResourceParser(jsonParser, eventPublisher);
+    private ResourceParser sut;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+    private Path baseDir = Path.of("some-base-dir").toAbsolutePath();
+    private Path resourceDirPath = Path.of("src/main/resources");
+    private Set<Path> resourcePaths = Set.of(resourceDirPath);
 
-        Path baseDir = Path.of("some-base-dir").toAbsolutePath();
-        Path sourcePath = Path.of("src/main/resources/some.json");
-        Set<Path> resourcePaths = Set.of(Path.of("src/main/resources"));
-        Path resourcePath = baseDir.resolve(sourcePath);
-        String jsonContent = "{}";
-        List<Resource> resources = List.of(new TestDummyResource(resourcePath, jsonContent));
+    @BeforeEach
+    void beforeEach() {
+        sut = new ResourceParser(
+                new RewriteJsonParser(),
+                new RewriteXmlParser(),
+                new RewriteYamlParser(),
+                new RewritePropertiesParser(),
+                new RewritePlainTextParser(),
+                new ResourceParser.ResourceFilter(),
+                eventPublisher
+                );
+    }
 
-        List<SourceFile> parse = sut.parse(baseDir, resourcePaths, resources);
+    @ParameterizedTest
+    @CsvSource({
+            "some.json,{},org.openrewrite.json.tree.Json$Document",
+            "some.xml,<xml/>,org.openrewrite.xml.tree.Xml$Document",
+            "some.yaml,foo:bar,org.openrewrite.yaml.tree.Yaml$Documents",
+            "some.yml,foo2:bar2,org.openrewrite.yaml.tree.Yaml$Documents",
+            "some.properties,a=b,org.openrewrite.properties.tree.Properties$File",
+            "some.xml,<xml/>,org.openrewrite.xml.tree.Xml$Document",
+            "some.yaml2,foo:bar,org.openrewrite.text.PlainText",
+    })
+    void test(String filename, String content, String className) throws ClassNotFoundException {
+        List<Resource> resources = getResourceAsList(filename, content);
+        List<SourceFile> parsedResources = sut.parse(baseDir, resourcePaths, resources);
+        assertCorrectParsing(filename, content, Class.forName(className), parsedResources);
+    }
 
+    @NotNull
+    private List<Resource> getResourceAsList(String filename, String jsonContent) {
+        Path sourcePath = resourceDirPath.resolve(filename);
+        Path absolutePath = baseDir.resolve(sourcePath);
+        List<Resource> resources = List.of(new TestDummyResource(absolutePath, jsonContent));
+        return resources;
+    }
+
+    private void assertCorrectParsing(String filename, String content, Class<?> expectedType, List<SourceFile> parsedResources) {
         // parser event was published
         ArgumentCaptor<StartedScanningProjectResourceEvent> argumentCaptor = ArgumentCaptor.forClass(StartedScanningProjectResourceEvent.class);
         verify(eventPublisher).publishEvent(argumentCaptor.capture());
         // parser event has sourcePath
-        assertThat(argumentCaptor.getValue().getPath()).isEqualTo(sourcePath);
-        // Json document with json content  was parsed
-        assertThat(parse.get(0)).isInstanceOf(Json.Document.class);
-        assertThat(parse.get(0).printAll()).isEqualTo(jsonContent);
+        assertThat(argumentCaptor.getValue().getPath()).isEqualTo(resourceDirPath.resolve(filename));
+        assertThat(parsedResources.get(0)).isInstanceOf(expectedType);
+        assertThat(parsedResources.get(0).printAll()).isEqualTo(content);
+        assertThat(parsedResources.get(0)).isInstanceOf(expectedType);
+        assertThat(parsedResources.get(0).printAll()).isEqualTo(content);
     }
 
-    @Test
-    void shouldParseXmlResourcesWithXmlParser() {
-
-    }
-
-    @Test
-    void shouldParseEveryResourceTypeOnlyOnce() {
-
-    }
 }
