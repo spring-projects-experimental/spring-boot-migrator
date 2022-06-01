@@ -43,6 +43,7 @@ public class MuleToJavaDSLApiKitTest extends JavaDSLActionBaseTest {
                                 "import org.springframework.http.HttpMethod;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlow;\n" +
                                 "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                                "import org.springframework.integration.http.dsl.Http;\n" +
                                 "\n" +
                                 "@Configuration\n" +
                                 "public class FlowConfigurations {\n" +
