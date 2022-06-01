@@ -242,8 +242,8 @@ public class ConfigurationType
      * @return
      *     possible object is
      *     {@link JAXBElement }{@code <}{@link ReconnectForeverStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ReconnectCustomStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReconnectSimpleStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReconnectCustomStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractReconnectionStrategyType }{@code >}
      *     
      */
@@ -257,8 +257,8 @@ public class ConfigurationType
      * @param value
      *     allowed object is
      *     {@link JAXBElement }{@code <}{@link ReconnectForeverStrategyType }{@code >}
-     *     {@link JAXBElement }{@code <}{@link ReconnectCustomStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link ReconnectSimpleStrategyType }{@code >}
+     *     {@link JAXBElement }{@code <}{@link ReconnectCustomStrategyType }{@code >}
      *     {@link JAXBElement }{@code <}{@link AbstractReconnectionStrategyType }{@code >}
      *     
      */

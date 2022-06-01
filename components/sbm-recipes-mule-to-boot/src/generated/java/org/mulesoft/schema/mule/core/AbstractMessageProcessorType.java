@@ -46,7 +46,6 @@ import org.mulesoft.schema.mule.http.RequestType;
     FlowRef.class,
     AbstractInterceptorType.class,
     SetPayloadTransformerType.class,
-    CommonTransformerType.class,
     AbstractRoutingMessageProcessorType.class,
     BasicAckType.class,
     BasicRejectType.class,
@@ -54,9 +53,10 @@ import org.mulesoft.schema.mule.http.RequestType;
     AbstractDbMessageProcessorType.class,
     AbstractEmptyMessageProcessorType.class,
     RequestType.class,
-    AbstractComponentType.class,
     AbstractSecurityFilterType.class,
     AbstractInterceptingMessageProcessorType.class,
+    AbstractComponentType.class,
+    CommonTransformerType.class,
     CommonFilterType.class
 })
 public class AbstractMessageProcessorType

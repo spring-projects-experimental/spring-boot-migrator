@@ -58,13 +58,13 @@ public class ExtensibleEntryPointResolverSet
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link PropertyEntryPointResolverType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ReflectionEntryPointResolverType }{@code >}
-     * {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
-     * {@link JAXBElement }{@code <}{@link MethodEntryPointResolverType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
      * {@link JAXBElement }{@code <}{@link CustomEntryPointResolverType }{@code >}
      * {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ComplexEntryPointResolverType }{@code >}
+     * {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
+     * {@link JAXBElement }{@code <}{@link ReflectionEntryPointResolverType }{@code >}
+     * {@link JAXBElement }{@code <}{@link PropertyEntryPointResolverType }{@code >}
+     * {@link JAXBElement }{@code <}{@link MethodEntryPointResolverType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractEntryPointResolverType }{@code >}
      * 
      * 
