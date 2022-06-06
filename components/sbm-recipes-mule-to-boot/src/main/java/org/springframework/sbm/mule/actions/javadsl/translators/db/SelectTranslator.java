@@ -43,16 +43,15 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
                                 String flowName,
                                 Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
 
-        String limitString = component.getMaxRows() == null ? "" : " LIMIT " + component.getMaxRows();
-
         String query = component.getDynamicQuery() == null ? component.getParameterizedQuery()
                 : component.getDynamicQuery();
 
         return DslSnippet.builder()
-                .renderedSnippet("// TODO: substitute expression language with appropriate java code \n" +
+                .renderedSnippet(
+                        "// TODO: substitute expression language with appropriate java code \n" +
+                        "// TODO: use appropriate translation for pagination \n" +
                         "                .handle((p, h) -> jdbcTemplate.queryForList(\"" +
-                        escapeDoubleQuotes(query)
-                        + limitString + "\"))")
+                        escapeDoubleQuotes(query) + "\"))")
                 .requiredDependencies(Set.of(
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
                         "org.springframework.integration:spring-integration-jdbc:5.5.4"
