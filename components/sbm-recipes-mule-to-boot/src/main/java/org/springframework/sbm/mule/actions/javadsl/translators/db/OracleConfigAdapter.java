@@ -23,10 +23,10 @@ public class OracleConfigAdapter extends ConfigurationTypeAdapter<OracleDatabase
     @Override
     public List<AbstractMap.SimpleEntry<String, String>> configProperties() {
         List<AbstractMap.SimpleEntry<String, String>> properties = new ArrayList<>();
-        properties.add(new AbstractMap.SimpleEntry<>("spring.datasource.url", "--INSERT--DB-URL-HERE-Example:jdbc:mysql://localhost:3306/mulemigration"));
+        properties.add(new AbstractMap.SimpleEntry<>("spring.datasource.url", "--INSERT--DB-URL-HERE-Example:jdbc:oracle:thin:@localhost:1521:XE"));
         properties.add(new AbstractMap.SimpleEntry<>("spring.datasource.username", "--INSERT-USER-NAME--"));
         properties.add(new AbstractMap.SimpleEntry<>("spring.datasource.password", "--INSERT-PASSWORD--"));
-        properties.add(new AbstractMap.SimpleEntry<>("spring.datasource.driverClassName", "--INSERT-DRIVER-CLASS: Mysql Example: com.mysql.jdbc.Driver, Oracle: oracle.jdbc.OracleDriver"));
+        properties.add(new AbstractMap.SimpleEntry<>("spring.datasource.driverClassName", "oracle.jdbc.OracleDriver"));
         properties.add(new AbstractMap.SimpleEntry<>("spring.jpa.show-sql", "true"));
         return properties;
     }
