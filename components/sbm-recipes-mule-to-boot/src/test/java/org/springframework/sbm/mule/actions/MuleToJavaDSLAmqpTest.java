@@ -90,18 +90,7 @@ public class MuleToJavaDSLAmqpTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(muleInboundOutboundXml);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
-
-        List<RewriteSourceFileHolder<? extends SourceFile>> applicationProperty = projectContext
-                .getProjectResources()
-                .list()
-                .stream()
-                .filter(r -> r.getSourcePath().toString().contains("application.properties"))
-                .collect(Collectors.toList());
-
-        assertThat(applicationProperty).hasSize(1);
-
-        String applicationPropertiesContent = applicationProperty.get(0).print();
-        assertThat(applicationPropertiesContent).isEqualTo("spring.rabbitmq.host=localhost\n" +
+        assertThat(getApplicationPropertyContent()).isEqualTo("spring.rabbitmq.host=localhost\n" +
                 "spring.rabbitmq.port=5672");
     }
 }

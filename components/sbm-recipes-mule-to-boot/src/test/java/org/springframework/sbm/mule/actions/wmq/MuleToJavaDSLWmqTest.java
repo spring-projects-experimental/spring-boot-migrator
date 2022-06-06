@@ -70,19 +70,12 @@ public class MuleToJavaDSLWmqTest extends JavaDSLActionBaseTest {
                                 "                .get();\n" +
                                 "    }}");
 
-        List<RewriteSourceFileHolder<? extends SourceFile>> applicationProperty = projectContext
-                .getProjectResources()
-                .list()
-                .stream()
-                .filter(r -> r.getSourcePath().toString().contains("application.properties"))
-                .collect(Collectors.toList());
-
-        assertThat(applicationProperty).hasSize(1);
-        assertThat(applicationProperty.get(0).print()).contains("ibm.mq.queueManager=QM1");
-        assertThat(applicationProperty.get(0).print()).contains("ibm.mq.channel=Channel1");
-        assertThat(applicationProperty.get(0).print()).contains("ibm.mq.connName=localhost(1414)");
-        assertThat(applicationProperty.get(0).print()).contains("ibm.mq.user=username");
-        assertThat(applicationProperty.get(0).print()).contains("ibm.mq.password=password");
+        String applicationProperty = getApplicationPropertyContent();
+        assertThat(applicationProperty).contains("ibm.mq.queueManager=QM1");
+        assertThat(applicationProperty).contains("ibm.mq.channel=Channel1");
+        assertThat(applicationProperty).contains("ibm.mq.connName=localhost(1414)");
+        assertThat(applicationProperty).contains("ibm.mq.user=username");
+        assertThat(applicationProperty).contains("ibm.mq.password=password");
 
         List<Dependency> declaredDependencies = projectContext.getBuildFile().getDeclaredDependencies();
         checkDependency(declaredDependencies, "com.ibm.mq", "mq-jms-spring-boot-starter", "2.6.4");
