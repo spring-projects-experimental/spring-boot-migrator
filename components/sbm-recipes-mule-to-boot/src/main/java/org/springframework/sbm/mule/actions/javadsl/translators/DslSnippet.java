@@ -63,27 +63,20 @@ public class DslSnippet {
     }
 
     public static DslSnippet createDSLSnippetFromTopLevelElement(AbstractTopLevelElement topLevelElement) {
-        Set<Bean> beans = topLevelElement
-                .getDslSnippets()
-                .stream()
-                .map(DslSnippet::getBeans)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
 
-        Set<String> requiredImports = topLevelElement
+        Set<Bean> beans = new HashSet<>();
+        Set<String> requiredImports = new HashSet<>();
+        Set<String> dependencies = new HashSet<>();
+        topLevelElement
                 .getDslSnippets()
-                .stream()
-                .map(DslSnippet::getRequiredImports)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        Set<String> dependencies = topLevelElement
-                .getDslSnippets()
-                .stream()
-                .map(DslSnippet::getRequiredDependencies)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
+                .forEach(dslSnippet -> {
+                    beans.addAll(dslSnippet.getBeans());
+                    requiredImports.addAll(dslSnippet.getRequiredImports());
+                    dependencies.addAll(dslSnippet.getRequiredDependencies());
+                    if (dslSnippet.getExternalClassContent() != null
+                            && !dslSnippet.getExternalClassContent().isBlank()) {
+                    }
+                });
 
         Optional<String> optionalExternalClassContent = topLevelElement
                 .getDslSnippets()
