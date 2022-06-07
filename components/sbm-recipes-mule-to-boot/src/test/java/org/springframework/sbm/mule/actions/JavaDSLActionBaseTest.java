@@ -77,8 +77,10 @@ public class JavaDSLActionBaseTest {
                 new HttpRequestTranslator(),
                 new ChoiceTranslator(),
                 new SelectTranslator(),
-                new ForeachTranslator()
+                new ForeachTranslator(),
+                new TransactionalTranslator()
         );
+
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(
                 new FlowTopLevelElementFactory(translators),
                 new SubflowTopLevelElementFactory(translators)
@@ -119,5 +121,9 @@ public class JavaDSLActionBaseTest {
     protected void runAction() {
         projectContext = projectContextBuilder.build();
         myAction.apply(projectContext);
+    }
+
+    protected String getGeneratedJavaFile() {
+        return projectContext.getProjectJavaSources().list().get(0).print();
     }
 }

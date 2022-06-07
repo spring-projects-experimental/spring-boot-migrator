@@ -34,11 +34,17 @@ public class WmqInboundEndpointTranslator implements MuleComponentToSpringIntegr
     }
 
     @Override
-    public DslSnippet translate(int id, InboundEndpointType component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
-        return new DslSnippet(
-                "return IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"" + component.getQueue() +"\")).handle((p, h) -> p)",
-                Set.of("org.springframework.integration.jms.dsl.Jms"),
-                Set.of("com.ibm.mq:mq-jms-spring-boot-starter:2.6.4", "org.springframework.integration:spring-integration-jms:5.5.8"),
-                Set.of(new Bean("connectionFactory", "javax.jms.ConnectionFactory")));
+    public DslSnippet translate(int id,
+                                InboundEndpointType component,
+                                QName name,
+                                MuleConfigurations muleConfigurations,
+                                String flowName,
+                                Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
+        return DslSnippet.builder()
+                .renderedSnippet("return IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"" + component.getQueue() + "\")).handle((p, h) -> p)")
+                .requiredImports(Set.of("org.springframework.integration.jms.dsl.Jms"))
+                .requiredDependencies(Set.of("com.ibm.mq:mq-jms-spring-boot-starter:2.6.4", "org.springframework.integration:spring-integration-jms:5.5.8"))
+                .beans(Set.of(new Bean("connectionFactory", "javax.jms.ConnectionFactory")))
+                .build();
     }
 }

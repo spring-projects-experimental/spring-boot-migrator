@@ -29,7 +29,7 @@ import java.util.*;
 
 /**
  * Translates {@code <logger/>} to SI DSL.
- *
+ * <p>
  * https://docs.mulesoft.com/mule-runtime/3.9/logging
  * https://docs.mulesoft.com/mule-runtime/3.9/logger-component-reference
  */
@@ -77,7 +77,7 @@ public class LoggingTranslator implements MuleComponentToSpringIntegrationDslTra
 
         // log level
         String logLevel = loggerType.getLevel();
-        if(logLevel != null) {
+        if (logLevel != null) {
             String siLogLevel = translateLogLevel(logLevel);
             parameter.put("level", siLogLevel);
             requiredImports.add("org.springframework.integration.handler.LoggingHandler");
@@ -85,35 +85,31 @@ public class LoggingTranslator implements MuleComponentToSpringIntegrationDslTra
 
         // category
         String category = loggerType.getCategory();
-        if(category != null) {
+        if (category != null) {
             parameter.put("category", category);
         }
 
         // message
         String message = loggerType.getMessage();
-        if(message != null) {
+        if (message != null) {
             message = expressionLanguageTranslator.translate(message);
             parameter.put("message", message);
         }
 
-        if( ! parameter.isEmpty()) {
-            if(parameter.size() == 1 && parameter.containsKey("level")) {
+        if (!parameter.isEmpty()) {
+            if (parameter.size() == 1 && parameter.containsKey("level")) {
                 sb.append(parameter.get("level"));
-            } else if(parameter.size() == 1 && parameter.containsKey("category")) {
+            } else if (parameter.size() == 1 && parameter.containsKey("category")) {
                 sb.append("\"").append(parameter.get("category")).append("\"");
-            } else if(parameter.size() == 1 && parameter.containsKey("message")) {
+            } else if (parameter.size() == 1 && parameter.containsKey("message")) {
                 sb.append("\"").append(parameter.get("message")).append("\"");
-            }
-
-            else if(parameter.size() == 2 && parameter.containsKey("level") && parameter.containsKey("message")) {
+            } else if (parameter.size() == 2 && parameter.containsKey("level") && parameter.containsKey("message")) {
                 sb.append(parameter.get("level")).append(", ").append("\"").append(parameter.get("message")).append("\"");
-            } else if(parameter.size() == 2 && parameter.containsKey("level") && parameter.containsKey("category")) {
+            } else if (parameter.size() == 2 && parameter.containsKey("level") && parameter.containsKey("category")) {
                 sb.append(parameter.get("level")).append(", ").append("\"").append(parameter.get("category")).append("\"");
-            } else if(parameter.size() == 2 && parameter.containsKey("category") && parameter.containsKey("message")) {
+            } else if (parameter.size() == 2 && parameter.containsKey("category") && parameter.containsKey("message")) {
                 sb.append("\"").append(parameter.get("category")).append("\", \"").append(parameter.get("message")).append("\"");
-            }
-
-            else if(parameter.size() == 3){
+            } else if (parameter.size() == 3) {
                 sb.append(parameter.get("level")).append(", \"").append(parameter.get("category")).append("\", \"").append(parameter.get("message")).append("\"");
             }
         }
@@ -121,13 +117,15 @@ public class LoggingTranslator implements MuleComponentToSpringIntegrationDslTra
 
         sb.append(")");
 
-        DslSnippet dslSnippet = new DslSnippet(sb.toString(), requiredImports, Collections.emptySet(), Collections.emptySet());
-        return dslSnippet;
+        return DslSnippet.builder()
+                .renderedSnippet(sb.toString())
+                .requiredImports(requiredImports)
+                .build();
     }
 
     private String translateLogLevel(String logLevel) {
         Set<String> acceptedLoggerLevel = Set.of("DEBUG", "ERROR", "INFO", "TRACE", "WARN");
-        if(logLevel == null || logLevel.isEmpty() || ! acceptedLoggerLevel.contains(logLevel)) {
+        if (logLevel == null || logLevel.isEmpty() || !acceptedLoggerLevel.contains(logLevel)) {
             log.warn(String.format("Found unknown loglevel '%s'. Will set 'INFO' instead", logLevel));
             // FIXME: verify that info is default level
             return "LoggingHandler.Level.INFO";

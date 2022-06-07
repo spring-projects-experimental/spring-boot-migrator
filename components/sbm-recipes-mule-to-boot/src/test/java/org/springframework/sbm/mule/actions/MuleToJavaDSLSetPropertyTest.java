@@ -39,7 +39,7 @@ public class MuleToJavaDSLSetPropertyTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(muleXml);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +

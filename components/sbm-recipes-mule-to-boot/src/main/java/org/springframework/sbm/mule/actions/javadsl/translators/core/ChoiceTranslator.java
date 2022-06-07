@@ -108,17 +108,17 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 
-        return new DslSnippet(
-                "/* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
+        return DslSnippet.builder()
+                .renderedSnippet("/* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
                         "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
                         "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
                         "                        m -> m\n" +
                         whenSubflowMappings +
                         otherwiseSubflowMappings +
-                        "                )",
-                requiredImports,
-                requiredDependencies,
-                requiredBeans
-        );
+                        "                )")
+                .requiredImports(requiredImports)
+                .requiredDependencies(requiredDependencies)
+                .beans(requiredBeans)
+                .build();
     }
 }

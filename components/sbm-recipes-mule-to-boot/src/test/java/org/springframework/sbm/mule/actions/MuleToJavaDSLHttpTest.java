@@ -43,7 +43,7 @@ public class MuleToJavaDSLHttpTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(muleXmlHttp);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +

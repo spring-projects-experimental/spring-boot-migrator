@@ -45,12 +45,13 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
 
         addXMLFileToResource(xml);
         runAction();
-        assertThat(getGeneratedConfigFile()).isEqualTo(
+        assertThat(getGeneratedJavaFile()).isEqualTo(
                 "package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
                         "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                        "import org.springframework.integr" +
+                        "ation.dsl.IntegrationFlows;\n" +
                         "import org.springframework.integration.handler.LoggingHandler;\n" +
                         "import org.springframework.integration.http.dsl.Http;\n" +
                         "\n" +
@@ -108,7 +109,7 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(xml);
         runAction();
 
-        assertThat(getGeneratedConfigFile()).isEqualTo(
+        assertThat(getGeneratedJavaFile()).isEqualTo(
                 "package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
@@ -191,7 +192,7 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(xml);
         runAction();
 
-        assertThat(getGeneratedConfigFile()).isEqualTo(
+        assertThat(getGeneratedJavaFile()).isEqualTo(
                 "package com.example.javadsl;\n" +
                 "import org.springframework.context.annotation.Bean;\n" +
                 "import org.springframework.context.annotation.Configuration;\n" +
@@ -235,9 +236,5 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
                 "        return flow -> flow\n" +
                 "                .log(LoggingHandler.Level.INFO, \"Ondu\");\n" +
                 "    }}");
-    }
-
-    private String getGeneratedConfigFile() {
-        return projectContext.getProjectJavaSources().list().get(0).print();
     }
 }

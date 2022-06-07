@@ -73,7 +73,7 @@ public class MuleToJavaDSLMultipleTest extends JavaDSLActionBaseTest {
                 "spring.rabbitmq.host=localhost\n" +
                         "spring.rabbitmq.port=5672"
         );
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "import org.springframework.amqp.rabbit.core.RabbitTemplate;\n" +

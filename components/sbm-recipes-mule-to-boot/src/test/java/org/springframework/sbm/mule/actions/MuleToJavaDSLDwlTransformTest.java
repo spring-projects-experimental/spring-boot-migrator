@@ -54,7 +54,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(muleXmlSetPayload);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +
@@ -130,7 +130,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(dwlXMLWithExternalFile);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +
@@ -200,7 +200,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(muleXMLSetVariable);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +
@@ -253,7 +253,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(dwlExternalFileSpecialChars);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +

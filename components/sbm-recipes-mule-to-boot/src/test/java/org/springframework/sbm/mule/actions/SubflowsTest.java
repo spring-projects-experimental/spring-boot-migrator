@@ -93,7 +93,7 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(subflowWithRabbit);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.amqp.rabbit.core.RabbitTemplate;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
@@ -128,7 +128,7 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
         runAction();
 
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
