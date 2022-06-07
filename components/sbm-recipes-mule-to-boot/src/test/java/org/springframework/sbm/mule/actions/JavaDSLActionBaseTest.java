@@ -24,6 +24,7 @@ import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpInbound
 import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpOutboundEndpointTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.core.*;
+import org.springframework.sbm.mule.actions.javadsl.translators.db.InsertTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.db.SelectTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.dwl.DwlTransformTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
@@ -78,7 +79,8 @@ public class JavaDSLActionBaseTest {
                 new ChoiceTranslator(),
                 new SelectTranslator(),
                 new ForeachTranslator(),
-                new TransactionalTranslator()
+                new TransactionalTranslator(),
+                new InsertTranslator()
         );
 
         List<TopLevelElementFactory> topLevelTypeFactories = List.of(

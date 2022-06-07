@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.db;
 
-import org.mulesoft.schema.mule.db.SelectMessageProcessorType;
+import org.mulesoft.schema.mule.db.InsertMessageProcessorType;
 import org.springframework.sbm.mule.actions.javadsl.translators.Bean;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
@@ -26,45 +26,37 @@ import javax.xml.namespace.QName;
 import java.util.Map;
 import java.util.Set;
 
-import static org.springframework.sbm.mule.actions.javadsl.translators.db.DBCommons.escapeDoubleQuotes;
-
 @Component
-public class SelectTranslator implements MuleComponentToSpringIntegrationDslTranslator<SelectMessageProcessorType> {
-
+public class InsertTranslator implements MuleComponentToSpringIntegrationDslTranslator<InsertMessageProcessorType> {
     @Override
-    public Class<SelectMessageProcessorType> getSupportedMuleType() {
-        return SelectMessageProcessorType.class;
+    public Class<InsertMessageProcessorType> getSupportedMuleType() {
+        return InsertMessageProcessorType.class;
     }
 
     @Override
-    public DslSnippet translate(int id, SelectMessageProcessorType component,
+    public DslSnippet translate(int id,
+                                InsertMessageProcessorType component,
                                 QName name,
                                 MuleConfigurations muleConfigurations,
                                 String flowName,
                                 Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
-
-        String limitString = component.getMaxRows() == null ? "" : " LIMIT " + component.getMaxRows();
-
-        String query = component.getDynamicQuery() == null ? component.getParameterizedQuery()
-                : component.getDynamicQuery();
-
         return DslSnippet.builder()
-                .renderedSnippet("// TODO: substitute expression language with appropriate java code \n" +
-                        "                .handle((p, h) -> jdbcTemplate.queryForList(\"" +
-                        escapeDoubleQuotes(query)
-                        + limitString + "\"))")
+                .renderedSnippet(
+                        "                 // TODO: payload type might not be always LinkedMultiValueMap please change it to appropriate type \n" +
+                                "                 // TODO: mule expression language is not converted to java, do it manually. example: #[payload] etc \n" +
+                                "                .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
+                                "                      jdbcTemplate.execute(\"" + DBCommons.escapeDoubleQuotes(component.getParameterizedQuery()) + "\");\n" +
+                                "                      return p;\n" +
+                                "                })")
+                .requiredImports(Set.of(
+                        "org.springframework.util.LinkedMultiValueMap",
+                        "org.springframework.jdbc.core.JdbcTemplate"
+                ))
                 .requiredDependencies(Set.of(
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
                         "org.springframework.integration:spring-integration-jdbc:5.5.4"
                 ))
-                .beans(
-                        Set.of(
-                                new Bean(
-                                        "jdbcTemplate",
-                                        "org.springframework.jdbc.core.JdbcTemplate"
-                                )
-                        )
-                )
+                .beans(Set.of(new Bean("jdbcTemplate", "org.springframework.jdbc.core.JdbcTemplate")))
                 .build();
     }
 }
