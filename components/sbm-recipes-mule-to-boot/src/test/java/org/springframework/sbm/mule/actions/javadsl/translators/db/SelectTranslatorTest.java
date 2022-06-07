@@ -41,7 +41,7 @@ class SelectTranslatorTest {
 
         assertThat(output.getRenderedSnippet()).isEqualTo(
                         "// TODO: substitute expression language with appropriate java code \n" +
-                        "// TODO: use appropriate translation for pagination \n" +
-                        "                .handle((p, h) -> jdbcTemplate.queryForList(\"Select * from Students where name like \\\"Sandeep\\\"\"))");
+                                "// TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
+                                "                .handle((p, h) -> jdbcTemplate.queryForList(\"Select * from Students where name like \\\"Sandeep\\\"\"))");
     }
 }
