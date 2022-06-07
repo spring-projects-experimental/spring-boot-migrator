@@ -32,7 +32,9 @@ public class MuleXmlUnmarshaller {
                     org.mulesoft.schema.mule.amqp.ObjectFactory.class,
                     org.mulesoft.schema.mule.http.ObjectFactory.class,
                     org.mulesoft.schema.mule.ee.wmq.ObjectFactory.class,
-                    org.mulesoft.schema.mule.ee.dw.ObjectFactory.class);
+                    org.mulesoft.schema.mule.ee.dw.ObjectFactory.class,
+                    org.mulesoft.schema.mule.scripting.ObjectFactory.class
+            );
             Unmarshaller jc = jaxbContext.createUnmarshaller();
             JAXBElement<MuleType> unmarshal = (JAXBElement<MuleType>) jc.unmarshal(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
             return unmarshal.getValue();

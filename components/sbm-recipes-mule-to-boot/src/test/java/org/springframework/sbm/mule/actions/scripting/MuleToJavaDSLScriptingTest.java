@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.mule.actions.scripting;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.mule.actions.JavaDSLActionBaseTest;
 
@@ -24,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MuleToJavaDSLScriptingTest extends JavaDSLActionBaseTest {
 
     @Test
-    @Disabled
     public void sbmAcknowledgesScriptTag() {
 
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -42,24 +40,33 @@ public class MuleToJavaDSLScriptingTest extends JavaDSLActionBaseTest {
                 "http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd\">\n" +
                 "    \n" +
                 "    <flow name=\"get:/canary/{birdName}:cmb-hsbcnet-ss-sa-entitlement-change-request-config\">\n" +
-                "        <choice doc:name=\"Choice\">\n" +
-                "            <when expression=\"#[message.inboundProperties.'http.uri.params'.birdName ==&quot;tweety&quot;]\">\n" +
-                "                <set-payload value=\"cmb-hsbcnet-ss-sa-entitlement-change-request-v${majorVersion}\" doc:name=\"Set Payload\"/>\n" +
-                "            </when>\n" +
-                "            <when expression=\"#[message.inboundProperties.'http.uri.params'.birdName !=&quot;tweety&quot;]\">\n" +
-                "                <scripting:component doc:name=\"Groovy\">\n" +
-                "                    <scripting:script engine=\"Groovy\"><![CDATA[throw new javax.ws.rs.BadRequestException();]]></scripting:script>\n" +
-                "                </scripting:component>\n" +
-                "            </when>\n" +
-                "            <otherwise>\n" +
-                "                <set-payload value=\"sa-cmb-entitlements falied\" doc:name=\"Set Payload\"/>\n" +
-                "            </otherwise>\n" +
-                "        </choice>\n" +
+                "        <scripting:component doc:name=\"Groovy\">\n" +
+                "            <scripting:script engine=\"Groovy\"><![CDATA[throw new javax.ws.rs.BadRequestException();]]></scripting:script>\n" +
+                "        </scripting:component>\n" +
                 "    </flow>\n" +
                 "</mule>";
         addXMLFileToResource(xml);
         runAction();
 
-        assertThat(getGeneratedJavaFile()).isEqualTo("ds");
+        assertThat(getGeneratedJavaFile()).isEqualTo("package com.example.javadsl;\n" +
+                "import org.springframework.context.annotation.Bean;\n" +
+                "import org.springframework.context.annotation.Configuration;\n" +
+                "import org.springframework.http.HttpMethod;\n" +
+                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
+                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                "import org.springframework.integration.http.dsl.Http;\n" +
+                "\n" +
+                "@Configuration\n" +
+                "public class FlowConfigurations {\n" +
+                "    @Bean\n" +
+                "    IntegrationFlow get__canary__birdName__cmb_hsbcnet_ss_sa_entitlement_change_request_config() {\n" +
+                "        // FIXME: the base path for Http.inboundGateway must be extracted from http:listener in flow containing apikit:router with config-ref=\"cmb-hsbcnet-ss-sa-entitlement-change-request-config\"\n" +
+                "        // FIXME: add all JavaDSL generated components between http:listener and apikit:router with config-ref=\"cmb-hsbcnet-ss-sa-entitlement-change-request-config\" into this flow\n" +
+                "        // FIXME: remove the JavaDSL generated method containing apikit:router with config-ref=\"cmb-hsbcnet-ss-sa-entitlement-change-request-config\"\n" +
+                "        return IntegrationFlows.from(\n" +
+                "                Http.inboundGateway(\"/canary/{birdName}\").requestMapping(r -> r.methods(HttpMethod.GET)))\n" +
+                "                //FIXME: element is not supported for conversion: <scripting:component/>\n" +
+                "                .get();\n" +
+                "    }}");
     }
 }
