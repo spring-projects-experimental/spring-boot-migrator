@@ -60,14 +60,7 @@ public class MuleToJavaDSLHttpTest extends JavaDSLActionBaseTest {
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                .get();\n" +
                         "    }}");
-        List<RewriteSourceFileHolder<? extends SourceFile>> applicationProperty = projectContext
-                .getProjectResources()
-                .list()
-                .stream()
-                .filter(r -> r.getSourcePath().toString().contains("application.properties"))
-                .collect(Collectors.toList());
 
-        assertThat(applicationProperty).hasSize(1);
-        assertThat(applicationProperty.get(0).print()).isEqualTo("server.port=8081");
+        assertThat(getApplicationPropertyContent()).isEqualTo("server.port=8081");
     }
 }

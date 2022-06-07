@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import org.mulesoft.schema.mule.scripting.ScriptComponentType;
 
 
 /**
@@ -37,7 +38,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlSeeAlso({
     DefaultJavaComponentType.class,
     StaticComponentType.class,
-    DefaultComponentType.class
+    DefaultComponentType.class,
+    ScriptComponentType.class
 })
 public class AbstractComponentType
     extends AbstractMessageProcessorType
@@ -68,8 +70,8 @@ public class AbstractComponentType
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link JAXBElement }{@code <}{@link AbstractInterceptorType }{@code >}
-     * {@link JAXBElement }{@code <}{@link CustomInterceptorType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInterceptorType }{@code >}
+     * {@link JAXBElement }{@code <}{@link CustomInterceptorType }{@code >}
      * {@link JAXBElement }{@code <}{@link AbstractInterceptorType }{@code >}
      * {@link JAXBElement }{@code <}{@link RefInterceptorStackType }{@code >}
      * 

@@ -51,8 +51,8 @@ import javax.xml.namespace.QName;
     org.mulesoft.schema.mule.ee.dw.TransformMessageType.SetVariable.class,
     org.mulesoft.schema.mule.ee.dw.TransformMessageType.SetSessionVariable.class,
     org.mulesoft.schema.mule.ee.dw.TransformMessageType.SetProperty.class,
-    AbstractMixedContentExtensionType.class,
-    AbstractMixedContentMessageProcessorType.class
+    AbstractMixedContentMessageProcessorType.class,
+    AbstractMixedContentExtensionType.class
 })
 public abstract class AnnotatedMixedContentType {
 

@@ -14,6 +14,7 @@ import org.mulesoft.schema.mule.http.RequestConfigType;
 import org.mulesoft.schema.mule.http.ResponseBuilderType;
 import org.mulesoft.schema.mule.jms.AbstractJndiNameResolverType;
 import org.mulesoft.schema.mule.jms.ConnectionFactoryPoolType;
+import org.mulesoft.schema.mule.scripting.GroovyRefreshableType;
 import org.mulesoft.schema.mule.tcp.TcpAbstractSocketPropertiesType;
 import org.mulesoft.schema.mule.tls.TlsContextType;
 
@@ -48,6 +49,7 @@ import org.mulesoft.schema.mule.tls.TlsContextType;
     ProxyType.class,
     TcpAbstractSocketPropertiesType.class,
     TlsContextType.class,
+    GroovyRefreshableType.class,
     AbstractJndiNameResolverType.class,
     ConnectionFactoryPoolType.class
 })

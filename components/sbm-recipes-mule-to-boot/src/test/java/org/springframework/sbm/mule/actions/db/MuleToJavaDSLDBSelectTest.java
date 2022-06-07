@@ -72,16 +72,13 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "\n" +
                                 "@Configuration\n" +
                                 "public class FlowConfigurations {\n" +
-                                "    void dbMysql_config() {\n" +
-                                "        //FIXME: element is not supported for conversion: <db:mysql-config/>\n" +
-                                "    }\n" +
-                                "\n" +
                                 "    @Bean\n" +
                                 "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS LIMIT 500\"))\n" +
+                                "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
+                                "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS\"))\n" +
                                 "                .get();\n" +
                                 "    }}");
     }
@@ -122,16 +119,13 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "\n" +
                                 "@Configuration\n" +
                                 "public class FlowConfigurations {\n" +
-                                "    void dbMysql_config() {\n" +
-                                "        //FIXME: element is not supported for conversion: <db:mysql-config/>\n" +
-                                "    }\n" +
-                                "\n" +
                                 "    @Bean\n" +
                                 "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS LIMIT 500\"))\n" +
+                                "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
+                                "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS\"))\n" +
                                 "                .get();\n" +
                                 "    }}");
     }

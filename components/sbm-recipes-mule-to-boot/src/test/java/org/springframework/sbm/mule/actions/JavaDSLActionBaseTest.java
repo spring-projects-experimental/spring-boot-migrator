@@ -16,6 +16,7 @@
 package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.openrewrite.SourceFile;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
@@ -25,6 +26,7 @@ import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpOutboun
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.core.*;
 import org.springframework.sbm.mule.actions.javadsl.translators.db.InsertTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.db.OracleConfigAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.db.SelectTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.dwl.DwlTransformTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerConfigTypeAdapter;
@@ -42,10 +44,12 @@ import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.mockito.Mockito.mock;
@@ -93,7 +97,8 @@ public class JavaDSLActionBaseTest {
                         new AmqpConfigTypeAdapter(),
                         new HttpListenerConfigTypeAdapter(),
                         new WmqConnectorTypeAdapter(),
-                        new RequestConfigTypeAdapter()
+                        new RequestConfigTypeAdapter(),
+                        new OracleConfigAdapter()
                 )
         );
         MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
@@ -127,5 +132,21 @@ public class JavaDSLActionBaseTest {
 
     protected String getGeneratedJavaFile() {
         return projectContext.getProjectJavaSources().list().get(0).print();
+    }
+
+    protected String getApplicationPropertyContent() {
+
+        List<RewriteSourceFileHolder<? extends SourceFile>> properties = projectContext
+                .getProjectResources()
+                .list()
+                .stream()
+                .filter(r -> r.getSourcePath().toString().contains("application.properties"))
+                .collect(Collectors.toList());
+
+        if (!properties.isEmpty()) {
+            return properties.get(0).print();
+        }
+
+        return null;
     }
 }

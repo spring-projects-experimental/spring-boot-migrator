@@ -5,6 +5,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import org.mulesoft.schema.mule.scripting.LangType;
+import org.mulesoft.schema.mule.scripting.ScriptType;
 
 
 /**
@@ -27,7 +29,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "abstractMixedContentExtensionType")
 @XmlSeeAlso({
-    org.mulesoft.schema.mule.core.ConfigurationType.ExpressionLanguage.class
+    org.mulesoft.schema.mule.core.ConfigurationType.ExpressionLanguage.class,
+    ScriptType.class,
+    LangType.class
 })
 public class AbstractMixedContentExtensionType
     extends AnnotatedMixedContentType

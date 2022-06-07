@@ -38,8 +38,8 @@ public class AmqpConfigTypeAdapter extends ConfigurationTypeAdapter<AmqpConnecto
     @Override
     public List<SimpleEntry<String, String>> configProperties() {
         List<SimpleEntry<String, String>> properties = new ArrayList<>();
-        properties.add(new SimpleEntry<String, String>("spring.rabbitmq.host", getMuleConfiguration().getHost()));
-        properties.add(new SimpleEntry<String, String>("spring.rabbitmq.port", getMuleConfiguration().getPort()));
+        properties.add(new SimpleEntry<>("spring.rabbitmq.host", getMuleConfiguration().getHost()));
+        properties.add(new SimpleEntry<>("spring.rabbitmq.port", getMuleConfiguration().getPort()));
 
         return properties;
     }

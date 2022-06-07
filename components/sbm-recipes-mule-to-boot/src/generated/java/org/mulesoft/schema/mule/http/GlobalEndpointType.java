@@ -16,8 +16,8 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;complexType name="globalEndpointType"&gt;
  *   &lt;complexContent&gt;
  *     &lt;extension base="{http://www.mulesoft.org/schema/mule/core}globalEndpointType"&gt;
- *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/http}addressAttributes"/&gt;
  *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/http}propertyAttributes"/&gt;
+ *       &lt;attGroup ref="{http://www.mulesoft.org/schema/mule/http}addressAttributes"/&gt;
  *       &lt;attribute name="followRedirects" type="{http://www.w3.org/2001/XMLSchema}boolean" /&gt;
  *       &lt;attribute name="exceptionOnMessageError" type="{http://www.w3.org/2001/XMLSchema}boolean" default="true" /&gt;
  *       &lt;anyAttribute processContents='lax' namespace='##other'/&gt;
@@ -38,6 +38,12 @@ public class GlobalEndpointType
     protected Boolean followRedirects;
     @XmlAttribute(name = "exceptionOnMessageError")
     protected Boolean exceptionOnMessageError;
+    @XmlAttribute(name = "contentType")
+    protected String contentType;
+    @XmlAttribute(name = "method")
+    protected HttpMethodTypes method;
+    @XmlAttribute(name = "keepAlive")
+    protected String keepAlive;
     @XmlAttribute(name = "user")
     protected String user;
     @XmlAttribute(name = "password")
@@ -48,12 +54,6 @@ public class GlobalEndpointType
     protected String port;
     @XmlAttribute(name = "path")
     protected String path;
-    @XmlAttribute(name = "contentType")
-    protected String contentType;
-    @XmlAttribute(name = "method")
-    protected HttpMethodTypes method;
-    @XmlAttribute(name = "keepAlive")
-    protected String keepAlive;
 
     /**
      * Gets the value of the followRedirects property.
@@ -105,6 +105,78 @@ public class GlobalEndpointType
      */
     public void setExceptionOnMessageError(Boolean value) {
         this.exceptionOnMessageError = value;
+    }
+
+    /**
+     * Gets the value of the contentType property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getContentType() {
+        return contentType;
+    }
+
+    /**
+     * Sets the value of the contentType property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setContentType(String value) {
+        this.contentType = value;
+    }
+
+    /**
+     * Gets the value of the method property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link HttpMethodTypes }
+     *     
+     */
+    public HttpMethodTypes getMethod() {
+        return method;
+    }
+
+    /**
+     * Sets the value of the method property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link HttpMethodTypes }
+     *     
+     */
+    public void setMethod(HttpMethodTypes value) {
+        this.method = value;
+    }
+
+    /**
+     * Gets the value of the keepAlive property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getKeepAlive() {
+        return keepAlive;
+    }
+
+    /**
+     * Sets the value of the keepAlive property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setKeepAlive(String value) {
+        this.keepAlive = value;
     }
 
     /**
@@ -225,78 +297,6 @@ public class GlobalEndpointType
      */
     public void setPath(String value) {
         this.path = value;
-    }
-
-    /**
-     * Gets the value of the contentType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getContentType() {
-        return contentType;
-    }
-
-    /**
-     * Sets the value of the contentType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setContentType(String value) {
-        this.contentType = value;
-    }
-
-    /**
-     * Gets the value of the method property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link HttpMethodTypes }
-     *     
-     */
-    public HttpMethodTypes getMethod() {
-        return method;
-    }
-
-    /**
-     * Sets the value of the method property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link HttpMethodTypes }
-     *     
-     */
-    public void setMethod(HttpMethodTypes value) {
-        this.method = value;
-    }
-
-    /**
-     * Gets the value of the keepAlive property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getKeepAlive() {
-        return keepAlive;
-    }
-
-    /**
-     * Sets the value of the keepAlive property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setKeepAlive(String value) {
-        this.keepAlive = value;
     }
 
 }
