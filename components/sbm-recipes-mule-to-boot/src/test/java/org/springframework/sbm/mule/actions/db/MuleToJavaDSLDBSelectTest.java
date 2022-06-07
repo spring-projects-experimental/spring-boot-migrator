@@ -77,7 +77,7 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                // TODO: use appropriate translation for pagination \n" +
+                                "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
                                 "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS\"))\n" +
                                 "                .get();\n" +
                                 "    }}");
@@ -124,7 +124,7 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                // TODO: use appropriate translation for pagination \n" +
+                                "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
                                 "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS\"))\n" +
                                 "                .get();\n" +
                                 "    }}");
