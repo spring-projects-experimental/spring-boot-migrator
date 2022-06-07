@@ -83,36 +83,4 @@ class MuleXmlUnmarshallerTest {
 //                .map(JAXBElement::getValue)
 //                .collect(Collectors.toList())
     }
-
-    @Test
-    public void test() {
-
-        String xml = "<mule xmlns=\"http://www.mulesoft.org/schema/mule/core\"\n" +
-                "      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "      xmlns:script=\"http://www.mulesoft.org/schema/mule/scripting\"\n" +
-                "      xsi:schemaLocation=\"\n" +
-                "   http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-                "   http://www.mulesoft.org/schema/mule/scripting\n" +
-                "   http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd\">\n" +
-                "\n" +
-                "    <script:script name=\"myScript\" engine=\"groovy\">\n" +
-                "        return \"$payload Received\"\n" +
-                "    </script:script>\n" +
-                "\n" +
-                "    <flow name=\"inlineScript\">\n" +
-                "        <script:component>\n" +
-                "            <script:script engine=\"groovy\">\n" +
-                "                return \"$payload Received\"\n" +
-                "            </script:script>\n" +
-                "        </script:component>\n" +
-                "    </flow>\n" +
-                "</mule>\n";
-
-        MuleXmlUnmarshaller sut = new MuleXmlUnmarshaller();
-        MuleType unmarshal = sut.unmarshal(xml);
-
-        InboundEndpointType inboundEndpoint = (InboundEndpointType) ((JAXBElement) ((FlowType) ((JAXBElement) unmarshal.getBeansOrBeanOrPropertyPlaceholder().get(0)).getValue()).getAbstractInboundEndpoint()).getValue();
-        assertThat(inboundEndpoint.getExchangePattern()).isEqualTo("request-response");
-        assertThat(inboundEndpoint.getPort()).isEqualTo("8090");
-    }
 }
