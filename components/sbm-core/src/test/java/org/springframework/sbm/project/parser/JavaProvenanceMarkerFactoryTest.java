@@ -49,7 +49,7 @@ class JavaProvenanceMarkerFactoryTest {
         Path projectDirectory = Path.of("./faked-project-dir/pom.xml");
         Xml.Document maven = new RewriteMavenParser().parse(pomXmlSource).get(0).withSourcePath(Path.of("pom.xml"));
 
-        List<Marker> javaProvenanceMarkers = sut.getJavaProvenanceMarkers(maven, projectDirectory, new RewriteExecutionContext());
+        List<Marker> javaProvenanceMarkers = sut.createJavaProvenanceMarkers(maven, projectDirectory, new RewriteExecutionContext());
 
         assertThat(javaProvenanceMarkers).hasSize(3);
 

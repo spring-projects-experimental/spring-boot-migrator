@@ -15,13 +15,17 @@
  */
 package org.springframework.sbm.project.resource;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.Parser;
+import org.openrewrite.java.JavaParser;
+import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.springframework.sbm.build.migration.MavenPomCacheProvider;
+import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.build.resource.BuildFileResourceWrapper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
@@ -34,9 +38,9 @@ import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.TestDummyResource;
-import org.springframework.sbm.project.parser.DependencyHelper;
-import org.springframework.sbm.project.parser.ProjectContextInitializer;
-import org.springframework.sbm.project.parser.RewriteMavenParserFactory;
+import org.springframework.sbm.project.parser.*;
+import org.springframework.sbm.properties.parser.RewritePropertiesParser;
+import org.springframework.sbm.xml.parser.RewriteXmlParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -175,6 +179,7 @@ import static org.mockito.Mockito.when;
  * - Using the TestProhectContext to initialize a ProjectContext from filesystem resources
  * - Adding dependencies and how they affect the JavaParser
  */
+@Slf4j
 public class TestProjectContext {
 
     private static final Path DEFAULT_PROJECT_ROOT = Path.of(".").resolve("target").resolve("dummy-test-path").normalize().toAbsolutePath();
@@ -463,13 +468,31 @@ public class TestProjectContext {
 
         @NotNull
         private ProjectContextInitializer createProjectContextInitializer(ProjectContextFactory projectContextFactory) {
-            RewriteMavenParserFactory rewriteMavenParserFactory = new RewriteMavenParserFactory(new MavenPomCacheProvider(), eventPublisher);
+            // FIXME: #7 remove
+//            RewriteMavenParserFactory rewriteMavenParserFactory = new RewriteMavenParserFactory(new MavenPomCacheProvider(), eventPublisher, new ResourceParser(eventPublisher));
+
+
+            ResourceParser resourceParser = new ResourceParser(
+                    new RewriteJsonParser(),
+                    new RewriteXmlParser(),
+                    new RewriteYamlParser(),
+                    new RewritePropertiesParser(),
+                    new RewritePlainTextParser(),
+                    new ResourceParser.ResourceFilter(),
+                    eventPublisher);
+
+            RewriteMavenParser mavenParser =  new RewriteMavenParser();
+
+            MavenArtifactDownloader artifactDownloader = new RewriteMavenArtifactDownloader();
+
+            JavaProvenanceMarkerFactory javaProvenanceMarkerFactory = new JavaProvenanceMarkerFactory();
+            MavenProjectParser mavenProjectParser = new MavenProjectParser(resourceParser, mavenParser, artifactDownloader, eventPublisher, javaProvenanceMarkerFactory, javaParser);
 
             GitSupport gitSupport = mock(GitSupport.class);
             when(gitSupport.repoExists(projectRoot.toFile())).thenReturn(true);
             when(gitSupport.getLatestCommit(projectRoot.toFile())).thenReturn(Optional.empty());
 
-            ProjectContextInitializer projectContextInitializer = new ProjectContextInitializer(projectContextFactory, rewriteMavenParserFactory, gitSupport);
+            ProjectContextInitializer projectContextInitializer = new ProjectContextInitializer(projectContextFactory, mavenProjectParser, gitSupport);
             return projectContextInitializer;
         }
 

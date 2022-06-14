@@ -26,19 +26,29 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class RewriteMavenParser implements Parser<Xml.Document> {
 
     private final MavenParser parser;
 
+    // FIXME: #7 This does not work for singleton Spring bean, also profiles and cache cannot be changed
+    public RewriteMavenParser(Path projectRoot) {
+        this.parser = initMavenParser(new RewriteExecutionContext(), Optional.ofNullable(projectRoot));
+    }
+
     public RewriteMavenParser() {
-        this.parser = initMavenParser(new RewriteExecutionContext());
+        this.parser = initMavenParser(new RewriteExecutionContext(), Optional.empty());
     }
 
     @NotNull
-    private MavenParser initMavenParser(RewriteExecutionContext executionContext) {
+    private MavenParser initMavenParser(RewriteExecutionContext executionContext, Optional<Path> projectRoot) {
         MavenParser.Builder builder = MavenParser.builder();
+        if(projectRoot.isPresent()) {
+            builder.mavenConfig(projectRoot.get().resolve(".mvn/maven.config"));
+        }
+        builder.build();
 //        if(executionContext.getMavenProfiles().length > 0) {
 //            builder.activeProfiles(executionContext.getMavenProfiles());
 //        }

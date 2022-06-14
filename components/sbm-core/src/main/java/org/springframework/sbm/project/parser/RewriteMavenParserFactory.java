@@ -31,13 +31,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Consumer;
 
-@Component
-@RequiredArgsConstructor
+//@Component
+//@RequiredArgsConstructor
+@Deprecated
 public class RewriteMavenParserFactory {
 
-    private final MavenPomCacheProvider mavenPomCacheProvider;
-    private final ApplicationEventPublisher eventPublisher;
-    private JavaProvenanceMarkerFactory javaProvenanceMarkerFactory;
+//    private final MavenPomCacheProvider mavenPomCacheProvider;
+//    private final ApplicationEventPublisher eventPublisher;
+//    private JavaProvenanceMarkerFactory javaProvenanceMarkerFactory;
+//
+//    private final ResourceParser resourceParser;
 
     MavenProjectParser createRewriteMavenParser(Path absoluteProjectDir, RewriteExecutionContext rewriteExecutionContext) {
         Consumer<Throwable> onError = rewriteExecutionContext.getOnError();
@@ -53,20 +56,23 @@ public class RewriteMavenParserFactory {
         MavenParser.Builder mavenParserBuilder = MavenParser.builder()
                 .mavenConfig(absoluteProjectDir.resolve(".mvn/maven.config"));
 
-        MavenProjectParser mavenProjectParser = new MavenProjectParser(
-                downloader,
-                mavenParserBuilder,
-                JavaParser.fromJavaVersion(),
-                eventPublisher,
-                javaProvenanceMarkerFactory,
-                rewriteExecutionContext
-        );
-        return mavenProjectParser;
+//        MavenProjectParser mavenProjectParser = new MavenProjectParser(
+//                resourceParser,
+//                downloader,
+//                mavenParserBuilder,
+//                JavaParser.fromJavaVersion(),
+//                eventPublisher,
+//                javaProvenanceMarkerFactory,
+//                rewriteExecutionContext
+//        );
+//        return mavenProjectParser;
+        // FIXME #7
+        return null;
     }
 
-    private MavenPomCache getPomCache() {
-        return mavenPomCacheProvider.getPomCache();
-    }
+//    private MavenPomCache getPomCache() {
+//        return mavenPomCacheProvider.getPomCache();
+//    }
 
 
 }

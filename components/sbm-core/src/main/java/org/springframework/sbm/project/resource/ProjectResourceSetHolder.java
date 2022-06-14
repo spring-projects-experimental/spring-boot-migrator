@@ -22,7 +22,6 @@ import java.util.ArrayList;
 @Component
 public class ProjectResourceSetHolder {
     private ProjectResourceSet projectResourceSet;
-
     public void setProjectResourceSet(ProjectResourceSet projectResourceSet) {
         this.projectResourceSet = projectResourceSet;
     }

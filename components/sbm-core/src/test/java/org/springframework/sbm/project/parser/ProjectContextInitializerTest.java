@@ -33,6 +33,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.build.migration.MavenPomCacheProvider;
 import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -58,13 +60,18 @@ import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.
 
 
 @SpringBootTest(classes = {
+        ResourceParser.class,
         ProjectContextInitializer.class,
+        MavenProjectParser.class,
+        RewriteMavenParser.class,
+        RewriteMavenArtifactDownloader.class,
+        JavaProvenanceMarkerFactory.class,
         BasePackageCalculator.class,
         BasePackageCalculator.class,
         ProjectRootPathResolver.class,
         PreconditionVerifier.class,
         ProjectContextFactory.class,
-        RewriteMavenParserFactory.class,
+        RewriteMavenParserFactory.class, // FIXME: #7 remove class
         MavenPomCacheProvider.class,
         PathScanner.class,
         SbmApplicationProperties.class,

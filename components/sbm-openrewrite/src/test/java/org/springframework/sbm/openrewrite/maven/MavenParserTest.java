@@ -15,12 +15,12 @@
  */
 package org.springframework.sbm.openrewrite.maven;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.RocksdbMavenPomCache;
 import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.MavenResolutionResult;
@@ -38,20 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MavenParserTest {
 
-	@Problem(description = "java.io.UncheckedIOException: Failed to parse pom", version = "7.18.2")
-	@Disabled("#497")
+	@Problem(description = "java.io.UncheckedIOException: Failed to parse pom", since = "7.18.2", fixedIn = "7.23.0")
 	void testParsingPomWithEmptyDependenciesSection() {
-//		String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-//				+ "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \n" +
-//				"    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
-//				"    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n"
-//				+ "    <modelVersion>4.0.0</modelVersion>\n"
-//				+ "    <groupId>com.example</groupId>\n"
-//				+ "    <artifactId>foo-bar</artifactId>\n"
-//				+ "    <version>0.1.0-SNAPSHOT</version>\n"
-//				+ "    <dependencies>\n</dependencies>\n"
-//				+ "</project>";
-
 		String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
 				"    <modelVersion>4.0.0</modelVersion>\n" +
@@ -62,6 +50,7 @@ public class MavenParserTest {
 				"</project>";
 
 		List<Xml.Document> parse = MavenParser.builder().build().parse(pomXml);
+		assertThat(parse).isNotEmpty();
 	}
 
 	@Test
@@ -102,10 +91,8 @@ public class MavenParserTest {
 
 		InMemoryExecutionContext executionContext = new InMemoryExecutionContext((t) -> System.out.println(t.getMessage()));
 		MavenExecutionContextView ctx = MavenExecutionContextView.view(executionContext);
-		ctx.setPomCache(new RocksdbMavenPomCache(tempDir.resolve("rewrite-cache")));
-		HashMap<Path, Pom> projectPoms = new HashMap<>();
-		MavenPomDownloader mavenPomDownloader = new MavenPomDownloader(projectPoms, ctx);
-		List<ResolvedDependency> resolvedDependencies = r.getDependencies().get(Scope.Compile);
+		ctx.setPomCache(new InMemoryMavenPomCache());
+		List<ResolvedDependency> resolvedDependencies = r.getDependencies().get(Scope.Provided);
 		assertThat(r.getDependencies()).hasSize(4);
 		assertThat(resolvedDependencies).hasSize(81); // FIXME: #7 was 81 before ?!
 	}

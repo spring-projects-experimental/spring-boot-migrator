@@ -37,14 +37,16 @@ import java.util.stream.Collectors;
 public class ProjectContextInitializer {
 
     private final ProjectContextFactory projectContextFactory;
-    private final RewriteMavenParserFactory rewriteMavenParserFactory;
+    private final MavenProjectParser mavenProjectParser;
+    // FIXME #7 remove
+//    private final RewriteMavenParserFactory rewriteMavenParserFactory;
     private final GitSupport gitSupport;
 
     public ProjectContext initProjectContext(Path projectDir, List<Resource> resources, RewriteExecutionContext rewriteExecutionContext) {
         final Path absoluteProjectDir = projectDir.toAbsolutePath().normalize();
         // TODO: remove git initialization, handled by precondition check
         initializeGitRepoIfNoneExists(absoluteProjectDir);
-        MavenProjectParser mavenProjectParser = rewriteMavenParserFactory.createRewriteMavenParser(absoluteProjectDir, rewriteExecutionContext);
+//        MavenProjectParser mavenProjectParser = // FIXME #7 remove: rewriteMavenParserFactory.createRewriteMavenParser(absoluteProjectDir, rewriteExecutionContext);
 
         List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources);
         List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);

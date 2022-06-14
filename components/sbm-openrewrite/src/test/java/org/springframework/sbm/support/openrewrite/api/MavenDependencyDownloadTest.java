@@ -38,7 +38,7 @@ public class MavenDependencyDownloadTest {
 //            description = "Some dependencies cannot be downloaded because the resolved resource path is wrong",
 //            version = "7.16.3"
             description = "Fails with containingPom being null",
-            version = "7.18.2"
+            since = "7.18.2"
     )
     @Disabled
     void downloadDependencies(@TempDir Path tempDir) {

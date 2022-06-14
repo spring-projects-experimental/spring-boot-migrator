@@ -1,6 +1,5 @@
 package org.springframework.sbm.project.parser;
 
-import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaVersion;
@@ -28,7 +27,7 @@ import static org.openrewrite.Tree.randomId;
 public class JavaProvenanceMarkerFactory {
 
     private static final Pattern mavenWrapperVersionPattern = Pattern.compile(".*apache-maven/(.*?)/.*");
-    public List<Marker> getJavaProvenanceMarkers(Xml.Document maven, Path projectDirectory, ExecutionContext ctx) {
+    public List<Marker> createJavaProvenanceMarkers(Xml.Document maven, Path projectDirectory, ExecutionContext ctx) {
             MavenResolutionResult mavenResolution = MavenBuildFileUtil.findMavenResolution(maven).get();
             Pom mavenModel = mavenResolution.getPom().getRequested();
             String javaRuntimeVersion = System.getProperty("java.runtime.version");
