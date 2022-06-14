@@ -222,14 +222,14 @@ public class TestProjectContext {
         private ProjectResourceWrapperRegistry resourceWrapperRegistry;
         private OpenRewriteMavenBuildFile mockedBuildFile;
         private DependencyHelper dependencyHelper = new DependencyHelper();
-        private ApplicationProperties applicationProperties = new ApplicationProperties();
+        private SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
         private JavaParser javaParser;
 
         public Builder(Path projectRoot) {
             this.projectRoot = projectRoot;
-            applicationProperties.setDefaultBasePackage(DEFAULT_PACKAGE_NAME);
-            applicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
-            this.javaParser = new RewriteJavaParser(applicationProperties);
+            sbmApplicationProperties.setDefaultBasePackage(DEFAULT_PACKAGE_NAME);
+            sbmApplicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
+            this.javaParser = new RewriteJavaParser(sbmApplicationProperties);
         }
 
         public Builder(Path projectRoot, ApplicationEventPublisher eventPublisher) {
@@ -242,8 +242,8 @@ public class TestProjectContext {
             return this;
         }
 
-        public Builder withApplicationProperties(ApplicationProperties applicationProperties) {
-            this.applicationProperties = applicationProperties;
+        public Builder withApplicationProperties(SbmApplicationProperties sbmApplicationProperties) {
+            this.sbmApplicationProperties = sbmApplicationProperties;
             return this;
         }
 
@@ -432,7 +432,7 @@ public class TestProjectContext {
             resourceWrapperRegistry = new ProjectResourceWrapperRegistry(resourceWrapperList);
 
             // create ProjectContextInitializer
-            ProjectContextFactory projectContextFactory = new ProjectContextFactory(resourceWrapperRegistry, projectResourceSetHolder, javaRefactoringFactory, new BasePackageCalculator(applicationProperties), javaParser);
+            ProjectContextFactory projectContextFactory = new ProjectContextFactory(resourceWrapperRegistry, projectResourceSetHolder, javaRefactoringFactory, new BasePackageCalculator(sbmApplicationProperties), javaParser);
             ProjectContextInitializer projectContextInitializer = createProjectContextInitializer(projectContextFactory);
 
             // create ProjectContext

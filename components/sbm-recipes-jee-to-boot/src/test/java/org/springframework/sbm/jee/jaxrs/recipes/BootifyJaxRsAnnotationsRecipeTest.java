@@ -16,7 +16,7 @@
 package org.springframework.sbm.jee.jaxrs.recipes;
 
 import org.springframework.sbm.java.impl.RewriteJavaParser;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.test.RecipeTestSupport;
 import org.springframework.sbm.build.migration.actions.AddDependencies;
 import org.springframework.sbm.engine.recipe.Recipe;
@@ -33,7 +33,7 @@ public class BootifyJaxRsAnnotationsRecipeTest {
     @Test
     void test() {
 
-        Recipe jaxRsRecipe = new MigrateJaxRsRecipe(new RewriteJavaParser(new ApplicationProperties())).jaxRs();
+        Recipe jaxRsRecipe = new MigrateJaxRsRecipe(new RewriteJavaParser(new SbmApplicationProperties())).jaxRs();
         Optional<Recipe> recipe = Optional.of(jaxRsRecipe);
         RecipeTestSupport.assertThatRecipeExists(recipe);
         RecipeTestSupport.assertThatRecipeHasActions(recipe,

@@ -24,7 +24,7 @@ import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.engine.annotations.StatefulComponent;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -34,21 +34,21 @@ import java.util.List;
 @StatefulComponent
 public class RewriteJavaParser implements JavaParser {
 
-    private final ApplicationProperties applicationProperties;
+    private final SbmApplicationProperties sbmApplicationProperties;
     @Getter
     private final JavaParser javaParser;
 
 
     // satisfies DI
-    public RewriteJavaParser(ApplicationProperties applicationProperties) {
-        this.applicationProperties = applicationProperties;
+    public RewriteJavaParser(SbmApplicationProperties sbmApplicationProperties) {
+        this.sbmApplicationProperties = sbmApplicationProperties;
         javaParser = buildJavaParser(Collections.emptySet());
     }
 
     @NotNull
     private JavaParser buildJavaParser(Collection<Path> classpath) {
         Builder<? extends JavaParser, ?> builder = JavaParser.fromJavaVersion()
-                .logCompilationWarningsAndErrors(applicationProperties.isJavaParserLoggingCompilationWarningsAndErrors());
+                .logCompilationWarningsAndErrors(sbmApplicationProperties.isJavaParserLoggingCompilationWarningsAndErrors());
         if (!classpath.isEmpty()) {
             builder.classpath(classpath);
         }

@@ -18,7 +18,7 @@ package org.springframework.sbm.engine.git;
 import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -31,11 +31,11 @@ public class ProjectSyncVerifier {
 
     private final GitSupport gitSupport;
     private final ScanCommand scanCommand;
-    private final ApplicationProperties applicationProperties;
+    private final SbmApplicationProperties sbmApplicationProperties;
     private final ProjectContextHolder projectContextHolder;
 
     public void rescanWhenProjectIsOutOfSyncAndGitAvailable(ProjectContext context) {
-        if (applicationProperties.isGitSupportEnabled()) {
+        if (sbmApplicationProperties.isGitSupportEnabled()) {
             File repo = context.getProjectRootDirectory().toFile();
             if (gitSupport.repoExists(repo)) {
                 String expectedRevision = context.getRevision();
@@ -48,7 +48,7 @@ public class ProjectSyncVerifier {
     }
 
     public void verifyProjectIsInSyncWhenGitAvailable(ProjectContext context) {
-        if (applicationProperties.isGitSupportEnabled()) {
+        if (sbmApplicationProperties.isGitSupportEnabled()) {
             File repo = context.getProjectRootDirectory().toFile();
             if (gitSupport.repoExists(repo)) {
                 String expectedRevision = context.getRevision();

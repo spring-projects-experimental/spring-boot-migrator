@@ -21,7 +21,7 @@ import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSourceLocation;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.Setter;
@@ -42,7 +42,7 @@ public class AddSpringBootContextTestClassAction extends AbstractAction {
     @Autowired
     @Setter
     @JsonIgnore
-    private ApplicationProperties applicationProperties;
+    private SbmApplicationProperties sbmApplicationProperties;
 
     @Override
     public void apply(ProjectContext context) {
@@ -64,7 +64,7 @@ public class AddSpringBootContextTestClassAction extends AbstractAction {
 
         Map<String, Object> params = new HashMap<>();
         String packageName = testJavaSourceLocation.getPackageName();
-        if (packageName == null || packageName.equals(applicationProperties.getDefaultBasePackage())) {
+        if (packageName == null || packageName.equals(sbmApplicationProperties.getDefaultBasePackage())) {
             packageName = mainJavaSourceLocation.getPackageName();
         }
 

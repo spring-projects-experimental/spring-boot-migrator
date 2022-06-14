@@ -23,7 +23,7 @@ import org.springframework.sbm.boot.properties.api.SpringProfile;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.*;
 
 class MigrateToSpringCloudConfigServerHelperTest {
 
-    private MigrateToSpringCloudConfigServerHelper sut = new MigrateToSpringCloudConfigServerHelper(new GitSupport(new ApplicationProperties()));
+    private MigrateToSpringCloudConfigServerHelper sut = new MigrateToSpringCloudConfigServerHelper(new GitSupport(new SbmApplicationProperties()));
 
     @Test
     void findAllSpringProfiles() {

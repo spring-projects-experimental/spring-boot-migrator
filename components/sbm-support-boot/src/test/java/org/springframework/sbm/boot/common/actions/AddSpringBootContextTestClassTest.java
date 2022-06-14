@@ -16,7 +16,7 @@
 package org.springframework.sbm.boot.common.actions;
 
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
@@ -68,12 +68,12 @@ public class AddSpringBootContextTestClassTest {
                     "\n" +
                     "}\n";
 
-            ApplicationProperties applicationProperties = new ApplicationProperties();
-            applicationProperties.setDefaultBasePackage("foo.bar");
+            SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+            sbmApplicationProperties.setDefaultBasePackage("foo.bar");
 
             ProjectContext context = TestProjectContext.buildProjectContext()
                     .withDummyRootBuildFile()
-                    .withApplicationProperties(applicationProperties)
+                    .withApplicationProperties(sbmApplicationProperties)
                     .withJavaTestSources(
                             // This package is the root package
                             "package org.springframework.sbm.root.test;\n" +
@@ -86,7 +86,7 @@ public class AddSpringBootContextTestClassTest {
 
             assertThat(context.getProjectJavaSources().list()).hasSize(2);
 
-            sut.setApplicationProperties(applicationProperties);
+            sut.setSbmApplicationProperties(sbmApplicationProperties);
             sut.apply(context);
 
             assertThat(context.getProjectJavaSources().list()).hasSize(3);
@@ -157,18 +157,18 @@ public class AddSpringBootContextTestClassTest {
 
         @Test
         void test() {
-            ApplicationProperties applicationProperties = new ApplicationProperties();
-            applicationProperties.setDefaultBasePackage("com.example.sbm");
+            SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+            sbmApplicationProperties.setDefaultBasePackage("com.example.sbm");
 
             ProjectContext projectContext = TestProjectContext.buildProjectContext()
                     .addProjectResource("pom.xml", parentPom)
-                    .withApplicationProperties(applicationProperties)
+                    .withApplicationProperties(sbmApplicationProperties)
                     .addProjectResource("module1/pom.xml", childPom1)
                     .addProjectResource("module2/pom.xml", childPom2)
                     .addJavaSourceToModule("module1/src/main/java", javaClass1)
                     .build();
 
-            sut.setApplicationProperties(applicationProperties);
+            sut.setSbmApplicationProperties(sbmApplicationProperties);
 
             sut.apply(projectContext);
 

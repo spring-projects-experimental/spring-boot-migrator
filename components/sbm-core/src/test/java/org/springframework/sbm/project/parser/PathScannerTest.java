@@ -18,10 +18,9 @@ package org.springframework.sbm.project.parser;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -34,8 +33,8 @@ class PathScannerTest {
 
     @Test
     void absoluteIgnorePatternShouldThrowException() {
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        assertThatThrownBy(() ->  applicationProperties.setIgnoredPathsPatterns(List.of("/**/foo.bar","**/ok/**","/fails/**")))
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        assertThatThrownBy(() ->  sbmApplicationProperties.setIgnoredPathsPatterns(List.of("/**/foo.bar","**/ok/**","/fails/**")))
                 .hasMessage("Found absolute ignore paths patterns defined in sbm.ignoredPathsPatterns. Patterns must be relative and not start with '/'. Invalid patterns found: ['/**/foo.bar', '/fails/**'].")
                 .isInstanceOf(IllegalArgumentException.class);
     }
@@ -43,9 +42,9 @@ class PathScannerTest {
     @Test
     void returnsAllWhenNoPatternMatches() {
 
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setIgnoredPathsPatterns(List.of("**/foo.bar"));
-        PathScanner sut = new PathScanner(applicationProperties, new ResourceHelper(new DefaultResourceLoader()));
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setIgnoredPathsPatterns(List.of("**/foo.bar"));
+        PathScanner sut = new PathScanner(sbmApplicationProperties, new ResourceHelper(new DefaultResourceLoader()));
         List<Resource> resources = sut.scan(Path.of(TESTCODE_DIR).toAbsolutePath().normalize());
         assertThat(resources).hasSize(3);
     }
@@ -53,9 +52,9 @@ class PathScannerTest {
     @Test
     void returnsFilteredResourcesWhenPatternMatches() {
 
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setIgnoredPathsPatterns(List.of("**/*.xslt", "**/*.wsdl"));
-        PathScanner sut = new PathScanner(applicationProperties, new ResourceHelper(new DefaultResourceLoader()));
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setIgnoredPathsPatterns(List.of("**/*.xslt", "**/*.wsdl"));
+        PathScanner sut = new PathScanner(sbmApplicationProperties, new ResourceHelper(new DefaultResourceLoader()));
         List<Resource> resources = sut.scan(Path.of(TESTCODE_DIR).toAbsolutePath().normalize());
 
         assertThat(resources).hasSize(1);

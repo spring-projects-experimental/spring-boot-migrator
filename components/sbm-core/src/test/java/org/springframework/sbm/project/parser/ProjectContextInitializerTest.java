@@ -67,7 +67,7 @@ import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.
         RewriteMavenParserFactory.class,
         MavenPomCacheProvider.class,
         PathScanner.class,
-        ApplicationProperties.class,
+        SbmApplicationProperties.class,
         RewriteXmlParser.class,
         ResourceHelper.class,
         ResourceLoader.class,

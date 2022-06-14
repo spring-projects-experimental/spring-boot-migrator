@@ -20,7 +20,7 @@ import org.openrewrite.java.format.WrappingAndBraces;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
@@ -104,7 +104,7 @@ public class OpenRewriteType implements Type {
     @Override
     public void addAnnotation(String fqName) {
         // FIXME: Hack, JavaParser should have latest classpath
-        javaParser = new RewriteJavaParser(new ApplicationProperties());
+        javaParser = new RewriteJavaParser(new SbmApplicationProperties());
         javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
         AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> javaParser, getClassDeclaration(), snippet, fqName);
@@ -154,7 +154,7 @@ public class OpenRewriteType implements Type {
             @Override
             public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
                 // FIXME: #7 hack, get JavaParser as SpringBean with access to classpath
-                javaParser = new RewriteJavaParser(new ApplicationProperties());
+                javaParser = new RewriteJavaParser(new SbmApplicationProperties());
                 javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
 
                 J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);

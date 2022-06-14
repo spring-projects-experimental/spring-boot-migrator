@@ -20,7 +20,7 @@ import org.springframework.sbm.engine.context.RewriteJavaSearchActionDeserialize
 import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.util.BasePackageCalculator;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.search.recipe.actions.OpenRewriteJavaSearchAction;
 import org.springframework.context.annotation.Bean;
@@ -51,7 +51,7 @@ public class RecipeTestSupport {
     }
 
     private static final Class<?>[] springBeans = {
-            ApplicationProperties.class,
+            SbmApplicationProperties.class,
             RecipesBuilder.class,
             ResourceHelper.class,
             RecipeParser.class,

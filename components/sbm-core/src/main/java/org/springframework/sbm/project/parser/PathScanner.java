@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.common.util.LinuxWindowsPathUnifier;
 import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PathScanner {
 
-	private final ApplicationProperties applicationProperties;
+	private final SbmApplicationProperties sbmApplicationProperties;
 	private final ResourceHelper resourceHelper;
 	private final PathMatcher pathMatcher = new OsAgnosticPathMatcher();
 	private final LinuxWindowsPathUnifier pathUnifier = new LinuxWindowsPathUnifier();
@@ -54,7 +54,7 @@ public class PathScanner {
 		if (givenResource.toFile().isDirectory()) {
 			return false;
 		}
-		return applicationProperties.getIgnoredPathsPatterns().stream()
+		return sbmApplicationProperties.getIgnoredPathsPatterns().stream()
 				.noneMatch(ir -> pathMatcher.match(ir,
 						pathUnifier.unifyPath(projectRoot.relativize(givenResource))));
 	}

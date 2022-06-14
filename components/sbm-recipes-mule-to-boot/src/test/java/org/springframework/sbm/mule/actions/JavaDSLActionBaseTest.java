@@ -43,7 +43,7 @@ import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.util.List;
@@ -55,7 +55,7 @@ public class JavaDSLActionBaseTest {
 
     protected JavaDSLAction2 myAction;
     protected MuleXmlProjectResourceRegistrar registrar;
-    protected ApplicationProperties applicationProperties;
+    protected SbmApplicationProperties sbmApplicationProperties;
     protected final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 
     protected ProjectContext projectContext;
@@ -96,12 +96,12 @@ public class JavaDSLActionBaseTest {
         myAction.setEventPublisher(eventPublisher);
 
         registrar = new MuleXmlProjectResourceRegistrar();
-        applicationProperties = new ApplicationProperties();
-        applicationProperties.setDefaultBasePackage("com.example.javadsl");
+        sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setDefaultBasePackage("com.example.javadsl");
 
         projectContextBuilder = TestProjectContext
                 .buildProjectContext(eventPublisher)
-                .withApplicationProperties(applicationProperties)
+                .withApplicationProperties(sbmApplicationProperties)
                 .withBuildFileHavingDependencies("org.springframework.amqp:spring-rabbit:2.4.4") // required for type resolution in generatedFlowShouldHaveMethodParams()
                 .addRegistrar(registrar)
         ;

@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.sbm.IntegrationTestBaseClass;
 import org.springframework.sbm.engine.git.Commit;
 import org.springframework.sbm.engine.git.GitSupport;
-import org.springframework.sbm.project.resource.ApplicationProperties;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,9 +72,9 @@ public class MigrateJsf2xToSpringBootRecipeIntegrationTest extends IntegrationTe
 
     @NotNull
     private GitSupport initGitRepo() {
-        ApplicationProperties applicationProperties = new ApplicationProperties();
-        applicationProperties.setGitSupportEnabled(true);
-        GitSupport gitSupport = new GitSupport(applicationProperties);
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        sbmApplicationProperties.setGitSupportEnabled(true);
+        GitSupport gitSupport = new GitSupport(sbmApplicationProperties);
         File repo = getTestDir().toFile();
         Git git = gitSupport.initGit(repo);
         gitSupport.add(repo, ".");

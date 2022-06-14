@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Getter
 @Component
 @ConfigurationProperties(prefix = "sbm")
-public class ApplicationProperties {
+public class SbmApplicationProperties {
     private boolean gitSupportEnabled;
     private String defaultBasePackage;
     private boolean writeInMavenLocal;
