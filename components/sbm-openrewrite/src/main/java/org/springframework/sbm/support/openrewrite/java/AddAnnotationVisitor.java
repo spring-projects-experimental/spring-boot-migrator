@@ -51,8 +51,9 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext p) {
         J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, p);
         if (target.getId().equals(cd.getId())) {
-            Stream.of(imports).forEach(i -> maybeAddImport(i));
             JavaTemplate template = getJavaTemplate(p, snippet, imports);
+            // FIXME: #7 Moving this line from above getTemaplet() fixed BootifyAnnotatedServletsIntegrationTest ?!
+            Stream.of(imports).forEach(i -> maybeAddImport(i));
             cd = cd.withTemplate(template, cd.getCoordinates().addAnnotation((o1, o2) -> 0));
         }
         return cd;

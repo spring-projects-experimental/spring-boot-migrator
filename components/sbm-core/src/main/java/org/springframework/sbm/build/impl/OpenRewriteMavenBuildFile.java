@@ -15,8 +15,15 @@
  */
 package org.springframework.sbm.build.impl;
 
+import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Timer;
+import kotlin.jvm.internal.Reflection;
+import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.*;
 import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.java.Java11Parser;
+import org.openrewrite.java.JavaParser;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.*;
 import org.openrewrite.maven.cache.RocksdbMavenPomCache;
@@ -27,28 +34,31 @@ import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.*;
-import org.springframework.sbm.build.migration.MavenPomCacheProvider;
 import org.springframework.sbm.build.migration.recipe.AddMavenPlugin;
 import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyManagement;
 import org.springframework.sbm.build.migration.visitor.AddProperty;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.util.ReflectionUtils;
 
 import java.io.ByteArrayInputStream;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+@Slf4j
 public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Document> implements BuildFile {
 
     private final ApplicationEventPublisher eventPublisher;
     private final RewriteMavenParser mavenParser = new RewriteMavenParser();
+    private final JavaParser javaParser;
 
     // TODO: #7 clarify if RefreshPomModel is still required?
     // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
@@ -113,15 +123,17 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     private final RewriteExecutionContext executionContext;
 
-    public OpenRewriteMavenBuildFile(Path absoluteProjectPath, Xml.Document sourceFile, ApplicationEventPublisher eventPublisher, RewriteExecutionContext executionContext) {
+    public OpenRewriteMavenBuildFile(Path absoluteProjectPath, Xml.Document sourceFile, ApplicationEventPublisher eventPublisher, JavaParser javaParser, RewriteExecutionContext executionContext) {
         super(absoluteProjectPath, sourceFile);
         this.eventPublisher = eventPublisher;
+        this.javaParser = javaParser;
         this.executionContext = executionContext;
     }
 
     public void apply(Recipe recipe) {
         // FIXME: #7 Make ExecutionContext a Spring Bean and caching configurable, also if the project root is used as workdir it must be added to .gitignore
-        executionContext.putMessage("org.openrewrite.maven.pomCache", new RocksdbMavenPomCache(this.getAbsoluteProjectDir()));
+        // FIXME: #7 this made it veeery slow
+        //executionContext.putMessage("org.openrewrite.maven.pomCache", new RocksdbMavenPomCache(this.getAbsoluteProjectDir()));
         List<Result> result = recipe.run(List.of(getSourceFile()), executionContext);
         if (!result.isEmpty()) {
             replaceWith((Xml.Document) result.get(0).getAfter());
@@ -194,6 +206,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public List<Dependency> getDeclaredDependencies(Scope... scopes) {
         // returns dependencies as declared in xml
         List<org.openrewrite.maven.tree.Dependency> requestedDependencies = getPom().getPom().getRequestedDependencies();
+        // FIXME: #7 use getPom().getDependencies() instead ?
         List<Dependency> declaredDependenciesWithEffectiveVersions = requestedDependencies.stream()
                 .filter(d -> {
                     if(scopes.length == 0) {
@@ -347,8 +360,18 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         if (!dependencies.isEmpty()) {
             Recipe r = getAddDependencyRecipe(dependencies.get(0));
             dependencies.stream().skip(1).forEach(d -> r.doNext(getAddDependencyRecipe(d)));
+
+            long before = System.currentTimeMillis();
+            System.out.println("Applying AddDependency recipe with these dependencies: \n" + dependencies.stream().map(d -> " - " + d.getCoordinates()).collect(Collectors.joining("\n")));
             apply(r);
+            long timeExceeded = System.currentTimeMillis() - before;
+            System.out.println("... took " + (timeExceeded/1000) + " sec.");
+
+            before = System.currentTimeMillis();
+            System.out.println("Applying RefreshPomModel recipe");
             apply(new RefreshPomModel());
+            timeExceeded = System.currentTimeMillis() - before;
+            System.out.println("... took " + (timeExceeded/1000) + " sec.");
 
             List<Dependency> exclusions = dependencies.stream()
                     .filter(d -> false == d.getExclusions().isEmpty())
@@ -357,7 +380,32 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
             excludeDependenciesInner(exclusions);
 
+            before = System.currentTimeMillis();
+            System.out.println("Start updatingClasspath");
+
+            // FIXME: #7 deprecated, ClasspathRegistry will be removed
             updateClasspathRegistry();
+
+//            javaParser.
+
+            /*
+            Field classpathField = ReflectionUtils.findField(Java11Parser.class, "classpath");
+            ReflectionUtils.makeAccessible(classpathField);
+            Object field1 = ReflectionUtils.getField(classpathField, ((RewriteJavaParser)javaParser).getJavaParser());
+            Collection<Path> field = (Collection<Path>) field1;
+            if(field1 == null) {
+
+            }
+
+            field.addAll(ClasspathRegistry.getInstance().getCurrentDependencies());
+            javaParser.setClasspath(field);
+
+            // TODO: #7 update classpath for JavaParser, publish event that classpath changed which triggers a recompile
+
+            timeExceeded = System.currentTimeMillis() - before;
+            System.out.println("Took " + (timeExceeded/1000) + " sec.");
+
+             */
         }
     }
 
@@ -380,16 +428,19 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     private void updateClasspathRegistry() {
+        long before = System.currentTimeMillis();
+        System.out.println("Updating ClasspathRegistry...");
         ClasspathRegistry instance = ClasspathRegistry.getInstance();
         // FIXME: removed dependencies must be removed from ProjectDependenciesRegistry too
         Set<ResolvedDependency> compileDependencies = getPom().getDependencies().get(Scope.Compile).stream().collect(Collectors.toSet());
-        Set<ResolvedDependency> collect = getPom().getDependencies().get(Scope.Test)
+        Set<ResolvedDependency> testDependencies = getPom().getDependencies().get(Scope.Test)
                 .stream()
                 .flatMap(d -> d.getDependencies().stream())
                 .collect(Collectors.toSet());
-        compileDependencies.addAll(collect);
+        compileDependencies.addAll(testDependencies);
         compileDependencies.stream()
                 .forEach(instance::addDependency);
+        System.out.println("took: " + (System.currentTimeMillis() - before)/1000 + " sec.");
     }
 
     private Recipe getAddDependencyRecipe(Dependency dependency) {
@@ -411,10 +462,20 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     public void removeDependenciesInner(List<Dependency> dependencies) {
         if (!dependencies.isEmpty()) {
+            log.debug("Starting to remove dependencies...");
             Recipe r = getDeleteDependencyVisitor(dependencies.get(0));
-            dependencies.stream().skip(1).forEach(d -> r.doNext(getDeleteDependencyVisitor(d)));
+            dependencies.stream().skip(1).forEach(d -> {
+                log.debug("Remove dependency: " + d.getCoordinates());
+                r.doNext(getDeleteDependencyVisitor(d));
+            });
+            log.debug("Applying recipes");
+            long before = System.currentTimeMillis();
             apply(r);
+            log.debug("Took " + (System.currentTimeMillis() - before)/1000 + " sec.");
+
+            before = System.currentTimeMillis();
             apply(new RefreshPomModel()); // TODO: Should be obsolete with 7.23.0, see https://github.com/openrewrite/rewrite/issues/1754
+            log.debug("Took " + (System.currentTimeMillis() - before)/1000 + " sec.");
         }
     }
 
@@ -449,11 +510,25 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         apply(new RefreshPomModel());
     }
 
+    // FIXME: #7 rework dependencies/classpath registry
+    // collect declared dependencies (jar/pom)
+    // resolve classpath according to list of jar/pom
     @Override
-    // TODO:
     public List<Path> getResolvedDependenciesPaths() {
+        RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader = new RewriteMavenArtifactDownloader();
+        return getPom().getDependencies().get(Scope.Provided).stream()
+                .map(d -> rewriteMavenArtifactDownloader.downloadArtifact(d)).collect(Collectors.toList());
 
-        return new ArrayList<>(ClasspathRegistry.getInstance().getCurrentDependencies());
+/*
+        Field classpathField = ReflectionUtils.findField(Java11Parser.class, "classpath");
+        ReflectionUtils.makeAccessible(classpathField);
+        Object field1 = ReflectionUtils.getField(classpathField, ((RewriteJavaParser)javaParser).getJavaParser());
+        Collection<Path> field = (Collection<Path>) field1;
+        return new ArrayList<>(field);
+
+ */
+
+//        return new ArrayList<>(ClasspathRegistry.getInstance().getCurrentDependencies());
 //
 //        try {
 //            MavenResolvedArtifact[] artifacts = new MavenResolvedArtifact[0];

@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.jee.jpa.actions;
 
+import org.junit.jupiter.api.Disabled;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.jee.jpa.resource.PersistenceXmlProjectResourceRegistrar;
@@ -31,6 +32,8 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
+@Disabled("#7")
 class MigrateEclipseLinkToSpringBootTest {
 
     private MigrateEclipseLinkToSpringBoot sut;

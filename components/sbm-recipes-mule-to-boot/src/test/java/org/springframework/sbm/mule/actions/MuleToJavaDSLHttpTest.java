@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.mule.actions;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -39,6 +40,7 @@ public class MuleToJavaDSLHttpTest extends JavaDSLActionBaseTest {
             "</mule>";
 
     @Test
+    @Disabled("FIXME #7")
     public void shouldGenerateJavaDSLForFlowHttpMuleTag() {
         addXMLFileToResource(muleXmlHttp);
         runAction();

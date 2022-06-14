@@ -35,13 +35,13 @@ public class DependencyHelper {
 
     public List<Path> downloadArtifacts(Consumer<Throwable> errorHandler, Set<ResolvedDependency> dependencies) {
 // TODO: #111
-//        String userDirStr = System.getProperty("user.home");
-//        Path m2Repository = Path.of(userDirStr).resolve(".m2/repository");
-//        new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository"));
+        String userDirStr = System.getProperty("user.home");
+        Path m2Repository = Path.of(userDirStr).resolve(".m2/repository");
         MavenArtifactDownloader artifactDownloader = new MavenArtifactDownloader(
                         ReadOnlyLocalMavenArtifactCache.mavenLocal().orElse(
                             new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".rewrite", "cache", "artifacts"))
                 ),
+//                new LocalMavenArtifactCache(userDirStr, ".m2", "repository")),
                 null,
                 errorHandler
         );

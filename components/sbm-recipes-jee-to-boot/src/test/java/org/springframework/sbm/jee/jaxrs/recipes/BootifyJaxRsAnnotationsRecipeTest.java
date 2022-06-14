@@ -33,7 +33,7 @@ public class BootifyJaxRsAnnotationsRecipeTest {
     @Test
     void test() {
 
-        Recipe jaxRsRecipe = new MigrateJaxRsRecipe(() -> new RewriteJavaParser(new ApplicationProperties())).jaxRs();
+        Recipe jaxRsRecipe = new MigrateJaxRsRecipe(new RewriteJavaParser(new ApplicationProperties())).jaxRs();
         Optional<Recipe> recipe = Optional.of(jaxRsRecipe);
         RecipeTestSupport.assertThatRecipeExists(recipe);
         RecipeTestSupport.assertThatRecipeHasActions(recipe,

@@ -105,7 +105,22 @@ NOTE: Remember to provide a description to all Actions to display the descriptio
 
 ==== Access all JavaSources
 
+[source,java]
+....
+ProjectContext context = ...
+// As Stream
+Stream<JavaSource> jsStream = context.getProjectJavaSources().asStream():
+
+// As List
+List<JavaSource> = context.getProjectJavaSources().list();
+....
+
 ==== Adding annotations
+[source,java]
+....
+// Annotate method
+
+....
 
 ==== Removing annotations
 

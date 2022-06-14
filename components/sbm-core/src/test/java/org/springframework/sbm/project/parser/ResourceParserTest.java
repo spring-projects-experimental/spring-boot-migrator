@@ -21,15 +21,14 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 
-@ExtendWith(MockitoExtension.class)
 class ResourceParserTest {
 
     private ResourceParser sut;
-    @Mock
-    private ApplicationEventPublisher eventPublisher;
+    private ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
     private Path baseDir = Path.of("some-base-dir").toAbsolutePath();
     private Path resourceDirPath = Path.of("src/main/resources");
     private Set<Path> resourcePaths = Set.of(resourceDirPath);

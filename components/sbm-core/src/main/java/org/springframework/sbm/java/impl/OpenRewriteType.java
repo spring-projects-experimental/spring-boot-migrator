@@ -20,6 +20,7 @@ import org.openrewrite.java.format.WrappingAndBraces;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
+import org.springframework.sbm.project.resource.ApplicationProperties;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
@@ -51,7 +52,7 @@ public class OpenRewriteType implements Type {
 
     private final JavaRefactoring refactoring;
     private final ClassDeclaration classDeclaration;
-    private final JavaParser javaParser;
+    private JavaParser javaParser;
 
     public OpenRewriteType(ClassDeclaration classDeclaration, RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring, JavaParser javaParser) {
         this.classDeclId = classDeclaration.getId();
@@ -102,7 +103,9 @@ public class OpenRewriteType implements Type {
 
     @Override
     public void addAnnotation(String fqName) {
-        // FIXME: does not work, JavaParser needs to be ThreadSafe
+        // FIXME: Hack, JavaParser should have latest classpath
+        javaParser = new RewriteJavaParser(new ApplicationProperties());
+        javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
         AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> javaParser, getClassDeclaration(), snippet, fqName);
         refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
@@ -150,8 +153,14 @@ public class OpenRewriteType implements Type {
         this.apply(new GenericOpenRewriteRecipe<>(() -> new JavaIsoVisitor<ExecutionContext>() {
             @Override
             public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
+                // FIXME: #7 hack, get JavaParser as SpringBean with access to classpath
+                javaParser = new RewriteJavaParser(new ApplicationProperties());
+                javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
+
                 J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
-                JavaTemplate template = JavaTemplate.builder(() -> getCursor().getParent(), methodTemplate).javaParser(() -> javaParser)
+                JavaTemplate template = JavaTemplate
+                        .builder(() -> getCursor().getParent(), methodTemplate)
+                        .javaParser(() -> javaParser)
                         .imports(requiredImports.toArray(new String[0]))
                         .build();
                 requiredImports.forEach(this::maybeAddImport);

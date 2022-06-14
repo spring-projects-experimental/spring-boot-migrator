@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class OpenRewriteMember implements Member {
 
+    boolean isOutdated;
+
     private final UUID variableDeclId;
 
     private final RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder;
@@ -72,14 +74,25 @@ public class OpenRewriteMember implements Member {
         return getVariableDeclarations().getLeadingAnnotations()
                 .stream()
                 .filter(a -> {
-                    JavaType.Class type = (JavaType.Class) a.getType();
-                    if (type == null) {
-                        String simpleName = ((J.Identifier) a.getAnnotationType()).getSimpleName();
-                        log.error("Could not get Type for annotation: '" + simpleName + "' while comparing with '" + annotation + "'.");
+
+                    JavaType type1 = a.getType();
+                    if (type1.getClass().isAssignableFrom(JavaType.Unknown.class)) {
+                        log.error("Could not get Type for annotation: '" + annotation + "'.");
+                        return false;
+                    } else if (type1.getClass().isAssignableFrom(JavaType.Class.class)) {
+                        JavaType.Class type = (JavaType.Class) a.getType();
+                        if (type == null) {
+                            String simpleName = ((J.Identifier) a.getAnnotationType()).getSimpleName();
+                            log.error("Could not get Type for annotation: '" + simpleName + "' while comparing with '" + annotation + "'.");
+                            return false;
+                        }
+                        String fullyQualifiedName = type.getFullyQualifiedName();
+                        return annotation.equals(fullyQualifiedName);
+                    } else {
+                        log.error("Unknown JavaType type '" + type1.getClass() + "'");
                         return false;
                     }
-                    String fullyQualifiedName = type.getFullyQualifiedName();
-                    return annotation.equals(fullyQualifiedName);
+
                 })
                 .findFirst()
                 .map(a -> Wrappers.wrap(a, refactoring, javaParser))

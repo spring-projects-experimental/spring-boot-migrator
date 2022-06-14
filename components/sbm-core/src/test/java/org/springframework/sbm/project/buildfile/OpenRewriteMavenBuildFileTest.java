@@ -15,22 +15,27 @@
  */
 package org.springframework.sbm.project.buildfile;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.Plugin;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectContextHolder;
+import org.springframework.sbm.java.api.Member;
+import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.stringtemplate.v4.compiler.STParser;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.Timer;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -132,11 +137,6 @@ public class OpenRewriteMavenBuildFileTest {
                 .build()
                 .getBuildFile();
 
-        // TODO: #7 remove logging
-        sut.getResolvedDependenciesPaths().stream()
-                .sorted()
-                .forEach(System.out::println);
-
         List<String> unifiedPaths = sut.getResolvedDependenciesPaths().stream()
                 .map(dp -> {
                     String dep = dp.toString();
@@ -188,9 +188,9 @@ public class OpenRewriteMavenBuildFileTest {
 
                 "commons-net/commons-net/3.6/commons-net-3.6.jar",
                 // FIXME: #7 with OR 7.23.0 these dependencies are not there anymore
-                // "org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.1.1/geronimo-jms_1.1_spec-1.1.1.jar",
-                // "org/apache/geronimo/specs/geronimo-j2ee-management_1.1_spec/1.0.1/geronimo-j2ee-management_1.1_spec-1.0.1.jar",
-                // "stax/stax-api/1.0.1/stax-api-1.0.1.jar",
+                 "org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.1.1/geronimo-jms_1.1_spec-1.1.1.jar",
+                 "org/apache/geronimo/specs/geronimo-j2ee-management_1.1_spec/1.0.1/geronimo-j2ee-management_1.1_spec-1.0.1.jar",
+                 "stax/stax-api/1.0.1/stax-api-1.0.1.jar",
 
 				"org/apache/xbean/xbean-reflect/4.14/xbean-reflect-4.14.jar",
 				"org/apache/xbean/xbean-naming/4.14/xbean-naming-4.14.jar",
@@ -233,6 +233,71 @@ public class OpenRewriteMavenBuildFileTest {
 				"net/sf/ehcache/ehcache/2.10.3/ehcache-2.10.3.jar",
 				"org/slf4j/slf4j-jdk14/1.7.21/slf4j-jdk14-1.7.21.jar"
         );
+    }
+
+    @Test
+    void addDependencyWithNoTransitiveDependencies() {
+        String pomXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                        "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
+                        "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                        "  <modelVersion>4.0.0</modelVersion>\n" +
+                        "  <groupId>org.springframework.sbm</groupId>\n" +
+                        "  <artifactId>dummy-test-artifact</artifactId>\n" +
+                        "  <version>1.0.0</version>\n" +
+                        "</project>\n";
+
+        String javaSource = "import javax.validation.constraints.Email;\n" +
+                            "public class Cat {\n" +
+                            "    @Email\n" +
+                            "    private String email;\n" +
+                            "}";
+
+        // precondition: jar does not exist
+        // precondition: types from jar not resolvable
+
+        // verify jar was downloaded
+        // verify types from jar can be resolved
+
+        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+        ProjectContext context = TestProjectContext.buildProjectContext(eventPublisher)
+                .withMavenRootBuildFileSource(pomXml)
+                .addJavaSource("src/main/java", javaSource)
+                .build();
+
+        BuildFile buildFile = context.getBuildFile();
+
+        Member member = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);
+
+        boolean b = member.hasAnnotation("javax.validation.constraints.Email");
+        assertThat(b).isFalse();
+
+        buildFile.addDependency(Dependency.builder()
+                                .groupId("javax.validation")
+                                .artifactId("validation-api")
+                                .version("2.0.1.Final")
+                                .build());
+
+
+
+        Class<DependenciesChangedEvent> event = DependenciesChangedEvent.class;
+        ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(event);
+        assertEventPublished(eventPublisher, argumentCaptor, event, 1);
+
+//        verify(eventPublisher).publishEvent(argumentCaptor);
+        assertThat(argumentCaptor.getValue().getResolvedDependencies()).containsExactlyInAnyOrder(Path.of("/Users/fkrueger/.m2/repository/javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar"));
+
+        DependenciesChangedEvent fireEvent = argumentCaptor.getValue();
+        ProjectContextHolder projectContextHolder = new ProjectContextHolder();
+        projectContextHolder.setProjectContext(context);
+        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, eventPublisher);
+        handler.onDependenciesChanged(fireEvent);
+
+        Member member2 = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);
+        boolean b1 = member2.hasAnnotation("javax.validation.constraints.Email");
+        assertThat(b1).isTrue();
+
     }
 
     @Test
@@ -339,11 +404,6 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(sut.getDeclaredDependencies()).doesNotContain(dependency);
 
         sut.addDependency(dependency);
-
-        sut.getResolvedDependenciesPaths()
-                        .stream()
-                        .sorted()
-                        .forEach(System.out::println);
 
         assertThat(sut.getDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(1);
@@ -642,6 +702,7 @@ public class OpenRewriteMavenBuildFileTest {
 
     @Test
     void testDeleteTypePomDependenciesAll() {
+
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
                         "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -660,8 +721,15 @@ public class OpenRewriteMavenBuildFileTest {
                         "    </dependencies>\n" +
                         "</project>";
 
+        long beforeCreatingContext = System.currentTimeMillis();
+
         BuildFile sut = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
 
+        long execCreatingContext = System.currentTimeMillis() - beforeCreatingContext;
+        System.out.println("Building the TestProjectContext took "+ (execCreatingContext/1000) + " s.");
+
+
+        long before = System.currentTimeMillis();
         sut.removeDependencies(List.of(
                 Dependency.builder()
                         .groupId("org.apache.tomee")
@@ -669,7 +737,8 @@ public class OpenRewriteMavenBuildFileTest {
 //                        .type("pom") //TODO: OR remove dependency doesn't care about this attribute (ignores it, but it is meaningful here).
                         .build())
         );
-
+        long exectTime = System.currentTimeMillis() - before;
+        System.out.println("removeDependencies() took " + (exectTime/1000) + " s.");
         assertThat(sut.getDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(0);
 

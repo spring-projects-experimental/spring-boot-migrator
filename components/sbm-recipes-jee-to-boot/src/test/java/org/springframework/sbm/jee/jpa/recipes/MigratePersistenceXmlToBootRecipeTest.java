@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.jee.jpa.recipes;
 
+import org.junit.jupiter.api.Disabled;
 import org.springframework.sbm.test.RecipeIntegrationTestSupport;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled("#7")
 public class MigratePersistenceXmlToBootRecipeTest {
 
     @Test

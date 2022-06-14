@@ -15,23 +15,18 @@
  */
 package org.springframework.sbm.java.impl;
 
-import lombok.RequiredArgsConstructor;
-import org.intellij.lang.annotations.Language;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.tree.ParsingEventListener;
-import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.sbm.engine.annotations.StatefulComponent;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.ApplicationProperties;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +35,9 @@ import java.util.List;
 public class RewriteJavaParser implements JavaParser {
 
     private final ApplicationProperties applicationProperties;
+    @Getter
     private final JavaParser javaParser;
+
 
     // satisfies DI
     public RewriteJavaParser(ApplicationProperties applicationProperties) {

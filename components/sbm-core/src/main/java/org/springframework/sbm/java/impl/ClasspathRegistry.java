@@ -16,10 +16,12 @@
 package org.springframework.sbm.java.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
+import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.project.parser.DependencyHelper;
 
 import java.nio.file.Path;
@@ -139,10 +141,18 @@ public class ClasspathRegistry {
 	}
 
 	private void initDependency(ResolvedDependency d, Map<ResolvedDependency, Path>... maps) {
-		Optional<Path> dependencyPath = dependencyHelper.downloadArtifact(d);
-		if (dependencyPath.isPresent()) {
-			Stream.of(maps).forEach(m -> m.put(d, dependencyPath.get()));
+		Path dependencyPath = new RewriteMavenArtifactDownloader().downloadArtifact(d);
+		if(dependencyPath != null) {
+			Stream.of(maps).forEach(m -> m.put(d, dependencyPath));
+		} else {
+			System.out.println(d.getGav() + " has no jars. It has type " + d.getType());
+			initDependencies(new HashSet<>(d.getDependencies()));
 		}
+
+//		Optional<Path> dependencyPath = dependencyHelper.downloadArtifact(d);
+//		if (dependencyPath.isPresent()) {
+//			Stream.of(maps).forEach(m -> m.put(d, dependencyPath.get()));
+//		}
 	}
 
 }

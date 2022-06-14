@@ -39,7 +39,8 @@ import java.util.stream.Collectors;
 public class DependenciesChangedEventHandler {
     private final ProjectContextHolder projectContextHolder;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final JavaParser javaParser;
+    private JavaParser javaParser;
+
     @EventListener
     public void onDependenciesChanged(DependenciesChangedEvent event) {
         if (projectContextHolder.getProjectContext() != null) {
@@ -50,9 +51,19 @@ public class DependenciesChangedEventHandler {
             List<Parser.Input> compilationUnits = new ArrayList<>(compilationUnitsSet);
 
             Path projectRootDirectory = projectContextHolder.getProjectContext().getProjectRootDirectory();
-            List<J.CompilationUnit> parsedCompilationUnits = javaParser.parseInputs(compilationUnits, projectRootDirectory, new RewriteExecutionContext(applicationEventPublisher));
-
+            // FIXME: #7 only affected modules and source sets must be parsed
+            javaParser = JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
+            //javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
+            // FIXME: #7 handle "test"
+            javaParser.setSourceSet("main");
+            List<J.CompilationUnit> parsedCompilationUnits = javaParser.parseInputs(compilationUnits, null, new RewriteExecutionContext(applicationEventPublisher));
+            // ((J.VariableDeclarations)parsedCompilationUnits.get(0).getClasses().get(0).getBody().getStatements().get(0)).getLeadingAnnotations().get(0).getType()
             parsedCompilationUnits.forEach(cu -> {
+                if(cu.getSourcePath().toString().contains("ABean")) {
+                    System.out.println(cu.printAll());
+                    cu.getImports().forEach(System.out::println);
+                    cu.getClasses().get(0).getLeadingAnnotations().stream().map(a -> a.getType().getClass()).forEach(System.out::println);
+                }
                 projectContextHolder.getProjectContext().getProjectJavaSources().asStream()
                         .filter(js -> js.getResource().getAbsolutePath().equals(projectRootDirectory.resolve(cu.getSourcePath()).normalize()))
                         .forEach(js -> js.getResource().replaceWith(cu));

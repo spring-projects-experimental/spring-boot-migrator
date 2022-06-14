@@ -17,6 +17,7 @@ package org.springframework.sbm.build.resource;
 
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.SourceFile;
+import org.openrewrite.java.JavaParser;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component;
 public class BuildFileResourceWrapper implements ProjectResourceWrapper<OpenRewriteMavenBuildFile> {
 
     private final ApplicationEventPublisher eventPublisher;
+    private final JavaParser javaParser;
 
     @Override
     public boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
@@ -41,7 +43,7 @@ public class BuildFileResourceWrapper implements ProjectResourceWrapper<OpenRewr
     @Override
     public OpenRewriteMavenBuildFile wrapRewriteSourceFileHolder(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
         Xml.Document maven = (Xml.Document) rewriteSourceFileHolder.getSourceFile();
-        return new OpenRewriteMavenBuildFile(rewriteSourceFileHolder.getAbsoluteProjectDir(), maven, eventPublisher, new RewriteExecutionContext(eventPublisher));
+        return new OpenRewriteMavenBuildFile(rewriteSourceFileHolder.getAbsoluteProjectDir(), maven, eventPublisher, javaParser, new RewriteExecutionContext(eventPublisher));
     }
 
 }
