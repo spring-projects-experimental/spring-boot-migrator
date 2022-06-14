@@ -15,8 +15,49 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators.db;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+class QueryParameter {
+    private String query = "";
+    private List<String> muleExpressions = new ArrayList<>();
+}
+
 public class DBCommons {
     public static String escapeDoubleQuotes(String str) {
         return str.replace("\"", "\\\"");
+    }
+
+    private static final String regexPattern = "#\\[(.+?)]";
+    private static final Pattern pattern = Pattern.compile(regexPattern);
+
+    public static QueryParameter parseQueryParameter(String input) {
+
+        if (input == null) {
+            return new QueryParameter();
+        }
+
+        Matcher m = pattern.matcher(input);
+
+        List<String> muleExpressions = new ArrayList<>();
+
+        while (m.find()) {
+            muleExpressions.add(m.group(1));
+        }
+
+        return new QueryParameter(input
+                .replaceAll(regexPattern, "?")
+                .replace("'?'", "?")
+                , muleExpressions);
     }
 }

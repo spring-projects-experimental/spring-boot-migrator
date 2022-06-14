@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import javax.xml.namespace.QName;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.sbm.mule.actions.javadsl.translators.db.DBCommons.escapeDoubleQuotes;
 
@@ -46,12 +47,31 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
         String query = component.getDynamicQuery() == null ? component.getParameterizedQuery()
                 : component.getDynamicQuery();
 
+        QueryParameter parsedQueryParameter = DBCommons.parseQueryParameter(query);
+
+        String argumentTemplate = "                                p.getFirst(\"parameter\") /* TODO: Translate #[parameterName]*/";
+
+        String arguments = parsedQueryParameter
+                .getMuleExpressions()
+                .stream()
+                .map(muleExpression -> argumentTemplate.replace("parameterName", muleExpression))
+                .collect(Collectors.joining(",\n"));
+
+
+        if (!arguments.isEmpty()) {
+            arguments = ",\n" + arguments + "\n";
+        }
+
+        String translation = ".<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
+                "                        jdbcTemplate.queryForList(\n" +
+                "                                \"" + parsedQueryParameter.getQuery() + "\"" +
+                arguments + "))";
         return DslSnippet.builder()
-                .renderedSnippet(
-                        " // TODO: substitute expression language with appropriate java code \n" +
-                        " // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
-                        "                .handle((p, h) -> jdbcTemplate.queryForList(\"" +
-                        escapeDoubleQuotes(query) + "\"))")
+                .renderedSnippet("// TODO: substitute expression language with appropriate java code \n" +
+                        "// TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
+                        "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
+                        translation
+                )
                 .requiredDependencies(Set.of(
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
                         "org.springframework.integration:spring-integration-jdbc:5.5.4"

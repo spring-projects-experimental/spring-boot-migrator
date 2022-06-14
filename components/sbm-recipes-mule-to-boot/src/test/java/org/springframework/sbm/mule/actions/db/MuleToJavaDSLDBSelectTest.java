@@ -78,7 +78,10 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                // TODO: substitute expression language with appropriate java code \n" +
                                 "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
-                                "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS\"))\n" +
+                                "                // TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
+                                "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
+                                "                        jdbcTemplate.queryForList(\n" +
+                                "                                \"SELECT * FROM STUDENTS\"))\n" +
                                 "                .get();\n" +
                                 "    }\n" +
                                 "}");
@@ -107,8 +110,7 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
 
         addXMLFileToResource(muleXml);
         runAction();
-        assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +
@@ -126,7 +128,10 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                // TODO: substitute expression language with appropriate java code \n" +
                                 "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
-                                "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS\"))\n" +
+                                "                // TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
+                                "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
+                                "                        jdbcTemplate.queryForList(\n" +
+                                "                                \"SELECT * FROM STUDENTS\"))\n" +
                                 "                .get();\n" +
                                 "    }\n" +
                                 "}");
@@ -157,8 +162,7 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
 
         addXMLFileToResource(muleXml);
         runAction();
-        assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +
@@ -179,12 +183,11 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "                // TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
                                 "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                                 "                        jdbcTemplate.queryForList(\n" +
-                                "                                \"select  * from users where username = ? and password = ?\",\n" +
-                                "                                p.getFirst(\"varForFirstParameter\") /* TODO: Translate #[payload.username]*/,\n" +
-                                "                                p.getFirst(\"varForSecondParameter\") /* TODO: Translate #[payload.username]*/\n" +
+                                "                                \"select * from users where username=? and password=?\",\n" +
+                                "                                p.getFirst(\"parameter\") /* TODO: Translate #[payload.username]*/,\n" +
+                                "                                p.getFirst(\"parameter\") /* TODO: Translate #[payload.password]*/\n" +
                                 "                        ))\n" +
                                 "                .get();\n" +
-                                "    }");
+                                "    }}");
     }
-
 }
