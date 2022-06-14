@@ -16,11 +16,8 @@
 package org.springframework.sbm;
 
 import com.rabbitmq.client.Channel;
-import org.jruby.RubyProcess;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
-import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.sbm.mule.amqp.RabbitMqChannelBuilder;
