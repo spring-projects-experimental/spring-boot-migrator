@@ -1,0 +1,47 @@
+[plantuml,modules,png]
+....
+
+component rewrite {
+}
+component "rewrite-spring" {
+}
+component "sbm-openrewrite-boot-upgrade" {
+}
+component "sbm-recipes-boot-upgrade" {
+}
+component "sbm-support-boot" {
+
+}
+component "sbm-openrewrite" {
+}
+component "sbm-core" {
+
+}
+
+note left of sbm-openrewrite
+    Only Helpers, Recipes and Visitors
+end note
+
+note top of sbm-recipes-boot-upgrade
+    Automated and manual SBM recipes
+    for Spring Boot upgrades
+end note
+
+note top of sbm-openrewrite-boot-upgrade
+    No dependency on SBM,
+    contains OpenRewrite Recipes and Visitors
+end note
+
+
+"sbm-support-boot" --> "sbm-core"
+"sbm-recipes-boot-upgrade" --> "sbm-support-boot"
+"sbm-recipes-boot-upgrade" --> "sbm-openrewrite-boot-upgrade"
+"sbm-recipes-boot-upgrade" --> "rewrite-spring"
+"sbm-core" --> "sbm-openrewrite"
+"sbm-openrewrite" --> rewrite
+"sbm-openrewrite-boot-upgrade" --> "sbm-openrewrite"
+"rewrite-spring" -> "rewrite"
+
+
+
+....
