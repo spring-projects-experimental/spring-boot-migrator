@@ -9,7 +9,7 @@ class DBCommonsTest {
 
     @Test
     public void extractsQueryPart() {
-        QueryParameter output =
+        QueryWithParameters output =
                 DBCommons.parseQueryParameter(
                         "select * from users where username='#[payload.username]' and password='#[payload.password]'"
                 );
@@ -18,7 +18,7 @@ class DBCommonsTest {
 
     @Test
     public void extractsExpressions() {
-        QueryParameter output =
+        QueryWithParameters output =
                 DBCommons.parseQueryParameter(
                         "select * from users where username='#[payload.username]' and password='#[payload.password]'"
                 );
@@ -32,21 +32,21 @@ class DBCommonsTest {
     @Test
     public void whenNullInputToParseQueryParameter() {
 
-        QueryParameter output = DBCommons.parseQueryParameter(null);
+        QueryWithParameters output = DBCommons.parseQueryParameter(null);
         assertThat(output.getQuery()).isEmpty();
         assertThat(output.getMuleExpressions()).isEmpty();
     }
 
     @Test
     public void whenInputToParseQueryParameterIsEmpty() {
-        QueryParameter output = DBCommons.parseQueryParameter("");
+        QueryWithParameters output = DBCommons.parseQueryParameter("");
         assertThat(output.getQuery()).isEmpty();
         assertThat(output.getMuleExpressions()).isEmpty();
     }
 
     @Test
     public void parseInputQueryParameterPrimitiveDataType() {
-        QueryParameter output =
+        QueryWithParameters output =
                 DBCommons.parseQueryParameter(
                         "select * from users where age=#[payload.age]"
                 );
@@ -59,7 +59,7 @@ class DBCommonsTest {
     @Test
     public void parseInputWhenQueryParameterDoesNotHaveAnyMuleExpressions() {
 
-        QueryParameter output =
+        QueryWithParameters output =
                 DBCommons.parseQueryParameter(
                         "select * from users"
                 );

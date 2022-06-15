@@ -184,8 +184,8 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                                 "                        jdbcTemplate.queryForList(\n" +
                                 "                                \"select * from users where username=? and password=?\",\n" +
-                                "                                p.getFirst(\"parameter\") /* TODO: Translate #[payload.username]*/,\n" +
-                                "                                p.getFirst(\"parameter\") /* TODO: Translate #[payload.password]*/\n" +
+                                "                                p.getFirst(\"payload.username\") /* TODO: Translate #[payload.username] to java expression*/,\n" +
+                                "                                p.getFirst(\"payload.password\") /* TODO: Translate #[payload.password] to java expression*/\n" +
                                 "                        ))\n" +
                                 "                .get();\n" +
                                 "    }}");

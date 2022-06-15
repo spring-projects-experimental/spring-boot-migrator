@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-class QueryParameter {
+class QueryWithParameters {
     private String query = "";
     private List<String> muleExpressions = new ArrayList<>();
 }
@@ -41,10 +41,10 @@ public class DBCommons {
     private static final String regexPattern = "#\\[(.+?)]";
     private static final Pattern pattern = Pattern.compile(regexPattern);
 
-    public static QueryParameter parseQueryParameter(String input) {
+    public static QueryWithParameters parseQueryParameter(String input) {
 
         if (input == null) {
-            return new QueryParameter();
+            return new QueryWithParameters();
         }
 
         Matcher m = pattern.matcher(input);
@@ -55,7 +55,7 @@ public class DBCommons {
             muleExpressions.add(m.group(1));
         }
 
-        return new QueryParameter(input
+        return new QueryWithParameters(input
                 .replaceAll(regexPattern, "?")
                 .replace("'?'", "?")
                 , muleExpressions);

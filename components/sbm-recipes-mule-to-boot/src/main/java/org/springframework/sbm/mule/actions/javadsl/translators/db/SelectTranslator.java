@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.springframework.sbm.mule.actions.javadsl.translators.db.DBCommons.escapeDoubleQuotes;
-
 @Component
 public class SelectTranslator implements MuleComponentToSpringIntegrationDslTranslator<SelectMessageProcessorType> {
 
@@ -47,14 +45,14 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
         String query = component.getDynamicQuery() == null ? component.getParameterizedQuery()
                 : component.getDynamicQuery();
 
-        QueryParameter parsedQueryParameter = DBCommons.parseQueryParameter(query);
+        QueryWithParameters queryWithParameters = DBCommons.parseQueryParameter(query);
 
-        String argumentTemplate = "                                p.getFirst(\"parameter\") /* TODO: Translate #[parameterName]*/";
+        String argumentTemplate = "                                p.getFirst(\"%s\") /* TODO: Translate #[%s] to java expression*/";
 
-        String arguments = parsedQueryParameter
+        String arguments = queryWithParameters
                 .getMuleExpressions()
                 .stream()
-                .map(muleExpression -> argumentTemplate.replace("parameterName", muleExpression))
+                .map(muleExpression -> String.format(argumentTemplate, muleExpression, muleExpression))
                 .collect(Collectors.joining(",\n"));
 
 
@@ -64,7 +62,7 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
 
         String translation = ".<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                 "                        jdbcTemplate.queryForList(\n" +
-                "                                \"" + parsedQueryParameter.getQuery() + "\"" +
+                "                                \"" + queryWithParameters.getQuery() + "\"" +
                 arguments + "))";
         return DslSnippet.builder()
                 .renderedSnippet("// TODO: substitute expression language with appropriate java code \n" +
