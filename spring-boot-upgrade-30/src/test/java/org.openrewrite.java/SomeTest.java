@@ -1,5 +1,6 @@
 package org.openrewrite.java;
 
+import org.apache.commons.lang3.builder.ToStringExclude;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.Result;
 import org.openrewrite.java.tree.J;
@@ -43,6 +44,11 @@ public class SomeTest {
                 .run(parse);
 
         System.out.println(run.get(0).getAfter().printAll());
+    }
+
+    @Test
+    void testBumpingParentPomVersion() {
+
     }
 
 }
