@@ -80,7 +80,6 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         }
     }
 
-
     @Test
     @Tag("integration")
     public void  t0_springIntegrationWorks() throws IOException, TimeoutException, InterruptedException {
@@ -103,8 +102,8 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         checkSendHttpMessage(container.getContainer().getMappedPort(9081));
         checkInboundGatewayHttpMessage(container.getContainer().getMappedPort(9081));
         checkRabbitMqIntegration(ampqChannel);
+        checkDbIntegration(container.getContainer().getMappedPort(9081));
     }
-
 
     @Test
     @Tag("integration")
@@ -113,12 +112,6 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         checkWmqIntegration(rabbitMqContainer.getNetwork());
     }
 
-    @Test
-    @Tag("integration")
-    @DisabledIfSystemProperty(named= "os.arch", matches = "aarch64", disabledReason = "imbcom/mq image not supported with Apple Silicon")
-    void t2_testDBIntegration() {
-
-    }
     private void checkRabbitMqIntegration(Channel amqpChannel)
             throws IOException, InterruptedException {
 
@@ -160,6 +153,12 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         jmsSender.sendMessage(mappedPort, "DEV.QUEUE.1", "Test WMQ message");
         boolean latchResult = latch.await(1000000, TimeUnit.MILLISECONDS);
         assertThat(latchResult).isTrue();
+    }
+
+    private void checkDbIntegration(int port) {
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity("http://localhost:" + port + "/db", String.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).contains("{\"ID\":1,\"USERNAME\":\"TestUser\",\"PASSWORD\":\"secret\"");
     }
 
     private void checkInboundGatewayHttpMessage(int port) {

@@ -54,7 +54,8 @@ public class InsertTranslator implements MuleComponentToSpringIntegrationDslTran
                 ))
                 .requiredDependencies(Set.of(
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
-                        "org.springframework.integration:spring-integration-jdbc:5.5.4"
+                        "org.springframework.integration:spring-integration-jdbc:5.5.4",
+                        "com.h2database:h2:2.1.214"
                 ))
                 .beans(Set.of(new Bean("jdbcTemplate", "org.springframework.jdbc.core.JdbcTemplate")))
                 .build();
