@@ -16,13 +16,13 @@
 package org.springframework.sbm.engine.events;
 
 import lombok.Getter;
-import org.openrewrite.maven.tree.Pom;
+import org.openrewrite.maven.tree.Dependency;
 
 public class StartDownloadingDependencyEvent {
     @Getter
-    private final Pom.Dependency dependency;
+    private final Dependency dependency;
 
-    public StartDownloadingDependencyEvent(Pom.Dependency d) {
+    public StartDownloadingDependencyEvent(Dependency d) {
         this.dependency = d;
     }
 }

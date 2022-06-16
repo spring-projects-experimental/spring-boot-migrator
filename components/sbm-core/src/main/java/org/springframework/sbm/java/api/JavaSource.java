@@ -69,4 +69,6 @@ public interface JavaSource extends ProjectResource {
     String print();
 
     void removeUnusedImports();
+
+    void replaceImport(String p, String replace);
 }

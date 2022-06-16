@@ -45,29 +45,29 @@ public class PropertiesSource extends RewriteSourceFileHolder<Properties.File> {
     }
 
     public void setProperty(String comment, String propertyName, String propertyValue) {
-        if (FindProperties.find(getSourceFile(), propertyName).isEmpty()) {
+        if (FindProperties.find(getSourceFile(), propertyName, false).isEmpty()) {
             apply(new AddProperty(propertyName, propertyValue));
         } else {
-            apply(new ChangePropertyValue(propertyName, propertyValue, null, null));
+            apply(new ChangePropertyValue(propertyName, propertyValue, null, null, null));
         }
     }
 
     public void setProperty(String key, String value) {
-        if (FindProperties.find(getSourceFile(), key).isEmpty()) {
+        if (FindProperties.find(getSourceFile(), key, false).isEmpty()) {
             apply(new AddProperty(key, value));
         } else {
-            apply(new ChangePropertyValue(key, value, null, null));
+            apply(new ChangePropertyValue(key, value, null, null, null));
         }
     }
 
     public void renameProperty(String oldProperyName, String newPropertyName) {
-        if (!FindProperties.find(getSourceFile(), oldProperyName).isEmpty()) {
-            apply(new ChangePropertyKey(oldProperyName, newPropertyName, null));
+        if (!FindProperties.find(getSourceFile(), oldProperyName, false).isEmpty()) {
+            apply(new ChangePropertyKey(oldProperyName, newPropertyName, null, null));
         }
     }
 
     public Optional<String> getProperty(String key) {
-        Set<Entry> found = FindProperties.find(getSourceFile(), key);
+        Set<Entry> found = FindProperties.find(getSourceFile(), key, false);
         if (found.isEmpty()) {
             return Optional.empty();
         } else {

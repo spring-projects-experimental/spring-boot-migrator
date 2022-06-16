@@ -80,7 +80,8 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
                                 "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS\"))\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
     }
 
     @Test
@@ -127,6 +128,7 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
                                 "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS\"))\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
     }
 }

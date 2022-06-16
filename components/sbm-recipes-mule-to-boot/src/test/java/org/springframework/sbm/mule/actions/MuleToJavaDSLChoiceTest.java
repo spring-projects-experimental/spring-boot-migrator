@@ -86,7 +86,8 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "                )\n" +
                         "                .log(LoggingHandler.Level.INFO, \"${payload}\")\n" +
                         "                .get();\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 
     @Test
@@ -167,7 +168,8 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "        return flow -> flow\n" +
                         "                .log(LoggingHandler.Level.INFO, \"A spanish Hello\")\n" +
                         "                .handle((p, h) -> \"Hola!!!\");\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 
     @Test
@@ -244,7 +246,8 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "        return flow -> flow\n" +
                         "                .log(LoggingHandler.Level.INFO, \"A spanish Hello\")\n" +
                         "                .handle((p, h) -> \"Hola!!!\");\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 
     @Test
@@ -371,6 +374,7 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "                                        }))\n" +
                         "                )\n" +
                         "                .get();\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 }

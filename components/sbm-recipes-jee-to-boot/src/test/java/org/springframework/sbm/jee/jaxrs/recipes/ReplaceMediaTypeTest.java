@@ -15,21 +15,30 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
+import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReplaceMediaTypeTest {
 
+    private final static String SPRING_VERSION = "5.3.13";
+
+    private Supplier<JavaParser> javaParserSupplier = () -> new RewriteJavaParser(new SbmApplicationProperties());
+
     final private AbstractAction action = new AbstractAction() {
         @Override
         public void apply(ProjectContext context) {
-            ReplaceMediaType r = new ReplaceMediaType();
+            ReplaceMediaType r = new ReplaceMediaType(javaParserSupplier);
             context.getProjectJavaSources().apply(r);
         }
     };
@@ -57,10 +66,13 @@ public class ReplaceMediaTypeTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withJavaSources(sourceCode)
-                .withBuildFileHavingDependencies("org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final")
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .build();
 
-        ReplaceMediaType sut = new ReplaceMediaType();
+        ReplaceMediaType sut = new ReplaceMediaType(javaParserSupplier);
         JavaSource javaSource = projectContext.getProjectJavaSources().list().get(0);
         javaSource.apply(sut);
 
@@ -182,7 +194,10 @@ public class ReplaceMediaTypeTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -222,7 +237,10 @@ public class ReplaceMediaTypeTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-web:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -264,7 +282,10 @@ public class ReplaceMediaTypeTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -304,7 +325,10 @@ public class ReplaceMediaTypeTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -342,7 +366,10 @@ public class ReplaceMediaTypeTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -384,7 +411,10 @@ public class ReplaceMediaTypeTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -423,7 +453,10 @@ public class ReplaceMediaTypeTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -464,7 +497,10 @@ public class ReplaceMediaTypeTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -527,10 +563,13 @@ public class ReplaceMediaTypeTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withJavaSources(sourceCode)
-                .withBuildFileHavingDependencies("org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final")
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .build();
 
-        ReplaceMediaType r = new ReplaceMediaType();
+        ReplaceMediaType r = new ReplaceMediaType(javaParserSupplier);
         JavaSource javaSource = projectContext.getProjectJavaSources().list().get(0);
         javaSource.apply(r);
 

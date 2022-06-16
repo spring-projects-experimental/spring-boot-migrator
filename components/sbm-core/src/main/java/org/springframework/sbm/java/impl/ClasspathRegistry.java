@@ -15,13 +15,14 @@
  */
 package org.springframework.sbm.java.impl;
 
-import org.springframework.sbm.build.api.BuildFile;
-import org.springframework.sbm.project.parser.DependencyHelper;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.extern.slf4j.Slf4j;
-import org.openrewrite.maven.tree.Maven;
-import org.openrewrite.maven.tree.Pom;
+import org.openrewrite.maven.internal.MavenPomDownloader;
+import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
+import org.springframework.sbm.build.api.BuildFile;
+import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
+import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.project.parser.DependencyHelper;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -35,111 +36,123 @@ import java.util.stream.Stream;
 @Slf4j
 public class ClasspathRegistry {
 
-    private static DependencyHelper dependencyHelper = new DependencyHelper();
+	private static final DependencyHelper dependencyHelper = new DependencyHelper();
 
-    /**
-     * Dependencies found during scan.
-     * These dependencies are immutable.
-     */
-    private final ConcurrentSkipListMap<Pom.Dependency, Path> initialDependencies = new ConcurrentSkipListMap<Pom.Dependency, Path>(Comparator.comparing(Pom.Dependency::getCoordinates));
+	/**
+	 * Dependencies found during scan. These dependencies are immutable.
+	 */
+	private final ConcurrentSkipListMap<ResolvedDependency, Path> initialDependencies = new ConcurrentSkipListMap<ResolvedDependency, Path>(
+			Comparator.comparing(r -> r.getGav().toString()));
 
-    /**
-     * Dependencies at the current state of migration.
-     * These dependencies can change over time when dependencies were added or removed by {@code Action}s.
-     */
-    private final ConcurrentSkipListMap<Pom.Dependency, Path> currentDependencies = new ConcurrentSkipListMap<Pom.Dependency, Path>(Comparator.comparing(Pom.Dependency::getCoordinates));
+	/**
+	 * Dependencies at the current state of migration. These dependencies can change over
+	 * time when dependencies were added or removed by {@code Action}s.
+	 */
+	private final ConcurrentSkipListMap<ResolvedDependency, Path> currentDependencies = new ConcurrentSkipListMap<ResolvedDependency, Path>(
+			Comparator.comparing(r -> r.getGav().toString()));
 
+	private ClasspathRegistry() {
+	}
 
-    private ClasspathRegistry() {
-    }
+	public static ClasspathRegistry initialize(Set<ResolvedDependency> dependencies) {
+		return DependenciesRegistryHolder.initialDependencies(dependencies);
+	}
 
-    public static ClasspathRegistry initialize(Set<Pom.Dependency> dependencies) {
-        return DependenciesRegistryHolder.initialDependencies(dependencies);
-    }
+	// FIXME: remove unused method
+	// public static void initialize(List<RewriteSourceFileHolder<Xml.Document>>
+	// buildFiles) {
+	// Set<Dependency> effectiveDependencies = new HashSet<>();
+	// buildFiles.forEach(bf -> {
+	// });
+	// ClasspathRegistry.initialize(effectiveDependencies);
+	// }
 
-    public static void initialize(List<RewriteSourceFileHolder<Maven>> buildFiles) {
-        Set<Pom.Dependency> effectiveDependencies = new HashSet<>();
-        buildFiles.forEach(bf -> {
-            effectiveDependencies.addAll(bf.getSourceFile().getModel().getDependencies(Scope.Compile));
-            effectiveDependencies.addAll(bf.getSourceFile().getModel().getDependencies(Scope.Test));
-            effectiveDependencies.addAll(bf.getSourceFile().getModel().getDependencies(Scope.Provided));
-            effectiveDependencies.addAll(bf.getSourceFile().getModel().getDependencies(Scope.Runtime));
-            // TODO: system ?
-        });
-        ClasspathRegistry.initialize(effectiveDependencies);
-    }
+	public static void initializeFromBuildFiles(List<BuildFile> buildFiles) {
+		ClasspathRegistry.getInstance().clear();
+		Set<ResolvedDependency> effectiveDependencies = new HashSet<>();
+		buildFiles.forEach(bf -> {
+            Map<Scope, List<ResolvedDependency>> dependencies = ((OpenRewriteMavenBuildFile) bf).getPom().getDependencies();
+			// FIXME: #7 respect scope
+            effectiveDependencies.addAll(dependencies.get(Scope.Compile));
+			effectiveDependencies.addAll(dependencies.get(Scope.Test));
+			effectiveDependencies.addAll(dependencies.get(Scope.Provided));
+			effectiveDependencies.addAll(dependencies.get(Scope.Runtime));
+		});
+		ClasspathRegistry.initialize(effectiveDependencies);
+	}
 
-    public static void initializeFromBuildFiles(List<BuildFile> buildFiles) {
-        ClasspathRegistry.getInstance().clear();
-        Set<Pom.Dependency> effectiveDependencies = new HashSet<>();
-        buildFiles.forEach(bf -> {
-            effectiveDependencies.addAll(bf.getEffectiveDependencies(Scope.Compile));
-            effectiveDependencies.addAll(bf.getEffectiveDependencies(Scope.Test));
-            effectiveDependencies.addAll(bf.getEffectiveDependencies(Scope.Provided));
-            effectiveDependencies.addAll(bf.getEffectiveDependencies(Scope.Runtime));
-            // TODO: system ?
-        });
-        ClasspathRegistry.initialize(effectiveDependencies);
-    }
+	private static org.openrewrite.maven.tree.Dependency mapToRewriteDependency(
+			org.springframework.sbm.build.api.Dependency dependency) {
+		return null;
+	}
 
-    public void clear() {
-        initialDependencies.clear();
-        currentDependencies.clear();
-    }
+	public void clear() {
+		initialDependencies.clear();
+		currentDependencies.clear();
+	}
 
-    private static class DependenciesRegistryHolder {
-        public static final ClasspathRegistry INSTANCE = new ClasspathRegistry();
+	private static class DependenciesRegistryHolder {
 
-        public static ClasspathRegistry initialDependencies(Set<Pom.Dependency> dependencies) {
-            INSTANCE.initDependencies(dependencies);
-            return INSTANCE;
-        }
-    }
+		public static final ClasspathRegistry INSTANCE = new ClasspathRegistry();
 
-    public static ClasspathRegistry getInstance() {
-        return DependenciesRegistryHolder.INSTANCE;
-    }
+		public static ClasspathRegistry initialDependencies(Set<ResolvedDependency> dependencies) {
+			INSTANCE.initDependencies(dependencies);
+			return INSTANCE;
+		}
 
-    public void addDependency(Pom.Dependency... deps) {
-        Arrays.asList(deps).forEach(dep -> {
-            initDependency(dep, currentDependencies);
-        });
-    }
+	}
 
-    public void removeDependency(Pom.Dependency... deps) {
-        Arrays.asList(deps).forEach(currentDependencies::remove);
-    }
+	public static ClasspathRegistry getInstance() {
+		return DependenciesRegistryHolder.INSTANCE;
+	}
 
-    public void removeDependency(String... coordinates) {
-        Arrays.asList(coordinates)
-                .forEach(coordinate -> currentDependencies.keySet().forEach(dep -> {
-                    if (dep.getCoordinates().equals(coordinate)) {
-                        currentDependencies.remove(coordinate);
-                    }
-                }));
-    }
+	public void addDependency(ResolvedDependency... deps) {
+		Arrays.asList(deps).forEach(dep -> {
+			initDependency(dep, currentDependencies);
+		});
+	}
 
-    public Set<Path> getInitialDependencies() {
-        return new HashSet<>(initialDependencies.values());
-    }
+	public void removeDependency(ResolvedDependency... deps) {
+		Arrays.asList(deps).forEach(currentDependencies::remove);
+	}
 
-    public Set<Path> getCurrentDependencies() {
-        return new HashSet<>(currentDependencies.values());
-    }
+	public void removeDependency(String... coordinates) {
+		Arrays.asList(coordinates).forEach(coordinate -> currentDependencies.keySet().forEach(dep -> {
+			if (dep.getGav().toString().equals(coordinate)) {
+				currentDependencies.remove(coordinate);
+			}
+		}));
+	}
 
-    private void initDependencies(Set<Pom.Dependency> deps) {
-        initialDependencies.clear();
-        currentDependencies.clear();
-        deps.forEach(dep -> {
-            initDependency(dep, initialDependencies, currentDependencies);
-        });
-    }
+	public Set<Path> getInitialDependencies() {
+		return new HashSet<>(initialDependencies.values());
+	}
 
-    private void initDependency(Pom.Dependency d, Map<Pom.Dependency, Path>... maps) {
-        Optional<Path> dependencyPath = dependencyHelper.downloadArtifact(d);
-        if (dependencyPath.isPresent()) {
-            Stream.of(maps).forEach(m -> m.put(d, dependencyPath.get()));
-        }
-    }
+	public Set<Path> getCurrentDependencies() {
+		return new HashSet<>(currentDependencies.values());
+	}
+
+	private void initDependencies(Set<ResolvedDependency> deps) {
+		initialDependencies.clear();
+		currentDependencies.clear();
+		deps.forEach(dep -> {
+			initDependency(dep, initialDependencies, currentDependencies);
+		});
+	}
+
+	private void initDependency(ResolvedDependency d, Map<ResolvedDependency, Path>... maps) {
+		Path dependencyPath = new RewriteMavenArtifactDownloader().downloadArtifact(d);
+		if(dependencyPath != null) {
+			Stream.of(maps).forEach(m -> m.put(d, dependencyPath));
+		} else {
+			System.out.println(d.getGav() + " has no jars. It has type " + d.getType());
+			initDependencies(new HashSet<>(d.getDependencies()));
+		}
+
+//		Optional<Path> dependencyPath = dependencyHelper.downloadArtifact(d);
+//		if (dependencyPath.isPresent()) {
+//			Stream.of(maps).forEach(m -> m.put(d, dependencyPath.get()));
+//		}
+	}
 
 }

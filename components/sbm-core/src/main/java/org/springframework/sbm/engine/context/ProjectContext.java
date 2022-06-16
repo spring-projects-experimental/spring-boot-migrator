@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.engine.context;
 
+import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.build.api.ApplicationModule;
 import org.springframework.sbm.build.api.ApplicationModules;
 import org.springframework.sbm.build.api.BuildFile;
@@ -42,19 +43,31 @@ public class ProjectContext {
     private BasePackageCalculator basePackageCalculator;
     private final ProjectResourceSet projectResources;
     private String revision;
+    private final JavaParser javaParser;
 
-    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator) {
+    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParser javaParser) {
         this.projectRootDirectory = projectRootDirectory.toAbsolutePath();
         this.projectResources = projectResources;
         this.javaRefactoringFactory = javaRefactoringFactory;
         this.basePackageCalculator = basePackageCalculator;
+        this.javaParser = javaParser;
     }
 
     public ProjectResourceSet getProjectResources() {
         return projectResources;
     }
 
+    public List<ApplicationModule> getModules() {
+        return search(new BuildFileProjectResourceFilter()).stream()
+                .map(this::mapToModule)
+                .collect(Collectors.toList());
+    }
 
+    private ApplicationModule mapToModule(BuildFile buildFile) {
+        String buildFileName = "";
+        Path modulePath = projectRootDirectory.relativize(buildFile.getAbsolutePath().getParent());
+        return new ApplicationModule(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator, javaParser);
+    }
 
     public BuildFile getBuildFile() {
         return search(new RootBuildFileFilter());
@@ -70,15 +83,7 @@ public class ProjectContext {
     }
 
     public ApplicationModules getApplicationModules() {
-        List<ApplicationModule> applicationModules = search(new BuildFileProjectResourceFilter()).stream()
-                .map(this::mapToModule)
-                .collect(Collectors.toList());
-        return new ApplicationModules(applicationModules);
+        return new ApplicationModules(getModules());
     }
 
-    private ApplicationModule mapToModule(BuildFile buildFile) {
-        String buildFileName = "";
-        Path modulePath = projectRootDirectory.relativize(buildFile.getAbsolutePath().getParent());
-        return new ApplicationModule(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator);
-    }
 }

@@ -158,7 +158,7 @@ public class ConvertJaxRsAnnotations extends AbstractAction {
         Optional<Annotation> found = annotations.stream().filter(a -> "javax.ws.rs.Path".equals(a.getFullyQualifiedName())).findFirst();
         if (found.isPresent()) {
             type.removeAnnotation(found.get());
-            type.addAnnotation("@RestController", "org.springframework.web.bind.annotation.RestController");
+            type.addAnnotation("org.springframework.web.bind.annotation.RestController");
             String rmAttrs = found.get().getAttributes().entrySet().stream().map(e -> e.getKey() + " = " + e.getValue().print()).collect(Collectors.joining(", "));
             type.addAnnotation("@RequestMapping(" + rmAttrs + ")", "org.springframework.web.bind.annotation.RequestMapping");
         }

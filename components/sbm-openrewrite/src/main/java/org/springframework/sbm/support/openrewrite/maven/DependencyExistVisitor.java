@@ -22,6 +22,12 @@ import org.openrewrite.xml.XPathMatcher;
 import org.openrewrite.xml.tree.Xml;
 
 @Data
+/**
+ * TODO(497) remove class
+ * No usages found
+ * @deprecated
+ */
+@Deprecated(forRemoval = true)
 public class DependencyExistVisitor extends MavenVisitor {
 
     private static final XPathMatcher DEPENDENCY_MATCHER = new XPathMatcher("//dependency");
@@ -35,7 +41,7 @@ public class DependencyExistVisitor extends MavenVisitor {
         this.scope = tag;
     }
 
-    @Override
+    // FIXME(#7): Api changed
     public Xml visitTag(Xml.Tag tag, ExecutionContext ctx) {
         if (getCursor().isScopeInPath(scope)) {
             // Only for each dependency tag
@@ -48,7 +54,7 @@ public class DependencyExistVisitor extends MavenVisitor {
 
     private boolean hasGroupAndArtifact(String groupId, String artifactId) {
         Xml.Tag tag = getCursor().getValue();
-        return groupId.equals(tag.getChildValue("groupId").orElse(model.getGroupId())) &&
+        return groupId.equals(tag.getChildValue("groupId")) &&
                 tag.getChildValue("artifactId")
                         .map(a -> a.equals(artifactId))
                         .orElse(artifactId == null);

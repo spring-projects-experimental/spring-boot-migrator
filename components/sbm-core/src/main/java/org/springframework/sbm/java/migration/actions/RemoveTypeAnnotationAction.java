@@ -31,7 +31,8 @@ public class RemoveTypeAnnotationAction extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
-        context.getProjectJavaSources().asStream()
+        context.getProjectJavaSources().list()
+                .stream()
                 .flatMap(js -> js.getTypes().stream())
                 .filter(type -> type.hasAnnotation(annotation))
                 .forEach(type -> type.removeAnnotation(annotation));

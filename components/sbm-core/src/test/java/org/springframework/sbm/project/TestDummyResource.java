@@ -38,17 +38,17 @@ public class TestDummyResource implements Resource {
     }
 
     @Override
-    public URL getURL() throws IOException {
+    public URL getURL() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public URI getURI() throws IOException {
+    public URI getURI() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public File getFile() throws IOException {
+    public File getFile() {
         return new File(path.toString());
     }
 
@@ -57,25 +57,21 @@ public class TestDummyResource implements Resource {
     }
 
     private File getFile(TestDummyResource testDummyResource) {
-        try {
-            return getFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return getFile();
     }
 
     @Override
-    public long contentLength() throws IOException {
+    public long contentLength() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public long lastModified() throws IOException {
+    public long lastModified() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Resource createRelative(String s) throws IOException {
+    public Resource createRelative(String s) {
         throw new UnsupportedOperationException();
     }
 
@@ -90,7 +86,7 @@ public class TestDummyResource implements Resource {
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
+    public InputStream getInputStream() {
         return new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
     }
 }

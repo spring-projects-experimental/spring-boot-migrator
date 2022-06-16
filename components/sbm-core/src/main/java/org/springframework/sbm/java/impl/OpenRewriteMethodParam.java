@@ -39,18 +39,20 @@ public class OpenRewriteMethodParam implements MethodParam {
     private final Statement wrappedMethodParam;
 
     private final JavaRefactoring refactoring;
+    private final JavaParser javaParser;
 
-    public OpenRewriteMethodParam(RewriteSourceFileHolder<J.CompilationUnit> sourceFile, Statement statement, JavaRefactoring refactoring) {
+    public OpenRewriteMethodParam(RewriteSourceFileHolder<J.CompilationUnit> sourceFile, Statement statement, JavaRefactoring refactoring, JavaParser javaParser) {
         wrappedMethodParam = statement;
         this.sourceFile = sourceFile;
         this.refactoring = refactoring;
+        this.javaParser = javaParser;
     }
 
     @Override
     public List<Annotation> getAnnotations() {
         if (wrappedMethodParam instanceof J.VariableDeclarations) {
             return ((J.VariableDeclarations) wrappedMethodParam).getLeadingAnnotations().stream()
-                    .map(a -> new OpenRewriteAnnotation(a, refactoring))
+                    .map(a -> new OpenRewriteAnnotation(a, refactoring, javaParser))
                     .collect(Collectors.toList());
         }
         return List.of();

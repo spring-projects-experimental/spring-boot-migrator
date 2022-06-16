@@ -15,37 +15,34 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
-import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
-import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeType;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
+import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 
 public class SwapFamilyForSeries extends Recipe {
 
     public SwapFamilyForSeries() {
 
         // All constants seem to match on both types - let ChangeType take care of type changing for field accesses
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
         doNext(new RewriteMethodInvocation(
                         RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.Response.Status.Family familyOf(int)"),
                         (v, m, addImport) -> {
                             JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "HttpStatus.Series.resolve(#{any(int)})").build();
-                            // v.maybeAddImport("org.springframework.http.HttpStatus.Series");
+                            v.maybeAddImport("org.springframework.http.HttpStatus.Series");
                             addImport.accept("org.springframework.http.HttpStatus");
                             return m.withTemplate(template, m.getCoordinates().replace(), m.getArguments().get(0));
                         }
                 )
         );
 
-        doNext(new ChangeType("javax.ws.rs.core.Response.Status.Family", "org.springframework.http.HttpStatus.Series"));
+        doNext(new ChangeType("javax.ws.rs.core.Response.Status.Family", "org.springframework.http.HttpStatus.Series", false));
 
     }
 
     @Override
     public String getDisplayName() {
-        return "Swap JAX-RS Family with Spring HttpStaus.Series";
+        return "Swap JAX-RS Family with Spring HttpStatus.Series";
     }
 
 }

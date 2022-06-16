@@ -35,6 +35,9 @@ public class Boot_24_25_SqlScriptDataSourceInitialization implements UpgradeSect
     @Override
     public boolean isApplicable(ProjectContext projectContext) {
         return new Boot_24_25_SqlScriptDataSourceInitializationCondition().evaluate(projectContext);
+//        List<SpringBootApplicationProperties> filteredResources = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
+//        List<SqlScriptDataSourceInitializationPropertiesAnalyzer.DeperecatedPropertyMatch> properties = new SqlScriptDataSourceInitializationPropertiesAnalyzer().findDeprecatedProperties(filteredResources);
+//        return !properties.isEmpty();
     }
 
     @Override

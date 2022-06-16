@@ -15,18 +15,19 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
-import org.springframework.sbm.java.migration.visitor.VisitorUtils;
-import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
-import org.springframework.sbm.java.impl.JavaParserFactory;
-import org.springframework.sbm.search.recipe.CommentJavaSearchResult;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Tree;
 import org.openrewrite.java.*;
 import org.openrewrite.java.tree.Expression;
+import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.MethodInvocation;
+import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
+import org.springframework.sbm.java.migration.visitor.VisitorUtils;
+import org.springframework.sbm.search.recipe.CommentJavaSearchResult;
 
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation.methodInvocationMatcher;
@@ -34,10 +35,9 @@ import static org.springframework.sbm.java.migration.recipes.RewriteMethodInvoca
 
 public class SwapResponseWithResponseEntity extends Recipe {
 
-    public SwapResponseWithResponseEntity() {
+    public SwapResponseWithResponseEntity(Supplier<JavaParser> javaParserSupplier) {
 
-        doNext(new SwapStatusForHttpStatus());
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
+        doNext(new SwapStatusForHttpStatus(javaParserSupplier));
         // #status(int)
         doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response status(int)"), (v, m, addImport) -> {
             String args = m.getArguments().stream().map(a -> "#{any()}").collect(Collectors.joining(", "));
@@ -92,13 +92,15 @@ public class SwapResponseWithResponseEntity extends Recipe {
         // #ok(Object)
         doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response ok(java.lang.Object)"), (v, m, addImport) -> {
             List<Expression> args = m.getArguments();
-            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "ResponseEntity.ok()")
-                    .imports("org.springframework.http.ResponseEntity")
-                    .build();
-            addImport.accept("org.springframework.http.ResponseEntity");
-            v.maybeRemoveImport("javax.ws.rs.core.Response");
-            m = m.withTemplate(template, m.getCoordinates().replace());
-            markTopLevelInvocationWithTemplate(v, m, args.get(0).print());
+            if(J.Literal.class.isInstance(m.getArguments().get(0))) {
+                JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "ResponseEntity.ok()")
+                        .imports("org.springframework.http.ResponseEntity")
+                        .build();
+                addImport.accept("org.springframework.http.ResponseEntity");
+                v.maybeRemoveImport("javax.ws.rs.core.Response");
+                m = m.withTemplate(template, m.getCoordinates().replace());
+                markTopLevelInvocationWithTemplate(v, m, args.get(0).print());
+            }
             return m;
         }));
 
@@ -197,7 +199,7 @@ public class SwapResponseWithResponseEntity extends Recipe {
 
         // notModified(String)
         doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response notModified(java.lang.String)"), (v, m, addImport) -> {
-            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "ResponseEntity.status(HttpStatus.NOT_MODIFIED).etag(#{any()})")
+            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(#{any()})")
                     .imports("org.springframework.http.ResponseEntity", "org.springframework.http.HttpStatus")
                     .build();
             addImport.accept("org.springframework.http.ResponseEntity");
@@ -359,7 +361,7 @@ public class SwapResponseWithResponseEntity extends Recipe {
 
         doNext(new ReplaceResponseEntityBuilder());
 
-        doNext(new ChangeType("javax.ws.rs.core.Response", "org.springframework.http.ResponseEntity"));
+        doNext(new ChangeType("javax.ws.rs.core.Response", "org.springframework.http.ResponseEntity", false));
     }
 
     private void markTopLevelInvocationWithTemplate(JavaVisitor<ExecutionContext> v, MethodInvocation m, String template) {

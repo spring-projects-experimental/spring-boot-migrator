@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.engine.context;
 
+import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.filter.BuildFileProjectResourceFilter;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
@@ -37,6 +38,7 @@ public class ProjectContextFactory {
     private final ProjectResourceSetHolder projectResourceSetHolder;
     private final JavaRefactoringFactory javaRefactoringFactory;
     private final BasePackageCalculator basePackageCalculator;
+    private final JavaParser javaParser;
 
     @NotNull
     public ProjectContext createProjectContext(Path projectDir, ProjectResourceSet projectResourceSet) {
@@ -44,7 +46,7 @@ public class ProjectContextFactory {
         applyProjectResourceWrappers(projectResourceSet);
         List<BuildFile> buildFiles = new BuildFileProjectResourceFilter().apply(projectResourceSet);
         ClasspathRegistry.initializeFromBuildFiles(buildFiles);
-        ProjectContext projectContext = new ProjectContext(javaRefactoringFactory, projectDir, projectResourceSet, basePackageCalculator);
+        ProjectContext projectContext = new ProjectContext(javaRefactoringFactory, projectDir, projectResourceSet, basePackageCalculator, javaParser);
         return projectContext;
     }
 

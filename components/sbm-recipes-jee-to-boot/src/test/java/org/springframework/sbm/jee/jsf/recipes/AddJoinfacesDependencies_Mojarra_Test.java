@@ -45,7 +45,7 @@ class AddJoinfacesDependencies_Mojarra_Test {
         String expectedPom =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
+                        "        xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.superbiz.jsf</groupId>\n" +
                         "    <artifactId>jsf-managedBean-and-ejb</artifactId>\n" +

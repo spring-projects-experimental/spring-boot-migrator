@@ -58,7 +58,8 @@ public class WMQFlowTest extends JavaDSLActionBaseTest {
                         "        return IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"TestQueue\")).handle((p, h) -> p)\n" +
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                .get();\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
     }
 }

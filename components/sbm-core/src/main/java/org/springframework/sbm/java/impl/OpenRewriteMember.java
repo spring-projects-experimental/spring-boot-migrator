@@ -19,8 +19,6 @@ import org.springframework.sbm.java.api.Annotation;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
-import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.internal.lang.Nullable;
@@ -29,6 +27,8 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.VariableDeclarations.NamedVariable;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeTree;
+import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
+import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class OpenRewriteMember implements Member {
 
+    boolean isOutdated;
+
     private final UUID variableDeclId;
 
     private final RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder;
@@ -45,21 +47,23 @@ public class OpenRewriteMember implements Member {
     private final NamedVariable namedVar;
 
     private final JavaRefactoring refactoring;
+    private final JavaParser javaParser;
 
     public OpenRewriteMember(
             J.VariableDeclarations variableDecls, NamedVariable namedVar,
-            RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring) {
+            RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring, JavaParser javaParser) {
         this.variableDeclId = variableDecls.getId();
         this.namedVar = namedVar;
         this.rewriteSourceFileHolder = rewriteSourceFileHolder;
         this.refactoring = refactoring;
+        this.javaParser = javaParser;
     }
 
     @Override
     public List<Annotation> getAnnotations() {
         return getVariableDeclarations().getLeadingAnnotations()
                 .stream()
-                .map(la -> new OpenRewriteAnnotation(la, refactoring))
+                .map(la -> new OpenRewriteAnnotation(la, refactoring, javaParser))
                 .collect(Collectors.toList());
     }
 
@@ -70,17 +74,28 @@ public class OpenRewriteMember implements Member {
         return getVariableDeclarations().getLeadingAnnotations()
                 .stream()
                 .filter(a -> {
-                    JavaType.Class type = (JavaType.Class) a.getType();
-                    if (type == null) {
-                        String simpleName = ((J.Identifier) a.getAnnotationType()).getSimpleName();
-                        log.error("Could not get Type for annotation: '" + simpleName + "' while comparing with '" + annotation + "'.");
+
+                    JavaType type1 = a.getType();
+                    if (type1.getClass().isAssignableFrom(JavaType.Unknown.class)) {
+                        log.error("Could not get Type for annotation: '" + annotation + "'.");
+                        return false;
+                    } else if (type1.getClass().isAssignableFrom(JavaType.Class.class)) {
+                        JavaType.Class type = (JavaType.Class) a.getType();
+                        if (type == null) {
+                            String simpleName = ((J.Identifier) a.getAnnotationType()).getSimpleName();
+                            log.error("Could not get Type for annotation: '" + simpleName + "' while comparing with '" + annotation + "'.");
+                            return false;
+                        }
+                        String fullyQualifiedName = type.getFullyQualifiedName();
+                        return annotation.equals(fullyQualifiedName);
+                    } else {
+                        log.error("Unknown JavaType type '" + type1.getClass() + "'");
                         return false;
                     }
-                    String fullyQualifiedName = type.getFullyQualifiedName();
-                    return annotation.equals(fullyQualifiedName);
+
                 })
                 .findFirst()
-                .map(a -> Wrappers.wrap(a, refactoring))
+                .map(a -> Wrappers.wrap(a, refactoring, javaParser))
                 .orElse(null);
     }
 
@@ -95,13 +110,12 @@ public class OpenRewriteMember implements Member {
     @Override
     public void addAnnotation(String fqName) {
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
-        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> JavaParserFactory.getCurrentJavaParser(), getVariableDeclarations(), snippet, fqName);
+        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> javaParser, getVariableDeclarations(), snippet, fqName);
         refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
     }
 
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
         AddAnnotationVisitor visitor = new AddAnnotationVisitor(() -> javaParser, getVariableDeclarations(), snippet, annotationImport, otherImports);
         refactoring.refactor(rewriteSourceFileHolder, visitor);
     }
@@ -130,6 +144,7 @@ public class OpenRewriteMember implements Member {
 
     @Override
     public void removeAnnotation(Annotation annotation) {
+        // TODO: Maybe replace RemoveAnnotationVisitor with OpenRewrite's recipe
         RemoveAnnotationVisitor removeAnnotationRecipe = new RemoveAnnotationVisitor(getVariableDeclarations(), annotation.getFullyQualifiedName());
         refactoring.refactor(rewriteSourceFileHolder, removeAnnotationRecipe);
     }

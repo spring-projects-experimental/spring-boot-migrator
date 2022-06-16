@@ -15,16 +15,14 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
-import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
-import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeType;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.tree.J.NewClass;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.Space;
 import org.openrewrite.java.tree.TypeUtils;
+import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 
 import java.util.List;
 
@@ -41,7 +39,6 @@ public class SwapHttHeaders extends Recipe {
          * - getAcceptableMediaTypes()
          * - getCookies()
          */
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
         // #getAcceptableLanguages()
         doNext(new RewriteMethodInvocation(
                         methodInvocationMatcher("javax.ws.rs.core.HttpHeaders getAcceptableLanguages()"),
@@ -49,8 +46,8 @@ public class SwapHttHeaders extends Recipe {
                             JavaType javaType = JavaType.buildType("org.springframework.http.HttpHeaders");
                             return m
                                     .withSelect(m.getSelect().withType(javaType))
-                                    .withName(m.getName().withName("getAcceptLanguageAsLocales"))
-                                    .withType(m.getType().withDeclaringType(TypeUtils.asFullyQualified(JavaType.buildType("org.springframework.http.HttpHeaders"))));
+                                    .withName(m.getName().withSimpleName("getAcceptLanguageAsLocales"))
+                                    .withMethodType(m.getMethodType().withReturnType(JavaType.buildType("java.util.List")).withDeclaringType(((JavaType.ShallowClass) javaType).getOwningClass()));
                         }
                 )
         );
@@ -66,9 +63,8 @@ public class SwapHttHeaders extends Recipe {
                             NewClass newMethod = (NewClass) m.withTemplate(template, m.getCoordinates().replace());
                             JavaType javaType = JavaType.buildType("org.springframework.http.HttpHeaders");
                             return newMethod.withArguments(List.of(
-                                    m
-                                            .withSelect(m.getSelect().withType(javaType))
-                                            .withType(m.getType().withDeclaringType(TypeUtils.asFullyQualified(javaType)))
+                                    m.withSelect(m.getSelect().withType(javaType))
+                                            .withMethodType(m.getMethodType().withDeclaringType(TypeUtils.asFullyQualified(javaType)))
                                             .withPrefix(Space.EMPTY)
                             ));
                         }
@@ -92,9 +88,9 @@ public class SwapHttHeaders extends Recipe {
                         (v, m, addImport) -> {
                             JavaType javaType = JavaType.buildType("org.springframework.http.HttpHeaders");
                             return m
-                                    .withName(m.getName().withName("getContentLanguage"))
+                                    .withName(m.getName().withSimpleName("getContentLanguage"))
                                     .withSelect(m.getSelect().withType(javaType))
-                                    .withType(m.getType().withDeclaringType(TypeUtils.asFullyQualified(JavaType.buildType("org.springframework.http.HttpHeaders"))));
+                                    .withMethodType(m.getMethodType().withDeclaringType(TypeUtils.asFullyQualified(JavaType.buildType("org.springframework.http.HttpHeaders"))));
                         }
                 )
         );
@@ -105,10 +101,9 @@ public class SwapHttHeaders extends Recipe {
                         (v, m, addImport) -> {
                             JavaType javaType = JavaType.buildType("org.springframework.http.HttpHeaders");
                             return m
-                                    .withName(m.getName().withName("getContentLength"))
+                                    .withName(m.getName().withSimpleName("getContentLength"))
                                     .withSelect(m.getSelect().withType(javaType))
-                                    .withType(m.getType()
-                                            .withDeclaringType(TypeUtils.asFullyQualified(JavaType.buildType("org.springframework.http.HttpHeaders"))));
+                                    .withMethodType(m.getMethodType().withDeclaringType(TypeUtils.asFullyQualified(JavaType.buildType("org.springframework.http.HttpHeaders"))));
                         }
                 )
         );
@@ -135,7 +130,7 @@ public class SwapHttHeaders extends Recipe {
                 )
         );
 
-        doNext(new ChangeType("javax.ws.rs.core.HttpHeaders", "org.springframework.http.HttpHeaders"));
+        doNext(new ChangeType("javax.ws.rs.core.HttpHeaders", "org.springframework.http.HttpHeaders", false));
     }
 
     @Override

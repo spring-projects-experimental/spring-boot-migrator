@@ -71,7 +71,7 @@ class JavaSourceSetImplTest {
 
         JavaSourceSet sut = TestProjectContext.buildProjectContext()
                 .withDummyRootBuildFile()
-                .withSbmApplicationProperties(sbmApplicationProperties)
+                .withApplicationProperties(sbmApplicationProperties)
                 .withJavaSources(sourceCode1, sourceCode2)
                 .build()
                 .getApplicationModules()
@@ -97,7 +97,7 @@ class JavaSourceSetImplTest {
 
         JavaSourceSet sut = TestProjectContext.buildProjectContext()
                 .withDummyRootBuildFile()
-                .withSbmApplicationProperties(sbmApplicationProperties)
+                .withApplicationProperties(sbmApplicationProperties)
                 .withJavaSources(sourceCode1, sourceCode2)
                 .build()
                 .getApplicationModules()

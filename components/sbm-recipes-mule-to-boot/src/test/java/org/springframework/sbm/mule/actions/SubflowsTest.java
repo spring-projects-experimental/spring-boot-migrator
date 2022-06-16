@@ -117,7 +117,8 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
                         "    IntegrationFlow outToAMQP(org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate) {\n" +
                         "        return flow -> flow\n" +
                         "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"));\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
 
     }
@@ -152,7 +153,8 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
                         "        return flow -> {\n" +
                         "            //FIXME: element is not supported for conversion: <set-variable/>\n" +
                         "        };\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
     }
 }

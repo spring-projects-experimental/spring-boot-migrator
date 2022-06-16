@@ -173,7 +173,8 @@ public class ComplexSubflowsTest extends JavaDSLActionBaseTest {
                         "        return flow -> flow\n" +
                         "                .log(LoggingHandler.Level.INFO, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"ResponsePayloadSent\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\" [payload] ${message.payloadAs(java.lang.String)}\")\n" +
                         "                .log(LoggingHandler.Level.DEBUG, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"ResponseMessageSent\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\",[message] ${message}\");\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
 
     }
@@ -230,7 +231,8 @@ public class ComplexSubflowsTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    void tlsContext() {\n" +
                         "        //FIXME: element is not supported for conversion: <tls:context/>\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
 
     }

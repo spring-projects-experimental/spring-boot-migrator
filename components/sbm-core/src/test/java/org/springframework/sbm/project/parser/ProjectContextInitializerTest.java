@@ -15,13 +15,15 @@
  */
 package org.springframework.sbm.project.parser;
 
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.maven.tree.Maven;
+import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.properties.tree.Properties;
 import org.openrewrite.text.PlainText;
 import org.openrewrite.xml.tree.Xml;
@@ -31,6 +33,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.build.migration.MavenPomCacheProvider;
 import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -48,19 +52,26 @@ import org.springframework.util.FileSystemUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.springframework.sbm.project.parser.ResourceVerifier.*;
+import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.*;
 
 
 @SpringBootTest(classes = {
+        ResourceParser.class,
         ProjectContextInitializer.class,
+        MavenProjectParser.class,
+        RewriteMavenParser.class,
+        RewriteMavenArtifactDownloader.class,
+        JavaProvenanceMarkerFactory.class,
+        BasePackageCalculator.class,
         BasePackageCalculator.class,
         ProjectRootPathResolver.class,
         PreconditionVerifier.class,
         ProjectContextFactory.class,
-        RewriteMavenParserFactory.class,
+        RewriteMavenParserFactory.class, // FIXME: #7 remove class
         MavenPomCacheProvider.class,
         PathScanner.class,
         SbmApplicationProperties.class,
@@ -75,7 +86,7 @@ import static org.springframework.sbm.project.parser.ResourceVerifier.*;
 }, properties = {"sbm.gitSupportEnabled=false"})
 class ProjectContextInitializerTest {
 
-    private Path projectDirectory = Path.of("./testcode/path-scanner").toAbsolutePath().normalize();
+    private final Path projectDirectory = Path.of("./testcode/path-scanner").toAbsolutePath().normalize();
 
     @Autowired
     private ProjectContextInitializer sut;
@@ -109,36 +120,51 @@ class ProjectContextInitializerTest {
 
         assertThat(projectResources).hasSize(18);
 
+        verifyResource("testcode/pom.xml").wrapsInstanceOf(Xml.Document.class);
         verifyIgnored(projectResources, "testcode/path-scanner/.git");
 
         verifyResource("testcode/path-scanner/pom.xml")
-                .wrappedInstanceOf(Maven.class)
+                .wrapsInstanceOf(Maven.class)
                 .havingMarkers(
-                        mavenModelMarker("com.example:example-project-parent:1.0.0-SNAPSHOT"),
+                        mavenResolutionResult(null, "com.example:example-project-parent:1.0.0-SNAPSHOT",
+                                List.of(
+                                        "com.example:module1:1.0.0-SNAPSHOT",
+                                        "com.example:module2:1.0.0-SNAPSHOT"),
+                                noDependencies()
+                        ),
                         buildToolMarker("Maven", "3.6"), // TODO: does this work in all env (taken from .mvn)?
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:example-project-parent:1.0.0-SNAPSHOT"),
-                        modulesMarker("com.example:module1:1.0.0-SNAPSHOT", "com.example:module2:1.0.0-SNAPSHOT"),
                         gitProvenanceMarker("master")
                 )
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/pom.xml")
-                .wrappedInstanceOf(Maven.class)
+                .wrapsInstanceOf(Maven.class)
                 .havingMarkers(
-                        mavenModelMarker("com.example:module1:1.0.0-SNAPSHOT"),
+                        mavenResolutionResult(
+                                "com.example:example-project-parent:1.0.0-SNAPSHOT",
+                                "com.example:module1:1.0.0-SNAPSHOT",
+                                List.of(),
+                                Map.of(
+                                        Scope.Provided, List.of(),
+                                        Scope.Compile, List.of(),
+                                        Scope.Runtime, List.of(),
+                                        Scope.Test, List.of("org.jetbrains:annotations:23.0.0")
+                                )),
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         gitProvenanceMarker("master")
                 )
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/java/com/example/SomeJavaClass.java")
-                .wrappedInstanceOf(J.CompilationUnit.class)
+                .wrapsInstanceOf(J.CompilationUnit.class)
                 .havingMarkers(
+                        javaSourceSetMarker("main", ""),
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -146,10 +172,10 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/schema.sql")
-                .wrappedInstanceOf(PlainText.class)
+                .wrapsInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -157,10 +183,10 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.xml")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -168,10 +194,10 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.yaml")
-                .wrappedInstanceOf(Yaml.Documents.class)
+                .wrapsInstanceOf(Yaml.Documents.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -179,10 +205,10 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.properties")
-                .wrappedInstanceOf(Properties.class)
+                .wrapsInstanceOf(Properties.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -190,10 +216,10 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.html")
-                .wrappedInstanceOf(PlainText.class)
+                .wrapsInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -201,10 +227,10 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.jsp")
-                .wrappedInstanceOf(PlainText.class)
+                .wrapsInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -212,9 +238,9 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.txt")
-                .wrappedInstanceOf(PlainText.class)
+                .wrapsInstanceOf(PlainText.class)
                 .havingMarkers(buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -222,10 +248,10 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.xhtml")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -233,10 +259,10 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/resources/some.xsd")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -244,10 +270,10 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/webapp/META-INF/some.wsdl")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -255,9 +281,9 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/webapp/META-INF/some.xsl")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -265,10 +291,10 @@ class ProjectContextInitializerTest {
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module1/src/main/webapp/META-INF/some.xslt")
-                .wrappedInstanceOf(Xml.Document.class)
+                .wrapsInstanceOf(Xml.Document.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", ""),
                         gitProvenanceMarker("master")
@@ -277,34 +303,45 @@ class ProjectContextInitializerTest {
 
         // module2
         verifyResource("testcode/path-scanner/module2/pom.xml")
-                .wrappedInstanceOf(Maven.class)
+                .wrapsInstanceOf(Maven.class)
                 .havingMarkers(
-                        mavenModelMarker("com.example:module2:1.0.0-SNAPSHOT"),
+                        mavenResolutionResult(
+                                "com.example:example-project-parent:1.0.0-SNAPSHOT",
+                                "com.example:module2:1.0.0-SNAPSHOT",
+                                List.of(),
+                                Map.of(
+                                        Scope.Provided, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2"),
+                                        Scope.Compile, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2"),
+                                        Scope.Runtime, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2"),
+                                        Scope.Test, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2")
+                                )
+                        ),
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
                         gitProvenanceMarker("master")
                 )
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module2/src/test/java/com/example/FooTest.java")
-                .wrappedInstanceOf(J.CompilationUnit.class)
+                .wrapsInstanceOf(J.CompilationUnit.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
+                        javaSourceSetMarker("main", "java.awt.dnd.DragGestureRecognizer, java.nio.channels.ClosedByInterruptException, java.lang.management.ThreadMXBean"),
                         javaSourceSetMarker("test", "java.awt.dnd.DragGestureRecognizer, java.nio.channels.ClosedByInterruptException, java.lang.management.ThreadMXBean"),
                         gitProvenanceMarker("master")
                 )
                 .isContainedIn(projectResources);
 
         verifyResource("testcode/path-scanner/module2/src/test/resources/test.whatever")
-                .wrappedInstanceOf(PlainText.class)
+                .wrapsInstanceOf(PlainText.class)
                 .havingMarkers(
                         buildToolMarker("Maven", "3.6"),
-                        javaVersionMarker(11, "maven.compiler.source", "maven.compiler.target"),
+                        javaVersionMarker(11, "11", "11"),
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
-                        javaSourceSetMarker("test", "java.awt.dnd.DragGestureRecognizer, java.nio.channels.ClosedByInterruptException, java.lang.management.ThreadMXBean"),
+                        javaSourceSetMarker("test", ""),
                         gitProvenanceMarker("master")
                 )
                 .isContainedIn(projectResources);
@@ -313,5 +350,15 @@ class ProjectContextInitializerTest {
     private void verifyIgnored(List<RewriteSourceFileHolder<? extends SourceFile>> projectResources, String s) {
         assertThat(Path.of(s).toFile()).exists();
         assertThat(projectResources.stream().noneMatch(r -> s.equals(r.getAbsolutePath().toString()))).isTrue();
+    }
+
+    @NotNull
+    private Map<? extends Scope, ? extends List<String>> noDependencies() {
+        return Map.of(
+            Scope.Compile, List.of(),
+            Scope.Provided, List.of(),
+            Scope.Test, List.of(),
+            Scope.Runtime, List.of()
+        );
     }
 }

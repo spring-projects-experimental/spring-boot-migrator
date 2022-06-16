@@ -56,27 +56,25 @@ public class ReplaceStaticFieldAccessVisitor extends JavaIsoVisitor<ExecutionCon
                     if (newStaticFieldAccess.isPresent() && differ(newStaticFieldAccess.get(), fieldAccess)) {
 
                         JavaType.Class newClassType = JavaType.Class.build(newStaticFieldAccess.get().getFqClassName());
-                        J.Identifier ident = J.Identifier.build(UUID.randomUUID(), Space.EMPTY, Markers.EMPTY, newClassType.getClassName(), newClassType);
+                        J.Identifier ident = new J.Identifier(UUID.randomUUID(), Space.EMPTY, Markers.EMPTY, newClassType.getClassName(), newClassType, null); // FIXME: #497 correct?!
 
                         String newFieldName = newStaticFieldAccess.get().getField();
 
+                        J.Identifier identifier = new J.Identifier(
+                                UUID.randomUUID(),
+                                Space.EMPTY,
+                                Markers.EMPTY,
+                                newFieldName,
+                                newClassType,
+                                null
+                        );
                         FieldAccess af = new J.FieldAccess(
                                 UUID.randomUUID(),
                                 Space.build(" ", List.of()),
                                 Markers.EMPTY,
                                 ident,
-                                new JLeftPadded<>(
-                                        Space.EMPTY,
-                                        J.Identifier.build(
-                                                UUID.randomUUID(),
-                                                Space.EMPTY,
-                                                Markers.EMPTY,
-                                                newFieldName,
-                                                newClassType
-                                        ),
-                                        Markers.EMPTY
-                                ),
-                                newClassType
+                                JLeftPadded.build(identifier),
+                                null // FIXME: #497 correct?!
                         );
 
                         maybeRemoveImport(currentTargetClassType);

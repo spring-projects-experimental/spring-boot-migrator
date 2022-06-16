@@ -15,15 +15,6 @@
  */
 package org.springframework.sbm.java.impl;
 
-import org.springframework.sbm.java.api.Annotation;
-import org.springframework.sbm.java.api.Method;
-import org.springframework.sbm.java.api.MethodParam;
-import org.springframework.sbm.java.api.Visibility;
-import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
-import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
-import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeMethodName;
@@ -32,11 +23,22 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.Statement;
 import org.openrewrite.java.tree.TypeUtils;
+import org.springframework.sbm.java.api.Annotation;
+import org.springframework.sbm.java.api.Method;
+import org.springframework.sbm.java.api.MethodParam;
+import org.springframework.sbm.java.api.Visibility;
+import org.springframework.sbm.java.refactoring.JavaRefactoring;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
+import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -48,12 +50,14 @@ public class OpenRewriteMethod implements Method {
     private final RewriteSourceFileHolder<J.CompilationUnit> sourceFile;
 
     private final JavaRefactoring refactoring;
+    private final JavaParser javaParser;
 
     public OpenRewriteMethod(
-            RewriteSourceFileHolder<J.CompilationUnit> sourceFile, J.MethodDeclaration methodDecl, JavaRefactoring refactoring) {
+            RewriteSourceFileHolder<J.CompilationUnit> sourceFile, J.MethodDeclaration methodDecl, JavaRefactoring refactoring, JavaParser javaParser) {
         this.sourceFile = sourceFile;
         methodDeclId = methodDecl.getId();
         this.refactoring = refactoring;
+        this.javaParser = javaParser;
     }
 
     @Override
@@ -63,7 +67,7 @@ public class OpenRewriteMethod implements Method {
             return List.of();
         }
         return typeParameters.stream()
-                .map(p -> new OpenRewriteMethodParam(sourceFile, p, refactoring))
+                .map(p -> new OpenRewriteMethodParam(sourceFile, p, refactoring, javaParser))
                 .collect(Collectors.toList());
     }
 
@@ -71,7 +75,7 @@ public class OpenRewriteMethod implements Method {
     public List<Annotation> getAnnotations() {
         return getMethodDecl().getLeadingAnnotations()
                 .stream()
-                .map(a -> new OpenRewriteAnnotation(a, refactoring))
+                .map(a -> new OpenRewriteAnnotation(a, refactoring, javaParser))
                 .collect(Collectors.toList());
     }
 
@@ -102,8 +106,11 @@ public class OpenRewriteMethod implements Method {
 
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
-        Recipe visitor = new GenericOpenRewriteRecipe<>(() -> new AddAnnotationVisitor(javaParser, getMethodDecl(), snippet, annotationImport, otherImports));
+        // FIXME: #7 requires a fresh instance of JavaParser to update typesInUse
+        Recipe visitor = new GenericOpenRewriteRecipe<>(() -> {
+            Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
+            return new AddAnnotationVisitor(javaParserSupplier, getMethodDecl(), snippet, annotationImport, otherImports);
+        });
         refactoring.refactor(sourceFile, visitor);
     }
 
@@ -160,7 +167,7 @@ public class OpenRewriteMethod implements Method {
     @Override
     public void rename(String methodPattern, String methodName) {
         // FIXME: method pattern requires type, either define in Type or provide fqName of type declaring method
-        ChangeMethodName changeMethodName = new ChangeMethodName(methodPattern, methodName, true);
+        ChangeMethodName changeMethodName = new ChangeMethodName(methodPattern, methodName, true, false);
         refactoring.refactor(changeMethodName);
     }
 }

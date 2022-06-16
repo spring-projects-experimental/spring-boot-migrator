@@ -18,7 +18,7 @@ package org.springframework.sbm.boot.upgrade_24_25.actions;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 
-public class Boot_24_35_UpdateDependenciesAction extends AbstractAction {
+public class Boot_24_25_UpdateDependenciesAction extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
         if(hasSpringBootParent(context)) {

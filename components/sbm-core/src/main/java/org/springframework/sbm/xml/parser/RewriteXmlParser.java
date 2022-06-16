@@ -22,19 +22,20 @@ import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class RewriteXmlParser {
+public class RewriteXmlParser extends XmlParser {
 
     private static final List<String> FILE_ENDINGS_PARSED_AS_XML = List.of(".xsl", ".xslt", ".xml", ".xhtml", ".xsd", ".wsdl");
 
-    private final XmlParser wrappedParser;
+    private final XmlParser delegatingParser;
 
     public RewriteXmlParser() {
-        this.wrappedParser = new XmlParser() {
+        this.delegatingParser = new XmlParser() {
             @Override
             public boolean accept(Path path) {
                 String filename = path.getFileName().toString();
@@ -45,7 +46,7 @@ public class RewriteXmlParser {
     }
 
     public List<RewriteSourceFileHolder<Xml.Document>> parse(List<Path> xmlFiles, Path projectDir, ExecutionContext executionContext) {
-        return wrappedParser.parse(xmlFiles, projectDir, executionContext)
+        return delegatingParser.parse(xmlFiles, projectDir, executionContext)
                 .stream()
                 .map(pt -> wrapRewriteSourceFile(projectDir, pt))
 //                .map(plainText -> addMarkers(projectDir, rewriteProjectResources, plainText))
@@ -53,19 +54,39 @@ public class RewriteXmlParser {
     }
 
     public RewriteSourceFileHolder<Xml.Document> parse(Path projectDir, Path sourcePath, String xml) {
-        Xml.Document parse = wrappedParser.parse(xml).get(0).withSourcePath(sourcePath);
+        Xml.Document parse = delegatingParser.parse(xml).get(0).withSourcePath(sourcePath);
         return wrapRewriteSourceFile(projectDir, parse);
     }
 
     public boolean shouldBeParsedAsXml(Resource resource) {
-        String fileEnding = resource.getFilename().contains(".") ? resource.getFilename().substring(resource.getFilename().lastIndexOf(".")) : "";
+        return accept(getPath(resource));
+    }
+
+    @Override
+    public boolean accept(Path path) {
+        String pathStr = path.toString();
+        String fileEnding = pathStr.contains(".") ? pathStr.substring(pathStr.lastIndexOf(".")) : "";
         return FILE_ENDINGS_PARSED_AS_XML.contains(fileEnding);
+    }
+
+    @Override
+    public boolean accept(Input input) {
+        return accept(input.getPath());
     }
 
     // FIXME: duplicated in ProjectParserHelper
     private RewriteSourceFileHolder<Xml.Document> wrapRewriteSourceFile(Path absoluteProjectDir, Xml.Document sourceFile) {
         RewriteSourceFileHolder<Xml.Document> rewriteSourceFileHolder = new RewriteSourceFileHolder<Xml.Document>(absoluteProjectDir, sourceFile);
         return rewriteSourceFileHolder;
+    }
+
+    // TODO: duplicate, move to helper
+    private static Path getPath(Resource r) {
+        try {
+            return r.getFile().toPath();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

@@ -15,12 +15,13 @@
  */
 package org.springframework.sbm.openrewrite;
 
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.MavenVisitor;
-import org.openrewrite.maven.tree.Maven;
+import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.List;
 
@@ -44,12 +45,12 @@ public class MavenRefactoringTestHelper {
     }
 
     private static List<Result> applyRecipe(String pomXml, Recipe recipe) {
-        List<Maven> mavenList = MavenParser.builder().build().parse(pomXml);
+        List<Xml.Document> mavenList = MavenParser.builder().build().parse(pomXml);
         return recipe.run(mavenList);
     }
 
-    private static List<Result> applyVisitor(String pomXml, MavenVisitor visitor) {
-        GenericOpenRewriteRecipe<MavenVisitor> recipe = new GenericOpenRewriteRecipe<MavenVisitor>(() -> visitor);
+    private static List<Result> applyVisitor(String pomXml, MavenVisitor<ExecutionContext> visitor) {
+        GenericOpenRewriteRecipe<MavenVisitor<ExecutionContext>> recipe = new GenericOpenRewriteRecipe<>(() -> visitor);
         return applyRecipe(pomXml, recipe);
     }
 

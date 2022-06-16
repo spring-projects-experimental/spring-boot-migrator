@@ -119,7 +119,7 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
         }
 
         return DslSnippet.builder()
-                .renderedSnippet("/* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
+                .renderedSnippet(" /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
                         "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
                         "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
                         "                        m -> m\n" +

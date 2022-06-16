@@ -82,7 +82,8 @@ public class MuleToJavaDSLAmqpTest extends JavaDSLActionBaseTest {
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"))\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
     }
 
     @Test
