@@ -63,7 +63,7 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
             "}\n";
 
     private static final String triggermeshPayloadHandlerContent = "" +
-            ".<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
+            ".handle((p, h) -> {\n" +
             "                    TmDwPayload dwPayload = new TmDwPayload();\n" +
             "                    dwPayload.setId(h.getId().toString());\n" +
             "                    dwPayload.setSourceType(h.get(\"contentType\").toString());\n" +
