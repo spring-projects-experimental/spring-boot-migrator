@@ -1,0 +1,17 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: org.openrewrite.java.spring.boot3.data.TEST
+displayName: Upgrade to Spring Data 3.0
+description: 'Upgrade to Spring Data to 3.0 from any prior version.'
+recipeList:
+#  - org.openrewrite.java.AddMavenRepository:
+#      id: ifdsfsdfdsd
+#      url: sdfsdfdsf
+#      name: fdfs
+  - org.openrewrite.java.AddMavenRepository:
+      id: org.springframework.boot
+      url: spring-boot-starter-parent
+      name: 3.0.0-SNAPSHOT
+  - org.openrewrite.maven.UpgradeParentVersion:
+      groupId: org.springframework.boot
+      artifactId: spring-boot-starter-parent
+      newVersion: 3.0.0-SNAPSHOT
