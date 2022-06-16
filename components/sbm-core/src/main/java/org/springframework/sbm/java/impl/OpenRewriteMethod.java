@@ -29,6 +29,7 @@ import org.springframework.sbm.java.api.MethodParam;
 import org.springframework.sbm.java.api.Visibility;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -104,7 +106,11 @@ public class OpenRewriteMethod implements Method {
 
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
-        Recipe visitor = new GenericOpenRewriteRecipe<>(() -> new AddAnnotationVisitor(javaParser, getMethodDecl(), snippet, annotationImport, otherImports));
+        // FIXME: #7 requires a fresh instance of JavaParser to update typesInUse
+        Recipe visitor = new GenericOpenRewriteRecipe<>(() -> {
+            Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
+            return new AddAnnotationVisitor(javaParserSupplier, getMethodDecl(), snippet, annotationImport, otherImports);
+        });
         refactoring.refactor(sourceFile, visitor);
     }
 

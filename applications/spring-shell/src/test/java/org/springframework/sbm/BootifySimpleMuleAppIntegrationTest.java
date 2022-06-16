@@ -16,9 +16,8 @@
 package org.springframework.sbm;
 
 import com.rabbitmq.client.Channel;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.sbm.mule.amqp.RabbitMqChannelBuilder;
@@ -26,9 +25,7 @@ import org.springframework.sbm.mule.amqp.RabbitMqListener;
 import org.springframework.sbm.mule.wmq.WmqListener;
 import org.springframework.sbm.mule.wmq.WmqSender;
 import org.springframework.web.client.RestTemplate;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
-import org.testcontainers.utility.DockerImageName;
 
 import javax.jms.JMSException;
 import java.io.IOException;
@@ -39,12 +36,14 @@ import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClass {
 
     private static final String FIRST_QUEUE_NAME = "sbm-integration-queue-one";
     private static final String SECOND_QUEUE_NAME = "sbm-integration-queue-two";
     private String messageContent;
     private final RestTemplate restTemplate = new RestTemplate();
+    private static RunningNetworkedContainer rabbitMqContainer;
 
     @Override
     protected String getTestSubDir() {
@@ -58,9 +57,39 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         messageContent = "Integration test message " + UUID.randomUUID();
     }
 
+    @BeforeAll
+    public static void beforeAll() {
+        IntegrationTestBaseClass.beforeAll();
+        // start RabbitMQ
+        rabbitMqContainer = startDockerContainer(
+                new NetworkedContainer(
+                        "rabbitmq:3-management",
+                        List.of(5672, 15672),
+                        "amqphost"),
+                null,
+                Collections.emptyMap());
+        if(!rabbitMqContainer.getContainer().isRunning()) {
+            throw new RuntimeException("RabbitMQ container could not be started");
+        }
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        if(rabbitMqContainer != null && rabbitMqContainer.getContainer() != null) {
+            rabbitMqContainer.getContainer().stop();
+        }
+    }
+
     @Test
     @Tag("integration")
-    public void springIntegrationWorks() throws IOException, TimeoutException, InterruptedException, JMSException {
+    @DisabledIfSystemProperty(named= "os.arch", matches = "aarch64", disabledReason = "imbcom/mq image not supported with Apple Silicon")
+    void t1_testWebsphereMqMigration() throws JMSException, InterruptedException {
+        checkWmqIntegration(rabbitMqContainer.getNetwork());
+    }
+
+    @Test
+    @Tag("integration")
+    public void  t0_springIntegrationWorks() throws IOException, TimeoutException, InterruptedException {
         intializeTestProject();
         scanProject();
         applyRecipe("initialize-spring-boot-migration");
@@ -68,45 +97,22 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
 
         executeMavenGoals(getTestDir(), "clean", "package", "spring-boot:build-image");
 
-        GenericContainer rabbitMqContainer = new GenericContainer(DockerImageName.parse("rabbitmq:3-management"))
-                .withNetwork(Network.newNetwork())
-                .withNetworkAliases("amqphost")
-                .withExposedPorts(5672, 15672);
-        rabbitMqContainer.start();
-        int amqpPort = rabbitMqContainer.getMappedPort(5672);
-/*
-        RunningNetworkedContainer rabbitMqContainer = startDockerContainer(
-                new NetworkedContainer(
-                        "rabbitmq:3-management",
-                        List.of(5672, 15672),
-                        "amqphost"),
-                null,
-                Collections.emptyMap());
-        int amqpPort = rabbitMqContainer.getContainer().getMappedPort(5672);
 
- */
+        int amqpPort = rabbitMqContainer.getContainer().getMappedPort(5672);
         Channel ampqChannel = new RabbitMqChannelBuilder().initializeChannelAndQueues(amqpPort);
-/*
-        GenericContainer migratedMuleContainer = new GenericContainer(DockerImageName.parse("hellomule-migrated:1.0-SNAPSHOT"))
-                .withExposedPorts(9081)
-                .withNetwork(rabbitMqContainer.getNetwork())
-                .withNetworkMode("host")
-                .withNetworkAliases("spring");
-        migratedMuleContainer.start();
-*/
-        RunningNetworkedContainer migratedMuleContainer = startDockerContainer(
+
+        RunningNetworkedContainer container = startDockerContainer(
                 new NetworkedContainer("hellomule-migrated:1.0-SNAPSHOT", List.of(9081), "spring"),
                 rabbitMqContainer.getNetwork(),
                 Collections.emptyMap());
-/*
-        startDockerContainer(new GenericContainer(DockerImageName.parse("hellomule-migrated:1.0-SNAPSHOT"))
-                .withNetwork(rabbitMqContainer.getNetwork()).withExposedPorts())
-*/
-        checkSendHttpMessage(migratedMuleContainer.getContainer().getMappedPort(9081));
-        checkInboundGatewayHttpMessage(migratedMuleContainer.getContainer().getMappedPort(9081));
+
+        checkSendHttpMessage(container.getContainer().getMappedPort(9081));
+        checkInboundGatewayHttpMessage(container.getContainer().getMappedPort(9081));
         checkRabbitMqIntegration(ampqChannel);
-        checkWmqIntegration(rabbitMqContainer.getNetwork());
     }
+
+
+
 
     private void checkRabbitMqIntegration(Channel amqpChannel)
             throws IOException, InterruptedException {
@@ -122,7 +128,7 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         assertThat(latch).isTrue();
     }
 
-    private RunningNetworkedContainer startWmqContainer(Network rabbitContainerNetwork) {
+    private RunningNetworkedContainer startJmsContainer(Network rabbitContainerNetwork) {
         Map<String, String> wmqMap = new HashMap<>();
         wmqMap.put("LICENSE", "accept");
         wmqMap.put("MQ_QMGR_NAME", "QM1");
@@ -137,16 +143,16 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
     }
 
     private void checkWmqIntegration(Network rabbitMqNetwork) throws InterruptedException, JMSException {
-        RunningNetworkedContainer wmqContainer = startWmqContainer(rabbitMqNetwork);
-        WmqSender wmqSender = new WmqSender();
+        RunningNetworkedContainer jmsContainer = startJmsContainer(rabbitMqNetwork);
+        WmqSender jmsSender = new WmqSender();
         CountDownLatch latch = new CountDownLatch(1);
         WmqListener wmqListener = new WmqListener();
-        int mappedPort = wmqContainer.getContainer().getMappedPort(1414);
+        int mappedPort = jmsContainer.getContainer().getMappedPort(1414);
         wmqListener.listenForMessage(mappedPort, "DEV.QUEUE.2", message -> {
             System.out.println(" [x] Received wmq message: '" + message + "'");
             latch.countDown();
         });
-        wmqSender.sendMessage(mappedPort, "DEV.QUEUE.1", "Test WMQ message");
+        jmsSender.sendMessage(mappedPort, "DEV.QUEUE.1", "Test WMQ message");
         boolean latchResult = latch.await(1000000, TimeUnit.MILLISECONDS);
         assertThat(latchResult).isTrue();
     }

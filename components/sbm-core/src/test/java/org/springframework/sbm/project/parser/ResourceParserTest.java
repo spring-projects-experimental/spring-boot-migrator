@@ -2,23 +2,34 @@ package org.springframework.sbm.project.parser;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
+import org.openrewrite.text.PlainText;
+import org.openrewrite.text.PlainTextParser;
+import org.openrewrite.tree.ParsingEventListener;
+import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.events.StartedScanningProjectResourceEvent;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -60,6 +71,34 @@ class ResourceParserTest {
         List<Resource> resources = getResourceAsList(filename, content);
         List<SourceFile> parsedResources = sut.parse(baseDir, resourcePaths, resources);
         assertCorrectParsing(filename, content, Class.forName(className), parsedResources);
+    }
+
+    // TODO: If this test fails RewritePlainTextParser.parseInputs() can be removed because PlainTextParser then publishes parser events
+    @Test
+    void originalPlainTextParserSholdPublishParserEvents() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        ExecutionContext ctx = new RewriteExecutionContext();
+        AtomicReference<Parser.Input> parsedInput = new AtomicReference<>();
+        AtomicReference<SourceFile> parsedSourceFile = new AtomicReference<>();
+        ParsingExecutionContextView.view(ctx).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
+            parsedInput.set(input);
+            parsedSourceFile.set(sourceFile);
+            latch.countDown();
+        } );
+        List<Resource> resources = getResourceAsList("some-file-parsed-by-plaintext.txt", "content");
+
+        PlainTextParser sut = new PlainTextParser();
+        Path filePath = null;
+        String fileContent = "";
+        Parser.Input pi = new Parser.Input(filePath, () -> new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8)));
+        List<PlainText> parsedResources = sut.parseInputs(List.of(
+                pi
+        ), null, ctx);
+        latch.await(50, TimeUnit.MILLISECONDS);
+//        assertThat(parsedInput.get()).isSameAs(pi);
+        assertThat(parsedInput.get()).isNull();
+//        assertThat(parsedSourceFile.get()).isSameAs(parsedResources.get(0));
+        assertThat(parsedSourceFile.get()).isNull();
     }
 
     @NotNull

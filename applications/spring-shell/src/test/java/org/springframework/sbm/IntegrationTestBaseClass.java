@@ -315,13 +315,6 @@ public abstract class IntegrationTestBaseClass {
 	}
 
 	/**
-	 * Starts {@code image} as Docker container exposing {@code ports} and waiting for {@code "/"} to be available.
-	 */
-	protected Integer startDockerContainer(String image, Integer... ports) {
-		return startDockerContainer(image, "/", ports);
-	}
-
-	/**
 	 * Starts {@code image} as Docker container exposing {@code ports} and waiting for {@code httpEndpoint} to be available.
 	 */
 	protected Integer startDockerContainer(String image, String httpEndpoint, Integer... ports) {
@@ -332,13 +325,8 @@ public abstract class IntegrationTestBaseClass {
 		return genericContainer.getFirstMappedPort();
 	}
 
-	protected GenericContainer startDockerContainer(GenericContainer genericContainer) {
-		genericContainer.start();
-		return genericContainer;
-	}
-
-	protected RunningNetworkedContainer startDockerContainer(NetworkedContainer networkedContainer,
-			Network attachNetwork, Map<String, String> envMap) {
+	protected static RunningNetworkedContainer startDockerContainer(NetworkedContainer networkedContainer,
+																	Network attachNetwork, Map<String, String> envMap) {
 
 		Network network = attachNetwork == null ? Network.newNetwork() : attachNetwork;
 

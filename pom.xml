@@ -191,6 +191,21 @@
             </dependency>
             <dependency>
                 <groupId>org.openrewrite</groupId>
+                <artifactId>rewrite-json</artifactId>
+                <version>${openrewrite.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrewrite</groupId>
+                <artifactId>rewrite-protobuf</artifactId>
+                <version>${openrewrite.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrewrite</groupId>
+                <artifactId>rewrite-hcl</artifactId>
+                <version>${openrewrite.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-properties</artifactId>
                 <version>${openrewrite.version}</version>
             </dependency>
@@ -354,14 +369,12 @@
                     <repositoryId>pivotal/spring-boot-migrator</repositoryId>
                 </configuration>
             </plugin>
-
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <forceJavacCompilerUse>true</forceJavacCompilerUse>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 

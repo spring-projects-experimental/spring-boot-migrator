@@ -52,7 +52,7 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
         J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, p);
         if (target.getId().equals(cd.getId())) {
             JavaTemplate template = getJavaTemplate(p, snippet, imports);
-            // FIXME: #7 Moving this line from above getTemaplet() fixed BootifyAnnotatedServletsIntegrationTest ?!
+            // FIXME: #7 Moving this line from above getTemplate() fixed BootifyAnnotatedServletsIntegrationTest ?!
             Stream.of(imports).forEach(i -> maybeAddImport(i));
             cd = cd.withTemplate(template, cd.getCoordinates().addAnnotation((o1, o2) -> 0));
         }
@@ -62,9 +62,9 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
 
     public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration methodDecl, ExecutionContext p) {
         J.MethodDeclaration md = super.visitMethodDeclaration(methodDecl, p);
-        if (target == md) {
-            Stream.of(imports).forEach(i -> maybeAddImport(i));
+        if (target.getId().equals(md.getId())) {
             JavaTemplate template = getJavaTemplate(p, snippet, imports);
+            Stream.of(imports).forEach(i -> maybeAddImport(i));
             md = md.withTemplate(template, md.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
         }
         return md;
@@ -74,8 +74,8 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     public J.VariableDeclarations visitVariableDeclarations(J.VariableDeclarations multiVariable, ExecutionContext p) {
         J.VariableDeclarations vd = super.visitVariableDeclarations(multiVariable, p);
         if (target == vd) {
-            Stream.of(imports).forEach(i -> maybeAddImport(i));
             JavaTemplate template = getJavaTemplate(p, snippet, imports);
+            Stream.of(imports).forEach(i -> maybeAddImport(i));
             vd = vd.withTemplate(template, vd.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
         }
         return vd;
@@ -90,6 +90,7 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
 
     @NotNull
     private JavaTemplate getJavaTemplate(ExecutionContext p, String snippet, String... imports) {
+        // FIXME: #7 javaParser must be recreated to update typesInUse in SourceSet
         return JavaTemplate.builder(() -> getCursor(), snippet)
                 .imports(imports)
                 .javaParser(javaParserSupplier)

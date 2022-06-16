@@ -60,7 +60,7 @@ public class XmlParserTest {
                 "</html>";
 
         XmlParser xmlParser = new XmlParser();
-        Iterable<Parser.Input> inputs = Stream.of(new Parser.Input(Path.of("dummy-dir/index.xhtml").toAbsolutePath(), () -> new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), true)).collect(Collectors.toList());
+        Iterable<Parser.Input> inputs = Stream.of(new Parser.Input(Path.of("dummy-dir/index.xhtml").toAbsolutePath(), () -> new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)))).collect(Collectors.toList());
         List<Xml.Document> parse = xmlParser.parseInputs(inputs, null, new InMemoryExecutionContext((t) -> t.printStackTrace()));
         System.out.println(parse.get(0).printAll());
     }

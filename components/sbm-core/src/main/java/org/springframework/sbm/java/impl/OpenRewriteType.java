@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -104,16 +105,17 @@ public class OpenRewriteType implements Type {
     @Override
     public void addAnnotation(String fqName) {
         // FIXME: Hack, JavaParser should have latest classpath
-        javaParser = new RewriteJavaParser(new SbmApplicationProperties());
-        javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
+        Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
-        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> javaParser, getClassDeclaration(), snippet, fqName);
+        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserSupplier, getClassDeclaration(), snippet, fqName);
         refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
     }
 
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
-        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> javaParser, getClassDeclaration(), snippet, annotationImport, otherImports);
+        // FIXME: #7 JavaParser does not update typesInUse
+        Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
+        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserSupplier, getClassDeclaration(), snippet, annotationImport, otherImports);
         Recipe recipe = new GenericOpenRewriteRecipe<>(() -> addAnnotationVisitor);
         refactoring.refactor(rewriteSourceFileHolder, recipe);
     }
