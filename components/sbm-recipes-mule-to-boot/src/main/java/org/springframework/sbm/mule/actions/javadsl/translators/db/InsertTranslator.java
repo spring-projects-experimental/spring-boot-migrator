@@ -23,7 +23,6 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
