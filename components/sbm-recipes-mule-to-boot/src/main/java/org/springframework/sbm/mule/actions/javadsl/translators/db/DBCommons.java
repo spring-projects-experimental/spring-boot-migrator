@@ -19,11 +19,13 @@ package org.springframework.sbm.mule.actions.javadsl.translators.db;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.mulesoft.schema.mule.db.AdvancedDbMessageProcessorType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -31,6 +33,14 @@ import java.util.regex.Pattern;
 class QueryWithParameters {
     private String query = "";
     private List<String> muleExpressions = new ArrayList<>();
+}
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+class QueryFunctionParameter {
+    private String query = "";
+    private String arguments = "";
 }
 
 public class DBCommons {
@@ -59,5 +69,24 @@ public class DBCommons {
                 .replaceAll(regexPattern, "?")
                 .replace("'?'", "?")
                 , muleExpressions);
+    }
+
+    public static QueryFunctionParameter extractQueryAndParameters(AdvancedDbMessageProcessorType component) {
+
+        String query = component.getDynamicQuery() == null ? component.getParameterizedQuery()
+                : component.getDynamicQuery();
+        QueryWithParameters queryWithParameters = DBCommons.parseQueryParameter(query);
+        String argumentTemplate = "                                p.getFirst(\"%s\") /* TODO: Translate #[%s] to java expression*/";
+        String arguments = queryWithParameters
+                .getMuleExpressions()
+                .stream()
+                .map(muleExpression -> String.format(argumentTemplate, muleExpression, muleExpression))
+                .collect(Collectors.joining(",\n"));
+
+        if (!arguments.isEmpty()) {
+            arguments = ",\n" + arguments + "\n";
+        }
+
+        return new QueryFunctionParameter(queryWithParameters.getQuery(), arguments);
     }
 }

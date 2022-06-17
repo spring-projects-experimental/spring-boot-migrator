@@ -23,9 +23,9 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class SelectTranslator implements MuleComponentToSpringIntegrationDslTranslator<SelectMessageProcessorType> {
@@ -42,28 +42,12 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
                                 String flowName,
                                 Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
 
-        String query = component.getDynamicQuery() == null ? component.getParameterizedQuery()
-                : component.getDynamicQuery();
-
-        QueryWithParameters queryWithParameters = DBCommons.parseQueryParameter(query);
-
-        String argumentTemplate = "                                p.getFirst(\"%s\") /* TODO: Translate #[%s] to java expression*/";
-
-        String arguments = queryWithParameters
-                .getMuleExpressions()
-                .stream()
-                .map(muleExpression -> String.format(argumentTemplate, muleExpression, muleExpression))
-                .collect(Collectors.joining(",\n"));
-
-
-        if (!arguments.isEmpty()) {
-            arguments = ",\n" + arguments + "\n";
-        }
+        QueryFunctionParameter queryAndParameters = DBCommons.extractQueryAndParameters(component);
 
         String translation = ".<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                 "                        jdbcTemplate.queryForList(\n" +
-                "                                \"" + DBCommons.escapeDoubleQuotes(queryWithParameters.getQuery()) + "\"" +
-                arguments + "))";
+                "                                \"" + DBCommons.escapeDoubleQuotes(queryAndParameters.getQuery()) + "\"" +
+                queryAndParameters.getArguments() + "))";
         return DslSnippet.builder()
                 .renderedSnippet("// TODO: substitute expression language with appropriate java code \n" +
                         "// TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +

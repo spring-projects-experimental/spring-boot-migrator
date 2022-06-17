@@ -23,9 +23,9 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class InsertTranslator implements MuleComponentToSpringIntegrationDslTranslator<InsertMessageProcessorType> {
@@ -42,25 +42,12 @@ public class InsertTranslator implements MuleComponentToSpringIntegrationDslTran
                                 String flowName,
                                 Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
 
-
-        String query = component.getDynamicQuery() == null ? component.getParameterizedQuery()
-                : component.getDynamicQuery();
-        QueryWithParameters queryWithParameters = DBCommons.parseQueryParameter(query);
-        String argumentTemplate = "                                p.getFirst(\"%s\") /* TODO: Translate #[%s] to java expression*/";
-        String arguments = queryWithParameters
-                .getMuleExpressions()
-                .stream()
-                .map(muleExpression -> String.format(argumentTemplate, muleExpression, muleExpression))
-                .collect(Collectors.joining(",\n"));
-
-        if (!arguments.isEmpty()) {
-            arguments = ",\n" + arguments + "\n";
-        }
+        QueryFunctionParameter queryAndParameters = DBCommons.extractQueryAndParameters(component);
 
         String translation =
                 "                .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
-                "                      jdbcTemplate.update(\"" + DBCommons.escapeDoubleQuotes(queryWithParameters.getQuery()) + "\"" +
-                        arguments +
+                "                      jdbcTemplate.update(\"" + DBCommons.escapeDoubleQuotes(queryAndParameters.getQuery()) + "\"" +
+                        queryAndParameters.getArguments() +
                         ");\n" +
                 "                      return p;\n" +
                 "                })";
