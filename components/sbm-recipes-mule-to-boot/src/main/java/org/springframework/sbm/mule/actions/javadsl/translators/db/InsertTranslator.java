@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import javax.xml.namespace.QName;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class InsertTranslator implements MuleComponentToSpringIntegrationDslTranslator<InsertMessageProcessorType> {
@@ -40,14 +41,34 @@ public class InsertTranslator implements MuleComponentToSpringIntegrationDslTran
                                 MuleConfigurations muleConfigurations,
                                 String flowName,
                                 Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
+
+
+        String query = component.getDynamicQuery() == null ? component.getParameterizedQuery()
+                : component.getDynamicQuery();
+        QueryWithParameters queryWithParameters = DBCommons.parseQueryParameter(query);
+        String argumentTemplate = "                                p.getFirst(\"%s\") /* TODO: Translate #[%s] to java expression*/";
+        String arguments = queryWithParameters
+                .getMuleExpressions()
+                .stream()
+                .map(muleExpression -> String.format(argumentTemplate, muleExpression, muleExpression))
+                .collect(Collectors.joining(",\n"));
+
+        if (!arguments.isEmpty()) {
+            arguments = ",\n" + arguments + "\n";
+        }
+
+        String translation =
+                "                .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
+                "                      jdbcTemplate.update(\"" + DBCommons.escapeDoubleQuotes(queryWithParameters.getQuery()) + "\"" +
+                        arguments +
+                        ");\n" +
+                "                      return p;\n" +
+                "                })";
         return DslSnippet.builder()
                 .renderedSnippet(
                         "                 // TODO: payload type might not be always LinkedMultiValueMap please change it to appropriate type \n" +
                                 "                 // TODO: mule expression language is not converted to java, do it manually. example: #[payload] etc \n" +
-                                "                .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
-                                "                      jdbcTemplate.execute(\"" + DBCommons.escapeDoubleQuotes(component.getParameterizedQuery()) + "\");\n" +
-                                "                      return p;\n" +
-                                "                })")
+                                translation)
                 .requiredImports(Set.of(
                         "org.springframework.util.LinkedMultiValueMap",
                         "org.springframework.jdbc.core.JdbcTemplate"

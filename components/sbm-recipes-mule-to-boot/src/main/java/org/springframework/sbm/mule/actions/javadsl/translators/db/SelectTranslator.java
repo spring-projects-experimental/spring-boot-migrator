@@ -62,7 +62,7 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
 
         String translation = ".<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                 "                        jdbcTemplate.queryForList(\n" +
-                "                                \"" + queryWithParameters.getQuery() + "\"" +
+                "                                \"" + DBCommons.escapeDoubleQuotes(queryWithParameters.getQuery()) + "\"" +
                 arguments + "))";
         return DslSnippet.builder()
                 .renderedSnippet("// TODO: substitute expression language with appropriate java code \n" +
