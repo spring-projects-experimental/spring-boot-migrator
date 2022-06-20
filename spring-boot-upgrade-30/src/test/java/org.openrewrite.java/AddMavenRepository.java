@@ -3,7 +3,6 @@ package org.openrewrite.java;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.*;
 import org.openrewrite.maven.MavenIsoVisitor;
-import org.openrewrite.semver.Semver;
 import org.openrewrite.xml.AddToTagVisitor;
 import org.openrewrite.xml.tree.Xml;
 
@@ -14,11 +13,11 @@ public class AddMavenRepository extends Recipe {
     private RepositoryDefinition mavenRepository;
 
     @Option(
-            displayName = "Name",
+            displayName = "repositoryName",
             description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
             example = "org.springframework.boot"
     )
-    private String name;
+    private String repositoryName;
     @Option(
             displayName = "Url",
             description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
@@ -40,12 +39,38 @@ public class AddMavenRepository extends Recipe {
         return "Set the parent pom version number according to a node-style semver selector or to a specific version number.";
     }
 
-    public AddMavenRepository(String id, String url, String name) {
-        this.name = name;
+    public String getRepositoryName() {
+        return repositoryName;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setRepositoryName(String repositoryName) {
+        this.repositoryName = repositoryName;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public AddMavenRepository(String id, String url, String repositoryName) {
+        this.repositoryName = repositoryName;
         this.url = url;
         this.id = id;
-        this.mavenRepository = RepositoryDefinition.builder().id(id).url(url).name(name).build();
+        this.mavenRepository = RepositoryDefinition.builder().id(id).url(url).name(repositoryName).build();
     }
+
+    public AddMavenRepository() {}
 
 //
 //    public AddMavenRepository(RepositoryDefinition repository) {
