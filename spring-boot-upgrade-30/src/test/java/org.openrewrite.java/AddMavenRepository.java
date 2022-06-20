@@ -1,35 +1,96 @@
 package org.openrewrite.java;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.*;
+import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.marker.SearchResult;
 import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.xml.AddToTagVisitor;
 import org.openrewrite.xml.tree.Xml;
 
 import java.util.Optional;
+import java.util.UUID;
 
+@Setter
+@Getter
 public class AddMavenRepository extends Recipe {
 
-    private RepositoryDefinition mavenRepository;
-
+    @Option(
+            displayName = "id",
+            description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
+            example = "org.springframework.boot"
+    )
+    private String id;
+    @Option(
+            displayName = "repositoryName",
+            description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
+            example = "org.springframework.boot"
+    )
+    private String url;
     @Option(
             displayName = "repositoryName",
             description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
             example = "org.springframework.boot"
     )
     private String repositoryName;
+
     @Option(
-            displayName = "Url",
+            displayName = "layout",
             description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
             example = "org.springframework.boot"
     )
-    private String url;
+    @Nullable
+    private String layout;
+
     @Option(
-            displayName = "Id",
+            displayName = "snapshotsEnabled",
             description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
             example = "org.springframework.boot"
     )
-    private String id;
+    @Nullable
+    private Boolean snapshotsEnabled;
+
+    @Option(
+            displayName = "repositoryName",
+            description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
+            example = "org.springframework.boot"
+    )
+    @Nullable
+    private String snapshotsChecksumPolicy;
+
+    @Option(
+            displayName = "repositoryName",
+            description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
+            example = "org.springframework.boot"
+    )
+    @Nullable
+    private String snapShotsUpdatePolicy;
+
+    @Option(
+            displayName = "repositoryName",
+            description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
+            example = "org.springframework.boot"
+    )
+    @Nullable
+    private Boolean releasesEnabled;
+
+    @Option(
+            displayName = "repositoryName",
+            description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
+            example = "org.springframework.boot"
+    )
+    @Nullable
+    private String releasesChecksumPolicy;
+
+    @Option(
+            displayName = "repositoryName",
+            description = "The first part of a dependency coordinate 'org.springframework.boot:spring-boot-parent:VERSION'.",
+            example = "org.springframework.boot"
+    )
+    @Nullable
+    private String releasesUpdatePolicy;
 
     public String getDisplayName() {
         return "Upgrade Maven parent project version";
@@ -39,43 +100,18 @@ public class AddMavenRepository extends Recipe {
         return "Set the parent pom version number according to a node-style semver selector or to a specific version number.";
     }
 
-    public String getRepositoryName() {
-        return repositoryName;
+    @Override
+    protected @Nullable TreeVisitor<?, ExecutionContext> getApplicableTest() {
+        return new MavenIsoVisitor<ExecutionContext>() {
+            @Override
+            public Xml.Document visitDocument(Xml.Document document, ExecutionContext executionContext) {
+                if (document.getRoot().getChild("repositories").isEmpty()) {
+                    return document.withMarkers(document.getMarkers().addIfAbsent(new SearchResult(UUID.randomUUID(), "Hello")));
+                }
+                return super.visitDocument(document, executionContext);
+            }
+        };
     }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setRepositoryName(String repositoryName) {
-        this.repositoryName = repositoryName;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public AddMavenRepository(String id, String url, String repositoryName) {
-        this.repositoryName = repositoryName;
-        this.url = url;
-        this.id = id;
-        this.mavenRepository = RepositoryDefinition.builder().id(id).url(url).name(repositoryName).build();
-    }
-
-    public AddMavenRepository() {}
-
-//
-//    public AddMavenRepository(RepositoryDefinition repository) {
-//        this.mavenRepository = repository;
-//    }
 
     @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
@@ -99,7 +135,8 @@ public class AddMavenRepository extends Recipe {
         }
 
         private boolean noRepositoryWithSameIdExists(Xml.Tag t) {
-            return t.getChildren().stream().anyMatch(repo -> repo.getChildren().stream().anyMatch(c -> c.getName().equals("id") && false == c.getValue().get().equals(mavenRepository.getId())));
+            return t.getChildren().stream().anyMatch(repo -> repo.getChildren().stream().anyMatch(c -> c.getName().equals("id") &&
+                    false == c.getValue().get().equals(getId())));
         }
 
         private Xml.Tag addRepositoriesTag(Xml.Tag parent) {
@@ -119,19 +156,19 @@ public class AddMavenRepository extends Recipe {
         private String renderRepositoryTag() {
             StringBuilder sb = new StringBuilder();
                 sb.append("<repository>\n");
-                sb.append("<id>" + mavenRepository.getId() + "</id>\n");
-                if(mavenRepository.getName() != null) {
-                    sb.append("<name>").append(mavenRepository.getName()).append("</name>\n");
+                sb.append("<id>" + getId() + "</id>\n");
+                if(AddMavenRepository.this.getRepositoryName() != null) {
+                    sb.append("<name>").append(AddMavenRepository.this.getRepositoryName()).append("</name>\n");
                 }
-                if(mavenRepository.getUrl() != null) {
-                    sb.append("<url>").append(mavenRepository.getUrl()).append("</url>\n");
+                if(getUrl() != null) {
+                    sb.append("<url>").append(getUrl()).append("</url>\n");
                 }
-                if(mavenRepository.getReleasesEnabled() != null && mavenRepository.getReleasesEnabled() == true) {
-                    String releaseSection = renderSection("releases", mavenRepository.getReleasesChecksumPolicy(), mavenRepository.getReleasesUpdatePolicy());
+                if(getReleasesEnabled() != null && getReleasesEnabled() == true) {
+                    String releaseSection = renderSection("releases", getReleasesChecksumPolicy(), getReleasesUpdatePolicy());
                     sb.append(releaseSection);
                 }
-                if(mavenRepository.getSnapshotsEnabled() != null && mavenRepository.getSnapshotsEnabled() == true) {
-                    String snapshotsSection = renderSection("snapshots", mavenRepository.getSnapshotsChecksumPolicy(), mavenRepository.getSnapShotsUpdatePolicy());
+                if(getSnapshotsEnabled() != null && getSnapshotsEnabled() == true) {
+                    String snapshotsSection = renderSection("snapshots", getSnapshotsChecksumPolicy(), getSnapShotsUpdatePolicy());
                     sb.append(snapshotsSection);
                 }
                 sb.append("</repository>\n");
@@ -155,5 +192,4 @@ public class AddMavenRepository extends Recipe {
         }
 
     }
-
 }
