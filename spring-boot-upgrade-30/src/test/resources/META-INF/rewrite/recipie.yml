@@ -8,10 +8,10 @@ recipeList:
 #      url: sdfsdfdsf
 #      name: fdfs
   - org.openrewrite.java.AddMavenRepository:
-      id: org.springframework.boot
-      url: spring-boot-starter-parent
-      name: 3.0.0-SNAPSHOT
+      id: repository.spring.milestone
+      url: https://repo.spring.io/milestone
+      repositoryName: repository.spring.milestone
   - org.openrewrite.maven.UpgradeParentVersion:
       groupId: org.springframework.boot
       artifactId: spring-boot-starter-parent
-      newVersion: 3.0.0-SNAPSHOT
+      newVersion: 3.0.0-M3
