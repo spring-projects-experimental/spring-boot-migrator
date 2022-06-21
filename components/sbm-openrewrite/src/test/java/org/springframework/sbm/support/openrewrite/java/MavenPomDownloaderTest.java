@@ -21,25 +21,15 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.Parser;
-import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.MavenPomCache;
-import org.openrewrite.maven.internal.MavenPomDownloader;
-import org.openrewrite.maven.internal.RawMaven;
-import org.openrewrite.maven.tree.MavenRepository;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.xml.tree.Xml;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class MavenPomDownloaderTest {
     @SneakyThrows
@@ -212,27 +202,33 @@ public class MavenPomDownloaderTest {
         };
         ExecutionContext executionContext = new InMemoryExecutionContext(onError);
         MavenPomCache cache = new InMemoryMavenPomCache();
-        Parser.Input input = Parser.Input.fromString(pom);
-        RawMaven rawMaven = RawMaven.parse(input, null, null, executionContext);
-        Map<Path, RawMaven> projectPoms = new HashMap<>();
-        Path pomPath = Path.of("./pom.xml");
-        projectPoms.put(pomPath, rawMaven);
+
+        List<Xml.Document> poms = MavenParser.builder().build().parse(pom);
+
+        MavenResolutionResult model = poms.get(0).getMarkers().findFirst(MavenResolutionResult.class)
+                .orElseThrow(() -> new IllegalStateException("Maven visitors should not be visiting XML documents without a Maven marker"));
+
+//        Parser.Input input = Parser.Input.fromString(pom);
+//        Xml.Document rawMaven = MavenParser.builder().build().parseInputs(List.of(input), null, executionContext);
+//        Map<Path, RawMaven> projectPoms = new HashMap<>();
+//        Path pomPath = Path.of("./pom.xml");
+//        projectPoms.put(pomPath, rawMaven);
 
 
-        MavenPomDownloader mavenPomDownloader = new MavenPomDownloader(cache, projectPoms, executionContext);
-        String groupId = "org.apache.commons";
-        String artifactId = "commons-dbcp2";
-        String version = "2.8.0";
-        @Nullable String relativePath = "";
-        @Nullable RawMaven containingPom = projectPoms.get(pomPath);
-        Collection<MavenRepository> repositories = List.of();
-        mavenPomDownloader.download(groupId, artifactId, version, relativePath, containingPom, repositories, executionContext);
-
-        // verify resource exists
-        URL url = new URL("https://repo.maven.apache.org/maven2/org/apache/commons/commons-dbcp2/2.8.0/commons-dbcp2-2.8.0.jar");
-        HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-        int responseCode = huc.getResponseCode();
-        assertThat(HttpURLConnection.HTTP_OK).isEqualTo(responseCode);
+//        MavenPomDownloader mavenPomDownloader = new MavenPomDownloader(cache, projectPoms, executionContext);
+//        String groupId = "org.apache.commons";
+//        String artifactId = "commons-dbcp2";
+//        String version = "2.8.0";
+//        @Nullable String relativePath = "";
+//        @Nullable RawMaven containingPom = projectPoms.get(pomPath);
+//        Collection<MavenRepository> repositories = List.of();
+//        mavenPomDownloader.download(groupId, artifactId, version, relativePath, containingPom, repositories, executionContext);
+//
+//        // verify resource exists
+//        URL url = new URL("https://repo.maven.apache.org/maven2/org/apache/commons/commons-dbcp2/2.8.0/commons-dbcp2-2.8.0.jar");
+//        HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+//        int responseCode = huc.getResponseCode();
+//        assertThat(HttpURLConnection.HTTP_OK).isEqualTo(responseCode);
     }
 
     @Getter

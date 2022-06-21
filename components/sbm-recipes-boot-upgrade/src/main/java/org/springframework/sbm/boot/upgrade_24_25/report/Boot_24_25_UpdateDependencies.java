@@ -29,15 +29,15 @@ public class Boot_24_25_UpdateDependencies implements UpgradeSectionBuilder {
     @Override
     public boolean isApplicable(ProjectContext projectContext) {
         HasSpringBootParentOfVersion condition = new HasSpringBootParentOfVersion();
-        condition.setVersionPattern("2.4.");
+        condition.setVersionStartingWith("2.4.");
         return condition.evaluate(projectContext);
     }
 
     @Override
     public Section build(ProjectContext projectContext) {
         OpenRewriteMavenBuildFile buildFile = (OpenRewriteMavenBuildFile) projectContext.getBuildFile();
-        String version = buildFile.getPom().getMavenModel().getPom().getParent().getVersion();
-        Path pathToPom = buildFile.getPom().getSourcePath().normalize();
+        String version = buildFile.getPom().getPom().getRequested().getParent().getVersion();
+        Path pathToPom = buildFile.getSourcePath();
 
         return RelevantChangeSection.builder()
                 .title("Update dependencies")

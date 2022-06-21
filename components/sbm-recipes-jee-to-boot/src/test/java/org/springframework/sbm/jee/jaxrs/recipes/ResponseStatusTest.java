@@ -17,6 +17,8 @@ package org.springframework.sbm.jee.jaxrs.recipes;
 
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.junit.jupiter.api.Test;
@@ -25,11 +27,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResponseStatusTest {
 
+    private final static String SPRING_VERSION = "5.3.5";
+
     final private AbstractAction action =
             new AbstractAction() {
                 @Override
                 public void apply(ProjectContext context) {
-                    SwapStatusForHttpStatus r = new SwapStatusForHttpStatus();
+                    SwapStatusForHttpStatus r = new SwapStatusForHttpStatus(() -> new RewriteJavaParser(new SbmApplicationProperties()));
                     context.getProjectJavaSources().apply(r);
                 }
             };
@@ -61,7 +65,10 @@ public class ResponseStatusTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -99,7 +106,10 @@ public class ResponseStatusTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-web:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -137,7 +147,10 @@ public class ResponseStatusTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -150,7 +163,7 @@ public class ResponseStatusTest {
     }
 
     @Test
-    void testHttpStatusEntityTooKarge() {
+    void testHttpStatusEntityTooLarge() {
 
         String javaSource = ""
                 + "import javax.ws.rs.core.Response.Status;\n"
@@ -177,7 +190,10 @@ public class ResponseStatusTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-web:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -217,7 +233,10 @@ public class ResponseStatusTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -258,7 +277,10 @@ public class ResponseStatusTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -292,7 +314,7 @@ public class ResponseStatusTest {
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
-                + "    public HttpStatus.Series respond() {\n"
+                + "    public Series respond() {\n"
                 + "       HttpStatus s =  HttpStatus.OK;\n"
                 + "       return s.series();\n"
                 + "    }\n"
@@ -300,7 +322,10 @@ public class ResponseStatusTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -375,7 +400,10 @@ public class ResponseStatusTest {
                 + "}";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 

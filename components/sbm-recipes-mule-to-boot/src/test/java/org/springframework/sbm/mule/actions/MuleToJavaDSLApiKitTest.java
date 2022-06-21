@@ -56,6 +56,7 @@ public class MuleToJavaDSLApiKitTest extends JavaDSLActionBaseTest {
                                 "                Http.inboundGateway(\"/helloworld\").requestMapping(r -> r.methods(HttpMethod.GET)))\n" +
                                 "                .handle((p, h) -> \"{\\\"message\\\": \\\"Hello worldXXX\\\"}\")\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
     }
 }

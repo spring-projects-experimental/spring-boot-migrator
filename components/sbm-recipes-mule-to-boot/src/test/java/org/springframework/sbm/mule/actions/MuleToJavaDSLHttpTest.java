@@ -59,7 +59,8 @@ public class MuleToJavaDSLHttpTest extends JavaDSLActionBaseTest {
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                .get();\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
 
         assertThat(getApplicationPropertyContent()).isEqualTo("server.port=8081");
     }

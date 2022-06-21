@@ -15,13 +15,13 @@
  */
 package org.springframework.sbm.build.migration.visitor;
 
-import org.springframework.sbm.build.api.Dependency;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.maven.MavenVisitor;
-import org.openrewrite.xml.AutoFormat;
+import org.openrewrite.xml.format.AutoFormat;
 import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
 import org.openrewrite.xml.tree.Xml.Tag;
+import org.springframework.sbm.build.api.Dependency;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class AddOrUpdateDependencyManagement extends MavenVisitor {
+public class AddOrUpdateDependencyManagement extends MavenVisitor<ExecutionContext> {
 
     /*
      * What does this visitor do?

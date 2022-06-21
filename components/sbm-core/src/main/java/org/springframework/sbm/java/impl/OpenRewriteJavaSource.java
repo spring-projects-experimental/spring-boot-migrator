@@ -15,20 +15,18 @@
  */
 package org.springframework.sbm.java.impl;
 
-import org.springframework.sbm.java.api.*;
-import org.springframework.sbm.java.migration.visitor.ReplaceLiteralVisitor;
-import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.search.recipe.CommentJavaSearchResult;
 import org.openrewrite.*;
-import org.openrewrite.java.ChangeMethodName;
-import org.openrewrite.java.JavaPrinter;
-import org.openrewrite.java.RemoveUnusedImports;
+import org.openrewrite.java.*;
 import org.openrewrite.java.search.FindAnnotations;
 import org.openrewrite.java.search.FindReferencedTypes;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.Marker;
+import org.springframework.sbm.java.api.*;
+import org.springframework.sbm.java.migration.visitor.ReplaceLiteralVisitor;
+import org.springframework.sbm.java.refactoring.JavaRefactoring;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.search.recipe.CommentJavaSearchResult;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -40,16 +38,12 @@ import java.util.stream.Collectors;
 public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.CompilationUnit> implements JavaSource {
 
     private final JavaRefactoring refactoring;
+    private final JavaParser javaParser;
 
-    @Deprecated
-    public OpenRewriteJavaSource(J.CompilationUnit wrapped, JavaRefactoring refactoring) {
-        super(Path.of("DOES_NOT_EXIST"), wrapped);
-        this.refactoring = refactoring;
-    }
-
-    public OpenRewriteJavaSource(Path absoluteProjectPath, J.CompilationUnit compilationUnit, JavaRefactoring refactoring) {
+    public OpenRewriteJavaSource(Path absoluteProjectPath, J.CompilationUnit compilationUnit, JavaRefactoring refactoring, JavaParser javaParser) {
         super(absoluteProjectPath, compilationUnit);
         this.refactoring = refactoring;
+        this.javaParser = javaParser;
     }
 
     @Deprecated
@@ -69,7 +63,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
     @Override
     public List<OpenRewriteType> getTypes() {
         return getCompilationUnit().getClasses().stream()
-                .map(cd -> new OpenRewriteType(cd, getResource(), refactoring))
+                .map(cd -> new OpenRewriteType(cd, getResource(), refactoring, javaParser))
                 .collect(Collectors.toList());
     }
 
@@ -95,6 +89,13 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Check if this JavaSource has any import starting with the any of the given {@code impoorts}.
+     *
+     * Internally {@code .contains(impoort)} is used to check against all imports
+     *
+     * @param impoort array of import starting patterns
+     */
     @Override
     public boolean hasImportStartingWith(String... impoort) {
         return getImports().stream()
@@ -132,7 +133,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
 
     @Override
     public void renameMethodCalls(String methodMatchingPattern, String newName) {
-        ChangeMethodName changeMethodName = new ChangeMethodName(methodMatchingPattern, newName, true);
+        ChangeMethodName changeMethodName = new ChangeMethodName(methodMatchingPattern, newName, true, false);
         refactoring.refactor(getResource(), changeMethodName);
     }
 
@@ -157,7 +158,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
     @Override
     public List<Annotation> getAnnotations(String fqName, Expression scope) {
         return FindAnnotations.find(((OpenRewriteExpression) scope).getWrapped(), fqName).stream()
-                .map(e -> Wrappers.wrap(e, refactoring))
+                .map(e -> Wrappers.wrap(e, refactoring, javaParser))
                 .collect(Collectors.toList());
     }
 
@@ -213,6 +214,12 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
     @Override
     public void removeUnusedImports() {
         apply(new RemoveUnusedImports());
+    }
+
+    @Override
+    public void replaceImport(String p, String replace) {
+        ChangePackage changePackage = new ChangePackage(p, replace, true);
+        apply(changePackage);
     }
 
     /**

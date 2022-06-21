@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.java.migration.visitor;
 
-import org.springframework.sbm.java.migration.recipes.ChangeMethodReturnTypeRecipe;
 import org.openrewrite.*;
 import org.openrewrite.internal.lang.NonNull;
 import org.openrewrite.internal.lang.Nullable;
@@ -30,6 +29,7 @@ import org.openrewrite.java.tree.JRightPadded;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.marker.SearchResult;
+import org.springframework.sbm.java.migration.recipes.ChangeMethodReturnTypeRecipe;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -106,13 +106,21 @@ public class VisitorUtils {
 
     public static class MarkReturnType implements Marker {
 
+        private UUID id;
         private final SearchResult searchResult;
         private String expression;
         private String[] imports;
 
+        // TODO: Remove recipe parameter
         public MarkReturnType(UUID id, Recipe recipe, @Nullable String expression, String... imports) {
-//            super(id, recipe);
-            // FIXME: what was recipe used for?
+            this.id = id;
+            this.searchResult = new SearchResult(id, "MarkReturnType");
+            this.expression = expression;
+            this.imports = imports;
+        }
+
+        public MarkReturnType(UUID id, Recipe recipe, String description, String expression, String[] imports) {
+            this.id = id;
             this.searchResult = new SearchResult(id, "MarkReturnType");
             this.expression = expression;
             this.imports = imports;
@@ -129,6 +137,12 @@ public class VisitorUtils {
         @Override
         public UUID getId() {
             return searchResult.getId();
+        }
+
+        @Override
+        public <T extends Tree> T withId(final UUID id) {
+            MarkReturnType commentJavaSearchResult = this.id == id ? this : new MarkReturnType(id, null, searchResult.getDescription(), expression, imports);
+            return (T) commentJavaSearchResult;
         }
 
     }

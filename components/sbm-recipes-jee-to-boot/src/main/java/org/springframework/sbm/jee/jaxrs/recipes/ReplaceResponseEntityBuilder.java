@@ -15,19 +15,17 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
+import org.openrewrite.Recipe;
+import org.openrewrite.Tree;
+import org.openrewrite.java.ChangeType;
+import org.openrewrite.java.JavaTemplate;
+import org.openrewrite.java.JavaTemplate.Builder;
+import org.openrewrite.java.MethodMatcher;
+import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 import org.springframework.sbm.java.migration.visitor.VisitorUtils;
 import org.springframework.sbm.java.migration.visitor.VisitorUtils.AdjustTypesFromExpressionMarkers;
 import org.springframework.sbm.java.migration.visitor.VisitorUtils.MarkReturnType;
 import org.springframework.sbm.java.migration.visitor.VisitorUtils.MarkWithTemplate;
-import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
-import org.springframework.sbm.java.impl.JavaParserFactory;
-import org.openrewrite.Recipe;
-import org.openrewrite.Tree;
-import org.openrewrite.java.ChangeType;
-import org.openrewrite.java.JavaParser;
-import org.openrewrite.java.JavaTemplate;
-import org.openrewrite.java.JavaTemplate.Builder;
-import org.openrewrite.java.MethodMatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +37,6 @@ import static org.springframework.sbm.java.migration.recipes.RewriteMethodInvoca
 public class ReplaceResponseEntityBuilder extends Recipe {
 
     public ReplaceResponseEntityBuilder() {
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
         // #allow(String...)
         doNext(new RewriteMethodInvocation(
                         RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder allow(java.lang.String...)"),
@@ -94,7 +91,7 @@ public class ReplaceResponseEntityBuilder extends Recipe {
         doNext(renameMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder contentLocation(java.net.URI)"), "location", "org.springframework.http.ResponseEntity.HeadersBuilder"));
 
         // #tag(String)
-        doNext(renameMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder tag(java.lang.String)"), "etag", "org.springframework.http.ResponseEntity.HeadersBuilder"));
+        doNext(renameMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder tag(java.lang.String)"), "eTag", "org.springframework.http.ResponseEntity.HeadersBuilder"));
 
         // #entity(Object)
         // #entity(Object, Annotation[])
@@ -186,6 +183,7 @@ public class ReplaceResponseEntityBuilder extends Recipe {
         doNext(renameMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder type(javax.ws.rs.core.MediaType)"), "contentType", "org.springframework.http.ResponseEntity.HeadersBuilder"));
 
         // #build()
+        // FIXME: org.springframework.http.ResponseEntity.build() does not exist. Invalid: ResponseEntity r = ResponseEntity.ok("...").build();
         doNext(new RewriteMethodInvocation(
                         RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.Response.ResponseBuilder build()"),
                         (v, m, addImport) -> {
@@ -238,7 +236,7 @@ public class ReplaceResponseEntityBuilder extends Recipe {
         doNext(new AdjustTypesFromExpressionMarkers());
 
         // Finally replace type with BodyBuilder if nothing else replaced it previously
-        doNext(new ChangeType("javax.ws.rs.core.Response.ResponseBuilder", "org.springframework.http.ResponseEntity.BodyBuilder"));
+        doNext(new ChangeType("javax.ws.rs.core.Response.ResponseBuilder", "org.springframework.http.ResponseEntity.BodyBuilder", false));
 
     }
 

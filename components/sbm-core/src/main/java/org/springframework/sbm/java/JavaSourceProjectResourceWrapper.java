@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.java;
 
+import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Component;
 public class JavaSourceProjectResourceWrapper implements ProjectResourceWrapper<OpenRewriteJavaSource> {
 
     private final JavaRefactoringFactory javaRefactoringFactory;
+    private final JavaParser javaParser;
 
     @Override
     public boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
@@ -40,6 +42,6 @@ public class JavaSourceProjectResourceWrapper implements ProjectResourceWrapper<
     public OpenRewriteJavaSource wrapRewriteSourceFileHolder(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
         J.CompilationUnit compilationUnit = J.CompilationUnit.class.cast(rewriteSourceFileHolder.getSourceFile());
         JavaRefactoring refactoring = javaRefactoringFactory.createRefactoring(compilationUnit);
-        return new OpenRewriteJavaSource(rewriteSourceFileHolder.getAbsoluteProjectDir(), compilationUnit, refactoring);
+        return new OpenRewriteJavaSource(rewriteSourceFileHolder.getAbsoluteProjectDir(), compilationUnit, refactoring, javaParser);
     }
 }

@@ -74,7 +74,8 @@ public class MuleToJavaDSLTransactionalTest extends JavaDSLActionBaseTest {
                 "                .log(LoggingHandler.Level.INFO, \"${payload}\")\n" +
                 "                .aggregate()\n" +
                 "                .log(LoggingHandler.Level.INFO, \"Done with for looping\");\n" +
-                "    }}");
+                "    }\n" +
+                "}");
     }
 
     @Test

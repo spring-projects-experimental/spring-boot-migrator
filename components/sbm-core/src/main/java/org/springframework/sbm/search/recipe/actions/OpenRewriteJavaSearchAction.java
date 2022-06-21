@@ -16,6 +16,8 @@
 package org.springframework.sbm.search.recipe.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openrewrite.java.JavaParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.recipe.DisplayDescription;
 import org.springframework.sbm.engine.recipe.FrameworkSupportAction;
 import org.springframework.sbm.engine.recipe.Condition;
@@ -39,6 +41,9 @@ public class OpenRewriteJavaSearchAction extends FrameworkSupportAction {
     private String commentText;
     private String description;
     private Condition condition = Condition.TRUE;
+    @JsonIgnore
+    @Autowired
+    private JavaParser javaParser;
 
 
     @Override
@@ -67,7 +72,7 @@ public class OpenRewriteJavaSearchAction extends FrameworkSupportAction {
 
 
     public void apply(ProjectContext context) {
-        OpenRewriteRecipeJavaSearch recipeJavaSearch = new OpenRewriteRecipeJavaSearch((compilationUnits -> rewriteRecipe.run(compilationUnits)));
+        OpenRewriteRecipeJavaSearch recipeJavaSearch = new OpenRewriteRecipeJavaSearch((compilationUnits -> rewriteRecipe.run(compilationUnits)), javaParser);
         recipeJavaSearch.commentFindings(context.getProjectJavaSources().list(), commentText);
     }
 

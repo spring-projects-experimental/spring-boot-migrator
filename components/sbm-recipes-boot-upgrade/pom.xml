@@ -35,12 +35,12 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-core</artifactId>
-            <version>0.11.2-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-support-boot</artifactId>
-            <version>0.11.2-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.asciidoctor</groupId>

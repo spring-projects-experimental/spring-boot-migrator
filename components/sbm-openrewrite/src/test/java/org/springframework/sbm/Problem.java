@@ -28,5 +28,7 @@ import java.lang.annotation.Target;
 public @interface Problem {
     String description();
 
-    String version();
+    String since();
+
+    String fixedIn() default "";
 }

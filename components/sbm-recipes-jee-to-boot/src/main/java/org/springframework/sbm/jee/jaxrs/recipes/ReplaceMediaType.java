@@ -15,27 +15,28 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
-import org.springframework.sbm.java.migration.recipes.FindReplaceFieldAccessors;
-import org.springframework.sbm.java.migration.recipes.RewriteConstructorInvocation;
-import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
-import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.tree.Expression;
+import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
+import org.springframework.sbm.java.migration.recipes.FindReplaceFieldAccessors;
+import org.springframework.sbm.java.migration.recipes.RewriteConstructorInvocation;
+import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static org.springframework.sbm.java.migration.recipes.RewriteConstructorInvocation.constructorMatcher;
 
 public class ReplaceMediaType extends Recipe {
 
-    public ReplaceMediaType() {
+    public ReplaceMediaType(Supplier<JavaParser> javaParserSupplier) {
 
         // Constants
         Map<String, String> mappings = new HashMap<>();
@@ -81,24 +82,29 @@ public class ReplaceMediaType extends Recipe {
         mappings.put("WILDCARD", "ALL_VALUE");
         mappings.put("WILDCARD_TYPE", "ALL");
 
-        doNext(new FindReplaceFieldAccessors(() -> JavaParserFactory.getCurrentJavaParser(), "javax.ws.rs.core.MediaType", "org.springframework.http.MediaType", mappings));
+        doNext(new FindReplaceFieldAccessors(javaParserSupplier, "javax.ws.rs.core.MediaType", "org.springframework.http.MediaType", mappings));
 
-        doNext(new FindReplaceFieldAccessors(() -> JavaParserFactory.getCurrentJavaParser(), "javax.ws.rs.core.MediaType", "org.springframework.util.MimeType", Map.of(
+        doNext(new FindReplaceFieldAccessors(javaParserSupplier, "javax.ws.rs.core.MediaType", "org.springframework.util.MimeType", Map.of(
                 "CHARSET_PARAMETER", "PARAM_CHARSET",
                 "MEDIA_TYPE_WILDCARD", "WILDCARD_TYPE"
         )));
 
 
         // instance methods
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
         // #isCompatible(MediaType)
         doNext(new RewriteMethodInvocation(RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.MediaType isCompatible(javax.ws.rs.core.MediaType)"), (v, m, addImport) -> {
             JavaType type = JavaType.buildType("org.springframework.http.MediaType");
+
+            J.Identifier newMethodName = m.getName().withSimpleName("isCompatibleWith");
+            Expression newSelect = m.getSelect().withType(type);
+            JavaType.Method newMethodType = m.getMethodType().withReturnType(type).withDeclaringType(TypeUtils.asFullyQualified(type));
+            List<Expression> newMethodArguments = List.of(m.getArguments().get(0).withType(type));
+
             return m
-                    .withName(m.getName().withName("isCompatibleWith"))
-                    .withSelect(m.getSelect().withType(type))
-                    .withType(m.getType().withDeclaringType(TypeUtils.asFullyQualified(type)))
-                    .withArguments(List.of(m.getArguments().get(0).withType(type)));
+                    .withName(newMethodName)
+                    .withSelect(newSelect)
+                    .withMethodType(newMethodType)
+                    .withArguments(newMethodArguments);
         }));
 
         // #withCharset(String)
@@ -160,7 +166,7 @@ public class ReplaceMediaType extends Recipe {
         }));
 
         // Type references
-        doNext(new ChangeType("javax.ws.rs.core.MediaType", "org.springframework.http.MediaType"));
+        doNext(new ChangeType("javax.ws.rs.core.MediaType", "org.springframework.http.MediaType", false));
     }
 
     @Override

@@ -15,15 +15,22 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
+import org.openrewrite.java.tree.J;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResponseBuilderTest {
+
+    private final static String SPRING_VERSION = "5.3.13";
 
     final private AbstractAction action =
             new AbstractAction() {
@@ -55,13 +62,14 @@ public class ResponseBuilderTest {
         String expected = ""
                 + "import java.util.Set;\n"
                 + "\n"
+                + "import org.springframework.http.ResponseEntity.BodyBuilder;\n"
+                + "\n"
                 + "import org.springframework.http.HttpMethod;\n"
-                + "import org.springframework.http.ResponseEntity;\n"
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
-                + "    public ResponseEntity.BodyBuilder test() {\n"
-                + "        ResponseEntity.BodyBuilder b;\n"
+                + "    public BodyBuilder test() {\n"
+                + "        BodyBuilder b;\n"
                 + "        b.allow(HttpMethod.resolve(\"POST\"), HttpMethod.resolve(\"PUT\"));\n"
                 + "        b.allow(Set.of(\"GET\").stream().map(HttpMethod::resolve).toArray(String[]::new));\n"
                 + "        return b;\n"
@@ -70,7 +78,10 @@ public class ResponseBuilderTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -100,14 +111,13 @@ public class ResponseBuilderTest {
                 + "";
 
         String expected = ""
-                + "import org.springframework.http.ResponseEntity;\n"
-                + "\n"
                 + "import java.util.Date;\n"
+                + "import org.springframework.http.ResponseEntity.BodyBuilder;\n"
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
-                + "    public ResponseEntity.BodyBuilder test() {\n"
-                + "        ResponseEntity.BodyBuilder b;\n"
+                + "    public BodyBuilder test() {\n"
+                + "        BodyBuilder b;\n"
                 + "        b.headers(h -> h.setExpires(new Date(100000).toInstant()));\n"
                 + "        return b;\n"
                 + "    }\n"
@@ -148,13 +158,14 @@ public class ResponseBuilderTest {
         String expected = ""
                 + "import java.util.Locale;\n"
                 + "\n"
+                + "import org.springframework.http.ResponseEntity.BodyBuilder;\n"
+                + "\n"
                 + "import org.springframework.http.HttpHeaders;\n"
-                + "import org.springframework.http.ResponseEntity;\n"
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
-                + "    public ResponseEntity.BodyBuilder test() {\n"
-                + "        ResponseEntity.BodyBuilder b;\n"
+                + "    public BodyBuilder test() {\n"
+                + "        BodyBuilder b;\n"
                 + "        b.headers(h -> h.set(HttpHeaders.CONTENT_LANGUAGE, \"ua\"));\n"
                 + "        b.headers(h -> h.setContentLanguage(Locale.ITALY));\n"
                 + "        return b;\n"
@@ -193,14 +204,13 @@ public class ResponseBuilderTest {
                 + "";
 
         String expected = ""
-                + "import org.springframework.http.ResponseEntity;\n"
-                + "\n"
                 + "import java.util.Date;\n"
+                + "import org.springframework.http.ResponseEntity.BodyBuilder;\n"
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
-                + "    public ResponseEntity.BodyBuilder test() {\n"
-                + "        ResponseEntity.BodyBuilder b;\n"
+                + "    public BodyBuilder test() {\n"
+                + "        BodyBuilder b;\n"
                 + "        b.lastModified(new Date(100000).toInstant());\n"
                 + "        return b;\n"
                 + "    }\n"
@@ -239,14 +249,13 @@ public class ResponseBuilderTest {
                 + "";
 
         String expected = ""
-                + "import org.springframework.http.ResponseEntity;\n"
-                + "\n"
                 + "import javax.ws.rs.core.MultivaluedMap;\n"
+                + "import org.springframework.http.ResponseEntity.BodyBuilder;\n"
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
-                + "    public ResponseEntity.BodyBuilder test() {\n"
-                + "        ResponseEntity.BodyBuilder b;\n"
+                + "    public BodyBuilder test() {\n"
+                + "        BodyBuilder b;\n"
                 + "        MultivaluedMap m;\n"
                 + "        b.headers(h -> {\n"
                 + "            h.clear();\n"
@@ -258,7 +267,9 @@ public class ResponseBuilderTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION)
                 .withJavaSources(javaSource)
                 .build();
 
@@ -287,26 +298,30 @@ public class ResponseBuilderTest {
                 + "";
 
         String expected = ""
-                + "import org.springframework.http.ResponseEntity;\n"
+                + "import org.springframework.http.ResponseEntity.BodyBuilder;\n"
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
-                + "    public ResponseEntity.BodyBuilder test() {\n"
-                + "       ResponseEntity.BodyBuilder b;\n"
-                + "       b.etag(\"foo\");\n"
+                + "    public BodyBuilder test() {\n"
+                + "       BodyBuilder b;\n"
+                + "       b.eTag(\"foo\");\n"
                 + "       return b;\n"
                 + "    }\n"
                 + "}\n"
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
         action.apply(projectContext);
 
         String actual = projectContext.getProjectJavaSources().list().get(0).print();
+
         assertThat(actual)
                 .as(TestDiff.of(actual, expected))
                 .isEqualTo(expected);
@@ -331,14 +346,13 @@ public class ResponseBuilderTest {
                 + "";
 
         String expected = ""
-                + "import org.springframework.http.ResponseEntity;\n"
-                + "\n"
                 + "import javax.ws.rs.core.MediaType;\n"
+                + "import org.springframework.http.ResponseEntity.BodyBuilder;\n"
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
-                + "    public ResponseEntity.BodyBuilder test() {\n"
-                + "        ResponseEntity.BodyBuilder b;\n"
+                + "    public BodyBuilder test() {\n"
+                + "        BodyBuilder b;\n"
                 + "        b.contentType(MediaType.APPLICATION_JSON_TYPE);\n"
                 + "        b.headers(h -> h.set(HttpHeaders.CONTENT_TYPE, \"application/json\"));\n"
                 + "        return b;\n"
@@ -354,6 +368,10 @@ public class ResponseBuilderTest {
         action.apply(projectContext);
 
         String actual = projectContext.getProjectJavaSources().list().get(0).print();
+
+        // verify it compiles
+        List<J.CompilationUnit> parse = new RewriteJavaParser(new SbmApplicationProperties()).parse(actual);
+
         assertThat(actual)
                 .as(TestDiff.of(actual, expected))
                 .isEqualTo(expected);

@@ -69,6 +69,7 @@ public class MuleToJavaDSLDBInsertTest extends JavaDSLActionBaseTest {
                         "                    return p;\n" +
                         "                })\n" +
                         "                .get();\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 }

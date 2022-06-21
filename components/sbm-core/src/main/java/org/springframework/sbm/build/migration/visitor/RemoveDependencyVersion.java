@@ -20,7 +20,7 @@ import lombok.Value;
 import org.openrewrite.*;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenVisitor;
-import org.openrewrite.maven.tree.Pom;
+import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.RemoveContentVisitor;
 import org.openrewrite.xml.tree.Xml;
@@ -72,17 +72,19 @@ public class RemoveDependencyVersion extends Recipe {
                 scope, s -> !Scope.Invalid.equals(Scope.fromName(s))));
     }
 
-    private class RemoveDependencyVersionVisitor extends MavenVisitor {
+    private class RemoveDependencyVersionVisitor extends MavenVisitor<ExecutionContext> {
+
 
         @Override
         public Xml visitTag(Xml.Tag tag, ExecutionContext ctx) {
             if (isDependencyTag(groupId, artifactId)) {
-                Pom.Dependency dependency = findDependency(tag);
+                ResolvedDependency dependency = findDependency(tag);
                 Optional<Tag> versionTag = tag.getChild("version");
                 if (dependency != null && versionTag.isPresent()) {
                     Scope checkScope = scope != null ? Scope.fromName(scope) : null;
-                    if (checkScope == null || checkScope == dependency.getScope() ||
-                            (dependency.getScope() != null && dependency.getScope().isInClasspathOf(checkScope))) {
+                    if (checkScope == null ||
+                            checkScope.equals(dependency.getRequested().getScope()) ||
+                            (dependency.getRequested().getScope() != null && Scope.fromName(dependency.getRequested().getScope()).isInClasspathOf(checkScope))) {
                         doAfterVisit(new RemoveContentVisitor<>(versionTag.get(), true));
                     }
                 }
@@ -90,6 +92,5 @@ public class RemoveDependencyVersion extends Recipe {
 
             return super.visitTag(tag, ctx);
         }
-
     }
 }

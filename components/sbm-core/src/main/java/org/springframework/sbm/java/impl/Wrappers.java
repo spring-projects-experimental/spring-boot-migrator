@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.java.api.Annotation;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.openrewrite.java.tree.Expression;
@@ -32,8 +33,8 @@ public class Wrappers {
         return ((OpenRewriteExpression) e).getWrapped();
     }
 
-    public static Annotation wrap(J.Annotation a, JavaRefactoring refactoring) {
-        return new OpenRewriteAnnotation(a, refactoring);
+    public static Annotation wrap(J.Annotation a, JavaRefactoring refactoring, JavaParser javaParser) {
+        return new OpenRewriteAnnotation(a, refactoring, javaParser);
     }
 
     public static J.Annotation unwrap(Annotation annotation) {

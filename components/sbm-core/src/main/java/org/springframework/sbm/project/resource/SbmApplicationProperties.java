@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 public class SbmApplicationProperties {
     private boolean gitSupportEnabled;
     private String defaultBasePackage;
+    private boolean writeInMavenLocal;
+    private boolean  javaParserLoggingCompilationWarningsAndErrors;
     private List<String> ignoredPathsPatterns = new ArrayList<>();
 
     public void setIgnoredPathsPatterns(List<String> patterns) {

@@ -73,7 +73,8 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "                .transform(DwlFlowTransform_2::transform)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
         assertThat(projectContext.getProjectJavaSources().list().get(1).print())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
@@ -149,7 +150,8 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "                .transform(MapClientRiskRatingResponseTransform::transform)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
         assertThat(projectContext.getProjectJavaSources().list().get(1).print())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
@@ -218,7 +220,8 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "                // FIXME: No support for following DW transformation: <dw:set-property/> <dw:set-session-variable /> <dw:set-variable />\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"Hello World:  ${flowVars.temp}\")\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
     }
 
     @Test
@@ -272,7 +275,8 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "                .transform(MapclientriskratingresponseTransform::transform)\n" +
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
         assertThat(projectContext.getProjectJavaSources().list().get(1).print())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +

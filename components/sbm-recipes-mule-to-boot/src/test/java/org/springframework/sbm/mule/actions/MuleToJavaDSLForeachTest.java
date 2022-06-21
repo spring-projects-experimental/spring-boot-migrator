@@ -67,7 +67,8 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
                         "                .aggregate()\n" +
                         "                .log(LoggingHandler.Level.INFO, \"Done with for looping\")\n" +
                         "                .get();\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 
     @Test
@@ -146,7 +147,8 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
                         "                .aggregate()\n" +
                         "                .log(LoggingHandler.Level.INFO, \"Done with for looping\")\n" +
                         "                .get();\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 
     @Test
@@ -235,6 +237,7 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
                 "    IntegrationFlow logOneInKannada() {\n" +
                 "        return flow -> flow\n" +
                 "                .log(LoggingHandler.Level.INFO, \"Ondu\");\n" +
-                "    }}");
+                "    }\n" +
+                "}");
     }
 }

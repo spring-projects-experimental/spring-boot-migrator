@@ -85,7 +85,7 @@ public class MigrateRamlToSpringMvcTest {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withProjectRoot(Path.of("./target/testcode/raml-to-jaxrs").toAbsolutePath())
-                .withSbmApplicationProperties(sbmApplicationProperties)
+                .withApplicationProperties(sbmApplicationProperties)
                 .withBuildFileHavingDependencies(
                         "javax.ws.rs:javax.ws.rs-api:2.1.1",
                         "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",

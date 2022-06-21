@@ -53,7 +53,7 @@ public class RewriteExecutionContext extends InMemoryExecutionContext {
             } else if(t instanceof MavenDownloadingException) {
                 log.warn(t.getMessage());
             } else {
-                log.warn("Exception occured!", t);
+                log.error("Exception occured!", t);
             }
         };
         return errorConsumer;

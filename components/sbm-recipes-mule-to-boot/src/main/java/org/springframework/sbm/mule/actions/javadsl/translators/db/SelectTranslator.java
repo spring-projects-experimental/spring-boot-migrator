@@ -48,8 +48,8 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
 
         return DslSnippet.builder()
                 .renderedSnippet(
-                        "// TODO: substitute expression language with appropriate java code \n" +
-                        "// TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
+                        " // TODO: substitute expression language with appropriate java code \n" +
+                        " // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
                         "                .handle((p, h) -> jdbcTemplate.queryForList(\"" +
                         escapeDoubleQuotes(query) + "\"))")
                 .requiredDependencies(Set.of(

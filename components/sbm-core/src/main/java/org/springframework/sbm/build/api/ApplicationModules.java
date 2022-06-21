@@ -15,9 +15,10 @@
  */
 package org.springframework.sbm.build.api;
 
-import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.jetbrains.annotations.NotNull;
-import org.openrewrite.maven.tree.Modules;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.springframework.sbm.build.impl.MavenBuildFileUtil;
+import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -60,43 +61,43 @@ public class ApplicationModules {
     }
 
     public List<ApplicationModule> getModules(ApplicationModule module) {
-        Optional<Modules> modulesMarker = ((OpenRewriteMavenBuildFile) module.getBuildFile()).getPom().getMarkers().findFirst(Modules.class);
-        if (modulesMarker.isPresent()) {
-            return getModulesForMarkers(modulesMarker.get());
+        MavenResolutionResult mavenResolutionResult = MavenBuildFileUtil.findMavenResolution(((OpenRewriteMavenBuildFile) module.getBuildFile()).getSourceFile()).get();
+        List<MavenResolutionResult> modulesMarker = mavenResolutionResult.getModules();
+        if (!modulesMarker.isEmpty()) {
+            return filterModulesContainingMavens(modulesMarker);
         } else {
             return new ArrayList<>();
         }
     }
 
     @NotNull
-    private List<ApplicationModule> getModulesForMarkers(Modules modulesMarker) {
-        List<String> collect = modulesMarker.getModules().stream()
-                .map(m -> m.getGroupId() + ":" + m.getArtifactId())
+    private List<ApplicationModule> filterModulesContainingMavens(List<MavenResolutionResult> modulesMarker) {
+        List<String> collect = modulesMarker.stream()
+                .map(m -> m.getPom().getGroupId() + ":" + m.getPom().getArtifactId())
                 .collect(Collectors.toList());
 
-        List<ApplicationModule> modules = this.modules.stream()
+        return modules.stream()
                 .filter(module -> {
                     String groupAndArtifactId = module.getBuildFile().getGroupId() + ":" + module.getBuildFile().getArtifactId();
                     return collect.contains(groupAndArtifactId);
                 })
                 .collect(Collectors.toList());
-        return modules;
     }
 
     public List<ApplicationModule> getTopmostApplicationModules() {
         List<ApplicationModule> topmostModules = new ArrayList<>();
         modules.forEach(module -> {
             // is jar
-            if ("jar".equals(module.getBuildFile().getPackaging())) {
+            if ("jar".equals(module.getBuildFile().getPackaging())) { // FIXME: other types could be topmost too, e.g. 'war'
                 // no other pom depends on this pom in its dependency section
                 if (noOtherPomDependsOn(module.getBuildFile())) {
                     // has no parent or parent has packaging pom
-                    ParentDeclaration parentPomDeclaration = module.getBuildFile().getParentPomDeclaration();
-                    if (parentPomDeclaration == null) {
+                    Optional<ParentDeclaration> parentPomDeclaration = module.getBuildFile().getParentPomDeclaration();
+                    if (parentPomDeclaration.isEmpty()) {
                         topmostModules.add(module);
-                    } else if (isDeclaredInProject(parentPomDeclaration) && isPackagingOfPom(parentPomDeclaration)) {
+                    } else if (isDeclaredInProject(parentPomDeclaration.get()) && isPackagingOfPom(parentPomDeclaration.get())) {
                         topmostModules.add(module);
-                    } else if (!isDeclaredInProject(parentPomDeclaration)) {
+                    } else if (!isDeclaredInProject(parentPomDeclaration.get())) {
                         topmostModules.add(module);
                     }
                 }

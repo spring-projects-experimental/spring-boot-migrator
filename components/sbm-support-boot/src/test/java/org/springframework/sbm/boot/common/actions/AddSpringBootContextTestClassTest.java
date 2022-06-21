@@ -73,7 +73,7 @@ public class AddSpringBootContextTestClassTest {
 
             ProjectContext context = TestProjectContext.buildProjectContext()
                     .withDummyRootBuildFile()
-                    .withSbmApplicationProperties(sbmApplicationProperties)
+                    .withApplicationProperties(sbmApplicationProperties)
                     .withJavaTestSources(
                             // This package is the root package
                             "package org.springframework.sbm.root.test;\n" +
@@ -162,7 +162,7 @@ public class AddSpringBootContextTestClassTest {
 
             ProjectContext projectContext = TestProjectContext.buildProjectContext()
                     .addProjectResource("pom.xml", parentPom)
-                    .withSbmApplicationProperties(sbmApplicationProperties)
+                    .withApplicationProperties(sbmApplicationProperties)
                     .addProjectResource("module1/pom.xml", childPom1)
                     .addProjectResource("module2/pom.xml", childPom2)
                     .addJavaSourceToModule("module1/src/main/java", javaClass1)

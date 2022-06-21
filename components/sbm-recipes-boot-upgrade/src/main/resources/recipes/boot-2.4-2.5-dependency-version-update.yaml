@@ -1,11 +1,11 @@
 - name: boot-2.4-2.5-dependency-version-update
   description: Update Spring Boot dependencies from 2.4 to 2.5
   condition:
-    type: org.springframework.sbm.boot.upgrade_24_25.conditions.IsMatchingSpringBootVersion
-    versionPattern: 2.4.
+    type: org.springframework.sbm.boot.upgrade_24_25.conditions.HasSpringBootParentOfVersion
+    versionStartingWith: "2.4."
   actions:
-    - type: org.springframework.sbm.boot.upgrade_24_25.actions.Boot_24_35_UpdateDependenciesAction
+    - type: org.springframework.sbm.boot.upgrade_24_25.actions.Boot_24_25_UpdateDependenciesAction
       description: Update Spring Boot dependencies from 2.4 to 2.5
       condition:
-        type: org.springframework.sbm.boot.upgrade_24_25.conditions.IsMatchingSpringBootVersion
-        versionPattern: 2.4
+        type: org.springframework.sbm.boot.upgrade_24_25.conditions.HasSpringBootParentOfVersion
+        versionStartingWith: "2.4."

@@ -70,6 +70,7 @@ public class MuleToJavaDSLTransformerTest extends JavaDSLActionBaseTest {
                         "                .transform(new ObjectToStringTransformer())\n" +
                         "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                         "                .get();\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 }

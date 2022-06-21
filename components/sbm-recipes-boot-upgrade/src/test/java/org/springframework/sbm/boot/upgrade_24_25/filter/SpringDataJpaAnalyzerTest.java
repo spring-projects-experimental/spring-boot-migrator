@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.filter;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.MethodCall;
@@ -41,6 +42,7 @@ class SpringDataJpaAnalyzerTest {
     }
 
     @Test
+    @Disabled("FIXME: flaky test")
     void testGetJpaRepositoriesWithGetByIdMethod() {
         String tag =
                 "package com.example.springboot24to25example;\n" +
@@ -111,10 +113,10 @@ class SpringDataJpaAnalyzerTest {
                         "}";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .withJavaSource("src/main/java", tag)
-                .withJavaSource("src/main/java", tagRepository)
-                .withJavaSource("src/main/java", task)
-                .withJavaSource("src/main/java", taskRepository)
+                .addJavaSource("src/main/java", tag)
+                .addJavaSource("src/main/java", tagRepository)
+                .addJavaSource("src/main/java", task)
+                .addJavaSource("src/main/java", taskRepository)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-data-jpa:2.4.12")
                 .build();
 

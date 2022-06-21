@@ -68,7 +68,8 @@ public class MuleToJavaDSLWmqTest extends JavaDSLActionBaseTest {
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                .handle(Jms.outboundAdapter(connectionFactory).destination(\"Q2\"))\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
 
         String applicationProperty = getApplicationPropertyContent();
         assertThat(applicationProperty).contains("ibm.mq.queueManager=QM1");

@@ -67,6 +67,7 @@ public class MuleToJavaDSLScriptingTest extends JavaDSLActionBaseTest {
                 "                Http.inboundGateway(\"/canary/{birdName}\").requestMapping(r -> r.methods(HttpMethod.GET)))\n" +
                 "                //FIXME: element is not supported for conversion: <scripting:component/>\n" +
                 "                .get();\n" +
-                "    }}");
+                "    }\n" +
+                "}");
     }
 }
