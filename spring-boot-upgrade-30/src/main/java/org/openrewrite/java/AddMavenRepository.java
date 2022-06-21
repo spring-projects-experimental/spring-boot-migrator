@@ -101,19 +101,6 @@ public class AddMavenRepository extends Recipe {
     }
 
     @Override
-    protected @Nullable TreeVisitor<?, ExecutionContext> getApplicableTest() {
-        return new MavenIsoVisitor<ExecutionContext>() {
-            @Override
-            public Xml.Document visitDocument(Xml.Document document, ExecutionContext executionContext) {
-                if (document.getRoot().getChild("repositories").isEmpty()) {
-                    return document.withMarkers(document.getMarkers().addIfAbsent(new SearchResult(UUID.randomUUID(), "Hello")));
-                }
-                return super.visitDocument(document, executionContext);
-            }
-        };
-    }
-
-    @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
         return new AddRepositoryVisitor();
     }
