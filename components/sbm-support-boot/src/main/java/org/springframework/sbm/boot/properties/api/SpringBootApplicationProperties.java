@@ -43,7 +43,7 @@ public class SpringBootApplicationProperties extends PropertiesSource {
     }
 
     public static SpringBootApplicationProperties newApplicationProperties(Path absoluteProjectDir, Path path) {
-        File file = new File(Tree.randomId(), "", Markers.EMPTY, path, List.of(), "", null, false);
+        File file = new File(Tree.randomId(), "", Markers.EMPTY, path, List.of(), "", null, false, null, null);
         SpringBootApplicationProperties springBootApplicationProperties = new SpringBootApplicationProperties(absoluteProjectDir, file);
         springBootApplicationProperties.markChanged();
         return springBootApplicationProperties;

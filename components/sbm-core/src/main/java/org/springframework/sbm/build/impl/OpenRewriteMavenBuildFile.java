@@ -15,17 +15,12 @@
  */
 package org.springframework.sbm.build.impl;
 
-import io.micrometer.core.instrument.Meter;
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.*;
 import org.openrewrite.internal.lang.Nullable;
-import org.openrewrite.java.Java11Parser;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.*;
-import org.openrewrite.maven.cache.RocksdbMavenPomCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.Parent;
 import org.openrewrite.maven.tree.ResolvedDependency;
@@ -38,16 +33,11 @@ import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyManagement;
 import org.springframework.sbm.build.migration.visitor.AddProperty;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
-import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.Execution;
-import org.springframework.sbm.project.parser.MavenProjectParser;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
-import org.springframework.util.ReflectionUtils;
 
 import java.io.ByteArrayInputStream;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -83,6 +73,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 List<Parser.Input> parserInput = mavenFiles.stream()
                         .map(m -> new Parser.Input(
                                         m.getSourcePath(),
+                                        null,
                                         () -> new ByteArrayInputStream(m.printAll().getBytes(StandardCharsets.UTF_8)),
                                         !Files.exists(m.getSourcePath())
                                 )
@@ -646,7 +637,6 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             @Nullable Parent parent = getPom().getPom().getRequested().getParent();
             apply(
                     new UpgradeParentVersion(parent.getGroupId(), parent.getArtifactId(), version, null)
-                            .doNext(new RefreshPomModel())
             );
 //            List<Xml.Document> parse = MavenParser.builder().build().parseInputs(List.of(new Parser.Input(getAbsolutePath(), () -> new ByteArrayInputStream(print().getBytes(StandardCharsets.UTF_8)))), getAbsoluteProjectDir(), executionContext);
 //            replaceWith(parse.get(0));

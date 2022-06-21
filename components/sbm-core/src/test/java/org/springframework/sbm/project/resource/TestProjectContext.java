@@ -531,7 +531,7 @@ public class TestProjectContext {
         }
 
         private Parser.Input createParserInput(Path path, String value) {
-            return new Parser.Input(path, () -> new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)), true);
+            return new Parser.Input(path, null, () -> new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)), true);
         }
 
 

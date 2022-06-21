@@ -95,7 +95,7 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
     @Override
     public List<MethodCall> findMethodCalls(String methodPattern) {
         List<MethodCall> matches = new ArrayList<>();
-        FindMethods findMethods = new FindMethods(methodPattern, true);
+        FindMethods findMethods = new FindMethods(methodPattern,true, null);
         MethodMatcher methodMatcher = new MethodMatcher(methodPattern);
         find(findMethods).stream()
                 .map(m -> list().stream().filter(js -> js.getResource().getId().equals(m.getId())).findFirst().get())

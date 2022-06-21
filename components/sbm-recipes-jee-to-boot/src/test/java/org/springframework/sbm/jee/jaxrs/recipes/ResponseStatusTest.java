@@ -314,7 +314,7 @@ public class ResponseStatusTest {
                 + "\n"
                 + "public class TestController {\n"
                 + "\n"
-                + "    public Series respond() {\n"
+                + "    public HttpStatus.Series respond() {\n"
                 + "       HttpStatus s =  HttpStatus.OK;\n"
                 + "       return s.series();\n"
                 + "    }\n"

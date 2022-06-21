@@ -34,18 +34,5 @@ import java.util.List;
 
 @Component
 public class RewritePlainTextParser extends PlainTextParser {
-    public List<PlainText> parseInputs(Iterable<Parser.Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
-        List<PlainText> plainTexts = new ArrayList();
-        Iterator var5 = sources.iterator();
-        ParsingEventListener parsingListener = ParsingExecutionContextView.view(ctx).getParsingListener();
 
-        while(var5.hasNext()) {
-            Parser.Input source = (Parser.Input)var5.next();
-            PlainText plainText = new PlainText(Tree.randomId(), relativeTo == null ? source.getPath() : relativeTo.relativize(source.getPath()).normalize(), source.getSource().getCharset().name(), source.getSource().isCharsetBomMarked(), Markers.EMPTY, source.getSource().readFully());
-            plainTexts.add(plainText);
-            parsingListener.parsed(source, plainText);
-        }
-
-        return plainTexts;
-    }
 }
