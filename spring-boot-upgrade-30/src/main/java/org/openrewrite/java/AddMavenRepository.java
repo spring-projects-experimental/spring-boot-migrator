@@ -13,6 +13,7 @@ import org.openrewrite.xml.tree.Xml;
 import java.util.Optional;
 import java.util.UUID;
 
+@Setter
 @Getter
 public class AddMavenRepository extends Recipe {
 
