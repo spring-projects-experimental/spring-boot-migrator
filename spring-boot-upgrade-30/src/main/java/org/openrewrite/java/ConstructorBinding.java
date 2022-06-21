@@ -14,6 +14,6 @@ public class ConstructorBinding extends Recipe {
 
     @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
-        return new RemoveAnnotationVisitor(new AnnotationMatcher("ConstructorBinding"));
+        return new RemoveAnnotationVisitor(new AnnotationMatcher("@org.springframework.boot.context.properties.ConstructorBinding"));
     }
 }

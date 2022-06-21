@@ -6,6 +6,7 @@ import org.openrewrite.Result;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.test.RewriteTest;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +58,7 @@ public class ConstructorBindingTest {
                 "}";
 
         List<J.CompilationUnit> parse = Java17Parser.builder()
-                .classpath("spring-boot")
+                .classpath(List.of(Path.of("/Users/ashakirin/.m2/repository/org/springframework/boot/spring-boot/2.7.0/spring-boot-2.7.0.jar")))
                 .build().parse(ctx, source);
 
         String recipeName = "org.openrewrite.java.spring.boot3.data.java.constructorbinding";
@@ -67,5 +68,6 @@ public class ConstructorBindingTest {
                 .run(parse, ctx);
 
         assertThat(result).hasSize(1);
+        System.out.println(result.get(0).getAfter().printAll());
     }
 }
