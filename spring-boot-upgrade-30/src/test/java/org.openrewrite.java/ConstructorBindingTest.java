@@ -22,7 +22,14 @@ public class ConstructorBindingTest {
 
         InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
 
-        String source = "@ConfigurationProperties(prefix = \"mail\")\n" +
+        String source = "" +
+                "package com.example.config.demo;\n" +
+                "\n" +
+                "import org.springframework.beans.factory.annotation.Autowired;\n" +
+                "import org.springframework.boot.context.properties.ConfigurationProperties;\n" +
+                "import org.springframework.boot.context.properties.ConstructorBinding;\n" +
+
+                "@ConfigurationProperties(prefix = \"mail\")\n" +
                 "@ConstructorBinding\n" +
                 "public class ConfigProperties {\n" +
                 "    private String hostName;\n" +
@@ -49,7 +56,9 @@ public class ConstructorBindingTest {
                 "    }\n" +
                 "}";
 
-        List<J.CompilationUnit> parse = Java17Parser.builder().build().parse(ctx, source);
+        List<J.CompilationUnit> parse = Java17Parser.builder()
+                .classpath("spring-boot")
+                .build().parse(ctx, source);
 
         String recipeName = "org.openrewrite.java.spring.boot3.data.java.constructorbinding";
 
