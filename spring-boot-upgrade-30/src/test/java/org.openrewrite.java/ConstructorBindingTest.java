@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Brain dump
  * TODO:
  *  * Source can be 11 and destination must be 17 separate test for that ?
- * */
+ */
 public class ConstructorBindingTest {
 
     @Test
@@ -58,7 +58,7 @@ public class ConstructorBindingTest {
                 "}";
 
         List<J.CompilationUnit> parse = Java17Parser.builder()
-                .classpath(List.of(Path.of("/Users/ashakirin/.m2/repository/org/springframework/boot/spring-boot/2.7.0/spring-boot-2.7.0.jar")))
+                .classpath(List.of(Path.of("/Users/sanagaraj/.m2/repository/org/springframework/boot/spring-boot/2.7.0/spring-boot-2.7.0.jar")))
                 .build().parse(ctx, source);
 
         String recipeName = "org.openrewrite.java.spring.boot3.data.java.constructorbinding";
@@ -68,6 +68,34 @@ public class ConstructorBindingTest {
                 .run(parse, ctx);
 
         assertThat(result).hasSize(1);
-        System.out.println(result.get(0).getAfter().printAll());
+        assertThat(result.get(0).getAfter().printAll()).isEqualTo("package com.example.config.demo;\n" +
+                "\n" +
+                "import org.springframework.beans.factory.annotation.Autowired;\n" +
+                "import org.springframework.boot.context.properties.ConfigurationProperties;\n" +
+                "@ConfigurationProperties(prefix = \"mail\")\n" +
+                "public class ConfigProperties {\n" +
+                "    private String hostName;\n" +
+                "    private int port;\n" +
+                "    private String from;\n" +
+                "\n" +
+                "    public ConfigProperties(String hostName, int port, String from) {\n" +
+                "        this.hostName = hostName;\n" +
+                "        this.port = port;\n" +
+                "        this.from = from;\n" +
+                "    }\n" +
+                "\n" +
+                "\n" +
+                "    public String getHostName() {\n" +
+                "        return hostName;\n" +
+                "    }\n" +
+                "\n" +
+                "    public int getPort() {\n" +
+                "        return port;\n" +
+                "    }\n" +
+                "\n" +
+                "    public String getFrom() {\n" +
+                "        return from;\n" +
+                "    }\n" +
+                "}");
     }
 }
