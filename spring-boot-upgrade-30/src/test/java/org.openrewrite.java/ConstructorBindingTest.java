@@ -4,10 +4,19 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Result;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.cache.LocalMavenArtifactCache;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.ResolvedDependency;
+import org.openrewrite.maven.tree.Scope;
+import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.test.RewriteTest;
+import org.openrewrite.xml.tree.Xml;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,6 +31,27 @@ public class ConstructorBindingTest {
     void newGeneratedClassRemovesConstructorBinding() {
 
         InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
+
+        String pom2_7 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                "    <modelVersion>4.0.0</modelVersion>\n" +
+                "    <groupId>com.example</groupId>\n" +
+                "    <artifactId>demo</artifactId>\n" +
+                "    <version>0.0.1-SNAPSHOT</version>\n" +
+                "    <name>demo</name>\n" +
+                "    <description>Demo project for Spring Boot</description>\n" +
+                "    <properties>\n" +
+                "        <java.version>11</java.version>\n" +
+                "    </properties>\n" +
+                "    <dependencies>\n" +
+                "        <dependency>\n" +
+                "            <groupId>org.springframework.boot</groupId>\n" +
+                "            <artifactId>spring-boot</artifactId>\n" +
+                "            <version>2.7.0</version>\n" +
+                "        </dependency>\n" +
+                "    </dependencies>\n" +
+                "</project>";
 
         String source = "" +
                 "package com.example.config.demo;\n" +
@@ -57,9 +87,32 @@ public class ConstructorBindingTest {
                 "    }\n" +
                 "}";
 
+
+        Xml.Document document = MavenParser.builder().build().parse(pom2_7).get(0);
+        Optional<MavenResolutionResult> mavenResolutionResult =
+                document.getMarkers().findFirst(MavenResolutionResult.class);
+
+        List<ResolvedDependency> resolvedDependencies = mavenResolutionResult.get()
+                .getDependencies().get(Scope.Provided);
+
+        MavenArtifactDownloader mavenArtifactDownloader = new MavenArtifactDownloader(
+                new LocalMavenArtifactCache(
+                        Path.of(System.getProperty("user.home")).resolve(".m2/repository")
+                ),
+                null,
+                Throwable::printStackTrace
+        );
+
+        List<Path> listOfDependencies = resolvedDependencies
+                .stream()
+                .map(mavenArtifactDownloader::downloadArtifact)
+                .collect(Collectors.toList());
+
+
         List<J.CompilationUnit> parse = Java17Parser.builder()
-                .classpath(List.of(Path.of("/Users/sanagaraj/.m2/repository/org/springframework/boot/spring-boot/2.7.0/spring-boot-2.7.0.jar")))
+                .classpath(listOfDependencies)
                 .build().parse(ctx, source);
+
 
         String recipeName = "org.openrewrite.java.spring.boot3.data.java.constructorbinding";
 
