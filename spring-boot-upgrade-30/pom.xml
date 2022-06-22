@@ -64,24 +64,11 @@
             <version>1.18.24</version>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.7.0-M1</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-test</artifactId>
             <version>7.24.0</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.jupiter</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 
