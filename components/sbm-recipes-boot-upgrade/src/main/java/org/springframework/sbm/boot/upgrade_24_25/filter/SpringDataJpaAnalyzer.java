@@ -34,29 +34,21 @@ public class SpringDataJpaAnalyzer {
         List<JavaSourceAndType> jpaRepositories = context.getProjectJavaSources().findTypesImplementing(jpaRepositoryInterface);
         // FIXME: type of PK must be retrieved, moves to rewrite when these migrations are provided as OpenRewrite recipes
         String methodPattern = "getById(java.lang.Long)";
-        return jpaRepositories.stream()
-                .filter(jat -> jat.getType().hasMethod(methodPattern))
-                .map(jat -> {
-                    return new MatchingMethod(jat, methodPattern, jat.getType().getMethod(methodPattern));
-                })
-                .collect(Collectors.toList());
-        //return findRepositoriesDeclaring(jpaRepositories, methodPattern);
+        return findRepositoriesDeclaring(jpaRepositories, methodPattern);
     }
 
     private List<MatchingMethod> findRepositoriesDeclaring(List<JavaSourceAndType> jpaRepositories, String methodPattern) {
         return jpaRepositories.stream()
                 .filter(jat -> jat.getType().hasMethod(methodPattern))
-                .map(jat -> {
-                    return new MatchingMethod(jat, methodPattern, jat.getType().getMethod(methodPattern));
-                })
+                .map(jat -> new MatchingMethod(jat, methodPattern, jat.getType().getMethod(methodPattern)))
                 .collect(Collectors.toList());
     }
 
     @Value
-    public class MatchingMethod {
-        private final JavaSourceAndType jat;
-        private final String methodPattern;
-        private final Method method;
+    public static class MatchingMethod {
+        JavaSourceAndType jat;
+        String methodPattern;
+        Method method;
 
         public MatchingMethod(JavaSourceAndType jat, String methodPattern, Method method) {
             this.jat = jat;

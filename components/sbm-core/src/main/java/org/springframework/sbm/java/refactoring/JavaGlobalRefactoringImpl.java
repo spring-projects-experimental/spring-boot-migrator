@@ -85,7 +85,8 @@ public class JavaGlobalRefactoringImpl implements JavaGlobalRefactoring {
 
     @NotNull
     protected List<RewriteSourceFileHolder<J.CompilationUnit>> findInternal(List<RewriteSourceFileHolder<J.CompilationUnit>> resourceWrappers, Recipe recipe) {
-        List<Result> results = executeRecipe(getAllCompilationUnits().stream().map(RewriteSourceFileHolder::getSourceFile).collect(Collectors.toList()), recipe);
+        List<J.CompilationUnit> compilationUnits = resourceWrappers.stream().map(RewriteSourceFileHolder::getSourceFile).collect(Collectors.toList());
+        List<Result> results = executeRecipe(compilationUnits, recipe);
         return results.stream()
                 .map(r -> r.getAfter())
                 .filter(r -> J.CompilationUnit.class.isAssignableFrom(r.getClass()))
