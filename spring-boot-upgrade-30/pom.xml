@@ -28,7 +28,15 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+            </plugin>
+        </plugins>
+    </build>
     <dependencies>
         <dependency>
             <groupId>org.openrewrite</groupId>
@@ -58,10 +66,22 @@
         </dependency>
 
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.7.0-M1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-test</artifactId>
             <version>7.24.0</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -88,4 +108,5 @@
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
+
 </project>
