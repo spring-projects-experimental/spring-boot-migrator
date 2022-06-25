@@ -18,6 +18,7 @@ package org.springframework.sbm.shell;
 import lombok.RequiredArgsConstructor;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ScanCommand;
@@ -25,11 +26,20 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
 import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.CompletionContext;
+import org.springframework.shell.CompletionProposal;
+import org.springframework.shell.standard.*;
 
+import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ShellComponent
 @RequiredArgsConstructor
@@ -49,7 +59,8 @@ public class ScanShellCommand {
     @ShellMethod(key = {"scan", "s"},
             value = "Scans the target project directory and get the list of applicable recipes.")
     public String scan(
-            @ShellOption(defaultValue = ".", help = "The root directory of the target application.")
+            @ShellOption(defaultValue = ".", help = "The root directory of the target application.",
+                    valueProvider = ScanValueProvider.class)
                     //@Pattern(regexp = "")
                     String projectRoot) {
 
@@ -76,6 +87,34 @@ public class ScanShellCommand {
         }
 
         return stringBuilder.toAttributedString().toAnsi();
+    }
+
+}
+
+/**
+ * Auto complete argument to scan method for easier navigation.
+ * Based on org.springframework.shell.standard.FileValueProvider.
+ *
+ * @author Tim te Beek
+ */
+class ScanValueProvider extends ValueProviderSupport { // extend to only complete for exact type matches
+
+    @Override
+    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext,
+            String[] hints) {
+        String input = completionContext.currentWordUpToCursor();
+        int lastSlash = input.lastIndexOf(File.separatorChar);
+        Path dir = lastSlash > -1 ? Paths.get(input.substring(0, lastSlash + 1)) : Paths.get("");
+        String prefix = input.substring(lastSlash + 1, input.length());
+
+        try {
+            return Files.find(dir, 1,
+                    (p, a) -> p.getFileName() != null && p.getFileName().toString().startsWith(prefix), FOLLOW_LINKS)
+                    .map(p -> new CompletionProposal(p.toString())).collect(Collectors.toList());
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
 }
