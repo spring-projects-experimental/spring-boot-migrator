@@ -41,7 +41,6 @@ class SelectTranslatorTest {
 
         assertThat(output.getRenderedSnippet()).isEqualTo(
                         "// TODO: substitute expression language with appropriate java code \n" +
-                                "// TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
                                 "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
                                 ".<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                                 "                        jdbcTemplate.queryForList(\n" +

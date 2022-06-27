@@ -77,7 +77,6 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
                                 "                // TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
                                 "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                                 "                        jdbcTemplate.queryForList(\n" +
@@ -127,7 +126,6 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
                                 "                // TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
                                 "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                                 "                        jdbcTemplate.queryForList(\n" +
@@ -179,7 +177,6 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/db\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
                                 "                // TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
                                 "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                                 "                        jdbcTemplate.queryForList(\n" +
