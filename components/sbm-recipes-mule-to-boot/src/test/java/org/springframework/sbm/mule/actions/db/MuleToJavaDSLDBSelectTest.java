@@ -76,8 +76,8 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
-                                "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                // TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
+                                "// TODO: substitute expression language with appropriate java code \n" +
+                                "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
                                 "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                                 "                        jdbcTemplate.queryForList(\n" +
                                 "                                \"SELECT * FROM STUDENTS\"))\n" +
@@ -125,8 +125,8 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
-                                "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                // TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
+                                "// TODO: substitute expression language with appropriate java code \n" +
+                                "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
                                 "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                                 "                        jdbcTemplate.queryForList(\n" +
                                 "                                \"SELECT * FROM STUDENTS\"))\n" +
@@ -176,8 +176,8 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/db\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
-                                "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                // TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
+                                "// TODO: substitute expression language with appropriate java code \n" +
+                                "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
                                 "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
                                 "                        jdbcTemplate.queryForList(\n" +
                                 "                                \"select * from users where username=? and password=?\",\n" +
@@ -185,6 +185,7 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "                                p.getFirst(\"payload.password\") /* TODO: Translate #[payload.password] to java expression*/\n" +
                                 "                        ))\n" +
                                 "                .get();\n" +
-                                "    }}");
+                                "    }\n" +
+                                "}");
     }
 }
