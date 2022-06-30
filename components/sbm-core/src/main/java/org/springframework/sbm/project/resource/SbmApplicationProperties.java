@@ -41,7 +41,7 @@ public class SbmApplicationProperties {
                 .collect(Collectors.toList());
 
         if( ! absolutePatterns.isEmpty()) {
-            throw new IllegalArgumentException("Found absolute ignore paths patterns defined in sbm.ignoredPathsPatterns. Patterns must be relative and not start with '/'. Invalid patterns found: ['" + absolutePatterns.stream().collect(Collectors.joining("', '")) + "'].");
+            throw new IllegalArgumentException("Found absolute ignore paths patterns defined in sbm.ignoredPathsPatterns. Patterns must be relative and not start with '/'. Invalid patterns found: ['" + String.join("', '", absolutePatterns) + "'].");
         }
 
         this.ignoredPathsPatterns = patterns;

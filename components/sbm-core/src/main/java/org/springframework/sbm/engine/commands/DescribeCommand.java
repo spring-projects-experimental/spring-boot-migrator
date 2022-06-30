@@ -19,8 +19,6 @@ import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 @Component
 public class DescribeCommand extends AbstractCommand<Recipe> {
 
@@ -36,11 +34,9 @@ public class DescribeCommand extends AbstractCommand<Recipe> {
         if (arguments == null || arguments.length == 0) {
             throw new IllegalArgumentException("Describe command needs recipe name to be provided");
         } else {
-            final Optional<Recipe> recipe = recipesBuilder.buildRecipes().getRecipeByName(arguments[0]);
-            if (!recipe.isPresent()) {
-                throw new IllegalArgumentException("Recipe with name '" + arguments[0] + "' could not be found");
-            }
-            return recipe.get();
+            return recipesBuilder.buildRecipes()
+                .getRecipeByName(arguments[0])
+                .orElseThrow(() -> new IllegalArgumentException("Recipe with name '" + arguments[0] + "' could not be found"));
         }
     }
 }

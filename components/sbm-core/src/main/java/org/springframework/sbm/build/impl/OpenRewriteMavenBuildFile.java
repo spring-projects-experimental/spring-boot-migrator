@@ -16,18 +16,39 @@
 package org.springframework.sbm.build.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.openrewrite.*;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.Parser;
+import org.openrewrite.Recipe;
+import org.openrewrite.Result;
+import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.marker.Markers;
+import org.openrewrite.maven.AddDependencyVisitor;
+import org.openrewrite.maven.AddMavenRepository;
+import org.openrewrite.maven.ChangePackaging;
+import org.openrewrite.maven.ChangePropertyValue;
+import org.openrewrite.maven.ExcludeDependency;
+import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.MavenVisitor;
+import org.openrewrite.maven.RemoveDependency;
+import org.openrewrite.maven.RemoveProperty;
+import org.openrewrite.maven.UpgradeParentVersion;
 import org.openrewrite.maven.*;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.Parent;
 import org.openrewrite.maven.tree.ResolvedDependency;
+import org.openrewrite.maven.tree.ResolvedManagedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.sbm.build.api.*;
+import org.springframework.sbm.build.api.BuildFile;
+import org.springframework.sbm.build.api.DependenciesChangedEvent;
+import org.springframework.sbm.build.api.Dependency;
+import org.springframework.sbm.build.api.ParentDeclaration;
+import org.springframework.sbm.build.api.Plugin;
+import org.springframework.sbm.build.api.RepositoryDefinition;
+import org.springframework.sbm.build.api.RewriteMavenParentDeclaration;
 import org.springframework.sbm.build.migration.recipe.AddMavenPlugin;
 import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyManagement;
@@ -41,9 +62,19 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.function.Predicate.not;
+
 @Slf4j
 public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Document> implements BuildFile {
 
@@ -333,7 +364,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             apply(r);
             apply(new RefreshPomModel());
             List<Dependency> exclusions = dependencies.stream()
-                    .filter(d -> false == d.getExclusions().isEmpty())
+                    .filter(not(d -> d.getExclusions().isEmpty()))
                     .flatMap(d -> d.getExclusions().stream())
                     .collect(Collectors.toList());
 
@@ -373,7 +404,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
      * Does not updateClasspathRegistry
      */
     private void excludeDependenciesInner(List<Dependency> exclusions) {
-        if (false == exclusions.isEmpty()) {
+        if (!exclusions.isEmpty()) {
             Dependency excludedDependency = exclusions.get(0);
             ExcludeDependency excludeDependency = new ExcludeDependency(excludedDependency.getGroupId(), excludedDependency.getArtifactId(), excludedDependency.getScope());
             exclusions.stream().skip(1).forEach(d -> excludeDependency.doNext(new ExcludeDependency(d.getGroupId(), d.getArtifactId(), d.getScope())));
@@ -385,14 +416,13 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     private void updateClasspathRegistry() {
         ClasspathRegistry instance = ClasspathRegistry.getInstance();
         // FIXME: removed dependencies must be removed from ProjectDependenciesRegistry too
-        Set<ResolvedDependency> compileDependencies = getPom().getDependencies().get(Scope.Compile).stream().collect(Collectors.toSet());
+        Set<ResolvedDependency> compileDependencies = new HashSet<>(getPom().getDependencies().get(Scope.Compile));
         Set<ResolvedDependency> testDependencies = getPom().getDependencies().get(Scope.Test)
                 .stream()
                 .flatMap(d -> d.getDependencies().stream())
                 .collect(Collectors.toSet());
         compileDependencies.addAll(testDependencies);
-        compileDependencies.stream()
-                .forEach(instance::addDependency);
+        compileDependencies.forEach(instance::addDependency);
     }
 
     private Recipe getAddDependencyRecipe(Dependency dependency) {
@@ -436,14 +466,18 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             return Collections.emptyList();
         }
         return pom.getPom().getDependencyManagement().stream()
-                .map(d -> Dependency.builder()
-                        .groupId(d.getGroupId())
-                        .artifactId(d.getArtifactId())
-                        .version(d.getVersion())
-                        .scope(scopeString(d.getScope()))
-                        .build())
+                .map(this::getDependency)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    private Dependency getDependency(ResolvedManagedDependency d) {
+        return Dependency.builder()
+            .groupId(d.getGroupId())
+            .artifactId(d.getArtifactId())
+            .version(d.getVersion())
+            .scope(scopeString(d.getScope()))
+            .build();
     }
 
     @Override
@@ -461,7 +495,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public List<Path> getResolvedDependenciesPaths() {
         RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader = new RewriteMavenArtifactDownloader();
         return getPom().getDependencies().get(Scope.Provided).stream()
-                .map(d -> rewriteMavenArtifactDownloader.downloadArtifact(d)).collect(Collectors.toList());
+                .map(rewriteMavenArtifactDownloader::downloadArtifact)
+                .collect(Collectors.toList());
 
 /*
         Field classpathField = ReflectionUtils.findField(Java11Parser.class, "classpath");

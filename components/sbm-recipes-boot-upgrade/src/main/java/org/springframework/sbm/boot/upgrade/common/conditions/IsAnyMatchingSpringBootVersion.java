@@ -40,7 +40,8 @@ public class IsAnyMatchingSpringBootVersion implements Condition {
     @Override
     public boolean evaluate(ProjectContext context) {
         return versionPatterns.stream()
-                .anyMatch(p ->  new IsMatchingSpringBootVersion(p).evaluate(context));
+            .map(IsMatchingSpringBootVersion::new)
+            .anyMatch(isMatchingSpringBootVersion -> isMatchingSpringBootVersion.evaluate(context));
     }
 
     public void setVersionPatterns(String versionPatterns) {
