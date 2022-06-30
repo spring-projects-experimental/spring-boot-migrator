@@ -142,14 +142,19 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
             String flowName,
             Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap
     ) {
+        // Ugly hack to work around an inability to inject a sbm property into the mulesoft parser.
+        String isTmTransformationEnabled = System.getProperty("sbm.muleTriggerMeshTransformEnabled");
 
         if (component.getSetPayload() != null) {
             if (isComponentReferencingAnExternalFile(component)) {
                 return formExternalFileBasedDSLSnippet(component);
             }
 
-            //return formEmbeddedDWLBasedDSLSnippet(component, Helper.sanitizeForBeanMethodName(flowName), id);
-            return formTriggerMeshDWLBasedDSLSnippet(component, Helper.sanitizeForBeanMethodName(flowName), id);
+            if (isTmTransformationEnabled != null && isTmTransformationEnabled.equals("true")) {
+                return formTriggerMeshDWLBasedDSLSnippet(component, Helper.sanitizeForBeanMethodName(flowName), id);
+            } else {
+                return formEmbeddedDWLBasedDSLSnippet(component, Helper.sanitizeForBeanMethodName(flowName), id);
+            }
         }
 
         return noSupportDslSnippet();
