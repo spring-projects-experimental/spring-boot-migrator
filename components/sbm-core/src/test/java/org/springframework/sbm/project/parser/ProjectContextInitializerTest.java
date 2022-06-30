@@ -87,7 +87,7 @@ import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.
         JavaRefactoringFactoryImpl.class,
         ProjectResourceWrapperRegistry.class,
         RewriteSourceFileWrapper.class
-}, properties = {"sbm.gitSupportEnabled=false"})
+}, properties = {"sbm.gitSupportEnabled=false", "sbm.muleTriggerMeshTransformEnabled=false"})
 @Disabled
 class ProjectContextInitializerTest {
 

@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 @ConfigurationProperties(prefix = "sbm")
 public class SbmApplicationProperties {
     private boolean gitSupportEnabled;
+    private boolean muleTriggerMeshTransformEnabled;
     private String defaultBasePackage;
     private boolean writeInMavenLocal;
     private boolean  javaParserLoggingCompilationWarningsAndErrors;
