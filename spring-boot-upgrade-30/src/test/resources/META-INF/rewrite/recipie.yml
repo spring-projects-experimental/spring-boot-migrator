@@ -35,10 +35,7 @@ recipeList:
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove
-displayName: Upgrade to Spring Data 3.0
-description: 'Handles @ConstructorBinding'
+displayName: Move SAML relying party identity provider property to asserting party
+description: 'Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty'
 recipeList:
-  - org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove:
-      id: repository.spring.milestone
-      url: https://repo.spring.io/milestone
-      repositoryName: repository.spring.milestone
+  - org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove
