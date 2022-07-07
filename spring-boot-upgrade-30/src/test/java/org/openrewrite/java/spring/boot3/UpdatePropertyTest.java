@@ -47,7 +47,7 @@ public class UpdatePropertyTest {
                 """.stripIndent());
     }
 
-    private List<Result> runRecipeOnProperties(@Language("Properties") String source) {
+    private List<Result> runRecipeOnProperties(@Language("properties") String source) {
         List<Properties.File> document = new PropertiesParser().parse(source);
         String recipeName = "org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7_prop";
 
