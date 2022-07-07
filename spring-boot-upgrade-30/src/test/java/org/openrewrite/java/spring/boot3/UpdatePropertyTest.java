@@ -36,25 +36,6 @@ public class UpdatePropertyTest {
         assertThat(result.get(0).getAfter().printAll()).isEqualTo(expected);
     }
 
-    private static Stream<Arguments> provideYamlIO() throws IOException {
-        InputStream data =
-                UpdatePropertyTest.class.getResourceAsStream("/spring-3_0-config-refactor-yaml.txt");
-
-        if (data == null) {
-            throw new RuntimeException("unable to read /spring-3_0-config-refactor-yaml.txt file");
-        }
-
-        String fileContent = new String(data.readAllBytes());
-        String[] tests = fileContent.split("--- end of test ---");
-
-        return Arrays.stream(tests)
-                .map(test -> {
-                    String[] k = test.split("expected:.*\n");
-                    return Arguments.of(k[0].replaceAll("input:.*\n", ""), k[1]);
-                });
-    }
-
-
     @Test
     void yamlSpring() {
         List<Result> result = runRecipeOnYml("""
@@ -100,5 +81,23 @@ public class UpdatePropertyTest {
         return RewriteTest
                 .fromRuntimeClasspath(recipeName)
                 .run(document, ctx);
+    }
+
+    private static Stream<Arguments> provideYamlIO() throws IOException {
+        InputStream data =
+                UpdatePropertyTest.class.getResourceAsStream("/spring-3_0-config-refactor-yaml.txt");
+
+        if (data == null) {
+            throw new RuntimeException("unable to read /spring-3_0-config-refactor-yaml.txt file");
+        }
+
+        String fileContent = new String(data.readAllBytes());
+        String[] tests = fileContent.split("--- end of test ---");
+
+        return Arrays.stream(tests)
+                .map(test -> {
+                    String[] k = test.split("expected:.*\n");
+                    return Arguments.of(k[0].replaceAll("input:.*\n", ""), k[1]);
+                });
     }
 }
