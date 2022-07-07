@@ -76,9 +76,11 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
-                                "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
-                                "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS\"))\n" +
+                                "// TODO: substitute expression language with appropriate java code \n" +
+                                "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
+                                "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
+                                "                        jdbcTemplate.queryForList(\n" +
+                                "                                \"SELECT * FROM STUDENTS\"))\n" +
                                 "                .get();\n" +
                                 "    }\n" +
                                 "}");
@@ -107,8 +109,7 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
 
         addXMLFileToResource(muleXml);
         runAction();
-        assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo(
                         "package com.example.javadsl;\n" +
                                 "import org.springframework.context.annotation.Bean;\n" +
@@ -124,9 +125,65 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
                                 "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
-                                "                // TODO: substitute expression language with appropriate java code \n" +
-                                "                // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
-                                "                .handle((p, h) -> jdbcTemplate.queryForList(\"SELECT * FROM STUDENTS\"))\n" +
+                                "// TODO: substitute expression language with appropriate java code \n" +
+                                "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
+                                "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
+                                "                        jdbcTemplate.queryForList(\n" +
+                                "                                \"SELECT * FROM STUDENTS\"))\n" +
+                                "                .get();\n" +
+                                "    }\n" +
+                                "}");
+    }
+
+    @Test
+    public void shouldPreventSQLInjectionAttack() {
+        String muleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "\n" +
+                "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
+                "    xmlns:db=\"http://www.mulesoft.org/schema/mule/db\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
+                "    xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "    xsi:schemaLocation=\"\n" +
+                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\">\n" +
+                "    <db:mysql-config name=\"MySQL_Configuration\" host=\"localhost\" port=\"3306\" user=\"root\" password=\"root\" doc:name=\"MySQL Configuration\" database=\"mulemigration\"/>\n" +
+                "    <flow name=\"dbFlow\">\n" +
+                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/db\" doc:name=\"HTTP\"/>\n" +
+                "        <logger level=\"INFO\" doc:name=\"Logger\"/>\n" +
+                "        <db:select config-ref=\"MySQL_Configuration\" doc:name=\"Database\">\n" +
+                "            <db:dynamic-query><![CDATA[select * from users where username='#[payload.username]' and password='#[payload.password]']]></db:dynamic-query>\n" +
+                "        </db:select>\n" +
+                "    </flow>\n" +
+                "</mule>";
+
+        addXMLFileToResource(muleXml);
+        runAction();
+        assertThat(getGeneratedJavaFile())
+                .isEqualTo(
+                        "package com.example.javadsl;\n" +
+                                "import org.springframework.context.annotation.Bean;\n" +
+                                "import org.springframework.context.annotation.Configuration;\n" +
+                                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
+                                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                                "import org.springframework.integration.handler.LoggingHandler;\n" +
+                                "import org.springframework.integration.http.dsl.Http;\n" +
+                                "\n" +
+                                "@Configuration\n" +
+                                "public class FlowConfigurations {\n" +
+                                "    @Bean\n" +
+                                "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
+                                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/db\")).handle((p, h) -> p)\n" +
+                                "                .log(LoggingHandler.Level.INFO)\n" +
+                                "// TODO: substitute expression language with appropriate java code \n" +
+                                "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
+                                "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
+                                "                        jdbcTemplate.queryForList(\n" +
+                                "                                \"select * from users where username=? and password=?\",\n" +
+                                "                                p.getFirst(\"payload.username\") /* TODO: Translate #[payload.username] to java expression*/,\n" +
+                                "                                p.getFirst(\"payload.password\") /* TODO: Translate #[payload.password] to java expression*/\n" +
+                                "                        ))\n" +
                                 "                .get();\n" +
                                 "    }\n" +
                                 "}");
