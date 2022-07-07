@@ -117,6 +117,25 @@ public class SAMLRelyingPartyPropertyYAMLTest {
     }
 
     @Test
+    void movePropertyWhenCorrectHierarchyIsDetected() {
+        List<Result> result = runRecipe("""
+                    some:
+                      random:
+                        thing:
+                          relyingparty:
+                            registration:
+                              idpone:
+                                identityprovider:
+                                  entity-id: https://idpone.com
+                                  sso-url: https://idpone.com
+                                  verification:
+                                    credentials:
+                                      - certificate-location: "classpath:saml/idpone.crt"
+                """.stripIndent());
+        assertThat(result).hasSize(0);
+    }
+
+    @Test
     void resolveBasedOnCorrectHierarchy() {
         List<Result> result = runRecipe(
                 """
