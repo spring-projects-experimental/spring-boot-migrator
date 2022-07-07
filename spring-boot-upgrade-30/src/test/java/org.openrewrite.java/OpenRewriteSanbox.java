@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.Cursor;
 import org.openrewrite.Tree;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.Space;
 import org.openrewrite.marker.Markers;
 
@@ -15,21 +14,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OpenRewriteSanbox {
 
-    class JavaMethodCount extends JavaVisitor<AtomicInteger> {
-
+    class JavaMethodCount extends JavaIsoVisitor<AtomicInteger> {
         @Override
-        public J visitMethodInvocation(J.MethodInvocation method, AtomicInteger p) {
-            //increment the shared counter when visiting a method invocation.
-            p.incrementAndGet();
-
-            return super.visitMethodInvocation(method, p);
+        public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, AtomicInteger atomicInteger) {
+            if (method.isConstructor()) {
+                atomicInteger.incrementAndGet();
+            }
+            return super.visitMethodDeclaration(method, atomicInteger);
         }
     }
 
-    class MethodRefactorVisitor extends JavaVisitor<Void> {
-
+    class MethodRefactorVisitor extends JavaIsoVisitor<Void> {
         @Override
-        public J visitMethodDeclaration(J.MethodDeclaration method, Void p) {
+        public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, Void p) {
             J.Identifier identifier = new J.Identifier(UUID.randomUUID(), Space.format(" "), Markers.EMPTY, "testMethod", null, null);
             return method.withName(identifier);
         }
@@ -43,6 +40,7 @@ public class OpenRewriteSanbox {
                 "    public class Sample {\n" +
                 "        Logger logger;\n" +
                 "\n" +
+                "public Sample() {} \n" +
                 "public void mylogger() " +
                 "        {\n" +
                 "            logger.info(\"1\");\n" +
@@ -54,7 +52,7 @@ public class OpenRewriteSanbox {
 
         AtomicInteger counter = new AtomicInteger();
         new JavaMethodCount().visit(cu, counter);
-        assertThat(counter.get()).isEqualTo(3);
+        assertThat(counter.get()).isEqualTo(1);
 
         System.out.println(cu.printAll());
     }
@@ -66,6 +64,7 @@ public class OpenRewriteSanbox {
         J.CompilationUnit cu = jp.parse("    import org.slf4j.Logger;\n" +
                 "    public class Sample {\n" +
                 "        Logger logger;\n" +
+                "public Sample() {} \n" +
                 "\n" +
                 "public void mylogger() " +
                 "        {\n" +

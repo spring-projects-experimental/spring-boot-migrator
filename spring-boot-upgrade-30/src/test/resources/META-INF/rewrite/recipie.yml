@@ -39,3 +39,14 @@ displayName: Move SAML relying party identity provider property to asserting par
 description: 'Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty'
 recipeList:
   - org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove
+
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: org.openrewrite.yaml.ChangePropertyKey
+displayName: Upgrade to Spring Data 3.0
+description: 'Rename properties'
+recipeList:
+  - org.openrewrite.yaml.ChangePropertyKey:
+      oldPropertyKey: spring.data.elasticsearch.client.reactive.connection-timeout
+      newPropertyKey: spring.elasticsearch.connection-timeout
+
