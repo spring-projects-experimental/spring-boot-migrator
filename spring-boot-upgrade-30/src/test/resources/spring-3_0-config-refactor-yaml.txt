@@ -1,0 +1,20 @@
+input:
+spring:
+  data:
+    elasticsearch:
+      client:
+        reactive:
+          connection-timeout: 1000
+expected:
+spring.elasticsearch.connection-timeout: 1000
+--- end of test ---
+input:
+spring:
+  data:
+    elasticsearch:
+      client:
+        reactive:
+          max-in-memory-size: 122
+expected:
+
+spring.elasticsearch.webclient.max-in-memory-size: 122

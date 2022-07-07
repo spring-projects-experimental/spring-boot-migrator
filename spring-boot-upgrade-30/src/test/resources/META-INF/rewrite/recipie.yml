@@ -52,12 +52,6 @@ recipeList:
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.connection-timeout
       newPropertyKey: spring.elasticsearch.connection-timeout
----
-type: specs.openrewrite.org/v1beta/recipe
-name: org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7_prop
-displayName: Upgrade to Spring Data 3.0
-description: 'Rename properties'
-recipeList:
-  - org.openrewrite.properties.ChangePropertyKey:
-      oldPropertyKey: spring.data.elasticsearch.client.reactive.connection-timeout
-      newPropertyKey: spring.elasticsearch.connection-timeout
+  - org.openrewrite.yaml.ChangePropertyKey:
+      oldPropertyKey: spring.data.elasticsearch.client.reactive.max-in-memory-size
+      newPropertyKey: spring.elasticsearch.webclient.max-in-memory-size
