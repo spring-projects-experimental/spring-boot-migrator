@@ -116,6 +116,52 @@ public class SAMLRelyingPartyPropertyYAMLTest {
         );
     }
 
+    @Test
+    void resolveBasedOnCorrectHierarchy() {
+        List<Result> result = runRecipe(
+                """
+                            spring:
+                              security:
+                                saml2:
+                                  relyingparty:
+                                    registration:
+                                      idpone:
+                                        identityprovider:
+                                          entity-id: https://idpone.com
+                                          sso-url: https://idpone.com
+                                          verification:
+                                            credentials:
+                                              - certificate-location: "classpath:saml/idpone.crt"
+                            relyingparty:
+                                registration:
+                                    something:
+                                        identityprovider: 
+                                            of: value
+                        """.stripIndent()
+        );
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getAfter().printAll()).isEqualTo(
+                """
+                    spring:
+                      security:
+                        saml2:
+                          relyingparty:
+                            registration:
+                              idpone:
+                                assertingparty:
+                                  entity-id: https://idpone.com
+                                  sso-url: https://idpone.com
+                                  verification:
+                                    credentials:
+                                      - certificate-location: "classpath:saml/idpone.crt"
+                    relyingparty:
+                        registration:
+                            something:
+                                identityprovider: 
+                                    of: value
+                """.stripIndent());
+    }
+
     private List<Result> runRecipe(@Language("yml") String source) {
         List<Yaml.Documents> document = new YamlParser().parse(source);
         String recipeName = "org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove";
