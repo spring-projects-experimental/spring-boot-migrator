@@ -28,7 +28,7 @@
         <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.source>11</maven.compiler.source>
-        <openrewrite.version>7.22.0</openrewrite.version>
+        <openrewrite.version>7.24.2</openrewrite.version>
         <openrewrite.spring.version>4.17.0</openrewrite.spring.version>
         <spring-boot.version>2.5.12</spring-boot.version>
         <progressbar.version>0.9.0</progressbar.version>
