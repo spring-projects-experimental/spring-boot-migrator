@@ -23,10 +23,9 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static org.springframework.sbm.mule.actions.javadsl.translators.db.DBCommons.escapeDoubleQuotes;
 
 @Component
 public class SelectTranslator implements MuleComponentToSpringIntegrationDslTranslator<SelectMessageProcessorType> {
@@ -43,18 +42,21 @@ public class SelectTranslator implements MuleComponentToSpringIntegrationDslTran
                                 String flowName,
                                 Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
 
-        String query = component.getDynamicQuery() == null ? component.getParameterizedQuery()
-                : component.getDynamicQuery();
+        QueryFunctionParameter queryAndParameters = DBCommons.extractQueryAndParameters(component);
 
+        String translation = ".<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
+                "                        jdbcTemplate.queryForList(\n" +
+                "                                \"" + DBCommons.escapeDoubleQuotes(queryAndParameters.getQuery()) + "\"" +
+                queryAndParameters.getArguments() + "))";
         return DslSnippet.builder()
-                .renderedSnippet(
-                        " // TODO: substitute expression language with appropriate java code \n" +
-                        " // TODO: use appropriate translation for pagination for more information visit: https://bit.ly/3xlqByv \n" +
-                        "                .handle((p, h) -> jdbcTemplate.queryForList(\"" +
-                        escapeDoubleQuotes(query) + "\"))")
+                .renderedSnippet("// TODO: substitute expression language with appropriate java code \n" +
+                        "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
+                        translation
+                )
                 .requiredDependencies(Set.of(
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
-                        "org.springframework.integration:spring-integration-jdbc:5.5.4"
+                        "org.springframework.integration:spring-integration-jdbc:5.5.4",
+                        "com.h2database:h2:2.1.214"
                 ))
                 .beans(
                         Set.of(
