@@ -32,3 +32,13 @@ recipeList:
       id: repository.spring.milestone
       url: https://repo.spring.io/milestone
       repositoryName: repository.spring.milestone
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove
+displayName: Upgrade to Spring Data 3.0
+description: 'Handles @ConstructorBinding'
+recipeList:
+  - org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove:
+      id: repository.spring.milestone
+      url: https://repo.spring.io/milestone
+      repositoryName: repository.spring.milestone
