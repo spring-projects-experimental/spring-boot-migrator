@@ -27,7 +27,7 @@ public class SAMLRelyingPartyPropertyYAMLMove extends Recipe {
     @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
 
-        return new YamlIsoVisitor<ExecutionContext>() {
+        return new YamlIsoVisitor<>() {
             @Override
             public Yaml.Mapping.Entry visitMappingEntry(Yaml.Mapping.Entry entry,
                                                         ExecutionContext executionContext) {

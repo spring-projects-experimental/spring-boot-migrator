@@ -58,3 +58,9 @@ recipeList:
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.max-in-memory-size
       newPropertyKey: spring.elasticsearch.webclient.max-in-memory-size
+  - org.openrewrite.yaml.ChangePropertyKey:
+      oldPropertyKey: spring.data.elasticsearch.client.reactive.password
+      newPropertyKey: spring.elasticsearch.password
+  - org.openrewrite.properties.ChangePropertyKey:
+      oldPropertyKey: spring.data.elasticsearch.client.reactive.password
+      newPropertyKey: spring.elasticsearch.password
