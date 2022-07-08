@@ -4,24 +4,10 @@ import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Result;
-import org.openrewrite.java.Java17Parser;
-import org.openrewrite.java.tree.J;
-import org.openrewrite.maven.MavenParser;
-import org.openrewrite.maven.cache.LocalMavenArtifactCache;
-import org.openrewrite.maven.tree.MavenResolutionResult;
-import org.openrewrite.maven.tree.ResolvedDependency;
-import org.openrewrite.maven.tree.Scope;
-import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.test.RewriteTest;
-import org.openrewrite.xml.tree.Xml;
 import org.openrewrite.yaml.YamlParser;
 import org.openrewrite.yaml.tree.Yaml;
-
-import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

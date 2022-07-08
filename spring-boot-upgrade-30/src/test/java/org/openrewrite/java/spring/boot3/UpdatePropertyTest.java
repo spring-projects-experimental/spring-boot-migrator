@@ -4,8 +4,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Result;
@@ -17,12 +15,9 @@ import org.openrewrite.yaml.tree.Yaml;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 
 public class UpdatePropertyTest {
 
@@ -49,7 +44,7 @@ public class UpdatePropertyTest {
             "/spring-3_0-config-refactor-properties-datasource.txt",
             "/spring-3_0-config-refactor-properties-elasticsearch.txt",
             "/spring-3_0-config-refactor-properties-misc.txt"})
-    void runYamlTestsDataSource(String inputFilePath) throws IOException {
+    void runPropertiesTestsDataSource(String inputFilePath) throws IOException {
 
         Pair<String, String> testData = provideIO(inputFilePath);
         List<Result> result = runRecipeOnProperties(testData.getLeft());

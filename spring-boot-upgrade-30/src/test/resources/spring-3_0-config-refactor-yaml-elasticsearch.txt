@@ -11,10 +11,10 @@ spring:
       username: testusername
 expected:
 spring:
-    elasticsearch:
+  elasticsearch:
       connection-timeout: 1
-        password: testpassword
-        socket-timeout: 2
-        restclient.sniffer.delay-after-failure: 3
-        restclient.sniffer.interval: 4
-        username: testusername
+      password: testpassword
+      socket-timeout: 2
+      restclient.sniffer.delay-after-failure: 3
+      restclient.sniffer.interval: 4
+      username: testusername

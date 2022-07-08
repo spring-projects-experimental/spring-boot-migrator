@@ -14,7 +14,6 @@ spring:
     sql-script-encoding: UTF-8
 expected:
 spring:
-  sql.init.encoding: UTF-8
   sql.init.continue-on-error: true
   sql.init.data-locations: testdata
   sql.init.password: password1
@@ -25,3 +24,4 @@ spring:
   sql.init.password: password2
   sql.init.username: username2
   sql.init.separator: k
+  sql.init.encoding: UTF-8

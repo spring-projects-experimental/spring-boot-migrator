@@ -27,7 +27,7 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <openrewrite.version>7.24.0</openrewrite.version>
+        <openrewrite.version>7.25.0</openrewrite.version>
     </properties>
     <build>
         <plugins>
