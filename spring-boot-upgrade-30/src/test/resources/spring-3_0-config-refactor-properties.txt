@@ -8,3 +8,9 @@ spring.data.elasticsearch.client.reactive.max-in-memory-size=122
 expected:
 
 spring.elasticsearch.webclient.max-in-memory-size=122
+--- end of test ---
+input:
+spring.data.elasticsearch.client.reactive.password=abc
+expected:
+
+spring.elasticsearch.password=abc
