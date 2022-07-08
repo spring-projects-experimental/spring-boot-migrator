@@ -11,8 +11,8 @@ spring:
           username: testuser
 expected:
 spring:
-  elasticsearch.username: testuser
   elasticsearch.connection-timeout: 1000
   elasticsearch.webclient.max-in-memory-size: 122
   elasticsearch.password: abc
   elasticsearch.socket-timeout: 100
+  elasticsearch.username: testuser
