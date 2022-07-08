@@ -20,3 +20,21 @@ spring.data.elasticsearch.client.reactive.socket-timeout=100
 expected:
 
 spring.elasticsearch.socket-timeout=100
+--- end of test ---
+input:
+spring.data.elasticsearch.client.reactive.username=testUser
+expected:
+
+spring.elasticsearch.username=testUser
+--- end of test ---
+input:
+spring.datasource.continue-on-error=true
+expected:
+
+spring.sql.init.continue-on-error=true
+--- end of test ---
+input:
+spring.datasource.data=testdata
+expected:
+
+spring.sql.init.data-locations=testdata
