@@ -91,27 +91,54 @@ recipeList:
   - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.data-password
       newPropertyKey: spring.sql.init.password
+  - org.openrewrite.properties.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.data-password
+      newPropertyKey: spring.sql.init.password
   - org.openrewrite.yaml.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.data-username
+      newPropertyKey: spring.sql.init.username
+  - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.data-username
       newPropertyKey: spring.sql.init.username
   - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.initialization-mode
       newPropertyKey: spring.sql.init.mode
+  - org.openrewrite.properties.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.initialization-mode
+      newPropertyKey: spring.sql.init.mode
   - org.openrewrite.yaml.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.platform
+      newPropertyKey: spring.sql.init.platform
+  - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.platform
       newPropertyKey: spring.sql.init.platform
   - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.schema
       newPropertyKey: spring.sql.init.schema-locations
+  - org.openrewrite.properties.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.schema
+      newPropertyKey: spring.sql.init.schema-locations
   - org.openrewrite.yaml.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.schema-password
+      newPropertyKey: spring.sql.init.password
+  - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.schema-password
       newPropertyKey: spring.sql.init.password
   - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.schema-username
       newPropertyKey: spring.sql.init.username
+  - org.openrewrite.properties.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.schema-username
+      newPropertyKey: spring.sql.init.username
   - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.separator
       newPropertyKey: spring.sql.init.separator
+  - org.openrewrite.properties.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.separator
+      newPropertyKey: spring.sql.init.separator
   - org.openrewrite.yaml.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.sql-script-encoding
+      newPropertyKey: spring.sql.init.encoding
+  - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.sql-script-encoding
       newPropertyKey: spring.sql.init.encoding
