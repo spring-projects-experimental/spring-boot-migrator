@@ -70,3 +70,21 @@ recipeList:
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.socket-timeout
       newPropertyKey: spring.elasticsearch.socket-timeout
+  - org.openrewrite.yaml.ChangePropertyKey:
+      oldPropertyKey: spring.data.elasticsearch.client.reactive.username
+      newPropertyKey: spring.elasticsearch.username
+  - org.openrewrite.properties.ChangePropertyKey:
+      oldPropertyKey: spring.data.elasticsearch.client.reactive.username
+      newPropertyKey: spring.elasticsearch.username
+  - org.openrewrite.yaml.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.continue-on-error
+      newPropertyKey: spring.sql.init.continue-on-error
+  - org.openrewrite.properties.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.continue-on-error
+      newPropertyKey: spring.sql.init.continue-on-error
+  - org.openrewrite.yaml.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.data
+      newPropertyKey: spring.sql.init.data-locations
+  - org.openrewrite.properties.ChangePropertyKey:
+      oldPropertyKey: spring.datasource.data
+      newPropertyKey: spring.sql.init.data-locations
