@@ -1,0 +1,27 @@
+input:
+spring:
+  datasource:
+    continue-on-error: true
+    data: testdata
+    data-password: password1
+    data-username: username
+    initialization-mode: mode1
+    platform: pls
+    schema: table1
+    schema-password: password2
+    schema-username: username2
+    separator: k
+    sql-script-encoding: UTF-8
+expected:
+spring:
+  sql.init.encoding: UTF-8
+  sql.init.continue-on-error: true
+  sql.init.data-locations: testdata
+  sql.init.password: password1
+  sql.init.username: username
+  sql.init.mode: mode1
+  sql.init.platform: pls
+  sql.init.schema-locations: table1
+  sql.init.password: password2
+  sql.init.username: username2
+  sql.init.separator: k
