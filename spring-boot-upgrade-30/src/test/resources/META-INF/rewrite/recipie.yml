@@ -64,3 +64,9 @@ recipeList:
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.password
       newPropertyKey: spring.elasticsearch.password
+  - org.openrewrite.yaml.ChangePropertyKey:
+      oldPropertyKey: spring.data.elasticsearch.client.reactive.socket-timeout
+      newPropertyKey: spring.elasticsearch.socket-timeout
+  - org.openrewrite.properties.ChangePropertyKey:
+      oldPropertyKey: spring.data.elasticsearch.client.reactive.socket-timeout
+      newPropertyKey: spring.elasticsearch.socket-timeout

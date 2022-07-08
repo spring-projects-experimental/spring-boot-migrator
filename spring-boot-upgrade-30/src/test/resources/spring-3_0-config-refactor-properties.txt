@@ -14,3 +14,9 @@ spring.data.elasticsearch.client.reactive.password=abc
 expected:
 
 spring.elasticsearch.password=abc
+--- end of test ---
+input:
+spring.data.elasticsearch.client.reactive.socket-timeout=100
+expected:
+
+spring.elasticsearch.socket-timeout=100
