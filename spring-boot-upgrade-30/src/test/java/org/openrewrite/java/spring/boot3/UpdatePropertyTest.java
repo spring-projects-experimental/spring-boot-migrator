@@ -1,30 +1,22 @@
 package org.openrewrite.java.spring.boot3;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.openrewrite.InMemoryExecutionContext;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.openrewrite.Result;
-import org.openrewrite.properties.PropertiesParser;
-import org.openrewrite.properties.tree.Properties;
-import org.openrewrite.test.RewriteTest;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UpdatePropertyTest extends ConfigRecipeTest {
 
-    private final InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
-
     @ParameterizedTest
-    @ValueSource(strings = {
-            "/props-to-update/spring-3_0-config-refactor-yaml-data.txt",
-            "/props-to-update/spring-3_0-config-refactor-yaml-datasource.txt",
-            "/props-to-update/spring-3_0-config-refactor-yaml-elasticsearch.txt",
-            "/props-to-update/spring-3_0-config-refactor-yaml-misc.txt"})
+    @MethodSource("provideYamlInputFiles")
     void runYamlTestsData(String inputFilePath) throws IOException {
 
         Pair<String, String> testData = provideIO(inputFilePath);
@@ -35,11 +27,7 @@ public class UpdatePropertyTest extends ConfigRecipeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "/props-to-update/spring-3_0-config-refactor-properties-data.txt",
-            "/props-to-update/spring-3_0-config-refactor-properties-datasource.txt",
-            "/props-to-update/spring-3_0-config-refactor-properties-elasticsearch.txt",
-            "/props-to-update/spring-3_0-config-refactor-properties-misc.txt"})
+    @MethodSource("providePropertiesInputFiles")
     void runPropertiesTestsDataSource(String inputFilePath) throws IOException {
 
         Pair<String, String> testData = provideIO(inputFilePath);
@@ -52,5 +40,16 @@ public class UpdatePropertyTest extends ConfigRecipeTest {
     @Override
     String getRecipeName() {
         return "org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7";
+    }
+
+
+    private static Stream<Arguments> providePropertiesInputFiles() throws URISyntaxException {
+
+        return provideFiles("/props-to-update","properties");
+    }
+
+    private static Stream<Arguments> provideYamlInputFiles() throws URISyntaxException  {
+
+        return provideFiles("/props-to-update", "yaml");
     }
 }
