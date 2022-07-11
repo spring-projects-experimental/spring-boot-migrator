@@ -195,3 +195,16 @@ recipeList:
       propertyKey: management.endpoint.jolokia.config
   - org.openrewrite.properties.DeleteProperty:
       propertyKey: management.endpoint.jolokia.config
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: management.endpoint.jolokia.enabled
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: management.endpoint.jolokia.enabled
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: management.metrics.graphql.autotime.percentiles
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: management.metrics.graphql.autotime.percentiles
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: management.metrics.graphql.autotime.percentiles-histogram
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: management.metrics.graphql.autotime.percentiles-histogram
+
