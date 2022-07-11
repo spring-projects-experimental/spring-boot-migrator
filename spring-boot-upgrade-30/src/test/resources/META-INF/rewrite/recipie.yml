@@ -276,3 +276,36 @@ recipeList:
       propertyKey: spring.activemq.user
   - org.openrewrite.properties.DeleteProperty:
       propertyKey: spring.activemq.user
+
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.artemis.pool.block-if-full
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.artemis.pool.block-if-full
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.artemis.pool.block-if-full-timeout
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.artemis.pool.block-if-full-timeout
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.artemis.pool.enabled
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.artemis.pool.enabled
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.artemis.pool.idle-timeout
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.artemis.pool.idle-timeout
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.artemis.pool.max-connections
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.artemis.pool.max-connections
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.artemis.pool.max-sessions-per-connection
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.artemis.pool.max-sessions-per-connection
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.artemis.pool.time-between-expiration-check
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.artemis.pool.time-between-expiration-check
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.artemis.pool.use-anonymous-producers
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.artemis.pool.use-anonymous-producers
