@@ -21,11 +21,14 @@ import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.hcl.HclParser;
 import org.openrewrite.json.JsonParser;
+import org.openrewrite.marker.Marker;
+import org.openrewrite.marker.Markers;
 import org.openrewrite.properties.PropertiesParser;
 import org.openrewrite.protobuf.ProtoParser;
 import org.openrewrite.text.PlainTextParser;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.XmlParser;
+import org.openrewrite.xml.tree.Xml;
 import org.openrewrite.yaml.YamlParser;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
@@ -52,37 +55,10 @@ public class ResourceParser {
     private final ResourceFilter resourceFilter;
     private final ApplicationEventPublisher eventPublisher;
 
-    public List<SourceFile> parse(Path baseDir, Set<Path> resourcePaths, List<Resource> resources) {
-        ParsingExecutionContextView ctx = ParsingExecutionContextView.view(new RewriteExecutionContext(eventPublisher));
-        ctx.setParsingListener((input, sourceFile) -> eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(sourceFile.getSourcePath())));
-
-        List<Resource> relevantResources = resourceFilter.filter(resources, baseDir, resourcePaths);
-
-        HashMap<Parser<? extends SourceFile>, List<Parser.Input>> parserAndParserInputMappings = new LinkedHashMap();
-        parserAndParserInputMappings.put(jsonParser, new ArrayList<>());
-        parserAndParserInputMappings.put(xmlParser, new ArrayList<>());
-        parserAndParserInputMappings.put(yamlParser, new ArrayList<>());
-        parserAndParserInputMappings.put(propertiesParser, new ArrayList<>());
-        parserAndParserInputMappings.put(new ProtoParser(), new ArrayList<>());
-        parserAndParserInputMappings.put(HclParser.builder().build(), new ArrayList<>());
-        parserAndParserInputMappings.put(plainTextParser, new ArrayList<>());
-
-        List<Parser.Input> parserInputs = createParserInputs(relevantResources);
-
-        parserInputs.forEach(r -> {
-            Parser parser = parserAndParserInputMappings.keySet().stream()
-                    .filter(p -> p.accept(r))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Could not find matching parser for " + r.getPath()));
-
-            parserAndParserInputMappings.get(parser).add(r);
-        });
-
-        return parserAndParserInputMappings.entrySet().stream()
-                .map(e -> e.getKey().parseInputs(e.getValue(), baseDir, ctx))
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-
+    List<Resource> filter(Path projectDirectory, Set<Path> resourcePaths, List<Resource> resources, Path relativeModuleDir) {
+        Path comparingPath = relativeModuleDir != null ? projectDirectory.resolve(relativeModuleDir) : projectDirectory;
+        List<Resource> relevantResources = resourceFilter.filter(resources, comparingPath, resourcePaths);
+        return relevantResources;
     }
 
     private List<Parser.Input> createParserInputs(List<Resource> relevantResources) {
@@ -112,6 +88,42 @@ public class ResourceParser {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<SourceFile> parse(Path baseDir, List<Resource> relevantResources, List<Marker> markers) {
+        List<Parser.Input> parserInputs = createParserInputs(relevantResources);
+
+        HashMap<Parser<? extends SourceFile>, List<Parser.Input>> parserAndParserInputMappings = new LinkedHashMap();
+        parserAndParserInputMappings.put(jsonParser, new ArrayList<>());
+        parserAndParserInputMappings.put(xmlParser, new ArrayList<>());
+        parserAndParserInputMappings.put(yamlParser, new ArrayList<>());
+        parserAndParserInputMappings.put(propertiesParser, new ArrayList<>());
+        parserAndParserInputMappings.put(new ProtoParser(), new ArrayList<>());
+        parserAndParserInputMappings.put(HclParser.builder().build(), new ArrayList<>());
+        parserAndParserInputMappings.put(plainTextParser, new ArrayList<>());
+
+        parserInputs.forEach(r -> {
+            Parser parser = parserAndParserInputMappings.keySet().stream()
+                    .filter(p -> p.accept(r))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Could not find matching parser for " + r.getPath()));
+
+            parserAndParserInputMappings.get(parser).add(r);
+        });
+
+        ParsingExecutionContextView ctx = ParsingExecutionContextView.view(new RewriteExecutionContext(eventPublisher));
+        ctx.setParsingListener((input, sourceFile) -> eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(sourceFile.getSourcePath())));
+
+        return parserAndParserInputMappings.entrySet().stream()
+                .map(e -> e.getKey().parseInputs(e.getValue(), baseDir, ctx))
+                .flatMap(List::stream)
+                .map(e -> addMarkers(e, markers))
+                .collect(Collectors.toList());
+
+    }
+
+    private SourceFile addMarkers(SourceFile e, List<Marker> markers) {
+        return e.withMarkers(Markers.build(markers));
     }
 
     @Component
