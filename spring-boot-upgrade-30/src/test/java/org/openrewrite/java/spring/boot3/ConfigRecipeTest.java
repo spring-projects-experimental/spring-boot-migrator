@@ -53,16 +53,6 @@ public abstract class ConfigRecipeTest {
         return new ImmutablePair<>(k[0].replaceAll("input:.*\n", ""), k[1]);
     }
 
-    protected Pair<String, String> provideIOX(String inputFilePath) throws IOException {
-
-        InputStream data = ConfigRecipeTest.class.getResourceAsStream(inputFilePath);
-
-        String fileContent = new String(data.readAllBytes());
-        String[] k = fileContent.split("expected:.*\n");
-
-        return new ImmutablePair<>(k[0].replaceAll("input:.*\n", ""), k[1]);
-    }
-
     protected static Stream<Arguments> provideFiles(String folder, String fileType) throws URISyntaxException {
 
         URL url = RemovedPropertyTest.class.getResource(folder);
