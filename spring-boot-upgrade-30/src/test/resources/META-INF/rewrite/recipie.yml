@@ -185,3 +185,11 @@ recipeList:
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.webflux.session.cookie.same-site
       newPropertyKey: server.reactive.session.cookie.same-site
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7_Removed
+displayName: Upgrade to Spring Data 3.0
+description: 'Removed properties'
+recipeList:
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.data.elasticsearch.client.reactive.connection-timeout
