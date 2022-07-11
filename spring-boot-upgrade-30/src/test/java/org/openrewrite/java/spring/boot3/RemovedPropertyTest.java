@@ -19,7 +19,9 @@ public class RemovedPropertyTest extends ConfigRecipeTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "/props-to-delete/spring-3_0-config-remove-yaml-management.txt"})
+            "/props-to-delete/spring-3_0-config-remove-yaml-management.txt",
+            "/props-to-delete/spring-3_0-config-remove-yaml-activemq.txt"
+    })
     public void removeYaml(String inputFilePath) throws IOException {
         Pair<String, String> testData = provideIO(inputFilePath);
         List<Result> result = runRecipeOnYaml(testData.getLeft());
@@ -30,7 +32,9 @@ public class RemovedPropertyTest extends ConfigRecipeTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "/props-to-delete/spring-3_0-config-remove-properties-management.txt"})
+            "/props-to-delete/spring-3_0-config-remove-properties-management.txt",
+            "/props-to-delete/spring-3_0-config-remove-properties-activemq.txt"
+    })
     public void removeProperties(String inputFilePath) throws IOException {
         Pair<String, String> testData = provideIO(inputFilePath);
         List<Result> result = runRecipeOnProperties(testData.getLeft());
