@@ -6,7 +6,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SAMLRelyingPartyPropertyYAMLTest extends YAMLRecipeTest {
+public class SAMLRelyingPartyPropertyYAMLTest extends ConfigRecipeTest {
 
     @Override
     String getRecipeName() {
@@ -15,7 +15,7 @@ public class SAMLRelyingPartyPropertyYAMLTest extends YAMLRecipeTest {
 
     @Test
     void movePropertyTestSingle() {
-        List<Result> result = runRecipe("""
+        List<Result> result = runRecipeOnYaml("""
                     spring:
                       security:
                         saml2:
@@ -50,7 +50,7 @@ public class SAMLRelyingPartyPropertyYAMLTest extends YAMLRecipeTest {
 
     @Test
     void movePropertyTestMultiple() {
-        List<Result> result = runRecipe(
+        List<Result> result = runRecipeOnYaml(
                 """
                             spring:
                               security:
@@ -101,7 +101,7 @@ public class SAMLRelyingPartyPropertyYAMLTest extends YAMLRecipeTest {
 
     @Test
     void movePropertyWhenCorrectHierarchyIsDetected() {
-        List<Result> result = runRecipe("""
+        List<Result> result = runRecipeOnYaml("""
                     some:
                       random:
                         thing:
@@ -120,7 +120,7 @@ public class SAMLRelyingPartyPropertyYAMLTest extends YAMLRecipeTest {
 
     @Test
     void resolveBasedOnCorrectHierarchy() {
-        List<Result> result = runRecipe(
+        List<Result> result = runRecipeOnYaml(
                 """
                             spring:
                               security:
