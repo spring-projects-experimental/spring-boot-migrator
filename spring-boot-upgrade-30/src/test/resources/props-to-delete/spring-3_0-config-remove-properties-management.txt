@@ -1,5 +1,5 @@
 input:
-some.other: "prop"
-management.endpoint.jolokia.config: "abc"
+some.other="prop"
+management.endpoint.jolokia.config="abc"
 expected:
-some.other: "prop"
+some.other="prop"

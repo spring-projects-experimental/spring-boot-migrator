@@ -193,3 +193,5 @@ description: 'Removed properties'
 recipeList:
   - org.openrewrite.yaml.DeleteProperty:
       propertyKey: management.endpoint.jolokia.config
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: management.endpoint.jolokia.config
