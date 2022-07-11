@@ -25,10 +25,10 @@ public class UpdatePropertyTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "/spring-3_0-config-refactor-yaml-data.txt",
-            "/spring-3_0-config-refactor-yaml-datasource.txt",
-            "/spring-3_0-config-refactor-yaml-elasticsearch.txt",
-            "/spring-3_0-config-refactor-yaml-misc.txt"})
+            "/props-to-update/spring-3_0-config-refactor-yaml-data.txt",
+            "/props-to-update/spring-3_0-config-refactor-yaml-datasource.txt",
+            "/props-to-update/spring-3_0-config-refactor-yaml-elasticsearch.txt",
+            "/props-to-update/spring-3_0-config-refactor-yaml-misc.txt"})
     void runYamlTestsData(String inputFilePath) throws IOException {
 
         Pair<String, String> testData = provideIO(inputFilePath);
@@ -40,10 +40,10 @@ public class UpdatePropertyTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "/spring-3_0-config-refactor-properties-data.txt",
-            "/spring-3_0-config-refactor-properties-datasource.txt",
-            "/spring-3_0-config-refactor-properties-elasticsearch.txt",
-            "/spring-3_0-config-refactor-properties-misc.txt"})
+            "/props-to-update/spring-3_0-config-refactor-properties-data.txt",
+            "/props-to-update/spring-3_0-config-refactor-properties-datasource.txt",
+            "/props-to-update/spring-3_0-config-refactor-properties-elasticsearch.txt",
+            "/props-to-update/spring-3_0-config-refactor-properties-misc.txt"})
     void runPropertiesTestsDataSource(String inputFilePath) throws IOException {
 
         Pair<String, String> testData = provideIO(inputFilePath);

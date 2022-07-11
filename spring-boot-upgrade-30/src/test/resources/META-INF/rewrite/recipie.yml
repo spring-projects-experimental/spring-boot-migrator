@@ -192,4 +192,4 @@ displayName: Upgrade to Spring Data 3.0
 description: 'Removed properties'
 recipeList:
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.data.elasticsearch.client.reactive.connection-timeout
+      propertyKey: management.endpoint.jolokia.config
