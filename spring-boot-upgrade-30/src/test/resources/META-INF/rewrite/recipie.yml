@@ -365,68 +365,148 @@ recipeList:
       propertyKey: spring.jersey.type
   - org.openrewrite.properties.DeleteProperty:
       propertyKey: spring.jersey.type
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.cors.allow-credentials
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.cors.allow-credentials
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.cors.allowed-headers
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.cors.allowed-headers
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.cors.allowed-methods
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.cors.allowed-methods
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.cors.allowed-origin-patterns
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.cors.allowed-origin-patterns
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.cors.allowed-origins
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.cors.allowed-origins
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.cors.exposed-headers
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.cors.exposed-headers
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.cors.max-age
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.cors.max-age
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.graphiql.enabled
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.graphiql.enabled
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.graphiql.path
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.graphiql.path
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.path
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.path
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.schema.file-extensions
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.schema.file-extensions
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.schema.introspection.enabled
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.schema.introspection.enabled
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.schema.locations
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.schema.locations
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.schema.printer.enabled
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.schema.printer.enabled
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.websocket.connection-init-timeout
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.websocket.connection-init-timeout
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.graphql.websocket.path
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.graphql.websocket.path
 
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.cors.allow-credentials
+      propertyKey: spring.jta.atomikos.properties.allow-sub-transactions
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.cors.allow-credentials
+      propertyKey: spring.jta.atomikos.properties.allow-sub-transactions
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.cors.allowed-headers
+      propertyKey: spring.jta.atomikos.properties.checkpoint-interval
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.cors.allowed-headers
+      propertyKey: spring.jta.atomikos.properties.checkpoint-interval
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.cors.allowed-methods
+      propertyKey: spring.jta.atomikos.properties.default-jta-timeout
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.cors.allowed-methods
+      propertyKey: spring.jta.atomikos.properties.default-jta-timeout
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.cors.allowed-origin-patterns
+      propertyKey: spring.jta.atomikos.properties.default-max-wait-time-on-shutdown
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.cors.allowed-origin-patterns
+      propertyKey: spring.jta.atomikos.properties.default-max-wait-time-on-shutdown
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.cors.allowed-origins
+      propertyKey: spring.jta.atomikos.properties.enable-logging
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.cors.allowed-origins
+      propertyKey: spring.jta.atomikos.properties.enable-logging
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.cors.exposed-headers
+      propertyKey: spring.jta.atomikos.properties.force-shutdown-on-vm-exit
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.cors.exposed-headers
+      propertyKey: spring.jta.atomikos.properties.force-shutdown-on-vm-exit
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.cors.max-age
+      propertyKey: spring.jta.atomikos.properties.log-base-dir
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.cors.max-age
+      propertyKey: spring.jta.atomikos.properties.log-base-dir
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.graphiql.enabled
+      propertyKey: spring.jta.atomikos.properties.log-base-name
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.graphiql.enabled
+      propertyKey: spring.jta.atomikos.properties.log-base-name
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.graphiql.path
+      propertyKey: spring.jta.atomikos.properties.max-actives
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.graphiql.path
+      propertyKey: spring.jta.atomikos.properties.max-actives
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.path
+      propertyKey: spring.jta.atomikos.properties.max-timeout
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.path
+      propertyKey: spring.jta.atomikos.properties.max-timeout
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.schema.file-extensions
+      propertyKey: spring.jta.atomikos.properties.recovery.delay
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.schema.file-extensions
+      propertyKey: spring.jta.atomikos.properties.recovery.delay
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.schema.introspection.enabled
+      propertyKey: spring.jta.atomikos.properties.recovery.forget-orphaned-log-entries-delay
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.schema.introspection.enabled
+      propertyKey: spring.jta.atomikos.properties.recovery.forget-orphaned-log-entries-delay
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.schema.locations
+      propertyKey: spring.jta.atomikos.properties.recovery.max-retries
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.schema.locations
+      propertyKey: spring.jta.atomikos.properties.recovery.max-retries
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.schema.printer.enabled
+      propertyKey: spring.jta.atomikos.properties.recovery.retry-interval
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.schema.printer.enabled
+      propertyKey: spring.jta.atomikos.properties.recovery.retry-interval
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.websocket.connection-init-timeout
+      propertyKey: spring.jta.atomikos.properties.serial-jta-transactions
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.websocket.connection-init-timeout
+      propertyKey: spring.jta.atomikos.properties.serial-jta-transactions
   - org.openrewrite.yaml.DeleteProperty:
-      propertyKey: spring.graphql.websocket.path
+      propertyKey: spring.jta.atomikos.properties.service
   - org.openrewrite.properties.DeleteProperty:
-      propertyKey: spring.graphql.websocket.path
+      propertyKey: spring.jta.atomikos.properties.service
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.jta.atomikos.properties.threaded-two-phase-commit
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.jta.atomikos.properties.threaded-two-phase-commit
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.jta.atomikos.properties.transaction-manager-unique-name
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.jta.atomikos.properties.transaction-manager-unique-name
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.jta.transaction-manager-id
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.jta.transaction-manager-id
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.jta.log-dir
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.jta.log-dir
