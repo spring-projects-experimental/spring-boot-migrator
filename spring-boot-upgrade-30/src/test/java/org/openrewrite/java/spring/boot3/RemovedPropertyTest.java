@@ -36,7 +36,9 @@ public class RemovedPropertyTest extends ConfigRecipeTest {
     @ValueSource(strings = {
             "/props-to-delete/spring-3_0-config-remove-properties-management.txt",
             "/props-to-delete/spring-3_0-config-remove-properties-activemq.txt",
-            "/props-to-delete/spring-3_0-config-remove-properties-artemis.txt"})
+            "/props-to-delete/spring-3_0-config-remove-properties-artemis.txt",
+            "/props-to-delete/spring-3_0-config-remove-properties-misc.txt"
+    })
     public void removeProperties(String inputFilePath) throws IOException {
         Pair<String, String> testData = provideIO(inputFilePath);
         List<Result> result = runRecipeOnProperties(testData.getLeft());
