@@ -211,7 +211,6 @@ recipeList:
       propertyKey: spring.activemq.broker-url
   - org.openrewrite.properties.DeleteProperty:
       propertyKey: spring.activemq.broker-url
-
   - org.openrewrite.yaml.DeleteProperty:
       propertyKey: spring.activemq.close-timeout
   - org.openrewrite.properties.DeleteProperty:
@@ -309,3 +308,60 @@ recipeList:
       propertyKey: spring.artemis.pool.use-anonymous-producers
   - org.openrewrite.properties.DeleteProperty:
       propertyKey: spring.artemis.pool.use-anonymous-producers
+
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.cache.ehcache.config
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.cache.ehcache.config
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.cache.infinispan.config
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.cache.infinispan.config
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.config.use-legacy-processing
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.config.use-legacy-processing
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.data.elasticsearch.client.reactive.use-ssl
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.data.elasticsearch.client.reactive.use-ssl
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.h2.console.enabled
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.h2.console.enabled
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.h2.console.path
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.h2.console.path
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.h2.console.settings.trace
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.h2.console.settings.trace
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.h2.console.settings.web-admin-password
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.h2.console.settings.web-admin-password
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.h2.console.settings.web-allow-others
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.h2.console.settings.web-allow-others
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.jersey.application-path
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.jersey.application-path
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.jersey.filter.order
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.jersey.filter.order
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.jersey.init
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.jersey.init
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.jersey.servlet.load-on-startup
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.jersey.servlet.load-on-startup
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: spring.jersey.type
+  - org.openrewrite.properties.DeleteProperty:
+      propertyKey: spring.jersey.type
