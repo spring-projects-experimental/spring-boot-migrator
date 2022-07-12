@@ -10,7 +10,6 @@ public class SAMLRelyingPartyPropertyYAMLTest {
 
     private static ConfigRecipeTestHelper configRecipeTestHelper = ConfigRecipeTestHelper
             .builder()
-            .recipeName("org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove")
             .build();
 
     @Test
@@ -28,7 +27,7 @@ public class SAMLRelyingPartyPropertyYAMLTest {
                                   verification:
                                     credentials:
                                       - certificate-location: "classpath:saml/idpone.crt"
-                """.stripIndent());
+                """.stripIndent(), "org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove");
 
         assertThat(result).hasSize(1);
 
@@ -71,7 +70,8 @@ public class SAMLRelyingPartyPropertyYAMLTest {
                                           verification:
                                             credentials:
                                               - certificate-location: "classpath:saml/idpone.crt"
-                        """.stripIndent()
+                        """.stripIndent(),
+                "org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove"
         );
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getAfter().printAll()).isEqualTo(
@@ -114,7 +114,7 @@ public class SAMLRelyingPartyPropertyYAMLTest {
                                   verification:
                                     credentials:
                                       - certificate-location: "classpath:saml/idpone.crt"
-                """.stripIndent());
+                """.stripIndent(), "org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove");
         assertThat(result).hasSize(0);
     }
 
@@ -139,7 +139,7 @@ public class SAMLRelyingPartyPropertyYAMLTest {
                                     something:
                                         identityprovider: 
                                             of: value
-                        """.stripIndent()
+                        """.stripIndent(), "org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove"
         );
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getAfter().printAll()).isEqualTo(

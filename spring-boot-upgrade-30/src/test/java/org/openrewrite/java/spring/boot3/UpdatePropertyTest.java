@@ -16,7 +16,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UpdatePropertyTest {
     private static ConfigRecipeTestHelper configRecipeTestHelper = ConfigRecipeTestHelper
             .builder()
-            .recipeName("org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7")
             .build();
 
     @ParameterizedTest
@@ -24,7 +23,8 @@ public class UpdatePropertyTest {
     void runYamlTestsData(String inputFilePath) throws IOException {
 
         Pair<String, String> testData = configRecipeTestHelper.provideIO(inputFilePath);
-        List<Result> result = configRecipeTestHelper.runRecipeOnYaml(testData.getLeft());
+        List<Result> result = configRecipeTestHelper.runRecipeOnYaml(testData.getLeft(),
+                "org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7");
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getAfter().printAll()).isEqualTo(testData.getRight());
@@ -35,7 +35,8 @@ public class UpdatePropertyTest {
     void runPropertiesTestsDataSource(String inputFilePath) throws IOException {
 
         Pair<String, String> testData = configRecipeTestHelper.provideIO(inputFilePath);
-        List<Result> result = configRecipeTestHelper.runRecipeOnProperties(testData.getLeft());
+        List<Result> result = configRecipeTestHelper.runRecipeOnProperties(testData.getLeft(),
+                "org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7");
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getAfter().printAll()).isEqualTo(testData.getRight());

@@ -30,16 +30,14 @@ public class ConfigRecipeTestHelper {
 
     private final InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
 
-    private String recipeName;
-
-    public List<Result> runRecipeOnYaml(@Language("yml") String source) {
+    public List<Result> runRecipeOnYaml(@Language("yml") String source, String recipeName) {
         List<Yaml.Documents> document = new YamlParser().parse(source);
         return RewriteTest
                 .fromRuntimeClasspath(recipeName)
                 .run(document, ctx);
     }
 
-    public List<Result> runRecipeOnProperties(@Language("properties") String source) {
+    public List<Result> runRecipeOnProperties(@Language("properties") String source, String recipeName) {
         List<Properties.File> document = new PropertiesParser().parse(source);
         return RewriteTest
                 .fromRuntimeClasspath(recipeName)
