@@ -6,16 +6,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SAMLRelyingPartyPropertyYAMLTest extends ConfigRecipeTest {
+public class SAMLRelyingPartyPropertyYAMLTest {
 
-    @Override
-    String getRecipeName() {
-        return "org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove";
-    }
+    private static ConfigRecipeTestHelper configRecipeTestHelper = ConfigRecipeTestHelper
+            .builder()
+            .recipeName("org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove")
+            .build();
 
     @Test
     void movePropertyTestSingle() {
-        List<Result> result = runRecipeOnYaml("""
+        List<Result> result = configRecipeTestHelper.runRecipeOnYaml("""
                     spring:
                       security:
                         saml2:
@@ -50,7 +50,7 @@ public class SAMLRelyingPartyPropertyYAMLTest extends ConfigRecipeTest {
 
     @Test
     void movePropertyTestMultiple() {
-        List<Result> result = runRecipeOnYaml(
+        List<Result> result = configRecipeTestHelper.runRecipeOnYaml(
                 """
                             spring:
                               security:
@@ -101,7 +101,7 @@ public class SAMLRelyingPartyPropertyYAMLTest extends ConfigRecipeTest {
 
     @Test
     void movePropertyWhenCorrectHierarchyIsDetected() {
-        List<Result> result = runRecipeOnYaml("""
+        List<Result> result = configRecipeTestHelper.runRecipeOnYaml("""
                     some:
                       random:
                         thing:
@@ -120,7 +120,7 @@ public class SAMLRelyingPartyPropertyYAMLTest extends ConfigRecipeTest {
 
     @Test
     void resolveBasedOnCorrectHierarchy() {
-        List<Result> result = runRecipeOnYaml(
+        List<Result> result = configRecipeTestHelper.runRecipeOnYaml(
                 """
                             spring:
                               security:

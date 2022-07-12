@@ -13,14 +13,18 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UpdatePropertyTest extends ConfigRecipeTest {
+public class UpdatePropertyTest {
+    private static ConfigRecipeTestHelper configRecipeTestHelper = ConfigRecipeTestHelper
+            .builder()
+            .recipeName("org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7")
+            .build();
 
     @ParameterizedTest
     @MethodSource("provideYamlInputFiles")
     void runYamlTestsData(String inputFilePath) throws IOException {
 
-        Pair<String, String> testData = provideIO(inputFilePath);
-        List<Result> result = runRecipeOnYaml(testData.getLeft());
+        Pair<String, String> testData = configRecipeTestHelper.provideIO(inputFilePath);
+        List<Result> result = configRecipeTestHelper.runRecipeOnYaml(testData.getLeft());
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getAfter().printAll()).isEqualTo(testData.getRight());
@@ -30,26 +34,20 @@ public class UpdatePropertyTest extends ConfigRecipeTest {
     @MethodSource("providePropertiesInputFiles")
     void runPropertiesTestsDataSource(String inputFilePath) throws IOException {
 
-        Pair<String, String> testData = provideIO(inputFilePath);
-        List<Result> result = runRecipeOnProperties(testData.getLeft());
+        Pair<String, String> testData = configRecipeTestHelper.provideIO(inputFilePath);
+        List<Result> result = configRecipeTestHelper.runRecipeOnProperties(testData.getLeft());
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getAfter().printAll()).isEqualTo(testData.getRight());
     }
 
-    @Override
-    String getRecipeName() {
-        return "org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7";
-    }
-
-
     private static Stream<Arguments> providePropertiesInputFiles() throws URISyntaxException {
 
-        return provideFiles("/props-to-update","properties");
+        return ConfigRecipeTestHelper.provideFiles("/props-to-update","properties");
     }
 
     private static Stream<Arguments> provideYamlInputFiles() throws URISyntaxException  {
 
-        return provideFiles("/props-to-update", "yaml");
+        return ConfigRecipeTestHelper.provideFiles("/props-to-update", "yaml");
     }
 }

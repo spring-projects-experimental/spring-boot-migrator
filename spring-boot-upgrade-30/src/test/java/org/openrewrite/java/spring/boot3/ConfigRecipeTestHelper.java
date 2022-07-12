@@ -1,5 +1,7 @@
 package org.openrewrite.java.spring.boot3;
 
+import lombok.Builder;
+import lombok.Value;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.intellij.lang.annotations.Language;
@@ -23,27 +25,28 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-public abstract class ConfigRecipeTest {
+@Builder
+public class ConfigRecipeTestHelper {
 
     private final InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
 
-    abstract String getRecipeName();
+    private String recipeName;
 
-    protected List<Result> runRecipeOnYaml(@Language("yml") String source) {
+    public List<Result> runRecipeOnYaml(@Language("yml") String source) {
         List<Yaml.Documents> document = new YamlParser().parse(source);
         return RewriteTest
-                .fromRuntimeClasspath(getRecipeName())
+                .fromRuntimeClasspath(recipeName)
                 .run(document, ctx);
     }
 
-    protected List<Result> runRecipeOnProperties(@Language("properties") String source) {
+    public List<Result> runRecipeOnProperties(@Language("properties") String source) {
         List<Properties.File> document = new PropertiesParser().parse(source);
         return RewriteTest
-                .fromRuntimeClasspath(getRecipeName())
+                .fromRuntimeClasspath(recipeName)
                 .run(document, ctx);
     }
 
-    protected Pair<String, String> provideIO(String inputFilePath) throws IOException {
+    public Pair<String, String> provideIO(String inputFilePath) throws IOException {
 
         InputStream data = new FileInputStream(inputFilePath);
 
@@ -53,7 +56,7 @@ public abstract class ConfigRecipeTest {
         return new ImmutablePair<>(k[0].replaceAll("input:.*\n", ""), k[1]);
     }
 
-    protected static Stream<Arguments> provideFiles(String folder, String fileType) throws URISyntaxException {
+    public static Stream<Arguments> provideFiles(String folder, String fileType) throws URISyntaxException {
 
         URL url = RemovedPropertyTest.class.getResource(folder);
 
