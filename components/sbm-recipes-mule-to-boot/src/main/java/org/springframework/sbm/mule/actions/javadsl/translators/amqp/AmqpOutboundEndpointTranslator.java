@@ -38,32 +38,28 @@ public class AmqpOutboundEndpointTranslator implements MuleComponentToSpringInte
 
     @Override
     public DslSnippet translate(int id, OutboundEndpointType component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
-
-
         addExchange(snippet, component.getExchangeName());
-        return new DslSnippet(
-                addRoutingKey(
+        return DslSnippet.builder()
+                .renderedSnippet(addRoutingKey(
                         addExchange(snippet, component.getExchangeName()),
                         component.getRoutingKey(),
                         component.getQueueName()
-                ),
-                Set.of("org.springframework.amqp.rabbit.core.RabbitTemplate"),
-                Set.of(),
-                Set.of(new Bean("rabbitTemplate", "org.springframework.amqp.rabbit.core.RabbitTemplate")
-                )
-        );
+                ))
+                .requiredImports(Set.of("org.springframework.amqp.rabbit.core.RabbitTemplate"))
+                .beans(Set.of(new Bean("rabbitTemplate", "org.springframework.amqp.rabbit.core.RabbitTemplate")))
+                .build();
     }
 
     private String addRoutingKey(String template, String routingKey, String queueName) {
 
         String key = routingKey == null ? queueName : routingKey;
-        return template.replace("--ROUTING-KEY--", ".routingKey(\""+key+"\")");
+        return template.replace("--ROUTING-KEY--", ".routingKey(\"" + key + "\")");
     }
 
     private String addExchange(String template, String exchangeName) {
         String exchangeSnippet = "";
         if (exchangeName != null) {
-            exchangeSnippet = ".exchangeName(\""+emptyStringOrValue(exchangeName)+"\")";
+            exchangeSnippet = ".exchangeName(\"" + emptyStringOrValue(exchangeName) + "\")";
         }
         return template.replace("--EXCHANGE--", exchangeSnippet);
     }

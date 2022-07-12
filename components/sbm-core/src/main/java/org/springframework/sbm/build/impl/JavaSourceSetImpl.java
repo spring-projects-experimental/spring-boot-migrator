@@ -18,7 +18,6 @@ package org.springframework.sbm.build.impl;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
-import org.springframework.sbm.java.impl.JavaParserFactory;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
@@ -43,10 +42,12 @@ public class JavaSourceSetImpl implements JavaSourceSet {
     private final Path sourceSetRoot;
     private final JavaRefactoringFactory javaRefactoringFactory;
     private final BasePackageCalculator basePackageCalculator;
+    private final JavaParser javaParser;
 
-    public JavaSourceSetImpl(ProjectResourceSet projectResourceSet, Path projectRootDir, Path modulePath, Path mainJavaPath, JavaRefactoringFactory javaRefactoringFactory, BasePackageCalculator basePackageCalculator) {
+    public JavaSourceSetImpl(ProjectResourceSet projectResourceSet, Path projectRootDir, Path modulePath, Path mainJavaPath, JavaRefactoringFactory javaRefactoringFactory, BasePackageCalculator basePackageCalculator, JavaParser javaParser) {
         this.projectResourceSet = projectResourceSet;
         this.basePackageCalculator = basePackageCalculator;
+        this.javaParser = javaParser;
         this.sourceSetRoot = projectRootDir.resolve(modulePath).resolve(mainJavaPath);
         this.filter = (r) -> {
             return r.getAbsolutePath().getParent().normalize().toString().startsWith(sourceSetRoot.toString());
@@ -60,7 +61,7 @@ public class JavaSourceSetImpl implements JavaSourceSet {
     @Override
     @Deprecated(forRemoval = true)
     public JavaSource addJavaSource(Path projectRoot, Path sourceFolder, String sourceCode, String packageName) {
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
+        // FIXME: #7 JavaParser
         javaParser.reset();
         List<J.CompilationUnit> compilationUnits = javaParser.parse(sourceCode);
         J.CompilationUnit parsedCompilationUnit = compilationUnits.get(0);
@@ -70,7 +71,7 @@ public class JavaSourceSetImpl implements JavaSourceSet {
             throw new RuntimeException("The Java class you tried to add already lives here: '" + sourceFilePath + "'.");
         } else {
             J.CompilationUnit compilationUnit = parsedCompilationUnit.withSourcePath(sourceFilePath);
-            OpenRewriteJavaSource addedSource = new OpenRewriteJavaSource(projectRoot, compilationUnit, javaRefactoringFactory.createRefactoring(compilationUnit));
+            OpenRewriteJavaSource addedSource = new OpenRewriteJavaSource(projectRoot, compilationUnit, javaRefactoringFactory.createRefactoring(compilationUnit), javaParser);
             addedSource.markChanged();
             projectResourceSet.add(addedSource);
             return addedSource;
@@ -79,7 +80,7 @@ public class JavaSourceSetImpl implements JavaSourceSet {
 
     @Override
     public List<JavaSource> addJavaSource(Path projectRoot, Path sourceFolder, String... sourceCodes) {
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser();
+        // FIXME: #7 JavaParser
         javaParser.reset();
 
         List<J.CompilationUnit> compilationUnits = javaParser.parse(sourceCodes);
@@ -91,7 +92,7 @@ public class JavaSourceSetImpl implements JavaSourceSet {
             Path sourceFilePath = sourceFolder.resolve(sourceFileName);
             if(!Files.exists(sourceFilePath)) {
                 J.CompilationUnit compilationUnit = cu.withSourcePath(sourceFilePath);
-                OpenRewriteJavaSource addedSource = new OpenRewriteJavaSource(projectRoot, compilationUnit, javaRefactoringFactory.createRefactoring(compilationUnit));
+                OpenRewriteJavaSource addedSource = new OpenRewriteJavaSource(projectRoot, compilationUnit, javaRefactoringFactory.createRefactoring(compilationUnit), javaParser);
                 addedSource.markChanged();
                 projectResourceSet.add(addedSource);
                 addedSources.add(addedSource);

@@ -113,28 +113,11 @@ public class ComplexSubflowsTest extends JavaDSLActionBaseTest {
             "</mule>\n";
 
 
-
     @Test
     public void shouldHaveMethodsForSubflows() {
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
-        sbmApplicationProperties.setDefaultBasePackage("com.example.javadsl");
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-rabbit.xml", subflowWithRabbit)
-                .addRegistrar(registrar)
-                .withSbmApplicationProperties(sbmApplicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-amqp:5.4.4",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
-                )
-                .build();
-        myAction.apply(projectContext);
-        assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        addXMLFileToResource(subflowWithRabbit);
+        runAction();
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
@@ -190,7 +173,8 @@ public class ComplexSubflowsTest extends JavaDSLActionBaseTest {
                         "        return flow -> flow\n" +
                         "                .log(LoggingHandler.Level.INFO, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"ResponsePayloadSent\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\" [payload] ${message.payloadAs(java.lang.String)}\")\n" +
                         "                .log(LoggingHandler.Level.DEBUG, \"${api.name}\", \"transactionId=\\\"${flowVars.transactionId}\\\",extCorrelationId=\\\"${flowVars.extCorrelationId}\\\",step=\\\"ResponseMessageSent\\\",functionalId=\\\"${flowVars.functionalId}\\\",requesterAppId=\\\"${flowVars.requesterAppId}\\\",requesterAppName=\\\"${flowVars.requesterAppName}\\\",interfaceType=\\\"${flowVars.interfaceType}\\\",requesterUserId=\\\"${flowVars.requesterUserId}\\\",[message] ${message}\");\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
 
     }
@@ -237,32 +221,18 @@ public class ComplexSubflowsTest extends JavaDSLActionBaseTest {
                 "                                       ignoreUnresolvablePlaceholders=\"true\"/>\n" +
                 "</mule>\n";
 
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
-        sbmApplicationProperties.setDefaultBasePackage("com.example.javadsl");
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-rabbit.xml", xml)
-                .addRegistrar(registrar)
-                .withSbmApplicationProperties(sbmApplicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-amqp:5.4.4",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
-                )
-                .build();
-        myAction.apply(projectContext);
+        addXMLFileToResource(xml);
+        runAction();
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    void tlsContext() {\n" +
                         "        //FIXME: element is not supported for conversion: <tls:context/>\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
 
     }

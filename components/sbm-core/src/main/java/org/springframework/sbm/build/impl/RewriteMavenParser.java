@@ -15,30 +15,40 @@
  */
 package org.springframework.sbm.build.impl;
 
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenParser;
-import org.openrewrite.maven.tree.Maven;
+import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 @Component
-public class RewriteMavenParser implements Parser<Maven> {
+public class RewriteMavenParser implements Parser<Xml.Document> {
 
     private final MavenParser parser;
 
+    // FIXME: #7 This does not work for singleton Spring bean, also profiles and cache cannot be changed
+    public RewriteMavenParser(Path projectRoot) {
+        this.parser = initMavenParser(new RewriteExecutionContext(), Optional.ofNullable(projectRoot));
+    }
+
     public RewriteMavenParser() {
-        this.parser = initMavenParser(new RewriteExecutionContext());
+        this.parser = initMavenParser(new RewriteExecutionContext(), Optional.empty());
     }
 
     @NotNull
-    private MavenParser initMavenParser(RewriteExecutionContext executionContext) {
+    private MavenParser initMavenParser(RewriteExecutionContext executionContext, Optional<Path> projectRoot) {
         MavenParser.Builder builder = MavenParser.builder();
+        if(projectRoot.isPresent()) {
+            builder.mavenConfig(projectRoot.get().resolve(".mvn/maven.config"));
+        }
+        builder.build();
 //        if(executionContext.getMavenProfiles().length > 0) {
 //            builder.activeProfiles(executionContext.getMavenProfiles());
 //        }
@@ -52,17 +62,22 @@ public class RewriteMavenParser implements Parser<Maven> {
     }
 
     @Override
-    public List<Maven> parse(String... sources) {
+    public List<Xml.Document> parse(String... sources) {
         return parser.parse(sources);
     }
 
     @Override
-    public List<Maven> parseInputs(Iterable<Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
+    public List<Xml.Document> parseInputs(Iterable<Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
         return parser.parseInputs(sources, relativeTo, ctx);
     }
 
     @Override
     public boolean accept(Path path) {
         return parser.accept(path);
+    }
+
+    @Override
+    public Path sourcePathFromSourceText(Path prefix, String sourceCode) {
+        return parser.sourcePathFromSourceText(prefix, sourceCode);
     }
 }

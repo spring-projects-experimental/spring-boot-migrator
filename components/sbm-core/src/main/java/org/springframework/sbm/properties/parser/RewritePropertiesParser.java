@@ -19,12 +19,15 @@ import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.openrewrite.properties.PropertiesParser;
 import org.openrewrite.properties.tree.Properties;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 
-public class RewritePropertiesParser {
+@Component
+public class RewritePropertiesParser extends PropertiesParser {
     private PropertiesParser wrappedParser = new PropertiesParser();
 
+    @Deprecated(forRemoval = true, since = "0.12.0")
     public boolean shouldBeParsedAsProperties(Resource resource) {
         return resource.getFilename().endsWith(".properties");
     }

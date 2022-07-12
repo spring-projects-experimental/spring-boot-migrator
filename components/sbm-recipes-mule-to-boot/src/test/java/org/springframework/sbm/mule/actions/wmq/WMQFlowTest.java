@@ -15,34 +15,12 @@
  */
 package org.springframework.sbm.mule.actions.wmq;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.mule.actions.JavaDSLAction2;
-import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpConfigTypeAdapter;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpInboundEndpointTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpOutboundEndpointTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.core.FlowRefTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.http.HttpListenerTranslator;
-import org.springframework.sbm.mule.actions.javadsl.translators.logging.LoggingTranslator;
-import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
-import org.springframework.sbm.mule.api.toplevel.FlowTopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
-import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
-import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
-import org.springframework.sbm.project.resource.SbmApplicationProperties;
-import org.springframework.sbm.project.resource.TestProjectContext;
-
-import java.util.List;
+import org.springframework.sbm.mule.actions.JavaDSLActionBaseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class WMQFlowTest {
+public class WMQFlowTest extends JavaDSLActionBaseTest {
 
     String wmqXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<mule xmlns:wmq=\"http://www.mulesoft.org/schema/mule/ee/wmq\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
@@ -58,64 +36,30 @@ public class WMQFlowTest {
             "   </flow>\n" +
             "</mule>";
 
-    private JavaDSLAction2 myAction2;
-    private final ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-
-
-    @BeforeEach
-    public void setup() {
-        List<MuleComponentToSpringIntegrationDslTranslator> translators =
-                List.of(
-                        new HttpListenerTranslator(),
-                        new LoggingTranslator(new ExpressionLanguageTranslator()),
-                        new FlowRefTranslator(),
-                        new AmqpOutboundEndpointTranslator(),
-                        new AmqpInboundEndpointTranslator()
-                );
-        List<TopLevelElementFactory> topLevelTypeFactories = List.of(new FlowTopLevelElementFactory(translators));
-
-        ConfigurationTypeAdapterFactory configurationTypeAdapterFactory = new ConfigurationTypeAdapterFactory(List.of(new AmqpConfigTypeAdapter()));
-        MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
-        myAction2 = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
-        myAction2.setEventPublisher(eventPublisher);
-    }
 
     @Test
     public void wmq() {
-
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
-        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
-        sbmApplicationProperties.setDefaultBasePackage("com.example.javadsl");
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
-                .addProjectResource("src/main/resources/mule-rabbit.xml", wmqXML)
-                .addRegistrar(registrar)
-                .withSbmApplicationProperties(sbmApplicationProperties)
-                .withBuildFileHavingDependencies(
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.integration:spring-integration-stream:5.4.4",
-                        "org.springframework.integration:spring-integration-http:5.4.4"
-                ).build();
-        myAction2.apply(projectContext);
+        addXMLFileToResource(wmqXML);
+        runAction();
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
                         "import org.springframework.integration.dsl.IntegrationFlow;\n" +
                         "import org.springframework.integration.dsl.IntegrationFlows;\n" +
                         "import org.springframework.integration.handler.LoggingHandler;\n" +
+                        "import org.springframework.integration.jms.dsl.Jms;\n" +
                         "\n" +
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
-                        "    IntegrationFlow wmqtestFlow() {\n" +
-                        "        //FIXME: element is not supported for conversion: <wmq:inbound-endpoint/>\n" +
-                        "        IntegrationFlows.from(\"\")\n" +
+                        "    IntegrationFlow wmqtestFlow(javax.jms.ConnectionFactory connectionFactory) {\n" +
+                        "        return IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"TestQueue\")).handle((p, h) -> p)\n" +
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                .get();\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
     }
 }

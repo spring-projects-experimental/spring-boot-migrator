@@ -83,5 +83,4 @@ class MuleXmlUnmarshallerTest {
 //                .map(JAXBElement::getValue)
 //                .collect(Collectors.toList())
     }
-
 }

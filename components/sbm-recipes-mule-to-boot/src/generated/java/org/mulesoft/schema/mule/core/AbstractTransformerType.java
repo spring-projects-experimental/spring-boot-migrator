@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import org.mulesoft.schema.mule.scripting.ScriptTransformerType;
 
 
 /**
@@ -40,7 +41,8 @@ import javax.xml.bind.annotation.XmlType;
     EncryptionTransformerType.class,
     BeanBuilderTransformer.class,
     ExpressionTransformerType.class,
-    ValueExtractorTransformerType.class
+    ValueExtractorTransformerType.class,
+    ScriptTransformerType.class
 })
 public class AbstractTransformerType
     extends CommonTransformerType

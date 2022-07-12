@@ -18,24 +18,30 @@ package org.springframework.sbm.project.buildfile;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.Plugin;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectContextHolder;
+import org.springframework.sbm.java.api.Member;
+import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.stringtemplate.v4.compiler.STParser;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.Timer;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-// TODO: rework tests to make them faster, maybe remove amount of deps and using rewrite MavenDownloader helps?
 public class OpenRewriteMavenBuildFileTest {
 
     @Test
@@ -45,8 +51,8 @@ public class OpenRewriteMavenBuildFileTest {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                        "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                        "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                         "  <modelVersion>4.0.0</modelVersion>\n" +
                         "  <groupId>org.springframework.sbm</groupId>\n" +
                         "  <artifactId>dummy-test-artifact</artifactId>\n" +
@@ -87,6 +93,11 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(dependenciesPaths.get(0).toFile().exists()).isTrue();
     }
 
+    /*
+    * Resolves pom type dependency and verifies the paths of all retrieved dependencies.
+    * Currently, the behaviour is related to caching configuration in DependencyHelper.
+    * All dependencies that do not exist in ~/.m2/repository get downloaded to ~/.rewrite/cache/artifacts.
+    */
     @Test
     @Tag("integration")
     void testResolvedDependenciesWithPomTypeDependency() {
@@ -111,7 +122,6 @@ public class OpenRewriteMavenBuildFileTest {
                         "            <url>https://repo.maven.apache.org/maven2</url>\n" +
                         "        </repository>\n" +
                         "    </repositories>" +
-                        "\n" +
                         "    <dependencies>\n" +
                         "        <dependency>\n" +
                         "            <groupId>org.apache.tomee</groupId>\n" +
@@ -127,88 +137,167 @@ public class OpenRewriteMavenBuildFileTest {
                 .build()
                 .getBuildFile();
 
-        List<Path> actualPaths = sut.getResolvedDependenciesPaths().stream()
-                                    .map(dp -> dp.toString().substring(dp.toString().lastIndexOf("repository") + "repository".length() + 1)) // strip of path to Maven repository
-                                    .map(Path::of)
-                    .collect(Collectors.toList());
+        List<String> unifiedPaths = sut.getResolvedDependenciesPaths().stream()
+                .map(dp -> {
+                    String dep = dp.toString();
+                    if(dep.contains(".rewrite/cache/artifacts/")) {
+                        return dep.substring(dep.lastIndexOf(".rewrite/cache/artifacts/") + ".rewrite/cache/artifacts/".length());
+                    } else {
+                        return dep.substring(dep.lastIndexOf("repository/") + "repository/".length());
+                    }
+                }) // strip of path to Maven repository
+                .collect(Collectors.toList());
 
-        assertThat(actualPaths).hasSize(75);
 
-        assertThat(actualPaths)
-                .contains(Path.of("org/apache/tomee/mbean-annotation-api/8.0.5/mbean-annotation-api-8.0.5.jar"))
-                .contains(Path.of("org/apache/tomee/openejb-jpa-integration/8.0.5/openejb-jpa-integration-8.0.5.jar"))
-                .contains(Path.of("org/apache/tomee/javaee-api/8.0-5/javaee-api-8.0-5.jar"))
-                .contains(Path.of("org/apache/commons/commons-lang3/3.11/commons-lang3-3.11.jar"))
-                .contains(Path.of("org/apache/tomee/openejb-api/8.0.5/openejb-api-8.0.5.jar"))
-                .contains(Path.of("org/apache/tomee/openejb-loader/8.0.5/openejb-loader-8.0.5.jar"))
-                .contains(Path.of("org/apache/tomee/openejb-javaagent/8.0.5/openejb-javaagent-8.0.5.jar"))
-                .contains(Path.of("org/apache/tomee/openejb-jee/8.0.5/openejb-jee-8.0.5.jar"))
-                .contains(Path.of("jakarta/xml/bind/jakarta.xml.bind-api/2.3.2/jakarta.xml.bind-api-2.3.2.jar"))
-                .contains(Path.of("jakarta/activation/jakarta.activation-api/1.2.1/jakarta.activation-api-1.2.1.jar"))
-                .contains(Path.of("org/apache/tomee/openejb-jee-accessors/8.0.5/openejb-jee-accessors-8.0.5.jar"))
-                .contains(Path.of("org/metatype/sxc/sxc-jaxb-core/0.8/sxc-jaxb-core-0.8.jar"))
-                .contains(Path.of("org/metatype/sxc/sxc-runtime/0.8/sxc-runtime-0.8.jar"))
-                .contains(Path.of("commons-cli/commons-cli/1.4/commons-cli-1.4.jar"))
-                .contains(Path.of("commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar"))
-                .contains(Path.of("com/sun/activation/jakarta.activation/1.2.1/jakarta.activation-1.2.1.jar"))
-                .contains(Path.of("org/apache/activemq/activemq-ra/5.16.0/activemq-ra-5.16.0.jar"))
-                .contains(Path.of("org/apache/activemq/activemq-kahadb-store/5.16.0/activemq-kahadb-store-5.16.0.jar"))
-                .contains(Path.of("org/apache/activemq/protobuf/activemq-protobuf/1.1/activemq-protobuf-1.1.jar"))
-                .contains(Path.of("org/apache/activemq/activemq-broker/5.16.0/activemq-broker-5.16.0.jar"))
-                .contains(Path.of("org/apache/activemq/activemq-client/5.16.0/activemq-client-5.16.0.jar"))
-                .contains(Path.of("org/fusesource/hawtbuf/hawtbuf/1.11/hawtbuf-1.11.jar"))
-                .contains(Path.of("org/apache/activemq/activemq-openwire-legacy/5.16.0/activemq-openwire-legacy-5.16.0.jar"))
-                .contains(Path.of("org/apache/activemq/activemq-jdbc-store/5.16.0/activemq-jdbc-store-5.16.0.jar"))
-                .contains(Path.of("org/apache/geronimo/components/geronimo-connector/3.1.4/geronimo-connector-3.1.4.jar"))
-                .contains(Path.of("org/apache/geronimo/specs/geronimo-j2ee-connector_1.6_spec/1.0/geronimo-j2ee-connector_1.6_spec-1.0.jar"))
-                .contains(Path.of("org/apache/geronimo/components/geronimo-transaction/3.1.4/geronimo-transaction-3.1.4.jar"))
-                .contains(Path.of("org/objectweb/howl/howl/1.0.1-1/howl-1.0.1-1.jar"))
-                .contains(Path.of("com/fasterxml/jackson/core/jackson-databind/2.12.0-rc1/jackson-databind-2.12.0-rc1.jar"))
-                .contains(Path.of("com/fasterxml/jackson/core/jackson-annotations/2.12.0-rc1/jackson-annotations-2.12.0-rc1.jar"))
-                .contains(Path.of("com/fasterxml/jackson/core/jackson-core/2.12.0-rc1/jackson-core-2.12.0-rc1.jar"))
-                .contains(Path.of("org/apache/geronimo/javamail/geronimo-javamail_1.6_mail/1.0.0/geronimo-javamail_1.6_mail-1.0.0.jar"))
-                .contains(Path.of("org/apache/xbean/xbean-asm7-shaded/4.14/xbean-asm7-shaded-4.14.jar"))
-                .contains(Path.of("org/apache/xbean/xbean-finder-shaded/4.14/xbean-finder-shaded-4.14.jar"))
-                .contains(Path.of("org/apache/xbean/xbean-reflect/4.14/xbean-reflect-4.14.jar"))
-                .contains(Path.of("org/apache/xbean/xbean-naming/4.14/xbean-naming-4.14.jar"))
-                .contains(Path.of("org/apache/xbean/xbean-bundleutils/4.14/xbean-bundleutils-4.14.jar"))
-                .contains(Path.of("org/hsqldb/hsqldb/2.3.2/hsqldb-2.3.2.jar"))
-                .contains(Path.of("org/apache/commons/commons-dbcp2/2.1/commons-dbcp2-2.1.jar"))
-                .contains(Path.of("org/apache/commons/commons-pool2/2.3/commons-pool2-2.3.jar"))
-                .contains(Path.of("org/codehaus/swizzle/swizzle-stream/1.6.2/swizzle-stream-1.6.2.jar"))
-                .contains(Path.of("commons-logging/commons-logging/1.2/commons-logging-1.2.jar"))
-                .contains(Path.of("org/apache/openejb/shade/quartz-openejb-shade/2.2.1/quartz-openejb-shade-2.2.1.jar"))
-                .contains(Path.of("org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.jar"))
-                .contains(Path.of("org/apache/openwebbeans/openwebbeans-impl/2.0.12/openwebbeans-impl-2.0.12.jar"))
-                .contains(Path.of("org/apache/openwebbeans/openwebbeans-spi/2.0.12/openwebbeans-spi-2.0.12.jar"))
-                .contains(Path.of("org/apache/openwebbeans/openwebbeans-ejb/2.0.12/openwebbeans-ejb-2.0.12.jar"))
-                .contains(Path.of("org/apache/openwebbeans/openwebbeans-ee/2.0.12/openwebbeans-ee-2.0.12.jar"))
-                .contains(Path.of("org/apache/openwebbeans/openwebbeans-ee-common/2.0.12/openwebbeans-ee-common-2.0.12.jar"))
-                .contains(Path.of("org/apache/openwebbeans/openwebbeans-web/2.0.12/openwebbeans-web-2.0.12.jar"))
-                .contains(Path.of("org/apache/openwebbeans/openwebbeans-el22/2.0.12/openwebbeans-el22-2.0.12.jar"))
-                .contains(Path.of("org/hibernate/hibernate-entitymanager/5.4.10.Final/hibernate-entitymanager-5.4.10.Final.jar"))
-                .contains(Path.of("org/hibernate/hibernate-core/5.4.10.Final/hibernate-core-5.4.10.Final.jar"))
-                .contains(Path.of("org/javassist/javassist/3.24.0-GA/javassist-3.24.0-GA.jar"))
-                .contains(Path.of("antlr/antlr/2.7.7/antlr-2.7.7.jar"))
-                .contains(Path.of("org/jboss/jandex/2.1.1.Final/jandex-2.1.1.Final.jar"))
-                .contains(Path.of("javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar"))
-                .contains(Path.of("javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar"))
-                .contains(Path.of("org/glassfish/jaxb/jaxb-runtime/2.3.1/jaxb-runtime-2.3.1.jar"))
-                .contains(Path.of("org/glassfish/jaxb/txw2/2.3.1/txw2-2.3.1.jar"))
-                .contains(Path.of("com/sun/istack/istack-commons-runtime/3.0.7/istack-commons-runtime-3.0.7.jar"))
-                .contains(Path.of("org/jvnet/staxex/stax-ex/1.8/stax-ex-1.8.jar"))
-                .contains(Path.of("com/sun/xml/fastinfoset/FastInfoset/1.2.15/FastInfoset-1.2.15.jar"))
-                .contains(Path.of("org/dom4j/dom4j/2.1.1/dom4j-2.1.1.jar"))
-                .contains(Path.of("org/hibernate/common/hibernate-commons-annotations/5.1.0.Final/hibernate-commons-annotations-5.1.0.Final.jar"))
-                .contains(Path.of("javax/persistence/javax.persistence-api/2.2/javax.persistence-api-2.2.jar"))
-                .contains(Path.of("net/bytebuddy/byte-buddy/1.10.2/byte-buddy-1.10.2.jar"))
-                .contains(Path.of("org/jboss/spec/javax/transaction/jboss-transaction-api_1.2_spec/1.1.1.Final/jboss-transaction-api_1.2_spec-1.1.1.Final.jar"))
-                .contains(Path.of("org/hibernate/hibernate-validator/5.1.3.Final/hibernate-validator-5.1.3.Final.jar"))
-                .contains(Path.of("com/fasterxml/classmate/1.0.0/classmate-1.0.0.jar"))
-                .contains(Path.of("org/hibernate/hibernate-ehcache/5.4.10.Final/hibernate-ehcache-5.4.10.Final.jar"))
-                .contains(Path.of("org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar"))
-                .contains(Path.of("net/sf/ehcache/ehcache/2.10.3/ehcache-2.10.3.jar"))
-                .contains(Path.of("org/slf4j/slf4j-jdk14/1.7.21/slf4j-jdk14-1.7.21.jar"));
+        assertThat(unifiedPaths.stream().sorted()).containsExactlyInAnyOrder(
+                "org/apache/tomee/mbean-annotation-api/8.0.5/mbean-annotation-api-8.0.5.jar",
+				"org/apache/tomee/openejb-jpa-integration/8.0.5/openejb-jpa-integration-8.0.5.jar",
+				"org/apache/tomee/javaee-api/8.0-5/javaee-api-8.0-5.jar",
+				"org/apache/commons/commons-lang3/3.11/commons-lang3-3.11.jar",
+				"org/apache/tomee/openejb-api/8.0.5/openejb-api-8.0.5.jar",
+				"org/apache/tomee/openejb-loader/8.0.5/openejb-loader-8.0.5.jar",
+				"org/apache/tomee/openejb-javaagent/8.0.5/openejb-javaagent-8.0.5.jar",
+				"org/apache/tomee/openejb-jee/8.0.5/openejb-jee-8.0.5.jar",
+                "org/apache/tomee/openejb-core/8.0.5/openejb-core-8.0.5.jar",
+				"jakarta/xml/bind/jakarta.xml.bind-api/2.3.2/jakarta.xml.bind-api-2.3.2.jar",
+				"jakarta/activation/jakarta.activation-api/1.2.1/jakarta.activation-api-1.2.1.jar",
+				"org/apache/tomee/openejb-jee-accessors/8.0.5/openejb-jee-accessors-8.0.5.jar",
+				"org/metatype/sxc/sxc-jaxb-core/0.8/sxc-jaxb-core-0.8.jar",
+				"org/metatype/sxc/sxc-runtime/0.8/sxc-runtime-0.8.jar",
+				"commons-cli/commons-cli/1.4/commons-cli-1.4.jar",
+				"commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar",
+				"com/sun/activation/jakarta.activation/1.2.1/jakarta.activation-1.2.1.jar",
+				"org/apache/activemq/activemq-ra/5.16.0/activemq-ra-5.16.0.jar",
+				"org/apache/activemq/activemq-kahadb-store/5.16.0/activemq-kahadb-store-5.16.0.jar",
+				"org/apache/activemq/protobuf/activemq-protobuf/1.1/activemq-protobuf-1.1.jar",
+				"org/apache/activemq/activemq-broker/5.16.0/activemq-broker-5.16.0.jar",
+				"org/apache/activemq/activemq-client/5.16.0/activemq-client-5.16.0.jar",
+				"org/fusesource/hawtbuf/hawtbuf/1.11/hawtbuf-1.11.jar",
+				"org/apache/activemq/activemq-openwire-legacy/5.16.0/activemq-openwire-legacy-5.16.0.jar",
+				"org/apache/activemq/activemq-jdbc-store/5.16.0/activemq-jdbc-store-5.16.0.jar",
+				"org/apache/geronimo/components/geronimo-connector/3.1.4/geronimo-connector-3.1.4.jar",
+				"org/apache/geronimo/specs/geronimo-j2ee-connector_1.6_spec/1.0/geronimo-j2ee-connector_1.6_spec-1.0.jar",
+				"org/apache/geronimo/components/geronimo-transaction/3.1.4/geronimo-transaction-3.1.4.jar",
+				"org/objectweb/howl/howl/1.0.1-1/howl-1.0.1-1.jar",
+				"com/fasterxml/jackson/core/jackson-databind/2.12.0-rc1/jackson-databind-2.12.0-rc1.jar",
+				"com/fasterxml/jackson/core/jackson-annotations/2.12.0-rc1/jackson-annotations-2.12.0-rc1.jar",
+				"com/fasterxml/jackson/core/jackson-core/2.12.0-rc1/jackson-core-2.12.0-rc1.jar",
+				"org/apache/geronimo/javamail/geronimo-javamail_1.6_mail/1.0.0/geronimo-javamail_1.6_mail-1.0.0.jar",
+				"org/apache/xbean/xbean-asm7-shaded/4.14/xbean-asm7-shaded-4.14.jar",
+				"org/apache/xbean/xbean-finder-shaded/4.14/xbean-finder-shaded-4.14.jar",
+
+                "commons-net/commons-net/3.6/commons-net-3.6.jar",
+                // FIXME: #7 with OR 7.23.0 these dependencies are not there anymore
+                 "org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.1.1/geronimo-jms_1.1_spec-1.1.1.jar",
+                 "org/apache/geronimo/specs/geronimo-j2ee-management_1.1_spec/1.0.1/geronimo-j2ee-management_1.1_spec-1.0.1.jar",
+                 "stax/stax-api/1.0.1/stax-api-1.0.1.jar",
+
+				"org/apache/xbean/xbean-reflect/4.14/xbean-reflect-4.14.jar",
+				"org/apache/xbean/xbean-naming/4.14/xbean-naming-4.14.jar",
+				"org/apache/xbean/xbean-bundleutils/4.14/xbean-bundleutils-4.14.jar",
+				"org/hsqldb/hsqldb/2.3.2/hsqldb-2.3.2.jar",
+				"org/apache/commons/commons-dbcp2/2.1/commons-dbcp2-2.1.jar",
+				"org/apache/commons/commons-pool2/2.3/commons-pool2-2.3.jar",
+				"org/codehaus/swizzle/swizzle-stream/1.6.2/swizzle-stream-1.6.2.jar",
+				"commons-logging/commons-logging/1.2/commons-logging-1.2.jar",
+				"org/apache/openejb/shade/quartz-openejb-shade/2.2.1/quartz-openejb-shade-2.2.1.jar",
+				"org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.jar",
+				"org/apache/openwebbeans/openwebbeans-impl/2.0.12/openwebbeans-impl-2.0.12.jar",
+				"org/apache/openwebbeans/openwebbeans-spi/2.0.12/openwebbeans-spi-2.0.12.jar",
+				"org/apache/openwebbeans/openwebbeans-ejb/2.0.12/openwebbeans-ejb-2.0.12.jar",
+				"org/apache/openwebbeans/openwebbeans-ee/2.0.12/openwebbeans-ee-2.0.12.jar",
+				"org/apache/openwebbeans/openwebbeans-ee-common/2.0.12/openwebbeans-ee-common-2.0.12.jar",
+				"org/apache/openwebbeans/openwebbeans-web/2.0.12/openwebbeans-web-2.0.12.jar",
+				"org/apache/openwebbeans/openwebbeans-el22/2.0.12/openwebbeans-el22-2.0.12.jar",
+				"org/hibernate/hibernate-entitymanager/5.4.10.Final/hibernate-entitymanager-5.4.10.Final.jar",
+				"org/hibernate/hibernate-core/5.4.10.Final/hibernate-core-5.4.10.Final.jar",
+				"org/javassist/javassist/3.24.0-GA/javassist-3.24.0-GA.jar",
+                "antlr/antlr/2.7.7/antlr-2.7.7.jar",
+				"org/jboss/jandex/2.1.1.Final/jandex-2.1.1.Final.jar",
+				"javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar",
+				"javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar",
+				"org/glassfish/jaxb/jaxb-runtime/2.3.1/jaxb-runtime-2.3.1.jar",
+				"org/glassfish/jaxb/txw2/2.3.1/txw2-2.3.1.jar",
+				"com/sun/istack/istack-commons-runtime/3.0.7/istack-commons-runtime-3.0.7.jar",
+				"org/jvnet/staxex/stax-ex/1.8/stax-ex-1.8.jar",
+				"com/sun/xml/fastinfoset/FastInfoset/1.2.15/FastInfoset-1.2.15.jar",
+				"org/dom4j/dom4j/2.1.1/dom4j-2.1.1.jar",
+				"org/hibernate/common/hibernate-commons-annotations/5.1.0.Final/hibernate-commons-annotations-5.1.0.Final.jar",
+				"javax/persistence/javax.persistence-api/2.2/javax.persistence-api-2.2.jar",
+				"net/bytebuddy/byte-buddy/1.10.2/byte-buddy-1.10.2.jar",
+				"org/jboss/spec/javax/transaction/jboss-transaction-api_1.2_spec/1.1.1.Final/jboss-transaction-api_1.2_spec-1.1.1.Final.jar",
+				"org/hibernate/hibernate-validator/5.1.3.Final/hibernate-validator-5.1.3.Final.jar",
+				"com/fasterxml/classmate/1.0.0/classmate-1.0.0.jar",
+				"org/hibernate/hibernate-ehcache/5.4.10.Final/hibernate-ehcache-5.4.10.Final.jar",
+				"org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar",
+				"net/sf/ehcache/ehcache/2.10.3/ehcache-2.10.3.jar",
+				"org/slf4j/slf4j-jdk14/1.7.21/slf4j-jdk14-1.7.21.jar"
+        );
+    }
+
+    @Test
+    void addDependencyWithNoTransitiveDependencies() {
+        String pomXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                        "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
+                        "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                        "  <modelVersion>4.0.0</modelVersion>\n" +
+                        "  <groupId>org.springframework.sbm</groupId>\n" +
+                        "  <artifactId>dummy-test-artifact</artifactId>\n" +
+                        "  <version>1.0.0</version>\n" +
+                        "</project>\n";
+
+        String javaSource = "import javax.validation.constraints.Email;\n" +
+                            "public class Cat {\n" +
+                            "    @Email\n" +
+                            "    private String email;\n" +
+                            "}";
+
+        // precondition: jar does not exist
+        // precondition: types from jar not resolvable
+
+        // verify jar was downloaded
+        // verify types from jar can be resolved
+
+        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+        ProjectContext context = TestProjectContext.buildProjectContext(eventPublisher)
+                .withMavenRootBuildFileSource(pomXml)
+                .addJavaSource("src/main/java", javaSource)
+                .build();
+
+        BuildFile buildFile = context.getBuildFile();
+
+        Member member = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);
+
+        boolean b = member.hasAnnotation("javax.validation.constraints.Email");
+        assertThat(b).isFalse();
+
+        buildFile.addDependency(Dependency.builder()
+                                .groupId("javax.validation")
+                                .artifactId("validation-api")
+                                .version("2.0.1.Final")
+                                .build());
+
+
+
+        Class<DependenciesChangedEvent> event = DependenciesChangedEvent.class;
+        ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(event);
+        assertEventPublished(eventPublisher, argumentCaptor, event, 1);
+
+//        verify(eventPublisher).publishEvent(argumentCaptor);
+        assertThat(argumentCaptor.getValue().getResolvedDependencies().get(0).toString()).endsWith("javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar");
+
+        DependenciesChangedEvent fireEvent = argumentCaptor.getValue();
+        ProjectContextHolder projectContextHolder = new ProjectContextHolder();
+        projectContextHolder.setProjectContext(context);
+        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, eventPublisher);
+        handler.onDependenciesChanged(fireEvent);
+
+        Member member2 = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);
+        boolean b1 = member2.hasAnnotation("javax.validation.constraints.Email");
+        assertThat(b1).isTrue();
+
     }
 
     @Test
@@ -216,8 +305,8 @@ public class OpenRewriteMavenBuildFileTest {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                        "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                        "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                         "  <modelVersion>4.0.0</modelVersion>\n" +
                         "  <groupId>org.springframework.sbm</groupId>\n" +
                         "  <artifactId>dummy-test-artifact</artifactId>\n" +
@@ -255,8 +344,8 @@ public class OpenRewriteMavenBuildFileTest {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                        "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                        "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                         "  <modelVersion>4.0.0</modelVersion>\n" +
                         "  <groupId>org.springframework.sbm</groupId>\n" +
                         "  <artifactId>dummy-test-artifact</artifactId>\n" +
@@ -320,9 +409,23 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(sut.getDeclaredDependencies()).hasSize(1);
         assertThat(sut.getDeclaredDependencies()).contains(dependency);
         ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(DependenciesChangedEvent.class);
-        verify(eventPublisher, times(46)).publishEvent(argumentCaptor.capture());
+
+        // verify that DependenciesChangedEvent was published exactly once. ArgumentCaptor not type aware.
+        // Don't know about a better way, see https://github.com/mockito/mockito/issues/565
+        assertEventPublished(eventPublisher, argumentCaptor, DependenciesChangedEvent.class, 1);
+
         assertThat(argumentCaptor.getValue().getResolvedDependencies()).hasSize(1);
-        assertThat(argumentCaptor.getValue().getResolvedDependencies().get(0).toString()).endsWith(Path.of("org/apiguardian/apiguardian-api/1.1.0/apiguardian-api-1.1.0.jar").toString());
+        assertThat(argumentCaptor.getValue().getResolvedDependencies().get(0).toString()).endsWith("org/apiguardian/apiguardian-api/1.1.0/apiguardian-api-1.1.0.jar");
+    }
+
+    private void assertEventPublished(ApplicationEventPublisher eventPublisher, ArgumentCaptor<DependenciesChangedEvent> argumentCaptor, Class<?> eventClass, int times) {
+        verify(eventPublisher, Mockito.atLeastOnce()).publishEvent(argumentCaptor.capture());
+        List<?> allEvents = argumentCaptor.getAllValues();
+        long timesDependenciesChangedEventPublished = allEvents
+                .stream()
+                .filter(e -> eventClass.isInstance(e))
+                .count();
+        assertThat(timesDependenciesChangedEventPublished).isEqualTo(times);
     }
 
     @Test
@@ -332,8 +435,8 @@ public class OpenRewriteMavenBuildFileTest {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                        "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                        "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                         "  <modelVersion>4.0.0</modelVersion>\n" +
                         "  <groupId>org.springframework.sbm</groupId>\n" +
                         "  <artifactId>dummy-test-artifact</artifactId>\n" +
@@ -348,14 +451,15 @@ public class OpenRewriteMavenBuildFileTest {
 
         sut.addDependencies(List.of(
                 Dependency.builder()
-                        .groupId("org.junit.jupiter")
-                        .artifactId("junit-jupiter-api")
-                        .version("5.7.0")
+                        .groupId("javax.mail")
+                        .artifactId("javax.mail-api")
+                        .version("1.6.2")
                         .build(),
                 Dependency.builder()
                         .groupId("org.junit.jupiter")
                         .artifactId("junit-jupiter-engine")
                         .version("5.7.0")
+                        .scope("test")
                         .exclusions(List.of(Dependency.builder()
                                 .groupId("org.junit.jupiter")
                                 .artifactId("junit-jupiter-api")
@@ -366,22 +470,23 @@ public class OpenRewriteMavenBuildFileTest {
 
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                         + "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n"
-                        + "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n"
-                        + "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+                        + "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n"
+                        + "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
                         + "  <modelVersion>4.0.0</modelVersion>\n"
                         + "  <groupId>org.springframework.sbm</groupId>\n"
                         + "  <artifactId>dummy-test-artifact</artifactId>\n"
                         + "  <version>1.0.0</version>\n"
                         + "  <dependencies>\n"
                         + "    <dependency>\n"
-                        + "      <groupId>org.junit.jupiter</groupId>\n"
-                        + "      <artifactId>junit-jupiter-api</artifactId>\n"
-                        + "      <version>5.7.0</version>\n"
+                        + "      <groupId>javax.mail</groupId>\n"
+                        + "      <artifactId>javax.mail-api</artifactId>\n"
+                        + "      <version>1.6.2</version>\n"
                         + "    </dependency>\n"
                         + "    <dependency>\n"
                         + "      <groupId>org.junit.jupiter</groupId>\n"
                         + "      <artifactId>junit-jupiter-engine</artifactId>\n"
                         + "      <version>5.7.0</version>\n"
+                        + "      <scope>test</scope>\n"
                         + "      <exclusions>\n"
                         + "        <exclusion>\n"
                         + "          <groupId>org.junit.jupiter</groupId>\n"
@@ -397,9 +502,9 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(sut.getDeclaredDependencies()).hasSize(2);
 
         Dependency addedDependency = sut.getDeclaredDependencies().get(0);
-        assertThat(addedDependency.getGroupId()).isEqualTo("org.junit.jupiter");
-        assertThat(addedDependency.getArtifactId()).isEqualTo("junit-jupiter-api");
-        assertThat(addedDependency.getVersion()).isEqualTo("5.7.0");
+        assertThat(addedDependency.getGroupId()).isEqualTo("javax.mail");
+        assertThat(addedDependency.getArtifactId()).isEqualTo("javax.mail-api");
+        assertThat(addedDependency.getVersion()).isEqualTo("1.6.2");
 
         addedDependency = sut.getDeclaredDependencies().get(1);
         assertThat(addedDependency.getGroupId()).isEqualTo("org.junit.jupiter");
@@ -413,8 +518,8 @@ public class OpenRewriteMavenBuildFileTest {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                        "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                        "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                         "  <modelVersion>4.0.0</modelVersion>\n" +
                         "  <groupId>org.springframework.sbm</groupId>\n" +
                         "  <artifactId>dummy-test-artifact</artifactId>\n" +
@@ -455,7 +560,7 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
-    void testGetDependencies() {
+    void testGetDeclaredDependencies() {
         String pomSource =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -532,6 +637,7 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
+    @Tag("integration")
     void testDeleteTypePomDependencies() {
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
@@ -541,7 +647,7 @@ public class OpenRewriteMavenBuildFileTest {
                         "    <groupId>foo</groupId>\n" +
                         "    <artifactId>bar</artifactId>\n" +
                         "    <version>0.0.1-SNAPSHOT</version>\n" +
-                        "    <name>foobat</name>\n" +
+                        "    <name>foobar</name>\n" +
                         "\n" +
                         "    <dependencies>\n" +
                         "        <dependency>\n" +
@@ -582,7 +688,7 @@ public class OpenRewriteMavenBuildFileTest {
                 "    <groupId>foo</groupId>\n" +
                 "    <artifactId>bar</artifactId>\n" +
                 "    <version>0.0.1-SNAPSHOT</version>\n" +
-                "    <name>foobat</name>\n" +
+                "    <name>foobar</name>\n" +
                 "\n" +
                 "    <dependencies>\n" +
                 "        <dependency>\n" +
@@ -596,6 +702,7 @@ public class OpenRewriteMavenBuildFileTest {
 
     @Test
     void testDeleteTypePomDependenciesAll() {
+
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
                         "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -604,8 +711,6 @@ public class OpenRewriteMavenBuildFileTest {
                         "    <groupId>foo</groupId>\n" +
                         "    <artifactId>bar</artifactId>\n" +
                         "    <version>0.0.1-SNAPSHOT</version>\n" +
-                        "    <name>foobat</name>\n" +
-                        "\n" +
                         "    <dependencies>\n" +
                         "        <dependency>\n" +
                         "            <groupId>org.apache.tomee</groupId>\n" +
@@ -616,13 +721,15 @@ public class OpenRewriteMavenBuildFileTest {
                         "    </dependencies>\n" +
                         "</project>";
 
+        long beforeCreatingContext = System.currentTimeMillis();
+
         BuildFile sut = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
 
         sut.removeDependencies(List.of(
                 Dependency.builder()
                         .groupId("org.apache.tomee")
                         .artifactId("openejb-core-hibernate")
-                        .type("pom") //TODO: OR remove dependency doesn't care about this attribute (ignores it, but it is meaningful here).
+//                        .type("pom") //TODO: #7 OR remove dependency doesn't care about this attribute (ignores it, but it is meaningful here).
                         .build())
         );
 
@@ -637,7 +744,6 @@ public class OpenRewriteMavenBuildFileTest {
                         "    <groupId>foo</groupId>\n" +
                         "    <artifactId>bar</artifactId>\n" +
                         "    <version>0.0.1-SNAPSHOT</version>\n" +
-                        "    <name>foobat</name>\n" +
                         "</project>");
     }
 
@@ -646,8 +752,8 @@ public class OpenRewriteMavenBuildFileTest {
         String givenPomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                        "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                        "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                         "  <modelVersion>4.0.0</modelVersion>\n" +
                         "  <groupId>org.springframework.sbm</groupId>\n" +
                         "  <artifactId>dummy-test-artifact</artifactId>\n" +
@@ -657,8 +763,8 @@ public class OpenRewriteMavenBuildFileTest {
         String expectedPomXmlSource =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                        "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                        "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                         "  <modelVersion>4.0.0</modelVersion>\n" +
                         "  <groupId>org.springframework.sbm</groupId>\n" +
                         "  <artifactId>dummy-test-artifact</artifactId>\n" +
@@ -679,7 +785,7 @@ public class OpenRewriteMavenBuildFileTest {
         ProjectContext projectContext = TestProjectContext.buildProjectContext(eventPublisher)
                 .withProjectRoot(fakedProjectPath)
                 .withMavenRootBuildFileSource(givenPomXml)
-                // FIXME: onlyIfUsed temporary deactivated by sing AlwaysAddDependency
+                // FIXME: onlyIfUsed temporary deactivated by using AlwaysAddDependency
                 .withJavaSources(
                         "import java.lang.String;\n" +
                                 "class Foo {\n" +
@@ -698,7 +804,9 @@ public class OpenRewriteMavenBuildFileTest {
 
         // assert that DependenciesChangedEvent has been published with the list of dependencies
         ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(DependenciesChangedEvent.class);
-        verify(eventPublisher, times(48)).publishEvent(argumentCaptor.capture()); //  // publish event called for parsed JavaSource too
+
+        assertEventPublished(eventPublisher, argumentCaptor, DependenciesChangedEvent.class, 1);
+
         List<Path> resolvedDependencies = argumentCaptor.getValue().getResolvedDependencies();
         assertThat(resolvedDependencies).hasSize(1);
         Path pathInMavenRepo = Path.of("org/slf4j/slf4j-api/1.7.32/slf4j-api-1.7.32.jar");
@@ -724,8 +832,8 @@ public class OpenRewriteMavenBuildFileTest {
     void shouldAddMavenPluginWhenNoPluginSectionExists() {
         String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                 "    <modelVersion>4.0.0</modelVersion>\n" +
                 "    <groupId>com.vmware.example</groupId>\n" +
                 "    <artifactId>jboss-sample</artifactId>\n" +
@@ -734,8 +842,8 @@ public class OpenRewriteMavenBuildFileTest {
 
         String refactoredPomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                 "    <modelVersion>4.0.0</modelVersion>\n" +
                 "    <groupId>com.vmware.example</groupId>\n" +
                 "    <artifactId>jboss-sample</artifactId>\n" +
@@ -763,8 +871,8 @@ public class OpenRewriteMavenBuildFileTest {
     void shouldAddMavenPluginWhenEmptyPluginSectionExists() {
         String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                 "    <modelVersion>4.0.0</modelVersion>\n" +
                 "    <groupId>com.vmware.example</groupId>\n" +
                 "    <artifactId>jboss-sample</artifactId>\n" +
@@ -777,8 +885,8 @@ public class OpenRewriteMavenBuildFileTest {
 
         String refactoredPomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                 "    <modelVersion>4.0.0</modelVersion>\n" +
                 "    <groupId>com.vmware.example</groupId>\n" +
                 "    <artifactId>jboss-sample</artifactId>\n" +
@@ -806,8 +914,8 @@ public class OpenRewriteMavenBuildFileTest {
     void shouldNotAddMavenPluginWhenSamePluginExists() {
         String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                 "    <modelVersion>4.0.0</modelVersion>\n" +
                 "    <groupId>com.vmware.example</groupId>\n" +
                 "    <artifactId>jboss-sample</artifactId>\n" +
@@ -824,8 +932,8 @@ public class OpenRewriteMavenBuildFileTest {
 
         String refactoredPomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                 "    <modelVersion>4.0.0</modelVersion>\n" +
                 "    <groupId>com.vmware.example</groupId>\n" +
                 "    <artifactId>jboss-sample</artifactId>\n" +
@@ -853,8 +961,8 @@ public class OpenRewriteMavenBuildFileTest {
     void shouldAddMavenPluginWhenAnotherPluginExists() {
         String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                 "    <modelVersion>4.0.0</modelVersion>\n" +
                 "    <groupId>com.vmware.example</groupId>\n" +
                 "    <artifactId>jboss-sample</artifactId>\n" +
@@ -871,8 +979,8 @@ public class OpenRewriteMavenBuildFileTest {
 
         String refactoredPomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
                 "    <modelVersion>4.0.0</modelVersion>\n" +
                 "    <groupId>com.vmware.example</groupId>\n" +
                 "    <artifactId>jboss-sample</artifactId>\n" +
@@ -1218,7 +1326,7 @@ public class OpenRewriteMavenBuildFileTest {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
                         "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>com.vmwre.sbm.examples</groupId>\n" +
@@ -1255,7 +1363,7 @@ public class OpenRewriteMavenBuildFileTest {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
                         "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>com.vmwre.sbm.examples</groupId>\n" +
@@ -1278,7 +1386,7 @@ public class OpenRewriteMavenBuildFileTest {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" \n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
                         "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>com.vmwre.sbm.examples</groupId>\n" +
@@ -1587,6 +1695,37 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
+    void hasParentWithParentShouldReturnParent() {
+        String pomXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                        "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                        "    <modelVersion>4.0.0</modelVersion>\n" +
+                        "    <parent>\n" +
+                        "        <groupId>org.springframework.boot</groupId>\n" +
+                        "        <artifactId>spring-boot-starter-parent</artifactId>\n" +
+                        "        <version>2.4.12</version>\n" +
+                        "        <relativePath/> <!-- lookup parent from repository -->\n" +
+                        "    </parent>\n" +
+                        "    <groupId>com.example</groupId>\n" +
+                        "    <artifactId>spring-boot-24-to-25-example</artifactId>\n" +
+                        "    <version>0.0.1-SNAPSHOT</version>\n" +
+                        "    <name>spring-boot-2.4-to-2.5-example</name>\n" +
+                        "    <description>spring-boot-2.4-to-2.5-example</description>\n" +
+                        "    <properties>\n" +
+                        "        <java.version>11</java.version>\n" +
+                        "    </properties>\n" +
+                        "</project>\n";
+
+        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration()).isNotEmpty();
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().get().getGroupId()).isEqualTo("org.springframework.boot");
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().get().getArtifactId()).isEqualTo("spring-boot-starter-parent");
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().get().getVersion()).isEqualTo("2.4.12");
+    }
+
+    @Test
     void upgradeParentVersion() {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -1613,6 +1752,7 @@ public class OpenRewriteMavenBuildFileTest {
 
         openRewriteMavenBuildFile.upgradeParentVersion("2.5.6");
 
-        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().getVersion()).isEqualTo("2.5.6");
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration()).isNotEmpty();
+        assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().get().getVersion()).isEqualTo("2.5.6");
     }
 }

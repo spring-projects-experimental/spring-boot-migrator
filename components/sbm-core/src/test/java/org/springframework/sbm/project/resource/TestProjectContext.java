@@ -15,27 +15,32 @@
  */
 package org.springframework.sbm.project.resource;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.Parser;
+import org.openrewrite.java.JavaParser;
+import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.springframework.sbm.build.migration.MavenPomCacheProvider;
+import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.build.resource.BuildFileResourceWrapper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.java.JavaSourceProjectResourceWrapper;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.TestDummyResource;
-import org.springframework.sbm.project.parser.DependencyHelper;
-import org.springframework.sbm.project.parser.ProjectContextInitializer;
-import org.springframework.sbm.project.parser.RewriteMavenParserFactory;
+import org.springframework.sbm.project.parser.*;
+import org.springframework.sbm.properties.parser.RewritePropertiesParser;
+import org.springframework.sbm.xml.parser.RewriteXmlParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -219,10 +224,13 @@ public class TestProjectContext {
         private OpenRewriteMavenBuildFile mockedBuildFile;
         private DependencyHelper dependencyHelper = new DependencyHelper();
         private SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        private JavaParser javaParser;
 
         public Builder(Path projectRoot) {
             this.projectRoot = projectRoot;
             sbmApplicationProperties.setDefaultBasePackage(DEFAULT_PACKAGE_NAME);
+            sbmApplicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
+            this.javaParser = new RewriteJavaParser(sbmApplicationProperties);
         }
 
         public Builder(Path projectRoot, ApplicationEventPublisher eventPublisher) {
@@ -235,7 +243,7 @@ public class TestProjectContext {
             return this;
         }
 
-        public Builder withSbmApplicationProperties(SbmApplicationProperties sbmApplicationProperties) {
+        public Builder withApplicationProperties(SbmApplicationProperties sbmApplicationProperties) {
             this.sbmApplicationProperties = sbmApplicationProperties;
             return this;
         }
@@ -289,12 +297,12 @@ public class TestProjectContext {
          * The source Path is ' src/main/java' in the root module and the path inside is calculated from package declaration if exists.
          */
         @Deprecated
-        public Builder withJavaSource(String sourceCode) {
+        public Builder addJavaSource(String sourceCode) {
             return withJavaSources(sourceCode);
         }
 
 
-        public Builder withJavaSource(Path sourcePathDir, String sourceCode) {
+        public Builder addJavaSource(Path sourcePathDir, String sourceCode) {
             if (sourcePathDir.isAbsolute()) {
                 throw new IllegalArgumentException("Source path must be relative to project root dir.");
             }
@@ -304,8 +312,8 @@ public class TestProjectContext {
             return this;
         }
 
-        public Builder withJavaSource(String sourcePath, String sourceCode) {
-            return withJavaSource(Path.of(sourcePath), sourceCode);
+        public Builder addJavaSource(String sourcePath, String sourceCode) {
+            return addJavaSource(Path.of(sourcePath), sourceCode);
         }
 
         public Builder addJavaSourceToModule(String modulePath, String sourceCode) {
@@ -417,15 +425,15 @@ public class TestProjectContext {
             JavaRefactoringFactory javaRefactoringFactory = new JavaRefactoringFactoryImpl(projectResourceSetHolder);
 
             // create ProjectResourceWrapperRegistry and register Java and Maven resource wrapper
-            BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(eventPublisher);
+            BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(eventPublisher, javaParser);
             resourceWrapperList.add(buildFileResourceWrapper);
-            JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(javaRefactoringFactory);
+            JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(javaRefactoringFactory, javaParser);
             resourceWrapperList.add(javaSourceProjectResourceWrapper);
             orderByOrderAnnotationValue(resourceWrapperList);
             resourceWrapperRegistry = new ProjectResourceWrapperRegistry(resourceWrapperList);
 
             // create ProjectContextInitializer
-            ProjectContextFactory projectContextFactory = new ProjectContextFactory(resourceWrapperRegistry, projectResourceSetHolder, javaRefactoringFactory, new BasePackageCalculator(sbmApplicationProperties));
+            ProjectContextFactory projectContextFactory = new ProjectContextFactory(resourceWrapperRegistry, projectResourceSetHolder, javaRefactoringFactory, new BasePackageCalculator(sbmApplicationProperties), javaParser);
             ProjectContextInitializer projectContextInitializer = createProjectContextInitializer(projectContextFactory);
 
             // create ProjectContext
@@ -456,13 +464,31 @@ public class TestProjectContext {
 
         @NotNull
         private ProjectContextInitializer createProjectContextInitializer(ProjectContextFactory projectContextFactory) {
-            RewriteMavenParserFactory rewriteMavenParserFactory = new RewriteMavenParserFactory(new MavenPomCacheProvider(), eventPublisher);
+            // FIXME: #7 remove
+//            RewriteMavenParserFactory rewriteMavenParserFactory = new RewriteMavenParserFactory(new MavenPomCacheProvider(), eventPublisher, new ResourceParser(eventPublisher));
+
+
+            ResourceParser resourceParser = new ResourceParser(
+                    new RewriteJsonParser(),
+                    new RewriteXmlParser(),
+                    new RewriteYamlParser(),
+                    new RewritePropertiesParser(),
+                    new RewritePlainTextParser(),
+                    new ResourceParser.ResourceFilter(),
+                    eventPublisher);
+
+            RewriteMavenParser mavenParser =  new RewriteMavenParser();
+
+            MavenArtifactDownloader artifactDownloader = new RewriteMavenArtifactDownloader();
+
+            JavaProvenanceMarkerFactory javaProvenanceMarkerFactory = new JavaProvenanceMarkerFactory();
+            MavenProjectParser mavenProjectParser = new MavenProjectParser(resourceParser, mavenParser, artifactDownloader, eventPublisher, javaProvenanceMarkerFactory, javaParser);
 
             GitSupport gitSupport = mock(GitSupport.class);
             when(gitSupport.repoExists(projectRoot.toFile())).thenReturn(true);
             when(gitSupport.getLatestCommit(projectRoot.toFile())).thenReturn(Optional.empty());
 
-            ProjectContextInitializer projectContextInitializer = new ProjectContextInitializer(projectContextFactory, rewriteMavenParserFactory, gitSupport);
+            ProjectContextInitializer projectContextInitializer = new ProjectContextInitializer(projectContextFactory, mavenProjectParser, gitSupport);
             return projectContextInitializer;
         }
 

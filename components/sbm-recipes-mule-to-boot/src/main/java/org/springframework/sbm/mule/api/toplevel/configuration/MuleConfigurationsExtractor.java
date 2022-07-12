@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.mulesoft.schema.mule.core.AbstractConnectorType;
 import org.mulesoft.schema.mule.core.ConfigurationType;
 import org.mulesoft.schema.mule.core.MuleType;
+import org.mulesoft.schema.mule.db.DatabaseConfigType;
 import org.mulesoft.schema.mule.http.ListenerConfigType;
 import org.mulesoft.schema.mule.http.RequestConfigType;
 import org.springframework.stereotype.Component;
@@ -54,7 +55,8 @@ public class MuleConfigurationsExtractor {
         Set<Class> configTypes = Set.of(RequestConfigType.class,
                 ConfigurationType.class,
                 AbstractConnectorType.class,
-                ListenerConfigType.class
+                ListenerConfigType.class,
+                DatabaseConfigType.class
         );
         return configTypes.stream()
                 .anyMatch(ct -> ct.isAssignableFrom(aClass));

@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.search.recipe;
 
+import org.openrewrite.Tree;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.SearchResult;
@@ -24,6 +25,7 @@ import java.util.UUID;
 public class CommentJavaSearchResult implements Marker {
 
     private SearchResult searchResult;
+    private UUID id;
 
     public CommentJavaSearchResult(UUID id, @Nullable String description) {
         this.searchResult = new SearchResult(id, description);
@@ -43,6 +45,12 @@ public class CommentJavaSearchResult implements Marker {
     @Override
     public UUID getId() {
         return searchResult.getId();
+    }
+
+    @Override
+    public <T extends Tree> T withId(final UUID id) {
+        CommentJavaSearchResult commentJavaSearchResult = this.id == id ? this : new CommentJavaSearchResult(id, searchResult.getDescription());
+        return (T) commentJavaSearchResult;
     }
 
     public String getComment() {

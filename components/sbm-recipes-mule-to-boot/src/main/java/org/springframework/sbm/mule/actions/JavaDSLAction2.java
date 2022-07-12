@@ -71,7 +71,7 @@ public class JavaDSLAction2 extends AbstractAction {
         BuildFile buildFile = context.getApplicationModules().getRootModule().getBuildFile();
         MuleMigrationContext muleMigrationContext = muleMigrationContextFactory.createMuleMigrationContext(context);
         JavaSourceAndType flowConfigurationSource = findOrCreateFlowConfigurationClass(context);
-        createJavaResource(context, muleMigrationContext.getMuleConfigurations().getConfigurations());
+        handleApplicationConfiguration(context, muleMigrationContext.getMuleConfigurations().getConfigurations(), buildFile);
 
         startProcess("Converting Mulesoft files");
         handleTopLevelElements(buildFile, muleMigrationContext, flowConfigurationSource, context);
@@ -88,7 +88,7 @@ public class JavaDSLAction2 extends AbstractAction {
 
     private void handleTopLevelElements(BuildFile buildFile, MuleMigrationContext muleMigrationContext, JavaSourceAndType flowConfigurationSource, ProjectContext context) {
         List<TopLevelElement> topLevelElements = new ArrayList<>();
-        for(JAXBElement tle : muleMigrationContext.getTopLevelElements()) {
+        for (JAXBElement tle : muleMigrationContext.getTopLevelElements()) {
             if (MuleConfigurationsExtractor.isConfigType(tle)) {
                 continue;
             }
@@ -104,14 +104,45 @@ public class JavaDSLAction2 extends AbstractAction {
                 .flatMap(List::stream)
                 .collect(Collectors.toSet());
         startProcess("Adding " + dependencies.size() + " dependencies");
+
+        addGenericRequiredDependencies(dependencies);
+
         buildFile.addDependencies(new ArrayList<>(dependencies));
         endProcess();
 
         logEvent("Adding " + topLevelElements.size() + " methods");
         topLevelElements.forEach(topLevelElement -> {
-            flowConfigurationSource.getType().addMethod(topLevelElement.renderDslSnippet(), topLevelElement.getRequiredImports());
+            flowConfigurationSource.getType().addMethod(
+                    topLevelElement.renderDslSnippet(),
+                    topLevelElement.getRequiredImports()
+            );
+
+            if (topLevelElement.hasGeneratedDependentFlows()) {
+                topLevelElement
+                        .generatedDependentFlows()
+                        .forEach(methodContents -> flowConfigurationSource
+                                .getType()
+                                .addMethod(
+                                        methodContents,
+                                        topLevelElement.getRequiredImports()
+                                )
+                        );
+
+            }
+
             createExternalClasses(context, topLevelElement);
         });
+    }
+
+    private void addGenericRequiredDependencies(Set<Dependency> dependencies) {
+        dependencies.add(
+                Dependency.builder()
+                .groupId("org.projectlombok")
+                .artifactId("lombok")
+                .version("1.18.24")
+                .scope("provided")
+                .build()
+        );
     }
 
     private void createExternalClasses(ProjectContext context, TopLevelElement topLevelElement) {
@@ -151,7 +182,7 @@ public class JavaDSLAction2 extends AbstractAction {
                 "package " + packageName + ";\n" +
                         "import " + SPRING_CONFIGURATION_ANNOTATION + ";\n" +
                         "@Configuration\n" +
-                        "public class "+className+" {}";
+                        "public class " + className + " {}";
         JavaSource javaSource = mainJavaSourceSet.addJavaSource(projectContext.getProjectRootDirectory(), source, packageName);
         return new JavaSourceAndType(javaSource, javaSource.getTypes().get(0));
     }
@@ -162,9 +193,9 @@ public class JavaDSLAction2 extends AbstractAction {
         mainJavaSourceSet.addJavaSource(projectContext.getProjectRootDirectory(), content, packageName);
     }
 
-    // TODO: fina a cohesive name
-    private void createJavaResource(ProjectContext projectContext,
-                                    Map<String, ? extends ConfigurationTypeAdapter> configurations) {
+    private void handleApplicationConfiguration(ProjectContext projectContext,
+                                                Map<String, ? extends ConfigurationTypeAdapter> configurations,
+                                                BuildFile buildFile) {
 
         SpringBootApplicationProperties defaultProperties = findOrCreateDefaultApplicationProperties(projectContext);
 
@@ -172,15 +203,29 @@ public class JavaDSLAction2 extends AbstractAction {
                 .map(c -> (List<SimpleEntry<String, String>>) c.configProperties())
                 .flatMap(List::stream)
                 .forEach(e -> defaultProperties.setProperty(e.getKey(), e.getValue()));
+
+        List<Dependency> dependencies = configurations.values().stream()
+                .filter(configurationTypeAdapter -> !configurationTypeAdapter.getDependencies().isEmpty())
+                .map(k -> (List<Dependency>) k.getDependencies())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        if (!dependencies.isEmpty()) {
+            buildFile.addDependencies(dependencies);
+        }
     }
 
     @NotNull
     private SpringBootApplicationProperties findOrCreateDefaultApplicationProperties(ProjectContext projectContext) {
         List<SpringBootApplicationProperties> bootApplicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
-        if(bootApplicationProperties.isEmpty()) {
+        if (bootApplicationProperties.isEmpty()) {
             new AddSpringBootApplicationPropertiesAction().apply(projectContext);
         }
-        SpringBootApplicationProperties defaultProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).stream().filter(SpringBootApplicationProperties::isDefaultProperties).findFirst().get();
-        return defaultProperties;
+
+        return projectContext
+                .search(new SpringBootApplicationPropertiesResourceListFilter()).stream()
+                .filter(SpringBootApplicationProperties::isDefaultProperties)
+                .findFirst()
+                .get();
     }
 }

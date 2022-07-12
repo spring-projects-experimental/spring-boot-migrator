@@ -18,6 +18,7 @@ package org.springframework.sbm.test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.sbm.engine.context.RewriteJavaSearchActionDeserializer;
 import org.springframework.sbm.engine.recipe.*;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
@@ -54,6 +55,7 @@ public class RecipeTestSupport {
             RecipesBuilder.class,
             ResourceHelper.class,
             RecipeParser.class,
+            RewriteJavaParser.class,
             CustomValidator.class,
             ValidatorConfiguration.class,
             YamlObjectMapperConfiguration.class,

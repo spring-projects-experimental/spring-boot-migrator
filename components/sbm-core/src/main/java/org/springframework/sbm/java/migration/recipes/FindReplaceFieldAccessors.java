@@ -39,7 +39,7 @@ public class FindReplaceFieldAccessors extends Recipe {
 	final private Map<String, String> mappings;
 	
 	final private String simpleReplaceFqName;
-	private Supplier<JavaParser> javaParserSupplier;
+	private final Supplier<JavaParser> javaParserSupplier;
 
 	@Override
 	public String getDisplayName() {
@@ -69,12 +69,12 @@ public class FindReplaceFieldAccessors extends Recipe {
                 if (asClass != null && asClass.getFullyQualifiedName().equals(findFqName) &&
                 		replaceField != null) {
                 	maybeRemoveImportAndParentTypeImports(findFqName);
-                	maybeAddImport(replaceFqName);
+					maybeAddImport(replaceFqName);
                    	JavaType replaceType = JavaType.buildType(replaceFqName);
 					fa = fa
-                   			.withName(fa.getName().withName(replaceField))
+                   			.withName(fa.getName().withSimpleName(replaceField))
                    			.withType(replaceType)
-                   			.withTarget(Identifier.build(target.getId(), target.getPrefix(), target.getMarkers(), simpleReplaceFqName, replaceType));                   
+                   			.withTarget(new Identifier(target.getId(), target.getPrefix(), target.getMarkers(), simpleReplaceFqName, replaceType, null)); // FIXME: #497 correct?
                 }
                 return fa;
             }
@@ -87,13 +87,6 @@ public class FindReplaceFieldAccessors extends Recipe {
             		maybeRemoveImportAndParentTypeImports(fqName.substring(0, idx));
             	}
             }
-                        
-			@Override
-			public @Nullable J preVisit(J tree, ExecutionContext p) {
-				// FIXME: remove parser passing
-				getCursor().putMessage("java-parser", javaParserSupplier);
-				return super.preVisit(tree, p);
-			}
             
         };
 	}

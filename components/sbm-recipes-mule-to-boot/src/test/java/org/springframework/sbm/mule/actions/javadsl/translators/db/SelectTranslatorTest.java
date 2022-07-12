@@ -39,14 +39,11 @@ class SelectTranslatorTest {
         input.setDynamicQuery("Select * from Students where name like \"Sandeep\"");
         DslSnippet output = target.translate(1, input, null, null, null, null);
 
-        assertThat(output.getRenderedSnippet()).isEqualTo("// TODO: substitute expression language with appropriate java code \n " + "               .handle((p, h) -> jdbcTemplate.queryForList(\"Select * from Students where name like \\\"Sandeep\\\" LIMIT 500\"))");
-    }
-
-    @Test
-    public void itShouldOmitLimitWhenMaxRowsIsNotAvailable() {
-        input.setDynamicQuery("Select * from Students where name like \"Sandeep\"");
-        DslSnippet output = target.translate(1, input, null, null, null, null);
-
-        assertThat(output.getRenderedSnippet()).isEqualTo("// TODO: substitute expression language with appropriate java code \n " + "               .handle((p, h) -> jdbcTemplate.queryForList(\"Select * from Students where name like \\\"Sandeep\\\"\"))");
+        assertThat(output.getRenderedSnippet()).isEqualTo(
+                        "// TODO: substitute expression language with appropriate java code \n" +
+                                "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
+                                ".<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
+                                "                        jdbcTemplate.queryForList(\n" +
+                                "                                \"Select * from Students where name like \\\"Sandeep\\\"\"))");
     }
 }

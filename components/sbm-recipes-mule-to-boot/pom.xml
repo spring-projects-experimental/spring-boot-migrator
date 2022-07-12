@@ -135,6 +135,7 @@
                                         <source>src/main/xsd/mule/mule-wmq-ee.xsd</source>
                                         <source>src/main/xsd/mule/dw.xsd</source>
                                         <source>src/main/xsd/mule/mule-db.xsd</source>
+                                        <source>src/main/xsd/mule/mule-scripting.xsd</source>
                                     </sources>
                                     <noGeneratedHeaderComments>true</noGeneratedHeaderComments>
                                     <laxSchemaValidation>true</laxSchemaValidation>

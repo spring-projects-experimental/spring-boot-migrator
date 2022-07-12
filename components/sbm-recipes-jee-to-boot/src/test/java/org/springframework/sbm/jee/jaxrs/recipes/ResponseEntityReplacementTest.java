@@ -15,22 +15,30 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
+import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.Recipe;
 
+import java.util.function.Supplier;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResponseEntityReplacementTest {
+
+    private final static String SPRING_VERSION = "5.3.13";
 
     final private AbstractAction action =
             new AbstractAction() {
                 @Override
                 public void apply(ProjectContext context) {
-                    Recipe r = new SwapResponseWithResponseEntity().doNext(new ReplaceMediaType());
+                    Supplier<JavaParser> javaParserSupplier = () -> new RewriteJavaParser(new SbmApplicationProperties());
+                    Recipe r = new SwapResponseWithResponseEntity(javaParserSupplier).doNext(new ReplaceMediaType(javaParserSupplier));
                     context.getProjectJavaSources().apply(r);
                 }
             };
@@ -62,7 +70,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -96,13 +107,16 @@ public class ResponseEntityReplacementTest {
                 + "public class TestController {\n"
                 + "\n"
                 + "    public ResponseEntity respond() {\n"
-                + "       return ResponseEntity.status(200).etag(\"My Tag\").build();\n"
+                + "       return ResponseEntity.status(200).eTag(\"My Tag\").build();\n"
                 + "    }\n"
                 + "}\n"
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -131,7 +145,10 @@ public class ResponseEntityReplacementTest {
         String expected = javaSource;
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -144,7 +161,7 @@ public class ResponseEntityReplacementTest {
     }
 
     @Test
-    void testOnlyRetunStatementBuilder() {
+    void testOnlyReturnStatementBuilder() {
 
         String javaSource = ""
                 + "import javax.ws.rs.core.Response;\n"
@@ -171,7 +188,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -210,7 +230,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -248,7 +271,53 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
+                .withJavaSources(javaSource)
+                .build();
+
+        action.apply(projectContext);
+
+        String actual = projectContext.getProjectJavaSources().list().get(0).print();
+        assertThat(actual)
+                .as(TestDiff.of(actual, expected))
+                .isEqualTo(expected);
+    }
+
+    @Test
+    void testReplaceOkWithBody() {
+        String javaSource = ""
+                + "import javax.ws.rs.core.Response;\n"
+                + "\n"
+                + "public class TestController {\n"
+                + "\n"
+                + "    public Response respond() {\n"
+                + "       Response r = Response.ok(\"great!\").build();\n"
+                + "       return r;\n"
+                + "    }\n"
+                + "}\n"
+                + "";
+
+
+        String expected = ""
+                + "import org.springframework.http.ResponseEntity;\n"
+                + "\n"
+                + "public class TestController {\n"
+                + "\n"
+                + "    public ResponseEntity respond() {\n"
+                + "       ResponseEntity r = ResponseEntity.ok().body(\"great!\");\n"
+                + "       return r;\n"
+                + "    }\n"
+                + "}\n"
+                + "";
+
+        ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -288,7 +357,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -328,7 +400,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -366,7 +441,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -405,7 +483,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -448,7 +529,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -480,14 +564,17 @@ public class ResponseEntityReplacementTest {
                 + "public class TestController {\n"
                 + "\n"
                 + "    public ResponseEntity respond() {\n"
-                + "       ResponseEntity r = ResponseEntity.ok(\"great!\").build();\n"
+                + "       ResponseEntity r = ResponseEntity.ok().body(\"great!\");\n"
                 + "       return ResponseEntity.status(r.getStatusCode()).headers(r.getHeaders()).body(r.getBody());\n"
                 + "    }\n"
                 + "}\n"
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -520,14 +607,17 @@ public class ResponseEntityReplacementTest {
                 + "public class TestController {\n"
                 + "\n"
                 + "    public ResponseEntity respond() {\n"
-                + "        ResponseEntity.status(HttpStatus.NOT_MODIFIED).etag(\"great!\");\n"
+                + "        ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(\"great!\");\n"
                 + "        return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();\n"
                 + "    }\n"
                 + "}\n"
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -571,7 +661,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -610,7 +703,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -654,7 +750,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -711,7 +810,6 @@ public class ResponseEntityReplacementTest {
 
         String expected = ""
                 + "import org.springframework.http.ResponseEntity;\n"
-                + "\n"
                 + "import java.util.Date;\n"
                 + "import java.util.stream.Collectors;\n"
                 + "\n"
@@ -752,7 +850,10 @@ public class ResponseEntityReplacementTest {
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -785,13 +886,16 @@ public class ResponseEntityReplacementTest {
                 + "public class TestController {\n"
                 + "\n"
                 + "    public ResponseEntity respond() {\n"
-                + "       return ResponseEntity.status(200).etag(\"My Tag\").contentType(MediaType.TEXT_PLAIN).body(\"Hello\");\n"
+                + "       return ResponseEntity.status(200).eTag(\"My Tag\").contentType(MediaType.TEXT_PLAIN).body(\"Hello\");\n"
                 + "    }\n"
                 + "}\n"
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 
@@ -825,13 +929,16 @@ public class ResponseEntityReplacementTest {
                 + "public class TestController {\n"
                 + "\n"
                 + "    public ResponseEntity respond() {\n"
-                + "       return ResponseEntity.status(200).etag(\"My Tag\").contentType(MediaType.TEXT_PLAIN).body(\"Hello\");\n"
+                + "       return ResponseEntity.status(200).eTag(\"My Tag\").contentType(MediaType.TEXT_PLAIN).body(\"Hello\");\n"
                 + "    }\n"
                 + "}\n"
                 + "";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax:javaee-api:8.0")
+                .withBuildFileHavingDependencies(
+                        "javax:javaee-api:8.0",
+                        "org.springframework:spring-core:"+SPRING_VERSION
+                )
                 .withJavaSources(javaSource)
                 .build();
 

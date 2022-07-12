@@ -15,44 +15,40 @@
  */
 package org.springframework.sbm.java.impl;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
+import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
-import org.springframework.stereotype.Component;
+import org.springframework.sbm.engine.annotations.StatefulComponent;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-@Component
+@StatefulComponent
 public class RewriteJavaParser implements JavaParser {
 
-    private final boolean javaParserShouldLogCompilationWarningsAndErrors = true;
-    private final boolean javaParserRelaxedClassTypeMatching = true;
+    private final SbmApplicationProperties sbmApplicationProperties;
+    @Getter
+    private final JavaParser javaParser;
 
-    private JavaParser javaParser;
 
     // satisfies DI
-    public RewriteJavaParser() {
-        this(List.of());
-    }
-
-    public RewriteJavaParser(Path... classpath) {
-        this(Arrays.asList(classpath));
-    }
-
-    public RewriteJavaParser(List<Path> classpath) {
-        javaParser = buildJavaParser(classpath);
+    public RewriteJavaParser(SbmApplicationProperties sbmApplicationProperties) {
+        this.sbmApplicationProperties = sbmApplicationProperties;
+        javaParser = buildJavaParser(Collections.emptySet());
     }
 
     @NotNull
     private JavaParser buildJavaParser(Collection<Path> classpath) {
         Builder<? extends JavaParser, ?> builder = JavaParser.fromJavaVersion()
-                .logCompilationWarningsAndErrors(javaParserShouldLogCompilationWarningsAndErrors)
-                .relaxedClassTypeMatching(javaParserRelaxedClassTypeMatching);
+                .logCompilationWarningsAndErrors(sbmApplicationProperties.isJavaParserLoggingCompilationWarningsAndErrors());
         if (!classpath.isEmpty()) {
             builder.classpath(classpath);
         }
@@ -62,7 +58,7 @@ public class RewriteJavaParser implements JavaParser {
     @Override
     public List<J.CompilationUnit> parseInputs(Iterable<Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
         reset();
-        return this.javaParser.parseInputs(sources, null, ctx);
+        return this.javaParser.parseInputs(sources, relativeTo, ctx);
     }
 
     @Override
@@ -72,7 +68,17 @@ public class RewriteJavaParser implements JavaParser {
 
     @Override
     public void setClasspath(Collection<Path> classpath) {
-        this.javaParser = buildJavaParser(classpath);
+        this.javaParser.setClasspath(classpath);
+    }
+
+    @Override
+    public void setSourceSet(String sourceSet) {
+        this.javaParser.setSourceSet(sourceSet);
+    }
+
+    @Override
+    public JavaSourceSet getSourceSet(ExecutionContext ctx) {
+        return this.javaParser.getSourceSet(ctx);
     }
 
     public List<J.CompilationUnit> parse(List<Path> javaResources, ExecutionContext executionContext) {
@@ -80,7 +86,9 @@ public class RewriteJavaParser implements JavaParser {
         return this.parse(javaResources, null, executionContext);
     }
 
-    public JavaParser getDelegateJavaParser() {
-        return javaParser;
+    @Override
+    public List<J.CompilationUnit> parse(String... sources) {
+        ExecutionContext ctx = new RewriteExecutionContext();
+        return this.parse(ctx, sources);
     }
 }

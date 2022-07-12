@@ -22,7 +22,9 @@ import org.springframework.sbm.mule.actions.javadsl.translators.UnknownStatement
 import org.springframework.sbm.mule.api.MuleElementInfo;
 
 import javax.xml.bind.JAXBElement;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
@@ -56,6 +58,16 @@ public class UnknownTopLevelElement implements TopLevelElement {
     public String renderDslSnippet() {
         return "void " + Helper.sanitizeForBeanMethodName(formMethodName(elementInfo)) + "() {\n" +
                 new UnknownStatementTranslatorTemplate(elementInfo).render() + "\n }";
+    }
+
+    @Override
+    public boolean hasGeneratedDependentFlows() {
+        return false;
+    }
+
+    @Override
+    public List<String> generatedDependentFlows() {
+        return new ArrayList<>();
     }
 
     @NotNull

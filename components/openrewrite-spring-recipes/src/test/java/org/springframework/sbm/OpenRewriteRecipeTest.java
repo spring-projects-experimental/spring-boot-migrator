@@ -68,7 +68,8 @@ public class OpenRewriteRecipeTest {
     @Test
     void getClasspathJars() {
         String[] property = System.getProperty("java.class.path").split(System.getProperty("path.separator"));
-        Arrays.stream(property).forEach(System.out::println);
+//        Arrays.stream(property).forEach(System.out::println);
+        assertThat(property).isNotEmpty();
     }
 
     @Test

@@ -54,7 +54,7 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
     public void supportsBasicChoiceElement() {
         addXMLFileToResource(xml);
         runAction();
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
@@ -86,7 +86,8 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "                )\n" +
                         "                .log(LoggingHandler.Level.INFO, \"${payload}\")\n" +
                         "                .get();\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 
     @Test
@@ -128,7 +129,7 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(xml);
         runAction();
 
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
@@ -167,7 +168,8 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "        return flow -> flow\n" +
                         "                .log(LoggingHandler.Level.INFO, \"A spanish Hello\")\n" +
                         "                .handle((p, h) -> \"Hola!!!\");\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 
     @Test
@@ -244,7 +246,8 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "        return flow -> flow\n" +
                         "                .log(LoggingHandler.Level.INFO, \"A spanish Hello\")\n" +
                         "                .handle((p, h) -> \"Hola!!!\");\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 
     @Test
@@ -299,5 +302,85 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
 
         addXMLFileToResource(xmlNestedChoice);
         runAction();
+    }
+
+    @Test
+    public void otherwiseStatementShouldDoImportsBeansAndDependencies() {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<mule xmlns:json=\"http://www.mulesoft.org/schema/mule/json\" xmlns:db=\"http://www.mulesoft.org/schema/mule/db\"\n" +
+                "   xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
+                "   xmlns:tracking=\"http://www.mulesoft.org/schema/mule/ee/tracking\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
+                "   xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
+                "   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "   xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd\n" +
+                "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd\n" +
+                "http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd\">\n" +
+                "    <flow name=\"post:/insert:application/json:cmb-hsbcnet-ss-sa-entitlement-change-request-config\">\n" +
+                "        <choice doc:name=\"Choice\">\n" +
+                "            <when expression=\"#[payload == null || payload.size() == 0]\">\n" +
+                "                <logger message=\"empty details list: change request id #[flowVars.changeRequestId]\" level=\"DEBUG\" doc:name=\"empty details list\"/>\n" +
+                "            </when>\n" +
+                "            <otherwise>\n" +
+                "                <logger message=\"insert details: change request id #[flowVars.changeRequestId]\" level=\"DEBUG\" doc:name=\"insert details\"/>\n" +
+                "                <db:insert config-ref=\"Oracle_Configuration\" bulkMode=\"true\" doc:name=\"Database\">\n" +
+                "                    <db:parameterized-query><![CDATA[INSERT INTO ${ORA_SCHEMA}.CHANGE_REQUEST_DETAILS (CHANGE_REQUEST_ID, CR_ATTRIBUTE_ID, SECONDARY_ATTRIBUTE, OLD_VALUE, NEW_VALUE) VALUES (#[flowVars.changeRequestId], #[payload.crAttributeId], #[payload.secondaryAttribute], #[payload.oldValue], #[payload.newValue])]]></db:parameterized-query>\n" +
+                "                </db:insert>\n" +
+                "            </otherwise>\n" +
+                "        </choice>\n" +
+                "    </flow>\n" +
+                "</mule>\n";
+
+        addXMLFileToResource(xml);
+        runAction();
+
+        assertThat(getGeneratedJavaFile()).isEqualTo(
+                "package com.example.javadsl;\n" +
+                        "import org.springframework.context.annotation.Bean;\n" +
+                        "import org.springframework.context.annotation.Configuration;\n" +
+                        "import org.springframework.http.HttpMethod;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                        "import org.springframework.integration.handler.LoggingHandler;\n" +
+                        "import org.springframework.integration.http.dsl.Http;\n" +
+                        "import org.springframework.jdbc.core.JdbcTemplate;\n" +
+                        "import org.springframework.util.LinkedMultiValueMap;\n" +
+                        "\n" +
+                        "@Configuration\n" +
+                        "public class FlowConfigurations {\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow post__insert_application_json_cmb_hsbcnet_ss_sa_entitlement_change_request_config(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
+                        "        // FIXME: the base path for Http.inboundGateway must be extracted from http:listener in flow containing apikit:router with config-ref=\"cmb-hsbcnet-ss-sa-entitlement-change-request-config\"\n" +
+                        "        // FIXME: add all JavaDSL generated components between http:listener and apikit:router with config-ref=\"cmb-hsbcnet-ss-sa-entitlement-change-request-config\" into this flow\n" +
+                        "        // FIXME: remove the JavaDSL generated method containing apikit:router with config-ref=\"cmb-hsbcnet-ss-sa-entitlement-change-request-config\"\n" +
+                        "        return IntegrationFlows.from(\n" +
+                        "                Http.inboundGateway(\"/insert\").requestMapping(r -> r.methods(HttpMethod.POST)))\n" +
+                        "                /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
+                        "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
+                        "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
+                        "                        m -> m\n" +
+                        "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == null || payload.size() == 0]*/,\n" +
+                        "                                        sf -> sf.log(LoggingHandler.Level.DEBUG, \"empty details list: change request id ${flowVars.changeRequestId}\")\n" +
+                        "                                )\n" +
+                        "                                .resolutionRequired(false)\n" +
+                        "                                .defaultSubFlowMapping(sf -> sf.log(LoggingHandler.Level.DEBUG, \"insert details: change request id ${flowVars.changeRequestId}\")\n" +
+                        "                                        // TODO: payload type might not be always LinkedMultiValueMap please change it to appropriate type \n" +
+                        "                                        // TODO: mule expression language is not converted to java, do it manually. example: #[payload] etc \n" +
+                        "                                        .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
+                        "                                            jdbcTemplate.update(\"INSERT INTO ${ORA_SCHEMA}.CHANGE_REQUEST_DETAILS (CHANGE_REQUEST_ID, CR_ATTRIBUTE_ID, SECONDARY_ATTRIBUTE, OLD_VALUE, NEW_VALUE) VALUES (?, ?, ?, ?, ?)\",\n" +
+                        "                                                    p.getFirst(\"flowVars.changeRequestId\") /* TODO: Translate #[flowVars.changeRequestId] to java expression*/,\n" +
+                        "                                                    p.getFirst(\"payload.crAttributeId\") /* TODO: Translate #[payload.crAttributeId] to java expression*/,\n" +
+                        "                                                    p.getFirst(\"payload.secondaryAttribute\") /* TODO: Translate #[payload.secondaryAttribute] to java expression*/,\n" +
+                        "                                                    p.getFirst(\"payload.oldValue\") /* TODO: Translate #[payload.oldValue] to java expression*/,\n" +
+                        "                                                    p.getFirst(\"payload.newValue\") /* TODO: Translate #[payload.newValue] to java expression*/\n" +
+                        "                                            );\n" +
+                        "                                            return p;\n" +
+                        "                                        }))\n" +
+                        "                )\n" +
+                        "                .get();\n" +
+                        "    }\n" +
+                        "}");
     }
 }

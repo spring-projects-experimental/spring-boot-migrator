@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.mule.api.toplevel;
 
+import java.util.List;
 import java.util.Set;
 
 public interface TopLevelElement {
@@ -22,4 +23,6 @@ public interface TopLevelElement {
     Set<String> getRequiredDependencies();
     Set<String> getExternalClassContents();
     String renderDslSnippet();
+    boolean hasGeneratedDependentFlows();
+    List<String> generatedDependentFlows();
 }

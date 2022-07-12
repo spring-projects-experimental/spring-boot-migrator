@@ -39,14 +39,15 @@ public class UnknownFlowTest extends JavaDSLActionBaseTest {
 
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
 
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
                         "@Configuration\n" +
                         "public class FlowConfigurations {\n" +
                         "    void catch_exception_strategy() {\n" +
                         "        //FIXME: element is not supported for conversion: <catch-exception-strategy/>\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
     }
 }

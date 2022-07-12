@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.mulesoft.schema.mule.jms.PropertyFilter;
+import org.mulesoft.schema.mule.scripting.ScriptFilterType;
 
 
 /**
@@ -36,6 +37,7 @@ import org.mulesoft.schema.mule.jms.PropertyFilter;
     TypeFilterType.class,
     CustomFilterType.class,
     PatternFilterType.class,
+    ScriptFilterType.class,
     PropertyFilter.class
 })
 public class AbstractFilterType

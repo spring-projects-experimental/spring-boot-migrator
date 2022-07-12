@@ -6201,19 +6201,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link RefInterceptorStackType }{@code >}
-     * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link RefInterceptorStackType }{@code >}
-     */
-    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "interceptor-stack", scope = AbstractComponentType.class)
-    public JAXBElement<RefInterceptorStackType> createAbstractComponentTypeInterceptorStack(RefInterceptorStackType value) {
-        return new JAXBElement<RefInterceptorStackType>(_InterceptorStack_QNAME, RefInterceptorStackType.class, AbstractComponentType.class, value);
-    }
-
-    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link AnnotationsType }{@code >}
      * 
      * @param value
@@ -6224,6 +6211,19 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "annotations", scope = AnnotatedMixedContentType.class)
     public JAXBElement<AnnotationsType> createAnnotatedMixedContentTypeAnnotations(AnnotationsType value) {
         return new JAXBElement<AnnotationsType>(_AnnotatedMixedContentTypeAnnotations_QNAME, AnnotationsType.class, AnnotatedMixedContentType.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link RefInterceptorStackType }{@code >}
+     * 
+     * @param value
+     *     Java instance representing xml element's value.
+     * @return
+     *     the new instance of {@link JAXBElement }{@code <}{@link RefInterceptorStackType }{@code >}
+     */
+    @XmlElementDecl(namespace = "http://www.mulesoft.org/schema/mule/core", name = "interceptor-stack", scope = AbstractComponentType.class)
+    public JAXBElement<RefInterceptorStackType> createAbstractComponentTypeInterceptorStack(RefInterceptorStackType value) {
+        return new JAXBElement<RefInterceptorStackType>(_InterceptorStack_QNAME, RefInterceptorStackType.class, AbstractComponentType.class, value);
     }
 
     /**

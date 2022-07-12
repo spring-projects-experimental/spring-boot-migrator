@@ -36,7 +36,7 @@ public interface Action {
         try {
             apply(context);
         } catch(Exception e) {
-            throw new ActionFailedException("Action ["+ getClass().getName()+"] with description '"+this.getDescription()+"' failed: " + e.getMessage(), e);
+            throw new ActionFailedException("'"+this.getDescription()+"' failed: " + e.getMessage(), e);
         }
         if (eventPublisher != null) {
             eventPublisher.publishEvent(new ActionFinishedEvent(getDescription()));

@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.support.openrewrite.recipes;
 
-import org.springframework.sbm.OpenRewriteApiTest;
-import org.springframework.sbm.java.OpenRewriteTestSupport;
 import org.openrewrite.Result;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.tree.J;
+import org.springframework.sbm.OpenRewriteApiTest;
+import org.springframework.sbm.java.OpenRewriteTestSupport;
 
 import java.util.List;
 
@@ -44,11 +44,7 @@ public class ChangeTypeTest {
                 "    }\n" +
                 "}";
 
-        // 7.17.x
-//        ChangeType changeType = new ChangeType("javax.ws.rs.core.Response${'$'}Status${'$'}Family", "org.springframework.http.HttpStatus${'$'}Series");
-
-        // 7.16.3
-        ChangeType changeType = new ChangeType("javax.ws.rs.core.Response.Status.Family", "org.springframework.http.HttpStatus.Series");
+        ChangeType changeType = new ChangeType("javax.ws.rs.core.Response$Status$Family", "org.springframework.http.HttpStatus$Series", false);
 
         J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(javaSource, "javax:javaee-api:8.0", "org.springframework:spring-web:5.3.7");
 

@@ -61,6 +61,39 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                         translatorsMap)))
                 .collect(Collectors.toList());
 
+        String whenSubflowMappings = whenStatements
+                .stream()
+                .map(item ->
+                        subflowTemplate
+                                .replace("$TRANSLATE_EXPRESSION", item.getLeft())
+                                .replace("$SUBFLOW_CONTENT", item.getValue().renderDslSnippet())
+                )
+                .collect(Collectors.joining());
+
+        List<DslSnippet> whenStatementDslSnippets = whenStatements
+                .stream()
+                .map(item -> DslSnippet.createDSLSnippetFromTopLevelElement(item.getValue()))
+                .collect(Collectors.toList());
+
+        Set<String> requiredImports = whenStatementDslSnippets
+                .stream()
+                .map(DslSnippet::getRequiredImports)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+
+        requiredImports.add("org.springframework.util.LinkedMultiValueMap");
+
+        Set<Bean> requiredBeans = whenStatementDslSnippets.stream()
+                .map(DslSnippet::getBeans)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        Set<String> requiredDependencies = whenStatementDslSnippets.stream()
+                .map(DslSnippet::getRequiredDependencies)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
         String otherwiseSubflowMappings = "";
 
         if (component.getOtherwise() != null) {
@@ -69,6 +102,12 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                     component.getOtherwise().getMessageProcessorOrOutboundEndpoint(),
                     muleConfigurations,
                     translatorsMap);
+
+            DslSnippet otherWiseDSLSnippet = DslSnippet.createDSLSnippetFromTopLevelElement(otherWiseStatement);
+
+            requiredImports.addAll(otherWiseDSLSnippet.getRequiredImports());
+            requiredDependencies.addAll(otherWiseDSLSnippet.getRequiredDependencies());
+            requiredBeans.addAll(otherWiseDSLSnippet.getBeans());
 
             otherwiseSubflowMappings = defaultSubflowMapping.replace(
                     "$OTHERWISE_STATEMENTS",
@@ -79,46 +118,17 @@ public class ChoiceTranslator implements MuleComponentToSpringIntegrationDslTran
                     otherwiseSubflowMappings;
         }
 
-        String whenSubflowMappings = whenStatements
-                .stream()
-                .map(item ->
-                        subflowTemplate
-                                .replace("$TRANSLATE_EXPRESSION", item.getLeft())
-                                .replace("$SUBFLOW_CONTENT", item.getValue().renderDslSnippet())
-                )
-                .collect(Collectors.joining());
-
-
-        Set<String> requiredImports = whenStatements.stream()
-                .map(item -> item.getValue().getRequiredImports())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        requiredImports.add("org.springframework.util.LinkedMultiValueMap");
-
-        Set<Bean> requiredBeans = whenStatements.stream()
-                .map(item -> item.getValue().getDslSnippets())
-                .flatMap(Collection::stream)
-                .map(DslSnippet::getBeans)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        Set<String> requiredDependencies = whenStatements.stream()
-                .map(item -> item.getValue().getRequiredDependencies())
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        return new DslSnippet(
-                "/* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
+        return DslSnippet.builder()
+                .renderedSnippet(" /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
                         "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
                         "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
                         "                        m -> m\n" +
                         whenSubflowMappings +
                         otherwiseSubflowMappings +
-                        "                )",
-                requiredImports,
-                requiredDependencies,
-                requiredBeans
-        );
+                        "                )")
+                .requiredImports(requiredImports)
+                .requiredDependencies(requiredDependencies)
+                .beans(requiredBeans)
+                .build();
     }
 }

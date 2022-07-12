@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class FlowTopLevelElementFactory implements TopLevelElementFactory {
-    private List<String> requiredImports = new ArrayList<>();
     private final Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap;
 
 

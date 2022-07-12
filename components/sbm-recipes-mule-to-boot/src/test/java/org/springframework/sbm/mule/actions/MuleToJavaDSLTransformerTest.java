@@ -46,7 +46,7 @@ public class MuleToJavaDSLTransformerTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(muleXmlHttp);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
@@ -70,6 +70,7 @@ public class MuleToJavaDSLTransformerTest extends JavaDSLActionBaseTest {
                         "                .transform(new ObjectToStringTransformer())\n" +
                         "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                         "                .get();\n" +
-                        "    }}");
+                        "    }\n" +
+                        "}");
     }
 }

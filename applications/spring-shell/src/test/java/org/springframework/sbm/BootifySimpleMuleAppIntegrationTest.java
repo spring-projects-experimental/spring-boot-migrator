@@ -16,11 +16,8 @@
 package org.springframework.sbm;
 
 import com.rabbitmq.client.Channel;
-import org.jruby.RubyProcess;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
-import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.sbm.mule.amqp.RabbitMqChannelBuilder;
@@ -85,13 +82,6 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
 
     @Test
     @Tag("integration")
-    @DisabledIfSystemProperty(named= "os.arch", matches = "aarch64", disabledReason = "imbcom/mq image not supported with Apple Silicon")
-    void t1_testWebsphereMqMigration() throws JMSException, InterruptedException {
-        checkWmqIntegration(rabbitMqContainer.getNetwork());
-    }
-
-    @Test
-    @Tag("integration")
     public void  t0_springIntegrationWorks() throws IOException, TimeoutException, InterruptedException {
         intializeTestProject();
         scanProject();
@@ -112,10 +102,15 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         checkSendHttpMessage(container.getContainer().getMappedPort(9081));
         checkInboundGatewayHttpMessage(container.getContainer().getMappedPort(9081));
         checkRabbitMqIntegration(ampqChannel);
+        checkDbIntegration(container.getContainer().getMappedPort(9081));
     }
 
-
-
+    @Test
+    @Tag("integration")
+    @DisabledIfSystemProperty(named= "os.arch", matches = "aarch64", disabledReason = "imbcom/mq image not supported with Apple Silicon")
+    void t1_testWebsphereMqMigration() throws JMSException, InterruptedException {
+        checkWmqIntegration(rabbitMqContainer.getNetwork());
+    }
 
     private void checkRabbitMqIntegration(Channel amqpChannel)
             throws IOException, InterruptedException {
@@ -158,6 +153,12 @@ public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClas
         jmsSender.sendMessage(mappedPort, "DEV.QUEUE.1", "Test WMQ message");
         boolean latchResult = latch.await(1000000, TimeUnit.MILLISECONDS);
         assertThat(latchResult).isTrue();
+    }
+
+    private void checkDbIntegration(int port) {
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity("http://localhost:" + port + "/db", String.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).contains("{\"ID\":1,\"USERNAME\":\"TestUser\",\"PASSWORD\":\"secret\"");
     }
 
     private void checkInboundGatewayHttpMessage(int port) {

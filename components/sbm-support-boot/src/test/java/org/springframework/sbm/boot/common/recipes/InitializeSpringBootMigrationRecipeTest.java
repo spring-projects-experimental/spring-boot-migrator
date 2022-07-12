@@ -20,6 +20,7 @@ import org.springframework.sbm.boot.common.actions.AddSpringBootMainClassAction;
 import org.springframework.sbm.boot.properties.actions.AddSpringBootApplicationPropertiesAction;
 import org.springframework.sbm.build.migration.actions.*;
 import org.springframework.sbm.engine.recipe.Recipe;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.test.RecipeTestSupport;
 import org.junit.jupiter.api.Test;
 

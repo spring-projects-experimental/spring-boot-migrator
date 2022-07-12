@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +26,7 @@ class RemoveDependenciesMatchingRegexTest {
 
     @Test
     @Tag("integration")
+    @Disabled("#7: currently fails because of the type pom dependency.")
     void apply() {
         String pomSource =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

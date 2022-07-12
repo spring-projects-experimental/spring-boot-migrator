@@ -29,12 +29,13 @@ class DslSnippetTest {
     public void shouldNotShowDuplicates() {
 
         List<DslSnippet> input = List.of(
-                new DslSnippet("", emptySet(), emptySet(),
-                        Set.of(new Bean("b", "bb"))
-                ),
-                new DslSnippet("", emptySet(), emptySet(),
-                        Set.of(new Bean("b", "bb"))
-                ));
+                DslSnippet.builder()
+                        .beans(Set.of(new Bean("b", "bb")))
+                        .build(),
+                DslSnippet.builder()
+                        .beans(Set.of(new Bean("b", "bb")))
+                        .build()
+        );
 
         String out = DslSnippet.renderMethodParameters(input);
 

@@ -29,7 +29,7 @@ import java.util.Set;
 
 /**
  * Transforms a {@code <http:listener/>} elements to SI DSL.
- *
+ * <p>
  * https://docs.mulesoft.com/http-connector/0.3.9/http-listener-connector
  */
 @Component
@@ -47,31 +47,32 @@ public class HttpListenerTranslator implements MuleComponentToSpringIntegrationD
     @Override
     public DslSnippet translate(int id, ListenerType component, QName name, MuleConfigurations muleConfigurations, String flowName, Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
         /*
-        * In the connector component on your flow, the only required fields are the Path
-        * (the path-absolute URL defining the resource location), which by default is /,
-        * and a configuration reference to a global element, containing the necessary parameters Host and Port.
-        */
+         * In the connector component on your flow, the only required fields are the Path
+         * (the path-absolute URL defining the resource location), which by default is /,
+         * and a configuration reference to a global element, containing the necessary parameters Host and Port.
+         */
         String path = component.getPath();
-        if(path == null || path.isEmpty()) {
+        if (path == null || path.isEmpty()) {
             log.error("Path attribute of <http:listener> must not be set.");
         }
 
         String snippet = path == null ? javaDslHttpListenerTemplate :
                 javaDslHttpListenerTemplate.replace("${path}", path);
 
-        return new DslSnippet(snippet,
-                Set.of("org.springframework.context.annotation.Bean",
+        return DslSnippet.builder()
+                .renderedSnippet(snippet)
+                .requiredImports(Set.of("org.springframework.context.annotation.Bean",
                         "org.springframework.context.annotation.Configuration",
                         "org.springframework.integration.dsl.IntegrationFlow",
                         "org.springframework.integration.dsl.IntegrationFlows",
                         "org.springframework.integration.http.dsl.Http",
                         "org.springframework.integration.transformer.ObjectToStringTransformer"
-                        ),
-                Set.of(
+                ))
+                .requiredDependencies(Set.of(
                         "org.springframework.boot:spring-boot-starter-web:2.5.5",
                         "org.springframework.boot:spring-boot-starter-integration:2.5.5",
                         "org.springframework.integration:spring-integration-http:5.4.4"
-                ),
-                Collections.emptySet());
+                ))
+                .build();
     }
 }

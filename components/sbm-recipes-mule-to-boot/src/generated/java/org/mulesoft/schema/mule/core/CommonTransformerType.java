@@ -28,8 +28,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "commonTransformerType")
 @XmlSeeAlso({
     RefTransformerType.class,
-    AbstractTransformerType.class,
-    CommonMessagePartTransformerType.class
+    CommonMessagePartTransformerType.class,
+    AbstractTransformerType.class
 })
 public class CommonTransformerType
     extends AbstractMessageProcessorType

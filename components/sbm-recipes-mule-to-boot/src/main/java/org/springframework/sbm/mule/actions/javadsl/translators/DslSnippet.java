@@ -15,12 +15,11 @@
  */
 package org.springframework.sbm.mule.actions.javadsl.translators;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.springframework.sbm.mule.api.toplevel.AbstractTopLevelElement;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -28,55 +27,32 @@ import java.util.stream.Collectors;
  */
 
 @Getter
-@RequiredArgsConstructor
+@Builder(toBuilder=true)
 public class DslSnippet {
 
-    private final String renderedSnippet;
+    private String renderedSnippet;
 
-    /**
-     * Imports for the types required for this snippet
-     */
-    private final Set<String> requiredImports;
+    @Builder.Default
+    private Set<String> requiredImports = Collections.emptySet();
 
     /**
      * Dependencies required to be added to the classpath
      * <p>
-     * the dependencies mst be provided as Maven coordinates
+     * the dependencies must be provided as Maven coordinates
      */
-    private final Set<String> requiredDependencies;
+    @Builder.Default
+    private Set<String> requiredDependencies = Collections.emptySet();
 
-    private final Set<Bean> beans;
+    @Builder.Default
+    private Set<Bean> beans = Collections.emptySet();
 
-    private final boolean isUnknownStatement;
+    private boolean isUnknownStatement;
 
-    private final String externalClassContent;
+    @Builder.Default
+    private String externalClassContent = "";
 
-    public DslSnippet(String renderedSnippet,
-                      Set<String> requiredImports) {
-        this(renderedSnippet, requiredImports, Collections.emptySet(), Collections.emptySet(), false, "");
-    }
-
-    public DslSnippet(String renderedSnippet,
-                      Set<String> requiredImports,
-                      Set<String> requiredDependencies,
-                      Set<Bean> beans) {
-        this(renderedSnippet, requiredImports, requiredDependencies, beans, false, "");
-    }
-
-    public DslSnippet(String renderedSnippet,
-                      Set<String> requiredImports,
-                      Set<String> requiredDependencies,
-                      Set<Bean> beans,
-                      boolean isUnknownStatement) {
-        this(renderedSnippet, requiredImports, requiredDependencies, beans, isUnknownStatement, "");
-    }
-
-    public DslSnippet(String renderedSnippet,
-                      Set<String> requiredImports,
-                      Set<String> requiredDependencies,
-                      String externalClassContent) {
-        this(renderedSnippet, requiredImports, requiredDependencies, Collections.emptySet(), false, externalClassContent);
-    }
+    @Builder.Default
+    private String renderedDependentFlows = "";
 
     public static String renderMethodParameters(List<DslSnippet> dslSnippets) {
         return dslSnippets.stream()
@@ -84,5 +60,36 @@ public class DslSnippet {
                 .distinct()
                 .map(b -> b.getBeanClass() + " " + b.getBeanName())
                 .collect(Collectors.joining(", "));
+    }
+
+    public static DslSnippet createDSLSnippetFromTopLevelElement(AbstractTopLevelElement topLevelElement) {
+
+        Set<Bean> beans = new HashSet<>();
+        Set<String> requiredImports = new HashSet<>();
+        Set<String> dependencies = new HashSet<>();
+        topLevelElement
+                .getDslSnippets()
+                .forEach(dslSnippet -> {
+                    beans.addAll(dslSnippet.getBeans());
+                    requiredImports.addAll(dslSnippet.getRequiredImports());
+                    dependencies.addAll(dslSnippet.getRequiredDependencies());
+                    if (dslSnippet.getExternalClassContent() != null
+                            && !dslSnippet.getExternalClassContent().isBlank()) {
+                    }
+                });
+
+        Optional<String> optionalExternalClassContent = topLevelElement
+                .getDslSnippets()
+                .stream()
+                .map(DslSnippet::getExternalClassContent)
+                .filter(k -> k !=null && !k.isBlank())
+                .findFirst();
+
+        return DslSnippet.builder()
+                .beans(beans)
+                .requiredImports(requiredImports)
+                .requiredDependencies(dependencies)
+                .externalClassContent(optionalExternalClassContent.orElse(null))
+                .build();
     }
 }

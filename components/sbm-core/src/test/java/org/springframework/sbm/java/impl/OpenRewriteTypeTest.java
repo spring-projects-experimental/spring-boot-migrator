@@ -16,6 +16,8 @@
 package org.springframework.sbm.java.impl;
 
 import org.springframework.sbm.GitHubIssue;
+import org.springframework.sbm.build.api.Dependency;
+import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -23,7 +25,7 @@ import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -254,6 +256,111 @@ class OpenRewriteTypeTest {
         type.removeAnnotation(removeAnnotation);
 
         Assertions.assertThat(type.getAnnotations()).isEmpty();
+    }
+
+    @Test
+    void testAddMethod() {
+        String template =
+                "@Bean\n" +
+                "IntegrationFlow http_routeFlow() {\n" +
+                "return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
+                ".log(LoggingHandler.Level.INFO)\n" +
+                ".get();\n" +
+                "}\n";
+
+        Set<String> requiredImports = Set.of("org.springframework.integration.transformer.ObjectToStringTransformer",
+                "org.springframework.context.annotation.Configuration",
+                "org.springframework.integration.amqp.dsl.Amqp",
+                "org.springframework.integration.handler.LoggingHandler",
+                "org.springframework.integration.dsl.IntegrationFlow",
+                "org.springframework.integration.dsl.IntegrationFlows",
+                "org.springframework.context.annotation.Bean",
+                "org.springframework.integration.http.dsl.Http");
+
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-integration:2.5.5",
+                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
+                        "org.springframework.integration:spring-integration-http:5.4.4")
+                .addJavaSource("src/main/java/Config.java", "public class Config {}")
+                .build();
+
+        Type type = context.getProjectJavaSources().list().get(0).getTypes().get(0);
+        type.addMethod(template, requiredImports);
+
+        System.out.println(context.getProjectJavaSources().list().get(0).print());
+        assertThat(context.getProjectJavaSources().list().get(0).print()).isEqualTo(
+                "import org.springframework.context.annotation.Bean;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                        "import org.springframework.integration.handler.LoggingHandler;\n" +
+                        "import org.springframework.integration.http.dsl.Http;\n" +
+                        "\n" +
+                        "public class Config {\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow http_routeFlow() {\n" +
+                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
+                        "                .log(LoggingHandler.Level.INFO)\n" +
+                        "                .get();\n" +
+                        "    }\n" +
+                        "}"
+        );
+    }
+
+    @Test
+    void testAddMethod2() {
+        String template =
+                "@Bean\n" +
+                        "IntegrationFlow http_routeFlow() {\n" +
+                        "return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
+                        ".log(LoggingHandler.Level.INFO)\n" +
+                        ".get();\n" +
+                        "}\n";
+
+        Set<String> requiredImports = Set.of("org.springframework.integration.transformer.ObjectToStringTransformer",
+                "org.springframework.context.annotation.Configuration",
+                "org.springframework.integration.amqp.dsl.Amqp",
+                "org.springframework.integration.handler.LoggingHandler",
+                "org.springframework.integration.dsl.IntegrationFlow",
+                "org.springframework.integration.dsl.IntegrationFlows",
+                "org.springframework.context.annotation.Bean",
+                "org.springframework.integration.http.dsl.Http");
+
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-integration:2.5.5",
+                        "org.springframework.boot:spring-boot-starter-web:2.5.5")
+                .addJavaSource("src/main/java/Config.java", "public class Config {}")
+                .build();
+
+        long before = System.currentTimeMillis();
+
+        context.getBuildFile().addDependency(Dependency.builder()
+                        .groupId("org.springframework.integration")
+                        .artifactId("spring-integration-http")
+                        .version("5.4.4")
+                .build());
+
+        long timeSpent = System.currentTimeMillis() - before;
+        System.out.println("Adding a dependency took: " + (timeSpent/1000) + " sec.");
+
+        Type type = context.getProjectJavaSources().list().get(0).getTypes().get(0);
+        type.addMethod(template, requiredImports);
+
+        assertThat(context.getProjectJavaSources().list().get(0).print()).isEqualTo(
+                "import org.springframework.context.annotation.Bean;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                        "import org.springframework.integration.handler.LoggingHandler;\n" +
+                        "import org.springframework.integration.http.dsl.Http;\n" +
+                        "\n" +
+                        "public class Config {\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow http_routeFlow() {\n" +
+                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
+                        "                .log(LoggingHandler.Level.INFO)\n" +
+                        "                .get();\n" +
+                        "    }\n" +
+                        "}"
+        );
     }
 
     @Test

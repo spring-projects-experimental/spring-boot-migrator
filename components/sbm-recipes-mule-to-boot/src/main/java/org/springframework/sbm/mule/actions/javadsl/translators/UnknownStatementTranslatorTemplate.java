@@ -25,6 +25,6 @@ public class UnknownStatementTranslatorTemplate {
 
     public String render() {
 
-        return "//FIXME: element is not supported for conversion: " + elementInfo.getQualifiedTagName();
+        return " //FIXME: element is not supported for conversion: " + elementInfo.getQualifiedTagName();
     }
 }

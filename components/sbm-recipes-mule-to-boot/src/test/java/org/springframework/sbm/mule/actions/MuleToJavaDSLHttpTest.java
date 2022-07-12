@@ -43,7 +43,7 @@ public class MuleToJavaDSLHttpTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(muleXmlHttp);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
@@ -59,15 +59,9 @@ public class MuleToJavaDSLHttpTest extends JavaDSLActionBaseTest {
                         "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                .get();\n" +
-                        "    }}");
-        List<RewriteSourceFileHolder<? extends SourceFile>> applicationProperty = projectContext
-                .getProjectResources()
-                .list()
-                .stream()
-                .filter(r -> r.getSourcePath().toString().contains("application.properties"))
-                .collect(Collectors.toList());
+                        "    }\n" +
+                        "}");
 
-        assertThat(applicationProperty).hasSize(1);
-        assertThat(applicationProperty.get(0).print()).isEqualTo("server.port=8081");
+        assertThat(getApplicationPropertyContent()).isEqualTo("server.port=8081");
     }
 }

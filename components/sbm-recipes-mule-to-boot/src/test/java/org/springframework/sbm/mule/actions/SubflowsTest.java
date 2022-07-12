@@ -93,7 +93,7 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(subflowWithRabbit);
         runAction();
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.amqp.rabbit.core.RabbitTemplate;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
@@ -117,7 +117,8 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
                         "    IntegrationFlow outToAMQP(org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate) {\n" +
                         "        return flow -> flow\n" +
                         "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"));\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
 
     }
@@ -128,7 +129,7 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
         runAction();
 
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(projectContext.getProjectJavaSources().list().get(0).print())
+        assertThat(getGeneratedJavaFile())
                 .isEqualTo("package com.example.javadsl;\n" +
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
@@ -152,7 +153,8 @@ public class SubflowsTest extends JavaDSLActionBaseTest {
                         "        return flow -> {\n" +
                         "            //FIXME: element is not supported for conversion: <set-variable/>\n" +
                         "        };\n" +
-                        "    }}"
+                        "    }\n" +
+                        "}"
                 );
     }
 }
