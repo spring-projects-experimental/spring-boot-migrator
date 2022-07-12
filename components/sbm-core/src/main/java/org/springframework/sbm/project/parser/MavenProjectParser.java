@@ -147,14 +147,20 @@ public class MavenProjectParser {
                     Path.of("src/main/mule")
             );
 
-            // FIXME: mainSourceSetMarker and provenance marker needs to be a dde to all resources
+            // FIXME: mainSourceSetMarker and provenance marker must be added to all resources
+            List<Resource> resourceList = resourceParser.filter(projectDirectory, mainResourcePaths, resources, relativeModuleDir);
 
-            List<SourceFile> mainResources = resourceParser.parse(projectDirectory, mainResourcePaths, resources);
+            List<Marker> resourceMarker = new ArrayList(javaProvenanceMarkers);
+            resourceMarker.add(mainSourceSet);
+            resourceMarker.add(gitProvenance);
+            List<SourceFile> mainResources = resourceParser.parse(projectDirectory, resourceList, resourceMarker);
             sourceFiles.addAll(mainResources);
 
             // -------
             // Test Java sources
-            List<J.CompilationUnit> testJavaSources = parseTestJavaSources(projectDirectory, resources, ctx, javaParser, pomXml, mavenWithMarkers, mavenProjectDirectory, javaProvenanceMarkers);
+            ArrayList<Marker> markers = new ArrayList<>(javaProvenanceMarkers);
+            markers.add(mainSourceSet);
+            List<J.CompilationUnit> testJavaSources = parseTestJavaSources(projectDirectory, resources, ctx, javaParser, pomXml, mavenWithMarkers, mavenProjectDirectory, markers);
             JavaSourceSet testSourceSet = javaParser.getSourceSet(ctx);
             sourceFiles.addAll(testJavaSources);
 
@@ -166,9 +172,11 @@ public class MavenProjectParser {
                     Path.of("src/test/mule")
             );
 
-            // FIXME: mainSourceSetMarker and provenance marker needs to be a dde to all resources
-
-            List<SourceFile> testResources = resourceParser.parse(projectDirectory, testResourcePaths, resources);
+            List<Resource> filteredResources = resourceParser.filter(projectDirectory, testResourcePaths, resources, relativeModuleDir);
+            List<Marker> testResourceMarker = new ArrayList(javaProvenanceMarkers);
+            testResourceMarker.add(testSourceSet);
+            testResourceMarker.add(gitProvenance);
+            List<SourceFile> testResources = resourceParser.parse(projectDirectory, filteredResources, testResourceMarker);
             sourceFiles.addAll(testResources);
 
 //
@@ -270,8 +278,7 @@ public class MavenProjectParser {
         }).collect(Collectors.toList());
         List<J.CompilationUnit> testCompilationUnits = javaParser.parseInputs(testJavaSourcesInput, projectDirectory, ctx);
         // FIXME: #7 JavaParser and adding markers is required when adding java sources and should go into dedicated component
-        testCompilationUnits.stream()
-                .forEach(cu -> cu.getMarkers().getMarkers().addAll(javaProvenanceMarkers));
+        testCompilationUnits.forEach(cu -> cu.getMarkers().getMarkers().addAll(javaProvenanceMarkers));
         return testCompilationUnits;
     }
 

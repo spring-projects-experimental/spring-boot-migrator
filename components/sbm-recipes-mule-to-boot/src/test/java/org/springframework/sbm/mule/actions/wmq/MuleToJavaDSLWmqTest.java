@@ -16,6 +16,7 @@
 
 package org.springframework.sbm.mule.actions.wmq;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.springframework.sbm.build.api.Dependency;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled("FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/195")
 public class MuleToJavaDSLWmqTest extends JavaDSLActionBaseTest {
     private final static String muleXml = "<mule xmlns:wmq=\"http://www.mulesoft.org/schema/mule/ee/wmq\" xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
             "xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
