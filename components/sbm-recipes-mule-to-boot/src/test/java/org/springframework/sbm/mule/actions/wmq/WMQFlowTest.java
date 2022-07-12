@@ -15,11 +15,13 @@
  */
 package org.springframework.sbm.mule.actions.wmq;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.mule.actions.JavaDSLActionBaseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled("FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/195")
 public class WMQFlowTest extends JavaDSLActionBaseTest {
 
     String wmqXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
