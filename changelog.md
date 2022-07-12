@@ -1,3 +1,14 @@
+## [0.12.0](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.12.0) - 
+
+### Adds
+- Reworked OpenRewrite recipe integration. (#181)
+  - OpenRewriteDeclarativeRecipeAdapter allows to declare SBM action which applies a declarative OR recipe
+  - OpenRewriteNamedRecipeAdapter allows to declare SBM action which applies an OR recipe by name
+- Bumps OpenRewrite to version 7.22.0 (#174)
+
+### Fixes
+- Fix Conditions for Spring Boot 2.4 to 2.5 Upgrade recipes (#133). Thanks @Turbots
+
 ## [0.11.2](https://github.com/spring-projects-experimental/spring-boot-migrator/releases/tag/0.11.2) - 2022-05-27
 
 ### Adds

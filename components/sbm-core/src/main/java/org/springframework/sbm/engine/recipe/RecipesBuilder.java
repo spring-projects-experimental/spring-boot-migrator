@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,31 +38,14 @@ public class RecipesBuilder {
 
     private final RecipeParser recipeParser;
 
-    private final RecipeLoader recipeLoader;
+    private final List<RecipeLoader> recipeLoader;
 
     private Recipes recipes;
 
     public Recipes buildRecipes() {
-        if (recipes == null) {
-            Resource[] files = recipeLoader.loadRecipes();
-
-            if (log.isDebugEnabled()) {
-                log.debug("Recipes loading...");
-                for (Resource r : files) {
-                    log.debug(r.toString());
-                }
-                log.debug("Recipes loading... DONE");
-            }
-
-            List<Recipe> recipeList = Arrays.stream(files)
-                    .peek(f -> log.debug("loading Recipe " + f.toString()))
-                    .flatMap(f -> Arrays.stream(recipeParser.parseRecipe(f)))
-                    .collect(Collectors.toList());
-
-            if (beanRecipes != null) {
-                recipeList.addAll(beanRecipes);
-            }
-
+        if(recipes == null) {
+            List<Recipe> recipeList = new ArrayList<>();
+            recipeLoader.forEach(rl -> recipeList.addAll(rl.loadRecipes()));
             recipes = new Recipes(recipeList);
         }
         return recipes;

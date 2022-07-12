@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.project.resource;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.Parser;
 import org.openrewrite.java.JavaParser;
@@ -26,6 +25,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
+import org.springframework.sbm.build.migration.MavenPomCacheProvider;
 import org.springframework.sbm.build.resource.BuildFileResourceWrapper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
@@ -37,6 +37,7 @@ import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.project.parser.*;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
@@ -488,7 +489,8 @@ public class TestProjectContext {
             when(gitSupport.repoExists(projectRoot.toFile())).thenReturn(true);
             when(gitSupport.getLatestCommit(projectRoot.toFile())).thenReturn(Optional.empty());
 
-            ProjectContextInitializer projectContextInitializer = new ProjectContextInitializer(projectContextFactory, mavenProjectParser, gitSupport);
+            RewriteSourceFileWrapper wrapper = new RewriteSourceFileWrapper();
+            ProjectContextInitializer projectContextInitializer = new ProjectContextInitializer(projectContextFactory, mavenProjectParser, gitSupport, wrapper);
             return projectContextInitializer;
         }
 
