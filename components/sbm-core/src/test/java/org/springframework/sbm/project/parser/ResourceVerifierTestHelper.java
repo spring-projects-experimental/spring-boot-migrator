@@ -85,6 +85,10 @@ class ResourceVerifierTestHelper {
         return new JavaSourceSetMarkersVerifier(name, classpath);
     }
 
+    public static MarkerVerifier javaSourceSetMarker(String name, int numTypes) {
+        return new JavaSourceSetMarkersVerifier(name, numTypes);
+    }
+
     public static MarkerVerifier gitProvenanceMarker(String branch) {
         return new GitProvenanceMarkerVerifier(branch);
     }
@@ -109,9 +113,16 @@ class ResourceVerifierTestHelper {
 
         this.markerVerifer.forEach(v -> v.check(rewriteSourceFileHolder));
 
-        assertThat(rewriteSourceFileHolder.getSourceFile().getMarkers().getMarkers())
-                .as("Invalid number of markers for resource '%s'. Expected '%s' but found '%s'", rewriteSourceFileHolder, markerVerifer.size(), rewriteSourceFileHolder.getSourceFile().getMarkers().getMarkers().size())
-                .hasSize(markerVerifer.size());
+        List<Marker> markers = rewriteSourceFileHolder.getSourceFile().getMarkers().getMarkers();
+        int size = markerVerifer.size();
+        int actualSize = markers.size();
+        assertThat(markers.size())
+                .as(() ->
+                {
+                    String format = String.format("Invalid number of markers for resource '%s'. Expected '%d' but found '%d', '%s'", rewriteSourceFileHolder.getAbsolutePath().toString(), size, actualSize, markers.stream().map(m -> m.getClass().getName()).collect(Collectors.joining("', \n'")));
+                    return format;
+                })
+                .isSameAs(markerVerifer.size());
     }
 
 
@@ -146,11 +157,11 @@ class ResourceVerifierTestHelper {
         @Override
         public void assertMarker(SourceFile sourceFile, BuildTool marker) {
             assertThat(marker.getType().name())
-                    .as("Invalid marker [BuildTool] for resource '%s'. Expected name to be '%s' but was '%s'", sourceFile, name, marker.getType().name())
+                    .as("Invalid marker [BuildTool] for resource '%s'. Expected name to be '%s' but was '%s'", sourceFile.getSourcePath().toString(), name, marker.getType().name())
                     .isEqualTo(name);
 
             assertThat(marker.getVersion())
-                    .as("Invalid marker [BuildTool] for resource '%s'. Expected version to be '%s' but was '%s'", sourceFile, version, marker.getVersion())
+                    .as("Invalid marker [BuildTool] for resource '%s'. Expected version to be '%s' but was '%s'", sourceFile.getSourcePath().toString(), version, marker.getVersion())
                     .isEqualTo(version);
         }
 
@@ -181,15 +192,15 @@ class ResourceVerifierTestHelper {
         @Override
         public void assertMarker(SourceFile sourceFile, JavaVersion marker) {
             assertThat(marker.getCreatedBy())
-                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", sourceFile, version, marker.getSourceCompatibility())
+                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", sourceFile.getSourcePath().toString(), version, marker.getSourceCompatibility())
                     .startsWith(Integer.toString(version));
 
             assertThat(marker.getSourceCompatibility())
-                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected sourceCompatibility to be '%s' but was '%s'", sourceFile, source, marker.getSourceCompatibility())
+                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected sourceCompatibility to be '%s' but was '%s'", sourceFile.getSourcePath().toString(), source, marker.getSourceCompatibility())
                     .isEqualTo(source);
 
             assertThat(marker.getTargetCompatibility())
-                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", sourceFile, target, marker.getSourceCompatibility())
+                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", sourceFile.getSourcePath().toString(), target, marker.getSourceCompatibility())
                     .isEqualTo(target);
         }
 
@@ -230,10 +241,18 @@ class ResourceVerifierTestHelper {
     private static class JavaSourceSetMarkersVerifier implements MarkerVerifier<SourceFile, JavaSourceSet> {
         private final String name;
         private final String classpath;
+        private final Integer numTypes;
 
         public JavaSourceSetMarkersVerifier(String name, String classpathPattern) {
             this.name = name;
+            this.numTypes = null;
             this.classpath = classpathPattern;
+        }
+
+        public JavaSourceSetMarkersVerifier(String name, int numTypes) {
+            this.name = name;
+            this.numTypes = numTypes;
+            this.classpath = null;
         }
 
         @Override
@@ -250,22 +269,25 @@ class ResourceVerifierTestHelper {
         @Override
         public void assertMarkers(SourceFile rewriteSourceFileHolder, List<JavaSourceSet> javaSourceSetMarker) {
             assertThat(javaSourceSetMarker).filteredOn(js -> name.equals(js.getName()))
-                    .as("Invalid marker [JavaSourceSet] for resource '%s'. Expected name to be '%s' but no Marker with this name was found.", rewriteSourceFileHolder, name)
+                    .as("Invalid marker [JavaSourceSet] for resource '%s'. Expected name to be '%s' but no Marker with this name was found.", rewriteSourceFileHolder.getSourcePath().toString(), name)
                     .isNotEmpty();
 
-            List<String> dependencies = javaSourceSetMarker.stream().filter(js -> "main".equals(js.getName()))
+            List<String> dependencies = javaSourceSetMarker.stream().filter(js -> name.equals(js.getName()))
                     .flatMap(js -> js.getClasspath().stream())
                     .map(fq -> fq.getFullyQualifiedName())
                     .collect(Collectors.toList());
 
-            String[] split = classpath.split(", ");
-            if (classpath.equals("")) {
-                dependencies.add("");
+            if(classpath != null && !classpath.isEmpty()) {
+                String[] split = classpath.split(", ");
+                assertThat(dependencies)
+                        .as("Invalid marker [JavaSourceSet] for resource '%s'. Expected dependencies to be '%s' but was '%s'", rewriteSourceFileHolder.getSourcePath().toString(), classpath, dependencies)
+                        .contains(split);
+            } else if(numTypes != null) {
+                assertThat(dependencies)
+                        .as("Invalid marker [JavaSourceSet] for resource '%s'. Expected dependencies to be of size '%d' but was '%d'", rewriteSourceFileHolder.getSourcePath().toString(), numTypes, dependencies.size())
+                        .hasSize(numTypes);
             }
 
-            assertThat(dependencies)
-                    .as("Invalid marker [JavaSourceSet] for resource '%s'. Expected dependencies to be '%s' but was '%s'", rewriteSourceFileHolder, classpath, dependencies)
-                    .contains(split);
         }
 
     }
@@ -280,14 +302,13 @@ class ResourceVerifierTestHelper {
         @Override
         public void check(RewriteSourceFileHolder<SourceFile> rewriteSourceFileHolder) {
             GitProvenance gitProvenanceMarker = getFirstMarker(rewriteSourceFileHolder, GitProvenance.class);
-
-
+            assertMarker(rewriteSourceFileHolder.getSourceFile(), gitProvenanceMarker);
         }
 
         @Override
         public void assertMarker(SourceFile sourceFile, GitProvenance marker) {
             assertThat(marker.getBranch())
-                    .as("Invalid marker [GitProvenance] for resource '%s'. Expected branch to be '%s' but was '%s'", sourceFile, branch, marker.getBranch())
+                    .as("Invalid marker [GitProvenance] for resource '%s'. Expected branch to be '%s' but was '%s'", sourceFile.getSourcePath().toString(), branch, marker.getBranch())
                     .isEqualTo(branch);
         }
 
@@ -335,8 +356,8 @@ class ResourceVerifierTestHelper {
                             )
                     );
 
-            assertThat(dependenciesGav).containsExactlyInAnyOrderEntriesOf(dependencies);
-            assertThat(coordinate).isEqualTo(coordinate);
+            assertThat(dependenciesGav).containsExactlyInAnyOrderEntriesOf(this.dependencies);
+            assertThat(coordinate).isEqualTo(this.coordinate);
         }
 
         @Override
@@ -364,7 +385,7 @@ class ResourceVerifierTestHelper {
             List<String> modulesList = marker.getModules().stream().map(m -> m.getPom().getGav().toString()).collect(Collectors.toList());
 
             assertThat(modulesList)
-                    .as("Invalid marker [Modules] for resource '%s'. Expected modules to be '%s' but was '%s'", sourceFile, modules, modulesList)
+                    .as("Invalid marker [Modules] for resource '%s'. Expected modules to be '%s' but was '%s'", sourceFile.getSourcePath().toString(), modules, modulesList)
                     .containsExactlyInAnyOrder(modules);
         }
 

@@ -26,7 +26,6 @@ import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.text.PlainText;
 import org.openrewrite.text.PlainTextParser;
-import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
@@ -37,9 +36,9 @@ import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -82,9 +81,9 @@ class ResourceParserTest {
             "some.xml,<xml/>,org.openrewrite.xml.tree.Xml$Document",
             "some.yaml2,foo:bar,org.openrewrite.text.PlainText",
     })
-    void test(String filename, String content, String className) throws ClassNotFoundException {
+    void picksMatchingParser(String filename, String content, String className) throws ClassNotFoundException {
         List<Resource> resources = getResourceAsList(filename, content);
-        List<SourceFile> parsedResources = sut.parse(baseDir, resourcePaths, resources);
+        List<SourceFile> parsedResources = sut.parse(baseDir, resources, new ArrayList<>());
         assertCorrectParsing(filename, content, Class.forName(className), parsedResources);
     }
 
