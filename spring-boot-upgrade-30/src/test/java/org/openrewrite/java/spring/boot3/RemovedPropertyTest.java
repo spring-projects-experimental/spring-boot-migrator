@@ -16,15 +16,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RemovedPropertyTest {
 
-    private static ConfigRecipeTestHelper configRecipeTestHelper = ConfigRecipeTestHelper
-            .builder()
-            .build();
-
     @ParameterizedTest
     @MethodSource("provideYamlInputFiles")
     public void removeYaml(String inputFilePath) throws IOException {
-        Pair<String, String> testData = configRecipeTestHelper.provideIO(inputFilePath);
-        List<Result> result = configRecipeTestHelper.runRecipeOnYaml(testData.getLeft(),
+        Pair<String, String> testData = ConfigRecipeTestHelper.provideIO(inputFilePath);
+        List<Result> result = ConfigRecipeTestHelper.runRecipeOnYaml(testData.getLeft(),
                 "org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7_Removed");
 
         assertThat(result).hasSize(1);
@@ -34,8 +30,8 @@ public class RemovedPropertyTest {
     @ParameterizedTest
     @MethodSource("providePropertiesInputFiles")
     public void removeProperties(String inputFilePath) throws IOException {
-        Pair<String, String> testData = configRecipeTestHelper.provideIO(inputFilePath);
-        List<Result> result = configRecipeTestHelper.runRecipeOnProperties(testData.getLeft(),
+        Pair<String, String> testData = ConfigRecipeTestHelper.provideIO(inputFilePath);
+        List<Result> result = ConfigRecipeTestHelper.runRecipeOnProperties(testData.getLeft(),
                 "org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7_Removed");
 
         assertThat(result).hasSize(1);

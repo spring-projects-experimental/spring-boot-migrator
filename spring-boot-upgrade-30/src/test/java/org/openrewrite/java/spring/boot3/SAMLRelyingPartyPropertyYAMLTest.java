@@ -8,13 +8,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SAMLRelyingPartyPropertyYAMLTest {
 
-    private static ConfigRecipeTestHelper configRecipeTestHelper = ConfigRecipeTestHelper
-            .builder()
-            .build();
-
     @Test
     void movePropertyTestSingle() {
-        List<Result> result = configRecipeTestHelper.runRecipeOnYaml("""
+        List<Result> result = ConfigRecipeTestHelper.runRecipeOnYaml("""
                     spring:
                       security:
                         saml2:
@@ -49,7 +45,7 @@ public class SAMLRelyingPartyPropertyYAMLTest {
 
     @Test
     void movePropertyTestMultiple() {
-        List<Result> result = configRecipeTestHelper.runRecipeOnYaml(
+        List<Result> result = ConfigRecipeTestHelper.runRecipeOnYaml(
                 """
                             spring:
                               security:
@@ -101,7 +97,7 @@ public class SAMLRelyingPartyPropertyYAMLTest {
 
     @Test
     void movePropertyWhenCorrectHierarchyIsDetected() {
-        List<Result> result = configRecipeTestHelper.runRecipeOnYaml("""
+        List<Result> result = ConfigRecipeTestHelper.runRecipeOnYaml("""
                     some:
                       random:
                         thing:
@@ -120,7 +116,7 @@ public class SAMLRelyingPartyPropertyYAMLTest {
 
     @Test
     void resolveBasedOnCorrectHierarchy() {
-        List<Result> result = configRecipeTestHelper.runRecipeOnYaml(
+        List<Result> result = ConfigRecipeTestHelper.runRecipeOnYaml(
                 """
                             spring:
                               security:

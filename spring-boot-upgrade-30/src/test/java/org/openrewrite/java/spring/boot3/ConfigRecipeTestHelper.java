@@ -25,26 +25,25 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-@Builder
 public class ConfigRecipeTestHelper {
 
-    private final InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
-
-    public List<Result> runRecipeOnYaml(@Language("yml") String source, String recipeName) {
+    public static List<Result> runRecipeOnYaml(@Language("yml") String source, String recipeName) {
+        InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
         List<Yaml.Documents> document = new YamlParser().parse(source);
         return RewriteTest
                 .fromRuntimeClasspath(recipeName)
                 .run(document, ctx);
     }
 
-    public List<Result> runRecipeOnProperties(@Language("properties") String source, String recipeName) {
+    public static List<Result> runRecipeOnProperties(@Language("properties") String source, String recipeName) {
+        InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
         List<Properties.File> document = new PropertiesParser().parse(source);
         return RewriteTest
                 .fromRuntimeClasspath(recipeName)
                 .run(document, ctx);
     }
 
-    public Pair<String, String> provideIO(String inputFilePath) throws IOException {
+    public static Pair<String, String> provideIO(String inputFilePath) throws IOException {
 
         InputStream data = new FileInputStream(inputFilePath);
 
