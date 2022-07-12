@@ -1,7 +1,5 @@
 package org.openrewrite.java.spring.boot3;
 
-import lombok.Builder;
-import lombok.Value;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.intellij.lang.annotations.Language;
