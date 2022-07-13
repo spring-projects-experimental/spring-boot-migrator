@@ -6,43 +6,62 @@
 
   actions:
 
+      # TODO: upgrades for 2.7
     - type: org.springframework.sbm.build.migration.actions.AddRepositoryAction
-      description: Add Spring Boot milestone repository.
-      id: "spring-milestone"
-      url: "https://repo.spring.io/milestone"
-      snapshotsEnabled: false
-      condition:
-        type: org.springframework.sbm.build.migration.conditions.NoRepositoryExistsCondition
+        description: Add Spring Boot milestone repository.
         id: "spring-milestone"
         url: "https://repo.spring.io/milestone"
+        snapshotsEnabled: false
+        condition:
+          type: org.springframework.sbm.build.migration.conditions.NoRepositoryExistsCondition
+          id: "spring-milestone"
+          url: "https://repo.spring.io/milestone"
 
-    - type: org.springframework.sbm.build.migration.actions.BumpParentPomVersion
-      groupId: org.springframework.boot
-      artifactId: spring-boot-starter-parent
-      toVersion: 3.0.0-M3
-      description: Bump spring-boot-starter-parent from 2.7.x to 3.0.0-M3
-      condition:
-        type: org.springframework.sbm.boot.common.conditions.HasSpringBootStarterParent
-        versionPattern: "2\\.7\\..*"
 
-    - type: org.springframework.sbm.boot.upgrade.common.actions.ReplaceJavaxWithJakartaAction
-      javaxPackagePatterns:
-        - javax.persistence
-        - javax.naming
-        - javax.validation
-        - javax.servlet
-      description: Replace relevant 'javax' packages with their new 'jakarta' replacement
-      condition:
-        type: org.springframework.sbm.java.migration.conditions.HasAnyImportStartingWith
-        importPatterns:
-          - javax.persistence
-          - javax.naming
-          - javax.validation
-          - javax.servlet
 
-    - type: org.springframework.sbm.build.migration.actions.SetProperty
-      propertyName: "java.version"
-      propertyValue: "17"
-      description: Set Java version to 17
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
-        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
+        versionStartingWith: "2.7."
+      description: Add Spring Milestone Repository and bump parent pom to 3.0.0-M3
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot3.data.TEST
+        displayName: Upgrade to Spring Data 3.0
+        description: 'Upgrade to Spring Data to 3.0 from any prior version.'
+        recipeList:
+          - org.openrewrite.maven.UpgradeParentVersion:
+              groupId: org.springframework.boot
+              artifactId: spring-boot-starter-parent
+              newVersion: 3.0.0-M3
+
+#    - type: org.springframework.sbm.build.migration.actions.BumpParentPomVersion
+#      groupId: org.springframework.boot
+#      artifactId: spring-boot-starter-parent
+#      toVersion: 3.0.0-M3
+#      description: Bump spring-boot-starter-parent from 2.7.x to 3.0.0-M3
+#      condition:
+#        type: org.springframework.sbm.boot.common.conditions.HasSpringBootStarterParent
+#        versionPattern: "2\\.7\\..*"
+#
+#    - type: org.springframework.sbm.boot.upgrade.common.actions.ReplaceJavaxWithJakartaAction
+#      javaxPackagePatterns:
+#        - javax.persistence
+#        - javax.naming
+#        - javax.validation
+#        - javax.servlet
+#      description: Replace relevant 'javax' packages with their new 'jakarta' replacement
+#      condition:
+#        type: org.springframework.sbm.java.migration.conditions.HasAnyImportStartingWith
+#        importPatterns:
+#          - javax.persistence
+#          - javax.naming
+#          - javax.validation
+#          - javax.servlet
+
+#    - type: org.springframework.sbm.build.migration.actions.SetProperty
+#      propertyName: "java.version"
+#      propertyValue: "17"
+#      description: Set Java version to 17
+#      condition:
+#        type: org.springframework.sbm.common.migration.conditions.TrueCondition

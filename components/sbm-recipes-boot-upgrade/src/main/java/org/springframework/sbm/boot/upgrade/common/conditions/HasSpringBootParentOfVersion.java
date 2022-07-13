@@ -13,41 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.boot.upgrade_24_25.conditions;
+package org.springframework.sbm.boot.upgrade.common.conditions;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
-import java.util.List;
-
-@AllArgsConstructor
-@NoArgsConstructor
-public class IsMatchingSpringBootVersion implements Condition {
+public class HasSpringBootParentOfVersion implements Condition {
 
     /**
      * VersionPattern will be used for {@code startsWith} check against the version number found.
      */
     @NotNull
     @Setter
-    private String versionPattern;
+    private String versionStartingWith;
 
     @Override
     public String getDescription() {
-        return "Check if scanned application is Spring Boot application of given version";
+        return "Check if updating Spring Boot version from 2.4.x to 2.5.x is applicable.";
     }
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        HasSpringBootParentOfVersion hasSpringBootParentOfVersion = new HasSpringBootParentOfVersion();
-        hasSpringBootParentOfVersion.setVersionStartingWith(versionPattern);
-        String versionRegex = versionPattern.replace(".", "\\.") + ".*";
-        AnyDependencyExistMatchingRegex anyDependencyExistMatchingRegex = new AnyDependencyExistMatchingRegex(List.of("org\\.springframework\\.boot\\:.*\\:" + versionRegex));
-        return hasSpringBootParentOfVersion.evaluate(context) || anyDependencyExistMatchingRegex.evaluate(context);
+        return context.getBuildFile().hasParent() &&
+                context.getBuildFile().getParentPomDeclaration().get().getArtifactId().equals("spring-boot-starter-parent") &&
+                context.getBuildFile().getParentPomDeclaration().get().getVersion().startsWith(versionStartingWith);
     }
 }

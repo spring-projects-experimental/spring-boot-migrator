@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.boot.upgrade_24_25.conditions;
+package org.springframework.sbm.boot.upgrade.common.conditions;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
-import javax.validation.constraints.NotEmpty;
-import java.util.Arrays;
 import java.util.List;
 
-public class IsAnyMatchingSpringBootVersion implements Condition {
+@AllArgsConstructor
+@NoArgsConstructor
+public class IsMatchingSpringBootVersion implements Condition {
 
     /**
      * VersionPattern will be used for {@code startsWith} check against the version number found.
      */
     @NotNull
-    @NotEmpty
-    private List<String> versionPatterns;
+    @Setter
+    private String versionPattern;
 
     @Override
     public String getDescription() {
@@ -41,11 +43,10 @@ public class IsAnyMatchingSpringBootVersion implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return versionPatterns.stream()
-                .anyMatch(p ->  new IsMatchingSpringBootVersion(p).evaluate(context));
-    }
-
-    public void setVersionPatterns(String versionPatterns) {
-        this.versionPatterns = Arrays.asList(versionPatterns.split(","));
+        HasSpringBootParentOfVersion hasSpringBootParentOfVersion = new HasSpringBootParentOfVersion();
+        hasSpringBootParentOfVersion.setVersionStartingWith(versionPattern);
+        String versionRegex = versionPattern.replace(".", "\\.") + ".*";
+        AnyDependencyExistMatchingRegex anyDependencyExistMatchingRegex = new AnyDependencyExistMatchingRegex(List.of("org\\.springframework\\.boot\\:.*\\:" + versionRegex));
+        return hasSpringBootParentOfVersion.evaluate(context) || anyDependencyExistMatchingRegex.evaluate(context);
     }
 }
