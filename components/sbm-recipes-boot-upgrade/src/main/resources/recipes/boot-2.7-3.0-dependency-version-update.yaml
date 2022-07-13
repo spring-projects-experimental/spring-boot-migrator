@@ -47,7 +47,18 @@
               oldPackageName: io.micrometer.core.instrument.binder
               newPackageName: io.micrometer.binder
               recursive: true
-
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
+        versionStartingWith: "2.7."
+      description: Move micrometer packages
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.springframework.sbm.boot.upgrade_27_30.SAMLRelyingPartyPropertyYAMLMove
+        displayName: Move SAML relying party identity provider property to asserting party
+        description: 'Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty'
+        recipeList:
+          - org.springframework.sbm.boot.upgrade_27_30.SAMLRelyingPartyPropertyYAMLMove
 #    - type: org.springframework.sbm.build.migration.actions.BumpParentPomVersion
 #      groupId: org.springframework.boot
 #      artifactId: spring-boot-starter-parent
