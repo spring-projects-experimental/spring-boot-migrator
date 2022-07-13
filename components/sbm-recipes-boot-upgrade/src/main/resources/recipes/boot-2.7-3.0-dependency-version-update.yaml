@@ -32,22 +32,22 @@
               groupId: org.springframework.boot
               artifactId: spring-boot-starter-parent
               newVersion: 3.0.0-M3
-#
-#    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
-#      condition:
-#        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-#        versionStartingWith: "2.7."
-#      description: Move micrometer packages
-#      openRewriteRecipe: |-
-#        type: specs.openrewrite.org/v1beta/recipe
-#        name: org.openrewrite.java.spring.boot3.Micrometer_3_0
-#        displayName: Micrometer compatible with Boot 3.x
-#        description: Switch to Micrometer compatible with Boot 3.x
-#        recipeList:
-#          - org.openrewrite.java.ChangePackage:
-#              oldPackageName: io.micrometer.core.instrument.binder
-#              newPackageName: io.micrometer.binder
-#              recursive: true
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
+        versionStartingWith: "2.7."
+      description: Move micrometer packages
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot3.Micrometer_3_0
+        displayName: Micrometer compatible with Boot 3.x
+        description: Switch to Micrometer compatible with Boot 3.x
+        recipeList:
+          - org.openrewrite.java.ChangePackage:
+              oldPackageName: io.micrometer.core.instrument.binder
+              newPackageName: io.micrometer.binder
+              recursive: true
+
 #    - type: org.springframework.sbm.build.migration.actions.BumpParentPomVersion
 #      groupId: org.springframework.boot
 #      artifactId: spring-boot-starter-parent
