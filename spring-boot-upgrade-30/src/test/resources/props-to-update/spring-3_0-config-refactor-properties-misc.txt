@@ -1,0 +1,4 @@
+input:
+spring.webflux.session.cookie.same-site=true
+expected:
+server.reactive.session.cookie.same-site=true

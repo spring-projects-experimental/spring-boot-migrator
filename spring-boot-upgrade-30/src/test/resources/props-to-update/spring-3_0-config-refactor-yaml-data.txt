@@ -1,0 +1,18 @@
+input:
+spring:
+  data:
+    elasticsearch:
+      client:
+        reactive:
+          connection-timeout: 1000
+          max-in-memory-size: 122
+          password: abc
+          socket-timeout: 100
+          username: testuser
+expected:
+spring:
+  elasticsearch.connection-timeout: 1000
+  elasticsearch.webclient.max-in-memory-size: 122
+  elasticsearch.password: abc
+  elasticsearch.socket-timeout: 100
+  elasticsearch.username: testuser

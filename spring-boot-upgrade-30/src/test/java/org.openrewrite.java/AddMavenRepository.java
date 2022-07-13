@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openrewrite.maven;
+package org.openrewrite.java;
 
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
+import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.xml.AddToTagVisitor;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.sbm.build.api.RepositoryDefinition;
 
 import java.util.Optional;
 
@@ -43,20 +43,20 @@ public class AddMavenRepository extends Recipe {
         return new AddRepositoryVisitor();
     }
 
-    private class AddRepositoryVisitor extends MavenVisitor<ExecutionContext> {
+    private class AddRepositoryVisitor extends MavenIsoVisitor<ExecutionContext> {
         private AddRepositoryVisitor() {
         }
 
         @Override
-        public Xml visitDocument(Xml.Document maven, ExecutionContext ctx) {
-            Xml.Tag parent = maven.getRoot();
+        public Xml.Document visitDocument(Xml.Document document, ExecutionContext ctx) {
+            Xml.Tag parent = document.getRoot();
             Optional<Xml.Tag> repositoriesTag = parent.getChild("repositories");
             if (repositoriesTag.isEmpty()) {
                 addRepositoriesTag(parent);
             } else if(noRepositoryWithSameIdExists(repositoriesTag.get())){
                 addRepositoryTag(repositoriesTag.get());
             }
-            return super.visitDocument(maven, ctx);
+            return super.visitDocument(document, ctx);
         }
 
         private boolean noRepositoryWithSameIdExists(Xml.Tag t) {
@@ -68,7 +68,7 @@ public class AddMavenRepository extends Recipe {
                             "<repositories>\n" +
                             renderRepositoryTag() +
                             "</repositories>\n");
-            this.doAfterVisit(new AddToTagVisitor(parent, repositoriesTag, new MavenTagInsertionComparator(parent.getChildren())));
+            this.doAfterVisit(new AddToTagVisitor(parent, repositoriesTag));
             return repositoriesTag;
         }
 
