@@ -27,6 +27,43 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         applyRecipe("boot-2.7-3.0-dependency-version-update");
 
+        verifyParentPomVersion();
+        verifyMicrometerPackageUpdate();
+        verifySamlPropertyUpdate();
+    }
+
+    private void verifyMicrometerPackageUpdate() {
+        String micrometerClass = loadFile(Path.of("src/main/java/org/springboot/example/upgrade/MicrometerConfig.java"));
+        assertThat(micrometerClass).isEqualTo(
+                "package org.springboot.example.upgrade;\n" +
+                "\n" +
+                "import io.micrometer.binder.MeterBinder;\n" +
+                "\n" +
+                "public class MicroMeterConfig {\n" +
+                "\n" +
+                "    private MeterBinder k;\n" +
+                "}\n");
+    }
+
+    private void verifySamlPropertyUpdate() {
+        String micrometerClass = loadFile(Path.of("src/main/resources/application.yaml"));
+        assertThat(micrometerClass).isEqualTo(
+                "spring:\n" +
+                "  security:\n" +
+                "    saml2:\n" +
+                "      relyingparty:\n" +
+                "        registration:\n" +
+                "          idpone:\n" +
+                "            assertingparty:\n" +
+                "              entity-id: https://idpone.com\n" +
+                "              sso-url: https://idpone.com\n" +
+                "              verification:\n" +
+                "                credentials:\n" +
+                "                  - certificate-location: \"classpath:saml/idpone.crt\"\n" +
+                        "\n");
+    }
+
+    private void verifyParentPomVersion() {
         String pomContent = loadFile(Path.of("pom.xml"));
 
         Xml.Document mavenAsXMLDocument = parsePom(pomContent);
@@ -43,17 +80,6 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         assertThat(version).isEqualTo("3.0.0-M3");
         assertThat(groupId).isEqualTo("org.springframework.boot");
         assertThat(artifactId).isEqualTo("spring-boot-starter-parent");
-
-        String micrometerClass = loadFile(Path.of("src/main/java/org/springboot/example/upgrade/MicrometerConfig.java"));
-        assertThat(micrometerClass).isEqualTo(
-                "package org.springboot.example.upgrade;\n" +
-                "\n" +
-                "import io.micrometer.binder.MeterBinder;\n" +
-                "\n" +
-                "public class MicroMeterConfig {\n" +
-                "\n" +
-                "    private MeterBinder k;\n" +
-                "}\n");
     }
 
     @NotNull
