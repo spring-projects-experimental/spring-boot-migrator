@@ -9,5 +9,4 @@ class BootUpgrade2730ApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }

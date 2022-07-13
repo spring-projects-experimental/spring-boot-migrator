@@ -43,6 +43,17 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         assertThat(version).isEqualTo("3.0.0-M3");
         assertThat(groupId).isEqualTo("org.springframework.boot");
         assertThat(artifactId).isEqualTo("spring-boot-starter-parent");
+
+        String micrometerClass = loadFile(Path.of("src/main/java/org/springboot/example/upgrade/MicrometerConfig.java"));
+        assertThat(micrometerClass).isEqualTo(
+                "package org.springboot.example.upgrade;\n" +
+                "\n" +
+                "import io.micrometer.binder.MeterBinder;\n" +
+                "\n" +
+                "public class MicroMeterConfig {\n" +
+                "\n" +
+                "    private MeterBinder k;\n" +
+                "}\n");
     }
 
     @NotNull
