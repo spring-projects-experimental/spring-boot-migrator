@@ -32,7 +32,8 @@ public class NoRepositoryExistsCondition implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return context.getBuildFile().getRepositories().stream()
-                .noneMatch(r -> r.getId().equals(id) || r.getUrl().equals(url));
+        return context.getBuildFile().getRepositories().isEmpty() ||
+                context.getBuildFile().getRepositories().stream()
+                    .noneMatch(r -> r.getId().equals(id) || r.getUrl().equals(url));
     }
 }
