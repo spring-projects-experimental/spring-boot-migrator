@@ -8,15 +8,14 @@
 
       # TODO: upgrades for 2.7
     - type: org.springframework.sbm.build.migration.actions.AddRepositoryAction
-        description: Add Spring Boot milestone repository.
+      description: Add Spring Boot milestone repository.
+      id: "spring-milestone"
+      url: "https://repo.spring.io/milestone"
+      snapshotsEnabled: false
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoRepositoryExistsCondition
         id: "spring-milestone"
         url: "https://repo.spring.io/milestone"
-        snapshotsEnabled: false
-        condition:
-          type: org.springframework.sbm.build.migration.conditions.NoRepositoryExistsCondition
-          id: "spring-milestone"
-          url: "https://repo.spring.io/milestone"
-
 
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
