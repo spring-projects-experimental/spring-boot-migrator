@@ -20,8 +20,6 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.xml.AddToTagVisitor;
-import org.openrewrite.maven.tree.Maven;
-import org.openrewrite.xml.XPathMatcher;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.build.api.RepositoryDefinition;
 
