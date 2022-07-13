@@ -1,0 +1,13 @@
+spring:
+  security:
+    saml2:
+      relyingparty:
+        registration:
+          idpone:
+            identityprovider:
+              entity-id: https://idpone.com
+              sso-url: https://idpone.com
+              verification:
+                credentials:
+                  - certificate-location: "classpath:saml/idpone.crt"
+
