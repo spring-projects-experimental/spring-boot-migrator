@@ -1,0 +1,35 @@
+input:
+some:
+  other: "prop"
+spring:
+  jersey:
+    type: type1
+    init: true
+    servlet:
+      load-on-startup: true
+    application-path: "/path"
+    filter:
+      order: "desc"
+  h2:
+    console:
+      enabled: true
+      path: /tmp
+      settings:
+        trace: true
+        web-admin-password: password
+        web-allow-others: true
+  data:
+    elasticsearch:
+      client:
+        reactive:
+          use-ssl: false
+  config:
+    use-legacy-processing: false
+  cache:
+    infinispan:
+      config: "config2"
+    ehcache:
+      config: "config1"
+expected:
+some:
+  other: "prop"
