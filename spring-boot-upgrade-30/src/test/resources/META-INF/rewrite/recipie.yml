@@ -510,3 +510,13 @@ recipeList:
       propertyKey: spring.jta.log-dir
   - org.openrewrite.properties.DeleteProperty:
       propertyKey: spring.jta.log-dir
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: org.openrewrite.java.spring.boot3.Micrometer_3_0
+displayName: Micrometer compatible with Boot 3.x
+description: Switch to Micrometer compatible with Boot 3.x
+recipeList:
+  - org.openrewrite.java.ChangePackage:
+      oldPackageName: io.micrometer.core.instrument.binder
+      newPackageName: io.micrometer.binder
+      recursive: true

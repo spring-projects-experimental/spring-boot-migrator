@@ -28,9 +28,18 @@ public class UpdateMicrometerPackageTest {
                     }
                 }""".stripIndent();
         List<J.CompilationUnit> parse = javaParser.parse(javaDependsOn, javaCode);
-        String recipeName = "org.openrewrite.java.AddMavenRepository";
+        String recipeName = "org.openrewrite.java.spring.boot3.Micrometer_3_0";
         List<Result> results = RewriteTest.fromRuntimeClasspath(recipeName)
                 .run(parse);
-        assertThat(results).hasSize(1);
+        assertThat(results).hasSize(2);
+
+        assertThat(results.get(1).getAfter().printAll()).isEqualTo("""
+                package a;
+                import io.micrometer.binder.*;
+                class A {
+                    Abc method() {
+                        return null;
+                    }
+                }""".stripIndent());
     }
 }
