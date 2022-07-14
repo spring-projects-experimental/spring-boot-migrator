@@ -26,6 +26,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         verifyParentPomVersion();
         verifyMicrometerPackageUpdate();
+        verifySamlYamlUpdate();
         verifySamlPropertyUpdate();
         verifyConstructorBindingRemoval();
     }
@@ -60,7 +61,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                 "}\n");
     }
 
-    private void verifySamlPropertyUpdate() {
+    private void verifySamlYamlUpdate() {
         String micrometerClass = loadFile(Path.of("src/main/resources/application.yaml"));
         assertThat(micrometerClass).isEqualTo(
                 "spring:\n" +
@@ -76,6 +77,16 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                 "                credentials:\n" +
                 "                  - certificate-location: \"classpath:saml/idpone.crt\"\n" +
                         "\n");
+    }
+
+
+    private void verifySamlPropertyUpdate() {
+
+        String applicationProperties = loadFile(Path.of("src/main/resources/application.properties"));
+        assertThat(applicationProperties).isEqualTo(
+                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.entity-id=https://idpone.com\n" +
+                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.sso-url=https://idpone.com\n" +
+                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.verification.credentials.certificate-location=classpath:saml/idpone.crt\n");
     }
 
     private void verifyParentPomVersion() {
