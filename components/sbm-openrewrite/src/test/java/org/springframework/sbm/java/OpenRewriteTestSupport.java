@@ -15,10 +15,10 @@
  */
 package org.springframework.sbm.java;
 
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.assertj.core.api.Assertions;
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;

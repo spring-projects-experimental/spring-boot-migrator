@@ -47,7 +47,7 @@ class JavaProvenanceMarkerFactoryTest {
                 "    <modelVersion>4.0.0</modelVersion>\n" +
                 "    <name>project-name</name>" +
                 "    <properties>\n" +
-                "        <maven.compiler.source>11</maven.compiler.source>\n" +
+                "        <maven.compiler.source>17</maven.compiler.source>\n" +
                 "        <maven.compiler.target>11</maven.compiler.target>\n" +
                 "    </properties>\n" +
                 "\n" +
@@ -70,7 +70,10 @@ class JavaProvenanceMarkerFactoryTest {
         assertThat(javaProvenanceMarkers).hasSize(3);
 
         Marker javaVersionMarker = extractMarker(javaProvenanceMarkers, JavaVersion.class);
-        ResourceVerifierTestHelper.javaVersionMarker(11, "11", "11").assertMarker(maven, javaVersionMarker);
+
+        String property = System.getProperty("java.version");
+        int javaVersion = Integer.valueOf(property.contains(".") ? property.substring(0, property.indexOf(".")) : property);
+        ResourceVerifierTestHelper.javaVersionMarker(javaVersion, "17", "11").assertMarker(maven, javaVersionMarker);
 
         Marker buildToolMarker = extractMarker(javaProvenanceMarkers, BuildTool.class);
         ResourceVerifierTestHelper.buildToolMarker("Maven", "3.6").assertMarker(maven, buildToolMarker);
