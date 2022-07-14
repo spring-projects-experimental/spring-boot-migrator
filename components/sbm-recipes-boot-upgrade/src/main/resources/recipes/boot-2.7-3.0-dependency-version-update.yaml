@@ -55,12 +55,25 @@
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
         name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
-        displayName: Migrate additional Spring Boot properties to 2.7
-        description: Migrate properties found in `application.properties` and `application.yml` which are not generated automatically from Spring Boot's `additional-spring-configuration-metadata.json` file.
+        displayName: Migrate SAML properties to Spring Boot 3.0 in yaml
+        description: Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty.
         recipeList:
           - org.openrewrite.yaml.ChangeKey:
               oldKeyPath: $.spring.security.saml2.relyingparty.registration.*[?(@.identityprovider)]
               newKey: assertingparty
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
+        versionStartingWith: "2.7."
+      description: Migrate properties found in `application.properties` and `application.yml` which are not generated automatically from Spring Boot's `additional-spring-configuration-metadata.json` file.
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
+        displayName: Migrate SAML properties to Spring Boot 3.0 in properties
+        description: Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty.
+        recipeList:
+          - org.springframework.sbm.boot.upgrade_27_30.SamlRelyingPartyPropertyApplicationPropertiesMove
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
@@ -74,6 +87,7 @@
         description: Remove redundant @ConstructorBinding annotations when applicable
         recipeList:
           - org.springframework.sbm.boot.upgrade_27_30.RemoveConstructorBindingAnnotation
+
 #    - type: org.springframework.sbm.boot.upgrade.common.actions.ReplaceJavaxWithJakartaAction
 #      javaxPackagePatterns:
 #        - javax.persistence
