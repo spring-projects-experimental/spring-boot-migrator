@@ -30,6 +30,25 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyParentPomVersion();
         verifyMicrometerPackageUpdate();
         verifySamlPropertyUpdate();
+        verifyConstructorBindingRemoval();
+    }
+
+    private void verifyConstructorBindingRemoval() {
+        String constructorBindingConfigClass = loadJavaFile("org.springboot.example.upgrade", "ConstructorBindingConfig");
+        assertThat(constructorBindingConfigClass).isEqualTo("package org.springboot.example.upgrade;\n" +
+                "\n" +
+                "import org.springframework.boot.context.properties.ConfigurationProperties;\n" +
+                "import org.springframework.boot.context.properties.ConstructorBinding;\n" +
+                "\n" +
+                "@ConfigurationProperties(prefix = \"mail\")\n" +
+                "public class ConstructorBindingConfig {\n" +
+                "    private String hostName;\n" +
+                "\n" +
+                "    public ConstructorBindingConfig(String hostName) {\n" +
+                "        this.hostName = hostName;\n" +
+                "    }\n" +
+                "}" +
+                "\n");
     }
 
     private void verifyMicrometerPackageUpdate() {
