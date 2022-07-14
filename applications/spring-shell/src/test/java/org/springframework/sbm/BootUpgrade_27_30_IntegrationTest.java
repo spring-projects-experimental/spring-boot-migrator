@@ -35,7 +35,6 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         assertThat(constructorBindingConfigClass).isEqualTo("package org.springboot.example.upgrade;\n" +
                 "\n" +
                 "import org.springframework.boot.context.properties.ConfigurationProperties;\n" +
-                "import org.springframework.boot.context.properties.ConstructorBinding;\n" +
                 "\n" +
                 "@ConfigurationProperties(prefix = \"mail\")\n" +
                 "public class ConstructorBindingConfig {\n" +
