@@ -37,7 +37,6 @@ public class Boot_24_25_SchemaSqlAndDataSqlFiles implements UpgradeSectionBuilde
 
     @Override
     public boolean isApplicable(ProjectContext projectContext) {
-        // TODO: relative path for PathMatcher better?!
         dbInitFiles = projectContext.search(new PathPatternMatchingProjectResourceFinder(List.of("/**/resources/**/schema.sql", "/**/resources/**/data.sql")));
         return !dbInitFiles.isEmpty();
     }
