@@ -51,7 +51,7 @@
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
         versionStartingWith: "2.7."
-      description: Move micrometer packages
+      description: Migrate properties found in `application.properties` and `application.yml` which are not generated automatically from Spring Boot's `additional-spring-configuration-metadata.json` file.
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
         name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
