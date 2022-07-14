@@ -15,6 +15,8 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.Section;
@@ -40,18 +42,15 @@ import java.util.Map;
 public class Boot_24_25_UpgradeReportAction extends AbstractAction {
 
     @Autowired
+    @JsonIgnore
     private Configuration configuration;
+
+    @Autowired
+    @JsonIgnore
+    private List<UpgradeSectionBuilder> upgradeSectionBuilders = new ArrayList<>();
 
     @Override
     public void apply(ProjectContext projectContext) {
-
-        List<UpgradeSectionBuilder> upgradeSectionBuilders = new ArrayList<>();
-
-        upgradeSectionBuilders.add(new Boot_24_25_UpdateDependencies());
-        upgradeSectionBuilders.add(new Boot_24_25_SqlScriptDataSourceInitialization());
-        upgradeSectionBuilders.add(new Boot_24_25_SchemaSqlAndDataSqlFiles());
-        upgradeSectionBuilders.add(new Boot_24_25_SeparateCredentials());
-        upgradeSectionBuilders.add(new Boot_24_25_SpringDataJpa());
 
         final List<Section> sections = new ArrayList<>();
 
