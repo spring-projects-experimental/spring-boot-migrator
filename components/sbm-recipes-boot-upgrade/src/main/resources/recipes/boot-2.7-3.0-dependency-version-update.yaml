@@ -58,11 +58,22 @@
         displayName: Migrate additional Spring Boot properties to 2.7
         description: Migrate properties found in `application.properties` and `application.yml` which are not generated automatically from Spring Boot's `additional-spring-configuration-metadata.json` file.
         recipeList:
-          # Change: spring.security.saml2.relyingparty.registration.{id}.identityprovider To: spring.security.saml2.relyingparty.registration.{id}.assertingparty
-          - org.openrewrite.java.spring.boot2.SamlRelyingPartyPropertyApplicationPropertiesMove # Property files.
-          - org.openrewrite.yaml.ChangeKey: # Yaml files
+          - org.openrewrite.yaml.ChangeKey:
               oldKeyPath: $.spring.security.saml2.relyingparty.registration.*[?(@.identityprovider)]
               newKey: assertingparty
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
+        versionStartingWith: "2.7."
+      description: Remove redundant @ConstructorBinding annotations when applicable
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot3.ImprovedConstructorBinding
+        displayName: Migrate additional Spring Boot properties to 2.7
+        description: Remove redundant @ConstructorBinding annotations when applicable
+        recipeList:
+          - org.springframework.sbm.boot.upgrade_27_30.RemoveConstructorBindingAnnotation
 #    - type: org.springframework.sbm.boot.upgrade.common.actions.ReplaceJavaxWithJakartaAction
 #      javaxPackagePatterns:
 #        - javax.persistence
