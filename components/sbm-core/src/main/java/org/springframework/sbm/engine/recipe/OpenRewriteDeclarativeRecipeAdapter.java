@@ -60,6 +60,7 @@ public class OpenRewriteDeclarativeRecipeAdapter extends AbstractAction {
         URI source = URI.create("embedded-recipe");
         YamlResourceLoader yamlResourceLoader = new YamlResourceLoader(yamlInput, source, new Properties());
         Collection<Recipe> rewriteYamlRecipe = yamlResourceLoader.listRecipes();
+
         rewriteYamlRecipe.stream()
                 .filter(DeclarativeRecipe.class::isInstance)
                 .map(DeclarativeRecipe.class::cast)
@@ -85,5 +86,4 @@ public class OpenRewriteDeclarativeRecipeAdapter extends AbstractAction {
             throw new RuntimeException(e);
         }
     }
-
 }
