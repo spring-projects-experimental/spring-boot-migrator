@@ -4,11 +4,8 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.sbm.IntegrationTestBaseClass;
 
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
