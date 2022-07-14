@@ -54,20 +54,15 @@
       description: Move micrometer packages
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
-        name: org.springframework.sbm.boot.upgrade_27_30.SAMLRelyingPartyPropertyYAMLMove
-        displayName: Move SAML relying party identity provider property to asserting party
-        description: 'Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty'
+        name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
+        displayName: Migrate additional Spring Boot properties to 2.7
+        description: Migrate properties found in `application.properties` and `application.yml` which are not generated automatically from Spring Boot's `additional-spring-configuration-metadata.json` file.
         recipeList:
-          - org.springframework.sbm.boot.upgrade_27_30.SAMLRelyingPartyPropertyYAMLMove
-#    - type: org.springframework.sbm.build.migration.actions.BumpParentPomVersion
-#      groupId: org.springframework.boot
-#      artifactId: spring-boot-starter-parent
-#      toVersion: 3.0.0-M3
-#      description: Bump spring-boot-starter-parent from 2.7.x to 3.0.0-M3
-#      condition:
-#        type: org.springframework.sbm.boot.common.conditions.HasSpringBootStarterParent
-#        versionPattern: "2\\.7\\..*"
-#
+          # Change: spring.security.saml2.relyingparty.registration.{id}.identityprovider To: spring.security.saml2.relyingparty.registration.{id}.assertingparty
+          - org.openrewrite.java.spring.boot2.SamlRelyingPartyPropertyApplicationPropertiesMove # Property files.
+          - org.openrewrite.yaml.ChangeKey: # Yaml files
+              oldKeyPath: $.spring.security.saml2.relyingparty.registration.*[?(@.identityprovider)]
+              newKey: assertingparty
 #    - type: org.springframework.sbm.boot.upgrade.common.actions.ReplaceJavaxWithJakartaAction
 #      javaxPackagePatterns:
 #        - javax.persistence
