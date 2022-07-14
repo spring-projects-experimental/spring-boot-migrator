@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
@@ -22,11 +23,14 @@ import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
+@Order(25_003)
 public class Boot_24_25_SchemaSqlAndDataSqlFiles implements UpgradeSectionBuilder {
 
     private List<ProjectResource> dbInitFiles;
