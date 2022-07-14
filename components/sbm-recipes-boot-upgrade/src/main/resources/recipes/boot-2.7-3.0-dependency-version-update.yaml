@@ -88,24 +88,9 @@
         recipeList:
           - org.springframework.sbm.boot.upgrade_27_30.RemoveConstructorBindingAnnotation
 
-#    - type: org.springframework.sbm.boot.upgrade.common.actions.ReplaceJavaxWithJakartaAction
-#      javaxPackagePatterns:
-#        - javax.persistence
-#        - javax.naming
-#        - javax.validation
-#        - javax.servlet
-#      description: Replace relevant 'javax' packages with their new 'jakarta' replacement
-#      condition:
-#        type: org.springframework.sbm.java.migration.conditions.HasAnyImportStartingWith
-#        importPatterns:
-#          - javax.persistence
-#          - javax.naming
-#          - javax.validation
-#          - javax.servlet
-
-#    - type: org.springframework.sbm.build.migration.actions.SetProperty
-#      propertyName: "java.version"
-#      propertyValue: "17"
-#      description: Set Java version to 17
-#      condition:
-#        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteNamedRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
+        versionStartingWith: "3.0."
+      description: Replace javax with new jakarta packages
+      openRewriteRecipeName: org.openrewrite.java.migrate.JavaxMigrationToJakarta

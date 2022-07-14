@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 //
-// @Component
+@Component
 public class RewriteRecipeLoader implements RecipeLoader {
     @Override
     public List<Recipe> loadRecipes() {
