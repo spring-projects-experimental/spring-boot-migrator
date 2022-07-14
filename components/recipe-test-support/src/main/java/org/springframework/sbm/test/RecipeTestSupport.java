@@ -60,7 +60,8 @@ public class RecipeTestSupport {
             ValidatorConfiguration.class,
             YamlObjectMapperConfiguration.class,
             ResourceHelperDummy.class,
-            RecipeLoader.class,
+            RewriteRecipeLoader.class,
+            SbmRecipeLoader.class,
             BasePackageCalculator.class,
             ActionDeserializerRegistry.class
     };

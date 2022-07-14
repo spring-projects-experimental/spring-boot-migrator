@@ -1,0 +1,7 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: org.springframework.sbm.dummy.RemoveDeprecatedAnnotation
+displayName: Order imports
+description: Order imports
+recipeList:
+  - org.openrewrite.java.RemoveAnnotation:
+      annotationPattern: "@java.lang.Deprecated"
