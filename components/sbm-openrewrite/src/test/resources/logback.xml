@@ -24,7 +24,7 @@
         </layout>
     </appender>
 
-    <logger name="org" level="error" additivity="false">
+    <logger name="org" level="warn" additivity="false">
         <appender-ref ref="CONSOLE"/>
     </logger>
 
@@ -36,7 +36,7 @@
         <appender-ref ref="CONSOLE"/>
     </logger>
 
-    <root level="error">
+    <root level="warn">
         <appender-ref ref="CONSOLE"/>
     </root>
 

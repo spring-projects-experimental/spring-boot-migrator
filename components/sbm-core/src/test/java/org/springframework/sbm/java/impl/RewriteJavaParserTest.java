@@ -17,7 +17,9 @@ package org.springframework.sbm.java.impl;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.tree.J;
 import org.slf4j.LoggerFactory;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
@@ -43,13 +45,13 @@ public class RewriteJavaParserTest {
         sbmApplicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
         RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(sbmApplicationProperties);
         sysOutBuffer.reset();
-        List<J.CompilationUnit> parsed = rewriteJavaParser.parse("compile error");
+        List<J.CompilationUnit> parsed = rewriteJavaParser.parse(new InMemoryExecutionContext((t) -> t.printStackTrace()), "public class Foo {a}");
 
         String out = sysOutBuffer.toString();
         System.setOut(realSysOut);
-        System.out.println(out);
-        assertThat(out).containsPattern(
-                ".*org.openrewrite.java.Java11Parser.*compile error.*");
+        assertThat(out)
+                .containsPattern(".*ReloadableJava11Parser - Foo.java:1: error: cannot find symbol.*")
+                .containsPattern(".*ReloadableJava11Parser - public class Foo \\{a\\}.*");
     }
 
 }

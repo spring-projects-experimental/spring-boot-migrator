@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -38,6 +39,7 @@ public class BootifySimpleJeeAppIntegrationTest extends IntegrationTestBaseClass
 
     @Test
     @Tag("integration")
+    @Disabled("FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/200")
     void migrateSimpleJeeApp() {
         intializeTestProject();
 
