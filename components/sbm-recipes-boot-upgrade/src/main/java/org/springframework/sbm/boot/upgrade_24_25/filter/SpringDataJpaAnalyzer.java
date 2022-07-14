@@ -45,10 +45,10 @@ public class SpringDataJpaAnalyzer {
     }
 
     @Value
-    public static class MatchingMethod {
-        JavaSourceAndType jat;
-        String methodPattern;
-        Method method;
+    public class MatchingMethod {
+        private final JavaSourceAndType jat;
+        private final String methodPattern;
+        private final Method method;
 
         public MatchingMethod(JavaSourceAndType jat, String methodPattern, Method method) {
             this.jat = jat;

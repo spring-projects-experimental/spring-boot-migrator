@@ -16,6 +16,7 @@
 package org.springframework.sbm.java.impl;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.project.resource.TestProjectContext;

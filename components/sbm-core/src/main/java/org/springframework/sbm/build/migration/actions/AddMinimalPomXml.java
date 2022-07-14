@@ -71,7 +71,7 @@ public class AddMinimalPomXml extends AbstractAction {
         Parser.Input input = new Parser.Input(Path.of("pom.xml"), () -> new ByteArrayInputStream(src.getBytes(StandardCharsets.UTF_8)));
         Xml.Document maven = rewriteMavenParser.parseInputs(List.of(input), null, new RewriteExecutionContext(getEventPublisher())).get(0);
 //        Maven document = (Maven) maven.withSourcePath(Path.of("pom.xml"));
-        OpenRewriteMavenBuildFile rewriteMavenBuildFile = new OpenRewriteMavenBuildFile(context.getProjectRootDirectory(), maven, getEventPublisher(), javaParser, new RewriteExecutionContext(getEventPublisher()));
+        OpenRewriteMavenBuildFile rewriteMavenBuildFile = new OpenRewriteMavenBuildFile(context.getProjectRootDirectory(), maven, getEventPublisher(), new RewriteExecutionContext(getEventPublisher()));
         context.getProjectResources().add(rewriteMavenBuildFile);
     }
 }

@@ -48,8 +48,6 @@ import java.util.stream.Stream;
 public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Document> implements BuildFile {
 
     private final ApplicationEventPublisher eventPublisher;
-    private final RewriteMavenParser mavenParser = new RewriteMavenParser();
-    private final JavaParser javaParser;
 
     // TODO: #7 clarify if RefreshPomModel is still required?
     // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
@@ -115,10 +113,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     private final RewriteExecutionContext executionContext;
 
-    public OpenRewriteMavenBuildFile(Path absoluteProjectPath, Xml.Document sourceFile, ApplicationEventPublisher eventPublisher, JavaParser javaParser, RewriteExecutionContext executionContext) {
+    public OpenRewriteMavenBuildFile(Path absoluteProjectPath, Xml.Document sourceFile, ApplicationEventPublisher eventPublisher, RewriteExecutionContext executionContext) {
         super(absoluteProjectPath, sourceFile);
         this.eventPublisher = eventPublisher;
-        this.javaParser = javaParser;
         this.executionContext = executionContext;
     }
 

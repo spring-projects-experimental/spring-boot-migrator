@@ -51,7 +51,7 @@ public class OpenRewriteMavenBuildFilesFactory implements BuildFilesFactory {
             if (projectResource.getAbsolutePath().endsWith(BUILD_FILE)) {
                 List<Xml.Document> mavenPoms = parser.parse(List.of(projectResource.getAbsolutePath()), null, executionContext);
                 Xml.Document mavenPom = mavenPoms.get(0);
-                OpenRewriteMavenBuildFile buildFile = new OpenRewriteMavenBuildFile(absoluteProjectDir, mavenPom, eventPublisher, javaParser, executionContext);
+                OpenRewriteMavenBuildFile buildFile = new OpenRewriteMavenBuildFile(absoluteProjectDir, mavenPom, eventPublisher, executionContext);
                 projectResources.replace(i, buildFile);
                 result.add(buildFile);
             }
