@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.openrewrite.java;
 
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;

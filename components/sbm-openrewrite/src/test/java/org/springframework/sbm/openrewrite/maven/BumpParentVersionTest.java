@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.openrewrite.maven;
 
-import org.jboss.shrinkwrap.resolver.impl.maven.format.MavenCoordinateProcessor;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.Result;
