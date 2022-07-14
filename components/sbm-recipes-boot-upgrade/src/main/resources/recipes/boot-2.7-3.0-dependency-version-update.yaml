@@ -35,7 +35,7 @@
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "2.7."
+        versionStartingWith: "3.0."
       description: Move micrometer packages
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
@@ -50,7 +50,7 @@
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "2.7."
+        versionStartingWith: "3.0."
       description: Migrate properties found in `application.properties` and `application.yml` which are not generated automatically from Spring Boot's `additional-spring-configuration-metadata.json` file.
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
@@ -65,7 +65,7 @@
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "2.7."
+        versionStartingWith: "3.0."
       description: Migrate properties found in `application.properties` and `application.yml` which are not generated automatically from Spring Boot's `additional-spring-configuration-metadata.json` file.
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
@@ -78,7 +78,7 @@
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "2.7."
+        versionStartingWith: "3.0."
       description: Remove redundant @ConstructorBinding annotations when applicable
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
