@@ -23,6 +23,7 @@ import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.git.Commit;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;
@@ -42,6 +43,8 @@ public class ProjectContextInitializer {
 //    private final RewriteMavenParserFactory rewriteMavenParserFactory;
     private final GitSupport gitSupport;
 
+    private final RewriteSourceFileWrapper rewriteSourceFileWrapper;
+
     public ProjectContext initProjectContext(Path projectDir, List<Resource> resources, RewriteExecutionContext rewriteExecutionContext) {
         final Path absoluteProjectDir = projectDir.toAbsolutePath().normalize();
         // TODO: remove git initialization, handled by precondition check
@@ -49,7 +52,7 @@ public class ProjectContextInitializer {
 //        MavenProjectParser mavenProjectParser = // FIXME #7 remove: rewriteMavenParserFactory.createRewriteMavenParser(absoluteProjectDir, rewriteExecutionContext);
 
         List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources);
-        List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);
+        List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = rewriteSourceFileWrapper.wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);
 
         ProjectResourceSet projectResourceSet = new ProjectResourceSet(rewriteSourceFileHolders);
         ProjectContext projectContext = projectContextFactory.createProjectContext(projectDir, projectResourceSet);
@@ -57,18 +60,6 @@ public class ProjectContextInitializer {
         storeGitCommitHash(projectDir, projectContext);
 
         return projectContext;
-    }
-
-    private List<RewriteSourceFileHolder<? extends SourceFile>> wrapRewriteSourceFiles(Path absoluteProjectDir, List<SourceFile> parsedByRewrite) {
-        List<RewriteSourceFileHolder<?>> rewriteProjectResources = parsedByRewrite.stream()
-                .map(sf -> wrapRewriteSourceFile(absoluteProjectDir, sf))
-                .collect(Collectors.toList());
-        return rewriteProjectResources;
-    }
-
-    private RewriteSourceFileHolder<?> wrapRewriteSourceFile(Path absoluteProjectDir, SourceFile sourceFile) {
-        RewriteSourceFileHolder<?> rewriteSourceFileHolder = new RewriteSourceFileHolder<>(absoluteProjectDir, sourceFile);
-        return rewriteSourceFileHolder;
     }
 
     public void storeGitCommitHash(Path projectDir, ProjectContext projectContext) {
