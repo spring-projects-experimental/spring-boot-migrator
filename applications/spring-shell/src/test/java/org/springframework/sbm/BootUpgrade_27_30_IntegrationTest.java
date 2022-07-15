@@ -84,9 +84,38 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         String applicationProperties = loadFile(Path.of("src/main/resources/application.properties"));
         assertThat(applicationProperties).isEqualTo(
-                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.entity-id=https://idpone.com\n" +
-                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.sso-url=https://idpone.com\n" +
-                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.verification.credentials.certificate-location=classpath:saml/idpone.crt\n");
+                "spring.activemq.broker-url=http://google.com\n" +
+                        "spring.activemq.close-timeout=13\n" +
+                        "\n" +
+                        "spring.elasticsearch.connection-timeout=1000\n" +
+                        "spring.elasticsearch.webclient.max-in-memory-size=122\n" +
+                        "spring.elasticsearch.password=abc\n" +
+                        "spring.elasticsearch.socket-timeout=100\n" +
+                        "spring.elasticsearch.username=testUser\n" +
+                        "\n" +
+                        "spring.sql.init.data-locations=testdata\n" +
+                        "spring.sql.init.password=password\n" +
+                        "spring.sql.init.username=username\n" +
+                        "spring.sql.init.mode=mode1\n" +
+                        "spring.sql.init.platform=pls\n" +
+                        "spring.sql.init.schema-locations=table1\n" +
+                        "spring.sql.init.password=password2\n" +
+                        "spring.sql.init.username=username2\n" +
+                        "spring.sql.init.separator=k\n" +
+                        "spring.sql.init.encoding=UTF-8\n" +
+                        "\n" +
+                        "spring.elasticsearch.rest.connection-timeout=1\n" +
+                        "spring.elasticsearch.rest.password=testpassword\n" +
+                        "spring.elasticsearch.rest.read-timeout=2\n" +
+                        "spring.elasticsearch.rest.sniffer.delay-after-failure=3\n" +
+                        "spring.elasticsearch.rest.sniffer.interval=4\n" +
+                        "spring.elasticsearch.rest.username=username\n" +
+                        "\n" +
+                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.entity-id=https://idpone.com\n" +
+                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.sso-url=https://idpone.com\n" +
+                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.verification.credentials.certificate-location=classpath:saml/idpone.crt\n" +
+                        "\n" +
+                        "server.reactive.session.cookie.same-site=true\n");
     }
 
     private void verifyParentPomVersion() {
