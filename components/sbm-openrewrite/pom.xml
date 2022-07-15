@@ -59,7 +59,7 @@
         <dependency>
             <groupId>org.rocksdb</groupId>
             <artifactId>rocksdbjni</artifactId>
-            <version>7.1.2</version>
+            <version>7.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -98,12 +98,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.tngtech.archunit</groupId>
-            <artifactId>archunit</artifactId>
-            <version>0.21.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
