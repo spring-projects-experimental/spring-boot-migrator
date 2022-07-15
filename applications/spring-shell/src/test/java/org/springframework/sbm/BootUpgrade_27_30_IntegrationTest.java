@@ -27,7 +27,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyParentPomVersion();
         verifyMicrometerPackageUpdate();
         verifySamlYamlUpdate();
-        verifySamlPropertyUpdate();
+        verifyPropertyUpdate();
         verifyConstructorBindingRemoval();
     }
 
@@ -80,7 +80,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
     }
 
 
-    private void verifySamlPropertyUpdate() {
+    private void verifyPropertyUpdate() {
 
         String applicationProperties = loadFile(Path.of("src/main/resources/application.properties"));
         assertThat(applicationProperties).isEqualTo(
