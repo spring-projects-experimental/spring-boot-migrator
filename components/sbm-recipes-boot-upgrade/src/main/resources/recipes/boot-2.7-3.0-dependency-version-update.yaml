@@ -51,7 +51,7 @@
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
         versionStartingWith: "3.0."
-      description: Migrate properties found in `application.properties` and `application.yml` which are not generated automatically from Spring Boot's `additional-spring-configuration-metadata.json` file.
+      description: Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty.
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
         name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
@@ -66,7 +66,7 @@
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
         versionStartingWith: "3.0."
-      description: Migrate properties found in `application.properties` and `application.yml` which are not generated automatically from Spring Boot's `additional-spring-configuration-metadata.json` file.
+      description: Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty.
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
         name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
