@@ -142,7 +142,6 @@ public class OpenRewriteMethodTest {
     }
 
     @Test
-    @Disabled("FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/200")
     void removeMethodAnnotationsFromDependency() {
         String given =
                 "import javax.ejb.*;\n" +

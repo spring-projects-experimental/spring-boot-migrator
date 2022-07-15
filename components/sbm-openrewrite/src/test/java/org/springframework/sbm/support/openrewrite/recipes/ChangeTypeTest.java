@@ -46,7 +46,7 @@ public class ChangeTypeTest {
 
         ChangeType changeType = new ChangeType("javax.ws.rs.core.Response$Status$Family", "org.springframework.http.HttpStatus$Series", false);
 
-        J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(javaSource, "javax:javaee-api:8.0", "org.springframework:spring-web:5.3.7");
+        J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(javaSource, "javax:javaee-api:8.0", "org.springframework:spring-web:5.3.7", "com.google.code.findbugs:jsr305:3.0.2");
 
         List<Result> results = changeType.run(List.of(compilationUnit));
         assertThat(results.get(0).getAfter().printAll()).isEqualTo(
