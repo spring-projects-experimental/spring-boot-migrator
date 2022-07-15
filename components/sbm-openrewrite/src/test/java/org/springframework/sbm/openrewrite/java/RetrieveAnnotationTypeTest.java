@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
+import org.springframework.sbm.java.OpenRewriteTestSupport;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -41,7 +42,7 @@ public class RetrieveAnnotationTypeTest {
 //        List<Path> paths = JavaParser.dependenciesFromClasspath("ejb-api");
 //        List<Path> paths = JavaParser.dependenciesFromClasspath("javax/ejb/javax.ejb-api/3.2/javax.ejb-api-3.2.jar");
 
-        List<Path> classpathFiles = getClasspathFiles("javax.ejb:javax.ejb-api:3.2");
+        List<Path> classpathFiles = OpenRewriteTestSupport.getClasspathFiles("javax.ejb:javax.ejb-api:3.2");
 
         JavaParser javaParser = JavaParser
                 .fromJavaVersion()
@@ -53,11 +54,4 @@ public class RetrieveAnnotationTypeTest {
         assertThat(type.getFullyQualifiedName()).isEqualTo("javax.ejb.Stateless");
     }
 
-    public static List<Path> getClasspathFiles(String... classpath) {
-        if (classpath.length == 0) return List.of();
-        File[] as = Maven.resolver().resolve(classpath).withTransitivity().as(File.class);
-        return Arrays.stream(as)
-                .map(File::toPath)
-                .collect(Collectors.toList());
-    }
 }
