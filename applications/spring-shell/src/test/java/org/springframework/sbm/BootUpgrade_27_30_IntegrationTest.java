@@ -65,17 +65,50 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         String micrometerClass = loadFile(Path.of("src/main/resources/application.yaml"));
         assertThat(micrometerClass).isEqualTo(
                 "spring:\n" +
-                "  security:\n" +
-                "    saml2:\n" +
-                "      relyingparty:\n" +
-                "        registration:\n" +
-                "          idpone:\n" +
-                "            assertingparty:\n" +
-                "              entity-id: https://idpone.com\n" +
-                "              sso-url: https://idpone.com\n" +
-                "              verification:\n" +
-                "                credentials:\n" +
-                "                  - certificate-location: \"classpath:saml/idpone.crt\"\n" +
+                        "  elasticsearch:\n" +
+                        "    webclient:\n" +
+                        "      max-in-memory-size: '122'\n" +
+                        "    rest:\n" +
+                        "      password: testpassword\n" +
+                        "      sniffer:\n" +
+                        "        interval: '4'\n" +
+                        "        delay-after-failure: '3'\n" +
+                        "      username: username\n" +
+                        "      read-timeout: '2'\n" +
+                        "      connection-timeout: '1'\n" +
+                        "    password: abc\n" +
+                        "    username: testUser\n" +
+                        "    connection-timeout: '1000'\n" +
+                        "    socket-timeout: '100'\n" +
+                        "  sql:\n" +
+                        "    init:\n" +
+                        "      schema-locations: table1\n" +
+                        "      data-locations: testdata\n" +
+                        "      username: username2\n" +
+                        "      mode: mode1\n" +
+                        "      separator: k\n" +
+                        "      platform: pls\n" +
+                        "      password: password2\n" +
+                        "      encoding: UTF-8\n" +
+                        "  security:\n" +
+                        "    saml2:\n" +
+                        "      relyingparty:\n" +
+                        "        registration:\n" +
+                        "          idpone:\n" +
+                        "            assertingparty:\n" +
+                        "              entity-id: https://idpone.com\n" +
+                        "              sso-url: https://idpone.com\n" +
+                        "              verification:\n" +
+                        "                credentials:\n" +
+                        "                  certificate-location: classpath:saml/idpone.crt\n" +
+                        "  activemq:\n" +
+                        "    close-timeout: '13'\n" +
+                        "    broker-url: http://google.com\n" +
+                        "server:\n" +
+                        "  reactive:\n" +
+                        "    session:\n" +
+                        "      cookie:\n" +
+                        "        same-site: 'true'" +
                         "\n");
     }
 

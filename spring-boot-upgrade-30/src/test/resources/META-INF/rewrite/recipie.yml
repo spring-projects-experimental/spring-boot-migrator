@@ -520,3 +520,4 @@ recipeList:
       oldPackageName: io.micrometer.core.instrument.binder
       newPackageName: io.micrometer.binder
       recursive: true
+---
