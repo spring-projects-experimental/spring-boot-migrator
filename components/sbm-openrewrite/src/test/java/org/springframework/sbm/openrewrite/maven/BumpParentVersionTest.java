@@ -61,7 +61,8 @@ public class BumpParentVersionTest {
 
         List<Xml.Document> parsedPom = MavenParser.builder().build().parse(pomXml);
 
-        List<Result> results = new UpgradeParentVersion("org.springframework.boot", "spring-boot-starter-parent", "3.0.0-M3", null).run(parsedPom);
+        List<Result> results = new UpgradeParentVersion("org.springframework.boot", "spring-boot-starter-parent", "2.7.1", null).run(parsedPom);
+        assertThat(results.size()).isGreaterThan(0);
         assertThat(results.get(0).getAfter().printAll()).isEqualTo(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
                         "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -70,7 +71,7 @@ public class BumpParentVersionTest {
                         "  <parent>\n" +
                         "    <groupId>org.springframework.boot</groupId>\n" +
                         "    <artifactId>spring-boot-starter-parent</artifactId>\n" +
-                        "    <version>3.0.0-M3</version>\n" +
+                        "    <version>2.7.1</version>\n" +
                         "  </parent>\n" +
                         "  <groupId>com.example</groupId>\n" +
                         "  <artifactId>artifact</artifactId>\n" +
@@ -89,8 +90,8 @@ public class BumpParentVersionTest {
                         "</project>"
         );
 
-        // If this fails because 3.0.0-M3 is reflected in the model the RefreshPomModel could be removed
-        assertThat(results.get(0).getAfter().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested().getParent().getVersion()).isEqualTo("3.0.0-M3");
+        // If this fails because 2.7.1 is reflected in the model the RefreshPomModel could be removed
+        assertThat(results.get(0).getAfter().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested().getParent().getVersion()).isEqualTo("2.7.1");
     }
 
     @Test
@@ -104,7 +105,7 @@ public class BumpParentVersionTest {
                         "  <parent>\n" +
                         "    <groupId>org.springframework.boot</groupId>\n" +
                         "    <artifactId>spring-boot-starter-parent</artifactId>\n" +
-                        "    <version>3.0.0-M3</version>\n" +
+                        "    <version>2.7.1</version>\n" +
                         "  </parent>\n" +
                         "  <groupId>com.example</groupId>\n" +
                         "  <artifactId>artifact</artifactId>\n" +
@@ -124,7 +125,7 @@ public class BumpParentVersionTest {
                         "</project>";
         List<Xml.Document> parse = MavenParser.builder().build().parse(pomXml);
         Optional<MavenResolutionResult> first = parse.get(0).getMarkers().findFirst(MavenResolutionResult.class);
-        assertThat(first.get().getPom().getRequested().getParent().getVersion()).isEqualTo("3.0.0-M3");
+        assertThat(first.get().getPom().getRequested().getParent().getVersion()).isEqualTo("2.7.1");
     }
 
 }
