@@ -110,11 +110,18 @@ public abstract class IntegrationTestBaseClass {
 
     @BeforeAll
     public static void beforeAll() {
-        if (System.getenv("MAVEN_HOME") == null) {
+        String mvnHome = System.getenv("MAVEN_HOME");
+
+        if (mvnHome == null) {
+            mvnHome = System.getenv("M2_HOME");
+        }
+
+        if (mvnHome == null) {
             System.err.println("You must set $MAVEN_HOME on your system for the integration test to run.");
             throw new RuntimeException();
         }
-        System.setProperty("maven.home", System.getenv("MAVEN_HOME"));
+
+        System.setProperty("maven.home", mvnHome);
     }
 
     @BeforeEach
