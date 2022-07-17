@@ -16,7 +16,12 @@
 
 package org.springframework.sbm.mule.actions.javadsl.translators.dwl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import lombok.Setter;
 import org.mulesoft.schema.mule.ee.dw.TransformMessageType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.java.util.Helper;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
@@ -24,13 +29,19 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.stereotype.Component;
 
 import javax.xml.namespace.QName;
+import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 public class DwlTransformTranslator implements MuleComponentToSpringIntegrationDslTranslator<TransformMessageType> {
     public static final String TRANSFORM_STATEMENT_CONTENT = ".transform($CLASSNAME::transform)";
     public static final String externalPackageName = "package com.example.javadsl;\n\n";
+
+    @Autowired
+    @Setter
+    @JsonIgnore
+    private Configuration templateConfiguration;
 
     /* Define the stubs for adding the transformation as a comment to be addressed */
     private static final String externalClassContentPrefixTemplate = externalPackageName +
@@ -47,21 +58,10 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
             "    }\n" +
             "}";
 
-    /* Define the TriggerMesh specific stubs when enabled. This will capture the transformation, and send it along
+    /*
+     * Define the TriggerMesh specific stubs when enabled. This will capture the transformation, and send it along
      * with the payload to the TriggerMesh Dataweave Transformation Service.
      */
-    // Independent class to capture parts of the message header from the spring integration to inject into the transformation
-    private static final String triggermeshDWPayload = "" +
-            "package com.example.javadsl;\n\n" +
-            "import lombok.Data;\n\n" +
-            "@Data\n" +
-            "public class TmDwPayload {\n" +
-            "\tprivate String id;\n" +
-            "\tprivate String source;\n" +
-            "\tprivate String sourceType;\n" +
-            "\tprivate String payload;\n" +
-            "}\n";
-
     private static final String triggermeshPayloadHandlerContent = "" +
             ".handle((p, h) -> {\n" +
             "                    TmDwPayload dwPayload = new TmDwPayload();\n" +
@@ -71,62 +71,6 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
             "                    dwPayload.setPayload(p.toString());\n" +
             "                    return dwPayload;\n" +
             "                })";
-    private static final String triggermeshImportsTemplate = "import com.fasterxml.jackson.databind.ObjectMapper;\n\n" +
-            "import java.net.URI;\n" +
-            "import java.net.http.HttpClient;\n" +
-            "import java.net.http.HttpRequest;\n" +
-            "import java.net.http.HttpResponse;\n";
-
-    private static final String triggermeshDWTransformationClass = "" +
-            "\tpublic static class DataWeavePayload {\n" +
-            "\t    public String input_data;\n" +
-            "\t    public String spell;\n" +
-            "\t    public String input_content_type;\n" +
-            "\t    public String output_content_type;\n" +
-            "\t};";
-
-    private static final String triggermeshClassTemplate = externalPackageName + triggermeshImportsTemplate +
-            "\npublic class $CLASSNAME {\n" +
-            triggermeshDWTransformationClass + "\n\n" +
-            "\tpublic static String transform(TmDwPayload payload) {\n" +
-            "\t\tString uuid = payload.getId();\n" +
-            "\t\tString url = System.getenv(\"K_SINK\");\n" + // NOTE: K_SINK is the URL for the target transformation service
-            "\t\tHttpClient client = HttpClient.newHttpClient();\n" +
-            "\t\tHttpRequest.Builder requestBuilder;\n" +
-            "\t\tDataWeavePayload dwPayload = new DataWeavePayload();\n" +
-            "\t\tif (payload.getSourceType().contains(\";\")) {\n" +
-            "\t\t\tdwPayload.input_content_type = payload.getSourceType().split(\";\")[0];\n" +
-            "\t\t} else {\n" +
-            "\t\t\tdwPayload.input_content_type = payload.getSourceType();\n" +
-            "\t\t}\n" +
-            "\t\tdwPayload.output_content_type = \"$OUTPUT_CONTENT_TYPE\";\n" +
-            "\t\t//TODO: Verify the spell conforms to Dataweave 2.x: https://docs.mulesoft.com/mule-runtime/4.4/migration-dataweave\n" +
-            "\t\tdwPayload.spell = \"$DWSPELL\";\n" +
-            "\t\tdwPayload.input_data = payload.getPayload();\n" +
-            "\t\tString body;\n\n" +
-            "\t\ttry {\n" +
-            "\t\t\trequestBuilder = HttpRequest.newBuilder(new URI(url));\n" +
-            "\t\t\tObjectMapper om = new ObjectMapper();\n" +
-            "\t\t\tbody = om.writeValueAsString(dwPayload);\n" +
-            "\t\t} catch (Exception e) {\n" +
-            "\t\t\tSystem.out.println(\"Error sending request: \" + e.toString());\n" +
-            "\t\t\treturn null;\n" +
-            "\t\t}\n\n" +
-            "\t\trequestBuilder.setHeader(\"content-type\", \"application/json\");\n" +
-            "\t\trequestBuilder.setHeader(\"ce-specversion\", \"1.0\");\n" +
-            "\t\trequestBuilder.setHeader(\"ce-source\", payload.getSource());\n" +
-            "\t\trequestBuilder.setHeader(\"ce-type\", \"io.triggermesh.dataweave.transform\");\n" +
-            "\t\trequestBuilder.setHeader(\"ce-id\", payload.getId());\n\n" +
-            "\t\tHttpRequest request = requestBuilder.POST(HttpRequest.BodyPublishers.ofString(body)).build();\n\n" +
-            "\t\ttry {\n" +
-            "\t\t\tHttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());\n" +
-            "\t\t\t // TODO: verify the response status and body\n" +
-            "\t\t\treturn response.body();\n" +
-            "\t\t} catch (Exception e) {\n" +
-            "\t\t\tSystem.out.println(\"Error sending event: \" + e.toString());\n" +
-            "\t\t\treturn null;\n" +
-            "\t\t}\n" +
-            "\t}\n";
 
     @Override
     public Class<TransformMessageType> getSupportedMuleType() {
@@ -190,17 +134,25 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
         // Locate the output content type based on the spell. If it isn't present, default to
         // application/json
         String outputContentType = getSpellOutputType(dwlSpell);
-        String tmTransformationContent = triggermeshClassTemplate
-                .replace("$CLASSNAME", className)
-                .replace("$OUTPUT_CONTENT_TYPE", outputContentType)
-                .replace("$DWSPELL", sanitizeSpell(dwlSpell));
+        Map<String, String> templateParams = new HashMap<>();
+        templateParams.put("className", className);
+        templateParams.put("outputContentType", outputContentType);
+        templateParams.put("dwSpell", sanitizeSpell(dwlSpell));
+
+        StringWriter sw  = new StringWriter();
+        try {
+            Template template = templateConfiguration.getTemplate("triggermesh-dw-transformation-template.ftl");
+            template.process(templateParams, sw);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        String tmTransformationContent = sw.toString();
 
         // Build the dw payload
         return DslSnippet.builder()
-                .externalClassContent(triggermeshDWPayload)
                 .renderedSnippet(triggermeshPayloadHandlerContent + "\n" + replaceClassName(TRANSFORM_STATEMENT_CONTENT, className))
                 .externalClassContent(tmTransformationContent)
-                .requiredImports(Set.of("java.net.URI", "java.net.http.HttpClient", "java.net.http.HttpRequest", "java.net.http.HttpResponse", "com.fasterxml.jackson.databind.ObjectMapper"))
                 .build();
     }
 
