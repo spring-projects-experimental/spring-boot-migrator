@@ -1,8 +1,8 @@
 spring:
   datasource:
     data: testdata
-    data-username: username
-    schema-username: username2
+    data-username: username-data
+    schema-username: username-schema
     schema-password: password2
     schema: table1
     initialization-mode: mode1

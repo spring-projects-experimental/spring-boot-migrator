@@ -26,8 +26,8 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         verifyParentPomVersion();
         verifyMicrometerPackageUpdate();
-        verifySamlYamlUpdate();
-        verifyPropertyUpdate();
+        verifyYamlConfigurationUpdate();
+        verifyPropertyConfigurationUpdate();
         verifyConstructorBindingRemoval();
     }
 
@@ -61,65 +61,52 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                 "}\n");
     }
 
-    private void verifySamlYamlUpdate() {
+    private void verifyYamlConfigurationUpdate() {
         String micrometerClass = loadFile(Path.of("src/main/resources/application.yaml"));
         assertThat(micrometerClass).isEqualTo(
-                "spring:\n" +
+                        "spring:\n" +
                         "  elasticsearch:\n" +
-                        "    webclient:\n" +
-                        "      max-in-memory-size: '122'\n" +
-                        "    rest:\n" +
-                        "      password: testpassword\n" +
-                        "      sniffer:\n" +
-                        "        interval: '4'\n" +
-                        "        delay-after-failure: '3'\n" +
-                        "      username: username\n" +
-                        "      read-timeout: '2'\n" +
-                        "      connection-timeout: '1'\n" +
-                        "    password: abc\n" +
-                        "    username: testUser\n" +
-                        "    connection-timeout: '1000'\n" +
-                        "    socket-timeout: '100'\n" +
-                        "  sql:\n" +
-                        "    init:\n" +
-                        "      schema-locations: table1\n" +
-                        "      data-locations: testdata\n" +
-                        "      username: username2\n" +
-                        "      mode: mode1\n" +
-                        "      separator: k\n" +
-                        "      platform: pls\n" +
-                        "      password: password2\n" +
-                        "      encoding: UTF-8\n" +
+                        "    connection-timeout: '1'\n" +
+                        "    password: testpassword\n" +
+                        "    socket-timeout: '2'\n" +
+                        "    restclient.sniffer.delay-after-failure: '3'\n" +
+                        "    restclient.sniffer.interval: '4'\n" +
+                        "    username: username\n" +
                         "  security:\n" +
                         "    saml2:\n" +
                         "      relyingparty:\n" +
                         "        registration:\n" +
                         "          idpone:\n" +
                         "            assertingparty:\n" +
-                        "              entity-id: https://idpone.com\n" +
-                        "              sso-url: https://idpone.com\n" +
                         "              verification:\n" +
                         "                credentials:\n" +
                         "                  certificate-location: classpath:saml/idpone.crt\n" +
-                        "  activemq:\n" +
-                        "    close-timeout: '13'\n" +
-                        "    broker-url: http://google.com\n" +
-                        "server:\n" +
-                        "  reactive:\n" +
-                        "    session:\n" +
-                        "      cookie:\n" +
-                        "        same-site: 'true'" +
+                        "              entity-id: https://idpone.com\n" +
+                        "              sso-url: https://idpone.com\n" +
+                        "  elasticsearch.connection-timeout: '1000'\n" +
+                        "  elasticsearch.webclient.max-in-memory-size: '122'\n" +
+                        "  elasticsearch.password: abc\n" +
+                        "  elasticsearch.socket-timeout: '100'\n" +
+                        "  elasticsearch.username: testUser\n" +
+                        "  sql.init.data-locations: testdata\n" +
+                        "  sql.init.password: password\n" +
+                        "  sql.init.username: username-data\n" +
+                        "  sql.init.mode: mode1\n" +
+                        "  sql.init.platform: pls\n" +
+                        "  sql.init.schema-locations: table1\n" +
+                        "  sql.init.password: password2\n" +
+                        "  sql.init.username: username-schema\n" +
+                        "  sql.init.separator: k\n" +
+                        "  sql.init.encoding: UTF-8\n" +
+                        "server.reactive.session.cookie.same-site: 'true'" +
                         "\n");
     }
 
 
-    private void verifyPropertyUpdate() {
+    private void verifyPropertyConfigurationUpdate() {
 
         String applicationProperties = loadFile(Path.of("src/main/resources/application.properties"));
         assertThat(applicationProperties).isEqualTo(
-                "spring.activemq.broker-url=http://google.com\n" +
-                        "spring.activemq.close-timeout=13\n" +
-                        "\n" +
                         "spring.elasticsearch.connection-timeout=1000\n" +
                         "spring.elasticsearch.webclient.max-in-memory-size=122\n" +
                         "spring.elasticsearch.password=abc\n" +
@@ -137,12 +124,12 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                         "spring.sql.init.separator=k\n" +
                         "spring.sql.init.encoding=UTF-8\n" +
                         "\n" +
-                        "spring.elasticsearch.rest.connection-timeout=1\n" +
-                        "spring.elasticsearch.rest.password=testpassword\n" +
-                        "spring.elasticsearch.rest.read-timeout=2\n" +
-                        "spring.elasticsearch.rest.sniffer.delay-after-failure=3\n" +
-                        "spring.elasticsearch.rest.sniffer.interval=4\n" +
-                        "spring.elasticsearch.rest.username=username\n" +
+                        "spring.elasticsearch.connection-timeout=1\n" +
+                        "spring.elasticsearch.password=testpassword\n" +
+                        "spring.elasticsearch.socket-timeout=2\n" +
+                        "spring.elasticsearch.restclient.sniffer.delay-after-failure=3\n" +
+                        "spring.elasticsearch.restclient.sniffer.interval=4\n" +
+                        "spring.elasticsearch.username=username\n" +
                         "\n" +
                         "spring.security.saml2.relyingparty.registration.idpone.assertingparty.entity-id=https://idpone.com\n" +
                         "spring.security.saml2.relyingparty.registration.idpone.assertingparty.sso-url=https://idpone.com\n" +
