@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.Paragraph;
 import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
@@ -22,7 +23,10 @@ import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_CreateDatasourceInitializerCondition;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.stereotype.Component;
 
+@Component
+@Order(25_004)
 public class Boot_24_25_SeparateCredentials implements UpgradeSectionBuilder {
 
     @Override

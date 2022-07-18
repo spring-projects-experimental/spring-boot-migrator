@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
@@ -22,9 +23,12 @@ import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 
+@Component
+@Order(25_001)
 public class Boot_24_25_UpdateDependencies implements UpgradeSectionBuilder {
     @Override
     public boolean isApplicable(ProjectContext projectContext) {

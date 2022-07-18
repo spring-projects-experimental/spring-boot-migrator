@@ -35,8 +35,6 @@ import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.shell.ApplyShellCommand;
 import org.springframework.sbm.shell.ScanShellCommand;
-import org.springframework.shell.jline.InteractiveShellApplicationRunner;
-import org.springframework.shell.jline.ScriptShellApplicationRunner;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.SocketUtils;
 import org.testcontainers.containers.GenericContainer;
@@ -61,6 +59,7 @@ import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * Base class to be extended by integrationTests.
@@ -74,8 +73,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * See also: {@link #intializeTestProject()}, {@link #writeFile} and
  * {@link #writeJavaFile(String)}
  */
-@SpringBootTest(properties = {InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
-        ScriptShellApplicationRunner.SPRING_SHELL_SCRIPT_ENABLED + "=false", "sbm.gitSupportEnabled=false"})
+@SpringBootTest(properties = {
+        "spring.shell.interactive.enabled=false",
+        "spring.shell.script.enabled=false",
+        "sbm.gitSupportEnabled=false"
+})
 @DirtiesContext // paralel runs
 public abstract class IntegrationTestBaseClass {
 
@@ -216,6 +218,7 @@ public abstract class IntegrationTestBaseClass {
     protected void executeMavenGoals(Path executionDir, String... goals) {
         Invoker invoker = new DefaultInvoker();
         InvocationRequest request = new DefaultInvocationRequest();
+        request.setErrorHandler(new SystemOutHandler());
         request.setInputStream(InputStream.nullInputStream());
         File pomXml = executionDir.resolve("pom.xml").toFile();
         request.setPomFile(pomXml);
@@ -226,18 +229,20 @@ public abstract class IntegrationTestBaseClass {
                 CommandLineException executionException = invocationResult.getExecutionException();
                 int exitCode = invocationResult.getExitCode();
                 if (executionException != null) {
-                    Assert.fail("Maven build 'mvn " + Arrays.asList(goals).stream().collect(Collectors.joining(" "))
+                    Assert.fail("Maven build 'mvn " + g
+                            + " " + pomXml + " "
                             + "' failed with Exception: " + executionException.getMessage());
                 }
-                if (exitCode == 1) {
-                    Assert.fail("Maven build 'mvn " + Arrays.asList(goals).stream().collect(Collectors.joining(" "))
+                if (exitCode != 0) {
+                    Assert.fail("Maven build 'mvn " + g
                             + "' failed with exitCode: " + exitCode);
                 }
             } catch (MavenInvocationException e) {
-                Assert.fail("Maven build 'mvn " + Arrays.asList(goals).stream().collect(Collectors.joining(" "))
+                Assert.fail("Maven build 'mvn " + g
+                        + " " + pomXml + " "
                         + "' failed with Exception: " + e.getMessage());
                 e.printStackTrace();
-                throw new RuntimeException(e);
+                fail("Maven build 'mvn " + g + "' failed");
             }
         });
     }

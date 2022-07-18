@@ -87,7 +87,7 @@ public class PreconditionVerifierIntegrationTest {
         assertThat(preconditionVerificationResult.getResults().get(2).getState()).isEqualTo(PreconditionCheck.ResultState.FAILED);
         assertThat(preconditionVerificationResult.getResults().get(2).getMessage()).isEqualTo("PreconditionCheck check could not find a 'src/main/java' dir. This dir is required.");
         assertThat(preconditionVerificationResult.getResults().get(3).getState()).isEqualTo(PreconditionCheck.ResultState.WARN);
-        assertThat(preconditionVerificationResult.getResults().get(3).getMessage()).isEqualTo("Java 11 is required. Check found Java 9.");
+        assertThat(preconditionVerificationResult.getResults().get(3).getMessage()).isEqualTo("Java 11 or 17 is required. Check found Java 9.");
     }
 
     @Test

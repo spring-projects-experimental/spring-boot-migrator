@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
