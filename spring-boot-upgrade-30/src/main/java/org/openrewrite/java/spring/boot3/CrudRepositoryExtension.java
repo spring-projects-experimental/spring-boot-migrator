@@ -2,16 +2,14 @@ package org.openrewrite.java.spring.boot3;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
-import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.JavaIsoVisitor;
-import org.openrewrite.java.tree.Comment;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.TextComment;
 import org.openrewrite.marker.Markers;
 
 import java.util.List;
 
-public class ImplementCrudInterface extends Recipe {
+public class CrudRepositoryExtension extends Recipe {
     @Override
     public String getDisplayName() {
         return "ldsfhgkjfdhgkjfdhg";

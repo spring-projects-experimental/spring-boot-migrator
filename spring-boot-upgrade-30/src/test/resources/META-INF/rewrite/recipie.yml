@@ -526,4 +526,4 @@ name: org.boot3.Crud
 displayName: Crud
 description: Crud
 recipeList:
-  - org.openrewrite.java.spring.boot3.ImplementCrudInterface
+  - org.openrewrite.java.spring.boot3.CrudRepositoryExtension
