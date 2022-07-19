@@ -45,14 +45,14 @@ public class CrudRepositoryExtensionTest {
                 .fromRuntimeClasspath(recipeName)
                 .run(cu, ctx);
 
-
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getAfter().printAll()).isEqualTo("""
-                package test;
-                import org.springframework.data.repository.PagingAndSortingRepository;
-                import org.springframework.data.repository.CrudRepository;
-                public interface A extends PagingAndSortingRepository<String, Long>, CrudRepository<String, Long> {
-                }
+                                package test;
+                                import org.springframework.data.repository.CrudRepository;
+                                import org.springframework.data.repository.PagingAndSortingRepository;
+                                
+                                public interface A extends PagingAndSortingRepository<String, Long>, CrudRepository<String, Long> {
+                                }
                                 """);
     }
 }
