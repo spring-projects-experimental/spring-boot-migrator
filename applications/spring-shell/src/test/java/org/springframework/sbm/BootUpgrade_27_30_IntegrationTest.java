@@ -1,5 +1,6 @@
 package org.springframework.sbm;
 
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.MavenParser;
@@ -29,6 +30,22 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyYamlConfigurationUpdate();
         verifyPropertyConfigurationUpdate();
         verifyConstructorBindingRemoval();
+        verifyCrudRepoAddition();
+    }
+
+    private void verifyCrudRepoAddition() {
+
+        String studentRepo = loadJavaFile("org.springboot.example.upgrade", "StudentRepo");
+
+        assertThat(studentRepo).isEqualTo("""
+                package org.springboot.example.upgrade;
+                                
+                import org.springframework.data.repository.CrudRepository;
+                import org.springframework.data.repository.PagingAndSortingRepository;
+                                
+                public interface StudentRepo extends PagingAndSortingRepository<Student<?>, Long>, CrudRepository<Student<?>, Long> {
+                }
+                """);
     }
 
     private void verifyConstructorBindingRemoval() {
