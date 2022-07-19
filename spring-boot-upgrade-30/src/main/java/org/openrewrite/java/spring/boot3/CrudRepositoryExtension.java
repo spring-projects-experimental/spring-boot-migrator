@@ -8,8 +8,12 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 
 import java.util.List;
+import java.util.Optional;
 
 public class CrudRepositoryExtension extends Recipe {
+    public static final String PAGING_AND_SORTING_REPOSITORY = "org.springframework.data.repository.PagingAndSortingRepository";
+    public static final String CRUD_REPOSITORY = "org.springframework.data.repository.CrudRepository";
+
     @Override
     public String getDisplayName() {
         return "Extends CrudRepository for Interfaces that extends PagingAndSortingRepository";
@@ -24,8 +28,11 @@ public class CrudRepositoryExtension extends Recipe {
             }
 
             private boolean doesItExtendPagingAndSorting(J.ClassDeclaration classDecl) {
-                String className = classDecl.getImplements().get(0).getType().toString();
-                return className.equals("org.springframework.data.repository.PagingAndSortingRepository");
+                if (classDecl.getType() == null) {
+                    return false;
+                }
+                return classDecl.getType().getInterfaces().stream()
+                        .anyMatch(impl -> impl.getFullyQualifiedName().equals(PAGING_AND_SORTING_REPOSITORY));
             }
 
             private J.ClassDeclaration ceaseVisit(J.ClassDeclaration classDecl) {
@@ -45,11 +52,24 @@ public class CrudRepositoryExtension extends Recipe {
             @Override
             public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
 
-                List<JavaType.FullyQualified> interfaces = classDecl.getType().getInterfaces();
-                List<JavaType> typeParameters = interfaces.get(0).getTypeParameters();
-                doAfterVisit(new ImplementTypedInterface(classDecl, "org.springframework.data.repository.CrudRepository", typeParameters));
+                Optional<JavaType.FullyQualified> pagingInterface = getExtendPagingAndSorting(classDecl);
+                if (pagingInterface.isEmpty()) {
+                    return classDecl;
+                }
+                List<JavaType> typeParameters = pagingInterface.get().getTypeParameters();
+                doAfterVisit(new ImplementTypedInterface<>(classDecl, CRUD_REPOSITORY, typeParameters));
                 return classDecl;
             }
+
+            private Optional<JavaType.FullyQualified> getExtendPagingAndSorting(J.ClassDeclaration classDecl) {
+                if (classDecl.getType() == null) {
+                    return Optional.empty();
+                }
+                return classDecl.getType().getInterfaces().stream()
+                        .filter(impl -> impl.getFullyQualifiedName().equals(PAGING_AND_SORTING_REPOSITORY))
+                        .findAny();
+            }
         };
+
     }
 }

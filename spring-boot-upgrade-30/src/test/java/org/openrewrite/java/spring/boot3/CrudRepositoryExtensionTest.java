@@ -167,10 +167,9 @@ public class CrudRepositoryExtensionTest {
                 """,
                 """
                 package test;
+                import org.springframework.data.repository.PagingAndSortingRepository;
                 import org.springframework.data.repository.CrudRepository;
                 import org.springframework.data.repository.Hello;
-                import org.springframework.data.repository.PagingAndSortingRepository;
-               
                 
                 public interface A extends Hello<String, Long>, PagingAndSortingRepository, CrudRepository {
                 }
