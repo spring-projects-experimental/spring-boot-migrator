@@ -7,7 +7,7 @@ import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
-import org.springframework.sbm.boot.upgrade_27_30.internal.ImplementTypedInterface;
+import org.springframework.sbm.boot.upgrade_27_30.helperrecipe.ImplementTypedInterface;
 
 import java.util.List;
 import java.util.Optional;
