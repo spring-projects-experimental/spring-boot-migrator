@@ -83,4 +83,7 @@ public class CrudRepositoryExtensionTest {
                 """
                 );
     }
+
+    //TODO:
+    // add a test when parameters are empty
 }

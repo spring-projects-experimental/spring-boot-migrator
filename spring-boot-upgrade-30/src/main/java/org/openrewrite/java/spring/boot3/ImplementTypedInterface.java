@@ -72,13 +72,6 @@ public class ImplementTypedInterface<P> extends JavaIsoVisitor<P> {
     private TypeTree buildTypeTree(@Nullable JavaType type, Space space) {
         if (type == null || type instanceof JavaType.Unknown) {
             return null;
-        } else if (type instanceof JavaType.Primitive) {
-            return new J.Primitive(
-                    Tree.randomId(),
-                    space,
-                    Markers.EMPTY,
-                    (JavaType.Primitive) type
-            );
         } else if (type instanceof JavaType.FullyQualified) {
 
             JavaType.FullyQualified fq = (JavaType.FullyQualified) type;
@@ -110,11 +103,7 @@ public class ImplementTypedInterface<P> extends JavaIsoVisitor<P> {
                 maybeAddImport(fq);
                 return identifier;
             }
-        } else if (type instanceof JavaType.Array) {
-            return (buildTypeTree(((JavaType.Array) type).getElemType(), space));
-        } else if (type instanceof JavaType.Variable) {
-            return buildTypeTree(((JavaType.Variable) type).getType(), space);
-        } else if (type instanceof JavaType.GenericTypeVariable) {
+        }  else if (type instanceof JavaType.GenericTypeVariable) {
             JavaType.GenericTypeVariable genericType = (JavaType.GenericTypeVariable) type;
 
             if (!genericType.getName().equals("?")) {
