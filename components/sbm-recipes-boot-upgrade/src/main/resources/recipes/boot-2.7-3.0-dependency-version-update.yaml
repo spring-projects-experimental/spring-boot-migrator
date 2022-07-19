@@ -86,7 +86,7 @@
         displayName: Migrate additional Spring Boot properties to 2.7
         description: Remove redundant @ConstructorBinding annotations when applicable
         recipeList:
-          - org.springframework.sbm.boot.upgrade_27_30.RemoveConstructorBindingAnnotation
+          - org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteNamedRecipeAdapter
       condition:
