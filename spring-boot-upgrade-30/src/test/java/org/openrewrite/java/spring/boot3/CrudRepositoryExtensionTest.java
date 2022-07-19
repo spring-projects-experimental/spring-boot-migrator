@@ -84,6 +84,33 @@ public class CrudRepositoryExtensionTest {
                 );
     }
 
+    @Test
+    public void onlyExtendCrudRepoIfInterfaceHasPagingAndSortingRepository() {
+        javaTestHelper.runAndVerify(recipeName,
+                List.of("""
+                        package org.springframework.data.repository;
+                        public interface HelloWorld<T, ID> {
+                        }
+                        """,
+                        """
+                        package org.springframework.data.repository;
+                        public interface CrudRepository<T, ID> {
+                        }
+                        """,
+                        """
+                        package test;
+                        public interface Payment<T> {
+                            T hello();
+                        }
+                        """),
+                """
+                package test;
+                import org.springframework.data.repository.PagingAndSortingRepository;
+                public interface A extends HelloWorld<Payment<?>, Long> {
+                }
+                """
+        );
+    }
     //TODO:
     // add a test when parameters are empty
 }
