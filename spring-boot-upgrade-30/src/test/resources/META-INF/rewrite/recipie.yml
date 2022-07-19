@@ -46,140 +46,140 @@ name: org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7
 displayName: Upgrade to Spring Data 3.0
 description: 'Rename properties'
 recipeList:
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.connection-timeout
       newPropertyKey: spring.elasticsearch.connection-timeout
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.connection-timeout
       newPropertyKey: spring.elasticsearch.connection-timeout
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.max-in-memory-size
       newPropertyKey: spring.elasticsearch.webclient.max-in-memory-size
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.max-in-memory-size
       newPropertyKey: spring.elasticsearch.webclient.max-in-memory-size
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.password
       newPropertyKey: spring.elasticsearch.password
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.password
       newPropertyKey: spring.elasticsearch.password
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.socket-timeout
       newPropertyKey: spring.elasticsearch.socket-timeout
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.socket-timeout
       newPropertyKey: spring.elasticsearch.socket-timeout
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.username
       newPropertyKey: spring.elasticsearch.username
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.data.elasticsearch.client.reactive.username
       newPropertyKey: spring.elasticsearch.username
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.continue-on-error
       newPropertyKey: spring.sql.init.continue-on-error
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.continue-on-error
       newPropertyKey: spring.sql.init.continue-on-error
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.data
       newPropertyKey: spring.sql.init.data-locations
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.data
       newPropertyKey: spring.sql.init.data-locations
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.data-password
       newPropertyKey: spring.sql.init.password
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.data-password
       newPropertyKey: spring.sql.init.password
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.data-username
       newPropertyKey: spring.sql.init.username
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.data-username
       newPropertyKey: spring.sql.init.username
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.initialization-mode
       newPropertyKey: spring.sql.init.mode
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.initialization-mode
       newPropertyKey: spring.sql.init.mode
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.platform
       newPropertyKey: spring.sql.init.platform
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.platform
       newPropertyKey: spring.sql.init.platform
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.schema
       newPropertyKey: spring.sql.init.schema-locations
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.schema
       newPropertyKey: spring.sql.init.schema-locations
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.schema-password
       newPropertyKey: spring.sql.init.password
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.schema-password
       newPropertyKey: spring.sql.init.password
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.schema-username
       newPropertyKey: spring.sql.init.username
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.schema-username
       newPropertyKey: spring.sql.init.username
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.separator
       newPropertyKey: spring.sql.init.separator
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.separator
       newPropertyKey: spring.sql.init.separator
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.datasource.sql-script-encoding
       newPropertyKey: spring.sql.init.encoding
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.datasource.sql-script-encoding
       newPropertyKey: spring.sql.init.encoding
 
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.connection-timeout
       newPropertyKey: spring.elasticsearch.connection-timeout
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.connection-timeout
       newPropertyKey: spring.elasticsearch.connection-timeout
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.password
       newPropertyKey: spring.elasticsearch.password
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.password
       newPropertyKey: spring.elasticsearch.password
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.read-timeout
       newPropertyKey: spring.elasticsearch.socket-timeout
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.read-timeout
       newPropertyKey: spring.elasticsearch.socket-timeout
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.sniffer.delay-after-failure
       newPropertyKey: spring.elasticsearch.restclient.sniffer.delay-after-failure
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.sniffer.delay-after-failure
       newPropertyKey: spring.elasticsearch.restclient.sniffer.delay-after-failure
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.sniffer.interval
       newPropertyKey: spring.elasticsearch.restclient.sniffer.interval
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.sniffer.interval
       newPropertyKey: spring.elasticsearch.restclient.sniffer.interval
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.username
       newPropertyKey: spring.elasticsearch.username
   - org.openrewrite.properties.ChangePropertyKey:
       oldPropertyKey: spring.elasticsearch.rest.username
       newPropertyKey: spring.elasticsearch.username
-  - org.openrewrite.java.spring.boot3.ChangePropertyKey:
+  - org.openrewrite.yaml.ChangePropertyKey:
       oldPropertyKey: spring.webflux.session.cookie.same-site
       newPropertyKey: server.reactive.session.cookie.same-site
   - org.openrewrite.properties.ChangePropertyKey:

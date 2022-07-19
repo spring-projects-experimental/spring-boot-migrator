@@ -16,6 +16,7 @@
 package org.springframework.sbm.build.migration.conditions;
 
 import lombok.Setter;
+import org.springframework.sbm.build.api.RepositoryDefinition;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
@@ -25,6 +26,10 @@ public class NoRepositoryExistsCondition implements Condition {
     private String id;
     private String url;
 
+    private Boolean snapshotsEnabled = true;
+
+    private Boolean releasesEnabled = true;
+
     @Override
     public String getDescription() {
         return "Check that no Repository definition with same id or url exists";
@@ -32,7 +37,21 @@ public class NoRepositoryExistsCondition implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
+        // if name is set and repo
+
         return context.getBuildFile().getRepositories().stream()
-                .noneMatch(r -> r.getId().equals(id) || r.getUrl().equals(url));
+                .anyMatch(r -> !urlsAreEqual(r) || (!snapshotsSettingsEqual(r) || !releaseSettingsEqual(r)));
+    }
+
+    private boolean releaseSettingsEqual(RepositoryDefinition r) {
+        return (releasesEnabled ==  null && r.getReleasesEnabled() == null) || (releasesEnabled != null && r.getReleasesEnabled() != null && (releasesEnabled.equals(r.getReleasesEnabled())));
+    }
+
+    private boolean snapshotsSettingsEqual(RepositoryDefinition r) {
+        return (snapshotsEnabled == null && r.getSnapshotsEnabled() == null) || (snapshotsEnabled != null && r.getSnapshotsEnabled() != null && snapshotsEnabled.equals(r.getSnapshotsEnabled()));
+    }
+
+    private boolean urlsAreEqual(RepositoryDefinition r) {
+        return r.getUrl() != null && r.getUrl().equals(url);
     }
 }

@@ -20,7 +20,7 @@ import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
-import org.springframework.sbm.boot.upgrade_24_25.conditions.HasSpringBootParentOfVersion;
+import org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.stereotype.Component;
