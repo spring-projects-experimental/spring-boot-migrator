@@ -669,7 +669,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public void addRepository(RepositoryDefinition repository) {
-        Recipe addRecipe = new AddMavenRepository(repository).doNext(new RefreshPomModel());
+        Recipe addRecipe = new AddMavenRepository(repository);
         apply(addRecipe);
     }
 
