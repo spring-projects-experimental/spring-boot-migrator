@@ -24,20 +24,20 @@ import java.util.List;
 import java.util.Optional;
 
 //
-// @Component
+@Component
 public class RewriteRecipeLoader implements RecipeLoader {
     @Override
     public List<Recipe> loadRecipes() {
         List<Recipe> recipeList = new ArrayList<>();
-
-        Environment environment = Environment.builder()
-                .scanRuntimeClasspath()
-                .build();
-
-        environment.listRecipes().forEach(r -> {
-            Recipe recipe = new Recipe("Rewrite: " + r.getDisplayName(), r.getDescription(), Condition.TRUE, List.of(new OpenRewriteRecipeAdapterAction(r)));
-            recipeList.add(recipe);
-        });
+//
+//        Environment environment = Environment.builder()
+//                .scanRuntimeClasspath()
+//                .build();
+//
+//        environment.listRecipes().forEach(r -> {
+//            Recipe recipe = new Recipe("Rewrite: " + r.getDisplayName(), r.getDescription(), Condition.TRUE, List.of(new OpenRewriteRecipeAdapterAction(r)));
+//            recipeList.add(recipe);
+//        });
 
         return recipeList;
     }
