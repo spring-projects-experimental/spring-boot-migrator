@@ -127,7 +127,7 @@ spring:
       relyingparty:
         registration:
           idpone:
-            assertingparty:
+            identityprovider:
               verification:
                 credentials:
                   certificate-location: classpath:saml/idpone.crt
