@@ -669,8 +669,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public void addRepository(RepositoryDefinition repository) {
-        Recipe addRecipe = new AddMavenRepository(repository);
-        apply(addRecipe);
+        AddMavenRepository addMavenRepository = new AddMavenRepository(repository);
+        apply(addMavenRepository);
     }
 
     @Override
@@ -678,8 +678,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         return getPom().getPom().getRepositories().stream()
                 .map(r -> RepositoryDefinition.builder()
                         .name(r.getId())
-                        .id(r.getId())
                         .url(r.getUri())
+                        .releasesEnabled(r.isReleases())
+                        .snapshotsEnabled(r.isSnapshots())
                         .build()
                 ).collect(Collectors.toList());
     }
