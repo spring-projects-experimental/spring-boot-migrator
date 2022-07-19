@@ -548,17 +548,25 @@ public class TestProjectContext {
                     "    <packaging>jar</packaging>\n" +
                     "{{dependencies}}\n" +
                     "</project>\n";
-            StringBuilder dependenciesSection = new StringBuilder("    ").append("<dependencies>").append("\n");
-            dependencyHelper.mapCoordinatesToDependencies(dependencyCoordinates).stream().forEach(dependency -> {
-                dependenciesSection.append("    ").append("    ").append("<dependency>").append("\n");
-                dependenciesSection.append("    ").append("    ").append("    ").append("<groupId>").append(dependency.getGroupId()).append("</groupId>").append("\n");
-                dependenciesSection.append("    ").append("    ").append("    ").append("<artifactId>").append(dependency.getArtifactId()).append("</artifactId>").append("\n");
-                dependenciesSection.append("    ").append("    ").append("    ").append("<version>").append(dependency.getVersion()).append("</version>").append("\n");
-                dependenciesSection.append("    ").append("    ").append("</dependency>").append("\n");
-            });
-            dependenciesSection.append("    ").append("</dependencies>").append("\n");
-            String buildFileSource = xml.replace("{{dependencies}}", dependenciesSection.toString());
 
+            String dependenciesText = null;
+            if(dependencyCoordinates.isEmpty()) {
+                dependenciesText = "";
+            } else {
+                StringBuilder dependenciesSection = new StringBuilder();
+                dependenciesSection.append("    ").append("<dependencies>").append("\n");
+                dependencyHelper.mapCoordinatesToDependencies(dependencyCoordinates).stream().forEach(dependency -> {
+                    dependenciesSection.append("    ").append("    ").append("<dependency>").append("\n");
+                    dependenciesSection.append("    ").append("    ").append("    ").append("<groupId>").append(dependency.getGroupId()).append("</groupId>").append("\n");
+                    dependenciesSection.append("    ").append("    ").append("    ").append("<artifactId>").append(dependency.getArtifactId()).append("</artifactId>").append("\n");
+                    dependenciesSection.append("    ").append("    ").append("    ").append("<version>").append(dependency.getVersion()).append("</version>").append("\n");
+                    dependenciesSection.append("    ").append("    ").append("</dependency>").append("\n");
+                });
+                dependenciesSection.append("    ").append("</dependencies>").append("\n");
+                dependenciesText = dependenciesSection.toString();
+            }
+
+            String buildFileSource = xml.replace("{{dependencies}}", dependenciesText);
             return buildFileSource;
         }
 

@@ -675,10 +675,12 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public List<RepositoryDefinition> getRepositories() {
-        return getRepositories().stream()
+        return getPom().getPom().getRepositories().stream()
                 .map(r -> RepositoryDefinition.builder()
                         .name(r.getId())
-                        .url(r.getUrl())
+                        .url(r.getUri())
+                        .releasesEnabled(r.isReleases())
+                        .snapshotsEnabled(r.isSnapshots())
                         .build()
                 ).collect(Collectors.toList());
     }
