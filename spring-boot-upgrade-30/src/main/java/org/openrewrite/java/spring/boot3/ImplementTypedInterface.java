@@ -35,8 +35,10 @@ public class ImplementTypedInterface<P> extends JavaIsoVisitor<P> {
                 this.maybeAddImport(this.interfaceType);
             }
 
-            TypeTree impl = (TypeTree) TypeTree.build(classDecl.getSimpleName().equals(this.interfaceType.getClassName()) ? this.interfaceType.getFullyQualifiedName() : this.interfaceType.getClassName()).withType(this.interfaceType).withPrefix(Space.format(" "));
-            J.ParameterizedType type = new J.ParameterizedType(UUID.randomUUID(), Space.EMPTY, Markers.EMPTY, impl, buildTypeParameters(typeParameters));
+            TypeTree type = (TypeTree) TypeTree.build(classDecl.getSimpleName().equals(this.interfaceType.getClassName()) ? this.interfaceType.getFullyQualifiedName() : this.interfaceType.getClassName()).withType(this.interfaceType).withPrefix(Space.format(" "));
+            if (typeParameters != null && !typeParameters.isEmpty() && typeParameters.stream().noneMatch(tp -> tp instanceof JavaType.GenericTypeVariable)) {
+                type = new J.ParameterizedType(UUID.randomUUID(), Space.EMPTY, Markers.EMPTY, type, buildTypeParameters(typeParameters));
+            }
             c = c.withImplements(ListUtils.concat(c.getImplements(), type));
             JContainer<TypeTree> anImplements = c.getPadding().getImplements();
 
@@ -103,7 +105,7 @@ public class ImplementTypedInterface<P> extends JavaIsoVisitor<P> {
                 maybeAddImport(fq);
                 return identifier;
             }
-        }  else if (type instanceof JavaType.GenericTypeVariable) {
+        } else if (type instanceof JavaType.GenericTypeVariable) {
             JavaType.GenericTypeVariable genericType = (JavaType.GenericTypeVariable) type;
 
             if (!genericType.getName().equals("?")) {
