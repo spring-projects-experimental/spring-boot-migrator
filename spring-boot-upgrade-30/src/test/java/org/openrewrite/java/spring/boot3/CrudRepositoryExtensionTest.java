@@ -138,4 +138,43 @@ public class CrudRepositoryExtensionTest {
                 """
         );
     }
+
+    @Test
+    public void multipleExtends() {
+        javaTestHelper.runAndVerify(
+                recipeName,
+                List.of("""
+                        package org.springframework.data.repository;
+                        public interface PagingAndSortingRepository<T, ID> {
+                        }
+                        """,
+                        """
+                        package org.springframework.data.repository;
+                        public interface Hello<T, ID> {
+                        }
+                        """,
+                        """
+                        package org.springframework.data.repository;
+                        public interface CrudRepository<T, ID> {
+                        }
+                        """),
+                """
+                package test;
+                import org.springframework.data.repository.PagingAndSortingRepository;
+                import org.springframework.data.repository.Hello;
+                public interface A extends Hello<String, Long>, PagingAndSortingRepository {
+                }
+                """,
+                """
+                package test;
+                import org.springframework.data.repository.CrudRepository;
+                import org.springframework.data.repository.Hello;
+                import org.springframework.data.repository.PagingAndSortingRepository;
+               
+                
+                public interface A extends Hello<String, Long>, PagingAndSortingRepository, CrudRepository {
+                }
+                """
+        );
+    }
 }
