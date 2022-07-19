@@ -55,4 +55,53 @@ public class CrudRepositoryExtensionTest {
                                 }
                                 """);
     }
+
+    @Test
+    public void canDoQuestionMark() {
+        InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
+        JavaParser parser = JavaParser
+                .fromJavaVersion()
+                .dependsOn("""
+                        package org.springframework.data.repository;
+                        public interface PagingAndSortingRepository<T, ID> {
+                        }
+                        """,
+                        """
+                        package org.springframework.data.repository;
+                        public interface CrudRepository<T, ID> {
+                        }
+                        """,
+                        """
+                        package test;
+                        public interface Payment<T> {
+                            T hello();
+                        }
+                        """
+                )
+                .build();
+
+        List<J.CompilationUnit> cu = parser.parse("""
+                package test;
+                import org.springframework.data.repository.PagingAndSortingRepository;
+                public interface A extends PagingAndSortingRepository<Payment<?>, Long> {
+                }
+                """);
+
+
+        String recipeName = "org.boot3.Crud";
+
+        List<Result> result = RewriteTest
+                .fromRuntimeClasspath(recipeName)
+                .run(cu, ctx);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getAfter().printAll()).isEqualTo("""
+                                package test;
+                                import org.springframework.data.repository.CrudRepository;
+                                import org.springframework.data.repository.PagingAndSortingRepository;
+                                
+                                public interface A extends PagingAndSortingRepository<Payment<?>, Long>, CrudRepository<Payment<?>, Long> {
+                                }
+                                """);
+    }
 }
