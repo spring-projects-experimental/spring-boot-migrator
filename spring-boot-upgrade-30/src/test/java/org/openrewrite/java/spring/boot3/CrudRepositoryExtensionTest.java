@@ -105,7 +105,7 @@ public class CrudRepositoryExtensionTest {
                         """),
                 """
                 package test;
-                import org.springframework.data.repository.PagingAndSortingRepository;
+                import org.springframework.data.repository.HelloWorld;
                 public interface A extends HelloWorld<Payment<?>, Long> {
                 }
                 """

@@ -18,7 +18,8 @@ public class CrudRepositoryExtension extends Recipe {
         return new JavaIsoVisitor<>() {
             @Override
             public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
-                List<JavaType> typeParameters = classDecl.getType().getInterfaces().get(0).getTypeParameters();
+                List<JavaType.FullyQualified> interfaces = classDecl.getType().getInterfaces();
+                List<JavaType> typeParameters = interfaces.get(0).getTypeParameters();
                 doAfterVisit(new ImplementTypedInterface(classDecl, "org.springframework.data.repository.CrudRepository", typeParameters));
                 return classDecl;
             }
