@@ -1,0 +1,6 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: org.boot3.Crud
+displayName: Crud
+description: Crud
+recipeList:
+  - org.springframework.sbm.boot.upgrade_27_30.CrudRepositoryExtension

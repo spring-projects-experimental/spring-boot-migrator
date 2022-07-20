@@ -71,5 +71,11 @@
             <artifactId>aspectjweaver</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-test</artifactId>
+            <version>${openrewrite.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
