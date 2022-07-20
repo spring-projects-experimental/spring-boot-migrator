@@ -18,6 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
@@ -30,29 +31,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JavaTestHelper {
 
-    public void runAndVerify(
-            String recipeName,
+    public void runAndVerifyNoChanges(
+            Recipe recipe,
             List<String> dependsOn,
             @Language("java") String before
     ) {
-        List<Result> result = runRecipe(recipeName, dependsOn, before);
+        List<Result> result = runRecipe(recipe, dependsOn, before);
         assertThat(result).hasSize(0);
     }
 
     public void runAndVerify(
-            String recipeName,
+            Recipe recipe,
             List<String> dependsOn,
             @Language("java") String before,
             @Language("java") String after
             ) {
-        List<Result> result = runRecipe(recipeName, dependsOn, before);
+        List<Result> result = runRecipe(recipe, dependsOn, before);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getAfter().printAll()).isEqualTo(after);
     }
 
     @NotNull
-    private List<Result> runRecipe(String recipeName, List<String> dependsOn, @Language("java") String before) {
+    private List<Result> runRecipe(Recipe recipe, List<String> dependsOn, @Language("java") String before) {
 
         List<Throwable> errors = new ArrayList<>();
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
@@ -67,9 +68,7 @@ public class JavaTestHelper {
 
         List<J.CompilationUnit> cu = parser.parse(before);
 
-        List<Result> result = RewriteTest
-                .fromRuntimeClasspath(recipeName)
-                .run(cu, ctx);
+        List<Result> result = recipe.run(cu, ctx);
 
         assertThat(errors).hasSize(0);
         return result;

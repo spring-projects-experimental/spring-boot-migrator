@@ -16,6 +16,7 @@
 package org.springframework.sbm.boot.upgrade_27_30;
 
 import org.junit.jupiter.api.Test;
+import org.openrewrite.Recipe;
 
 import java.util.List;
 
@@ -23,13 +24,13 @@ import java.util.List;
 public class CrudRepositoryExtensionTest {
 
     private JavaTestHelper javaTestHelper = new JavaTestHelper();
-    private String recipeName = "org.boot3.Crud";
+    private Recipe recipe = new CrudRepositoryExtension();
 
     @Test
     public void shouldAddCrudRepository() {
 
         javaTestHelper.runAndVerify(
-                recipeName,
+                recipe,
                 List.of("""
                         package org.springframework.data.repository;
                         public interface PagingAndSortingRepository<T, ID> {
@@ -60,7 +61,7 @@ public class CrudRepositoryExtensionTest {
     @Test
     public void canDoQuestionMark() {
 
-        javaTestHelper.runAndVerify(recipeName,
+        javaTestHelper.runAndVerify(recipe,
                 List.of("""
                         package org.springframework.data.repository;
                         public interface PagingAndSortingRepository<T, ID> {
@@ -96,7 +97,7 @@ public class CrudRepositoryExtensionTest {
 
     @Test
     public void onlyExtendCrudRepoIfInterfaceHasPagingAndSortingRepository() {
-        javaTestHelper.runAndVerify(recipeName,
+        javaTestHelper.runAndVerifyNoChanges(recipe,
                 List.of("""
                         package org.springframework.data.repository;
                         public interface HelloWorld<T, ID> {
@@ -126,7 +127,7 @@ public class CrudRepositoryExtensionTest {
     public void whenThereAreNoParametersWhilstExtending() {
 
         javaTestHelper.runAndVerify(
-                recipeName,
+                recipe,
                 List.of("""
                         package org.springframework.data.repository;
                         public interface PagingAndSortingRepository<T, ID> {
@@ -157,7 +158,7 @@ public class CrudRepositoryExtensionTest {
     @Test
     public void multipleExtends() {
         javaTestHelper.runAndVerify(
-                recipeName,
+                recipe,
                 List.of("""
                         package org.springframework.data.repository;
                         public interface PagingAndSortingRepository<T, ID> {
@@ -195,7 +196,7 @@ public class CrudRepositoryExtensionTest {
     @Test
     public void classImplementsPagingRepository() {
         javaTestHelper.runAndVerify(
-                recipeName,
+                recipe,
                 List.of("""
                         package org.springframework.data.repository;
                         public interface PagingAndSortingRepository<T, ID> {
