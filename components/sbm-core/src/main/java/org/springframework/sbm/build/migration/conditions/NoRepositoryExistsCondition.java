@@ -39,17 +39,17 @@ public class NoRepositoryExistsCondition implements Condition {
     public boolean evaluate(ProjectContext context) {
         // if name is set and repo
 
-        return context.getBuildFile().getRepositories().stream()
-                .anyMatch(r -> !urlsAreEqual(r) || (!snapshotsSettingsEqual(r) || !releaseSettingsEqual(r)));
+        return !context.getBuildFile().getRepositories().stream()
+                .anyMatch(this::urlsAreEqual); // || (!snapshotsSettingsEqual(r) || !releaseSettingsEqual(r)));
     }
 
-    private boolean releaseSettingsEqual(RepositoryDefinition r) {
-        return (releasesEnabled ==  null && r.getReleasesEnabled() == null) || (releasesEnabled != null && r.getReleasesEnabled() != null && (releasesEnabled.equals(r.getReleasesEnabled())));
-    }
-
-    private boolean snapshotsSettingsEqual(RepositoryDefinition r) {
-        return (snapshotsEnabled == null && r.getSnapshotsEnabled() == null) || (snapshotsEnabled != null && r.getSnapshotsEnabled() != null && snapshotsEnabled.equals(r.getSnapshotsEnabled()));
-    }
+//    private boolean releaseSettingsEqual(RepositoryDefinition r) {
+//        return (releasesEnabled ==  null && r.getReleasesEnabled() == null) || (releasesEnabled != null && r.getReleasesEnabled() != null && (releasesEnabled.equals(r.getReleasesEnabled())));
+//    }
+//
+//    private boolean snapshotsSettingsEqual(RepositoryDefinition r) {
+//        return (snapshotsEnabled == null && r.getSnapshotsEnabled() == null) || (snapshotsEnabled != null && r.getSnapshotsEnabled() != null && snapshotsEnabled.equals(r.getSnapshotsEnabled()));
+//    }
 
     private boolean urlsAreEqual(RepositoryDefinition r) {
         return r.getUrl() != null && r.getUrl().equals(url);
