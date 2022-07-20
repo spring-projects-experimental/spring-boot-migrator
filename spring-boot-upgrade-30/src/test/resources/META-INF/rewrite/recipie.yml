@@ -520,10 +520,4 @@ recipeList:
       oldPackageName: io.micrometer.core.instrument.binder
       newPackageName: io.micrometer.binder
       recursive: true
----
-type: specs.openrewrite.org/v1beta/recipe
-name: org.boot3.Crud
-displayName: Crud
-description: Crud
-recipeList:
-  - org.openrewrite.java.spring.boot3.CrudRepositoryExtension
+
