@@ -95,6 +95,13 @@
       description: Replace javax with new jakarta packages
       openRewriteRecipeName: org.openrewrite.java.migrate.JavaxMigrationToJakarta
 
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteNamedRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
+        versionStartingWith: "3.0."
+      description: Add CrudRepository interface extension additionaly to PagingAndSortingRepository
+      openRewriteRecipeName: org.springframework.sbm.boot.upgrade_27_30.CrudRepositoryExtension
+
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.openrewrite.maven.java;
+package org.openrewrite.java;
 
 import org.junit.jupiter.api.Test;
 import org.openrewrite.Result;
