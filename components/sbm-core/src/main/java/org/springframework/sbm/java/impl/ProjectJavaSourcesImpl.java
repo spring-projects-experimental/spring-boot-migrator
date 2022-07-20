@@ -16,10 +16,13 @@
 package org.springframework.sbm.java.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionContext;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.MethodMatcher;
 import org.openrewrite.java.search.FindMethods;
+import org.openrewrite.java.search.UsesType;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
@@ -28,10 +31,12 @@ import org.springframework.sbm.java.filter.JavaSourceListFilter;
 import org.springframework.sbm.java.refactoring.JavaGlobalRefactoring;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -117,6 +122,18 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
                     .forEach(matches::add);
         });
         return matches;
+    }
+
+    @Override
+    public List<? extends JavaSource> findClassesUsingType(String fqName) {
+        UsesType<ExecutionContext> usesType = new UsesType<>(fqName);
+        GenericOpenRewriteRecipe<UsesType<ExecutionContext>> recipe = new GenericOpenRewriteRecipe<>(() -> usesType);
+        return find(recipe).stream()
+                .filter(RewriteSourceFileHolder.class::isInstance)
+                .map(RewriteSourceFileHolder.class::cast)
+                .filter(r -> r.getType().isAssignableFrom(J.CompilationUnit.class))
+                .map(r -> (OpenRewriteJavaSource)r)
+                .collect(Collectors.toList());
     }
 
     private boolean hasTypeImplementing(J.ClassDeclaration c, String type) {
