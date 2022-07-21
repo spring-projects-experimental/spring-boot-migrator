@@ -145,8 +145,8 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
                                         JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(
                                                 intaface.getType()
                                         );
-                                        if(fullyQualified == null) {
-                                            log.error("Could not resolve implemented type '" + ((J.Identifier)intaface).getSimpleName() + "'");
+                                        if(fullyQualified == null && J.Identifier.class.isInstance(intaface)) {
+                                            log.error(String.format("Could not calculate if class '%s' implements an interface compatible to '%s'. Type of interface '%s' could not be resolved and was '%s'", c, type, intaface, intaface.getType().toString()));
                                             return false;
                                         }
                                         return fullyQualified
