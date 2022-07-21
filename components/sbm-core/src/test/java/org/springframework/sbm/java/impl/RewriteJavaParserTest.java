@@ -49,9 +49,7 @@ public class RewriteJavaParserTest {
 
         String out = sysOutBuffer.toString();
         System.setOut(realSysOut);
-        assertThat(out)
-                .containsPattern(".*ReloadableJava11Parser - Foo.java:1: error: cannot find symbol.*")
-                .containsPattern(".*ReloadableJava11Parser - public class Foo \\{a\\}.*");
+        assertThat(out).containsPattern(".*Foo.java:1: error: cannot find symbol.*");
     }
 
 }
