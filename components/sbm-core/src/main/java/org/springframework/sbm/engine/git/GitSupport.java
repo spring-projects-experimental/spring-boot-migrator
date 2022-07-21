@@ -249,7 +249,7 @@ public class GitSupport {
     public static Optional<String> getBranchName(File repo) {
         Git git = initGit(repo);
         try {
-            return Optional.of(git.getRepository().getBranch());
+            return Optional.ofNullable(git.getRepository().getBranch());
         } catch (IOException e) {
             return Optional.empty();
         }

@@ -56,10 +56,9 @@ class DoesGitDirExistWhenGitSupportEnabledPreconditionCheck extends Precondition
 	@Override
 	public PreconditionCheckResult verify(Path projectRoot, List<Resource> projectResources) {
 		if (sbmApplicationProperties.isGitSupportEnabled()) {
-			if (noGitDirExists(projectRoot)) {
+			if(! isUnderGit(projectRoot)) {
                 return new PreconditionCheckResult(FAILED, NO_GIT_DIR_EXISTS);
-			}
-			else if (! isGitStatusClean(projectRoot)) {
+            } else if(! isGitStatusClean(projectRoot)) {
                 return new PreconditionCheckResult(FAILED, HAS_UNCOMMITTED_CHANGES);
 			} else {
 				return new PreconditionCheckResult(PASSED, String.format(CHECK_PASSED, getBranch(projectRoot)));
@@ -67,6 +66,10 @@ class DoesGitDirExistWhenGitSupportEnabledPreconditionCheck extends Precondition
 		}
 		return new PreconditionCheckResult(PASSED, CHECK_IGNORED);
 	}
+
+    private boolean isUnderGit(Path projectRoot) {
+        return gitSupport.repoExists(projectRoot.toFile());
+    }
 
     private String getBranch(Path projectRoot) {
         File repo = projectRoot.normalize().toAbsolutePath().toFile();
@@ -81,16 +84,6 @@ class DoesGitDirExistWhenGitSupportEnabledPreconditionCheck extends Precondition
     private boolean isGitStatusClean(Path projectRoot) {
         GitStatus status = gitSupport.getStatus(projectRoot.toFile());
         return status.isClean();
-	}
-
-	private boolean noGitDirExists(Path projectRoot) {
-		Path path = projectRoot.resolve(".git").normalize().toAbsolutePath();
-		if (!path.toFile().exists() || !path.toFile().isDirectory()) {
-			return true;
-		}
-		else {
-			return false;
-		}
 	}
 
 }
