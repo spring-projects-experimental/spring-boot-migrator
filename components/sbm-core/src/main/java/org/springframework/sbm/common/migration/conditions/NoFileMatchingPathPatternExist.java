@@ -15,7 +15,11 @@
  */
 package org.springframework.sbm.common.migration.conditions;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
@@ -43,6 +47,6 @@ public class NoFileMatchingPathPatternExist implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return false == new FileMatchingPatternExist(pattern).evaluate(context);
+        return !new FileMatchingPatternExist(pattern).evaluate(context);
     }
 }

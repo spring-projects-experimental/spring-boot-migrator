@@ -16,25 +16,30 @@
 package org.springframework.sbm.jee.jpa.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.build.api.ApplicationModule;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.ProjectJavaSources;
 import org.springframework.sbm.java.util.BasePackageCalculator;
-import org.springframework.sbm.jee.jpa.api.Persistence;
 import org.springframework.sbm.jee.jpa.api.PersistenceXml;
 import org.springframework.sbm.jee.jpa.filter.PersistenceXmlResourceFilter;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.function.Predicate.not;
 
 public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
 
@@ -68,8 +73,8 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
 
     private Map<String, Object> mapEclipseLinkProperties(List<SpringBootJpaProperty> bootJpaProperties) {
         return bootJpaProperties.stream()
-                .filter(p -> p.getPropertyName().startsWith("eclipselink."))
-                .collect(Collectors.toMap(p -> getPropertyNameForEclipseLinkConfiguration(p), SpringBootJpaProperty::getPropertyValue));
+            .filter(p -> p.getPropertyName().startsWith("eclipselink."))
+            .collect(Collectors.toMap(this::getPropertyNameForEclipseLinkConfiguration, SpringBootJpaProperty::getPropertyValue));
     }
 
     private String getPropertyNameForEclipseLinkConfiguration(SpringBootJpaProperty p) {
@@ -243,8 +248,7 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
     }
 
     private String findPackageForEclipseLinkConfigurationClass(ProjectJavaSources projectJavaSources) {
-        String packageName = basePackageCalculator.calculateBasePackage(projectJavaSources.list());
-        return packageName;
+        return basePackageCalculator.calculateBasePackage(projectJavaSources.list());
     }
 
     private void declareDependencyToSpringBootStarterDataJpaWithHibernateExcluded(ApplicationModule m) {
@@ -286,21 +290,14 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
         List<SpringBootJpaProperty> springBootJpaProperties = new ArrayList<>();
 
         Optional<PersistenceXml> optPersistenceXml = module.search(new PersistenceXmlResourceFilter());
-        if(optPersistenceXml.isPresent()) {
-            PersistenceXml persistenceXml = optPersistenceXml.get();
-            Persistence.PersistenceUnit.Properties properties = persistenceXml.getPersistence().getPersistenceUnit().get(0) // FIXME: should multiple persistence-units be handled or fail?
-                    .getProperties();
-
-            if(false == properties.getProperty().isEmpty()) {
-                return properties.getProperty().stream()
-                        .filter(p -> p.getName().startsWith("eclipselink."))
-                        .map(p -> new SpringBootJpaProperty(p.getName(), p.getValue()))
-                        .collect(Collectors.toList());
-            }
-
-        }
-
-        return springBootJpaProperties;
+        return optPersistenceXml.map(persistenceXml -> persistenceXml.getPersistence().getPersistenceUnit().get(0) // FIXME: should multiple persistence-units be handled or fail?
+            .getProperties())
+            .filter(not(properties -> properties.getProperty().isEmpty()))
+            .map(properties -> properties.getProperty().stream()
+                .filter(p -> p.getName().startsWith("eclipselink."))
+                .map(p -> new SpringBootJpaProperty(p.getName(), p.getValue()))
+                .collect(Collectors.toList()))
+            .orElse(springBootJpaProperties);
     }
 
     private void addClassToModule(ApplicationModule m, Path projectRootDir, Path sourceFolder, String packageName, String configurationCode) {
@@ -320,8 +317,7 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
             params.put("eclipseLinkProperties", eclipseLinkProperties);
             Template template = configuration.getTemplate("eclipselink-configuration-class.ftl");
             template.process(params, writer);
-            String src = writer.toString();
-            return src;
+            return writer.toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

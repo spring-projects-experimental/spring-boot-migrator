@@ -15,13 +15,13 @@
  */
 package org.springframework.sbm.common.migration.actions;
 
+import org.jetbrains.annotations.NotNull;
+import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.OpenRewriteType;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -43,7 +43,7 @@ public class DocumentationExtraction extends AbstractAction {
                     .map(OpenRewriteType.class::cast)
                     .filter(this::filterActions)
                     .forEach(t -> {
-                        Class actionClass = getaClass(t);
+                        Class<?> actionClass = getaClass(t);
                         List<? extends Member> members = t.getMembers();
                         String render = render(actionClass.getName(), members);
                         System.out.println(render);
@@ -76,9 +76,9 @@ public class DocumentationExtraction extends AbstractAction {
                 .flatMap(js -> js.getTypes().stream())
 //                .flatMap(t -> t.getImplements().stream())
                 .filter(t -> OpenRewriteType.class.isAssignableFrom(t.getClass()))
-                .map(t -> (OpenRewriteType) t)
-                .map(t -> getaClass(t))
-                .anyMatch(c -> Action.class.isAssignableFrom(c));
+                .map(OpenRewriteType.class::cast)
+                .map(this::getaClass)
+                .anyMatch(Action.class::isAssignableFrom);
     }
 
     @NotNull

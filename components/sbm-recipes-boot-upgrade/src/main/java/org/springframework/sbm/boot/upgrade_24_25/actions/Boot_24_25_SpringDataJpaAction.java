@@ -16,17 +16,17 @@
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
 import org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_SpringDataJpaActionCondition;
-import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.boot.upgrade_24_25.filter.SpringDataJpaAnalyzer;
 import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
-import org.springframework.sbm.java.api.MethodCall;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.java.api.MethodCall;
 
 import java.util.List;
 
 public class Boot_24_25_SpringDataJpaAction extends AbstractAction {
 
-    private SpringDataJpaAnalyzer springDataJpaAnalyzer = new SpringDataJpaAnalyzer();
+    private final SpringDataJpaAnalyzer springDataJpaAnalyzer = new SpringDataJpaAnalyzer();
 
 
     @Override

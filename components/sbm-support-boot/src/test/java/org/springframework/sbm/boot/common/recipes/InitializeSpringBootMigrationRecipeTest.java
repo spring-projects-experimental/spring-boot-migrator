@@ -15,14 +15,18 @@
  */
 package org.springframework.sbm.boot.common.recipes;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.common.actions.AddSpringBootContextTestClassAction;
 import org.springframework.sbm.boot.common.actions.AddSpringBootMainClassAction;
 import org.springframework.sbm.boot.properties.actions.AddSpringBootApplicationPropertiesAction;
-import org.springframework.sbm.build.migration.actions.*;
+import org.springframework.sbm.build.migration.actions.AddDependencies;
+import org.springframework.sbm.build.migration.actions.AddMavenDependencyManagementAction;
+import org.springframework.sbm.build.migration.actions.AddMavenPlugin;
+import org.springframework.sbm.build.migration.actions.AddMinimalPomXml;
+import org.springframework.sbm.build.migration.actions.BuildPackaging;
+import org.springframework.sbm.build.migration.actions.RemoveDependenciesMatchingRegex;
 import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.test.RecipeTestSupport;
-import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.Optional;
