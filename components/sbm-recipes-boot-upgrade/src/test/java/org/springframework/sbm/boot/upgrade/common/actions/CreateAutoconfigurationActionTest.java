@@ -16,52 +16,79 @@
 package org.springframework.sbm.boot.upgrade.common.actions;
 
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.TestProjectContext;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CreateAutoconfigurationActionTest {
 
-    @Test
-    public void autoConfigurationImportsIsGenerated() {
-        ProjectContext context = TestProjectContext.buildProjectContext()
+    private ProjectContext context;
+    private CreateAutoconfigurationAction action;
+
+    private final String newAutoConfigFile = "/**/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports";
+    private final String existingSpringFactoriesFile = "/**/src/main/resources/META-INF/spring.factories";
+
+    @BeforeEach
+    public void setup() {
+        context = TestProjectContext.buildProjectContext()
                 .addProjectResource(
                         "src/main/resources/META-INF/spring.factories",
-                        "org.springframework.boot.autoconfigure.EnableAutoConfiguration=XYZ"
+                        """
+                        hello.world=something
+                        org.springframework.boot.autoconfigure.EnableAutoConfiguration=XYZ
+                        """
                 )
                 .build();
+        action = new CreateAutoconfigurationAction();
+    }
 
-        CreateAutoconfigurationAction action = new CreateAutoconfigurationAction();
-
+    @Test
+    public void autoConfigurationImportsIsGenerated() {
         action.apply(context);
 
-        assertThat(context
-                .search(
-                        new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
-                )
-        ).hasSize(1);
+        assertThat(getFileAsProjectResource(newAutoConfigFile)).hasSize(1);
     }
 
     @Test
     public void autoConfigurationImportsContent() {
-        ProjectContext context = TestProjectContext.buildProjectContext()
-                .addProjectResource(
-                        "src/main/resources/META-INF/spring.factories",
-                        "org.springframework.boot.autoconfigure.EnableAutoConfiguration=XYZ"
-                )
-                .build();
-
-        CreateAutoconfigurationAction action = new CreateAutoconfigurationAction();
-
         action.apply(context);
 
-        String content = context.search(
-                new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
-        ).get(0).print();
+        String content = getNewAutoConfigFile();
 
         assertThat(content).isEqualTo("XYZ");
+    }
+
+    @Test
+    public void itDeletesSourceWhenMovedToNewFile() {
+        action.apply(context);
+
+        String content = getSpringFactoryFile();
+
+        assertThat(content).isEqualTo("""
+                hello.world=something
+                """);
+    }
+
+
+    private String getNewAutoConfigFile() {
+        return getFileAsProjectResource(
+                "/**/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports"
+        ).get(0).print();
+    }
+
+    private List<ProjectResource> getFileAsProjectResource(String path) {
+        return context.search(new PathPatternMatchingProjectResourceFinder(path));
+    }
+
+    private String getSpringFactoryFile() {
+
+        return getFileAsProjectResource(existingSpringFactoriesFile).get(0).print();
     }
 }
