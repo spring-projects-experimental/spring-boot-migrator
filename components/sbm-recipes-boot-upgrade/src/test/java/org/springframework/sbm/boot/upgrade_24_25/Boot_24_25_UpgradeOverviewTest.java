@@ -17,8 +17,6 @@ package org.springframework.sbm.boot.upgrade_24_25;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class Boot_24_25_UpgradeOverviewTest {
     @Test
     void testIsApplicable_shouldReturnTrue_withAnySpringBootDependency25() {
