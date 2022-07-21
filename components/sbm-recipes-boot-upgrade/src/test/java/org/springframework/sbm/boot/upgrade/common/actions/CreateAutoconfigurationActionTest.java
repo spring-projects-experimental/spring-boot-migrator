@@ -27,8 +27,28 @@ class CreateAutoconfigurationActionTest {
 
         assertThat(context
                 .search(
-                        new PathPatternMatchingProjectResourceFinder("/**/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
+                        new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
                 )
         ).hasSize(1);
+    }
+
+    @Test
+    public void autoConfigurationImportsContent() {
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .addProjectResource(
+                        "src/main/resources/META-INF/spring.factories",
+                        "org.springframework.boot.autoconfigure.EnableAutoConfiguration=XYZ"
+                )
+                .build();
+
+        CreateAutoconfigurationAction action = new CreateAutoconfigurationAction();
+
+        action.apply(context);
+
+        String content = context.search(
+                new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports")
+        ).get(0).print();
+
+        assertThat(content).isEqualTo("XYZ");
     }
 }

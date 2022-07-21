@@ -22,6 +22,7 @@ import org.openrewrite.text.PlainText;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.project.resource.StringProjectResource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,72 +35,12 @@ import static java.util.function.Predicate.not;
 public class CreateAutoconfigurationAction extends AbstractAction {
 
     private static final String SPRING_FACTORIES_PATH = "src/main/resources/META-INF/spring.factories";
-    private static final String AUTO_CONFIGURATION_IMPORTS = "/org.springframework.boot.autoconfigure.AutoConfiguration.imports";
-
-    @NotNull
-    public static Path getAutoConfigurationPath(Path springFactoriesPath) {
-        return Path.of(springFactoriesPath.getParent() + AUTO_CONFIGURATION_IMPORTS);
-    }
-
-    public static boolean isSpringFactory(Path path) {
-        return path.endsWith(SPRING_FACTORIES_PATH);
-    }
+    private static final String AUTO_CONFIGURATION_IMPORTS = "src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports";
 
     @Override
     public void apply(ProjectContext context) {
-        try (Stream<Path> walkStream = Files.walk(context.getProjectRootDirectory())) {
-            walkStream.filter(p -> p.toFile().isFile())
-                .map(Path::toAbsolutePath)
-                .filter(CreateAutoconfigurationAction::isSpringFactory)
-                .filter(not(path -> Files.exists(getAutoConfigurationPath(path))))
-                .forEach(springFactoriesPath -> createAutoConfiguration(springFactoriesPath, context));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void createAutoConfiguration(Path springFactoriesPath, ProjectContext context) {
-        Path autoConfigurationPath = getAutoConfigurationPath(springFactoriesPath);
-        createFile(autoConfigurationPath);
-        String content = getContent(springFactoriesPath);
-        writeToFile(autoConfigurationPath, content);
-        RewriteSourceFileHolder<PlainText> newResource = new RewriteSourceFileHolder<>(autoConfigurationPath, getPlainText(autoConfigurationPath, content));
-        newResource.markAsChanged();
-        context.getProjectResources().add(newResource);
-    }
-
-    @NotNull
-    private PlainText getPlainText(Path autoConfigurationPath, String content) {
-        return new PlainText(Tree.randomId(), autoConfigurationPath, Markers.EMPTY, null, false, null, null, content);
-    }
-
-    private void writeToFile(Path autoConfigurationPath, @NotNull String content) {
-        try {
-            Files.writeString(autoConfigurationPath, content, WRITE);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not write to file " + autoConfigurationPath, e);
-        }
-    }
-
-    private void createFile(Path autoConfigurationPath) {
-        try {
-            Files.createFile(autoConfigurationPath);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not create file " + autoConfigurationPath, e);
-        }
-    }
-
-    @NotNull
-    private String getContent(Path springFactoriesPath) {
-        try {
-            return Files.readString(springFactoriesPath)
-                .replace("org.springframework.boot.autoconfigure.EnableAutoConfiguration=", "")
-                .replace("\\", "")
-                .replace("\n", "")
-                .replace(",", "\n");
-        } catch (IOException e) {
-            throw new RuntimeException("Could not read file " + springFactoriesPath, e);
-        }
+        StringProjectResource springAutoconfigurationFile = new StringProjectResource(context.getProjectRootDirectory(), context.getProjectRootDirectory().resolve(AUTO_CONFIGURATION_IMPORTS), "");
+        context.getProjectResources().add(springAutoconfigurationFile);
     }
 
 }
