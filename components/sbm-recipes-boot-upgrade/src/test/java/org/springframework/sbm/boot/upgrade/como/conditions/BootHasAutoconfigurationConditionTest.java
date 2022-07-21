@@ -74,24 +74,19 @@ class BootHasAutoconfigurationConditionTest {
         assertThat(condition.evaluate(context)).isFalse();
     }
 
-//    @Test
-//    void shouldBeFalseForSpringFactoriesWithoutEnableAutoConfigurationKey() {
-//        ProjectContext context = TestProjectContext.buildProjectContext()
-//                .addProjectResource("META-INF/spring.factories", "test=XYZ")
-//                .build();
-//
-//        BootHasAutoconfigurationCondition condition = new BootHasAutoconfigurationCondition();
-//        assertThat(condition.evaluate(context)).isFalse();
-//    }
-//
-//    @Test
-//    void shouldBeFalseForNotExistingSpringFactories() {
-//        ProjectContext context = TestProjectContext.buildProjectContext()
-//                .addProjectResource("META-INF/xyz", "test=XYZ")
-//                .build();
-//
-//        BootHasAutoconfigurationCondition condition = new BootHasAutoconfigurationCondition();
-//        assertThat(condition.evaluate(context)).isFalse();
-//    }
-//
+    @Test
+    void itCanDoMultiLine() {
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .addProjectResource(
+                        "src/main/resources/META-INF/spring.factories",
+                        """
+                                org.springframework.boot.autoconfigure.EnableAutoConfiguration=XTZ\
+                                abc
+                                """
+                )
+                .build();
+
+        BootHasAutoconfigurationCondition condition = new BootHasAutoconfigurationCondition();
+        assertThat(condition.evaluate(context)).isTrue();
+    }
 }

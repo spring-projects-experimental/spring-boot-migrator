@@ -19,9 +19,11 @@ import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceF
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
-public class BootHasAutoconfigurationCondition implements Condition {
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
-    public static final String AUTO_CONFIGURATION_PROPERTY = "org.springframework.boot.autoconfigure.EnableAutoConfiguration";
+public class BootHasAutoconfigurationCondition implements Condition {
 
     @Override
     public String getDescription() {
@@ -33,14 +35,20 @@ public class BootHasAutoconfigurationCondition implements Condition {
 
         return context
                 .search(new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/META-INF/spring.factories")).stream()
-                .anyMatch(r -> r.print().contains(AUTO_CONFIGURATION_PROPERTY));
-        //        try (Stream<Path> walkStream = Files.walk(context.getProjectRootDirectory())) {
-//            return walkStream.filter(p -> p.toFile().isFile())
-//                .map(Path::toAbsolutePath)
-//                .filter(CreateAutoconfigurationAction::isSpringFactory)
-//                .anyMatch(not(path -> Files.exists(getAutoConfigurationPath(path))));
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
+                .anyMatch(r -> isRightProperty(r.print()));
+    }
+
+    private boolean isRightProperty(String propertyString) {
+
+        Properties prop = new Properties();
+        try {
+            prop.load(new ByteArrayInputStream(propertyString.getBytes()));
+            String enableAutoConfig = prop.getProperty("org.springframework.boot.autoconfigure.EnableAutoConfiguration");
+
+            return enableAutoConfig != null;
+        } catch (IOException e) {
+
+            return false;
+        }
     }
 }
