@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.boot.upgrade_27_30.helperrecipe;
+package org.springframework.sbm.boot.upgrade_27_30;
 
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.Tree;
 import org.openrewrite.internal.ListUtils;
 import org.openrewrite.internal.lang.Nullable;
@@ -38,19 +39,18 @@ public class ImplementTypedInterface<P> extends JavaIsoVisitor<P> {
     }
 
     public ImplementTypedInterface(J.ClassDeclaration scope, String interfaze, List<JavaType> typeParameters) {
-        this(scope, (JavaType.FullyQualified) JavaType.ShallowClass.build(interfaze), typeParameters);
+        this(scope, JavaType.ShallowClass.build(interfaze), typeParameters);
     }
 
-    public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, P p) {
+    @NotNull
+    public J.ClassDeclaration visitClassDeclaration(@NotNull J.ClassDeclaration classDecl, @NotNull P p) {
         J.ClassDeclaration c = super.visitClassDeclaration(classDecl, p);
-        if (c.isScope(this.scope) && (c.getImplements() == null || c.getImplements().stream().noneMatch((f) -> {
-            return TypeUtils.isAssignableTo(f.getType(), this.interfaceType);
-        }))) {
+        if (c.isScope(this.scope) && (c.getImplements() == null || c.getImplements().stream().noneMatch((f) -> TypeUtils.isAssignableTo(f.getType(), this.interfaceType)))) {
             if (!classDecl.getSimpleName().equals(this.interfaceType.getClassName())) {
                 this.maybeAddImport(this.interfaceType);
             }
 
-            TypeTree type = (TypeTree) TypeTree.build(classDecl.getSimpleName().equals(this.interfaceType.getClassName()) ? this.interfaceType.getFullyQualifiedName() : this.interfaceType.getClassName()).withType(this.interfaceType).withPrefix(Space.format(" "));
+            TypeTree type = TypeTree.build(classDecl.getSimpleName().equals(this.interfaceType.getClassName()) ? this.interfaceType.getFullyQualifiedName() : this.interfaceType.getClassName()).withType(this.interfaceType).withPrefix(Space.format(" "));
             if (typeParameters != null && !typeParameters.isEmpty() && typeParameters.stream().noneMatch(tp -> tp instanceof JavaType.GenericTypeVariable)) {
                 type = new J.ParameterizedType(UUID.randomUUID(), Space.EMPTY, Markers.EMPTY, type, buildTypeParameters(typeParameters));
             }
@@ -89,9 +89,7 @@ public class ImplementTypedInterface<P> extends JavaIsoVisitor<P> {
     private TypeTree buildTypeTree(@Nullable JavaType type, Space space) {
         if (type == null || type instanceof JavaType.Unknown) {
             return null;
-        } else if (type instanceof JavaType.FullyQualified) {
-
-            JavaType.FullyQualified fq = (JavaType.FullyQualified) type;
+        } else if (type instanceof JavaType.FullyQualified fq) {
 
             J.Identifier identifier = new J.Identifier(Tree.randomId(),
                     space,
@@ -120,9 +118,7 @@ public class ImplementTypedInterface<P> extends JavaIsoVisitor<P> {
                 maybeAddImport(fq);
                 return identifier;
             }
-        } else if (type instanceof JavaType.GenericTypeVariable) {
-            JavaType.GenericTypeVariable genericType = (JavaType.GenericTypeVariable) type;
-
+        } else if (type instanceof JavaType.GenericTypeVariable genericType) {
             if (!genericType.getName().equals("?")) {
                 return new J.Identifier(Tree.randomId(),
                         space,
