@@ -24,6 +24,7 @@ import org.springframework.sbm.project.resource.StringProjectResource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 public class CreateAutoconfigurationAction extends AbstractAction {
@@ -34,6 +35,22 @@ public class CreateAutoconfigurationAction extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
 
+        Optional<String> springAutoConfigProperties = getEnableAutoConfigFromSpringFactories(context);
+
+        if (springAutoConfigProperties.isPresent()) {
+
+            StringProjectResource springAutoconfigurationFile =
+                    new StringProjectResource(
+                            context.getProjectRootDirectory(),
+                            context.getProjectRootDirectory().resolve(AUTO_CONFIGURATION_IMPORTS),
+                            springAutoConfigProperties.get()
+                    );
+            context.getProjectResources().add(springAutoconfigurationFile);
+        }
+    }
+
+    private Optional<String> getEnableAutoConfigFromSpringFactories(ProjectContext context) {
+
         List<ProjectResource> search = context.search(
                 new PathPatternMatchingProjectResourceFinder(
                         SPRING_FACTORIES_PATH
@@ -42,22 +59,17 @@ public class CreateAutoconfigurationAction extends AbstractAction {
         if (search.size() > 0) {
             String oldConfigFile = search.get(0).print();
             Properties prop = new Properties();
+
             try {
                 prop.load(new ByteArrayInputStream(oldConfigFile.getBytes()));
                 String content = prop.getProperty("org.springframework.boot.autoconfigure.EnableAutoConfiguration");
-
-                StringProjectResource springAutoconfigurationFile =
-                        new StringProjectResource(
-                                context.getProjectRootDirectory(),
-                                context.getProjectRootDirectory().resolve(AUTO_CONFIGURATION_IMPORTS),
-                                content
-                        );
-                context.getProjectResources().add(springAutoconfigurationFile);
+                return Optional.ofNullable(content);
             } catch (IOException e) {
 
-                // TODO: Fix me
+                // TODO: Raise event or report
                 e.printStackTrace();
             }
         }
+        return Optional.empty();
     }
 }
