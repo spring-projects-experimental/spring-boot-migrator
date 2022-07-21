@@ -25,7 +25,7 @@
 
     <properties>
         <jar.name>spring-boot-migrator</jar.name>
-        <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>
+        <jaxb-maven-plugin.version>3.1.0</jaxb-maven-plugin.version>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
         <java.version>17</java.version>
