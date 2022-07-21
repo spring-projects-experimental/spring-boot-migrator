@@ -15,32 +15,49 @@
  */
 package org.springframework.sbm.boot.upgrade.common.actions;
 
-import org.jetbrains.annotations.NotNull;
-import org.openrewrite.Tree;
-import org.openrewrite.marker.Markers;
-import org.openrewrite.text.PlainText;
+import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.StringProjectResource;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Stream;
-
-import static java.nio.file.StandardOpenOption.WRITE;
-import static java.util.function.Predicate.not;
+import java.util.List;
+import java.util.Properties;
 
 public class CreateAutoconfigurationAction extends AbstractAction {
 
-    private static final String SPRING_FACTORIES_PATH = "src/main/resources/META-INF/spring.factories";
+    private static final String SPRING_FACTORIES_PATH = "/**/src/main/resources/META-INF/spring.factories";
     private static final String AUTO_CONFIGURATION_IMPORTS = "src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports";
 
     @Override
     public void apply(ProjectContext context) {
-        StringProjectResource springAutoconfigurationFile = new StringProjectResource(context.getProjectRootDirectory(), context.getProjectRootDirectory().resolve(AUTO_CONFIGURATION_IMPORTS), "");
-        context.getProjectResources().add(springAutoconfigurationFile);
-    }
 
+        List<ProjectResource> search = context.search(
+                new PathPatternMatchingProjectResourceFinder(
+                        SPRING_FACTORIES_PATH
+                ));
+
+        if (search.size() > 0) {
+            String oldConfigFile = search.get(0).print();
+            Properties prop = new Properties();
+            try {
+                prop.load(new ByteArrayInputStream(oldConfigFile.getBytes()));
+                String content = prop.getProperty("org.springframework.boot.autoconfigure.EnableAutoConfiguration");
+
+                StringProjectResource springAutoconfigurationFile =
+                        new StringProjectResource(
+                                context.getProjectRootDirectory(),
+                                context.getProjectRootDirectory().resolve(AUTO_CONFIGURATION_IMPORTS),
+                                content
+                        );
+                context.getProjectResources().add(springAutoconfigurationFile);
+            } catch (IOException e) {
+
+                // TODO: Fix me
+                e.printStackTrace();
+            }
+        }
+    }
 }
