@@ -47,7 +47,7 @@ public class ApplyShellCommand {
 
     @ShellMethod(key = {"apply", "a"}, value = "Apply a given recipe to the target application.")
     @ShellMethodAvailability("availabilityCheck")
-    public AttributedString apply(@ShellOption(help = "The name of the recipe to apply.") String recipeName) {
+    public AttributedString apply(@ShellOption(arity = 1, help = "The name of the recipe to apply.") String recipeName) {
         AttributedStringBuilder header = buildHeader(recipeName);
         System.out.println(header.toAnsi());
 

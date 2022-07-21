@@ -49,7 +49,7 @@ public class ScanShellCommand {
     @ShellMethod(key = {"scan", "s"},
             value = "Scans the target project directory and get the list of applicable recipes.")
     public String scan(
-            @ShellOption(defaultValue = ".", help = "The root directory of the target application.")
+            @ShellOption(arity = 1, defaultValue = ".", help = "The root directory of the target application.")
                     //@Pattern(regexp = "")
                     String projectRoot) {
 
