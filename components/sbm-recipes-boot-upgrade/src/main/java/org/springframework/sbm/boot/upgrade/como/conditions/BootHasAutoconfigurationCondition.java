@@ -15,17 +15,9 @@
  */
 package org.springframework.sbm.boot.upgrade.como.conditions;
 
-import org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction;
+import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Stream;
-
-import static java.util.function.Predicate.not;
-import static org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction.getAutoConfigurationPath;
 
 public class BootHasAutoconfigurationCondition implements Condition {
     @Override
@@ -35,13 +27,17 @@ public class BootHasAutoconfigurationCondition implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        try (Stream<Path> walkStream = Files.walk(context.getProjectRootDirectory())) {
-            return walkStream.filter(p -> p.toFile().isFile())
-                .map(Path::toAbsolutePath)
-                .filter(CreateAutoconfigurationAction::isSpringFactory)
-                .anyMatch(not(path -> Files.exists(getAutoConfigurationPath(path))));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+        return context
+                .search(new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/META-INF/spring.factories"))
+                .size() > 0;
+        //        try (Stream<Path> walkStream = Files.walk(context.getProjectRootDirectory())) {
+//            return walkStream.filter(p -> p.toFile().isFile())
+//                .map(Path::toAbsolutePath)
+//                .filter(CreateAutoconfigurationAction::isSpringFactory)
+//                .anyMatch(not(path -> Files.exists(getAutoConfigurationPath(path))));
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 }
