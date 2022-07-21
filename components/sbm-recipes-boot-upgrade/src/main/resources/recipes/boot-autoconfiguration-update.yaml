@@ -1,0 +1,11 @@
+- name: boot-autoconfiguration-update
+  description: Create org.springframework.boot.autoconfigure.AutoConfiguration.imports file for new spring 2.7
+  condition:
+    type: org.springframework.sbm.common.migration.conditions.TrueCondition
+
+  actions:
+
+    - type: org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction
+      description: Create auto config file.
+      condition:
+        type: org.springframework.sbm.boot.upgrade.como.conditions.BootHasAutoconfigurationCondition

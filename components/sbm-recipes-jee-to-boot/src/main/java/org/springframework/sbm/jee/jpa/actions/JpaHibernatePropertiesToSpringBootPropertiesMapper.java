@@ -58,17 +58,12 @@ class JpaHibernatePropertiesToSpringBootPropertiesMapper {
         jpaPropertiesMap.put("javax.persistence.provider", "");
         jpaPropertiesMap.put("javax.persistence.transactionType ", "");
         jpaPropertiesMap.put("javax.persistence.jtaDataSource", "");
-        jpaPropertiesMap.put("javax.persistence.nonJtaDataSource", ""); // JNDI -> rmeove ?!
+        jpaPropertiesMap.put("javax.persistence.nonJtaDataSource", ""); // JNDI -> remove ?!
         jpaPropertiesMap.put("javax.persistence.sharedCache.mode", "");
-        jpaPropertiesMap.put("javax.persistence.validation.mode", "");
     }
 
-    public Optional<SpringBootJpaProperty> map(Persistence.PersistenceUnit.Properties.Property p) {
-        Optional<SpringBootJpaProperty> springBootJpaProperty = Optional.empty();
-        if (jpaPropertiesMap.containsKey(p.getName())) {
-            String springJpaPropertyKey = jpaPropertiesMap.get(p.getName());
-            springBootJpaProperty = Optional.of(new SpringBootJpaProperty(springJpaPropertyKey, p.getValue()));
-        }
-        return springBootJpaProperty;
+    public Optional<SpringBootJpaProperty> map(Persistence.PersistenceUnit.Properties.Property property) {
+        return Optional.ofNullable(jpaPropertiesMap.get(property.getName()))
+            .map(springJpaPropertyKey -> new SpringBootJpaProperty(springJpaPropertyKey, property.getValue()));
     }
 }

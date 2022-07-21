@@ -18,6 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30;
 
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.*;
+import org.openrewrite.internal.lang.NonNullApi;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.J;
@@ -32,6 +33,7 @@ public class CrudRepositoryExtension extends Recipe {
     public static final String CRUD_REPOSITORY = "org.springframework.data.repository.CrudRepository";
 
     @Override
+    @NotNull
     public String getDisplayName() {
         return "Extends CrudRepository for Interfaces that extends PagingAndSortingRepository";
     }
@@ -40,7 +42,8 @@ public class CrudRepositoryExtension extends Recipe {
     protected @Nullable TreeVisitor<?, ExecutionContext> getApplicableTest() {
         return new JavaIsoVisitor<>() {
             @Override
-            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
+            @NotNull
+            public J.ClassDeclaration visitClassDeclaration(@NotNull J.ClassDeclaration classDecl, @NotNull ExecutionContext executionContext) {
                 return doesItExtendPagingAndSorting(classDecl) ? applyThisRecipe(classDecl) : ceaseVisit(classDecl);
             }
 
@@ -64,10 +67,12 @@ public class CrudRepositoryExtension extends Recipe {
     }
 
     @Override
+    @NotNull
     protected JavaIsoVisitor<ExecutionContext> getVisitor() {
         return new JavaIsoVisitor<>() {
             @Override
-            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
+            @NotNull
+            public J.ClassDeclaration visitClassDeclaration(@NotNull J.ClassDeclaration classDecl, @NotNull ExecutionContext executionContext) {
 
                 Optional<JavaType.FullyQualified> pagingInterface = getExtendPagingAndSorting(classDecl);
                 if (pagingInterface.isEmpty()) {

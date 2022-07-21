@@ -86,7 +86,7 @@ class NoRepositoryExistsConditionTest {
         noRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
         boolean noRepositoryExists = noRepositoryExistsCondition.evaluate(context);
 
-        assertThat(noRepositoryExists).isTrue();
+        assertThat(noRepositoryExists).isFalse();
     }
 
     @Test
@@ -185,7 +185,7 @@ class NoRepositoryExistsConditionTest {
         noRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
         boolean noRepositoryExists = noRepositoryExistsCondition.evaluate(context);
 
-        assertThat(noRepositoryExists).isTrue();
+        assertThat(noRepositoryExists).isFalse();
     }
 
     @Test

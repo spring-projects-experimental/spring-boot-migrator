@@ -21,8 +21,6 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.project.resource.ProjectResource;
 
-import java.util.List;
-
 /**
  * Delete files matching path pattern.
  *
@@ -35,7 +33,6 @@ public class DeleteFileMatchingPattern extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
-        List<ProjectResource> search = context.search(new PathPatternMatchingProjectResourceFinder(pattern));
-        search.stream().forEach(ProjectResource::delete);
+        context.search(new PathPatternMatchingProjectResourceFinder(pattern)).forEach(ProjectResource::delete);
     }
 }

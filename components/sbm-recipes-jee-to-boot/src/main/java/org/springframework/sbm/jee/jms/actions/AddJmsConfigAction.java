@@ -16,16 +16,21 @@
 package org.springframework.sbm.jee.jms.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
-import org.springframework.sbm.build.api.ApplicationModule;
-import org.springframework.sbm.build.api.JavaSourceSet;
-import org.springframework.sbm.engine.recipe.AbstractAction;
-import org.springframework.sbm.java.api.*;
-import org.springframework.sbm.engine.context.ProjectContext;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
+import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.JavaSourceSet;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.java.api.Annotation;
+import org.springframework.sbm.java.api.Expression;
+import org.springframework.sbm.java.api.JavaSource;
+import org.springframework.sbm.java.api.JavaSourceLocation;
+import org.springframework.sbm.java.api.Member;
+import org.springframework.sbm.java.api.Type;
 
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -63,16 +68,15 @@ public class AddJmsConfigAction extends AbstractAction {
         Map<String, String> allQueues = findAllQueues(mainJavaSourceSet);
         params.put("queues", allQueues);
 
-        StringWriter writer = new StringWriter();
-        try {
+        try(StringWriter writer = new StringWriter()) {
             Template template = configuration.getTemplate("jms-config.ftl");
             template.process(params, writer);
+            String src = writer.toString();
+            mainJavaSourceSet.addJavaSource(module.getProjectRootDirectory(), src, location.getPackageName());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        String src = writer.toString();
-        mainJavaSourceSet.addJavaSource(module.getProjectRootDirectory(), location.getSourceFolder(), src, location.getPackageName());
     }
 
     private Map<String, String> findAllQueues(JavaSourceSet javaSourceSet) {
