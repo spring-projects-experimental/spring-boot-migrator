@@ -20,6 +20,9 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
 public class BootHasAutoconfigurationCondition implements Condition {
+
+    public static final String AUTO_CONFIGURATION_PROPERTY = "org.springframework.boot.autoconfigure.EnableAutoConfiguration";
+
     @Override
     public String getDescription() {
         return "Check if there is autoconfiguration";
@@ -29,8 +32,8 @@ public class BootHasAutoconfigurationCondition implements Condition {
     public boolean evaluate(ProjectContext context) {
 
         return context
-                .search(new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/META-INF/spring.factories"))
-                .size() > 0;
+                .search(new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/META-INF/spring.factories")).stream()
+                .anyMatch(r -> r.print().contains(AUTO_CONFIGURATION_PROPERTY));
         //        try (Stream<Path> walkStream = Files.walk(context.getProjectRootDirectory())) {
 //            return walkStream.filter(p -> p.toFile().isFile())
 //                .map(Path::toAbsolutePath)

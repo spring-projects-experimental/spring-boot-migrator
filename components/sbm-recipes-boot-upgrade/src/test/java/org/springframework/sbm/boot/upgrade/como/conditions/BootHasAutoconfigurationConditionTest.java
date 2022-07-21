@@ -60,6 +60,19 @@ class BootHasAutoconfigurationConditionTest {
         assertThat(condition.evaluate(context)).isFalse();
     }
 
+    @Test
+    void shouldOnlyDetectIfPropertyKeyIsRight() {
+
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .addProjectResource(
+                        "src/main/resources/META-INF/spring.factories",
+                        "Hello World org.springframework.boot.autoconfigure.EnableAutoConfiguration"
+                )
+                .build();
+
+        BootHasAutoconfigurationCondition condition = new BootHasAutoconfigurationCondition();
+        assertThat(condition.evaluate(context)).isFalse();
+    }
 
 //    @Test
 //    void shouldBeFalseForSpringFactoriesWithoutEnableAutoConfigurationKey() {
