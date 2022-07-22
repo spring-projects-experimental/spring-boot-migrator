@@ -47,6 +47,12 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyPropertyConfigurationUpdate();
         verifyConstructorBindingRemoval();
         verifyCrudRepoAddition();
+        verifyAutoConfigurationIsRefactored();
+    }
+
+    private void verifyAutoConfigurationIsRefactored() {
+        String autoConfig = loadFile(Path.of("src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports"));
+        assertThat(autoConfig).isEqualTo("com.hello.GreetingConfig");
     }
 
     private void verifyCrudRepoAddition() {
