@@ -15,8 +15,6 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
-import org.springframework.sbm.boot.asciidoctor.ChangeSection;
-import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
@@ -41,22 +39,6 @@ class Boot_24_25_SqlScriptDataSourceInitializationTest {
 
         boolean isApplicable = sut.isApplicable(projectContext);
         assertThat(isApplicable).isTrue();
-    }
-
-    @Test
-    @Disabled("TODO: provide test or delete as it's already tested by Boot_24_25_UpgradeReportRecipeTest")
-    void testApply() {
-        String applicationPropertiesLines =
-                "spring.datasource.continue-on-error=spring.sql.init.continue-on-error";
-
-        ProjectContext projectContext = getProjectContext(applicationPropertiesLines);
-
-        Boot_24_25_SqlScriptDataSourceInitialization sut = new Boot_24_25_SqlScriptDataSourceInitialization();
-
-        RelevantChangeSection section = (RelevantChangeSection) sut.build(projectContext);
-
-        ChangeSection changeSection = section.getChangeSectionBuilder().build();
-//        assertThat(changeSection.getRelevanceSection().getParagraphs().get(0))
     }
 
     private ProjectContext getProjectContext(String applicationPropertiesLines) {
