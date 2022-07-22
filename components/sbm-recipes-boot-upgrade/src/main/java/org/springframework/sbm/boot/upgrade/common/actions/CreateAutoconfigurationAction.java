@@ -81,8 +81,7 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                     context.getProjectRootDirectory().resolve(SPRING_FACTORIES_FILE),
                     springUpdatedSpringFactories);
         } catch (IOException e) {
-            // TODO: Raise event or report
-            e.printStackTrace();
+            throw new RuntimeException("Error whilst reading property file", e);
         }
     }
 
@@ -105,8 +104,7 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                 prop.load(new ByteArrayInputStream(oldConfigFile.getBytes()));
                 return Optional.of(prop);
             } catch (IOException e) {
-                // TODO: Raise event or report
-                e.printStackTrace();
+                throw new RuntimeException("Error whilst reading property file " + SPRING_FACTORIES_PATH, e);
             }
         }
         return Optional.empty();

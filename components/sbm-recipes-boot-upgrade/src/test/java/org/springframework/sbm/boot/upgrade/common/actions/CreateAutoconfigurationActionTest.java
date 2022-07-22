@@ -41,9 +41,9 @@ class CreateAutoconfigurationActionTest {
                 .addProjectResource(
                         "src/main/resources/META-INF/spring.factories",
                         """
-                        hello.world=something
-                        org.springframework.boot.autoconfigure.EnableAutoConfiguration=XYZ
-                        """
+                                hello.world=something
+                                org.springframework.boot.autoconfigure.EnableAutoConfiguration=XYZ
+                                """
                 )
                 .build();
         action = new CreateAutoconfigurationAction();
@@ -82,12 +82,12 @@ class CreateAutoconfigurationActionTest {
                 .addProjectResource(
                         "src/main/resources/META-INF/spring.factories",
                         """
-                        hello.world=something
-                        org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-                        XYZ,\
-                        ABC,\
-                        DEF
-                        """
+                                hello.world=something
+                                org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+                                XYZ,\
+                                ABC,\
+                                DEF
+                                """
                 )
                 .build();
 
@@ -96,14 +96,11 @@ class CreateAutoconfigurationActionTest {
         String content = getNewAutoConfigFile();
 
         assertThat(content).isEqualTo("""
-            XYZ
-            ABC
-            DEF"""
+                XYZ
+                ABC
+                DEF"""
         );
     }
-
-
-    //TODO: test when there is runtime exceptions
 
     private String getNewAutoConfigFile() {
         return getFileAsProjectResource(
