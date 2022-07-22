@@ -96,11 +96,14 @@ class CreateAutoconfigurationActionTest {
         String content = getNewAutoConfigFile();
 
         assertThat(content).isEqualTo("""
-    XYZ
-    ABC
-    DEF""");
+            XYZ
+            ABC
+            DEF"""
+        );
     }
 
+
+    //TODO: test when there is runtime exceptions
 
     private String getNewAutoConfigFile() {
         return getFileAsProjectResource(
