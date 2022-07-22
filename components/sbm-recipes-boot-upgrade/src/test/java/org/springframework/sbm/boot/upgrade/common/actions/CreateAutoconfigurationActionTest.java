@@ -32,8 +32,8 @@ class CreateAutoconfigurationActionTest {
     private ProjectContext context;
     private CreateAutoconfigurationAction action;
 
-    private final String newAutoConfigFile = "/**/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports";
-    private final String existingSpringFactoriesFile = "/**/src/main/resources/META-INF/spring.factories";
+    private final static String NEW_AUTO_CONFIG_FILE = "/**/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports";
+    private final static String EXISTING_SPRING_FACTORIES_FILE = "/**/src/main/resources/META-INF/spring.factories";
 
     @BeforeEach
     public void setup() {
@@ -53,7 +53,7 @@ class CreateAutoconfigurationActionTest {
     public void autoConfigurationImportsIsGenerated() {
         action.apply(context);
 
-        assertThat(getFileAsProjectResource(newAutoConfigFile)).hasSize(1);
+        assertThat(getFileAsProjectResource(NEW_AUTO_CONFIG_FILE)).hasSize(1);
     }
 
     @Test
@@ -114,6 +114,6 @@ class CreateAutoconfigurationActionTest {
 
     private String getSpringFactoryFile() {
 
-        return getFileAsProjectResource(existingSpringFactoriesFile).get(0).print();
+        return getFileAsProjectResource(EXISTING_SPRING_FACTORIES_FILE).get(0).print();
     }
 }
