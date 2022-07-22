@@ -393,6 +393,15 @@ public class TestProjectContext {
             return this;
         }
 
+        public Builder withMavenBuildFileSource(String sourceDir, String pomSource) {
+            Path sourcePath = Path.of(sourceDir);
+            if(!sourceDir.endsWith("pom.xml")) {
+                sourcePath = sourcePath.resolve("pom.xml");
+            }
+            this.addProjectResource(sourcePath, pomSource);
+            return this;
+        }
+
         public Builder withMockedBuildFile(OpenRewriteMavenBuildFile mockedBuildFile) {
             if (containsAnyPomXml() || !dependencyCoordinates.isEmpty())
                 throw new IllegalArgumentException("ProjectContext already contains pom.xml files.");
