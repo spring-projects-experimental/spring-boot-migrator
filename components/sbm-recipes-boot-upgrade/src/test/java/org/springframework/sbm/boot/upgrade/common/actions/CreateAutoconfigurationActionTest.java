@@ -76,6 +76,31 @@ class CreateAutoconfigurationActionTest {
                 """);
     }
 
+    @Test
+    public void shouldMoveMultipleProperties() {
+        context = TestProjectContext.buildProjectContext()
+                .addProjectResource(
+                        "src/main/resources/META-INF/spring.factories",
+                        """
+                        hello.world=something
+                        org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+                        XYZ,\
+                        ABC,\
+                        DEF
+                        """
+                )
+                .build();
+
+        action.apply(context);
+
+        String content = getNewAutoConfigFile();
+
+        assertThat(content).isEqualTo("""
+    XYZ
+    ABC
+    DEF""");
+    }
+
 
     private String getNewAutoConfigFile() {
         return getFileAsProjectResource(
