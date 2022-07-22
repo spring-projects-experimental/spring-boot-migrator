@@ -23,19 +23,28 @@ import org.springframework.sbm.project.resource.StringProjectResource;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 public class CreateAutoconfigurationAction extends AbstractAction {
 
     private static final String SPRING_FACTORIES_PATH = "/**/src/main/resources/META-INF/spring.factories";
+    private static final String SPRING_FACTORIES_FILE = "src/main/resources/META-INF/spring.factories";
     private static final String AUTO_CONFIGURATION_IMPORTS = "src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports";
+    public static final String ENABLE_AUTO_CONFIGURATION_KEY = "org.springframework.boot.autoconfigure.EnableAutoConfiguration";
+    public static final Pattern COMMENT_REGEX = Pattern.compile("^#.*(\r|\n)+");
 
     @Override
     public void apply(ProjectContext context) {
+        Optional<Properties> props = getSpringFactoriesProperties(context);
+        if (props.isEmpty()) {
+            return;
+        }
 
-        Optional<String> springAutoConfigProperties = getEnableAutoConfigFromSpringFactories(context);
+        Optional<String> springAutoConfigProperties = getEnableAutoConfigFromSpringFactories(props.get());
 
         if (springAutoConfigProperties.isPresent()) {
 
@@ -46,11 +55,39 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                             springAutoConfigProperties.get()
                     );
             context.getProjectResources().add(springAutoconfigurationFile);
+
+            removeAutoConfigKeyFromSpringFactories(props.get(), context);
         }
     }
 
-    private Optional<String> getEnableAutoConfigFromSpringFactories(ProjectContext context) {
+    private void removeAutoConfigKeyFromSpringFactories(Properties props, ProjectContext context) {
+        try {
+            props.remove(ENABLE_AUTO_CONFIGURATION_KEY);
+            StringWriter stringWriter = new StringWriter();
+            props.store(stringWriter, null);
+            String propertiesWithoutComment = COMMENT_REGEX.matcher(stringWriter.toString()).replaceAll("");
 
+            StringProjectResource springUpdatedSpringFactories =
+                    new StringProjectResource(
+                            context.getProjectRootDirectory(),
+                            context.getProjectRootDirectory().resolve(SPRING_FACTORIES_FILE),
+                            propertiesWithoutComment
+                    );
+            context.getProjectResources().replace(
+                    context.getProjectRootDirectory().resolve(SPRING_FACTORIES_FILE),
+                    springUpdatedSpringFactories);
+        } catch (IOException e) {
+            // TODO: Raise event or report
+            e.printStackTrace();
+        }
+    }
+
+    private Optional<String> getEnableAutoConfigFromSpringFactories(Properties props) {
+        String content = props.getProperty(ENABLE_AUTO_CONFIGURATION_KEY);
+        return Optional.ofNullable(content);
+    }
+
+    private Optional<Properties> getSpringFactoriesProperties(ProjectContext context) {
         List<ProjectResource> search = context.search(
                 new PathPatternMatchingProjectResourceFinder(
                         SPRING_FACTORIES_PATH
@@ -62,10 +99,8 @@ public class CreateAutoconfigurationAction extends AbstractAction {
 
             try {
                 prop.load(new ByteArrayInputStream(oldConfigFile.getBytes()));
-                String content = prop.getProperty("org.springframework.boot.autoconfigure.EnableAutoConfiguration");
-                return Optional.ofNullable(content);
+                return Optional.of(prop);
             } catch (IOException e) {
-
                 // TODO: Raise event or report
                 e.printStackTrace();
             }
