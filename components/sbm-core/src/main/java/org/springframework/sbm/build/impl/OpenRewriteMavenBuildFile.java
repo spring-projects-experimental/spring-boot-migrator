@@ -233,7 +233,10 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                         return true;
                     } else {
                         // FIXME: scope test should also return compile!
-                        return Arrays.asList(scopes).stream().anyMatch(scope -> scope.toString().equals(d.getScope()));
+                        return Arrays.asList(scopes).stream().anyMatch(scope -> {
+                            String effectiveScope = d.getScope() == null ? "compile" : d.getScope();
+                            return scope.toString().equalsIgnoreCase(effectiveScope);
+                        });
                     }
                 })
                 .map(d -> mapDependency(d))
