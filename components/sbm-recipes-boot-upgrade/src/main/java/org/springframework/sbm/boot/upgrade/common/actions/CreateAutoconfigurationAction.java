@@ -48,11 +48,15 @@ public class CreateAutoconfigurationAction extends AbstractAction {
 
         if (springAutoConfigProperties.isPresent()) {
 
+            String autoConfigString = springAutoConfigProperties
+                    .get()
+                    .replaceAll(",", "\\\n");
+
             StringProjectResource springAutoconfigurationFile =
                     new StringProjectResource(
                             context.getProjectRootDirectory(),
                             context.getProjectRootDirectory().resolve(AUTO_CONFIGURATION_IMPORTS),
-                            springAutoConfigProperties.get()
+                            autoConfigString
                     );
             context.getProjectResources().add(springAutoconfigurationFile);
 
