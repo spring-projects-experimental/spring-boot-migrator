@@ -30,8 +30,10 @@ import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.java.api.Type;
+import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.api.MuleMigrationContext;
 import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
+import org.springframework.sbm.mule.api.toplevel.AbstractTopLevelElement;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElement;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.UnknownTopLevelElement;
@@ -53,6 +55,8 @@ public class JavaDSLAction2 extends AbstractAction {
     private static final String SPRING_CONFIGURATION_ANNOTATION = "org.springframework.context.annotation.Configuration";
     private final MuleMigrationContextFactory muleMigrationContextFactory;
     private final Map<Class<?>, TopLevelElementFactory> topLevelTypeMap;
+
+    private boolean muleTriggerMeshTransformEnabled;
 
     @Autowired
     public JavaDSLAction2(MuleMigrationContextFactory muleMigrationContextFactory, List<TopLevelElementFactory> topLevelTypeFactories) {
@@ -109,6 +113,11 @@ public class JavaDSLAction2 extends AbstractAction {
 
         buildFile.addDependencies(new ArrayList<>(dependencies));
         endProcess();
+
+        if (muleTriggerMeshTransformEnabled) {
+            logEvent("Adding TriggerMesh Dataweave payload class");
+            createClass(context, createTmDwPayloadClass(context));
+        }
 
         logEvent("Adding " + topLevelElements.size() + " methods");
         topLevelElements.forEach(topLevelElement -> {
@@ -228,4 +237,25 @@ public class JavaDSLAction2 extends AbstractAction {
                 .findFirst()
                 .get();
     }
+
+    public void setMuleTriggerMeshTransformEnabled(boolean mode) {
+        this.muleTriggerMeshTransformEnabled = mode;
+    }
+
+    private String createTmDwPayloadClass(ProjectContext projectContext) {
+        JavaSourceSet mainJavaSourceSet = projectContext.getApplicationModules().getTopmostApplicationModules().get(0).getMainJavaSourceSet();
+        String packageName = mainJavaSourceSet.getJavaSourceLocation().getPackageName();
+        return "package " + packageName + ";\n" +
+                        "import " + SPRING_CONFIGURATION_ANNOTATION + ";\n\n" +
+                        "import lombok.Data;\n\n" +
+                        "/* Included with the baseline to support bridging between the Flow configuration and the translation implementation. */\n\n" +
+                        "@Data\n" +
+                        "public class TmDwPayload {\n" +
+                        "    private String id;\n" +
+                        "    private String source;\n" +
+                        "    private String sourceType;\n" +
+                        "    private String payload;\n" +
+                        "}\n";
+    }
+
 }

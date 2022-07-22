@@ -38,6 +38,15 @@ Base Package: ${sbm.defaultBasePackage}
 
     Use -Dsbm.defaultBasePackage=com.acme.packagename as VM parameter on startup to set the property.
 
+TriggerMesh transformation support of Dataweave: ${sbm.muleTriggerMeshTransformEnabled}
+
+    - When applying the mule-to-boot recipe, use `sbm.muleTriggerMeshTransformEnabled` to
+      generate the code required to send the Dataweave transformation to TriggerMesh using
+      the TriggerMesh Dataweave transformation service (https://docs.triggermesh.io/guides/dataweavetransformation/).
+    - This will require a TriggerMesh transformation exist on your Kubernetes cluster to function. When running the
+      service, be sure to set the `K_SINK` environment variable to your exposed service URL.
+
+    Use -Dsbm.muleTriggerMeshTransformEnabled=true|false as VM parameter on startup to set property.
 
 Get Started:
 ------------

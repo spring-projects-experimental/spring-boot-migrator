@@ -88,7 +88,7 @@ import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.
         ProjectResourceSetHolder.class,
         JavaRefactoringFactoryImpl.class,
         ProjectResourceWrapperRegistry.class
-}, properties = {"sbm.gitSupportEnabled=false"})
+}, properties = {"sbm.gitSupportEnabled=false", "sbm.muleTriggerMeshTransformEnabled=false"})
 class ProjectContextInitializerTest {
 
     private final Path projectDirectory = Path.of("./testcode/path-scanner").toAbsolutePath().normalize();
