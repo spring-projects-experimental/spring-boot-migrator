@@ -16,38 +16,27 @@
 
 package org.springframework.sbm.boot.upgrade_27_30.checks;
 
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.java.tree.JavaType;
-import org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionCheck;
-import org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionCheckResult;
 import org.springframework.sbm.build.api.ApplicationModule;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.precondition.PreconditionCheck;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
-public class DatabaseDriverGaeCheck implements Sbu30_PreconditionCheck {
+public class DatabaseDriverGaeFinder {
 
-    @Override
-    public Sbu30_PreconditionCheckResult run(ProjectContext context) {
-
-        Set<ApplicationModule> collect = context.getApplicationModules()
+    @NotNull
+    public Set<ApplicationModule> findMatches(ProjectContext context) {
+        return context.getApplicationModules()
                 .stream()
                 .filter(this::hasClassAppEngineDriverOnClasspath)
                 .collect(Collectors.toSet());
-
-        if(collect.isEmpty()) {
-            return  new Sbu30_PreconditionCheckResult(PreconditionCheck.ResultState.PASSED, "No dependency to Google AppEngine's AppEngineDriver found.");
-        } else {
-            String message = "Dependencies containing 'com.google.appengine.api.rdbms.AppEngineDriver' were found in these modules: '" + collect.stream().map(m -> m.getBuildFile().getCoordinates()).collect(Collectors.joining("', '")) + "'";
-            return new Sbu30_PreconditionCheckResult(PreconditionCheck.ResultState.FAILED, message);
-        }
     }
 
     private boolean hasClassAppEngineDriverOnClasspath(ApplicationModule m) {
@@ -60,6 +49,7 @@ public class DatabaseDriverGaeCheck implements Sbu30_PreconditionCheck {
                     }
                 });
     }
+
 
     private boolean dependsOn(JavaSource js, String s) {
         if (OpenRewriteJavaSource.class.isInstance(js)) {

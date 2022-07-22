@@ -24,7 +24,7 @@ import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DatabaseDriverGaeCheckTest {
+class DatabaseDriverGaeSectionBuilderTest {
 
     @Test
     void checkShouldFailWhenAppEngineDriverIsFoundOnClasspath() {
@@ -40,11 +40,11 @@ class DatabaseDriverGaeCheckTest {
                         "}";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1", "com.google.appengine:appengine-api-1.0-sdk:1.9.17")
+                .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1"/*, "com.google.appengine:appengine-api-1.0-sdk:1.9.17"*/)
                 .addJavaSource("src/main/java", javaClass)
                 .build();
 
-        Sbu30_PreconditionCheckResult result = new DatabaseDriverGaeCheck().run(context);
+        Sbu30_PreconditionCheckResult result = new DatabaseDriverGaeSectionBuilder(new DatabaseDriverGaeFinder()).run(context);
 
         assertThat(result.getState()).isEqualTo(PreconditionCheck.ResultState.FAILED);
         assertThat(result.getMessage()).isEqualTo("Dependencies containing 'com.google.appengine.api.rdbms.AppEngineDriver' were found in these modules: 'com.example:dummy-root:0.1.0-SNAPSHOT'");

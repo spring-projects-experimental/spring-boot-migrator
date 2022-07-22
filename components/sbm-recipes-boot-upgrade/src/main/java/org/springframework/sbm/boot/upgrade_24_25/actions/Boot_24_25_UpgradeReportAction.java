@@ -17,6 +17,8 @@ package org.springframework.sbm.boot.upgrade_24_25.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.sbm.boot.upgrade.common.UpgradeReportUtil;
+import org.springframework.sbm.boot.upgrade.common.conditions.IsMatchingSpringBootVersion;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.Section;
@@ -74,39 +76,19 @@ public class Boot_24_25_UpgradeReportAction extends AbstractAction {
         Section introductionSection = new Boot_24_25_Introduction().build(projectContext);
         params.put("introductionSection", introductionSection);
         params.put("changeSections", sections);
-        String markdown = renderMarkdown(params);
-        String html = renderHtml(markdown);
+        String markdown = UpgradeReportUtil.renderMarkdown(params, configuration);
+        String html = UpgradeReportUtil.renderHtml(markdown);
         Path htmlPath = projectContext.getProjectRootDirectory().resolve(Path.of("Upgrade-Spring-Boot-2.4-to-2.5.html"));
         projectContext.getProjectResources().add(new StringProjectResource(projectContext.getProjectRootDirectory(), htmlPath, html));
     }
 
-    private String renderMarkdown(Map<String, Object> params) {
-        try(StringWriter writer = new StringWriter()) {
-            Template template = configuration.getTemplate("upgrade-asciidoc.ftl");
-            template.process(params, writer);
-            return writer.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    private String renderHtml(String markdown) {
-            Asciidoctor asciidoctor = Asciidoctor.Factory.create();
-            String html = asciidoctor.convert(markdown,
-                    Options.builder()
-                            .toFile(true)
-                            .backend("html5")
-                            .headerFooter(true)
-                            .safe(SafeMode.UNSAFE)
-                            .build());
-            return html;
-    }
 
 
     @Override
     public boolean isApplicable(ProjectContext context) {
         // Verify it's a 2.4.x Spring Boot project
-        return true;
+        return new IsMatchingSpringBootVersion("2.4.").evaluate(context);
     }
 
     @Getter
