@@ -31,17 +31,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ScanValueProviderTest {
 
     @Test
-    void testScanWithSucceedingPreconditionChecksShouldPrintResultAndRenderApplicableRecipes() {
+    void completeWithPartialInputShouldOnlyProposeMatchingPrefix() {
 
+        // Build up arguments to complete method call
         Method scan = ReflectionUtils.findMethod(ScanShellCommand.class, "scan", String.class);
         MethodParameter methodParameter = Utils.createMethodParameter(scan, 0);
         CompletionContext completionContext = new CompletionContext(Arrays.asList("scan", "sr"), 1, 2);
 
+        // Create value provider instance
         ScanValueProvider valueProvider = new ScanValueProvider();
         assertThat(valueProvider.supports(methodParameter, completionContext)).isTrue();
 
+        // Invoke to get proposals
         List<CompletionProposal> proposals = valueProvider.complete(methodParameter, completionContext, new String[0]);
 
+        // Validate returned proposals
         assertThat(proposals).extracting("value", String.class).containsOnly("src");
 
     }
