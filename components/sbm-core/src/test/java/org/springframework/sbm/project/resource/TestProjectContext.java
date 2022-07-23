@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.project.resource;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.Parser;
 import org.openrewrite.java.JavaParser;
@@ -26,6 +25,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
+import org.springframework.sbm.build.migration.MavenPomCacheProvider;
 import org.springframework.sbm.build.resource.BuildFileResourceWrapper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
@@ -37,8 +37,16 @@ import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.TestDummyResource;
-import org.springframework.sbm.project.parser.*;
+import org.springframework.sbm.project.parser.DependencyHelper;
+import org.springframework.sbm.project.parser.JavaProvenanceMarkerFactory;
+import org.springframework.sbm.project.parser.MavenProjectParser;
+import org.springframework.sbm.project.parser.ProjectContextInitializer;
+import org.springframework.sbm.project.parser.ResourceParser;
+import org.springframework.sbm.project.parser.RewriteJsonParser;
+import org.springframework.sbm.project.parser.RewritePlainTextParser;
+import org.springframework.sbm.project.parser.RewriteYamlParser;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 
@@ -46,7 +54,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
@@ -488,7 +502,8 @@ public class TestProjectContext {
             when(gitSupport.repoExists(projectRoot.toFile())).thenReturn(true);
             when(gitSupport.getLatestCommit(projectRoot.toFile())).thenReturn(Optional.empty());
 
-            ProjectContextInitializer projectContextInitializer = new ProjectContextInitializer(projectContextFactory, mavenProjectParser, gitSupport);
+            RewriteSourceFileWrapper wrapper = new RewriteSourceFileWrapper();
+            ProjectContextInitializer projectContextInitializer = new ProjectContextInitializer(projectContextFactory, mavenProjectParser, gitSupport, wrapper);
             return projectContextInitializer;
         }
 
@@ -531,7 +546,7 @@ public class TestProjectContext {
         }
 
         private Parser.Input createParserInput(Path path, String value) {
-            return new Parser.Input(path, () -> new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)), true);
+            return new Parser.Input(path, null, () -> new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)), true);
         }
 
 
@@ -546,17 +561,25 @@ public class TestProjectContext {
                     "    <packaging>jar</packaging>\n" +
                     "{{dependencies}}\n" +
                     "</project>\n";
-            StringBuilder dependenciesSection = new StringBuilder("    ").append("<dependencies>").append("\n");
-            dependencyHelper.mapCoordinatesToDependencies(dependencyCoordinates).stream().forEach(dependency -> {
-                dependenciesSection.append("    ").append("    ").append("<dependency>").append("\n");
-                dependenciesSection.append("    ").append("    ").append("    ").append("<groupId>").append(dependency.getGroupId()).append("</groupId>").append("\n");
-                dependenciesSection.append("    ").append("    ").append("    ").append("<artifactId>").append(dependency.getArtifactId()).append("</artifactId>").append("\n");
-                dependenciesSection.append("    ").append("    ").append("    ").append("<version>").append(dependency.getVersion()).append("</version>").append("\n");
-                dependenciesSection.append("    ").append("    ").append("</dependency>").append("\n");
-            });
-            dependenciesSection.append("    ").append("</dependencies>").append("\n");
-            String buildFileSource = xml.replace("{{dependencies}}", dependenciesSection.toString());
 
+            String dependenciesText = null;
+            if(dependencyCoordinates.isEmpty()) {
+                dependenciesText = "";
+            } else {
+                StringBuilder dependenciesSection = new StringBuilder();
+                dependenciesSection.append("    ").append("<dependencies>").append("\n");
+                dependencyHelper.mapCoordinatesToDependencies(dependencyCoordinates).stream().forEach(dependency -> {
+                    dependenciesSection.append("    ").append("    ").append("<dependency>").append("\n");
+                    dependenciesSection.append("    ").append("    ").append("    ").append("<groupId>").append(dependency.getGroupId()).append("</groupId>").append("\n");
+                    dependenciesSection.append("    ").append("    ").append("    ").append("<artifactId>").append(dependency.getArtifactId()).append("</artifactId>").append("\n");
+                    dependenciesSection.append("    ").append("    ").append("    ").append("<version>").append(dependency.getVersion()).append("</version>").append("\n");
+                    dependenciesSection.append("    ").append("    ").append("</dependency>").append("\n");
+                });
+                dependenciesSection.append("    ").append("</dependencies>").append("\n");
+                dependenciesText = dependenciesSection.toString();
+            }
+
+            String buildFileSource = xml.replace("{{dependencies}}", dependenciesText);
             return buildFileSource;
         }
 

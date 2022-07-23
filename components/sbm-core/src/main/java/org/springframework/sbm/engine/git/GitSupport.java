@@ -128,14 +128,10 @@ public class GitSupport {
      *
      * @param repo the location of the repo to search for. {@code .git} is added to file location if not contained
      */
-    public Repository getRepository(File repo) {
+    public static Repository findRepository(File repo) {
         try {
-            FileRepositoryBuilder builder = new FileRepositoryBuilder();
-            if (!repo.toString().endsWith(".git")) {
-                repo = repo.toPath().resolve(".git").toFile();
-            }
-            return builder
-                    .setGitDir(repo)
+            return new FileRepositoryBuilder()
+                    .findGitDir(repo)
                     .setMustExist(true)
                     .build();
         } catch (IOException e) {
@@ -150,6 +146,8 @@ public class GitSupport {
      */
     public static Git initGit(File repo) {
         try {
+            Repository repository = findRepository(repo);
+            repo = repository.getDirectory();
             if(repo.toPath().toString().endsWith(".git")) {
                 repo = repo.toPath().getParent().toAbsolutePath().normalize().toFile();
             }
@@ -225,7 +223,7 @@ public class GitSupport {
     public boolean repoExists(File repoDir) {
         if (repoDir == null) return false;
         try {
-            getRepository(repoDir);
+            findRepository(repoDir);
             return true;
         } catch (RepositoryNotFoundException e) {
             return false;
@@ -249,7 +247,7 @@ public class GitSupport {
     public static Optional<String> getBranchName(File repo) {
         Git git = initGit(repo);
         try {
-            return Optional.of(git.getRepository().getBranch());
+            return Optional.ofNullable(git.getRepository().getBranch());
         } catch (IOException e) {
             return Optional.empty();
         }

@@ -36,7 +36,7 @@ public class SwapFamilyForSeries extends Recipe {
                 )
         );
 
-        doNext(new ChangeType("javax.ws.rs.core.Response.Status.Family", "org.springframework.http.HttpStatus.Series", false));
+        doNext(new ChangeType("javax.ws.rs.core.Response$Status$Family", "org.springframework.http.HttpStatus$Series", true));
 
     }
 

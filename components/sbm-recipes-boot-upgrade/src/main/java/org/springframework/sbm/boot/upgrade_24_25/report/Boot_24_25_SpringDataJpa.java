@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
@@ -24,10 +25,13 @@ import org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_SpringDa
 import org.springframework.sbm.boot.upgrade_24_25.filter.SpringDataJpaAnalyzer;
 import org.springframework.sbm.java.api.MethodCall;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
 
+@Component
+@Order(25_005)
 public class Boot_24_25_SpringDataJpa implements UpgradeSectionBuilder {
 
 

@@ -12,10 +12,9 @@ import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.core.MethodParameter;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ValueProviderSupport;
+import org.springframework.shell.standard.ValueProvider;
 import org.springframework.stereotype.Component;
 
 import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
@@ -27,11 +26,10 @@ import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
  * @author Tim te Beek
  */
 @Component
-class ScanValueProvider extends ValueProviderSupport { // extend to only complete for exact type matches
+class ScanValueProvider implements ValueProvider { // extend to only complete for exact type matches
 
     @Override
-    public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext,
-            String[] hints) {
+    public List<CompletionProposal> complete(CompletionContext completionContext) {
         String input = completionContext.currentWordUpToCursor();
         int lastSlash = input.lastIndexOf(File.separatorChar);
         Path dir = lastSlash > -1 ? Paths.get(input.substring(0, lastSlash + 1)) : Paths.get("");

@@ -16,8 +16,13 @@
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.java.MethodMatcher;
+import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaType;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.java.api.Method;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class Boot_24_25_SpringDataJpaTest {
 
     @Test
-    @Disabled("FIXME")
+    @Disabled("FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/205")
     void isApplicable_withCallsToGetOne_shouldReturnTrue() {
         String model =
                 "package com.example;\n" +
@@ -34,9 +39,7 @@ class Boot_24_25_SpringDataJpaTest {
                 "package com.example;\n" +
                 "import org.springframework.data.jpa.repository.JpaRepository;\n" +
                 "\n" +
-                "public interface TagRepository extends JpaRepository<Tag, Long> {\n" +
-                //"    public Tag getOne(Long id);\n" + // FIXME: hack: JpaRepository.getOne() should be found in latest Rewrite, see https://rewriteoss.slack.com/archives/G01J94KRH70/p1636732658014900
-                "}";
+                "public interface TagRepository extends JpaRepository<Tag, Long> {}\n";
         String caller =
                 "package com.example;\n" +
                 "public class Caller {\n" +
@@ -58,7 +61,4 @@ class Boot_24_25_SpringDataJpaTest {
 
     }
 
-    @Test
-    void build() {
-    }
 }

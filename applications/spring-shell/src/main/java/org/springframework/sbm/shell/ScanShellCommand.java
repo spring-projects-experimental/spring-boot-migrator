@@ -49,9 +49,8 @@ public class ScanShellCommand {
     @ShellMethod(key = {"scan", "s"},
             value = "Scans the target project directory and get the list of applicable recipes.")
     public String scan(
-            @ShellOption(defaultValue = ".", help = "The root directory of the target application.",
-                    valueProvider = ScanValueProvider.class)
-                    //@Pattern(regexp = "")
+            @ShellOption(arity = 1, defaultValue = ".", valueProvider = ScanValueProvider.class,
+                    help = "The root directory of the target application.")
                     String projectRoot) {
 
         List<Resource> resources = scanCommand.scanProjectRoot(projectRoot);

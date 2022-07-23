@@ -50,7 +50,6 @@ public class OpenRewriteRecipeJavaSearch {
                     OpenRewriteJavaSource affectedJavaSource = javaSources.stream()
                             .filter(js -> js.getClass().isAssignableFrom(OpenRewriteJavaSource.class))
                             .map(OpenRewriteJavaSource.class::cast)
-                            // FIXME: id of rewrite internals exposed through getId()
                             .filter(js -> result.getBefore().getId().equals(js.getResource().getId()))
                             .findFirst()
                             .get();

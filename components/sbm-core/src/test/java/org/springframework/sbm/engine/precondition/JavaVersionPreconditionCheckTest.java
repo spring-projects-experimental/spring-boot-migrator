@@ -35,11 +35,11 @@ class JavaVersionPreconditionCheckTest {
 
         PreconditionCheckResult checkResult = sut.verify(projectRoot, resources);
         assertThat(checkResult.getState()).isEqualTo(PreconditionCheck.ResultState.WARN);
-        assertThat(checkResult.getMessage()).isEqualTo("Java 11 is required. Check found Java 10.");
+        assertThat(checkResult.getMessage()).isEqualTo("Java 11 or 17 is required. Check found Java 10.");
     }
 
     @Test
-    void supportedJavaVersionShouldPass() {
+    void supportedJavaVersionShouldPassWithJava11() {
         JavaVersionPreconditionCheck sut = new JavaVersionPreconditionCheck();
         Path projectRoot = Path.of("./test-dummy").toAbsolutePath().normalize();
         List<Resource> resources = List.of();
@@ -49,6 +49,19 @@ class JavaVersionPreconditionCheckTest {
         PreconditionCheckResult checkResult = sut.verify(projectRoot, resources);
         assertThat(checkResult.getState()).isEqualTo(PreconditionCheck.ResultState.PASSED);
         assertThat(checkResult.getMessage()).isEqualTo("Required Java version (11) was found.");
+    }
+
+    @Test
+    void supportedJavaVersionShouldPassWithJava17() {
+        JavaVersionPreconditionCheck sut = new JavaVersionPreconditionCheck();
+        Path projectRoot = Path.of("./test-dummy").toAbsolutePath().normalize();
+        List<Resource> resources = List.of();
+
+        System.setProperty("java.specification.version", "17");
+
+        PreconditionCheckResult checkResult = sut.verify(projectRoot, resources);
+        assertThat(checkResult.getState()).isEqualTo(PreconditionCheck.ResultState.PASSED);
+        assertThat(checkResult.getMessage()).isEqualTo("Required Java version (17) was found.");
     }
 
 }

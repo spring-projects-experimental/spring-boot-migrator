@@ -16,6 +16,7 @@
 package org.springframework.sbm.java.impl;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -144,19 +145,19 @@ public class OpenRewriteMethodTest {
     void removeMethodAnnotationsFromDependency() {
         String given =
                 "import javax.ejb.*;\n" +
-                        "@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
-                        "public class TransactionalService {\n" +
-                        "    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
-                        "    public void notSupported() {}\n" +
-                        "}";
+                "@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
+                "public class TransactionalService {\n" +
+                "    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
+                "    public void notSupported() {}\n" +
+                "}";
 
         String expected =
                 "import javax.ejb.*;\n" +
-                        "@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
-                        "public class TransactionalService {\n" +
-                        "    \n" +
-                        "    public void notSupported() {}\n" +
-                        "}";
+                "@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
+                "public class TransactionalService {\n" +
+                "    \n" +
+                "    public void notSupported() {}\n" +
+                "}";
 
         JavaSource javaSource = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("javax.ejb:javax.ejb-api:3.2", "org.springframework.data:spring-data-jpa:2.6.1")

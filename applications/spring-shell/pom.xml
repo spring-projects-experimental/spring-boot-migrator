@@ -66,12 +66,6 @@
         <dependency>
             <groupId>org.springframework.shell</groupId>
             <artifactId>spring-shell-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.java.dev.jna</groupId>
-                    <artifactId>jna</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -109,32 +103,6 @@
             </exclusions>
         </dependency>
 
-        <!-- Override Jackson coming from spring boot -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson-databind.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jdk8</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>openrewrite-spring-recipes</artifactId>
@@ -181,13 +149,14 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.22.2</version>
                 <configuration>
-                    <forkCount>0.5C</forkCount>
-                    <reuseForks>true</reuseForks>
+<!--                    <forkCount>1C</forkCount>-->
+<!--                    <reuseForks>false</reuseForks>-->
                     <includes>
                         <include>**/*IT.java</include>
                         <include>**/*IntegrationTest.java</include>
                         <include>**/*ITCase.java</include>
                     </includes>
+                    <trimStackTrace>false</trimStackTrace>
                     <groups>integration</groups>
                     <classesDirectory>${project.build.outputDirectory}</classesDirectory>
                 </configuration>

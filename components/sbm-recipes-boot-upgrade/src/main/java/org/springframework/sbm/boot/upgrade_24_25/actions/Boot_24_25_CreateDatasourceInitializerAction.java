@@ -16,17 +16,17 @@
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.sbm.engine.recipe.AbstractAction;
-import org.springframework.sbm.boot.upgrade_24_25.filter.CreateDatasourceInitializerAnalyzer;
-import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.build.api.ApplicationModule;
-import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
-import org.springframework.sbm.project.resource.ProjectResource;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.sbm.boot.upgrade_24_25.filter.CreateDatasourceInitializerAnalyzer;
+import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
+import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.project.resource.ProjectResource;
 
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -123,16 +123,12 @@ public class Boot_24_25_CreateDatasourceInitializerAction extends AbstractAction
         applicationPropertiesList.forEach(p -> p.setProperty(propertyName, propertyValue));
     }
 
-
-
     private String calculatePackage(ApplicationModule module) {
         return module.getMainJavaSourceSet().getJavaSourceLocation().getPackageName();
     }
 
     private String createDataSourceInitializerConfiguration(String classPakage) {
-        StringWriter writer = new StringWriter();
-
-        try {
+        try(StringWriter writer = new StringWriter()) {
             Map<String, Object> params = new HashMap<>();
             params.put("package", classPakage);
             params.put("springDatasourceSchemaProperty", "${spring.datasource.schema}");
@@ -141,8 +137,7 @@ public class Boot_24_25_CreateDatasourceInitializerAction extends AbstractAction
 
             Template template = configuration.getTemplate("DataSourceInitializerConfiguration.ftl");
             template.process(params, writer);
-            String output = writer.toString();
-            return output;
+            return writer.toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.conditions;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.sbm.boot.upgrade_24_25.filter.SpringDataJpaAnalyzer;
+import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.java.api.MethodCall;
-import org.springframework.sbm.engine.context.ProjectContext;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -32,11 +32,7 @@ public class Boot_24_25_SpringDataJpaActionCondition implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        if (context.getApplicationModules().isSingleModuleApplication()) {
-            return evaluateAgainstModule(context);
-        } else {
-            return false;
-        }
+        return context.getApplicationModules().isSingleModuleApplication() && evaluateAgainstModule(context);
     }
 
     private boolean evaluateAgainstModule(ProjectContext context) {

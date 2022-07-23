@@ -106,7 +106,6 @@ public class BootifyAnnotatedServletsIntegrationTest extends IntegrationTestBase
         assertThat(content).contains("@ServletComponentScan").withFailMessage(() -> "@ServletComponentScan annotation not found");
 
         executeMavenGoals(getTestDir(), "package");
-//        int port = springBootStart();
 
         executeMavenGoals(getTestDir(), "package", "spring-boot:build-image");
 
@@ -117,7 +116,6 @@ public class BootifyAnnotatedServletsIntegrationTest extends IntegrationTestBase
 
         assertThat(response).isEqualTo("Hello World!");
 
-//        springBootStop();
     }
 
 }

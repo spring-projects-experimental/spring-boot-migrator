@@ -236,7 +236,7 @@ public class ReplaceResponseEntityBuilder extends Recipe {
         doNext(new AdjustTypesFromExpressionMarkers());
 
         // Finally replace type with BodyBuilder if nothing else replaced it previously
-        doNext(new ChangeType("javax.ws.rs.core.Response.ResponseBuilder", "org.springframework.http.ResponseEntity.BodyBuilder", false));
+        doNext(new ChangeType("javax.ws.rs.core.Response$ResponseBuilder", "org.springframework.http.ResponseEntity$BodyBuilder", true));
 
     }
 

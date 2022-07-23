@@ -17,8 +17,8 @@ package org.springframework.sbm.boot.upgrade_24_25.conditions;
 
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.upgrade_24_25.filter.CreateDatasourceInitializerAnalyzer;
-import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.Condition;
 
 import java.util.List;
 
@@ -36,12 +36,7 @@ public class Boot_24_25_CreateDatasourceInitializerCondition implements Conditio
                 .anyMatch(m -> {
                     List<SpringBootApplicationProperties> propertyFilesContainingDataUsernameProperty = analyzer.findPropertyFilesContainingDataUsernameProperty(m);
                     List<SpringBootApplicationProperties> propertyFilesContainingSchemaUsernameProperty = analyzer.findPropertyFilesContainingSchemaUsernameProperty(m);
-                    if (!propertyFilesContainingDataUsernameProperty.isEmpty() && !propertyFilesContainingSchemaUsernameProperty.isEmpty()) {
-                        return true;
-                    }
-                    else {
-                        return false;
-                    }
+                    return !propertyFilesContainingDataUsernameProperty.isEmpty() && !propertyFilesContainingSchemaUsernameProperty.isEmpty();
                 });
     }
 }

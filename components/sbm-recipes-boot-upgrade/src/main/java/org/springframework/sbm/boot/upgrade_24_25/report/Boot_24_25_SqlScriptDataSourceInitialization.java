@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
@@ -25,10 +26,13 @@ import org.springframework.sbm.boot.upgrade_24_25.filter.SqlScriptDataSourceInit
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.List;
 
+@Component
+@Order(25_002)
 public class Boot_24_25_SqlScriptDataSourceInitialization implements UpgradeSectionBuilder {
 
 

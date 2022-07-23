@@ -50,4 +50,6 @@ public interface ProjectJavaSources {
     List<MethodCall> findMethodCalls(String pattern);
 
     List<JavaSourceAndType> findTypesImplementing(String jpaRepositoryInterface);
+
+    List<? extends JavaSource> findClassesUsingType(String databaseDriverGAE);
 }

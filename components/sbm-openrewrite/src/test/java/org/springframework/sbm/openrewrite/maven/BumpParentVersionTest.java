@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.openrewrite.maven;
 
-import org.jboss.shrinkwrap.resolver.impl.maven.format.MavenCoordinateProcessor;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.Result;
@@ -91,7 +90,7 @@ public class BumpParentVersionTest {
         );
 
         // If this fails because 3.0.0-M3 is reflected in the model the RefreshPomModel could be removed
-        assertThat(results.get(0).getAfter().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested().getParent().getVersion()).isEqualTo("2.7.0");
+        assertThat(results.get(0).getAfter().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested().getParent().getVersion()).isEqualTo("3.0.0-M3");
     }
 
     @Test

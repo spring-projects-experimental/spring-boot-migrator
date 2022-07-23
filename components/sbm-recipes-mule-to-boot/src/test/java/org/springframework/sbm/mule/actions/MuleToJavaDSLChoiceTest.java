@@ -369,7 +369,13 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "                                        // TODO: payload type might not be always LinkedMultiValueMap please change it to appropriate type \n" +
                         "                                        // TODO: mule expression language is not converted to java, do it manually. example: #[payload] etc \n" +
                         "                                        .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
-                        "                                            jdbcTemplate.execute(\"INSERT INTO ${ORA_SCHEMA}.CHANGE_REQUEST_DETAILS (CHANGE_REQUEST_ID, CR_ATTRIBUTE_ID, SECONDARY_ATTRIBUTE, OLD_VALUE, NEW_VALUE) VALUES (#[flowVars.changeRequestId], #[payload.crAttributeId], #[payload.secondaryAttribute], #[payload.oldValue], #[payload.newValue])\");\n" +
+                        "                                            jdbcTemplate.update(\"INSERT INTO ${ORA_SCHEMA}.CHANGE_REQUEST_DETAILS (CHANGE_REQUEST_ID, CR_ATTRIBUTE_ID, SECONDARY_ATTRIBUTE, OLD_VALUE, NEW_VALUE) VALUES (?, ?, ?, ?, ?)\",\n" +
+                        "                                                    p.getFirst(\"flowVars.changeRequestId\") /* TODO: Translate #[flowVars.changeRequestId] to java expression*/,\n" +
+                        "                                                    p.getFirst(\"payload.crAttributeId\") /* TODO: Translate #[payload.crAttributeId] to java expression*/,\n" +
+                        "                                                    p.getFirst(\"payload.secondaryAttribute\") /* TODO: Translate #[payload.secondaryAttribute] to java expression*/,\n" +
+                        "                                                    p.getFirst(\"payload.oldValue\") /* TODO: Translate #[payload.oldValue] to java expression*/,\n" +
+                        "                                                    p.getFirst(\"payload.newValue\") /* TODO: Translate #[payload.newValue] to java expression*/\n" +
+                        "                                            );\n" +
                         "                                            return p;\n" +
                         "                                        }))\n" +
                         "                )\n" +

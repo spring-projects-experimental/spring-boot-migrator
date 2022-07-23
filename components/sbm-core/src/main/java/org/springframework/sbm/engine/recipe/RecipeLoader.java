@@ -20,15 +20,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-@Component
-@RequiredArgsConstructor
-public class RecipeLoader {
+import java.util.List;
 
-    static final String PATTERN = "classpath*:/recipes/*";
-
-    private final ResourceHelper resourceHelper;
-
-    public Resource[] loadRecipes() {
-        return resourceHelper.loadResources(PATTERN);
-    }
+public interface RecipeLoader {
+    List<Recipe> loadRecipes();
 }

@@ -65,7 +65,11 @@ public class MuleToJavaDSLDBInsertTest extends JavaDSLActionBaseTest {
                         "                // TODO: payload type might not be always LinkedMultiValueMap please change it to appropriate type \n" +
                         "                // TODO: mule expression language is not converted to java, do it manually. example: #[payload] etc \n" +
                         "                .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
-                        "                    jdbcTemplate.execute(\"INSERT INTO STUDENTS (NAME, AGE, CITY) VALUES (#[payload.name], #[payload.age], #[payload.city])\");\n" +
+                        "                    jdbcTemplate.update(\"INSERT INTO STUDENTS (NAME, AGE, CITY) VALUES (?, ?, ?)\",\n" +
+                        "                            p.getFirst(\"payload.name\") /* TODO: Translate #[payload.name] to java expression*/,\n" +
+                        "                            p.getFirst(\"payload.age\") /* TODO: Translate #[payload.age] to java expression*/,\n" +
+                        "                            p.getFirst(\"payload.city\") /* TODO: Translate #[payload.city] to java expression*/\n" +
+                        "                    );\n" +
                         "                    return p;\n" +
                         "                })\n" +
                         "                .get();\n" +

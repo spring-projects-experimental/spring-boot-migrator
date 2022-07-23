@@ -26,7 +26,6 @@ import org.springframework.sbm.jee.jpa.api.PersistenceXml;
 import org.springframework.sbm.jee.jpa.filter.PersistenceXmlResourceFilter;
 
 import java.util.List;
-import java.util.Optional;
 
 public class MigratePersistenceXmlToApplicationPropertiesAction extends AbstractAction {
 
@@ -49,22 +48,21 @@ public class MigratePersistenceXmlToApplicationPropertiesAction extends Abstract
 
     void mapPersistenceXmlToApplicationProperties(SpringBootApplicationProperties applicationProperties, PersistenceXml persistenceXml) {
         List<Persistence.PersistenceUnit> persistenceUnits = persistenceXml.getPersistence().getPersistenceUnit();
-        for (int index = 0; index < persistenceUnits.size(); index++) {
-            Persistence.PersistenceUnit persistenceUnit = persistenceUnits.get(index);
-            if(persistenceUnit.getProperties() != null && persistenceUnit.getProperties().getProperty() != null) {
-                persistenceUnit.getProperties().getProperty().stream()
-                        .forEach(p -> mapJpaPropertyToProperties(p, applicationProperties));
-            }
-        }
+        persistenceUnits.stream()
+            .filter(this::isPropertiesPresent)
+            .forEach(persistenceUnit -> persistenceUnit.getProperties().getProperty()
+                .forEach(p -> mapJpaPropertyToProperties(p, applicationProperties)));
     }
 
-    void mapJpaPropertyToProperties(Persistence.PersistenceUnit.Properties.Property p, SpringBootApplicationProperties applicationProperties) {
-        JpaHibernatePropertiesToSpringBootPropertiesMapper propertiesMapper = new JpaHibernatePropertiesToSpringBootPropertiesMapper();
-        Optional<SpringBootJpaProperty> optKv = propertiesMapper.map(p);
-        if(optKv.isPresent()) {
-            SpringBootJpaProperty kv = optKv.get();
-            applicationProperties.setProperty(kv.getComment(), kv.getPropertyName(), kv.getPropertyValue());
-        }
+    private boolean isPropertiesPresent(Persistence.PersistenceUnit persistenceUnit) {
+        return persistenceUnit.getProperties() != null && persistenceUnit.getProperties().getProperty() != null;
+    }
+
+    void mapJpaPropertyToProperties(Persistence.PersistenceUnit.Properties.Property property,
+                                    SpringBootApplicationProperties applicationProperties) {
+        new JpaHibernatePropertiesToSpringBootPropertiesMapper()
+            .map(property)
+            .ifPresent(kv-> applicationProperties.setProperty(kv.getComment(), kv.getPropertyName(), kv.getPropertyValue()));
     }
 
     @Override

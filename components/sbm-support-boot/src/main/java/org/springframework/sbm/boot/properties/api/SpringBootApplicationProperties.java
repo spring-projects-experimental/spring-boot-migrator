@@ -15,13 +15,13 @@
  */
 package org.springframework.sbm.boot.properties.api;
 
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.properties.api.PropertiesSource;
 import lombok.Getter;
 import lombok.Setter;
 import org.openrewrite.Tree;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.properties.tree.Properties.File;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.properties.api.PropertiesSource;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -43,7 +43,7 @@ public class SpringBootApplicationProperties extends PropertiesSource {
     }
 
     public static SpringBootApplicationProperties newApplicationProperties(Path absoluteProjectDir, Path path) {
-        File file = new File(Tree.randomId(), "", Markers.EMPTY, path, List.of(), "", null, false);
+        File file = new File(Tree.randomId(), "", Markers.EMPTY, path, List.of(), "", null, false, null, null);
         SpringBootApplicationProperties springBootApplicationProperties = new SpringBootApplicationProperties(absoluteProjectDir, file);
         springBootApplicationProperties.markChanged();
         return springBootApplicationProperties;

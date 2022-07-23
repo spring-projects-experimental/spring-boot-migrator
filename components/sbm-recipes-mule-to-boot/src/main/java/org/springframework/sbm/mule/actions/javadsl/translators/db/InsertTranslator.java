@@ -40,21 +40,29 @@ public class InsertTranslator implements MuleComponentToSpringIntegrationDslTran
                                 MuleConfigurations muleConfigurations,
                                 String flowName,
                                 Map<Class, MuleComponentToSpringIntegrationDslTranslator> translatorsMap) {
+
+        QueryFunctionParameter queryAndParameters = DBCommons.extractQueryAndParameters(component);
+
+        String translation =
+                "                .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
+                "                      jdbcTemplate.update(\"" + DBCommons.escapeDoubleQuotes(queryAndParameters.getQuery()) + "\"" +
+                        queryAndParameters.getArguments() +
+                        ");\n" +
+                "                      return p;\n" +
+                "                })";
         return DslSnippet.builder()
                 .renderedSnippet(
                         "                 // TODO: payload type might not be always LinkedMultiValueMap please change it to appropriate type \n" +
                                 "                 // TODO: mule expression language is not converted to java, do it manually. example: #[payload] etc \n" +
-                                "                .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
-                                "                      jdbcTemplate.execute(\"" + DBCommons.escapeDoubleQuotes(component.getParameterizedQuery()) + "\");\n" +
-                                "                      return p;\n" +
-                                "                })")
+                                translation)
                 .requiredImports(Set.of(
                         "org.springframework.util.LinkedMultiValueMap",
                         "org.springframework.jdbc.core.JdbcTemplate"
                 ))
                 .requiredDependencies(Set.of(
                         "org.springframework.boot:spring-boot-starter-jdbc:2.5.5",
-                        "org.springframework.integration:spring-integration-jdbc:5.5.4"
+                        "org.springframework.integration:spring-integration-jdbc:5.5.4",
+                        "com.h2database:h2:2.1.214"
                 ))
                 .beans(Set.of(new Bean("jdbcTemplate", "org.springframework.jdbc.core.JdbcTemplate")))
                 .build();

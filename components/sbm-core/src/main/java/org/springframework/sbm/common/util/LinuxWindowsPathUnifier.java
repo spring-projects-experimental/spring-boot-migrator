@@ -29,7 +29,7 @@ public class LinuxWindowsPathUnifier {
     public String unifyPath(String path) {
         path = StringUtils.cleanPath(path);
         if (isWindows()) {
-            path = tranformToLinuxPath(path);
+            path = transformToLinuxPath(path);
         }
         return path;
     }
@@ -38,7 +38,7 @@ public class LinuxWindowsPathUnifier {
         return System.getProperty("os.name").contains("Windows");
     }
 
-    private String tranformToLinuxPath(String path) {
+    private String transformToLinuxPath(String path) {
         return path.replaceAll("^[\\w]+:\\/?", "/");
     }
 }

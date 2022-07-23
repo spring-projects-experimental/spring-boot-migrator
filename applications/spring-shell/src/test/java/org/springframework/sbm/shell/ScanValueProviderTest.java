@@ -15,16 +15,12 @@
  */
 package org.springframework.sbm.shell;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.core.MethodParameter;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.Utils;
-import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,16 +30,13 @@ class ScanValueProviderTest {
     void completeWithPartialInputShouldOnlyProposeMatchingPrefix() {
 
         // Build up arguments to complete method call
-        Method scan = ReflectionUtils.findMethod(ScanShellCommand.class, "scan", String.class);
-        MethodParameter methodParameter = Utils.createMethodParameter(scan, 0);
-        CompletionContext completionContext = new CompletionContext(Arrays.asList("scan", "sr"), 1, 2);
+        CompletionContext completionContext = new CompletionContext(Arrays.asList("scan", "sr"), 1, 2, null, null);
 
         // Create value provider instance
         ScanValueProvider valueProvider = new ScanValueProvider();
-        assertThat(valueProvider.supports(methodParameter, completionContext)).isTrue();
 
         // Invoke to get proposals
-        List<CompletionProposal> proposals = valueProvider.complete(methodParameter, completionContext, null);
+        List<CompletionProposal> proposals = valueProvider.complete(completionContext);
 
         // Validate returned proposals
         assertThat(proposals).extracting("value", String.class).containsOnly("src");

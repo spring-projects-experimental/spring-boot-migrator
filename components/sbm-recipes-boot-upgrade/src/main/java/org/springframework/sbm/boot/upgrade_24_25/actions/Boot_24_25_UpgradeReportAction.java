@@ -15,6 +15,10 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.sbm.boot.upgrade.common.UpgradeReportUtil;
+import org.springframework.sbm.boot.upgrade.common.conditions.IsMatchingSpringBootVersion;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.Section;
@@ -29,6 +33,18 @@ import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.Options;
 import org.asciidoctor.SafeMode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.sbm.boot.UpgradeSectionBuilder;
+import org.springframework.sbm.boot.asciidoctor.Section;
+import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_Introduction;
+import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_SchemaSqlAndDataSqlFiles;
+import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_SeparateCredentials;
+import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_SpringDataJpa;
+import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_SqlScriptDataSourceInitialization;
+import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_UpdateDependencies;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.java.api.JavaSource;
+import org.springframework.sbm.project.resource.StringProjectResource;
 
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -36,71 +52,43 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Boot_24_25_UpgradeReportAction extends AbstractAction {
 
     @Autowired
+    @JsonIgnore
     private Configuration configuration;
+
+    @Autowired
+    @JsonIgnore
+    private List<UpgradeSectionBuilder> upgradeSectionBuilders = new ArrayList<>();
 
     @Override
     public void apply(ProjectContext projectContext) {
 
-        List<UpgradeSectionBuilder> upgradeSectionBuilders = new ArrayList<>();
-
-        upgradeSectionBuilders.add(new Boot_24_25_UpdateDependencies());
-        upgradeSectionBuilders.add(new Boot_24_25_SqlScriptDataSourceInitialization());
-        upgradeSectionBuilders.add(new Boot_24_25_SchemaSqlAndDataSqlFiles());
-        upgradeSectionBuilders.add(new Boot_24_25_SeparateCredentials());
-        upgradeSectionBuilders.add(new Boot_24_25_SpringDataJpa());
-
-        final List<Section> sections = new ArrayList<>();
-
-        upgradeSectionBuilders.forEach(b -> {
-            if(b.isApplicable(projectContext)) {
-                Section section = b.build(projectContext);
-                sections.add(section);
-            }
-        });
+        final List<Section> sections = upgradeSectionBuilders.stream()
+            .filter(b -> b.isApplicable(projectContext))
+            .map(b -> b.build(projectContext))
+            .collect(Collectors.toList());
 
         Map<String, Object> params = new HashMap<>();
         Section introductionSection = new Boot_24_25_Introduction().build(projectContext);
         params.put("introductionSection", introductionSection);
         params.put("changeSections", sections);
-        String markdown = renderMarkdown(params);
-        String html = renderHtml(markdown);
+        String markdown = UpgradeReportUtil.renderMarkdown(params, configuration);
+        String html = UpgradeReportUtil.renderHtml(markdown);
         Path htmlPath = projectContext.getProjectRootDirectory().resolve(Path.of("Upgrade-Spring-Boot-2.4-to-2.5.html"));
         projectContext.getProjectResources().add(new StringProjectResource(projectContext.getProjectRootDirectory(), htmlPath, html));
     }
 
-    private String renderMarkdown(Map<String, Object> params) {
-        StringWriter writer = new StringWriter();
 
-        try {
-            Template template = configuration.getTemplate("upgrade-asciidoc.ftl");
-            template.process(params, writer);
-            return writer.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String renderHtml(String markdown) {
-            Asciidoctor asciidoctor = Asciidoctor.Factory.create();
-            String html = asciidoctor.convert(markdown,
-                    Options.builder()
-                            .toFile(true)
-                            .backend("html5")
-                            .headerFooter(true)
-                            .safe(SafeMode.UNSAFE)
-                            .build());
-            return html;
-    }
 
 
     @Override
     public boolean isApplicable(ProjectContext context) {
         // Verify it's a 2.4.x Spring Boot project
-        return true;
+        return new IsMatchingSpringBootVersion("2.4.").evaluate(context);
     }
 
     @Getter
