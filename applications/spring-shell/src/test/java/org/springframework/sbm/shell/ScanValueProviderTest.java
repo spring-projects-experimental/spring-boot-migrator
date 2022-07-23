@@ -43,7 +43,7 @@ class ScanValueProviderTest {
         assertThat(valueProvider.supports(methodParameter, completionContext)).isTrue();
 
         // Invoke to get proposals
-        List<CompletionProposal> proposals = valueProvider.complete(methodParameter, completionContext, new String[0]);
+        List<CompletionProposal> proposals = valueProvider.complete(methodParameter, completionContext, null);
 
         // Validate returned proposals
         assertThat(proposals).extracting("value", String.class).containsOnly("src");
