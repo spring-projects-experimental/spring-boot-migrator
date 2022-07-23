@@ -6,10 +6,10 @@
     versionPattern: "2\\.7\\..*"
 
   actions:
-    - type: org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionChecks
-      description: "Check if the application adheres to preconditions."
-      condition:
-        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+#    - type: org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionChecks
+#      description: "Check if the application adheres to preconditions."
+#      condition:
+#        type: org.springframework.sbm.common.migration.conditions.TrueCondition
 
       # TODO: upgrades for 2.7
     - type: org.springframework.sbm.build.migration.actions.AddRepositoryAction
@@ -32,10 +32,12 @@
         name: org.openrewrite.java.spring.boot3.data.UpgradeSpringData30
         displayName: Upgrade to Spring Data 3.0
         description: 'Upgrade to Spring Data to 3.0 from any prior version.'
+        recipeList:
           - org.openrewrite.maven.UpgradeParentVersion:
               groupId: org.springframework.boot
               artifactId: spring-boot-starter-parent
               newVersion: 3.0.0-M3
+
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
@@ -51,6 +53,7 @@
               oldPackageName: io.micrometer.core.instrument.binder
               newPackageName: io.micrometer.binder
               recursive: true
+
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
