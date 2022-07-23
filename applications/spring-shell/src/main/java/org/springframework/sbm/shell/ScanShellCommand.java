@@ -25,7 +25,9 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
 import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.shell.standard.*;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
 
 import java.util.List;
 
