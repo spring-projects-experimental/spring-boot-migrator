@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.function.BiPredicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.shell.CompletionContext;
@@ -42,7 +41,7 @@ class ScanValueProvider implements ValueProvider { // extend to only complete fo
             return stream
                     .map(Path::toString)
                     .map(CompletionProposal::new)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
