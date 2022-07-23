@@ -25,7 +25,7 @@ import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
  * @author Tim te Beek
  */
 @Component
-class ScanValueProvider implements ValueProvider { // extend to only complete for exact type matches
+class ScanValueProvider implements ValueProvider {
 
     @Override
     public List<CompletionProposal> complete(CompletionContext completionContext) {
