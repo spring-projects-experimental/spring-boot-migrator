@@ -28,10 +28,14 @@ import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.jline.utils.Colors;
 import org.springframework.shell.Availability;
+import org.springframework.shell.CompletionContext;
+import org.springframework.shell.CompletionProposal;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.shell.standard.ValueProvider;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -47,7 +51,8 @@ public class ApplyShellCommand {
 
     @ShellMethod(key = {"apply", "a"}, value = "Apply a given recipe to the target application.")
     @ShellMethodAvailability("availabilityCheck")
-    public AttributedString apply(@ShellOption(arity = 1, help = "The name of the recipe to apply.") String recipeName) {
+    public AttributedString apply(@ShellOption(arity = 1, valueProvider = ApplyRecipeValueProvider.class,
+            help = "The name of the recipe to apply.") String recipeName) {
         AttributedStringBuilder header = buildHeader(recipeName);
         System.out.println(header.toAnsi());
 
@@ -79,4 +84,20 @@ public class ApplyShellCommand {
             return Availability.unavailable("You need to scan first");
         }
     }
+}
+
+@Component
+@RequiredArgsConstructor
+class ApplyRecipeValueProvider implements ValueProvider{
+
+    private final ProjectContextHolder projectContextHolder;
+    private final ApplicableRecipeListCommand applicableRecipeListCommand;
+
+    @Override
+    public List<CompletionProposal> complete(CompletionContext completionContext) {
+        ProjectContext projectContext = projectContextHolder.getProjectContext();
+        List<Recipe> applicableRecipes = applicableRecipeListCommand.execute(projectContext);
+        return applicableRecipes.stream().map(Recipe::getName).map(CompletionProposal::new).toList();
+    }
+
 }
