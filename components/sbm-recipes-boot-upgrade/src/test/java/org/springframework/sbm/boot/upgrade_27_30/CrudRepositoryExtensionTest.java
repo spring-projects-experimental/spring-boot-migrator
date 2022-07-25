@@ -230,4 +230,36 @@ public class CrudRepositoryExtensionTest {
                 """
         );
     }
+
+    @Test
+    public void shouldAddReactiveCrudRepository() {
+
+        javaTestHelper.runAndVerify(
+                recipe,
+                List.of("""
+                        package org.springframework.data.repository;
+                        public interface ReactiveSortingRepository<T, ID> {
+                        }
+                        """,
+                        """
+                        package org.springframework.data.repository;
+                        public interface ReactiveCrudRepository<T, ID> {
+                        }
+                        """),
+                """
+                package test;
+                import org.springframework.data.repository.ReactiveSortingRepository;
+                public interface A extends ReactiveSortingRepository<String, Long> {
+                }
+                """,
+                """
+                package test;
+                import org.springframework.data.repository.ReactiveCrudRepository;
+                import org.springframework.data.repository.ReactiveSortingRepository;
+                
+                public interface A extends ReactiveSortingRepository<String, Long>, ReactiveCrudRepository<String, Long> {
+                }
+                """
+        );
+    }
 }
