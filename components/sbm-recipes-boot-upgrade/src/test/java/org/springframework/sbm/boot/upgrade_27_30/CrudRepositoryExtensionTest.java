@@ -34,8 +34,8 @@ public class CrudRepositoryExtensionTest {
     );
 
     private Recipe reactiveCrudExtensionRecipe = new CrudRepositoryExtension(
-            "org.springframework.data.repository.ReactiveSortingRepository",
-            "org.springframework.data.repository.ReactiveCrudRepository"
+            "org.springframework.data.repository.reactive.ReactiveSortingRepository",
+            "org.springframework.data.repository.reactive.ReactiveCrudRepository"
     );
 
     private Map<String, Recipe> recipeMap = new HashMap<>();
@@ -51,8 +51,7 @@ public class CrudRepositoryExtensionTest {
     @ParameterizedTest
     @CsvSource({
             "crudRepo,PagingAndSortingRepository,CrudRepository",
-            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository",
-            "coroutineRepo,CoroutineSortingRepository,CoroutineCrudRepository",
+            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository"
     })
     public void shouldAddCrudRepository(String recipe, String pagingAndSortingRepository, String crudRepository) {
 
