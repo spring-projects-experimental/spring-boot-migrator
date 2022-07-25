@@ -239,73 +239,45 @@ public class CrudRepositoryExtensionTest {
         );
     }
 
-    @Test
-    public void classImplementsPagingRepository() {
+    @CsvSource({
+            "crudRepo,PagingAndSortingRepository,CrudRepository",
+            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository",
+    })
+    @ParameterizedTest
+    public void classImplementsPagingRepository(String recipe, String pagingAndSortingRepository, String crudRepository) {
         javaTestHelper.runAndVerify(
-                crudRepoExtensionRecipe,
-                List.of("""
+                recipeMap.get(recipe),
+                List.of(replacePagingRepoAndCrudRepo("""
                                 package org.springframework.data.repository;
-                                public interface PagingAndSortingRepository<T, ID> {
+                                public interface -pagingRepository-<T, ID> {
                                 }
-                                """,
+                                """, pagingAndSortingRepository, crudRepository),
                         """
-                                package org.springframework.data.repository;
+                                package temp;
                                 public interface Hello<T, ID> {
                                 }
                                 """,
-                        """
+                        replacePagingRepoAndCrudRepo("""
                                 package org.springframework.data.repository;
-                                public interface CrudRepository<T, ID> {
+                                public interface -crudRepository-<T, ID> {
                                 }
-                                """),
-                """
+                                """,pagingAndSortingRepository, crudRepository)),
+                replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.PagingAndSortingRepository;
-                        import org.springframework.data.repository.Hello;
-                        public class A implements Hello<String, Long>, PagingAndSortingRepository<String, Long> {
+                        import org.springframework.data.repository.-pagingRepository-;
+                        import temp.Hello;
+                        public class A implements Hello<String, Long>, -pagingRepository-<String, Long> {
                         }
-                        """,
-                """
+                        """, pagingAndSortingRepository, crudRepository),
+                replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.PagingAndSortingRepository;
-                        import org.springframework.data.repository.CrudRepository;
-                        import org.springframework.data.repository.Hello;
+                        import org.springframework.data.repository.-crudRepository-;
+                        import org.springframework.data.repository.-pagingRepository-;
+                        import temp.Hello;
                                         
-                        public class A implements Hello<String, Long>, PagingAndSortingRepository<String, Long>, CrudRepository<String, Long> {
+                        public class A implements Hello<String, Long>, -pagingRepository-<String, Long>, -crudRepository-<String, Long> {
                         }
-                        """
-        );
-    }
-
-    @Test
-    public void shouldAddReactiveCrudRepository() {
-
-        javaTestHelper.runAndVerify(
-                reactiveCrudExtensionRecipe,
-                List.of("""
-                                package org.springframework.data.repository;
-                                public interface ReactiveSortingRepository<T, ID> {
-                                }
-                                """,
-                        """
-                                package org.springframework.data.repository;
-                                public interface ReactiveCrudRepository<T, ID> {
-                                }
-                                """),
-                """
-                        package test;
-                        import org.springframework.data.repository.ReactiveSortingRepository;
-                        public interface A extends ReactiveSortingRepository<String, Long> {
-                        }
-                        """,
-                """
-                        package test;
-                        import org.springframework.data.repository.ReactiveCrudRepository;
-                        import org.springframework.data.repository.ReactiveSortingRepository;
-                                        
-                        public interface A extends ReactiveSortingRepository<String, Long>, ReactiveCrudRepository<String, Long> {
-                        }
-                        """
+                        """, pagingAndSortingRepository, crudRepository)
         );
     }
 
@@ -315,5 +287,4 @@ public class CrudRepositoryExtensionTest {
                 .replaceAll("-pagingRepository-", pagingRepo)
                 .replaceAll("-crudRepository-", crudRepo);
     }
-
 }
