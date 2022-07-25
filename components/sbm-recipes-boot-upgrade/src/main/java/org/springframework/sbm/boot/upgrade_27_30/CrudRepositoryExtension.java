@@ -16,6 +16,7 @@
 package org.springframework.sbm.boot.upgrade_27_30;
 
 
+import lombok.Setter;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
@@ -29,13 +30,23 @@ import org.openrewrite.java.tree.JavaType;
 import java.util.List;
 import java.util.Optional;
 
-@Value
+
+@Setter
 public class CrudRepositoryExtension extends Recipe {
 
     @Override
     @NotNull
     public String getDisplayName() {
         return "Extends CrudRepository for Interfaces that extends PagingAndSortingRepository";
+    }
+
+    public CrudRepositoryExtension() {
+
+    }
+
+    public CrudRepositoryExtension(String pagingAndSortingRepository, String targetCrudRepository) {
+        this.pagingAndSortingRepository = pagingAndSortingRepository;
+        this.targetCrudRepository = targetCrudRepository;
     }
 
     private String pagingAndSortingRepository;
