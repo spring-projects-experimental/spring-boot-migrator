@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.openrewrite.Recipe;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -196,41 +197,45 @@ public class CrudRepositoryExtensionTest {
         );
     }
 
-    @Test
-    public void multipleExtends() {
+    @CsvSource({
+            "crudRepo,PagingAndSortingRepository,CrudRepository",
+            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository",
+    })
+    @ParameterizedTest
+    public void multipleExtends(String recipe, String pagingAndSortingRepository, String crudRepository) {
         javaTestHelper.runAndVerify(
-                crudRepoExtensionRecipe,
-                List.of("""
+                recipeMap.get(recipe),
+                List.of(replacePagingRepoAndCrudRepo("""
                                 package org.springframework.data.repository;
-                                public interface PagingAndSortingRepository<T, ID> {
+                                public interface -pagingRepository-<T, ID> {
                                 }
-                                """,
-                        """
-                                package org.springframework.data.repository;
+                                """, pagingAndSortingRepository, crudRepository),
+                        replacePagingRepoAndCrudRepo("""
+                                package temp;
                                 public interface Hello<T, ID> {
                                 }
-                                """,
-                        """
+                                """, pagingAndSortingRepository, crudRepository),
+                        replacePagingRepoAndCrudRepo("""
                                 package org.springframework.data.repository;
-                                public interface CrudRepository<T, ID> {
+                                public interface -crudRepository-<T, ID> {
                                 }
-                                """),
-                """
+                                """, pagingAndSortingRepository, crudRepository)),
+                replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.PagingAndSortingRepository;
-                        import org.springframework.data.repository.Hello;
-                        public interface A extends Hello<String, Long>, PagingAndSortingRepository {
+                        import org.springframework.data.repository.-pagingRepository-;
+                        import temp.Hello;
+                        public interface A extends Hello<String, Long>, -pagingRepository- {
                         }
-                        """,
-                """
+                        """, pagingAndSortingRepository, crudRepository),
+                replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.PagingAndSortingRepository;
-                        import org.springframework.data.repository.CrudRepository;
-                        import org.springframework.data.repository.Hello;
+                        import org.springframework.data.repository.-crudRepository-;
+                        import org.springframework.data.repository.-pagingRepository-;
+                        import temp.Hello;
                                         
-                        public interface A extends Hello<String, Long>, PagingAndSortingRepository, CrudRepository {
+                        public interface A extends Hello<String, Long>, -pagingRepository-, -crudRepository- {
                         }
-                        """
+                        """, pagingAndSortingRepository, crudRepository)
         );
     }
 
