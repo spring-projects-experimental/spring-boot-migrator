@@ -50,100 +50,100 @@ public class CrudRepositoryExtensionTest {
 
     @ParameterizedTest
     @CsvSource({
-            "crudRepo,PagingAndSortingRepository,CrudRepository",
-            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository"
+            "crudRepo,PagingAndSortingRepository,CrudRepository,org.springframework.data.repository",
+            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository,org.springframework.data.repository.reactive"
     })
-    public void shouldAddCrudRepository(String recipe, String pagingAndSortingRepository, String crudRepository) {
+    public void shouldAddCrudRepository(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
 
         javaTestHelper.runAndVerify(
                 recipeMap.get(recipe),
                 List.of(replacePagingRepoAndCrudRepo("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
                                 }
-                                """, pagingAndSortingRepository, crudRepository),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                         replacePagingRepoAndCrudRepo("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface -crudRepository-<T, ID> {
                                 }
-                                """, pagingAndSortingRepository, crudRepository)
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage)
                 ),
                 replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.-pagingRepository-;
+                        import -repositoryPackage-.-pagingRepository-;
                         public interface A extends -pagingRepository-<String, Long> {
                         }
-                        """, pagingAndSortingRepository, crudRepository),
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                 replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.-crudRepository-;
-                        import org.springframework.data.repository.-pagingRepository-;
+                        import -repositoryPackage-.-crudRepository-;
+                        import -repositoryPackage-.-pagingRepository-;
                                                         
                         public interface A extends -pagingRepository-<String, Long>, -crudRepository-<String, Long> {
                         }
-                        """, pagingAndSortingRepository, crudRepository
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage
                 )
         );
     }
 
     @ParameterizedTest
     @CsvSource({
-            "crudRepo,PagingAndSortingRepository,CrudRepository",
-            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository",
+            "crudRepo,PagingAndSortingRepository,CrudRepository,org.springframework.data.repository",
+            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository,org.springframework.data.repository.reactive"
     })
-    public void canDoQuestionMark(String recipe, String pagingAndSortingRepository, String crudRepository) {
+    public void canDoQuestionMark(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
 
         javaTestHelper.runAndVerify(recipeMap.get(recipe),
                 List.of(replacePagingRepoAndCrudRepo("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
                                 }
-                                """, pagingAndSortingRepository, crudRepository),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                         replacePagingRepoAndCrudRepo("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface -crudRepository-<T, ID> {
                                 }
-                                """, pagingAndSortingRepository, crudRepository),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                         replacePagingRepoAndCrudRepo("""
                                 package test;
                                 public interface Payment<T> {
                                     T hello();
                                 }
-                                """, pagingAndSortingRepository, crudRepository)),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage)),
                 replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.-pagingRepository-;
+                        import -repositoryPackage-.-pagingRepository-;
                         public interface A extends -pagingRepository-<Payment<?>, Long> {
                         }
-                        """, pagingAndSortingRepository, crudRepository),
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                 replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.-crudRepository-;
-                        import org.springframework.data.repository.-pagingRepository-;
+                        import -repositoryPackage-.-crudRepository-;
+                        import -repositoryPackage-.-pagingRepository-;
                                         
                         public interface A extends -pagingRepository-<Payment<?>, Long>, -crudRepository-<Payment<?>, Long> {
                         }
-                        """, pagingAndSortingRepository, crudRepository)
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage)
         );
     }
 
     @CsvSource({
-            "crudRepo,PagingAndSortingRepository,CrudRepository",
-            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository",
+            "crudRepo,PagingAndSortingRepository,CrudRepository,org.springframework.data.repository",
+            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository,org.springframework.data.repository.reactive"
     })
     @ParameterizedTest
-    public void onlyExtendCrudRepoIfInterfaceHasPagingAndSortingRepository(String recipe, String pagingAndSortingRepository, String crudRepository) {
+    public void onlyExtendCrudRepoIfInterfaceHasPagingAndSortingRepository(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
         javaTestHelper.runAndVerifyNoChanges(recipeMap.get(recipe),
                 List.of("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface HelloWorld<T, ID> {
                                 }
                                 """,
                         replacePagingRepoAndCrudRepo("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface -crudRepository-<T, ID> {
                                 }
-                                """, pagingAndSortingRepository, crudRepository),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                         """
                                 package test;
                                 public interface Payment<T> {
@@ -161,129 +161,130 @@ public class CrudRepositoryExtensionTest {
 
 
     @CsvSource({
-            "crudRepo,PagingAndSortingRepository,CrudRepository",
-            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository",
+            "crudRepo,PagingAndSortingRepository,CrudRepository,org.springframework.data.repository",
+            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository,org.springframework.data.repository.reactive"
     })
     @ParameterizedTest
-    public void whenThereAreNoParametersWhilstExtending(String recipe, String pagingAndSortingRepository, String crudRepository) {
+    public void whenThereAreNoParametersWhilstExtending(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
 
         javaTestHelper.runAndVerify(
                 recipeMap.get(recipe),
                 List.of(replacePagingRepoAndCrudRepo("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
                                 }
-                                """, pagingAndSortingRepository, crudRepository),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                         replacePagingRepoAndCrudRepo("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface -crudRepository-<T, ID> {
                                 }
-                                """, pagingAndSortingRepository, crudRepository)),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage)),
                 replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.-pagingRepository-;
+                        import -repositoryPackage-.-pagingRepository-;
                         public interface A extends -pagingRepository- {
                         }
-                        """, pagingAndSortingRepository, crudRepository),
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                 replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.-crudRepository-;
-                        import org.springframework.data.repository.-pagingRepository-;
+                        import -repositoryPackage-.-crudRepository-;
+                        import -repositoryPackage-.-pagingRepository-;
                                         
                         public interface A extends -pagingRepository-, -crudRepository- {
                         }
-                        """, pagingAndSortingRepository, crudRepository)
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage)
         );
     }
 
     @CsvSource({
-            "crudRepo,PagingAndSortingRepository,CrudRepository",
-            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository",
+            "crudRepo,PagingAndSortingRepository,CrudRepository,org.springframework.data.repository",
+            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository,org.springframework.data.repository.reactive"
     })
     @ParameterizedTest
-    public void multipleExtends(String recipe, String pagingAndSortingRepository, String crudRepository) {
+    public void multipleExtends(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
         javaTestHelper.runAndVerify(
                 recipeMap.get(recipe),
                 List.of(replacePagingRepoAndCrudRepo("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
                                 }
-                                """, pagingAndSortingRepository, crudRepository),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                         replacePagingRepoAndCrudRepo("""
                                 package temp;
                                 public interface Hello<T, ID> {
                                 }
-                                """, pagingAndSortingRepository, crudRepository),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                         replacePagingRepoAndCrudRepo("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface -crudRepository-<T, ID> {
                                 }
-                                """, pagingAndSortingRepository, crudRepository)),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage)),
                 replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.-pagingRepository-;
+                        import -repositoryPackage-.-pagingRepository-;
                         import temp.Hello;
                         public interface A extends Hello<String, Long>, -pagingRepository- {
                         }
-                        """, pagingAndSortingRepository, crudRepository),
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                 replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.-crudRepository-;
-                        import org.springframework.data.repository.-pagingRepository-;
+                        import -repositoryPackage-.-crudRepository-;
+                        import -repositoryPackage-.-pagingRepository-;
                         import temp.Hello;
                                         
                         public interface A extends Hello<String, Long>, -pagingRepository-, -crudRepository- {
                         }
-                        """, pagingAndSortingRepository, crudRepository)
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage)
         );
     }
 
     @CsvSource({
-            "crudRepo,PagingAndSortingRepository,CrudRepository",
-            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository",
+            "crudRepo,PagingAndSortingRepository,CrudRepository,org.springframework.data.repository",
+            "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository,org.springframework.data.repository.reactive"
     })
     @ParameterizedTest
-    public void classImplementsPagingRepository(String recipe, String pagingAndSortingRepository, String crudRepository) {
+    public void classImplementsPagingRepository(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
         javaTestHelper.runAndVerify(
                 recipeMap.get(recipe),
                 List.of(replacePagingRepoAndCrudRepo("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
                                 }
-                                """, pagingAndSortingRepository, crudRepository),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                         """
                                 package temp;
                                 public interface Hello<T, ID> {
                                 }
                                 """,
                         replacePagingRepoAndCrudRepo("""
-                                package org.springframework.data.repository;
+                                package -repositoryPackage-;
                                 public interface -crudRepository-<T, ID> {
                                 }
-                                """,pagingAndSortingRepository, crudRepository)),
+                                """,pagingAndSortingRepository, crudRepository, repositoryPackage)),
                 replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.-pagingRepository-;
+                        import -repositoryPackage-.-pagingRepository-;
                         import temp.Hello;
                         public class A implements Hello<String, Long>, -pagingRepository-<String, Long> {
                         }
-                        """, pagingAndSortingRepository, crudRepository),
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                 replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.-crudRepository-;
-                        import org.springframework.data.repository.-pagingRepository-;
+                        import -repositoryPackage-.-crudRepository-;
+                        import -repositoryPackage-.-pagingRepository-;
                         import temp.Hello;
                                         
                         public class A implements Hello<String, Long>, -pagingRepository-<String, Long>, -crudRepository-<String, Long> {
                         }
-                        """, pagingAndSortingRepository, crudRepository)
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage)
         );
     }
 
-    private String replacePagingRepoAndCrudRepo(String template, String pagingRepo, String crudRepo) {
+    private String replacePagingRepoAndCrudRepo(String template, String pagingRepo, String crudRepo, String repositoryPackage) {
 
         return template
                 .replaceAll("-pagingRepository-", pagingRepo)
-                .replaceAll("-crudRepository-", crudRepo);
+                .replaceAll("-crudRepository-", crudRepo)
+                .replaceAll("-repositoryPackage-", repositoryPackage);
     }
 }
