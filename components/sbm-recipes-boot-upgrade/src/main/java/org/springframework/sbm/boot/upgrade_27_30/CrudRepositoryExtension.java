@@ -16,6 +16,8 @@
 package org.springframework.sbm.boot.upgrade_27_30;
 
 
+import lombok.Setter;
+import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -28,15 +30,27 @@ import org.openrewrite.java.tree.JavaType;
 import java.util.List;
 import java.util.Optional;
 
+
+@Setter
 public class CrudRepositoryExtension extends Recipe {
-    public static final String PAGING_AND_SORTING_REPOSITORY = "org.springframework.data.repository.PagingAndSortingRepository";
-    public static final String CRUD_REPOSITORY = "org.springframework.data.repository.CrudRepository";
 
     @Override
     @NotNull
     public String getDisplayName() {
         return "Extends CrudRepository for Interfaces that extends PagingAndSortingRepository";
     }
+
+    public CrudRepositoryExtension() {
+
+    }
+
+    public CrudRepositoryExtension(String pagingAndSortingRepository, String targetCrudRepository) {
+        this.pagingAndSortingRepository = pagingAndSortingRepository;
+        this.targetCrudRepository = targetCrudRepository;
+    }
+
+    private String pagingAndSortingRepository;
+    private String targetCrudRepository;
 
     @Override
     protected @Nullable TreeVisitor<?, ExecutionContext> getApplicableTest() {
@@ -48,11 +62,11 @@ public class CrudRepositoryExtension extends Recipe {
             }
 
             private boolean doesItExtendPagingAndSorting(J.ClassDeclaration classDecl) {
-                if (classDecl.getType() == null) {
+                if (classDecl.getImplements() == null) {
                     return false;
                 }
                 return classDecl.getType().getInterfaces().stream()
-                        .anyMatch(impl -> impl.getFullyQualifiedName().equals(PAGING_AND_SORTING_REPOSITORY));
+                        .anyMatch(impl -> impl.getFullyQualifiedName().equals(pagingAndSortingRepository));
             }
 
             private J.ClassDeclaration ceaseVisit(J.ClassDeclaration classDecl) {
@@ -79,7 +93,7 @@ public class CrudRepositoryExtension extends Recipe {
                     return classDecl;
                 }
                 List<JavaType> typeParameters = pagingInterface.get().getTypeParameters();
-                doAfterVisit(new ImplementTypedInterface<>(classDecl, CRUD_REPOSITORY, typeParameters));
+                doAfterVisit(new ImplementTypedInterface<>(classDecl, targetCrudRepository, typeParameters));
                 return classDecl;
             }
 
@@ -88,7 +102,7 @@ public class CrudRepositoryExtension extends Recipe {
                     return Optional.empty();
                 }
                 return classDecl.getType().getInterfaces().stream()
-                        .filter(impl -> impl.getFullyQualifiedName().equals(PAGING_AND_SORTING_REPOSITORY))
+                        .filter(impl -> impl.getFullyQualifiedName().equals(pagingAndSortingRepository))
                         .findAny();
             }
         };
