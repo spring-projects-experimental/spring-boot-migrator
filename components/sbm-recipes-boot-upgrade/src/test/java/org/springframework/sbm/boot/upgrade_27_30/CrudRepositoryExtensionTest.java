@@ -15,52 +15,40 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.openrewrite.Recipe;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 
 public class CrudRepositoryExtensionTest {
 
-    private JavaTestHelper javaTestHelper = new JavaTestHelper();
-    private Recipe crudRepoExtensionRecipe = new CrudRepositoryExtension(
+    private final JavaTestHelper javaTestHelper = new JavaTestHelper();
+    private static final Recipe crudRepoExtensionRecipe = new CrudRepositoryExtension(
             "org.springframework.data.repository.PagingAndSortingRepository",
             "org.springframework.data.repository.CrudRepository"
     );
 
-    private Recipe reactiveCrudExtensionRecipe = new CrudRepositoryExtension(
+    private static final Recipe reactiveCrudExtensionRecipe = new CrudRepositoryExtension(
             "org.springframework.data.repository.reactive.ReactiveSortingRepository",
             "org.springframework.data.repository.reactive.ReactiveCrudRepository"
     );
 
-    private Recipe rxJavaCrudExtensionRecipe = new CrudRepositoryExtension(
+    private static final  Recipe rxJavaCrudExtensionRecipe = new CrudRepositoryExtension(
             "org.springframework.data.repository.reactive.RxJava3SortingRepository",
             "org.springframework.data.repository.reactive.RxJava3CrudRepository"
     );
 
-    private Map<String, Recipe> recipeMap = new HashMap<>();
-
-    @BeforeEach
-    public void setup() {
-
-        recipeMap.put("crudRepo", crudRepoExtensionRecipe);
-        recipeMap.put("reactiveRepo", reactiveCrudExtensionRecipe);
-        recipeMap.put("rxJavaRepo", rxJavaCrudExtensionRecipe);
-    }
 
     @ParameterizedTest
     @MethodSource("repositoryTestArguments")
-    public void shouldAddCrudRepository(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
+    public void shouldAddCrudRepository(Recipe recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
 
         javaTestHelper.runAndVerify(
-                recipeMap.get(recipe),
+                recipe,
                 List.of(replacePagingRepoAndCrudRepo("""
                                 package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
@@ -92,9 +80,9 @@ public class CrudRepositoryExtensionTest {
 
     @ParameterizedTest
     @MethodSource("repositoryTestArguments")
-    public void canDoQuestionMark(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
+    public void canDoQuestionMark(Recipe recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
 
-        javaTestHelper.runAndVerify(recipeMap.get(recipe),
+        javaTestHelper.runAndVerify(recipe,
                 List.of(replacePagingRepoAndCrudRepo("""
                                 package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
@@ -130,8 +118,8 @@ public class CrudRepositoryExtensionTest {
 
     @MethodSource("repositoryTestArguments")
     @ParameterizedTest
-    public void onlyExtendCrudRepoIfInterfaceHasPagingAndSortingRepository(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
-        javaTestHelper.runAndVerifyNoChanges(recipeMap.get(recipe),
+    public void onlyExtendCrudRepoIfInterfaceHasPagingAndSortingRepository(Recipe recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
+        javaTestHelper.runAndVerifyNoChanges(recipe,
                 List.of("""
                                 package -repositoryPackage-;
                                 public interface HelloWorld<T, ID> {
@@ -160,10 +148,10 @@ public class CrudRepositoryExtensionTest {
 
     @MethodSource("repositoryTestArguments")
     @ParameterizedTest
-    public void whenThereAreNoParametersWhilstExtending(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
+    public void whenThereAreNoParametersWhilstExtending(Recipe recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
 
         javaTestHelper.runAndVerify(
-                recipeMap.get(recipe),
+                recipe,
                 List.of(replacePagingRepoAndCrudRepo("""
                                 package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
@@ -193,9 +181,9 @@ public class CrudRepositoryExtensionTest {
 
     @MethodSource("repositoryTestArguments")
     @ParameterizedTest
-    public void multipleExtends(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
+    public void multipleExtends(Recipe recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
         javaTestHelper.runAndVerify(
-                recipeMap.get(recipe),
+                recipe,
                 List.of(replacePagingRepoAndCrudRepo("""
                                 package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
@@ -232,9 +220,9 @@ public class CrudRepositoryExtensionTest {
 
     @MethodSource("repositoryTestArguments")
     @ParameterizedTest
-    public void classImplementsPagingRepository(String recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
+    public void classImplementsPagingRepository(Recipe recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
         javaTestHelper.runAndVerify(
-                recipeMap.get(recipe),
+                recipe,
                 List.of(replacePagingRepoAndCrudRepo("""
                                 package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
@@ -279,9 +267,9 @@ public class CrudRepositoryExtensionTest {
 
     private static Stream<Arguments> repositoryTestArguments() {
         return Stream.of(
-                Arguments.of("crudRepo", "PagingAndSortingRepository", "CrudRepository", "org.springframework.data.repository"),
-                Arguments.of("reactiveRepo", "ReactiveSortingRepository", "ReactiveCrudRepository", "org.springframework.data.repository.reactive"),
-                Arguments.of("rxJavaRepo", "RxJava3SortingRepository", "RxJava3CrudRepository", "org.springframework.data.repository.reactive")
+                Arguments.of(crudRepoExtensionRecipe, "PagingAndSortingRepository", "CrudRepository", "org.springframework.data.repository"),
+                Arguments.of(reactiveCrudExtensionRecipe, "ReactiveSortingRepository", "ReactiveCrudRepository", "org.springframework.data.repository.reactive"),
+                Arguments.of(rxJavaCrudExtensionRecipe, "RxJava3SortingRepository", "RxJava3CrudRepository", "org.springframework.data.repository.reactive")
         );
     }
 }
