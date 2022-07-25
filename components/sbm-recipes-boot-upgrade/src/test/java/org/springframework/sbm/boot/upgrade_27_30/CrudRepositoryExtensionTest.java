@@ -16,12 +16,10 @@
 package org.springframework.sbm.boot.upgrade_27_30;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.openrewrite.Recipe;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,12 +45,14 @@ public class CrudRepositoryExtensionTest {
 
         recipeMap.put("crudRepo", crudRepoExtensionRecipe);
         recipeMap.put("reactiveRepo", reactiveCrudExtensionRecipe);
+        recipeMap.put("coroutineRepo", reactiveCrudExtensionRecipe);
     }
 
     @ParameterizedTest
     @CsvSource({
             "crudRepo,PagingAndSortingRepository,CrudRepository",
             "reactiveRepo,ReactiveSortingRepository,ReactiveCrudRepository",
+            "coroutineRepo,CoroutineSortingRepository,CoroutineCrudRepository",
     })
     public void shouldAddCrudRepository(String recipe, String pagingAndSortingRepository, String crudRepository) {
 
