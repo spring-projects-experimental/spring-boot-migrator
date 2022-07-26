@@ -118,6 +118,9 @@
           - org.springframework.sbm.boot.upgrade_27_30.CrudRepositoryExtension:
               pagingAndSortingRepository: org.springframework.data.repository.reactive.ReactiveSortingRepository
               targetCrudRepository: org.springframework.data.repository.reactive.ReactiveCrudRepository
+          - org.springframework.sbm.boot.upgrade_27_30.CrudRepositoryExtension:
+              pagingAndSortingRepository: org.springframework.data.repository.reactive.RxJava3SortingRepository
+              targetCrudRepository: org.springframework.data.repository.reactive.RxJava3CrudRepository
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:

@@ -62,7 +62,7 @@ public class CrudRepositoryExtension extends Recipe {
             }
 
             private boolean doesItExtendPagingAndSorting(J.ClassDeclaration classDecl) {
-                if (classDecl.getType() == null) {
+                if (classDecl.getImplements() == null) {
                     return false;
                 }
                 return classDecl.getType().getInterfaces().stream()

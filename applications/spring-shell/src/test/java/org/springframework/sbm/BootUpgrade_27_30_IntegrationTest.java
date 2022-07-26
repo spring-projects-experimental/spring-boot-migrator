@@ -76,11 +76,11 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         String studentRepoRxJava3Sorting = loadJavaFile("org.springboot.example.upgrade", "StudentRepoRxJava3Sorting");
         assertThat(studentRepoRxJava3Sorting).isEqualTo("""
                 package org.springboot.example.upgrade;
-                                
+
                 import org.springframework.data.repository.reactive.RxJava3CrudRepository;
                 import org.springframework.data.repository.reactive.RxJava3SortingRepository;
-                                
-                public interface StudentRepoReactiveSorting extends RxJava3SortingRepository<Student<?>, Long>, RxJava3CrudRepository<Student<?>, Long> {
+
+                public interface StudentRepoRxJava3Sorting extends RxJava3SortingRepository<Student<?>, Long>, RxJava3CrudRepository<Student<?>, Long> {
                 }
                 """);
     }
