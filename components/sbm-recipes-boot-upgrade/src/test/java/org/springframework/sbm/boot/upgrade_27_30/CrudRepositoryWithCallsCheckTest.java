@@ -13,10 +13,12 @@ public class CrudRepositoryWithCallsCheckTest {
             "org.springframework.data.repository.CrudRepository"
     );
 
+    private static final Recipe testRecipe = new TestRecipe();
+
     @Test
     void shouldNotAddCrudRepositoryWithoutCall() {
         javaTestHelper.runAndVerifyNoChanges(
-                crudRepoExtensionRecipe,
+                testRecipe,
                 List.of("""
                                 package org.springframework.data.repository;
                                 public interface CrudRepository<T, ID> {
@@ -26,28 +28,19 @@ public class CrudRepositoryWithCallsCheckTest {
                                 package org.springframework.data.repository;
                                 public interface PagingAndSortingRepository<T, ID> {
                                 }
-                                """,
-                        """
-                                package test;
-                                
-                                import org.springframework.beans.factory.annotation.Autowired;
-                                import org.springframework.stereotype.Component;
-                                
-                                @Component
-                                public class HelloComponent {
-                                    @Autowired
-                                    private A<String, Long> myRepo;
-                                
-                                    public void saveReactiveRepo() {
-                                        //myRepo.findAll("");
-                                    }
-                                }
                                 """
                 ),
                 """
                         package test;
                         import org.springframework.data.repository.PagingAndSortingRepository;
                         public interface A extends PagingAndSortingRepository<String, Long> {
+                        }
+                        
+                        class Hello {
+                            public void myCall() {
+                                A a = null;
+                                a.save("");        
+                            }
                         }
                         """
         );
