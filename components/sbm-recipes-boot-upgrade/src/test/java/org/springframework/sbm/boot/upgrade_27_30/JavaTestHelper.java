@@ -53,7 +53,7 @@ public class JavaTestHelper {
     }
 
     @NotNull
-    private List<Result> runRecipe(Recipe recipe, List<String> dependsOn, @Language("java") String before) {
+    public List<Result> runRecipe(Recipe recipe, List<String> dependsOn, @Language("java") String... before) {
 
         List<Throwable> errors = new ArrayList<>();
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {

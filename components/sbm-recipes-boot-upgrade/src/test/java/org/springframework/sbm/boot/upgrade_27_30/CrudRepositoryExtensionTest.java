@@ -15,13 +15,19 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30;
 
+import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.openrewrite.Recipe;
+import org.openrewrite.Result;
 
 import java.util.List;
 import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class CrudRepositoryExtensionTest {
@@ -256,6 +262,61 @@ public class CrudRepositoryExtensionTest {
                         """, pagingAndSortingRepository, crudRepository, repositoryPackage)
         );
     }
+
+    @Test
+    void shouldNotAddCrudRepositoryWithoutCall2() {
+        @NotNull List<Result> result = javaTestHelper.runRecipe(
+                crudRepoExtensionRecipe,
+                List.of("""
+                                package org.springframework.data.repository;
+                                public interface CrudRepository<T, ID> {
+                                }
+                                """,
+                        """
+                                package org.springframework.data.repository;
+                                public interface PagingAndSortingRepository<T, ID> {
+                                    void save(String entity);
+                                }
+                                """
+                ),
+                """
+                        package test;
+                        import org.springframework.data.repository.PagingAndSortingRepository;
+                                        
+                        public interface A extends PagingAndSortingRepository<String, Long> {
+                                void test(String p);
+                        }
+                        """,
+                        """
+                        package test;
+                        import org.springframework.data.repository.PagingAndSortingRepository;
+                                        
+                        public interface B extends PagingAndSortingRepository<String, Long> {
+
+                        }
+                        """,
+                        """
+                        package test;
+                                        
+                        class Hello {
+                                        
+                            public void myCall(A a, B b) {
+                                a.save("");
+                                        
+                                String myString = "MyString";
+                                int k = myString.length();
+                                
+                                Integer myInt = Integer.parseInt("0");
+                            }
+                        }
+                        """
+        );
+
+        assertThat(result).hasSize(1);
+    }
+
+    // TODO: test with inner class
+
 
     private String replacePagingRepoAndCrudRepo(String template, String pagingRepo, String crudRepo, String repositoryPackage) {
 

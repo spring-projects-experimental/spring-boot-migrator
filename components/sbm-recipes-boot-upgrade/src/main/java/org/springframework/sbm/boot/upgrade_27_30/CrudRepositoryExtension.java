@@ -17,18 +17,24 @@ package org.springframework.sbm.boot.upgrade_27_30;
 
 
 import lombok.Setter;
-import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
+import org.openrewrite.SourceFile;
 import org.openrewrite.TreeVisitor;
+import org.openrewrite.internal.ListUtils;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaIsoVisitor;
+import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
+import org.openrewrite.java.tree.MethodCall;
+import org.openrewrite.java.tree.TypeUtils;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.openrewrite.java.search.FindMethods.find;
 
 
 @Setter
@@ -53,59 +59,91 @@ public class CrudRepositoryExtension extends Recipe {
     private String targetCrudRepository;
 
     @Override
-    protected @Nullable TreeVisitor<?, ExecutionContext> getApplicableTest() {
-        return new JavaIsoVisitor<>() {
+    protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
+
+        return ListUtils.map(before, sourceFile -> (SourceFile) new JavaVisitor<Integer>() {
             @Override
-            @NotNull
-            public J.ClassDeclaration visitClassDeclaration(@NotNull J.ClassDeclaration classDecl, @NotNull ExecutionContext executionContext) {
-                return doesItExtendPagingAndSorting(classDecl) ? applyThisRecipe(classDecl) : ceaseVisit(classDecl);
-            }
+            public J visitClassDeclaration(J.ClassDeclaration classDecl, Integer p) {
 
-            private boolean doesItExtendPagingAndSorting(J.ClassDeclaration classDecl) {
-                if (classDecl.getImplements() == null) {
-                    return false;
-                }
-                return classDecl.getType().getInterfaces().stream()
-                        .anyMatch(impl -> impl.getFullyQualifiedName().equals(pagingAndSortingRepository));
-            }
+                if (TypeUtils.isAssignableTo(pagingAndSortingRepository, classDecl.getType())) {
+                    Optional<JavaType.FullyQualified> pagingInterface = getExtendPagingAndSorting(classDecl);
+                    if (pagingInterface.isEmpty()) {
+                        return classDecl;
+                    }
+                    List<JavaType> typeParameters = pagingInterface.get().getTypeParameters();
+                    doAfterVisit(new ImplementTypedInterface<>(classDecl, targetCrudRepository, typeParameters));
 
-            private J.ClassDeclaration ceaseVisit(J.ClassDeclaration classDecl) {
-                return classDecl;
-            }
-
-            @NotNull
-            private J.ClassDeclaration applyThisRecipe(J.ClassDeclaration classDecl) {
-                return classDecl.withMarkers(classDecl.getMarkers().searchResult());
-            }
-        };
-    }
-
-    @Override
-    @NotNull
-    protected JavaIsoVisitor<ExecutionContext> getVisitor() {
-        return new JavaIsoVisitor<>() {
-            @Override
-            @NotNull
-            public J.ClassDeclaration visitClassDeclaration(@NotNull J.ClassDeclaration classDecl, @NotNull ExecutionContext executionContext) {
-
-                Optional<JavaType.FullyQualified> pagingInterface = getExtendPagingAndSorting(classDecl);
-                if (pagingInterface.isEmpty()) {
                     return classDecl;
                 }
-                List<JavaType> typeParameters = pagingInterface.get().getTypeParameters();
-                doAfterVisit(new ImplementTypedInterface<>(classDecl, targetCrudRepository, typeParameters));
+
                 return classDecl;
             }
-
-            private Optional<JavaType.FullyQualified> getExtendPagingAndSorting(J.ClassDeclaration classDecl) {
-                if (classDecl.getType() == null) {
-                    return Optional.empty();
-                }
-                return classDecl.getType().getInterfaces().stream()
-                        .filter(impl -> impl.getFullyQualifiedName().equals(pagingAndSortingRepository))
-                        .findAny();
-            }
-        };
-
+        }.visit(sourceFile, 0));
     }
+
+    private Optional<JavaType.FullyQualified> getExtendPagingAndSorting(J.ClassDeclaration classDecl) {
+        if (classDecl.getType() == null) {
+            return Optional.empty();
+        }
+        return classDecl.getType().getInterfaces().stream()
+                .filter(impl -> impl.getFullyQualifiedName().equals(pagingAndSortingRepository))
+                .findAny();
+    }
+
+    //    @Override
+//    protected @Nullable TreeVisitor<?, ExecutionContext> getApplicableTest() {
+//        return new JavaIsoVisitor<>() {
+//            @Override
+//            @NotNull
+//            public J.ClassDeclaration visitClassDeclaration(@NotNull J.ClassDeclaration classDecl, @NotNull ExecutionContext executionContext) {
+//                return doesItExtendPagingAndSorting(classDecl) ? applyThisRecipe(classDecl) : ceaseVisit(classDecl);
+//            }
+//
+//            private boolean doesItExtendPagingAndSorting(J.ClassDeclaration classDecl) {
+//                if (classDecl.getImplements() == null) {
+//                    return false;
+//                }
+//                return classDecl.getType().getInterfaces().stream()
+//                        .anyMatch(impl -> impl.getFullyQualifiedName().equals(pagingAndSortingRepository));
+//            }
+//
+//            private J.ClassDeclaration ceaseVisit(J.ClassDeclaration classDecl) {
+//                return classDecl;
+//            }
+//
+//            @NotNull
+//            private J.ClassDeclaration applyThisRecipe(J.ClassDeclaration classDecl) {
+//                return classDecl.withMarkers(classDecl.getMarkers().searchResult());
+//            }
+//        };
+//    }
+
+//    @Override
+//    @NotNull
+//    protected JavaIsoVisitor<ExecutionContext> getVisitor() {
+//        return new JavaIsoVisitor<>() {
+//            @Override
+//            @NotNull
+//            public J.ClassDeclaration visitClassDeclaration(@NotNull J.ClassDeclaration classDecl, @NotNull ExecutionContext executionContext) {
+//
+//                Optional<JavaType.FullyQualified> pagingInterface = getExtendPagingAndSorting(classDecl);
+//                if (pagingInterface.isEmpty()) {
+//                    return classDecl;
+//                }
+//                List<JavaType> typeParameters = pagingInterface.get().getTypeParameters();
+//                doAfterVisit(new ImplementTypedInterface<>(classDecl, targetCrudRepository, typeParameters));
+//                return classDecl;
+//            }
+//
+//            private Optional<JavaType.FullyQualified> getExtendPagingAndSorting(J.ClassDeclaration classDecl) {
+//                if (classDecl.getType() == null) {
+//                    return Optional.empty();
+//                }
+//                return classDecl.getType().getInterfaces().stream()
+//                        .filter(impl -> impl.getFullyQualifiedName().equals(pagingAndSortingRepository))
+//                        .findAny();
+//            }
+//        };
+//
+//    }
 }
