@@ -40,17 +40,6 @@ public class JavaTestHelper {
         assertThat(result).hasSize(0);
     }
 
-    public void runAndVerify(
-            Recipe recipe,
-            List<String> dependsOn,
-            @Language("java") String after,
-            @Language("java") String... before
-            ) {
-        List<Result> result = runRecipe(recipe, dependsOn, before);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getAfter().printAll()).isEqualTo(after);
-    }
 
     @NotNull
     public List<Result> runRecipe(Recipe recipe, List<String> dependsOn, @Language("java") String... before) {
@@ -72,5 +61,11 @@ public class JavaTestHelper {
 
         assertThat(errors).hasSize(0);
         return result;
+    }
+
+    public void assertResult(List<Result> result, String after) {
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getAfter().printAll()).isEqualTo(after);
     }
 }

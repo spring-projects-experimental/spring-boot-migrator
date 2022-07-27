@@ -17,7 +17,7 @@ public class CrudRepositoryWithCallsCheckTest {
 
     @Test
     void shouldNotAddCrudRepositoryWithoutCall() {
-        javaTestHelper.runAndVerify(
+        javaTestHelper.runRecipe(
                 testRecipe,
                 List.of("""
                                 package org.springframework.data.repository;
