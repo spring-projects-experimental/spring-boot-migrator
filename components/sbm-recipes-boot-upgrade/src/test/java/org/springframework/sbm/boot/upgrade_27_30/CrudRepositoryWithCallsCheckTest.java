@@ -13,11 +13,11 @@ public class CrudRepositoryWithCallsCheckTest {
             "org.springframework.data.repository.CrudRepository"
     );
 
-    private static final Recipe testRecipe = new TestRecipe();
+    private static final Recipe testRecipe = new ConditionTestRecipe();
 
     @Test
     void shouldNotAddCrudRepositoryWithoutCall() {
-        javaTestHelper.runAndVerifyNoChanges(
+        javaTestHelper.runAndVerify(
                 testRecipe,
                 List.of("""
                                 package org.springframework.data.repository;
@@ -27,13 +27,46 @@ public class CrudRepositoryWithCallsCheckTest {
                         """
                                 package org.springframework.data.repository;
                                 public interface PagingAndSortingRepository<T, ID> {
+                                    void save(String entity);
                                 }
                                 """
                 ),
                 """
                         package test;
+                        import org.springframework.data.repository.PagingAndSortingRepository;                        
+                        class Hello {
+                            public interface A extends PagingAndSortingRepository<String, Long> {
+                                void test(String p);
+                            }
+
+                            public void myCall(A a) {
+                                a.save("");
+                        
+                                String myString = "MyString";
+                                int k = myString.length();
+                                
+                                Integer myInt = Integer.parseInt("0");
+                            }
+                            
+                        }
+                        """,
+//                """
+//                        package test;
+//                        import org.springframework.data.repository.PagingAndSortingRepository;
+//                        public interface A extends PagingAndSortingRepository<String, Long> {
+//                        }
+//
+//                        class Hello {
+//                            public void myCall() {
+//                                A a = null;
+//                                a.save("");
+//                            }
+//                        }
+//                        """,
+                """
+                        package test;
                         import org.springframework.data.repository.PagingAndSortingRepository;
-                        public interface A extends PagingAndSortingRepository<String, Long> {
+                        public interface A extends PagingAndSortingRepository<String, Long>, CrudRepository<String, Long> {
                         }
                         
                         class Hello {

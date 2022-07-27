@@ -35,6 +35,7 @@ public class TestRecipe extends Recipe {
     protected JavaIsoVisitor<ExecutionContext> getVisitor() {
 
         return new JavaIsoVisitor<>() {
+
             @Override
             @NotNull
             public J.ClassDeclaration visitClassDeclaration(@NotNull J.ClassDeclaration classDecl, @NotNull ExecutionContext executionContext) {
