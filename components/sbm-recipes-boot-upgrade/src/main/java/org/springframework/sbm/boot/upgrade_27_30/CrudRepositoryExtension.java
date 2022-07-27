@@ -31,8 +31,10 @@ import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.MethodCall;
 import org.openrewrite.java.tree.TypeUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.openrewrite.java.search.FindMethods.find;
 
@@ -59,13 +61,36 @@ public class CrudRepositoryExtension extends Recipe {
     private String targetCrudRepository;
 
     @Override
-    protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
+    protected List<SourceFile> visit(List<SourceFile> allSourceFiles, ExecutionContext ctx) {
 
-        return ListUtils.map(before, sourceFile -> (SourceFile) new JavaVisitor<Integer>() {
+        Set<String> classesToAddCrudRepository = new HashSet<>();
+        for (SourceFile source : allSourceFiles) {
+
+            if (source instanceof J) {
+                J cu = (J) source;
+
+                new JavaIsoVisitor<Integer>() {
+                    @Override
+                    public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, Integer integer) {
+                        @Nullable JavaType callingClassType = method.getSelect().getType();
+
+                        if (TypeUtils.isAssignableTo(pagingAndSortingRepository, callingClassType)) {
+                            classesToAddCrudRepository.add(callingClassType.toString());
+                        }
+                        return super.visitMethodInvocation(method, integer);
+                    }
+                }.visit(cu, 0);
+            }
+        }
+
+        return ListUtils.map(allSourceFiles, sourceFile -> (SourceFile) new JavaVisitor<Integer>() {
             @Override
             public J visitClassDeclaration(J.ClassDeclaration classDecl, Integer p) {
 
-                if (TypeUtils.isAssignableTo(pagingAndSortingRepository, classDecl.getType())) {
+                if (
+                        TypeUtils.isAssignableTo(pagingAndSortingRepository, classDecl.getType())
+                        && classesToAddCrudRepository.contains(classDecl.getType().toString())
+                ) {
                     Optional<JavaType.FullyQualified> pagingInterface = getExtendPagingAndSorting(classDecl);
                     if (pagingInterface.isEmpty()) {
                         return classDecl;

@@ -43,8 +43,8 @@ public class JavaTestHelper {
     public void runAndVerify(
             Recipe recipe,
             List<String> dependsOn,
-            @Language("java") String before,
-            @Language("java") String after
+            @Language("java") String after,
+            @Language("java") String... before
             ) {
         List<Result> result = runRecipe(recipe, dependsOn, before);
 

@@ -15,14 +15,13 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30;
 
-import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
+import org.openrewrite.test.RewriteTest;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -30,7 +29,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class CrudRepositoryExtensionTest {
+public class CrudRepositoryExtensionTest implements RewriteTest {
 
     private final JavaTestHelper javaTestHelper = new JavaTestHelper();
     private static final Recipe crudRepoExtensionRecipe = new CrudRepositoryExtension(
@@ -43,7 +42,7 @@ public class CrudRepositoryExtensionTest {
             "org.springframework.data.repository.reactive.ReactiveCrudRepository"
     );
 
-    private static final  Recipe rxJavaCrudExtensionRecipe = new CrudRepositoryExtension(
+    private static final Recipe rxJavaCrudExtensionRecipe = new CrudRepositoryExtension(
             "org.springframework.data.repository.reactive.RxJava3SortingRepository",
             "org.springframework.data.repository.reactive.RxJava3CrudRepository"
     );
@@ -58,6 +57,7 @@ public class CrudRepositoryExtensionTest {
                 List.of(replacePagingRepoAndCrudRepo("""
                                 package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
+                                    void save(T entity);
                                 }
                                 """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                         replacePagingRepoAndCrudRepo("""
@@ -68,19 +68,27 @@ public class CrudRepositoryExtensionTest {
                 ),
                 replacePagingRepoAndCrudRepo("""
                         package test;
-                        import -repositoryPackage-.-pagingRepository-;
-                        public interface A extends -pagingRepository-<String, Long> {
-                        }
-                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
-                replacePagingRepoAndCrudRepo("""
-                        package test;
                         import -repositoryPackage-.-crudRepository-;
                         import -repositoryPackage-.-pagingRepository-;
                                                         
                         public interface A extends -pagingRepository-<String, Long>, -crudRepository-<String, Long> {
                         }
                         """, pagingAndSortingRepository, crudRepository, repositoryPackage
-                )
+                ),
+                replacePagingRepoAndCrudRepo("""
+                        package test;
+                        import -repositoryPackage-.-pagingRepository-;
+                        public interface A extends -pagingRepository-<String, Long> {
+                        }
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
+                replacePagingRepoAndCrudRepo("""
+                        package test;
+                        public class Hello  {
+                            public void test(A a) {
+                                a.save("Hello");
+                            }
+                        }
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage)
         );
     }
 
@@ -243,7 +251,7 @@ public class CrudRepositoryExtensionTest {
                                 package -repositoryPackage-;
                                 public interface -crudRepository-<T, ID> {
                                 }
-                                """,pagingAndSortingRepository, crudRepository, repositoryPackage)),
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage)),
                 replacePagingRepoAndCrudRepo("""
                         package test;
                         import -repositoryPackage-.-pagingRepository-;
@@ -263,61 +271,68 @@ public class CrudRepositoryExtensionTest {
         );
     }
 
-    @Test
-    void shouldNotAddCrudRepositoryWithoutCall2() {
+
+    @ParameterizedTest
+    @MethodSource("repositoryTestArguments")
+    void shouldNotExtendCrudRepositoryIfAMembersAreNotUsed(Recipe recipe, String pagingAndSortingRepository,
+                                                           String crudRepository,
+                                                           String repositoryPackage) {
         @NotNull List<Result> result = javaTestHelper.runRecipe(
-                crudRepoExtensionRecipe,
-                List.of("""
-                                package org.springframework.data.repository;
-                                public interface CrudRepository<T, ID> {
+                recipe,
+                List.of(replacePagingRepoAndCrudRepo("""
+                                package -repositoryPackage-;
+                                public interface -crudRepository-<T, ID> {
                                 }
-                                """,
-                        """
-                                package org.springframework.data.repository;
-                                public interface PagingAndSortingRepository<T, ID> {
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
+                        replacePagingRepoAndCrudRepo("""
+                                package -repositoryPackage-;
+                                public interface -pagingRepository-<T, ID> {
                                     void save(String entity);
                                 }
-                                """
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage)
                 ),
-                """
+                replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.PagingAndSortingRepository;
+                        import -repositoryPackage-.-pagingRepository-;
                                         
-                        public interface A extends PagingAndSortingRepository<String, Long> {
-                                void test(String p);
+                        public interface A extends -pagingRepository-<String, Long> {
                         }
-                        """,
-                        """
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
+                replacePagingRepoAndCrudRepo("""
                         package test;
-                        import org.springframework.data.repository.PagingAndSortingRepository;
+                        import  -repositoryPackage-.-pagingRepository-;
                                         
-                        public interface B extends PagingAndSortingRepository<String, Long> {
-
+                        public interface B extends -pagingRepository-<String, Long> {
+                            test();
                         }
-                        """,
-                        """
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
+                replacePagingRepoAndCrudRepo("""
                         package test;
-                                        
                         class Hello {
-                                        
+
                             public void myCall(A a, B b) {
                                 a.save("");
-                                        
-                                String myString = "MyString";
-                                int k = myString.length();
-                                
-                                Integer myInt = Integer.parseInt("0");
                             }
                         }
-                        """
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage)
         );
 
         assertThat(result).hasSize(1);
+        assertThat(result.get(0).getAfter().printAll())
+                .isEqualTo(
+                        replacePagingRepoAndCrudRepo("""
+                                package test;
+                                import -repositoryPackage-.-crudRepository-;
+                                import -repositoryPackage-.-pagingRepository-;
+                                                
+                                public interface A extends -pagingRepository-<String, Long>, -crudRepository-<String, Long> {
+                                }
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage));
     }
 
     // TODO: test with inner class
-
-
+    // TODO: do method reference toot
+    // TODO: make sure all the members are tested example save, delete, etc
     private String replacePagingRepoAndCrudRepo(String template, String pagingRepo, String crudRepo, String repositoryPackage) {
 
         return template
