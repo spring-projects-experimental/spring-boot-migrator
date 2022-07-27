@@ -264,9 +264,9 @@ public class CrudRepositoryExtensionTest implements RewriteTest {
     }
 
     @MethodSource("repositoryTestArguments")
-    //@ParameterizedTest
+    @ParameterizedTest
     public void classImplementsPagingRepository(Recipe recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
-        javaTestHelper.runRecipe(
+        @NotNull List<Result> result = javaTestHelper.runRecipe(
                 recipe,
                 List.of(replacePagingRepoAndCrudRepo("""
                                 package -repositoryPackage-;
@@ -292,14 +292,23 @@ public class CrudRepositoryExtensionTest implements RewriteTest {
                         """, pagingAndSortingRepository, crudRepository, repositoryPackage),
                 replacePagingRepoAndCrudRepo("""
                         package test;
+                        public class Hello  {
+                            public void test(A a) {
+                                a.save("Hello");
+                            }
+                        }
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage)
+        );
+
+        javaTestHelper.assertResult(result, replacePagingRepoAndCrudRepo("""
+                        package test;
                         import -repositoryPackage-.-crudRepository-;
                         import -repositoryPackage-.-pagingRepository-;
                         import temp.Hello;
                                         
                         public class A implements Hello<String, Long>, -pagingRepository-<String, Long>, -crudRepository-<String, Long> {
                         }
-                        """, pagingAndSortingRepository, crudRepository, repositoryPackage)
-        );
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage));
     }
 
 
