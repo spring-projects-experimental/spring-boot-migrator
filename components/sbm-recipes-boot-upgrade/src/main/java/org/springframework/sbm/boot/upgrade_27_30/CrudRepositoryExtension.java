@@ -75,7 +75,10 @@ public class CrudRepositoryExtension extends Recipe {
                         @Nullable JavaType callingClassType = method.getSelect().getType();
 
                         if (TypeUtils.isAssignableTo(pagingAndSortingRepository, callingClassType)) {
-                            classesToAddCrudRepository.add(callingClassType.toString());
+                            JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(callingClassType);
+                            if (fullyQualified != null) {
+                                classesToAddCrudRepository.add(fullyQualified.getFullyQualifiedName());
+                            }
                         }
                         return super.visitMethodInvocation(method, integer);
                     }
@@ -83,13 +86,15 @@ public class CrudRepositoryExtension extends Recipe {
             }
         }
 
-        return ListUtils.map(allSourceFiles, sourceFile -> (SourceFile) new JavaVisitor<Integer>() {
-            @Override
-            public J visitClassDeclaration(J.ClassDeclaration classDecl, Integer p) {
+        return ListUtils.map(allSourceFiles, sourceFile -> (SourceFile) new JavaIsoVisitor<Integer>() {
 
+            @Override
+            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, Integer p) {
+                JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(classDecl.getType());
                 if (
                         TypeUtils.isAssignableTo(pagingAndSortingRepository, classDecl.getType())
-                        && classesToAddCrudRepository.contains(classDecl.getType().toString())
+                        && fullyQualified != null
+                        && classesToAddCrudRepository.contains(fullyQualified.getFullyQualifiedName())
                 ) {
                     Optional<JavaType.FullyQualified> pagingInterface = getExtendPagingAndSorting(classDecl);
                     if (pagingInterface.isEmpty()) {
@@ -101,7 +106,7 @@ public class CrudRepositoryExtension extends Recipe {
                     return classDecl;
                 }
 
-                return classDecl;
+                return super.visitClassDeclaration(classDecl, p);
             }
         }.visit(sourceFile, 0));
     }

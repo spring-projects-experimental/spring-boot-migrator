@@ -24,31 +24,32 @@ public class ConditionTestRecipe extends Recipe {
 
     @Override
     protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
-        List<String> types = new ArrayList<>();
+        List<JavaType> types = new ArrayList<>();
         for (SourceFile sourceFile : before) {
             if (sourceFile instanceof J) {
                 J j = (J) sourceFile;
                 for (J found : find(j, "org.springframework.data.repository.PagingAndSortingRepository *(..)")) {
                     JavaType.Method methodType = ((MethodCall) found).getMethodType();
                     if (methodType != null) {
-                        types.add(methodType.getDeclaringType().getFullyQualifiedName());
+                        types.add(methodType.getDeclaringType());
                     }
                 }
             }
         }
 
-        return ListUtils.map(before, sourceFile -> (SourceFile) new JavaVisitor<Integer>() {
+        return ListUtils.map(before, sourceFile -> (SourceFile) new JavaIsoVisitor<Integer>() {
+
             @Override
-            public J visitClassDeclaration(J.ClassDeclaration classDecl, Integer p) {
-                for (String type : types) {
-                    if (TypeUtils.isOfClassType(classDecl.getType(), type)) {
+            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, Integer p) {
+                for (JavaType type : types) {
+                    if (TypeUtils.isAssignableTo(type, classDecl.getType())) {
                         Optional<JavaType.FullyQualified> pagingInterface = getExtendPagingAndSorting(classDecl);
                         if (pagingInterface.isEmpty()) {
                             return classDecl;
                         }
                         List<JavaType> typeParameters = pagingInterface.get().getTypeParameters();
-                        return new ImplementTypedInterface<>(classDecl, "org.springframework.data.repository.CrudRepository", typeParameters)
-                                .visitNonNull(classDecl, p);
+                        doAfterVisit(new ImplementTypedInterface<>(classDecl, "org.springframework.data.repository.CrudRepository", typeParameters));
+                        return classDecl;
                     }
                 }
                 return super.visitClassDeclaration(classDecl, p);

@@ -3,6 +3,7 @@ package org.springframework.sbm.boot.upgrade_27_30;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.Recipe;
+import org.openrewrite.Result;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class CrudRepositoryWithCallsCheckTest {
 
     @Test
     void shouldNotAddCrudRepositoryWithoutCall() {
-        javaTestHelper.runRecipe(
+        List<Result> results = javaTestHelper.runRecipe(
                 testRecipe,
                 List.of("""
                                 package org.springframework.data.repository;
@@ -35,13 +36,13 @@ public class CrudRepositoryWithCallsCheckTest {
                         package test;
                         import org.springframework.data.repository.PagingAndSortingRepository;                        
                         class Hello {
+
                             public interface A extends PagingAndSortingRepository<String, Long> {
                                 void test(String p);
                             }
-
                             public void myCall(A a) {
                                 a.save("");
-                        
+                                                
                                 String myString = "MyString";
                                 int k = myString.length();
                                 
@@ -49,7 +50,7 @@ public class CrudRepositoryWithCallsCheckTest {
                             }
                             
                         }
-                        """,
+                        """
 //                """
 //                        package test;
 //                        import org.springframework.data.repository.PagingAndSortingRepository;
@@ -62,8 +63,10 @@ public class CrudRepositoryWithCallsCheckTest {
 //                                a.save("");
 //                            }
 //                        }
-//                        """,
-                """
+//                        """
+        );
+
+        javaTestHelper.assertResult(results, """
                         package test;
                         import org.springframework.data.repository.PagingAndSortingRepository;
                         public interface A extends PagingAndSortingRepository<String, Long>, CrudRepository<String, Long> {
@@ -75,8 +78,7 @@ public class CrudRepositoryWithCallsCheckTest {
                                 a.save("");        
                             }
                         }
-                        """
-        );
+                        """);
     }
 
 }
