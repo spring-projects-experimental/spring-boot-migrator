@@ -312,7 +312,7 @@ public class CrudRepositoryExtensionTest implements RewriteTest {
     }
 
 
-    //@ParameterizedTest
+    @ParameterizedTest
     @MethodSource("repositoryTestArguments")
     void shouldNotExtendCrudRepositoryIfAMembersAreNotUsed(Recipe recipe, String pagingAndSortingRepository,
                                                            String crudRepository,
