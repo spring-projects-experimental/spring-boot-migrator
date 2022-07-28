@@ -65,6 +65,20 @@ public class CrudRepositoryExtension extends Recipe {
                 J cu = (J) source;
 
                 new JavaIsoVisitor<Integer>() {
+
+                    @Override
+                    public J.MemberReference visitMemberReference(J.MemberReference memberRef, Integer integer) {
+
+                        JavaType callingClassType = memberRef.getContaining().getType();
+                        JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(callingClassType);
+
+                        if (fullyQualified != null) {
+                            classesToAddCrudRepository.add(fullyQualified.getFullyQualifiedName());
+                        }
+
+                        return super.visitMemberReference(memberRef, integer);
+                    }
+
                     @Override
                     public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, Integer integer) {
                         @Nullable JavaType callingClassType = method.getSelect().getType();
