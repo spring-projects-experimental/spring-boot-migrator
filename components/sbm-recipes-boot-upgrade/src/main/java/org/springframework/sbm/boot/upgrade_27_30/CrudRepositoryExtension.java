@@ -21,22 +21,17 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.SourceFile;
-import org.openrewrite.TreeVisitor;
 import org.openrewrite.internal.ListUtils;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaIsoVisitor;
-import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
-import org.openrewrite.java.tree.MethodCall;
 import org.openrewrite.java.tree.TypeUtils;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.openrewrite.java.search.FindMethods.find;
 
 
 @Setter
@@ -74,13 +69,24 @@ public class CrudRepositoryExtension extends Recipe {
                     public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, Integer integer) {
                         @Nullable JavaType callingClassType = method.getSelect().getType();
 
-                        if (TypeUtils.isAssignableTo(pagingAndSortingRepository, callingClassType)) {
+                        if (shouldApplyCrudExtension(callingClassType, method)) {
                             JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(callingClassType);
                             if (fullyQualified != null) {
                                 classesToAddCrudRepository.add(fullyQualified.getFullyQualifiedName());
                             }
                         }
                         return super.visitMethodInvocation(method, integer);
+                    }
+
+                    private boolean shouldApplyCrudExtension(JavaType callingClassType, J.MethodInvocation method) {
+                        return TypeUtils.isAssignableTo(
+                                pagingAndSortingRepository,
+                                callingClassType
+                        )
+                                && (
+                                        method.getMethodType() == null ||
+                                        TypeUtils.isAssignableTo(targetCrudRepository, method.getMethodType().getDeclaringType())
+                        );
                     }
                 }.visit(cu, 0);
             }
