@@ -51,15 +51,46 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
     private void verifyCrudRepoAddition() {
 
-        String studentRepo = loadJavaFile("org.springboot.example.upgrade", "StudentRepo");
-
-        assertThat(studentRepo).isEqualTo("""
+        String studentRepoPagingAndSorting = loadJavaFile("org.springboot.example.upgrade", "StudentRepoPagingAndSorting");
+        assertThat(studentRepoPagingAndSorting).isEqualTo("""
                 package org.springboot.example.upgrade;
                                 
                 import org.springframework.data.repository.CrudRepository;
                 import org.springframework.data.repository.PagingAndSortingRepository;
                                 
-                public interface StudentRepo extends PagingAndSortingRepository<Student<?>, Long>, CrudRepository<Student<?>, Long> {
+                public interface StudentRepoPagingAndSorting extends PagingAndSortingRepository<Student<?>, Long>, CrudRepository<Student<?>, Long> {
+                }
+                """);
+
+        String studentRepoReactiveSorting = loadJavaFile("org.springboot.example.upgrade", "StudentRepoReactiveSorting");
+        assertThat(studentRepoReactiveSorting).isEqualTo("""
+                package org.springboot.example.upgrade;
+                                
+                import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+                import org.springframework.data.repository.reactive.ReactiveSortingRepository;
+                                
+                public interface StudentRepoReactiveSorting extends ReactiveSortingRepository<Student<?>, Long>, ReactiveCrudRepository<Student<?>, Long> {
+                }
+                """);
+
+        String studentRepoRxJava3Sorting = loadJavaFile("org.springboot.example.upgrade", "StudentRepoRxJava3Sorting");
+        assertThat(studentRepoRxJava3Sorting).isEqualTo("""
+                package org.springboot.example.upgrade;
+
+                import org.springframework.data.repository.reactive.RxJava3CrudRepository;
+                import org.springframework.data.repository.reactive.RxJava3SortingRepository;
+
+                public interface StudentRepoRxJava3Sorting extends RxJava3SortingRepository<Student<?>, Long>, RxJava3CrudRepository<Student<?>, Long> {
+                }
+                """);
+
+        String studentUncalledRepoRxJava3Sorting = loadJavaFile("org.springboot.example.upgrade", "StudentUncalledRepoRxJava3Sorting");
+        assertThat(studentUncalledRepoRxJava3Sorting).isEqualTo("""
+                package org.springboot.example.upgrade;
+
+                import org.springframework.data.repository.reactive.RxJava3SortingRepository;
+
+                public interface StudentUncalledRepoRxJava3Sorting extends RxJava3SortingRepository<Student<?>, Long> {
                 }
                 """);
     }
