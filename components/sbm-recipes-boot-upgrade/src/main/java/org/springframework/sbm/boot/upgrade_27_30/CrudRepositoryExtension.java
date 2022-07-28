@@ -26,6 +26,7 @@ import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
+import org.openrewrite.java.tree.MethodCall;
 import org.openrewrite.java.tree.TypeUtils;
 
 import java.util.HashSet;
@@ -72,7 +73,8 @@ public class CrudRepositoryExtension extends Recipe {
                         JavaType callingClassType = memberRef.getContaining().getType();
                         JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(callingClassType);
 
-                        if (fullyQualified != null) {
+                        if ((fullyQualified != null)
+                                && shouldApplyCrudExtension(callingClassType, memberRef)) {
                             classesToAddCrudRepository.add(fullyQualified.getFullyQualifiedName());
                         }
 
@@ -92,7 +94,7 @@ public class CrudRepositoryExtension extends Recipe {
                         return super.visitMethodInvocation(method, integer);
                     }
 
-                    private boolean shouldApplyCrudExtension(JavaType callingClassType, J.MethodInvocation method) {
+                    private boolean shouldApplyCrudExtension(JavaType callingClassType, MethodCall method) {
                         return TypeUtils.isAssignableTo(pagingAndSortingRepository, callingClassType)
                                 && (method.getMethodType() == null ||
                                     TypeUtils.isAssignableTo(targetCrudRepository, method.getMethodType().getDeclaringType()))

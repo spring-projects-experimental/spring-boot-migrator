@@ -428,7 +428,6 @@ public class CrudRepositoryExtensionTest implements RewriteTest {
                         replacePagingRepoAndCrudRepo("""
                                 package -repositoryPackage-;
                                 public interface -pagingRepository-<T, ID> {
-                                    void save(String entity);
                                 }
                                 """, pagingAndSortingRepository, crudRepository, repositoryPackage)
                 ),
