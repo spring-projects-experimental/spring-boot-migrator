@@ -83,6 +83,16 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                 public interface StudentRepoRxJava3Sorting extends RxJava3SortingRepository<Student<?>, Long>, RxJava3CrudRepository<Student<?>, Long> {
                 }
                 """);
+
+        String studentUncalledRepoRxJava3Sorting = loadJavaFile("org.springboot.example.upgrade", "StudentUncalledRepoRxJava3Sorting");
+        assertThat(studentUncalledRepoRxJava3Sorting).isEqualTo("""
+                package org.springboot.example.upgrade;
+
+                import org.springframework.data.repository.reactive.RxJava3SortingRepository;
+
+                public interface StudentUncalledRepoRxJava3Sorting extends RxJava3SortingRepository<Student<?>, Long> {
+                }
+                """);
     }
 
     private void verifyConstructorBindingRemoval() {
