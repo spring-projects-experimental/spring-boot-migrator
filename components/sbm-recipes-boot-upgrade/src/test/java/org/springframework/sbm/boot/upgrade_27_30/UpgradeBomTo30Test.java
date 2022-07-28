@@ -44,6 +44,9 @@ public class UpgradeBomTo30Test {
                     <artifactId>test</artifactId>
                     <version>1.0.0-SNAPSHOT</version>
                                 
+                    <properties>
+                        <spring.version>2.7.1</spring.version>
+                    </properties>
                     <name>Test</name>
                                 
                     <dependencyManagement>
@@ -51,7 +54,7 @@ public class UpgradeBomTo30Test {
                             <dependency>
                                 <groupId>org.springframework.boot</groupId>
                                 <artifactId>spring-boot-dependencies</artifactId>
-                                <version>2.7.1</version>
+                                <version>${spring.version}</version>
                                 <type>pom</type>
                                 <scope>import</scope>
                             </dependency>
@@ -93,15 +96,18 @@ public class UpgradeBomTo30Test {
                             <groupId>test</groupId>
                             <artifactId>test</artifactId>
                             <version>1.0.0-SNAPSHOT</version>
-                                        
+                            
+                            <properties>
+                                <spring.version>3.0.0-M3</spring.version>
+                            </properties>
                             <name>Test</name>
-                                        
+                            
                             <dependencyManagement>
                                 <dependencies>
                                     <dependency>
                                         <groupId>org.springframework.boot</groupId>
                                         <artifactId>spring-boot-dependencies</artifactId>
-                                        <version>3.0.0-M3</version>
+                                        <version>${spring.version}</version>
                                         <type>pom</type>
                                         <scope>import</scope>
                                     </dependency>
@@ -129,6 +135,4 @@ public class UpgradeBomTo30Test {
                         </project>
                         """);
     }
-
-    // TODO: handle variable reference in pom
 }
