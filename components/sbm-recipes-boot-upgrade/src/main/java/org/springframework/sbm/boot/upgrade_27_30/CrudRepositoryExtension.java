@@ -79,8 +79,9 @@ public class CrudRepositoryExtension extends Recipe {
                     }
 
                     private boolean shouldApplyCrudExtension(JavaType callingClassType, J.MethodInvocation method) {
-                        return method.getMethodType() == null ||
-                                        TypeUtils.isAssignableTo(targetCrudRepository, method.getMethodType().getDeclaringType())
+                        return TypeUtils.isAssignableTo(pagingAndSortingRepository, callingClassType)
+                                && (method.getMethodType() == null ||
+                                    TypeUtils.isAssignableTo(targetCrudRepository, method.getMethodType().getDeclaringType()))
                         ;
                     }
                 }.visit(cu, 0);

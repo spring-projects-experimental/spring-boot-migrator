@@ -264,50 +264,6 @@ public class CrudRepositoryExtensionTest implements RewriteTest {
                         """, pagingAndSortingRepository, crudRepository, repositoryPackage));
     }
 
-
-    @MethodSource("repositoryTestArguments")
-    @ParameterizedTest
-    public void temp(Recipe recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
-        @NotNull List<Result> result = javaTestHelper.runRecipe(
-                recipe,
-                List.of(replacePagingRepoAndCrudRepo("""
-                                package -repositoryPackage-;
-                                public interface -pagingRepository-<T, ID> {
-                                }
-                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
-                        replacePagingRepoAndCrudRepo("""
-                                package -repositoryPackage-;
-                                public interface -crudRepository-<T, ID> {
-                                }
-                                """, pagingAndSortingRepository, crudRepository, repositoryPackage)),
-                replacePagingRepoAndCrudRepo("""
-                        package test;
-                        import -repositoryPackage-.-pagingRepository-;
-                        public class A implements Comparator {
-                        }
-                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
-                replacePagingRepoAndCrudRepo("""
-                        package test;
-                        public class Hello  {
-                            public void test(A a) {
-                                a.kbfjkdshfsdjkfhsdjk("Hello");
-                            }
-                        }
-                        """, pagingAndSortingRepository, crudRepository, repositoryPackage)
-        );
-
-        javaTestHelper.assertResult(result, replacePagingRepoAndCrudRepo("""
-                        package test;
-                        import -repositoryPackage-.-crudRepository-;
-                        import -repositoryPackage-.-pagingRepository-;
-                        import temp.Hello;
-                                        
-                        public class A implements -pagingRepository-<String, Long> {
-                        }
-                        """, pagingAndSortingRepository, crudRepository, repositoryPackage));
-    }
-
-
     @MethodSource("repositoryTestArguments")
     @ParameterizedTest
     public void classImplementsPagingRepository(Recipe recipe, String pagingAndSortingRepository, String crudRepository, String repositoryPackage) {
