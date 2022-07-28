@@ -7,6 +7,7 @@ import org.openrewrite.Result;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.UpgradeDependencyVersion;
 import org.openrewrite.xml.tree.Xml;
 
 import java.util.ArrayList;
@@ -18,7 +19,13 @@ public class UpgradeBomTo30Test {
 
     @Test
     void shouldUpdateBomVersionTo30() {
-        Recipe recipe = new UpgradeBomVersion27_30();
+        Recipe recipe = new UpgradeDependencyVersion(
+                "org.springframework.boot",
+                "spring-boot-dependencies",
+                "3.0.0-M3",
+                null,
+                null
+        );
 
         List<Throwable> errors = new ArrayList<>();
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
@@ -39,26 +46,89 @@ public class UpgradeBomTo30Test {
                                 
                     <name>Test</name>
                                 
-                    <properties>
-                        <spring-boot.version>2.7.1</spring-boot.version>
-                    </properties>
-                                
                     <dependencyManagement>
                         <dependencies>
                             <dependency>
                                 <groupId>org.springframework.boot</groupId>
                                 <artifactId>spring-boot-dependencies</artifactId>
-                                <version>${spring-boot.version}</version>
+                                <version>2.7.1</version>
                                 <type>pom</type>
                                 <scope>import</scope>
                             </dependency>
                         </dependencies>
                     </dependencyManagement>
+                    <repositories>
+                        <repository>
+                            <id>spring-milestone</id>
+                            <url>https://repo.spring.io/milestone</url>
+                            <snapshots>
+                                <enabled>false</enabled>
+                            </snapshots>
+                        </repository>
+                    </repositories>
+
+                    <pluginRepositories>
+                        <pluginRepository>
+                            <id>spring-milestone</id>
+                            <url>https://repo.spring.io/milestone</url>
+                            <snapshots>
+                                <enabled>false</enabled>
+                            </snapshots>
+                        </pluginRepository>
+                    </pluginRepositories>
                 </project>
                 """);
 
         List<Result> result = recipe.run(documentList, ctx);
 
-        assertThat(errors).hasSize(1);
+        assertThat(result).hasSize(1);
+
+        assertThat(result.get(0).getAfter().printAll())
+                .isEqualTo("""
+                        <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                                        
+                            <groupId>test</groupId>
+                            <artifactId>test</artifactId>
+                            <version>1.0.0-SNAPSHOT</version>
+                                        
+                            <name>Test</name>
+                                        
+                            <dependencyManagement>
+                                <dependencies>
+                                    <dependency>
+                                        <groupId>org.springframework.boot</groupId>
+                                        <artifactId>spring-boot-dependencies</artifactId>
+                                        <version>3.0.0-M3</version>
+                                        <type>pom</type>
+                                        <scope>import</scope>
+                                    </dependency>
+                                </dependencies>
+                            </dependencyManagement>
+                            <repositories>
+                                <repository>
+                                    <id>spring-milestone</id>
+                                    <url>https://repo.spring.io/milestone</url>
+                                    <snapshots>
+                                        <enabled>false</enabled>
+                                    </snapshots>
+                                </repository>
+                            </repositories>
+
+                            <pluginRepositories>
+                                <pluginRepository>
+                                    <id>spring-milestone</id>
+                                    <url>https://repo.spring.io/milestone</url>
+                                    <snapshots>
+                                        <enabled>false</enabled>
+                                    </snapshots>
+                                </pluginRepository>
+                            </pluginRepositories>
+                        </project>
+                        """);
     }
+
+    // TODO: handle variable reference in pom
 }
