@@ -83,7 +83,11 @@ public class CrudRepositoryExtension extends Recipe {
 
                     @Override
                     public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, Integer integer) {
-                        @Nullable JavaType callingClassType = method.getSelect().getType();
+                        if (method.getSelect() == null) {
+                            return super.visitMethodInvocation(method, integer);
+                        }
+
+                        JavaType callingClassType = method.getSelect().getType();
 
                         if (shouldApplyCrudExtension(callingClassType, method)) {
                             JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(callingClassType);
@@ -91,14 +95,15 @@ public class CrudRepositoryExtension extends Recipe {
                                 classesToAddCrudRepository.add(fullyQualified.getFullyQualifiedName());
                             }
                         }
+
                         return super.visitMethodInvocation(method, integer);
                     }
 
                     private boolean shouldApplyCrudExtension(JavaType callingClassType, MethodCall method) {
                         return TypeUtils.isAssignableTo(pagingAndSortingRepository, callingClassType)
                                 && (method.getMethodType() == null ||
-                                    TypeUtils.isAssignableTo(targetCrudRepository, method.getMethodType().getDeclaringType()))
-                        ;
+                                TypeUtils.isAssignableTo(targetCrudRepository, method.getMethodType().getDeclaringType()))
+                                ;
                     }
                 }.visit(cu, 0);
             }
@@ -111,8 +116,8 @@ public class CrudRepositoryExtension extends Recipe {
                 JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(classDecl.getType());
                 if (
                         TypeUtils.isAssignableTo(pagingAndSortingRepository, classDecl.getType())
-                        && fullyQualified != null
-                        && classesToAddCrudRepository.contains(fullyQualified.getFullyQualifiedName())
+                                && fullyQualified != null
+                                && classesToAddCrudRepository.contains(fullyQualified.getFullyQualifiedName())
                 ) {
                     Optional<JavaType.FullyQualified> pagingInterface = getExtendPagingAndSorting(classDecl);
                     if (pagingInterface.isEmpty()) {

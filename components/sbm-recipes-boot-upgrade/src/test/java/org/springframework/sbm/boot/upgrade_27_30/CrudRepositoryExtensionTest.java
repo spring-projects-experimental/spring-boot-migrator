@@ -513,6 +513,62 @@ public class CrudRepositoryExtensionTest implements RewriteTest {
         assertThat(result).hasSize(0);
     }
 
+    @ParameterizedTest
+    @MethodSource("repositoryTestArguments")
+    public void worksWithStaticImports(Recipe recipe, String pagingAndSortingRepository,
+                                       String crudRepository,
+                                       String repositoryPackage) {
+        @NotNull List<Result> result = javaTestHelper.runRecipe(
+                recipe,
+                List.of(replacePagingRepoAndCrudRepo("""
+                                package -repositoryPackage-;
+                                public interface -crudRepository-<T, ID> {
+
+                                }
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
+                        replacePagingRepoAndCrudRepo("""
+                                package -repositoryPackage-;
+                                public interface -pagingRepository-<T, ID> {
+                                    void save(String entity);
+                                }
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
+                        """
+                        package test;
+                        
+                        public class StaticClass {
+                            public static int ret() {
+                                return 0;   
+                            }
+                        }
+                        """
+                ),
+
+                replacePagingRepoAndCrudRepo("""
+                        package test;
+                        import java.util.List;
+                        import static StaticClass.*;
+                        import -repositoryPackage-.-pagingRepository-;
+                        
+                        class Hello {
+                            public static int temp() {
+                                return 10;
+                            }
+                            public interface A extends -pagingRepository-<String, Long> {
+                            }
+
+                            public void myCall(A a) {
+                                int x = ret();
+                                List.of("1", "2", "3").stream()
+                                        .forEach(a::save);
+                            }
+                        }
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage)
+        );
+
+        assertThat(result).hasSize(0);
+    }
+
+
     private String replacePagingRepoAndCrudRepo(String template, String pagingRepo, String crudRepo, String repositoryPackage) {
 
         return template
