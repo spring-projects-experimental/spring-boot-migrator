@@ -414,7 +414,6 @@ public class CrudRepositoryExtensionTest implements RewriteTest {
 
 
     // TODO: do method reference toot
-    // TODO: make sure all the members are tested example save, delete, etc
     private String replacePagingRepoAndCrudRepo(String template, String pagingRepo, String crudRepo, String repositoryPackage) {
 
         return template
