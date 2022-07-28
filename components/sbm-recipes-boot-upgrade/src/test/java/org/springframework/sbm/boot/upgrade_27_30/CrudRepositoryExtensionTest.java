@@ -423,6 +423,64 @@ public class CrudRepositoryExtensionTest implements RewriteTest {
                 );
     }
 
+    @ParameterizedTest
+    @MethodSource("repositoryTestArguments")
+    void shouldNotExtendCrudRepositoryIfMethodIsNotCrud(Recipe recipe, String pagingAndSortingRepository,
+                                                           String crudRepository,
+                                                           String repositoryPackage) {
+        @NotNull List<Result> result = javaTestHelper.runRecipe(
+                recipe,
+                List.of(replacePagingRepoAndCrudRepo("""
+                                package -repositoryPackage-;
+                                public interface -crudRepository-<T, ID> {
+                                }
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage),
+                        replacePagingRepoAndCrudRepo("""
+                                package -repositoryPackage-;
+                                public interface -pagingRepository-<T, ID> {
+                                    void findAll(String entity);
+                                }
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage)
+                ),
+                replacePagingRepoAndCrudRepo("""
+                        package test;
+                        import -repositoryPackage-.-pagingRepository-;
+                                        
+                        public interface A extends -pagingRepository-<String, Long> {
+                        }
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
+                replacePagingRepoAndCrudRepo("""
+                        package test;
+                        import  -repositoryPackage-.-pagingRepository-;
+                                        
+                        public interface B extends -pagingRepository-<String, Long> {
+                        }
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage),
+                replacePagingRepoAndCrudRepo("""
+                        package test;
+                        class Hello {
+
+                            public void myCall(A a, B b) {
+                                a.findAll("");
+                            }
+                        }
+                        """, pagingAndSortingRepository, crudRepository, repositoryPackage)
+        );
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getAfter().printAll())
+                .isEqualTo(
+                        replacePagingRepoAndCrudRepo("""
+                                package test;
+                                import -repositoryPackage-.-crudRepository-;
+                                import -repositoryPackage-.-pagingRepository-;
+                                                
+                                public interface A extends -pagingRepository-<String, Long> {
+                                }
+                                """, pagingAndSortingRepository, crudRepository, repositoryPackage));
+    }
+
+
     // TODO: do method reference toot
     // TODO: make sure all the members are tested example save, delete, etc
     private String replacePagingRepoAndCrudRepo(String template, String pagingRepo, String crudRepo, String repositoryPackage) {
