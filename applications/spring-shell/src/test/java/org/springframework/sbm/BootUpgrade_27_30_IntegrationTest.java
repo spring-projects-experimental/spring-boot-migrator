@@ -22,6 +22,7 @@ import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -42,6 +43,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         applyRecipe("boot-2.7-3.0-dependency-version-update");
 
         verifyParentPomVersion();
+        verifyBomVersion();
         verifyMicrometerPackageUpdate();
         verifyYamlConfigurationUpdate();
         verifyPropertyConfigurationUpdate();
@@ -198,6 +200,23 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         assertThat(version).isEqualTo("3.0.0-M3");
         assertThat(groupId).isEqualTo("org.springframework.boot");
         assertThat(artifactId).isEqualTo("spring-boot-starter-parent");
+    }
+
+    private void verifyBomVersion() {
+        String pomContent = loadFile(Path.of("pom.xml"));
+
+        Xml.Document mavenAsXMLDocument = parsePom(pomContent);
+
+        Xml.Tag parentTag =mavenAsXMLDocument
+                .getRoot()
+                .getChildren("dependencyManagement").get(0);
+
+        List<Xml.Tag> dependencies = parentTag.getChildren("dependencies")
+                .get(0)
+                .getChildren("dependency");
+
+        assertThat(dependencies).hasSize(1);
+        assertThat(dependencies.get(0).getChildValue("version").get()).isEqualTo("3.0.0-M3");
     }
 
     @NotNull
