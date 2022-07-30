@@ -17,10 +17,7 @@ package org.springframework.sbm.boot.upgrade_24_25.report;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
-import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
-import org.springframework.sbm.boot.asciidoctor.Section;
-import org.springframework.sbm.boot.asciidoctor.Table;
-import org.springframework.sbm.boot.asciidoctor.TodoList;
+import org.springframework.sbm.boot.asciidoctor.*;
 import org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_SpringDataJpaActionCondition;
 import org.springframework.sbm.boot.upgrade_24_25.filter.SpringDataJpaAnalyzer;
 import org.springframework.sbm.java.api.MethodCall;
@@ -73,7 +70,7 @@ public class Boot_24_25_SpringDataJpa implements UpgradeSectionBuilder {
 
         Table table = builder.build();
 
-        return RelevantChangeSection.builder()
+        return ChangeSection.RelevantChangeSection.builder()
                 .title("Spring Data JPA")
                 .paragraph(
                         "Spring Data JPA introduces a new getById method which replaces getOne. +\n" +
