@@ -1,47 +1,4 @@
 type: specs.openrewrite.org/v1beta/recipe
-name: org.openrewrite.java.spring.boot3.data.TEST
-displayName: Upgrade to Spring Data 3.0
-description: 'Upgrade to Spring Data to 3.0 from any prior version.'
-recipeList:
-  - org.openrewrite.java.AddMavenRepository:
-      id: repository.spring.milestone
-      url: https://repo.spring.io/milestone
-      repositoryName: repository.spring.milestone
-  - org.openrewrite.maven.UpgradeParentVersion:
-      groupId: org.springframework.boot
-      artifactId: spring-boot-starter-parent
-      newVersion: 3.0.0-M3
-
----
-type: specs.openrewrite.org/v1beta/recipe
-name: org.openrewrite.java.spring.boot3.data.TEST2
-displayName: Upgrade to Spring Data 3.0
-description: 'Upgrade to Spring Data to 3.0 from any prior version.'
-recipeList:
-  - org.openrewrite.java.AddMavenRepository:
-      id: repository.spring.milestone
-      url: https://repo.spring.io/milestone
-      repositoryName: repository.spring.milestone
----
-type: specs.openrewrite.org/v1beta/recipe
-name: org.openrewrite.java.spring.boot3.data.java.constructorbinding
-displayName: Upgrade to Spring Data 3.0
-description: 'Handles @ConstructorBinding'
-recipeList:
-  - org.openrewrite.java.ConstructorBinding:
-      id: repository.spring.milestone
-      url: https://repo.spring.io/milestone
-      repositoryName: repository.spring.milestone
----
-type: specs.openrewrite.org/v1beta/recipe
-name: org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove
-displayName: Move SAML relying party identity provider property to asserting party
-description: 'Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty'
-recipeList:
-  - org.openrewrite.java.spring.boot3.SAMLRelyingPartyPropertyYAMLMove
-
----
-type: specs.openrewrite.org/v1beta/recipe
 name: org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7
 displayName: Upgrade to Spring Data 3.0
 description: 'Rename properties'
