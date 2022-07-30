@@ -19,6 +19,7 @@ import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import freemarker.template.Configuration;
@@ -141,5 +142,10 @@ public class RecipeIntegrationTestSupport {
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    public RecipeIntegrationTestSupport addGitSupport() {
+        GitSupport.initGit(this.rootDir.toFile());
+        return this;
     }
 }
