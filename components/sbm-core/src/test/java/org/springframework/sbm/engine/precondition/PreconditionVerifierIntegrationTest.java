@@ -66,8 +66,8 @@ public class PreconditionVerifierIntegrationTest {
     private GitSupport gitSupport;
 
     @Test
-    void allChecksFailed() {
-        Path projectRoot = Path.of("./test-dummy").toAbsolutePath().normalize();
+    void allChecksFailed(@TempDir Path tmpDir) {
+        Path projectRoot = tmpDir.toAbsolutePath().normalize();
 
         List<Resource> resources = List.of();
 
