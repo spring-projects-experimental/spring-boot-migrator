@@ -30,17 +30,14 @@ class DatabaseDriverGaeSectionBuilderTest {
     void checkShouldFailWhenAppEngineDriverIsFoundOnClasspath() {
 
         String javaClass =
-                "import org.springframework.boot.jdbc.DatabaseDriver;\n" +
-                        "\n" +
                         "public class Foo {\n" +
                         "    public Foo() {\n" +
-                        "        DatabaseDriver driver = DatabaseDriver.GAE;\n" +
                         "        com.google.appengine.api.rdbms.AppEngineDriver d;" +
                         "    }\n" +
                         "}";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1"/*, "com.google.appengine:appengine-api-1.0-sdk:1.9.17"*/)
+                .withBuildFileHavingDependencies("com.google.appengine:appengine-api-1.0-sdk:1.9.17")
                 .addJavaSource("src/main/java", javaClass)
                 .build();
 

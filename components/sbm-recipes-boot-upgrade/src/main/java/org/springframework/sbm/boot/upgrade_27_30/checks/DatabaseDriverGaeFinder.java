@@ -29,8 +29,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
-public class DatabaseDriverGaeFinder {
+public class DatabaseDriverGaeFinder implements Sbm30_Finder<Set<ApplicationModule>> {
 
+    @Override
     @NotNull
     public Set<ApplicationModule> findMatches(ProjectContext context) {
         return context.getApplicationModules()

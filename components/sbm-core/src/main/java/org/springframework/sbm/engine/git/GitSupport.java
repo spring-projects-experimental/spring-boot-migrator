@@ -25,7 +25,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
-import org.springframework.sbm.project.resource.RepositoryNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -55,7 +54,7 @@ public class GitSupport {
      */
     public void add(File repo, String... filePatterns) {
         try {
-            Git git = initGit(repo);
+            Git git = getRepository(repo);
             AddCommand add = git.add();
             for (String filePattern : filePatterns) {
                 add.addFilepattern(filePattern);
@@ -74,7 +73,7 @@ public class GitSupport {
      */
     public void delete(File repo, String... deleted) {
         try {
-            Git git = initGit(repo);
+            Git git = getRepository(repo);
             RmCommand rm = git.rm();
             for (String filePattern : deleted) {
                 rm.addFilepattern(filePattern);
@@ -93,7 +92,7 @@ public class GitSupport {
      */
     public Commit commit(File repo, String message) {
         try {
-            Git git = initGit(repo);
+            Git git = getRepository(repo);
             CommitCommand commit = git.commit();
             commit.setMessage(message);
             RevCommit call = commit.call();
@@ -110,7 +109,7 @@ public class GitSupport {
      */
     public Optional<Commit> getLatestCommit(File repo) {
         try {
-            Git git = initGit(repo);
+            Git git = getRepository(repo);
             Iterable<RevCommit> revCommits = git.log()
                     .setMaxCount(1)
                     .call();
@@ -128,14 +127,28 @@ public class GitSupport {
      *
      * @param repo the location of the repo to search for. {@code .git} is added to file location if not contained
      */
-    public static Repository findRepository(File repo) {
+    public static Optional<Repository> findRepository(File repo) {
+        Optional<Repository> repository = Optional.empty();
         try {
-            return new FileRepositoryBuilder()
+            repository = Optional.of(new FileRepositoryBuilder()
                     .findGitDir(repo)
                     .setMustExist(true)
-                    .build();
+                    .build());
+
+        } catch (IllegalArgumentException | IOException e) {
+        }
+        return repository;
+    }
+
+    /**
+     * Get the git repository or throw exception
+     */
+    public static Git getRepository(File repo) {
+        try {
+            Repository repository = findRepository(repo).orElseThrow(() -> new RuntimeException());
+            return Git.open(repository.getDirectory());
         } catch (IOException e) {
-            throw new RepositoryNotFoundException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -146,15 +159,21 @@ public class GitSupport {
      */
     public static Git initGit(File repo) {
         try {
-            Repository repository = findRepository(repo);
-            repo = repository.getDirectory();
-            if(repo.toPath().toString().endsWith(".git")) {
+            if (dirContainsGitRepo(repo)) {
+                return Git.open(repo);
+            }
+
+            if (repo.toPath().toString().endsWith(".git")) {
                 repo = repo.toPath().getParent().toAbsolutePath().normalize().toFile();
             }
             return Git.init().setDirectory(repo).call();
-        } catch (GitAPIException e) {
+        } catch (GitAPIException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static boolean dirContainsGitRepo(File repo) {
+        return repo.exists() && repo.toString().endsWith(".git") || repo.toPath().resolve(".git").toFile().exists();
     }
 
     /**
@@ -184,7 +203,7 @@ public class GitSupport {
     // TODO: test this method
     public boolean hasUncommittedChangesOrDifferentRevision(File repo, String expectedRevision) {
         try {
-            Git git = initGit(repo);
+            Git git = getRepository(repo);
             Status status = git.status().call();
             Optional<Commit> latestCommit = getLatestCommit(repo);
             if (latestCommit.isEmpty()) {
@@ -222,12 +241,8 @@ public class GitSupport {
 
     public boolean repoExists(File repoDir) {
         if (repoDir == null) return false;
-        try {
-            findRepository(repoDir);
-            return true;
-        } catch (RepositoryNotFoundException e) {
-            return false;
-        }
+        Optional<Repository> repository = findRepository(repoDir);
+        return repository.isPresent();
     }
 
     // TODO: test this method
@@ -245,7 +260,7 @@ public class GitSupport {
     }
 
     public static Optional<String> getBranchName(File repo) {
-        Git git = initGit(repo);
+        Git git = getRepository(repo);
         try {
             return Optional.ofNullable(git.getRepository().getBranch());
         } catch (IOException e) {
@@ -262,7 +277,7 @@ public class GitSupport {
 
     public GitStatus getStatus(File repo) {
         try {
-            Git git = initGit(repo);
+            Git git = getRepository(repo);
             Status status = null;
             status = git.status().call();
             GitStatus gitStatus = new GitStatus(status);
@@ -274,7 +289,7 @@ public class GitSupport {
 
     public void switchToBranch(File repo, String branchName) {
         try {
-            Git git = initGit(repo);
+            Git git = getRepository(repo);
             git.checkout().setName(branchName).setCreateBranch(true).call();
         } catch (GitAPIException e) {
             e.printStackTrace();

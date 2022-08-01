@@ -17,10 +17,7 @@ package org.springframework.sbm.boot.upgrade_24_25.report;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
-import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
-import org.springframework.sbm.boot.asciidoctor.Section;
-import org.springframework.sbm.boot.asciidoctor.Table;
-import org.springframework.sbm.boot.asciidoctor.TodoList;
+import org.springframework.sbm.boot.asciidoctor.*;
 import org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_SqlScriptDataSourceInitializationCondition;
 import org.springframework.sbm.boot.upgrade_24_25.filter.SqlScriptDataSourceInitializationPropertiesAnalyzer;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -57,7 +54,7 @@ public class Boot_24_25_SqlScriptDataSourceInitialization implements UpgradeSect
                 tableBuilder.row("`" + match.getPath() + "`", "`" + match.getDeprecatedPropery() + "`", "`" + match.getNewProperty() + "`");
             }
 
-            return RelevantChangeSection.builder()
+            return ChangeSection.RelevantChangeSection.builder()
                     .title("SQL Script DataSource Initialization")
                     .paragraph(
                             "The underlying method used to support schema.sql and data.sql scripts has been redesigned in Spring Boot 2.5. +\n " +

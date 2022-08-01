@@ -6,10 +6,10 @@
     versionPattern: "2\\.7\\..*"
 
   actions:
-    - type: org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionChecks
-      description: "Check if the application adheres to preconditions."
-      condition:
-        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+#    - type: org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionChecks
+#      description: "Check if the application adheres to preconditions."
+#      condition:
+#        type: org.springframework.sbm.common.migration.conditions.TrueCondition
 
       # TODO: upgrades for 2.7
     - type: org.springframework.sbm.build.migration.actions.AddRepositoryAction
@@ -58,6 +58,7 @@
               oldPackageName: io.micrometer.core.instrument.binder
               newPackageName: io.micrometer.binder
               recursive: true
+
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion

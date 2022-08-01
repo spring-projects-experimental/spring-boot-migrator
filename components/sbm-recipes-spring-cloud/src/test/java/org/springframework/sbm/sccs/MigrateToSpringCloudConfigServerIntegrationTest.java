@@ -42,6 +42,7 @@ public class MigrateToSpringCloudConfigServerIntegrationTest {
         Path given = Path.of("./testcode").resolve(applicationDir).resolve("given");
 
         RecipeIntegrationTestSupport.initializeProject(given, applicationDir)
+                .addGitSupport()
                 .andApplyRecipe("cn-spring-cloud-config-server");
 
 

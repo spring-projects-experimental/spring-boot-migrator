@@ -130,4 +130,8 @@ public class MigrateToSpringCloudConfigServerHelper {
             }
         });
     }
+
+    public void initGit(File dir) {
+        GitSupport.initGit(dir);
+    }
 }

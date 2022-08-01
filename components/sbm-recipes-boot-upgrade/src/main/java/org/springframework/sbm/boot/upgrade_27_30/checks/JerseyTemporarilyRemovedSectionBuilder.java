@@ -13,53 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.boot.upgrade_24_25.report;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.sbm.boot.UpgradeSectionBuilder;
+package org.springframework.sbm.boot.upgrade_27_30.checks;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.sbm.boot.asciidoctor.ChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
-import org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion;
+import org.springframework.sbm.boot.upgrade_27_30.Sbu30_UpgradeSectionBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
-
 @Component
-@Order(25_001)
-public class Boot_24_25_UpdateDependencies implements UpgradeSectionBuilder {
+@RequiredArgsConstructor
+public class JerseyTemporarilyRemovedSectionBuilder implements Sbu30_UpgradeSectionBuilder {
+
+    private final JerseyTemporarilyRemovedFinder finder;
+
     @Override
     public boolean isApplicable(ProjectContext projectContext) {
-        HasSpringBootParentOfVersion condition = new HasSpringBootParentOfVersion();
-        condition.setVersionStartingWith("2.4.");
-        return condition.evaluate(projectContext);
+        return !finder.findMatches(projectContext).isEmpty();
     }
 
     @Override
     public Section build(ProjectContext projectContext) {
-        OpenRewriteMavenBuildFile buildFile = (OpenRewriteMavenBuildFile) projectContext.getBuildFile();
-        String version = buildFile.getPom().getPom().getRequested().getParent().getVersion();
-        Path pathToPom = buildFile.getSourcePath();
-
         return ChangeSection.RelevantChangeSection.builder()
-                .title("Update dependencies")
-                .paragraph("The Spring Boot version must be updated to 2.5.6.") // TODO: make target version configurable
+                .title("Support for Jersey has been temporarily removed")
+                .paragraph("Support for Jersey has been temporarily removed as it does not yet support Spring Framework 6.")
                 .relevanceSection()
-                .paragraph(String.format("The scan found a dependency to Spring Boot %s as parent to the Maven build file link:%s[`pom.xml`, window=_blank].", version, pathToPom))
+                .paragraph("""
+                            The scan found one or more dependencies to jersey. 
+                            Support for Jersey has been temporarily removed as it does not yet support Spring Framework 6. 
+                            Please try again when Jersey is support.
+                            """
+                )
                 .todoSection()
                 .todoList(
                         TodoList.builder()
                                 .todo(
                                         TodoList.Todo.builder()
-                                                .text(String.format("Change the version of the referenced spring-boot-starter-parent in link:%s[`pom.xml`] from %s to 2.5.6.", pathToPom, version))
+                                                .text("Remove/replace Jersey or wait for a release with Jersey support added.")
                                                 .build()
                                 )
-                                .recipeName("boot-2.4-2.5-dependency-version-update")
                                 .build()
                 )
                 .build();
-
     }
 }
