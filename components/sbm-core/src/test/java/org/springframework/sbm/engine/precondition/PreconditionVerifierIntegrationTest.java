@@ -17,6 +17,7 @@ package org.springframework.sbm.engine.precondition;
 
 import org.eclipse.jgit.api.Git;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
