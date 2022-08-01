@@ -22,6 +22,12 @@
         id: "spring-milestone"
         url: "https://repo.spring.io/milestone"
 
+    -  type: org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction
+       description: Move EnableAutoConfiguration Property from spring.factories to AutoConfiguration.imports
+       snapshotsEnabled: false
+       condition:
+         type: org.springframework.sbm.boot.upgrade.common.conditions.BootHasAutoconfigurationCondition
+
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
