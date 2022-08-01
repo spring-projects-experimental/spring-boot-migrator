@@ -342,7 +342,7 @@
             <plugin>
                 <groupId>io.spring.javaformat</groupId>
                 <artifactId>spring-javaformat-maven-plugin</artifactId>
-                <version>0.0.31</version>
+                <version>0.0.34</version>
             </plugin>
 
             <plugin>
