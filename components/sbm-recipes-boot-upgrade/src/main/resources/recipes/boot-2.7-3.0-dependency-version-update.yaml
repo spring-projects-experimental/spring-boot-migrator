@@ -27,6 +27,7 @@
         type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
         versionStartingWith: "2.7."
       description: Add Spring Milestone Repository and bump parent pom to 3.0.0-M3
+
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
         name: org.openrewrite.java.spring.boot3.data.UpgradeSpringData30
@@ -36,6 +37,10 @@
           - org.openrewrite.maven.UpgradeParentVersion:
               groupId: org.springframework.boot
               artifactId: spring-boot-starter-parent
+              newVersion: 3.0.0-M3
+          - org.openrewrite.maven.UpgradeDependencyVersion:
+              groupId: org.springframework.boot
+              artifactId: spring-boot-dependencies
               newVersion: 3.0.0-M3
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
