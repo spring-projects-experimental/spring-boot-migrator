@@ -65,7 +65,31 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                 import org.springframework.data.repository.CrudRepository;
                 import org.springframework.data.repository.PagingAndSortingRepository;
                                 
-                public interface StudentRepo extends PagingAndSortingRepository<Student, Long>, CrudRepository<Student, Long> {
+                public interface StudentRepoPagingAndSorting extends PagingAndSortingRepository<Student, Long>, CrudRepository<Student, Long> {
+                }
+                """);
+
+        String studentRepoReactive = loadJavaFile("org.springboot.example.upgrade", "StudentRepoReactiveSorting");
+
+        assertThat(studentRepoReactive).isEqualTo("""
+                package org.springboot.example.upgrade;
+                                
+                import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+                import org.springframework.data.repository.reactive.ReactiveSortingRepository;
+                                
+                public interface StudentRepoReactiveSorting extends ReactiveSortingRepository<Student, Long>, ReactiveCrudRepository<Student, Long> {
+                }
+                """);
+
+        String studentRepoRx= loadJavaFile("org.springboot.example.upgrade", "StudentRepoRxJava3Sorting");
+
+        assertThat(studentRepoRx).isEqualTo("""
+                package org.springboot.example.upgrade;
+                                
+                import org.springframework.data.repository.reactive.RxJava3CrudRepository;
+                import org.springframework.data.repository.reactive.RxJava3SortingRepository;
+                                
+                public interface StudentRepoRxJava3Sorting extends RxJava3SortingRepository<Student, Long>, RxJava3CrudRepository<Student, Long> {
                 }
                 """);
     }
