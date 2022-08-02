@@ -30,7 +30,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java.version>17</java.version>
-        <spring-shell.version>2.1.0-RC1</spring-shell.version>
+        <spring-shell.version>2.1.0</spring-shell.version>
         <openrewrite.version>7.26.0</openrewrite.version>
         <openrewrite.spring.version>4.23.0</openrewrite.spring.version>
         <spring-boot.version>2.7.2</spring-boot.version>
