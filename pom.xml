@@ -33,6 +33,7 @@
         <openrewrite.version>7.26.0</openrewrite.version>
         <openrewrite.spring.version>4.23.0</openrewrite.spring.version>
         <spring-boot.version>2.7.1</spring-boot.version>
+        <spring-boot.version>2.7.2</spring-boot.version>
         <progressbar.version>0.9.3</progressbar.version>
         <testcontainers.version>9baedef17589ff70f7a585c809e0b1beb27eff62</testcontainers.version>
         <maven-invoker.version>3.2.0</maven-invoker.version>
@@ -342,13 +343,13 @@
             <plugin>
                 <groupId>io.spring.javaformat</groupId>
                 <artifactId>spring-javaformat-maven-plugin</artifactId>
-                <version>0.0.31</version>
+                <version>0.0.34</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>3.0.0-M4</version>
+                <version>3.0.0-M6</version>
                 <configuration>
                     <connectionUrl>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</connectionUrl>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
@@ -394,55 +395,4 @@
 
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>gen-java</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-clean-plugin</artifactId>
-                        <version>3.1.0</version>
-                        <configuration>
-                            <filesets>
-                                <fileset>
-                                    <directory>${generated-sources.dir}</directory>
-                                    <followSymlinks>false</followSymlinks>
-                                </fileset>
-                            </filesets>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-    <!--    <reporting>-->
-    <!--        <plugins>-->
-    <!--            <plugin>-->
-    <!--                <groupId>org.apache.maven.plugins</groupId>-->
-    <!--                <artifactId>maven-changes-plugin</artifactId>-->
-    <!--                <version>2.12.1</version>-->
-    <!--                <configuration>-->
-    <!--                    <githubAPIScheme>https</githubAPIScheme>-->
-    <!--                    <githubAPIPort>443</githubAPIPort>-->
-    <!--                    <githubAPIServerId>github</githubAPIServerId>-->
-    <!--                    <onlyCurrentVersion>true</onlyCurrentVersion>-->
-    <!--                    <includeOpenIssues>false</includeOpenIssues>-->
-    <!--                    <onlyMilestoneIssues>true</onlyMilestoneIssues>-->
-    <!--                </configuration>-->
-    <!--                <reportSets>-->
-    <!--                    <reportSet>-->
-    <!--                        <reports>-->
-    <!--                            <report>github-report</report>-->
-    <!--                        </reports>-->
-    <!--                    </reportSet>-->
-    <!--                </reportSets>-->
-    <!--            </plugin>-->
-    <!--        </plugins>-->
-    <!--    </reporting>-->
-    <!--    <issueManagement>-->
-    <!--        <system>GitHub</system>-->
-    <!--        <url>https://github.com/pivotal/spring-boot-migrator/issues/</url>-->
-    <!--    </issueManagement>-->
 </project>
