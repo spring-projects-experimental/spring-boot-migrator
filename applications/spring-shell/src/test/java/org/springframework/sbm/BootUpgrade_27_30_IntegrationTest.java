@@ -57,7 +57,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
     private void verifyCrudRepoAddition() {
 
-        String studentRepo = loadJavaFile("org.springboot.example.upgrade", "StudentRepo");
+        String studentRepo = loadJavaFile("org.springboot.example.upgrade", "StudentRepoPagingAndSorting");
 
         assertThat(studentRepo).isEqualTo("""
                 package org.springboot.example.upgrade;
