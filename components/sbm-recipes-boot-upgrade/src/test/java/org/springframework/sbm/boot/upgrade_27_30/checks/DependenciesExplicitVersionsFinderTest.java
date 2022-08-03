@@ -2,7 +2,7 @@ package org.springframework.sbm.boot.upgrade_27_30.checks;
 
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.build.api.Dependency;
+import org.springframework.sbm.boot.upgrade_27_30.checks.RedeclaredDependenciesFinder.RedeclaredDependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -88,12 +88,14 @@ class DependenciesExplicitVersionsFinderTest {
                 .build();
 
         String explicitVersionDependencyCoordinates = "com.dependency.group:artifact1:2.0.0";
-        DependenciesExplicitVersionsFinder finder = new DependenciesExplicitVersionsFinder(Set.of("com.dependency.group:artifact1", "com.dependency.group:artifact2"));
-        Set<Dependency> matches = finder.findMatches(context);
+        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of("com.dependency.group:artifact1", "com.dependency.group:artifact2"));
+        Set<RedeclaredDependency> matches = finder.findMatches(context);
         assertThat(context.getApplicationModules().list()).hasSize(2);
         assertThat(matches).isNotEmpty();
         assertThat(matches).hasSize(1);
-        assertThat(matches.iterator().next().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
+        RedeclaredDependency explicitDependency = matches.iterator().next();
+        assertThat(explicitDependency.getRedeclaredDependency().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
+        assertThat(explicitDependency.getOriginalVersion()).isEqualTo("3.0.0");
     }
 
     @Test
@@ -162,8 +164,8 @@ class DependenciesExplicitVersionsFinderTest {
                 .withMavenBuildFileSource("module1", module1PomXml)
                 .build();
 
-        DependenciesExplicitVersionsFinder finder = new DependenciesExplicitVersionsFinder();
-        Set<Dependency> matches = finder.findMatches(context);
+        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder();
+        Set<RedeclaredDependency> matches = finder.findMatches(context);
         assertThat(context.getApplicationModules().list()).hasSize(2);
         assertThat(matches).isEmpty();
     }
@@ -243,11 +245,11 @@ class DependenciesExplicitVersionsFinderTest {
                 .build();
 
         String explicitVersionDependencyCoordinates = "com.dependency.group:artifact1:2.0.0";
-        DependenciesExplicitVersionsFinder finder = new DependenciesExplicitVersionsFinder(Set.of("com.dependency.group:artifact1", "com.dependency.group:artifact2"));
-        Set<Dependency> matches = finder.findMatches(context);
+        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of("com.dependency.group:artifact1", "com.dependency.group:artifact2"));
+        Set<RedeclaredDependency> matches = finder.findMatches(context);
         assertThat(context.getApplicationModules().list()).hasSize(2);
         assertThat(matches).isNotEmpty();
         assertThat(matches).hasSize(1);
-        assertThat(matches.iterator().next().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
+        assertThat(matches.iterator().next().getRedeclaredDependency().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
     }
 }
