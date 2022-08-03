@@ -18,6 +18,8 @@ package org.springframework.sbm.boot.upgrade_27_30.checks;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.upgrade_27_30.checks.RedeclaredDependenciesFinder.RedeclaredDependency;
+import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 
 import java.util.Set;
@@ -29,12 +31,23 @@ import static org.mockito.Mockito.when;
 public class RedeclaredDependenciesBuilderTest {
 
     @Test
+    void shouldBuildSectionWhenFinderHasMatches(){
+        Set<RedeclaredDependency> matches = Set.of(new RedeclaredDependency(Dependency.builder().build(), ""));
+        ProjectContext context = mock(ProjectContext.class);
+        RedeclaredDependenciesFinder finder = mock(RedeclaredDependenciesFinder.class);
+        when(finder.findMatches(context)).thenReturn(matches);
+        RedeclaredDependenciesBuilder builder = new RedeclaredDependenciesBuilder(finder);
+        assertThat(builder.isApplicable(context)).isTrue();
+    }
+
+    @Test
     void shouldBuildSectionWhenFinderHasNoMatches(){
         Set<RedeclaredDependency> matches = Set.of();
         ProjectContext context = mock(ProjectContext.class);
         RedeclaredDependenciesFinder finder = mock(RedeclaredDependenciesFinder.class);
         when(finder.findMatches(context)).thenReturn(matches);
-        RedeclaredDependenciesBuilder sut = new RedeclaredDependenciesBuilder(finder);
-        assertThat(sut.isApplicable(context)).isFalse();
+        RedeclaredDependenciesBuilder builder = new RedeclaredDependenciesBuilder(finder);
+        assertThat(builder.isApplicable(context)).isFalse();
     }
+
 }
