@@ -1,17 +1,17 @@
 ---
-anchors:
-  git-repo-resource-source: &git-repo-resource-source
-    uri: https://github.com/spring-projects-experimental/spring-boot-migrator
-    username: fabapp2
-    password: ((github-ci-release-token))
-    branch: ci
-
-resources:
-  - name: git-repo
-    type: git
-    icon: github
-    source:
-      <<: *git-repo-resource-source
+#anchors:
+#  git-repo-resource-source: &git-repo-resource-source
+#    uri: https://github.com/spring-projects-experimental/spring-boot-migrator
+#    username: fabapp2
+#    password: ((github-ci-release-token))
+#    branch: ci
+#
+#resources:
+#  - name: git-repo
+#    type: git
+#    icon: github
+#    source:
+#      <<: *git-repo-resource-source
 
 jobs:
   - name: hello-test
@@ -24,4 +24,4 @@ jobs:
           source: { repository: busybox }
         run:
           path: echo
-          args: [ "Hello, ((test))!" ]
+          args: [ ((test)) ]
