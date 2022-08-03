@@ -60,11 +60,11 @@
 
     <repositories>
         <!--  OR Snapshots repo -->
-        <repository>
-            <id>rewrite-snapshots</id>
-            <name>rewrite-snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
+<!--        <repository>-->
+<!--            <id>rewrite-snapshots</id>-->
+<!--            <name>rewrite-snapshots</name>-->
+<!--            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
+<!--        </repository>-->
         <repository>
             <id>jcenter</id>
             <name>jcenter</name>
