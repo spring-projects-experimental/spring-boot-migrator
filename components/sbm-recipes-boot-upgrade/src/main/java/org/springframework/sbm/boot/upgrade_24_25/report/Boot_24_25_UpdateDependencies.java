@@ -17,7 +17,7 @@ package org.springframework.sbm.boot.upgrade_24_25.report;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
-import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
+import org.springframework.sbm.boot.asciidoctor.ChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion;
@@ -43,7 +43,7 @@ public class Boot_24_25_UpdateDependencies implements UpgradeSectionBuilder {
         String version = buildFile.getPom().getPom().getRequested().getParent().getVersion();
         Path pathToPom = buildFile.getSourcePath();
 
-        return RelevantChangeSection.builder()
+        return ChangeSection.RelevantChangeSection.builder()
                 .title("Update dependencies")
                 .paragraph("The Spring Boot version must be updated to 2.5.6.") // TODO: make target version configurable
                 .relevanceSection()

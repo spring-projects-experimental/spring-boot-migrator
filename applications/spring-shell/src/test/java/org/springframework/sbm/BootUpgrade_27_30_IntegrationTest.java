@@ -47,11 +47,17 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyPropertyConfigurationUpdate();
         verifyConstructorBindingRemoval();
         verifyCrudRepoAddition();
+        verifyAutoConfigurationIsRefactored();
+    }
+
+    private void verifyAutoConfigurationIsRefactored() {
+        String autoConfig = loadFile(Path.of("src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports"));
+        assertThat(autoConfig).isEqualTo("com.hello.GreetingConfig");
     }
 
     private void verifyCrudRepoAddition() {
 
-        String studentRepo = loadJavaFile("org.springboot.example.upgrade", "StudentRepo");
+        String studentRepo = loadJavaFile("org.springboot.example.upgrade", "StudentRepoPagingAndSorting");
 
         assertThat(studentRepo).isEqualTo("""
                 package org.springboot.example.upgrade;
@@ -59,7 +65,31 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                 import org.springframework.data.repository.CrudRepository;
                 import org.springframework.data.repository.PagingAndSortingRepository;
                                 
-                public interface StudentRepo extends PagingAndSortingRepository<Student<?>, Long>, CrudRepository<Student<?>, Long> {
+                public interface StudentRepoPagingAndSorting extends PagingAndSortingRepository<Student, Long>, CrudRepository<Student, Long> {
+                }
+                """);
+
+        String studentRepoReactive = loadJavaFile("org.springboot.example.upgrade", "StudentRepoReactiveSorting");
+
+        assertThat(studentRepoReactive).isEqualTo("""
+                package org.springboot.example.upgrade;
+                                
+                import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+                import org.springframework.data.repository.reactive.ReactiveSortingRepository;
+                                
+                public interface StudentRepoReactiveSorting extends ReactiveSortingRepository<Student, Long>, ReactiveCrudRepository<Student, Long> {
+                }
+                """);
+
+        String studentRepoRx= loadJavaFile("org.springboot.example.upgrade", "StudentRepoRxJava3Sorting");
+
+        assertThat(studentRepoRx).isEqualTo("""
+                package org.springboot.example.upgrade;
+                                
+                import org.springframework.data.repository.reactive.RxJava3CrudRepository;
+                import org.springframework.data.repository.reactive.RxJava3SortingRepository;
+                                
+                public interface StudentRepoRxJava3Sorting extends RxJava3SortingRepository<Student, Long>, RxJava3CrudRepository<Student, Long> {
                 }
                 """);
     }
@@ -98,41 +128,45 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         String micrometerClass = loadFile(Path.of("src/main/resources/application.yaml"));
         assertThat(micrometerClass).isEqualTo(
                         "spring:\n" +
-                        "  elasticsearch:\n" +
-                        "    connection-timeout: '1'\n" +
-                        "    password: testpassword\n" +
-                        "    socket-timeout: '2'\n" +
-                        "    restclient.sniffer.delay-after-failure: '3'\n" +
-                        "    restclient.sniffer.interval: '4'\n" +
-                        "    username: username\n" +
-                        "  security:\n" +
-                        "    saml2:\n" +
-                        "      relyingparty:\n" +
-                        "        registration:\n" +
-                        "          idpone:\n" +
-                        "            assertingparty:\n" +
-                        "              verification:\n" +
-                        "                credentials:\n" +
-                        "                  certificate-location: classpath:saml/idpone.crt\n" +
-                        "              entity-id: https://idpone.com\n" +
-                        "              sso-url: https://idpone.com\n" +
-                        "  elasticsearch.connection-timeout: '1000'\n" +
-                        "  elasticsearch.webclient.max-in-memory-size: '122'\n" +
-                        "  elasticsearch.password: abc\n" +
-                        "  elasticsearch.socket-timeout: '100'\n" +
-                        "  elasticsearch.username: testUser\n" +
-                        "  sql.init.data-locations: testdata\n" +
-                        "  sql.init.password: password\n" +
-                        "  sql.init.username: username-data\n" +
-                        "  sql.init.mode: mode1\n" +
-                        "  sql.init.platform: pls\n" +
-                        "  sql.init.schema-locations: table1\n" +
-                        "  sql.init.password: password2\n" +
-                        "  sql.init.username: username-schema\n" +
-                        "  sql.init.separator: k\n" +
-                        "  sql.init.encoding: UTF-8\n" +
-                        "server.reactive.session.cookie.same-site: 'true'" +
-                        "\n");
+                                "  datasource:\n" +
+                                "    url: jdbc:h2:mem:testdb\n" +
+                                "    driverClassName: org.h2.Driver\n" +
+                                "  jpa:\n" +
+                                "    database-platform: org.hibernate.dialect.H2Dialect\n" +
+                                "  elasticsearch:\n" +
+                                "    connection-timeout: '1'\n" +
+                                "    password: testpassword\n" +
+                                "    socket-timeout: '2'\n" +
+                                "    restclient.sniffer.delay-after-failure: '3'\n" +
+                                "    restclient.sniffer.interval: '4'\n" +
+                                "    username: username\n" +
+                                "  security:\n" +
+                                "    saml2:\n" +
+                                "      relyingparty:\n" +
+                                "        registration:\n" +
+                                "          idpone:\n" +
+                                "            assertingparty:\n" +
+                                "              verification:\n" +
+                                "                credentials:\n" +
+                                "                  certificate-location: classpath:saml/idpone.crt\n" +
+                                "              entity-id: https://idpone.com\n" +
+                                "              sso-url: https://idpone.com\n" +
+                                "  elasticsearch.connection-timeout: '1000'\n" +
+                                "  elasticsearch.webclient.max-in-memory-size: '122'\n" +
+                                "  elasticsearch.password: abc\n" +
+                                "  elasticsearch.socket-timeout: '100'\n" +
+                                "  elasticsearch.username: testUser\n" +
+                                "  sql.init.data-locations: testdata\n" +
+                                "  sql.init.password: password\n" +
+                                "  sql.init.username: sa\n" +
+                                "  sql.init.mode: mode1\n" +
+                                "  sql.init.platform: pls\n" +
+                                "  sql.init.schema-locations: table1\n" +
+                                "  sql.init.password: password\n" +
+                                "  sql.init.username: sa\n" +
+                                "  sql.init.separator: k\n" +
+                                "  sql.init.encoding: UTF-8\n" +
+                                "server.reactive.session.cookie.same-site: 'true'\n");
     }
 
 
@@ -141,34 +175,40 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         String applicationProperties = loadFile(Path.of("src/main/resources/application.properties"));
         assertThat(applicationProperties).isEqualTo(
                         "spring.elasticsearch.connection-timeout=1000\n" +
-                        "spring.elasticsearch.webclient.max-in-memory-size=122\n" +
-                        "spring.elasticsearch.password=abc\n" +
-                        "spring.elasticsearch.socket-timeout=100\n" +
-                        "spring.elasticsearch.username=testUser\n" +
-                        "\n" +
-                        "spring.sql.init.data-locations=testdata\n" +
-                        "spring.sql.init.password=password\n" +
-                        "spring.sql.init.username=username\n" +
-                        "spring.sql.init.mode=mode1\n" +
-                        "spring.sql.init.platform=pls\n" +
-                        "spring.sql.init.schema-locations=table1\n" +
-                        "spring.sql.init.password=password2\n" +
-                        "spring.sql.init.username=username2\n" +
-                        "spring.sql.init.separator=k\n" +
-                        "spring.sql.init.encoding=UTF-8\n" +
-                        "\n" +
-                        "spring.elasticsearch.connection-timeout=1\n" +
-                        "spring.elasticsearch.password=testpassword\n" +
-                        "spring.elasticsearch.socket-timeout=2\n" +
-                        "spring.elasticsearch.restclient.sniffer.delay-after-failure=3\n" +
-                        "spring.elasticsearch.restclient.sniffer.interval=4\n" +
-                        "spring.elasticsearch.username=username\n" +
-                        "\n" +
-                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.entity-id=https://idpone.com\n" +
-                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.sso-url=https://idpone.com\n" +
-                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.verification.credentials.certificate-location=classpath:saml/idpone.crt\n" +
-                        "\n" +
-                        "server.reactive.session.cookie.same-site=true\n");
+                                "spring.elasticsearch.webclient.max-in-memory-size=122\n" +
+                                "spring.elasticsearch.password=abc\n" +
+                                "spring.elasticsearch.socket-timeout=100\n" +
+                                "spring.elasticsearch.username=testUser\n" +
+                                "\n" +
+                                "spring.sql.init.data-locations=testdata\n" +
+                                "spring.sql.init.password=password\n" +
+                                "spring.sql.init.username=username\n" +
+                                "spring.sql.init.mode=mode1\n" +
+                                "spring.sql.init.platform=pls\n" +
+                                "spring.sql.init.schema-locations=table1\n" +
+                                "spring.sql.init.password=password2\n" +
+                                "spring.sql.init.username=username2\n" +
+                                "spring.sql.init.separator=k\n" +
+                                "spring.sql.init.encoding=UTF-8\n" +
+                                "\n" +
+                                "spring.elasticsearch.connection-timeout=1\n" +
+                                "spring.elasticsearch.password=testpassword\n" +
+                                "spring.elasticsearch.socket-timeout=2\n" +
+                                "spring.elasticsearch.restclient.sniffer.delay-after-failure=3\n" +
+                                "spring.elasticsearch.restclient.sniffer.interval=4\n" +
+                                "spring.elasticsearch.username=username\n" +
+                                "\n" +
+                                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.entity-id=https://idpone.com\n" +
+                                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.sso-url=https://idpone.com\n" +
+                                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.verification.credentials.certificate-location=classpath:saml/idpone.crt\n" +
+                                "\n" +
+                                "server.reactive.session.cookie.same-site=true\n" +
+                                "\n" +
+                                "spring.datasource.url=jdbc:h2:mem:testdb\n" +
+                                "spring.datasource.driverClassName=org.h2.Driver\n" +
+                                "spring.datasource.username=sa\n" +
+                                "spring.datasource.password=password\n" +
+                                "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect\n");
     }
 
     private void verifyParentPomVersion() {

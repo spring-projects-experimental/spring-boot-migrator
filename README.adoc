@@ -39,7 +39,7 @@ Spring Boot Migrator will now apply the migrations defined in the recipe to the 
 
 NOTE: When using Windows you must either escape `\` or use `/` as path separator, e.g. `C:\\my\\app` or `C:/my/app`
 
-NOTE: **The OpenRewrite `rewrite-java-11` module uses JDK internals and thus requires the project to run with JDK 11.**
+NOTE: **SBM requires a JDK 17.**
 
 
 === Building from source
@@ -66,7 +66,7 @@ All contributions are welcome.
 Please refer to the link:CONTRIBUTING.adoc[] for more details.
 
 
-**This project requires Java 11.**
+**This project requires Java 17.**
 
 == License
 

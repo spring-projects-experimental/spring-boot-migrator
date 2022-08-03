@@ -18,7 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30.checks;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.sbm.boot.SectionBuilder;
-import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
+import org.springframework.sbm.boot.asciidoctor.ChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionCheck;
@@ -59,7 +59,7 @@ public class DatabaseDriverGaeSectionBuilder implements Sbu30_PreconditionCheck,
 
     @Override
     public Section build(ProjectContext projectContext) {
-        return RelevantChangeSection.builder()
+        return ChangeSection.RelevantChangeSection.builder()
                 .title("DatabaseDriver.GAE was deprecated in Spring Boot 2.7")
                 .paragraph("Support for GAE database driver has been removed in 3.0.0 without replacement following the removal of AppEngineDriver from version 2.0 of the AppEngine API SDK.")
                 .relevanceSection()

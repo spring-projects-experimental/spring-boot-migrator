@@ -8,4 +8,4 @@
     - type: org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction
       description: Create auto config file.
       condition:
-        type: org.springframework.sbm.boot.upgrade.como.conditions.BootHasAutoconfigurationCondition
+        type: org.springframework.sbm.boot.upgrade.common.conditions.BootHasAutoconfigurationCondition

@@ -1,15 +1,19 @@
 spring:
   datasource:
     data: testdata
-    data-username: username-data
-    schema-username: username-schema
-    schema-password: password2
+    url: jdbc:h2:mem:testdb
+    data-username: sa
+    schema-username: sa
+    schema-password: password
+    driverClassName: org.h2.Driver
     schema: table1
     initialization-mode: mode1
     data-password: password
     sql-script-encoding: UTF-8
     platform: pls
     separator: k
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
   activemq:
     pool:
       max-sessions-per-connection: '300'
@@ -83,9 +87,9 @@ spring:
           username: testUser
   h2:
     console:
-      path: '"/tmp"'
+      path: "/tmp"
       settings:
-        web-admin-password: '"password"'
+        web-admin-password: "password"
         web-allow-others: 'true'
         trace: 'true'
       enabled: 'true'

@@ -67,7 +67,7 @@
         <dependency>
             <groupId>org.raml.jaxrs</groupId>
             <artifactId>jaxrs-code-generator</artifactId>
-            <version>3.0.5</version>
+            <version>3.0.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.json</groupId>

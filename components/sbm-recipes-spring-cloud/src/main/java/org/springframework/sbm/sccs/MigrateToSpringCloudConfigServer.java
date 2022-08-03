@@ -46,6 +46,8 @@ public class MigrateToSpringCloudConfigServer extends AbstractAction {
         // copy properties files to config project
         helper.copyFiles(bootApplicationProperties, sccsProjectDir);
 
+        helper.initGit(sccsProjectDir.toFile());
+
         // commit properties to repo
         helper.commitProperties(sccsProjectDir, bootApplicationProperties);
 

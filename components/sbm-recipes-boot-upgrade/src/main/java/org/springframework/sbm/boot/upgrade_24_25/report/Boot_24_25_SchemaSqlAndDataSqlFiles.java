@@ -17,7 +17,7 @@ package org.springframework.sbm.boot.upgrade_24_25.report;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
-import org.springframework.sbm.boot.asciidoctor.RelevantChangeSection;
+import org.springframework.sbm.boot.asciidoctor.ChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -45,7 +45,7 @@ public class Boot_24_25_SchemaSqlAndDataSqlFiles implements UpgradeSectionBuilde
     public Section build(ProjectContext projectContext) {
 
         // render
-        return RelevantChangeSection.builder()
+        return ChangeSection.RelevantChangeSection.builder()
                 .title("schema.sql and data.sql Files")
                 .paragraph(
                         "With Spring Boot 2.5.1 and above, the new SQL initialization properties support detection of embedded datasources for JDBC and R2DBC. +\n" +
