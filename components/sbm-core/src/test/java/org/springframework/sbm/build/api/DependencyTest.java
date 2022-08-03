@@ -29,8 +29,18 @@ class DependencyTest {
     }
 
     @Test
+    public void handlesErroneousCoordinateFiveParts() {
+        assertThrows(IllegalArgumentException.class, () -> Dependency.fromCoordinates("one:two:three:four:five"));;
+    }
+
+    @Test
     public void handlesErroneousCoordinateFourParts() {
-        assertThrows(IllegalArgumentException.class, () -> Dependency.fromCoordinates("one:two:three:four"));
+        Dependency dependency = Dependency.fromCoordinates("one:two:three:four");
+
+        assertThat(dependency.getGroupId()).isEqualTo("one");
+        assertThat(dependency.getArtifactId()).isEqualTo("two");
+        assertThat(dependency.getVersion()).isEqualTo("three");
+        assertThat(dependency.getClassifier()).isEqualTo("four");
     }
 
     @Test
