@@ -104,6 +104,12 @@ public class Dependency {
                     .groupId(splitCoordinates[0])
                     .artifactId(splitCoordinates[1])
                     .version(splitCoordinates[2]).build();
+        } else if (splitCoordinates.length == 4) {
+            return Dependency.builder()
+                    .groupId(splitCoordinates[0])
+                    .artifactId(splitCoordinates[1])
+                    .version(splitCoordinates[2])
+                    .classifier(splitCoordinates[3]).build();
         } else {
             throw new IllegalArgumentException("Expected dependency in format groupid:artifactid[:version], but it is: " + coordinate);
         }
