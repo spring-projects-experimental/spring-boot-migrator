@@ -1,0 +1,14 @@
+---
+
+jobs:
+  - name: hello-test
+    plan:
+    - task: simple-task
+      config:
+        platform: linux
+        image_resource:
+          type: registry-image
+          source: { repository: busybox }
+        run:
+          path: echo
+          args: [ "Hello, ((test))!" ]
