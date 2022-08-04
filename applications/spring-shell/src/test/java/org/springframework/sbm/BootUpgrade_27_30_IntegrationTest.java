@@ -16,7 +16,6 @@
 package org.springframework.sbm;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
@@ -33,7 +32,6 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
     }
 
     @Test
-    @Tag("integration")
     void migrateSimpleApplication() {
         intializeTestProject();
 
