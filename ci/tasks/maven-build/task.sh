@@ -16,6 +16,6 @@
 # limitations under the License.
 #
 
-cd spring-boot-migrator-repo
+cd git-repo
 
 mvn install -DskipITs

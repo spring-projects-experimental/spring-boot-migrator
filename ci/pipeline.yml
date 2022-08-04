@@ -12,6 +12,7 @@ resources:
     icon: github
     source:
       <<: *git-repo-resource-source
+
   - name: spring-boot-migrator-image
     type: docker-image
     source:
@@ -19,13 +20,23 @@ resources:
       tag: 1.0.0
 
 jobs:
+  - name: get-resources
+    plan:
+      - in_parallel:
+          - get: spring-boot-migrator-image
+          - get: git-repo
+            trigger: true
+
+  - name: build-container
+    plan:
+      - task: build-image
+        privileged: true
+        config:
+          platform: linux
+
   - name: spring-boot-migrator-build
     serial: true
     plan:
-      - in_parallel:
-#          - get: spring-boot-migrator-image
-          - get: git-repo
-            trigger: true
       - in_parallel:
           - task: build
             privileged: true
