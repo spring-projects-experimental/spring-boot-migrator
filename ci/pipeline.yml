@@ -9,6 +9,14 @@ anchors:
     docker-hub-mirror: ((docker-hub-mirror))
     docker-hub-mirror-username: ((docker-hub-mirror-username))
     docker-hub-mirror-password: ((docker-hub-mirror-password))
+  registry-image-resource-source: &registry-image-resource-source
+    username: ((docker-hub-username))
+    password: ((docker-hub-password))
+    tag: ((milestone))
+    registry_mirror:
+      host: ((docker-hub-mirror))
+      username: ((docker-hub-mirror-username))
+      password: ((docker-hub-mirror-password))
 
 resources:
   - name: git-repo
@@ -16,6 +24,13 @@ resources:
     icon: github
     source:
       <<: *git-repo-resource-source
+  - name: ci-image
+    type: registry-image
+    icon: docker
+    source:
+      <<: *registry-image-resource-source
+      repository: ((docker-hub-organization))/spring-boot-migrator-ci
+
 
 #  - name: spring-boot-migrator-image
 #    type: docker-image
@@ -24,10 +39,15 @@ resources:
 #      tag: 1.0.0
 
 jobs:
+#  - name: get-resources
+#    plan:
+#      - in_parallel:
+#          - get: spring-boot-migrator-image
+#          - get: git-repo
+#            trigger: true
+
   - name: build-ci-images
     plan:
-      - get: git-repo
-        trigger: true
       - in_parallel:
           - task: build-ci-image
             privileged: true
@@ -42,25 +62,15 @@ jobs:
             params:
               image: ci-image/image.tar
 
-  - name: get-resources
-    plan:
-      - in_parallel:
-#          - get: spring-boot-migrator-image
-          - get: git-repo
-            trigger: true
-
-  - name: build-container
-    plan:
-      - task: build-image
-        privileged: true
-        config:
-          platform: linux
-
   - name: spring-boot-migrator-build
     serial: true
     plan:
       - in_parallel:
+          - get: ci-image
+          - get: git-repo
+            trigger: true
+      - in_parallel:
           - task: build
             privileged: true
-            image: spring-boot-migrator-image
+            image: ci-image
             file: git-repo/ci/tasks/maven-build/task.yml

@@ -17,7 +17,7 @@ caches:
   - path: ci-image-cache
 params:
   CONTEXT: git-repo/ci/images
-  DOCKERFILE: git-repo/ci/images/ci-image/Dockerfile
+  DOCKERFILE: git-repo/ci/images/ci-image/Dockerfile-spring
   DOCKER_HUB_AUTH: ((docker-hub-auth))
   REGISTRY_MIRRORS: ((docker-hub-mirror))
 run:
