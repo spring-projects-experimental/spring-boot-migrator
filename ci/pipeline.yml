@@ -5,6 +5,10 @@ anchors:
     username: ((github-repo-user)) # fabapp2
     password: none # ((github-ci-release-token))
     branch: ci
+  docker-hub-mirror-vars: &docker-hub-mirror-vars
+    docker-hub-mirror: ((docker-hub-mirror))
+    docker-hub-mirror-username: ((docker-hub-mirror-username))
+    docker-hub-mirror-password: ((docker-hub-mirror-password))
 
 resources:
   - name: git-repo
@@ -13,17 +17,35 @@ resources:
     source:
       <<: *git-repo-resource-source
 
-  - name: spring-boot-migrator-image
-    type: docker-image
-    source:
-      repository: othmankh/sbm
-      tag: 1.0.0
+#  - name: spring-boot-migrator-image
+#    type: docker-image
+#    source:
+#      repository: othmankh/sbm
+#      tag: 1.0.0
 
 jobs:
+  - name: build-ci-images
+    plan:
+      - get: git-repo
+        trigger: true
+      - in_parallel:
+          - task: build-ci-image
+            privileged: true
+            file: git-repo/ci/tasks/build-ci-image.yml
+            output_mapping:
+              image: ci-image
+            vars:
+              ci-image-name: ci-image
+              <<: *docker-hub-mirror-vars
+      - in_parallel:
+          - put: ci-image
+            params:
+              image: ci-image/image.tar
+
   - name: get-resources
     plan:
       - in_parallel:
-          - get: spring-boot-migrator-image
+#          - get: spring-boot-migrator-image
           - get: git-repo
             trigger: true
 
