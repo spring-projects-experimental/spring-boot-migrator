@@ -1,0 +1,14 @@
+---
+platform: linux
+
+inputs:
+  - name: git-repo
+
+outputs:
+  - name: maven-files
+    path: ~/target
+  - name: git-repo
+
+run:
+  path: /bin/sh
+  args: ["git-repo/ci/tasks/maven-build/task.sh"]

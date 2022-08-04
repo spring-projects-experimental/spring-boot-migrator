@@ -1,27 +1,33 @@
 ---
-#anchors:
-#  git-repo-resource-source: &git-repo-resource-source
-#    uri: https://github.com/spring-projects-experimental/spring-boot-migrator
-#    username: fabapp2
-#    password: ((github-ci-release-token))
-#    branch: ci
-#
-#resources:
-#  - name: git-repo
-#    type: git
-#    icon: github
-#    source:
-#      <<: *git-repo-resource-source
+anchors:
+  git-repo-resource-source: &git-repo-resource-source
+    uri: ((github-repo-uri)) # https://github.com/spring-projects-experimental/spring-boot-migrator
+    username: ((github-repo-user)) # fabapp2
+    password: none # ((github-ci-release-token))
+    branch: ci
+
+resources:
+  - name: git-repo
+    type: git
+    icon: github
+    source:
+      <<: *git-repo-resource-source
+  - name: spring-boot-migrator-image
+    type: docker-image
+    source:
+      repository: othmankh/sbm
+      tag: 1.0.0
 
 jobs:
-  - name: hello-test
+  - name: spring-boot-migrator-build
+    serial: true
     plan:
-    - task: simple-task
-      config:
-        platform: linux
-        image_resource:
-          type: registry-image
-          source: { repository: busybox }
-        run:
-          path: echo
-          args: [ ((test)) ]
+      - in_parallel:
+#          - get: spring-boot-migrator-image
+          - get: git-repo
+            trigger: true
+      - in_parallel:
+          - task: build
+            privileged: true
+            image: spring-boot-migrator-image
+            file: git-repo/ci/tasks/maven-build/task.yml
