@@ -34,6 +34,7 @@ import org.stringtemplate.v4.compiler.STParser;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.stream.Collectors;
@@ -138,6 +139,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .getBuildFile();
 
         List<String> unifiedPaths = sut.getResolvedDependenciesPaths().stream()
+                .filter(Objects::nonNull)
                 .map(dp -> {
                     String dep = dp.toString();
                     if(dep.contains(".rewrite/cache/artifacts/")) {
