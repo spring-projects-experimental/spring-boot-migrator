@@ -25,11 +25,12 @@ resources:
     source:
       <<: *git-repo-resource-source
   - name: ci-image
-    type: registry-image
+    type: docker-image
     icon: docker
     source:
-      <<: *registry-image-resource-source
+#      <<: *registry-image-resource-source
       repository: ((docker-hub-organization))/spring-boot-migrator-ci
+      rag: latest
 
 
 #  - name: spring-boot-migrator-image
@@ -46,21 +47,21 @@ jobs:
 #          - get: git-repo
 #            trigger: true
 
-  - name: build-ci-images
-    plan:
-      - in_parallel:
-          - task: build-ci-image
-            privileged: true
-            file: git-repo/ci/tasks/build-ci-image.yml
-            output_mapping:
-              image: ci-image
-            vars:
-              ci-image-name: ci-image
-              <<: *docker-hub-mirror-vars
-      - in_parallel:
-          - put: ci-image
-            params:
-              image: ci-image/image.tar
+#  - name: build-ci-images
+#    plan:
+#      - in_parallel:
+#          - task: build-ci-image
+#            privileged: true
+#            file: git-repo/ci/tasks/build-ci-image.yml
+#            output_mapping:
+#              image: ci-image
+#            vars:
+#              ci-image-name: ci-image
+#              <<: *docker-hub-mirror-vars
+#      - in_parallel:
+#          - put: ci-image
+#            params:
+#              image: ci-image/image.tar
 
   - name: spring-boot-migrator-build
     serial: true
