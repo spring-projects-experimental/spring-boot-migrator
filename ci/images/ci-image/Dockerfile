@@ -30,5 +30,6 @@ ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 #Install OpenJdk11
 RUN apk --no-cache add openjdk17 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 #ENTRYPOINT ["docker-entrypoint.sh"]
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["/bin/bash"]
+#ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+#CMD ["/bin/bash"]
+ENTRYPOINT [ "switch", "shell=/bin/bash", "--", "codep", "/bin/docker daemon" ]
