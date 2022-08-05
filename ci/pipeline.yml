@@ -47,21 +47,21 @@ jobs:
 #          - get: git-repo
 #            trigger: true
 
-#  - name: build-ci-images
-#    plan:
-#      - in_parallel:
-#          - task: build-ci-image
-#            privileged: true
-#            file: git-repo/ci/tasks/build-ci-image.yml
-#            output_mapping:
-#              image: ci-image
-#            vars:
-#              ci-image-name: ci-image
-#              <<: *docker-hub-mirror-vars
-#      - in_parallel:
-#          - put: ci-image
-#            params:
-#              image: ci-image/image.tar
+  - name: build-ci-images
+    plan:
+      - in_parallel:
+          - task: build-ci-image
+            privileged: true
+            file: git-repo/ci/tasks/build-ci-image.yml
+            output_mapping:
+              image: ci-image
+            vars:
+              ci-image-name: ci-image
+              <<: *docker-hub-mirror-vars
+      - in_parallel:
+          - put: ci-image
+            params:
+              image: ci-image/image.tar
 
   - name: spring-boot-migrator-build
     serial: true
