@@ -1,6 +1,17 @@
-FROM docker:dind
+FROM ubuntu:focal-20220801
 
-RUN apk add --no-cache curl tar bash procps
+ADD setup.sh /setup.sh
+ADD get-jdk-url.sh /get-jdk-url.sh
+ADD get-docker-url.sh /get-docker-url.sh
+RUN ./setup.sh java17
+
+ENV JAVA_HOME /opt/openjdk
+ENV PATH $JAVA_HOME/bin:$PATH
+ADD docker-lib.sh /docker-lib.sh
+
+#ADD build-release-scripts.sh /build-release-scripts.sh
+#ADD releasescripts /release-scripts
+#RUN ./build-release-scripts.sh
 
 #INSTALL MAVEN
 ARG MAVEN_VERSION=3.6.3
@@ -27,9 +38,4 @@ RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 
-#Install OpenJdk11
-RUN apk --no-cache add openjdk17 --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
-#ENTRYPOINT ["docker-entrypoint.sh"]
-#ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-#CMD ["/bin/bash"]
 ENTRYPOINT [ "switch", "shell=/bin/bash", "--", "codep", "/bin/docker daemon" ]
