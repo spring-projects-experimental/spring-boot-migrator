@@ -10,7 +10,7 @@ image_resource:
       username: ((docker-hub-mirror-username))
       password: ((docker-hub-mirror-password))
 inputs:
-  - name: ci-images-git-repo
+#  - name: ci-images-git-repo
   - name: git-repo
 outputs:
   - name: image
