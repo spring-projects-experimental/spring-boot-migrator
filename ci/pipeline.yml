@@ -19,17 +19,17 @@ anchors:
       password: ((docker-hub-mirror-password))
 
 resources:
-#  - name: git-repo
-#    type: git
-#    icon: github
-#    source:
-#      <<: *git-repo-resource-source
+  - name: git-repo
+    type: git
+    icon: github
+    source:
+      <<: *git-repo-resource-source
   - name: ci-image
     type: docker-image
     icon: docker
     source:
-#      <<: *registry-image-resource-source
-      repository: ((docker-hub-organization))/spring-boot-migrator-ci
+      <<: *registry-image-resource-source
+#      repository: ((docker-hub-organization))/spring-boot-migrator-ci
       rag: latest
 
 
@@ -40,12 +40,6 @@ resources:
 #      tag: 1.0.0
 
 jobs:
-  - name: get-resources
-    plan:
-      - in_parallel:
-#          - get: build-ci-image
-          - get: git-repo
-            trigger: true
 
   - name: build-ci-images
     plan:
@@ -58,7 +52,6 @@ jobs:
             vars:
               ci-image-name: ci-image
               <<: *docker-hub-mirror-vars
-            trigger: true
       - in_parallel:
           - put: ci-image
             params:
