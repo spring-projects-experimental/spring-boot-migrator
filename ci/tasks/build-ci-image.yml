@@ -11,6 +11,7 @@ image_resource:
       password: ((docker-hub-mirror-password))
 inputs:
   - name: ci-images-git-repo
+  - name: git-repo
 outputs:
   - name: image
 caches:
