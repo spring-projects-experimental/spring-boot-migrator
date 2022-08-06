@@ -13,10 +13,10 @@ anchors:
     username: ((docker-hub-username))
     password: ((docker-hub-password))
     tag: ((milestone))
-    registry_mirror:
-      host: ((docker-hub-mirror))
-      username: ((docker-hub-mirror-username))
-      password: ((docker-hub-mirror-password))
+#    registry_mirror:
+#      host: ((docker-hub-mirror))
+#      username: ((docker-hub-mirror-username))
+#      password: ((docker-hub-mirror-password))
 
 resources:
   - name: git-repo
@@ -28,9 +28,9 @@ resources:
     type: docker-image
     icon: docker
     source:
-      <<: *registry-image-resource-source
-#      repository: ((docker-hub-organization))/spring-boot-migrator-ci
-      rag: latest
+#      <<: *registry-image-resource-source
+      repository: fkrueger096/spring-boot-migrator-ci
+      tag: latest
 
 
 #  - name: spring-boot-migrator-image
@@ -41,25 +41,25 @@ resources:
 
 jobs:
 
-  - name: build-ci-images
-    plan:
-      - in_parallel:
-#          - get: ci-image
-          - get: git-repo
-            trigger: true
-      - in_parallel:
-          - task: build-ci-image
-            privileged: true
-            file: git-repo/ci/tasks/build-ci-image.yml
-            output_mapping:
-              image: ci-image
-            vars:
-              ci-image-name: ci-image
-              <<: *docker-hub-mirror-vars
-      - in_parallel:
-          - put: ci-image
-            params:
-              image: ci-image/image.tar
+#  - name: build-ci-images
+#    plan:
+#      - in_parallel:
+##          - get: ci-image
+#          - get: git-repo
+#            trigger: true
+#      - in_parallel:
+#          - task: build-ci-image
+#            privileged: true
+#            file: git-repo/ci/tasks/build-ci-image.yml
+#            output_mapping:
+#              image: ci-image
+#            vars:
+#              ci-image-name: ci-image
+#              <<: *docker-hub-mirror-vars
+#      - in_parallel:
+#          - put: ci-image
+#            params:
+#              image: ci-image/image.tar
 
   - name: spring-boot-migrator-build
     serial: true

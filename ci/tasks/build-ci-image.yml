@@ -20,7 +20,7 @@ params:
   CONTEXT: git-repo/ci/images
   DOCKERFILE: git-repo/ci/images/ci-image/Dockerfile
   DOCKER_HUB_AUTH: ((docker-hub-auth))
-#  REGISTRY_MIRRORS: ((docker-hub-mirror))
+  REGISTRY_MIRRORS: ((docker-hub-mirror))
 run:
   path: /bin/sh
   args:
