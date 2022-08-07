@@ -1,6 +1,8 @@
 package org.springframework.sbm.boot.upgrade_27_30.actions;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
+import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -18,7 +20,8 @@ public class Boot_27_30_AddLoggingDateFormatTest {
     @Test
     public void givenAProjectWithoutLoggingDateFormatOverride_andSpringBootProperties_applyAction_expectPropertyAdded(){
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("main/resources/application.properties", DUMMY_PROPERTY_FILE)
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addProjectResource("src/main/resources/application.properties", DUMMY_PROPERTY_FILE)
                 .build();
 
         Boot_27_30_AddLoggingDateFormat action = new Boot_27_30_AddLoggingDateFormat();
