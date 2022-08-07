@@ -1,10 +1,9 @@
-package org.springframework.sbm.common.filter;
+package org.springframework.sbm.java.filter;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.java.filter.JavaSourceFinder;
 
 import java.util.List;
 

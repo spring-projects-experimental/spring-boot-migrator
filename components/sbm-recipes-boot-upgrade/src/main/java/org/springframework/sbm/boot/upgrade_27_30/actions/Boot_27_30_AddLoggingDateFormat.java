@@ -3,7 +3,7 @@ package org.springframework.sbm.boot.upgrade_27_30.actions;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 import org.springframework.sbm.build.api.ApplicationModule;
-import org.springframework.sbm.common.filter.AnnotatedJavaClassFinder;
+import org.springframework.sbm.java.filter.AnnotatedJavaClassFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 
