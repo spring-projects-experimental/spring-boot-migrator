@@ -88,8 +88,7 @@ class OpenRewriteDeclarativeRecipeAdapterTest {
     }
 
     @Test
-    @Disabled
-    public void propagatesExceptionFromOpenRewriteSimple() throws IOException {
+    public void catchesErrorWhenAnErrorOccurs() throws IOException {
 
         String actionDescription =
                 "- name: test-recipe\n" +
@@ -162,7 +161,8 @@ class OpenRewriteDeclarativeRecipeAdapterTest {
                 .withMavenRootBuildFileSource(pomWithError)
                 .build();
 
-        assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));
+        assertThat(thrown.getMessage()).isEqualTo("java.lang.RuntimeException: org.openrewrite.maven.internal.MavenParsingException: No version provided for dependency org.ehcache:ehcache");
     }
 
 
