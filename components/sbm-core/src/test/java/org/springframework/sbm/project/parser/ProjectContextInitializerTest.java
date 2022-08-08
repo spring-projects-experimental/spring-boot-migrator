@@ -16,10 +16,7 @@
 package org.springframework.sbm.project.parser;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.maven.tree.Scope;
@@ -111,6 +108,7 @@ class ProjectContextInitializerTest {
 
     @Test
     @Tag("integration")
+    @Disabled
     void test() {
 
         assertThat(projectDirectory.toAbsolutePath().resolve(".git")).doesNotExist();

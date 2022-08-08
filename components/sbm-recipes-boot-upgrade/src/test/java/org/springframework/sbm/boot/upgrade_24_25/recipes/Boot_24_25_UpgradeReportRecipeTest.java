@@ -43,7 +43,7 @@ public class Boot_24_25_UpgradeReportRecipeTest {
         // get expected and created report with replaced dynamic parts (paths and timestamps)
         Path resultDir = RecipeIntegrationTestSupport.getResultDir(applicationDir);
         String generatedReportContent = replaceDynamicPartsInReport(resultDir.resolve("Upgrade-Spring-Boot-2.4-to-2.5.html"), resultDir);
-        String expectedReport = getContent(new ClassPathResource("/expected-report.html").getFile().toPath());
+        String expectedReport = getContent(new ClassPathResource("/expected-report").getFile().toPath());
 
         // verify generated result matches expected report
         assertThat(generatedReportContent).isEqualTo(expectedReport);
@@ -59,7 +59,7 @@ public class Boot_24_25_UpgradeReportRecipeTest {
     @NotNull
     private String getContent(Path report) throws IOException {
         Charset charset = StandardCharsets.UTF_8;
-        return new String(Files.readAllBytes(report), charset);
+        return new String(Files.readAllBytes(report), charset).replaceAll("\n$", "");
     }
 
 }
