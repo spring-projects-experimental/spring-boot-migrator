@@ -56,44 +56,45 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.*;
 
-@SpringBootTest(classes = {
-        ProjectContextInitializer.class,
-        RewriteMavenArtifactDownloader.class,
-        JavaProvenanceMarkerFactory.class,
-        BasePackageCalculator.class,
-        BasePackageCalculator.class,
-        ProjectRootPathResolver.class,
-        PreconditionVerifier.class,
-        ProjectContextFactory.class,
-        RewriteMavenParserFactory.class, // FIXME: #7 remove class
-        MavenPomCacheProvider.class,
-        SbmApplicationProperties.class,
-        PathScanner.class,
-        RewriteJavaParser.class,
-        RewritePlainTextParser.class,
-        RewriteYamlParser.class,
-        RewriteJsonParser.class,
-        ResourceParser.class,
-        RewritePropertiesParser.class,
-        MavenProjectParser.class,
-        RewriteMavenParser.class,
-        RewriteXmlParser.class,
-        ResourceHelper.class,
-        ResourceLoader.class,
-        GitSupport.class,
-        ScanCommand.class,
-        ProjectResourceSetHolder.class,
-        JavaRefactoringFactoryImpl.class,
-        ProjectResourceWrapperRegistry.class
-}, properties = {"sbm.gitSupportEnabled=false"})
+//@SpringBootTest(classes = {
+//        ProjectContextInitializer.class,
+//        RewriteMavenArtifactDownloader.class,
+//        JavaProvenanceMarkerFactory.class,
+//        BasePackageCalculator.class,
+//        BasePackageCalculator.class,
+//        ProjectRootPathResolver.class,
+//        PreconditionVerifier.class,
+//        ProjectContextFactory.class,
+//        RewriteMavenParserFactory.class, // FIXME: #7 remove class
+//        MavenPomCacheProvider.class,
+//        SbmApplicationProperties.class,
+//        PathScanner.class,
+//        RewriteJavaParser.class,
+//        RewritePlainTextParser.class,
+//        RewriteYamlParser.class,
+//        RewriteJsonParser.class,
+//        ResourceParser.class,
+//        RewritePropertiesParser.class,
+//        MavenProjectParser.class,
+//        RewriteMavenParser.class,
+//        RewriteXmlParser.class,
+//        ResourceHelper.class,
+//        ResourceLoader.class,
+//        GitSupport.class,
+//        ScanCommand.class,
+//        ProjectResourceSetHolder.class,
+//        JavaRefactoringFactoryImpl.class,
+//        ProjectResourceWrapperRegistry.class
+//}, properties = {"sbm.gitSupportEnabled=false"})
+@Disabled
 class ProjectContextInitializerTest {
 
     private final Path projectDirectory = Path.of("./testcode/path-scanner").toAbsolutePath().normalize();
 
-    @Autowired
+//    @Autowired
     private ProjectContextInitializer sut;
 
-    @Autowired
+//    @Autowired
     private ScanCommand scanCommand;
 
     @BeforeEach
