@@ -16,16 +16,17 @@
 
 package org.springframework.sbm.engine.recipe;
 
-import org.junit.jupiter.api.Disabled;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.TreeVisitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
 import java.io.IOException;
@@ -86,6 +87,7 @@ class OpenRewriteDeclarativeRecipeAdapterTest {
                         "}"
         );
     }
+
 
     @Test
     public void propagateExceptionFromOpenRewriteRecipe() throws IOException {
