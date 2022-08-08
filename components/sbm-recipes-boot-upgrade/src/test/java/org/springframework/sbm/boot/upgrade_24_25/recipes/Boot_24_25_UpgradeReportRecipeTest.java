@@ -15,15 +15,13 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.recipes;
 
-import org.springframework.sbm.engine.git.Commit;
 import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.test.RecipeIntegrationTestSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
-
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -47,7 +45,8 @@ public class Boot_24_25_UpgradeReportRecipeTest {
         Path resultDir = RecipeIntegrationTestSupport.getResultDir(applicationDir);
         String generatedReportContent = replaceDynamicPartsInReport(resultDir.resolve("Upgrade-Spring-Boot-2.4-to-2.5.html"), resultDir);
 
-        String revision = GitSupport.getLatestCommit(resultDir.toAbsolutePath().toFile()).get().getHash();
+        GitSupport gitSupport = new GitSupport(new SbmApplicationProperties());
+        String revision = gitSupport.getLatestCommit(resultDir.toAbsolutePath().toFile()).get().getHash();
 
         String expectedReport =
                 getContent(new ClassPathResource("/expected-report").getFile().toPath())
@@ -70,5 +69,4 @@ public class Boot_24_25_UpgradeReportRecipeTest {
         Charset charset = StandardCharsets.UTF_8;
         return new String(Files.readAllBytes(report), charset).replaceAll("\n$", "");
     }
-
 }

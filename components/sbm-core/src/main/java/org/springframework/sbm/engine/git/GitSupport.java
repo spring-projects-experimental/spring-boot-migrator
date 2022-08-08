@@ -107,7 +107,7 @@ public class GitSupport {
      *
      * @param repo the location of the repo
      */
-    public static Optional<Commit> getLatestCommit(File repo) {
+    public Optional<Commit> getLatestCommit(File repo) {
         try {
             Git git = getRepository(repo);
             Iterable<RevCommit> revCommits = git.log()
