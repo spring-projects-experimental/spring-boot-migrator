@@ -32,7 +32,7 @@ public class ResourceSet {
     private final Path resourceSetPath;
 
     public void addStringResource(String filePath, String content) {
-        Path absFilePath = this.projectRoot.resolve(resourceSetPath).resolve(filePath);
+        Path absFilePath = getAbsolutePath().resolve(filePath);
         StringProjectResource resource = new StringProjectResource(projectRoot, absFilePath, content);
         resource.markAsChanged();
         projectResourceSet.add(resource);
@@ -41,5 +41,9 @@ public class ResourceSet {
     public void addResource(RewriteSourceFileHolder<? extends SourceFile> resource) {
         resource.markChanged();
         projectResourceSet.add(resource);
+    }
+
+    public Path getAbsolutePath() {
+        return projectRoot.resolve(resourceSetPath);
     }
 }

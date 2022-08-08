@@ -25,8 +25,15 @@ import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@Disabled("TODO: Maven Reactor")
 class ApplicationModuleTest {
+
+    /**
+     * Searches for files in {@code /src/main/resources} of this module.
+     */
+    @Test
+    void searchMainResources() {
+
+    }
 
     @Test
     void testGetModuleResources() {
