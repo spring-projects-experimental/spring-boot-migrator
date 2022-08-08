@@ -14,10 +14,7 @@ public class ErrorClass extends org.openrewrite.Recipe {
 
     @Override
     protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
-
-        if (true) {
-            throw new RuntimeException("A problem happened whilst visiting");
-        }
+        ctx.getOnError().accept(new RuntimeException("A problem happened whilst visiting"));
         return super.visit(before, ctx);
     }
 }
