@@ -19,9 +19,13 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.tree.Dependency;
+import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.xml.tree.Xml;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -48,6 +52,34 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyConstructorBindingRemoval();
         verifyCrudRepoAddition();
         verifyAutoConfigurationIsRefactored();
+        verifyEhCacheVersionIsUpgraded();
+    }
+
+    private void verifyEhCacheVersionIsUpgraded() {
+        String pomContent = loadFile(Path.of("pom.xml"));
+
+        Xml.Document mavenAsXMLDocument = parsePom(pomContent);
+
+        List<Dependency> dependencies = mavenAsXMLDocument
+                .getMarkers()
+                .findFirst(MavenResolutionResult.class)
+                .get()
+                .getPom()
+                .getRequestedDependencies();
+
+        Optional<Dependency> ehcacheResult = dependencies
+                .stream()
+                .filter(dependency -> dependency.getArtifactId().equals("ehcache"))
+                .findFirst();
+
+        assertThat(ehcacheResult).isPresent();
+
+        Dependency ehcacheDependency = ehcacheResult.get();
+
+        assertThat(ehcacheDependency.getArtifactId()).isEqualTo("ehcache");
+        assertThat(ehcacheDependency.getGav().getGroupId()).isEqualTo("org.ehcache");
+        assertThat(ehcacheDependency.getGav().getVersion()).isNull();
+        assertThat(ehcacheDependency.getClassifier()).isEqualTo("jakarta");
     }
 
     private void verifyAutoConfigurationIsRefactored() {
