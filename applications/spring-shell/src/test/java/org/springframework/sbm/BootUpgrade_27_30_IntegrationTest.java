@@ -79,6 +79,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         assertThat(ehcacheDependency.getArtifactId()).isEqualTo("ehcache");
         assertThat(ehcacheDependency.getGav().getGroupId()).isEqualTo("org.ehcache");
         assertThat(ehcacheDependency.getGav().getVersion()).isNull();
+        assertThat(ehcacheDependency.getClassifier()).isEqualTo("jakarta");
     }
 
     private void verifyAutoConfigurationIsRefactored() {
