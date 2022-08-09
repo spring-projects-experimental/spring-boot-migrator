@@ -47,8 +47,16 @@ import static org.mockito.Mockito.when;
 public class RedeclaredDependenciesBuilderTest {
 
     @Test
-    void shouldBuildSectionWhenFinderHasMatches(){
-        Set<RedeclaredDependency> matches = Set.of(new RedeclaredDependency(Dependency.builder().groupId("test.group").artifactId("test-artifact").version("2.0.0").build(), "1.0.0"));
+    void shouldBuildSectionWhenFinderHasMatches() {
+        Set<RedeclaredDependency> matches = Set.of(new RedeclaredDependency(
+                Dependency.builder()
+                        .groupId("test.group")
+                        .artifactId("test-artifact")
+                        .version("2.0.0")
+                        .build(),
+                "1.0.0"
+        ));
+
         ProjectContext context = mock(ProjectContext.class);
         RedeclaredDependenciesFinder finder = mock(RedeclaredDependenciesFinder.class);
         when(finder.findMatches(context)).thenReturn(matches);
@@ -57,7 +65,7 @@ public class RedeclaredDependenciesBuilderTest {
     }
 
     @Test
-    void shouldBuildSectionWhenFinderHasNoMatches(){
+    void shouldBuildSectionWhenFinderHasNoMatches() {
         Set<RedeclaredDependency> matches = Set.of();
         ProjectContext context = mock(ProjectContext.class);
         RedeclaredDependenciesFinder finder = mock(RedeclaredDependenciesFinder.class);

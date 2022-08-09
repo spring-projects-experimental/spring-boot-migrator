@@ -31,7 +31,7 @@ public class RedeclaredDependenciesBuilder implements Sbu30_PreconditionCheck, S
 
     @Override
     public boolean isApplicable(ProjectContext projectContext) {
-        return false;
+        return !finder.findMatches(projectContext).isEmpty();
     }
 
     @Override
