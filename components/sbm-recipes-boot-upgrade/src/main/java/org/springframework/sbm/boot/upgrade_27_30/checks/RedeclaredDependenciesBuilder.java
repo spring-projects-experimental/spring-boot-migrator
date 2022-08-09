@@ -53,6 +53,11 @@ public class RedeclaredDependenciesBuilder implements Sbu30_UpgradeSectionBuilde
         return ChangeSection.RelevantChangeSection.builder()
                 .title("Remove redundant explicit version declaration")
                 .relevanceSection()
+                .paragraph("""
+                            The scan found one or more redeclared dependencies in build files. 
+                            Please check them and remove redundant declarations.
+                            """
+                )
                 .todoSection()
                 .todoList(TodoList.builder()
                             .todos(todos)
