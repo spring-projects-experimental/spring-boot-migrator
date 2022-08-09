@@ -16,13 +16,21 @@
 
 package org.springframework.sbm.boot.upgrade_27_30.checks;
 
+import org.springframework.sbm.boot.asciidoctor.ChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
+import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionCheck;
 import org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionCheckResult;
 import org.springframework.sbm.boot.upgrade_27_30.Sbu30_UpgradeSectionBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.stereotype.Component;
 
-public class RedeclaredDependenciesBuilder implements Sbu30_PreconditionCheck, Sbu30_UpgradeSectionBuilder {
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Component
+public class RedeclaredDependenciesBuilder implements Sbu30_UpgradeSectionBuilder {
     private final RedeclaredDependenciesFinder finder;
 
     public RedeclaredDependenciesBuilder(RedeclaredDependenciesFinder finder) {
@@ -36,11 +44,19 @@ public class RedeclaredDependenciesBuilder implements Sbu30_PreconditionCheck, S
 
     @Override
     public Section build(ProjectContext projectContext) {
-        return null;
-    }
+        Set<RedeclaredDependenciesFinder.RedeclaredDependency> matches = finder.findMatches(projectContext);
+        List<TodoList.Todo> todos = matches.stream()
+                .map(m -> TodoList.Todo.builder()
+                        .text(String.format("Remove explicit declaration of version for artifact: %s, its already declared with version %s", m.getRedeclaredDependency().getCoordinates(), m.originalVersion()))
+                        .build()).toList();
 
-    @Override
-    public Sbu30_PreconditionCheckResult run(ProjectContext context) {
-        return null;
+        return ChangeSection.RelevantChangeSection.builder()
+                .title("Remove redundant explicit version declaration")
+                .relevanceSection()
+                .todoSection()
+                .todoList(TodoList.builder()
+                            .todos(todos)
+                            .build())
+                .build();
     }
 }

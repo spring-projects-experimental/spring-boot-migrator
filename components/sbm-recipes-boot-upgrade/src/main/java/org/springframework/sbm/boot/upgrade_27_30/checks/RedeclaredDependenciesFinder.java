@@ -23,6 +23,7 @@ import org.springframework.sbm.build.api.ApplicationModule;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Component
 public class RedeclaredDependenciesFinder implements Sbm30_Finder<Set<Dependency>> {
     private final Set<String> analysingDependencies = new HashSet<>();
 

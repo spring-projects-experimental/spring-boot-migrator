@@ -27,6 +27,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -109,7 +110,10 @@ public class RedeclaredDependenciesBuilderTest {
         ChangeSection relevantChangeSection = ChangeSection.class.cast(section);
         assertThat(relevantChangeSection.getTitle()).isEqualTo("Remove redundant explicit version declaration");
         List<TodoList.Todo> todos = relevantChangeSection.getTodoSection().getTodoLists().get(0).getTodos();
-        assertThat(todos.get(0).getText()).isEqualTo("Remove explicit declaration of version for artifact: test.group:test-artifact:1.0.0, its already declared with version 2.0.0");
-        assertThat(todos.get(1).getText()).isEqualTo("Remove explicit declaration of version for artifact: test.group:test-artifact2:2.0.0, its already declared with version 3.0.0");
+        List<String> stringToDos = todos.stream()
+                .map(TodoList.Todo::getText)
+                .collect(Collectors.toList());
+        assertThat(stringToDos).contains("Remove explicit declaration of version for artifact: test.group:test-artifact:2.0.0, its already declared with version 1.0.0");
+        assertThat(stringToDos).contains("Remove explicit declaration of version for artifact: test.group:test-artifact2:3.0.0, its already declared with version 2.0.0");
     }
 }
