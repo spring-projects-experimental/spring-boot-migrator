@@ -17,11 +17,15 @@
 package org.springframework.sbm.boot.upgrade_27_30.checks;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.boot.asciidoctor.ChangeSection;
+import org.springframework.sbm.boot.asciidoctor.Section;
+import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.boot.upgrade_27_30.checks.RedeclaredDependenciesFinder.RedeclaredDependency;
 import org.springframework.sbm.build.api.ApplicationModule;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,4 +78,38 @@ public class RedeclaredDependenciesBuilderTest {
         assertThat(builder.isApplicable(context)).isFalse();
     }
 
+    @Test
+    void assertContent() {
+
+        Set<RedeclaredDependency> matches = Set.of(new RedeclaredDependency(
+                Dependency.builder()
+                        .groupId("test.group")
+                        .artifactId("test-artifact")
+                        .version("2.0.0")
+                        .build(),
+                "1.0.0"
+        ),
+                new RedeclaredDependency(
+                        Dependency.builder()
+                                .groupId("test.group")
+                                .artifactId("test-artifact2")
+                                .version("3.0.0")
+                                .build(),
+                        "2.0.0"
+                ));
+
+        ProjectContext context = mock(ProjectContext.class);
+        RedeclaredDependenciesFinder finder = mock(RedeclaredDependenciesFinder.class);
+        when(finder.findMatches(context)).thenReturn(matches);
+        RedeclaredDependenciesBuilder builder = new RedeclaredDependenciesBuilder(finder);
+
+        Section section = builder.build(context);
+
+        assertThat(section).isInstanceOf(ChangeSection.class);
+        ChangeSection relevantChangeSection = ChangeSection.class.cast(section);
+        assertThat(relevantChangeSection.getTitle()).isEqualTo("Remove redundant explicit version declaration");
+        List<TodoList.Todo> todos = relevantChangeSection.getTodoSection().getTodoLists().get(0).getTodos();
+        assertThat(todos.get(0).getText()).isEqualTo("Remove explicit declaration of version for artifact: test.group:test-artifact:1.0.0, its already declared with version 2.0.0");
+        assertThat(todos.get(1).getText()).isEqualTo("Remove explicit declaration of version for artifact: test.group:test-artifact2:2.0.0, its already declared with version 3.0.0");
+    }
 }
