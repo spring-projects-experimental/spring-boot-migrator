@@ -16,27 +16,23 @@
 
 package org.springframework.sbm.engine.recipe;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.Result;
-import org.openrewrite.config.YamlResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = {
         RecipeParser.class,
@@ -56,7 +52,7 @@ class OpenRewriteDeclarativeRecipeAdapterTest {
     @Test
     void recipeFromYaml() throws IOException {
         String yaml =
-                "- name: test-recipe\n" +
+                        "- name: test-recipe\n" +
                         "  description: Replace deprecated spring.datasource.* properties\n" +
                         "  condition:\n" +
                         "    type: org.springframework.sbm.common.migration.conditions.TrueCondition\n" +
@@ -90,5 +86,43 @@ class OpenRewriteDeclarativeRecipeAdapterTest {
                 "public class Foo {\n" +
                         "}"
         );
+    }
+
+
+    @Test
+    public void propagateExceptionFromOpenRewriteRecipe() throws IOException {
+
+        String actionDescription =
+                "- name: test-recipe\n" +
+                        "  description: Replace deprecated spring.datasource.* properties\n" +
+                        "  condition:\n" +
+                        "    type: org.springframework.sbm.common.migration.conditions.TrueCondition\n" +
+                        "  actions:\n" +
+                        "    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter\n" +
+                        "      condition:\n" +
+                        "        type: org.springframework.sbm.common.migration.conditions.TrueCondition\n" +
+                        "        versionStartingWith: \"2.7.\"\n" +
+                        "      description: Add Spring Milestone Repository and bump parent pom to 3.0.0-M3\n" +
+                        "\n" +
+                        "      openRewriteRecipe: |-\n" +
+                        "        type: specs.openrewrite.org/v1beta/recipe\n" +
+                        "        name: org.openrewrite.java.spring.boot3.data.UpgradeSpringData30\n" +
+                        "        displayName: Upgrade to Spring Data 3.0\n" +
+                        "        description: 'Upgrade to Spring Data to 3.0 from any prior version.'\n" +
+                        "        recipeList:\n" +
+                        "          - org.springframework.sbm.engine.recipe.ErrorClass\n";
+
+        Recipe[] recipes = recipeParser.parseRecipe(actionDescription);
+        assertThat(recipes[0].getActions().get(0)).isInstanceOf(OpenRewriteDeclarativeRecipeAdapter.class);
+        OpenRewriteDeclarativeRecipeAdapter recipeAdapter = (OpenRewriteDeclarativeRecipeAdapter) recipes[0].getActions().get(0);
+
+        String javaSource = "@java.lang.Deprecated\n" +
+                "public class Foo {}";
+
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .addJavaSource("src/main/java", javaSource)
+                .build();
+
+        assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));
     }
 }

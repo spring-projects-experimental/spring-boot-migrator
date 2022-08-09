@@ -15,12 +15,13 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.recipes;
 
+import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.test.RecipeIntegrationTestSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -43,7 +44,13 @@ public class Boot_24_25_UpgradeReportRecipeTest {
         // get expected and created report with replaced dynamic parts (paths and timestamps)
         Path resultDir = RecipeIntegrationTestSupport.getResultDir(applicationDir);
         String generatedReportContent = replaceDynamicPartsInReport(resultDir.resolve("Upgrade-Spring-Boot-2.4-to-2.5.html"), resultDir);
-        String expectedReport = getContent(new ClassPathResource("/expected-report.html").getFile().toPath());
+
+        GitSupport gitSupport = new GitSupport(new SbmApplicationProperties());
+        String revision = gitSupport.getLatestCommit(resultDir.toAbsolutePath().toFile()).get().getHash();
+
+        String expectedReport =
+                getContent(new ClassPathResource("/expected-report").getFile().toPath())
+                        .replace("{{REVISION_NUMBER}}", revision);
 
         // verify generated result matches expected report
         assertThat(generatedReportContent).isEqualTo(expectedReport);
@@ -51,6 +58,7 @@ public class Boot_24_25_UpgradeReportRecipeTest {
 
     String replaceDynamicPartsInReport(Path report, Path resultDir) throws IOException {
         String content = getContent(report);
+
         return content.replaceAll(resultDir.toAbsolutePath().normalize().toString(), "{{PATH_TO_PROJECT}}")
                 .replaceAll("<p class=\"tableblock\">[0-9]{1,2} [a-zA-Z]{3} [0-9]{4}, [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}</p>", "<p class=\"tableblock\">{{CREATION_DATE}}</p>")
                 .replaceAll("Last updated [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2} \\+[0-9]{4}", "Last updated {{LAST_UPDATED}}");
@@ -59,7 +67,6 @@ public class Boot_24_25_UpgradeReportRecipeTest {
     @NotNull
     private String getContent(Path report) throws IOException {
         Charset charset = StandardCharsets.UTF_8;
-        return new String(Files.readAllBytes(report), charset);
+        return new String(Files.readAllBytes(report), charset).replaceAll("\n$", "");
     }
-
 }

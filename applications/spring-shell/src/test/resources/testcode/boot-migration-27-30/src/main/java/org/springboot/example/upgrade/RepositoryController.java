@@ -17,9 +17,9 @@ public class RepositoryController {
     }
 
     public void actWithRepositories() {
-        studentRepoPagingAndSorting.save(new Student<String>());
-        List.of(new Student<String>())
+        studentRepoPagingAndSorting.save(new Student());
+        List.of(new Student())
                 .forEach(studentRepoReactiveSorting::save);
-        studentRepoRxJava3Sorting.save(new Student<String>());
+        studentRepoRxJava3Sorting.save(new Student());
     }
 }

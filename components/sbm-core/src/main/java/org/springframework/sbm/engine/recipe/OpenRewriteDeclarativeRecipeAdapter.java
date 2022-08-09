@@ -18,6 +18,7 @@ package org.springframework.sbm.engine.recipe;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
@@ -71,7 +72,9 @@ public class OpenRewriteDeclarativeRecipeAdapter extends AbstractAction {
         }
         Recipe recipe = rewriteYamlRecipe.iterator().next();
         List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles);
+        List<Result> results = recipe.run(rewriteSourceFiles, new InMemoryExecutionContext((t) -> {
+            throw new RuntimeException(t);
+        }));
         resultMerger.mergeResults(context, results);
     }
 
