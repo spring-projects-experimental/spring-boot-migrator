@@ -48,7 +48,7 @@ public class RedeclaredDependenciesBuilderTest {
 
     @Test
     void shouldBuildSectionWhenFinderHasMatches(){
-        Set<RedeclaredDependency> matches = Set.of(new RedeclaredDependency(Dependency.builder().build(), ""));
+        Set<RedeclaredDependency> matches = Set.of(new RedeclaredDependency(Dependency.builder().groupId("test.group").artifactId("test-artifact").version("2.0.0").build(), "1.0.0"));
         ProjectContext context = mock(ProjectContext.class);
         RedeclaredDependenciesFinder finder = mock(RedeclaredDependenciesFinder.class);
         when(finder.findMatches(context)).thenReturn(matches);
