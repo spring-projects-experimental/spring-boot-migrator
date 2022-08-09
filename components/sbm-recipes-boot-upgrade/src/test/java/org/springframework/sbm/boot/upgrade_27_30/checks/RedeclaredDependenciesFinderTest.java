@@ -95,7 +95,7 @@ class RedeclaredDependenciesFinderTest {
                 .withMavenBuildFileSource("module1", module1PomXml)
                 .build();
 
-        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of("com.dependency.group:artifact1", "com.dependency.group:artifact2", "com.dependency.group:artifact3"));
+        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder();
         Set<RedeclaredDependency> matches = finder.findMatches(context);
         assertThat(context.getApplicationModules().list()).hasSize(2);
         assertThat(matches).hasSize(1);
@@ -399,4 +399,77 @@ class RedeclaredDependenciesFinderTest {
                         .artifactId("artifact3")
                         .version("1.0.0").build(), "3.0.0"));
     }
+
+    @Test
+    void shouldFindRedeclaredDependenciesOnlyFromList() {
+        @Language("xml")
+        String parentPomXml =
+                """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>com.example</groupId>
+                    <artifactId>parent</artifactId>
+                    <version>1.0.0</version>
+                    <packaging>pom</packaging>
+                    <dependencyManagement>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.dependency.group</groupId>
+                                <artifactId>artifact1</artifactId>
+                                <version>3.0.0</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>com.dependency.group</groupId>
+                                <artifactId>artifact2</artifactId>
+                                <version>3.0.0</version>
+                            </dependency>
+                        </dependencies>
+                    </dependencyManagement>
+                </project>
+                """;
+
+        @Language("xml")
+        String module1PomXml =
+                """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <parent>
+                        <groupId>com.example</groupId>
+                        <artifactId>parent</artifactId>
+                        <version>1.0.0</version>
+                    </parent>
+                    <artifactId>module1</artifactId>
+                    <packaging>jar</packaging>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.dependency.group</groupId>
+                            <artifactId>artifact1</artifactId>
+                            <version>2.0.0</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.dependency.group</groupId>
+                            <artifactId>artifact2</artifactId>
+                            <version>2.0.0</version>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """;
+
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .withMavenBuildFileSource("", parentPomXml)
+                .withMavenBuildFileSource("module1", module1PomXml)
+                .build();
+
+        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of("com.dependency.group:artifact1"));
+        Set<RedeclaredDependency> matches = finder.findMatches(context);
+        assertThat(context.getApplicationModules().list()).hasSize(2);
+        assertThat(matches).hasSize(1);
+        RedeclaredDependency explicitDependency = matches.iterator().next();
+        String explicitVersionDependencyCoordinates = "com.dependency.group:artifact1:2.0.0";
+        assertThat(explicitDependency.getRedeclaredDependency().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
+        assertThat(explicitDependency.getOriginalVersion()).isEqualTo("3.0.0");
+    }
+
 }
