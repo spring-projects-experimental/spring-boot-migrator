@@ -106,7 +106,7 @@ class RedeclaredDependenciesFinderTest {
     }
 
     @Test
-    void shouldIgnoreSameVersion() {
+    void shouldReportSameVersion() {
         @Language("xml")
         String parentPomXml =
                 """
@@ -174,7 +174,11 @@ class RedeclaredDependenciesFinderTest {
         RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder();
         Set<RedeclaredDependency> matches = finder.findMatches(context);
         assertThat(context.getApplicationModules().list()).hasSize(2);
-        assertThat(matches).isEmpty();
+        assertThat(matches).hasSize(1);
+        RedeclaredDependency explicitDependency = matches.iterator().next();
+        String explicitVersionDependencyCoordinates = "com.dependency.group:artifact1:3.0.0";
+        assertThat(explicitDependency.getRedeclaredDependency().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
+        assertThat(explicitDependency.getOriginalVersion()).isEqualTo("3.0.0");
     }
 
     @Test

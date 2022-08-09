@@ -55,7 +55,6 @@ public class RedeclaredDependenciesFinder implements Sbm30_Finder<Set<Dependency
                             .filter(d -> analysingDependencies.isEmpty() || analysingDependencies.contains(getGroupAndArtifactKey(d)))
                             .filter(d -> d.getVersion() != null && !d.getVersion().isEmpty())
                             .filter(d -> managedMap.containsKey(getGroupAndArtifactKey(d)))
-                            .filter(d -> !managedMap.get(getGroupAndArtifactKey(d)).equals(d.getVersion()))
                             .map(d -> {
                                 Dependency dependency = Dependency.builder().groupId(d.getGroupId()).artifactId(d.getArtifactId()).version(d.getVersion()).build();
                                 return new RedeclaredDependency(dependency, managedMap.get(getGroupAndArtifactKey(d)));
