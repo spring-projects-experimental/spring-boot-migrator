@@ -16,17 +16,13 @@
 
 package org.springframework.sbm.engine.recipe;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
 import java.io.IOException;
@@ -41,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         ResourceHelper.class,
         ActionDeserializerRegistry.class,
         RewriteMigrationResultMerger.class,
+        OpenRewriteRecipeRunner.class,
         RewriteSourceFileWrapper.class,
         CustomValidatorBean.class
 })
@@ -88,7 +85,6 @@ class OpenRewriteDeclarativeRecipeAdapterTest {
         );
     }
 
-
     @Test
     public void propagateExceptionFromOpenRewriteRecipe() throws IOException {
 
@@ -123,6 +119,8 @@ class OpenRewriteDeclarativeRecipeAdapterTest {
                 .addJavaSource("src/main/java", javaSource)
                 .build();
 
-        assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));
+
+        assertThat(thrown).hasRootCauseMessage("A problem happened whilst visiting");
     }
 }
