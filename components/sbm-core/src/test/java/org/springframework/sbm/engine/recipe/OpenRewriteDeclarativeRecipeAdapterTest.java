@@ -16,10 +16,7 @@
 
 package org.springframework.sbm.engine.recipe;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.TreeVisitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -121,6 +118,8 @@ class OpenRewriteDeclarativeRecipeAdapterTest {
                 .addJavaSource("src/main/java", javaSource)
                 .build();
 
-        assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));
+
+        assertThat(thrown).hasRootCauseMessage("A problem happened whilst visiting");
     }
 }
