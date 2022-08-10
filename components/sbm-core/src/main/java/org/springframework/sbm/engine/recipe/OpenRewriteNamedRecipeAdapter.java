@@ -39,11 +39,11 @@ public class OpenRewriteNamedRecipeAdapter extends AbstractAction {
 
     @JsonIgnore
     @Autowired
-    private OpenRewriteRecipeRunner openRewriteRecipeRunner;
+    private RewriteRecipeRunner rewriteRecipeRunner;
 
     @Override
     public void apply(ProjectContext context) {
         Recipe recipe = rewriteRecipeLoader.loadRewriteRecipe(openRewriteRecipeName);
-        openRewriteRecipeRunner.run(context, recipe);
+        rewriteRecipeRunner.run(context, recipe);
     }
 }

@@ -16,12 +16,21 @@
 
 package org.springframework.sbm.engine.recipe;
 
+import org.jetbrains.annotations.NotNull;
+import org.openrewrite.config.DeclarativeRecipe;
 import org.openrewrite.config.Environment;
+import org.openrewrite.config.YamlResourceLoader;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ReflectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.ByteArrayInputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 //
 @Component
@@ -29,26 +38,54 @@ public class RewriteRecipeLoader implements RecipeLoader {
     @Override
     public List<Recipe> loadRecipes() {
         List<Recipe> recipeList = new ArrayList<>();
-//
-//        Environment environment = Environment.builder()
-//                .scanRuntimeClasspath()
-//                .build();
-//
-//        environment.listRecipes().forEach(r -> {
-//            Recipe recipe = new Recipe("Rewrite: " + r.getDisplayName(), r.getDescription(), Condition.TRUE, List.of(new OpenRewriteRecipeAdapterAction(r)));
-//            recipeList.add(recipe);
-//        });
-
+        // returns empty list for now. Otherwise, all rewrite recipes would be in the list of applicable recipes.
         return recipeList;
     }
 
     public org.openrewrite.Recipe loadRewriteRecipe(String recipeName) {
+        List<org.openrewrite.Recipe> recipes = loadRewriteRecipes();
+        return recipes
+                .stream()
+                .filter(r -> r.getName().equals(recipeName)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Could not find OpenRewrite recipe with name '%s'", recipeName)));
+    }
+
+    @NotNull
+    private List<org.openrewrite.Recipe> loadRewriteRecipes() {
         Environment environment = Environment.builder()
                 .scanRuntimeClasspath()
                 .build();
+        return environment.listRecipes().stream().collect(Collectors.toList());
+    }
 
-        return environment.listRecipes().stream()
-                .filter(r -> r.getName().equals(recipeName)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Could not find OpenRewrite recipe with name '%s'", recipeName)));
+    public org.openrewrite.Recipe createRecipe(String openRewriteRecipeDeclaration) {
+        ByteArrayInputStream yamlInput = new ByteArrayInputStream(openRewriteRecipeDeclaration.getBytes(
+                StandardCharsets.UTF_8));
+        URI source = URI.create("embedded-recipe");
+        YamlResourceLoader yamlResourceLoader = new YamlResourceLoader(yamlInput, source, new Properties());
+        Collection<org.openrewrite.Recipe> rewriteYamlRecipe = yamlResourceLoader.listRecipes();
+
+        rewriteYamlRecipe.stream()
+                .filter(DeclarativeRecipe.class::isInstance)
+                .map(DeclarativeRecipe.class::cast)
+                .forEach(this::initializeRecipe);
+
+        if(rewriteYamlRecipe.size() != 1) {
+            throw new RuntimeException(String.format("Ambiguous number of recipes found. Expected exactly one, found %s", rewriteYamlRecipe.size()));
+        }
+        org.openrewrite.Recipe recipe = rewriteYamlRecipe.iterator().next();
+        return recipe;
+    }
+
+    private void initializeRecipe(DeclarativeRecipe recipe) {
+        Method initialize = ReflectionUtils.findMethod(DeclarativeRecipe.class, "initialize", Collection.class);
+        ReflectionUtils.makeAccessible(initialize);
+        try {
+            initialize.invoke(recipe, List.of(recipe));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
