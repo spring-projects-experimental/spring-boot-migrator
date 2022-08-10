@@ -45,5 +45,5 @@ public class OpenRewriteNamedRecipeAdapter extends AbstractAction {
     public void apply(ProjectContext context) {
         Recipe recipe = rewriteRecipeLoader.loadRewriteRecipe(openRewriteRecipeName);
         openRewriteRecipeRunner.run(context, recipe);
-s    }
+    }
 }
