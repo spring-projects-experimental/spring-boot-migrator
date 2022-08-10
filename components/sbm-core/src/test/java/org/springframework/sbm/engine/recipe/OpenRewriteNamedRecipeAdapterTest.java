@@ -28,6 +28,7 @@ import org.springframework.validation.beanvalidation.CustomValidatorBean;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = {
         RecipeParser.class,
@@ -75,5 +76,32 @@ public class OpenRewriteNamedRecipeAdapterTest {
                 "public class Foo {\n" +
                         "}\n"
         );
+    }
+
+    @Test
+    public void propagateExceptionFromOpenRewriteRecipe() throws IOException {
+
+        String actionDescription =
+                "- name: test-recipe\n" +
+                        "  description: Replace deprecated spring.datasource.* properties\n" +
+                        "  condition:\n" +
+                        "    type: org.springframework.sbm.common.migration.conditions.TrueCondition\n" +
+                        "  actions:\n" +
+                        "    - type: org.springframework.sbm.engine.recipe.OpenRewriteNamedRecipeAdapter\n" +
+                        "      description: Test recipe producing exception\n" +
+                        "      openRewriteRecipeName: org.springframework.sbm.engine.recipe.ErrorClass\n";
+
+        Recipe[] recipes = recipeParser.parseRecipe(actionDescription);
+        assertThat(recipes[0].getActions().get(0)).isInstanceOf(OpenRewriteNamedRecipeAdapter.class);
+        OpenRewriteNamedRecipeAdapter recipeAdapter = (OpenRewriteNamedRecipeAdapter) recipes[0].getActions().get(0);
+
+        String javaSource = "@java.lang.Deprecated\n" +
+                "public class Foo {}";
+
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .addJavaSource("src/main/java", javaSource)
+                .build();
+
+        assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));
     }
 }
