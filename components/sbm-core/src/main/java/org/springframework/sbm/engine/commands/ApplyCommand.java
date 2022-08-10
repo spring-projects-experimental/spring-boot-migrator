@@ -22,6 +22,7 @@ import org.springframework.sbm.engine.context.ProjectContextSerializer;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.git.ProjectSyncVerifier;
+import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
@@ -60,14 +61,14 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
         this.gitSupport = gitSupport;
     }
 
-    public Recipe execute(ProjectContext projectContext, String recipeName) {
+    public List<Action> execute(ProjectContext projectContext, String recipeName) {
         Recipe recipe = recipesBuilder.buildRecipes().getRecipeByName(recipeName)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe with name '" + recipeName + "' could not be found"));
 
         // verify that project sources are in sync with in memory representation
         projectSyncVerifier.rescanWhenProjectIsOutOfSyncAndGitAvailable(projectContext);
 
-        recipe.apply(projectContext);
+        List<Action> appliedActions = recipe.apply(projectContext);
 
         // verify that project sources didn't change while running recipe
         projectSyncVerifier.verifyProjectIsInSyncWhenGitAvailable(projectContext);
@@ -80,7 +81,7 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
 
         gitSupport.commitWhenGitAvailable(projectContext, recipeName, modifiedResources, deletedResources);
 
-        return recipe;
+        return appliedActions;
     }
 
     @Override

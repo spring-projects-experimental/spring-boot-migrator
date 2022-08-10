@@ -20,6 +20,7 @@ import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
+import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -57,8 +58,8 @@ public class ApplyShellCommand {
         System.out.println(header.toAnsi());
 
         ProjectContext projectContext = projectContextHolder.getProjectContext();
-        Recipe recipe = applyCommand.execute(projectContext, recipeName);
-        AttributedString applyCommandOutput = applyCommandRenderer.render(recipe);
+        List<Action> appliedActions = applyCommand.execute(projectContext, recipeName);
+        AttributedString applyCommandOutput = applyCommandRenderer.render(recipeName, appliedActions);
 
         List<Recipe> applicableRecipes = applicableRecipeListCommand.execute(projectContext);
         AttributedString applicableRecipesOutput = applicableRecipeListRenderer.render(applicableRecipes);

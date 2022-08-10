@@ -91,10 +91,12 @@ public class Recipe {
         return condition.evaluate(context) && actions.stream().anyMatch(a -> a.isApplicable(context));
     }
 
-    public void apply(ProjectContext context) {
+    public List<Action> apply(ProjectContext context) {
         actions.stream()
                 .filter(a -> a.isApplicable(context))
                 .forEach(a -> a.applyWithStatusEvent(context));
+
+        return actions;
     }
 
     public String getDetails() {
