@@ -22,12 +22,8 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.openrewrite.Recipe;
-import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.context.ProjectContext;
-
-import java.util.List;
 
 @Builder
 @NoArgsConstructor
@@ -43,13 +39,11 @@ public class OpenRewriteNamedRecipeAdapter extends AbstractAction {
 
     @JsonIgnore
     @Autowired
-    private RewriteMigrationResultMerger resultMerger;
+    private OpenRewriteRecipeRunner openRewriteRecipeRunner;
 
     @Override
     public void apply(ProjectContext context) {
         Recipe recipe = rewriteRecipeLoader.loadRewriteRecipe(openRewriteRecipeName);
-        List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles);
-        resultMerger.mergeResults(context, results);
+        openRewriteRecipeRunner.run(context, recipe);
     }
 }
