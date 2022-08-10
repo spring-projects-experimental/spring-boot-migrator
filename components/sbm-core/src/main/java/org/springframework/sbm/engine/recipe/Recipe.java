@@ -92,11 +92,13 @@ public class Recipe {
     }
 
     public List<Action> apply(ProjectContext context) {
-        actions.stream()
+        List<Action> applicableActions = actions.stream()
                 .filter(a -> a.isApplicable(context))
-                .forEach(a -> a.applyWithStatusEvent(context));
+                .collect(Collectors.toList());
 
-        return actions;
+        applicableActions.forEach(a -> a.applyWithStatusEvent(context));
+
+        return applicableActions;
     }
 
     public String getDetails() {
