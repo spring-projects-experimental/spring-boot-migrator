@@ -102,6 +102,8 @@ public class OpenRewriteNamedRecipeAdapterTest {
                 .addJavaSource("src/main/java", javaSource)
                 .build();
 
-        assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));
+
+        assertThat(thrown).hasRootCauseMessage("A problem happened whilst visiting");
     }
 }

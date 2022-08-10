@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
@@ -49,7 +50,11 @@ public class OpenRewriteNamedRecipeAdapter extends AbstractAction {
     public void apply(ProjectContext context) {
         Recipe recipe = rewriteRecipeLoader.loadRewriteRecipe(openRewriteRecipeName);
         List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles);
+        List<Result> results = recipe.run(rewriteSourceFiles, new InMemoryExecutionContext(
+                (t) -> {
+                    throw new RuntimeException(t);
+                }
+        ));
         resultMerger.mergeResults(context, results);
     }
 }
