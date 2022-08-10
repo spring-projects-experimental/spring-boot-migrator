@@ -58,7 +58,6 @@ class ApplyShellCommandTest {
     @Test
     void testApply() {
         String recipeName = "recipe-1";
-        Recipe recipe = new Recipe();
         AttributedString applyOutput = new AttributedString("applyOutput");
         List<Recipe> applicableRecipes = List.of();
         AttributedString applicableRecipesOutput = new AttributedString("applicableRecipesOutput");
@@ -67,8 +66,8 @@ class ApplyShellCommandTest {
 
         ProjectContext projectContext = mock(ProjectContext.class);
         when(projectContextHolder.getProjectContext()).thenReturn(projectContext);
-        when(applyCommand.execute(projectContext, recipeName)).thenReturn(recipe);
-        when(applyCommandRenderer.render(recipe)).thenReturn(applyOutput);
+        when(applyCommand.execute(projectContext, recipeName)).thenReturn(List.of());
+        when(applyCommandRenderer.render(recipeName, List.of())).thenReturn(applyOutput);
         when(applicableRecipeListCommand.execute(projectContext)).thenReturn(applicableRecipes);
         when(applicableRecipeListRenderer.render(applicableRecipes)).thenReturn(applicableRecipesOutput);
 
