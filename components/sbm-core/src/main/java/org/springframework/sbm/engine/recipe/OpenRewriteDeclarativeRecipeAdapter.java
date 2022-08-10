@@ -48,7 +48,7 @@ public class OpenRewriteDeclarativeRecipeAdapter extends AbstractAction {
 
     @JsonIgnore
     @Autowired
-    private RewriteMigrationResultMerger resultMerger;
+    private OpenRewriteRecipeRunner openRewriteRecipeRunner;
 
     @Override
     public boolean isApplicable(ProjectContext context) {
@@ -71,11 +71,7 @@ public class OpenRewriteDeclarativeRecipeAdapter extends AbstractAction {
             throw new RuntimeException(String.format("Ambiguous number of recipes found. Expected exactly one, found %s", rewriteYamlRecipe.size()));
         }
         Recipe recipe = rewriteYamlRecipe.iterator().next();
-        List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles, new InMemoryExecutionContext((t) -> {
-            throw new RuntimeException(t);
-        }));
-        resultMerger.mergeResults(context, results);
+        openRewriteRecipeRunner.run(context, recipe);
     }
 
     private void initializeRecipe(DeclarativeRecipe recipe) {

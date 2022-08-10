@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         ResourceHelper.class,
         ActionDeserializerRegistry.class,
         RewriteMigrationResultMerger.class,
+        OpenRewriteRecipeRunner.class,
         RewriteSourceFileWrapper.class,
         RewriteRecipeLoader.class,
         CustomValidatorBean.class

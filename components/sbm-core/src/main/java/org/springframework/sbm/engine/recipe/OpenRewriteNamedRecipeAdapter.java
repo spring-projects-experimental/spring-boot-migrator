@@ -44,17 +44,11 @@ public class OpenRewriteNamedRecipeAdapter extends AbstractAction {
 
     @JsonIgnore
     @Autowired
-    private RewriteMigrationResultMerger resultMerger;
+    private OpenRewriteRecipeRunner openRewriteRecipeRunner;
 
     @Override
     public void apply(ProjectContext context) {
         Recipe recipe = rewriteRecipeLoader.loadRewriteRecipe(openRewriteRecipeName);
-        List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles, new InMemoryExecutionContext(
-                (t) -> {
-                    throw new RuntimeException(t);
-                }
-        ));
-        resultMerger.mergeResults(context, results);
+        openRewriteRecipeRunner.run(context, recipe);
     }
 }
