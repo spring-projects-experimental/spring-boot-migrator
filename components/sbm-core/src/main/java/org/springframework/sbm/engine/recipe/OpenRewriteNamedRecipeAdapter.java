@@ -21,14 +21,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
-import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.context.ProjectContext;
-
-import java.util.List;
 
 @Builder
 @NoArgsConstructor
@@ -50,5 +45,5 @@ public class OpenRewriteNamedRecipeAdapter extends AbstractAction {
     public void apply(ProjectContext context) {
         Recipe recipe = rewriteRecipeLoader.loadRewriteRecipe(openRewriteRecipeName);
         openRewriteRecipeRunner.run(context, recipe);
-    }
+s    }
 }

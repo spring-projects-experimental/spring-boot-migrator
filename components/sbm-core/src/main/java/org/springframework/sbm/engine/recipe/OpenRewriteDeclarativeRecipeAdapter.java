@@ -18,10 +18,7 @@ package org.springframework.sbm.engine.recipe;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
-import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
 import org.openrewrite.config.DeclarativeRecipe;
 import org.openrewrite.config.YamlResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +26,6 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.util.ReflectionUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
