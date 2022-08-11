@@ -9,9 +9,9 @@ ENV JAVA_HOME /opt/openjdk
 ENV PATH $JAVA_HOME/bin:$PATH
 ADD docker-lib.sh /docker-lib.sh
 
-#ADD build-release-scripts.sh /build-release-scripts.sh
-#ADD releasescripts /release-scripts
-#RUN ./build-release-scripts.sh
+ADD build-release-scripts.sh /build-release-scripts.sh
+ADD releasescripts /release-scripts
+RUN ./build-release-scripts.sh
 
 #INSTALL MAVEN
 ARG MAVEN_VERSION=3.6.3
