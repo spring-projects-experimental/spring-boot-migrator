@@ -40,7 +40,7 @@ public class NoDependencyExistMatchingRegex implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return dependencies.stream().noneMatch(d ->
+        return dependencies.stream().allMatch(d ->
                 context.getModules().stream()
                         .map(ApplicationModule::getBuildFile)
                         .noneMatch(b -> b.hasDeclaredDependencyMatchingRegex(d))
