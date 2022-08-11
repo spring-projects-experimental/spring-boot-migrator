@@ -54,7 +54,6 @@
         <dependency>
             <groupId>org.openrewrite.recipe</groupId>
             <artifactId>rewrite-migrate-java</artifactId>
-            <version>1.8.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
