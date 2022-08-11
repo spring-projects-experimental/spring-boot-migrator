@@ -1,66 +1,57 @@
 package org.springframework.sbm.engine.commands;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectContextSerializer;
+import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.sbm.engine.recipe.SbmRecipeLoader;
-import org.springframework.sbm.project.resource.TestProjectContext;
-
-import javax.validation.Validator;
+import org.springframework.sbm.engine.recipe.Recipes;
+import org.springframework.sbm.engine.recipe.RecipesBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
+public class ApplyCommandTest {
+    @Mock
+    private RecipesBuilder recipesBuilder;
+    @Mock
+    private ProjectContextSerializer contextSerializer;
+    @Mock
+    private ProjectSyncVerifier projectSyncVerifier;
+    @Mock
+    private GitSupport gitSupport;
+    @Mock
+    Recipes recipes;
+    @Mock
+    private Recipe recipe;
+    @Mock
+    ProjectContext projectContext;
+    @Mock
+    Action action1;
+    @Mock
+    Action action2;
 
-@SpringBootTest(classes = TestConfig.class)
-class ApplyCommandTest {
-
-    @Autowired
-    private ApplyCommand target;
-
-    /*Needed to load project context successfully*/
-    @MockBean
-    private Validator validator;
-
-    @MockBean
-    private SbmRecipeLoader recipeLoader;
+    @InjectMocks
+    ApplyCommand applyCommand;
 
     @Test
-    public void someActionsAreNotApplicable () {
+    void shouldReturnActionList() {
+        when(recipesBuilder.buildRecipes()).thenReturn(recipes);
+        when(recipes.getRecipeByName("testRecipe")).thenReturn(Optional.of(recipe));
+        when(recipe.apply(projectContext)).thenReturn(List.of(action1, action2));
+        List<Action> actions = applyCommand.execute(projectContext, "testRecipe");
 
-        Action applicableAction = mock(Action.class);
-        Action nonApplicableAction = mock(Action.class);
-
-        List<Recipe> recipes = List.of(Recipe.builder()
-                        .name("hello")
-                        .actions(List.of(applicableAction, nonApplicableAction)).build());
-
-        when(recipeLoader.loadRecipes()).thenReturn(recipes);
-
-        ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withJavaSources(
-                        """
-                                package hello;
-                                class Temp {
-                                }
-                                """
-                )
-                .withDummyRootBuildFile()
-                .build();
-
-        when(applicableAction.isApplicable(projectContext)).thenReturn(true);
-        when(nonApplicableAction.isApplicable(projectContext)).thenReturn(false);
-
-        List<Action> appliedActions = target.execute(projectContext, "hello");
-
-        assertThat(appliedActions).hasSize(1);
-        assertThat(appliedActions.get(0)).isEqualTo(applicableAction);
+        assertThat(actions).hasSize(2);
+        assertThat(actions).contains(action1).contains(action2);
     }
 }
