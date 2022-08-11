@@ -85,15 +85,19 @@ public interface BuildFile extends ProjectResource {
 
     void addPlugin(Plugin plugin);
 
+    List<Path> getClasspath();
+
     List<Path> getSourceFolders();
 
     List<Path> getTestSourceFolders();
 
     List<Path> getResourceFolders();
 
-    List<Path> getClasspath();
-
     List<Path> getTestResourceFolders();
+
+    Path getTestResourceFolder();
+
+    Path getMainResourceFolder();
 
     void setProperty(String key, String value);
 
@@ -131,10 +135,8 @@ public interface BuildFile extends ProjectResource {
     Optional<ParentDeclaration> getParentPomDeclaration();
 
     Optional<String> getName();
-
-    Path getMainResourceFolder();
-
     // TODO: add same method to ApplicationModules to add excludes to all relevant dependencies in all BuildFiles
+
     /**
      * Adds an exclusion for each of the dependencies in {@code excludedDependencies} to all declared dependencies in this {@code BuildFile} which transitively depend on it.
      */

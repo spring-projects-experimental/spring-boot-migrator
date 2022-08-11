@@ -31,7 +31,7 @@
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java.version>17</java.version>
         <spring-shell.version>2.1.0</spring-shell.version>
-        <openrewrite.version>7.26.3</openrewrite.version>
+        <openrewrite.version>7.27.3</openrewrite.version>
         <openrewrite.spring.version>4.23.0</openrewrite.spring.version>
         <spring-boot.version>2.7.2</spring-boot.version>
         <progressbar.version>0.9.3</progressbar.version>
@@ -338,6 +338,26 @@
                     <parallel>methods</parallel>
                     <threadCount>10</threadCount>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <groups>integration</groups>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <trimStackTrace>false</trimStackTrace>
+                </configuration>
+                <executions>
+                <execution>
+                    <goals>
+                        <goal>integration-test</goal>
+                        <goal>verify</goal>
+                    </goals>
+                </execution>
+                </executions>
             </plugin>
 
             <plugin>

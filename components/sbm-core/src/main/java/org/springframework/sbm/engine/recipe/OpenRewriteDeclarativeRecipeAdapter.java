@@ -19,23 +19,8 @@ package org.springframework.sbm.engine.recipe;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.openrewrite.Recipe;
-import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
-import org.openrewrite.config.DeclarativeRecipe;
-import org.openrewrite.config.YamlResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.util.ReflectionUtils;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
 
 @Builder
 @NoArgsConstructor
@@ -45,9 +30,12 @@ public class OpenRewriteDeclarativeRecipeAdapter extends AbstractAction {
     @Getter
     private String openRewriteRecipe;
 
+    @Autowired
+    @JsonIgnore
+    private RewriteRecipeLoader rewriteRecipeLoader;
     @JsonIgnore
     @Autowired
-    private RewriteMigrationResultMerger resultMerger;
+    private RewriteRecipeRunner rewriteRecipeRunner;
 
     @Override
     public boolean isApplicable(ProjectContext context) {
@@ -56,34 +44,7 @@ public class OpenRewriteDeclarativeRecipeAdapter extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
-        ByteArrayInputStream yamlInput = new ByteArrayInputStream(openRewriteRecipe.getBytes(StandardCharsets.UTF_8));
-        URI source = URI.create("embedded-recipe");
-        YamlResourceLoader yamlResourceLoader = new YamlResourceLoader(yamlInput, source, new Properties());
-        Collection<Recipe> rewriteYamlRecipe = yamlResourceLoader.listRecipes();
-
-        rewriteYamlRecipe.stream()
-                .filter(DeclarativeRecipe.class::isInstance)
-                .map(DeclarativeRecipe.class::cast)
-                .forEach(this::initializeRecipe);
-
-        if(rewriteYamlRecipe.size() != 1) {
-            throw new RuntimeException(String.format("Ambiguous number of recipes found. Expected exactly one, found %s", rewriteYamlRecipe.size()));
-        }
-        Recipe recipe = rewriteYamlRecipe.iterator().next();
-        List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles);
-        resultMerger.mergeResults(context, results);
-    }
-
-    private void initializeRecipe(DeclarativeRecipe recipe) {
-        Method initialize = ReflectionUtils.findMethod(DeclarativeRecipe.class, "initialize", Collection.class);
-        ReflectionUtils.makeAccessible(initialize);
-        try {
-            initialize.invoke(recipe, List.of(recipe));
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+        Recipe recipe = rewriteRecipeLoader.createRecipe(openRewriteRecipe);
+        rewriteRecipeRunner.run(context, recipe);
     }
 }

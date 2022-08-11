@@ -145,7 +145,8 @@ public class GitSupport {
      */
     public static Git getRepository(File repo) {
         try {
-            Repository repository = findRepository(repo).orElseThrow(() -> new RuntimeException());
+            Repository repository = findRepository(repo)
+                    .orElseThrow(() -> new RuntimeException());
             return Git.open(repository.getDirectory());
         } catch (IOException e) {
             throw new RuntimeException(e);
