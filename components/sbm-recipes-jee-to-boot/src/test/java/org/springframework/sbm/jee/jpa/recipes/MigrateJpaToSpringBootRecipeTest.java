@@ -70,7 +70,7 @@ public class MigrateJpaToSpringBootRecipeTest {
             assertThat(addSpringDataJpaDependencies.getDependencies()).containsExactly(Dependency.builder().groupId("org.springframework.boot").artifactId("spring-boot-starter-data-jpa").version("managed").build());
             assertThatActionHasCondition(addSpringDataJpaDependencies, NoDependencyExistMatchingRegex.class);
             NoDependencyExistMatchingRegex noDependencyExist = getConditionFor(addSpringDataJpaDependencies, NoDependencyExistMatchingRegex.class);
-            assertThat(noDependencyExist.getDependencies()).containsExactlyInAnyOrder("org.springframework.boot:spring-boot-starter-data-jpa");
+            assertThat(noDependencyExist.getDependencies()).containsExactlyInAnyOrder("org\\.springframework\\.boot\\:spring-boot-starter-data-jpa\\:.*");
 
             // add h2 dependency
             AddDependencies addH2Dependency = adDependenciesActions.get(1);

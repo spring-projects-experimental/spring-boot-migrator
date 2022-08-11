@@ -32,10 +32,13 @@ import lombok.RequiredArgsConstructor;
 import org.openrewrite.SourceFile;
 
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 public class ApplicationModule {
@@ -112,6 +115,11 @@ public class ApplicationModule {
         return new ResourceSet(projectResourceSet, projectRootDir, modulePath, mainResourceSet);
     }
 
+    public ResourceSet getTestResourceSet() {
+        Path testResourceSet = buildFile.getTestResourceFolder();
+        return new ResourceSet(projectResourceSet, projectRootDir, modulePath, testResourceSet);
+    }
+
     public List<ApplicationModule> getModules() {
         Optional<MavenResolutionResult> mavenResolution = MavenBuildFileUtil.findMavenResolution(((OpenRewriteMavenBuildFile) buildFile).getSourceFile());
         List<MavenResolutionResult> modulesMarker = mavenResolution.get().getModules();
@@ -144,5 +152,48 @@ public class ApplicationModule {
         return projectResourceSet.stream()
                 .filter(r -> r.getAbsolutePath().toString().startsWith(projectRootDir.resolve(modulePath).toString()))
                 .collect(Collectors.toList());
+    }
+
+    public <T> T searchMainResources(ProjectResourceFinder<T> finder) {
+        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getMainResourceSet().getAbsolutePath().toAbsolutePath().normalize()));
+        return finder.apply(resourceSet);
+    }
+
+    public <T> T searchMainJava(ProjectResourceFinder<T> finder) {
+        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getMainJavaSourceSet().getAbsolutePath().toAbsolutePath().normalize()));
+        return finder.apply(resourceSet);
+    }
+
+    public <T> T searchTestResources(ProjectResourceFinder<T> finder) {
+        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getTestResourceSet().getAbsolutePath().toAbsolutePath().normalize()));
+        return finder.apply(resourceSet);
+    }
+
+    public <T> T searchTestJava(ProjectResourceFinder<T> finder) {
+        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getTestJavaSourceSet().getAbsolutePath().toAbsolutePath().normalize()));
+        return finder.apply(resourceSet);
+    }
+
+    /**
+     * Class provides filtering on the list of resources in a {@code ProjectResourceSet}.
+     * As all read methods rely on {@code stream()}, only this stream has to be filtered. :fingers_crossed:
+     *
+     * It's a private inner class as it is currently only used here and quite hacky overwriting only parts of
+     * {@code ProjectResourceSet} with a lot of assumptions of the inner workings of other classes.
+     */
+    private class ImmutableFilteringProjectResourceSet extends ProjectResourceSet{
+        private final ProjectResourceSet projectResourceSet;
+        private final Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate;
+
+        public ImmutableFilteringProjectResourceSet(ProjectResourceSet projectResourceSet, Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate) {
+            this.projectResourceSet = projectResourceSet;
+            this.predicate = predicate;
+        }
+
+        @Override
+        public Stream<RewriteSourceFileHolder<? extends SourceFile>> stream() {
+            return projectResourceSet.stream()
+                    .filter(this.predicate);
+        }
     }
 }

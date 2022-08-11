@@ -13,34 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build.api;
+
+package org.springframework.sbm.java.impl;
 
 import org.intellij.lang.annotations.Language;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.ResolvedDependency;
+import org.openrewrite.maven.tree.Scope;
+import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.build.impl.RewriteMavenParser;
 
-import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
-class ApplicationModuleTest {
-
-    /**
-     * Searches for files in {@code /src/main/resources} of this module.
-     */
+public class ClasspathRegistryTest {
     @Test
-    void searchMainResources() {
+    void classpathRegistryShouldKeepOnlyExternalDependencies() {
 
-    }
-
-    /**
-     * tests {@link ApplicationModules#getModule(Path)}
-     */
-    @Test
-    void testGetModule() {
         @Language("xml")
         String parentPom =
                 """
@@ -102,33 +95,26 @@ class ApplicationModuleTest {
                 </project>
                 """;
 
-        String javaSource2 = "public class Module1 {}";
-        String javaSource3 = "public class Module2 {}";
-        String javaSource4 = "public class SomeTest {}";
+        ClasspathRegistry sut = ClasspathRegistry.getInstance();
+        sut.clear();
 
-        ProjectContext context = TestProjectContext.buildProjectContext()
-                .addProjectResource("pom.xml", parentPom)
-                .addProjectResource("module1/pom.xml", pom1)
-                .addProjectResource("module2/pom.xml", pom2)
-                .addJavaSource("module1/src/main/java", javaSource2)
-                .addJavaSource("module2/src/main/java", javaSource3)
-                .addJavaSource("module2/src/test/java", javaSource4)
-                .build();
+        assertThat(sut.getCurrentDependencies()).isEmpty();
+        assertThat(sut.getInitialDependencies()).isEmpty();
 
-        ApplicationModule parentModule = context.getApplicationModules().getModule(Path.of(""));
-        ApplicationModule module1 = context.getApplicationModules().getModule(Path.of("module1"));
-        ApplicationModule module2 = context.getApplicationModules().getModule(Path.of("module2"));
+        List<Xml.Document> poms = new RewriteMavenParser().parse(parentPom, pom1, pom2);
 
-        assertThat(parentModule.getMainJavaSourceSet().list()).isEmpty();
+        Set<ResolvedDependency> resolvedDependencies = poms
+                .get(2)
+                .getMarkers()
+                .findFirst(MavenResolutionResult.class)
+                .get()
+                .getDependencies()
+                .get(Scope.Compile)
+                .stream()
+                .collect(Collectors.toSet());
 
-        assertThat(module1.getMainJavaSourceSet().list()).hasSize(1);
-        assertThat(module1.getMainJavaSourceSet().list().get(0).print()).isEqualTo(javaSource2);
-
-        assertThat(module2.getMainJavaSourceSet().list()).hasSize(1);
-        assertThat(module2.getMainJavaSourceSet().list().get(0).print()).isEqualTo(javaSource3);
-
-        assertThat(module2.getTestJavaSourceSet().list()).hasSize(1);
-        assertThat(module2.getTestJavaSourceSet().list().get(0).print()).isEqualTo(javaSource4);
+        ClasspathRegistry registry = ClasspathRegistry.initialize(resolvedDependencies);
+        assertThat(registry.getCurrentDependencies()).hasSize(1);
+        assertThat(registry.getInitialDependencies()).hasSize(1);
     }
-
 }

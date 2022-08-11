@@ -700,6 +700,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     @Override
+    public Path getTestResourceFolder() {
+        return getTestResourceFolders().get(0);
+    }
+
+    @Override
     public void excludeDependencies(List<Dependency> excludedDependencies) {
         excludeDependenciesInner(excludedDependencies);
         updateClasspathRegistry();

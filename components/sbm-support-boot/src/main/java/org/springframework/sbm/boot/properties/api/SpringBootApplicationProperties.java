@@ -50,7 +50,8 @@ public class SpringBootApplicationProperties extends PropertiesSource {
     }
 
     public boolean isDefaultProperties() {
-        return getAbsolutePath().getFileName().toString().equals("application.properties");
+        String filename = getAbsolutePath().getFileName().toString();
+        return filename.equals("application.properties") || filename.equals("application.yaml") || filename.equals("application.yaml");
     }
 
 }

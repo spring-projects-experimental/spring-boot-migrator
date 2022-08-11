@@ -125,6 +125,11 @@ public class JavaSourceSetImpl implements JavaSourceSet {
     }
 
     @Override
+    public Path getAbsolutePath() {
+        return sourceSetRoot;
+    }
+
+    @Override
     public boolean hasImportStartingWith(String... value) {
         return false;
     }

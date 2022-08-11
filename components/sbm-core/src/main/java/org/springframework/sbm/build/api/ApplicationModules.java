@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
+import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -130,4 +131,5 @@ public class ApplicationModules {
     public boolean isSingleModuleApplication() {
         return modules.size() == 1;
     }
+
 }

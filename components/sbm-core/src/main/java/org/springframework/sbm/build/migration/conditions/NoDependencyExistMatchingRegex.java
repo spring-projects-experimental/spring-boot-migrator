@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.migration.conditions;
 
+import org.springframework.sbm.build.api.ApplicationModule;
 import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.*;
@@ -39,8 +40,10 @@ public class NoDependencyExistMatchingRegex implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return dependencies.stream().noneMatch(d ->
-                context.getBuildFile().hasDeclaredDependencyMatchingRegex(d)
+        return dependencies.stream().allMatch(d ->
+                context.getModules().stream()
+                        .map(ApplicationModule::getBuildFile)
+                        .noneMatch(b -> b.hasDeclaredDependencyMatchingRegex(d))
         );
     }
 }
