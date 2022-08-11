@@ -18,6 +18,7 @@ package org.springframework.sbm.boot.upgrade_24_25.report;
 import org.springframework.core.annotation.Order;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.*;
+import org.springframework.sbm.boot.common.finder.MethodPatternMatchingMethod;
 import org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_SpringDataJpaActionCondition;
 import org.springframework.sbm.boot.upgrade_24_25.filter.SpringDataJpaAnalyzer;
 import org.springframework.sbm.java.api.MethodCall;
@@ -47,7 +48,7 @@ public class Boot_24_25_SpringDataJpa implements UpgradeSectionBuilder {
 
         SpringDataJpaAnalyzer springDataJpaAnalyzer = new SpringDataJpaAnalyzer();
         List<MethodCall> callsToGetOneMethod = springDataJpaAnalyzer.findCallsToGetOneMethod(projectContext);
-        List<SpringDataJpaAnalyzer.MatchingMethod> jpaRepositoriesWithGetByIdMethod = springDataJpaAnalyzer.getJpaRepositoriesWithGetByIdMethod(projectContext);
+        List<MethodPatternMatchingMethod> jpaRepositoriesWithGetByIdMethod = springDataJpaAnalyzer.getJpaRepositoriesWithGetByIdMethod(projectContext);
 
 
         Table.Builder builder = Table.builder()
@@ -55,7 +56,7 @@ public class Boot_24_25_SpringDataJpa implements UpgradeSectionBuilder {
 
 
         jpaRepositoriesWithGetByIdMethod.forEach(m -> {
-            Path relativePath = Path.of(".").toAbsolutePath().relativize(m.getJat().getJavaSource().getResource().getAbsolutePath());
+            Path relativePath = Path.of(".").toAbsolutePath().relativize(m.getJavaSource().getResource().getAbsolutePath());
             String description = String.format("defines `%s` returning `%s`", m.getMethodPattern(), m.getMethod().getReturnValue());
             String fix = String.format("Rename method to `get%sById()`", m.getMethod().getReturnValue());
             builder.row(relativePath.toString(), description, fix);
@@ -90,7 +91,7 @@ public class Boot_24_25_SpringDataJpa implements UpgradeSectionBuilder {
                                 // FIXME: Create TODOs for all findings
                                 .todo(
                                         TodoList.Todo.builder()
-                                                .text("rename `" + jpaRepositoriesWithGetByIdMethod.get(0).getJat().getJavaSource().getTypes().get(0).getFullyQualifiedName() + "." + jpaRepositoriesWithGetByIdMethod.get(0).getMethodPattern() + "` to " + String.format("`get%sById()`", jpaRepositoriesWithGetByIdMethod.get(0).getMethod().getReturnValue()))
+                                                .text("rename `" + jpaRepositoriesWithGetByIdMethod.get(0).getJavaSource().getTypes().get(0).getFullyQualifiedName() + "." + jpaRepositoriesWithGetByIdMethod.get(0).getMethodPattern() + "` to " + String.format("`get%sById()`", jpaRepositoriesWithGetByIdMethod.get(0).getMethod().getReturnValue()))
                                                 .build()
                                 )
                                 .recipeName("boot-2.4-2.5-spring-data-jpa")

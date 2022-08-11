@@ -160,7 +160,7 @@ public class OpenRewriteMethod implements Method {
     @Override
     public String getReturnValue() {
         JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(getMethodDecl().getReturnTypeExpression().getType());
-        return fullyQualified.getClassName();
+        return fullyQualified.getFullyQualifiedName();
     }
 
     // FIXME: renaming method should not require a methodPattern in this context
