@@ -109,8 +109,9 @@ public class RedeclaredDependenciesBuilderTest {
         assertThat(section).isInstanceOf(ChangeSection.class);
         ChangeSection relevantChangeSection = ChangeSection.class.cast(section);
         assertThat(relevantChangeSection.getTitle()).isEqualTo("Remove redundant explicit version declaration");
-        assertThat(relevantChangeSection.getParagraphs()).hasSize(1);
-        assertThat(relevantChangeSection.getParagraphs().get(0)).isEqualTo("""
+        assertThat(relevantChangeSection.getRelevanceSection()).isNotNull();
+        assertThat(relevantChangeSection.getRelevanceSection().getParagraphs()).hasSize(1);
+        assertThat(relevantChangeSection.getRelevanceSection().getParagraphs().get(0).getText()).isEqualTo("""
                             The scan found one or more redeclared dependencies in build files. 
                             Please check them and remove redundant declarations.
                             """);
