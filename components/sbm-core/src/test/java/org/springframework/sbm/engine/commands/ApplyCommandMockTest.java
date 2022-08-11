@@ -11,9 +11,11 @@ import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
+import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -29,6 +31,8 @@ public class ApplyCommandMockTest {
     @Mock
     private GitSupport gitSupport;
     @Mock
+    Recipes recipes;
+    @Mock
     private Recipe recipe;
     @Mock
     ProjectContext projectContext;
@@ -42,6 +46,8 @@ public class ApplyCommandMockTest {
 
     @Test
     void shouldReturnActionList() {
+        when(recipesBuilder.buildRecipes()).thenReturn(recipes);
+        when(recipes.getRecipeByName("testRecipe")).thenReturn(Optional.of(recipe));
         when(recipe.apply(projectContext)).thenReturn(List.of(action1, action2));
         List<Action> actions = applyCommand.execute(projectContext, "testRecipe");
 
