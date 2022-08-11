@@ -49,4 +49,5 @@ public interface JavaSourceSet {
 
     JavaSourceLocation getJavaSourceLocation();
 
+    Path getAbsolutePath();
 }

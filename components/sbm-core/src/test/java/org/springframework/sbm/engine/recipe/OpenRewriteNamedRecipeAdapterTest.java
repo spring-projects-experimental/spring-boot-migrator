@@ -17,6 +17,10 @@
 package org.springframework.sbm.engine.recipe;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -28,52 +32,32 @@ import org.springframework.validation.beanvalidation.CustomValidatorBean;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = {
-        RecipeParser.class,
-        YamlObjectMapperConfiguration.class,
-        CustomValidator.class,
-        ResourceHelper.class,
-        ActionDeserializerRegistry.class,
-        RewriteMigrationResultMerger.class,
-        RewriteSourceFileWrapper.class,
-        RewriteRecipeLoader.class,
-        CustomValidatorBean.class
-})
+@ExtendWith(MockitoExtension.class)
 public class OpenRewriteNamedRecipeAdapterTest {
+    @Mock
+    RewriteRecipeLoader rewriteRecipeLoader;
 
-    @Autowired
-    RecipeParser recipeParser;
+    @Mock
+    RewriteRecipeRunner rewriteRecipeRunner;
+
+    @InjectMocks
+    OpenRewriteNamedRecipeAdapter sut;
 
     @Test
-    void recipeFromYaml() throws IOException {
-        String yaml =
-                "- name: test-recipe\n" +
-                "  description: Replace deprecated spring.datasource.* properties\n" +
-                "  condition:\n" +
-                "    type: org.springframework.sbm.common.migration.conditions.TrueCondition\n" +
-                "  actions:\n" +
-                "    - type: org.springframework.sbm.engine.recipe.OpenRewriteNamedRecipeAdapter\n" +
-                "      description: Call a OpenRewrite recipe\n" +
-                "      openRewriteRecipeName: org.springframework.sbm.dummy.RemoveDeprecatedAnnotation\n";
+    void testApply() {
+        String recipeName = "name";
+        sut.setOpenRewriteRecipeName(recipeName);
 
-        Recipe[] recipes = recipeParser.parseRecipe(yaml);
-        assertThat(recipes[0].getActions().get(0)).isInstanceOf(OpenRewriteNamedRecipeAdapter.class);
-        OpenRewriteNamedRecipeAdapter recipeAdapter = (OpenRewriteNamedRecipeAdapter) recipes[0].getActions().get(0);
+        org.openrewrite.Recipe recipe = mock(org.openrewrite.Recipe.class);
+        when(rewriteRecipeLoader.loadRewriteRecipe(recipeName)).thenReturn(recipe);
+        ProjectContext context = mock(ProjectContext.class);
 
-        String javaSource = "@java.lang.Deprecated\n" +
-                "public class Foo {\n" +
-                "}\n";
+        sut.apply(context);
 
-        ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", javaSource)
-                .build();
-
-        recipeAdapter.apply(context);
-
-        assertThat(context.getProjectJavaSources().list().get(0).print()).isEqualTo(
-                "public class Foo {\n" +
-                        "}\n"
-        );
+        verify(rewriteRecipeRunner).run(context, recipe);
     }
+
 }

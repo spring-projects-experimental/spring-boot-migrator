@@ -16,113 +16,40 @@
 
 package org.springframework.sbm.engine.recipe;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationEventPublisher;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.RewriteSourceFileWrapper;
-import org.springframework.sbm.project.resource.ResourceHelper;
-import org.springframework.sbm.project.resource.TestProjectContext;
-import org.springframework.stereotype.Component;
-import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
-import java.io.IOException;
+import static org.mockito.Mockito.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+@ExtendWith(MockitoExtension.class)
+public class OpenRewriteDeclarativeRecipeAdapterTest {
 
-@SpringBootTest(classes = {
-        RecipeParser.class,
-        YamlObjectMapperConfiguration.class,
-        CustomValidator.class,
-        ResourceHelper.class,
-        ActionDeserializerRegistry.class,
-        RewriteMigrationResultMerger.class,
-        RewriteSourceFileWrapper.class,
-        CustomValidatorBean.class
-})
-class OpenRewriteDeclarativeRecipeAdapterTest {
+    @Mock
+    RewriteRecipeLoader rewriteRecipeLoader;
 
-    @Autowired
-    RecipeParser recipeParser;
+    @Mock
+    RewriteRecipeRunner rewriteRecipeRunner;
+
+    @InjectMocks
+    OpenRewriteDeclarativeRecipeAdapter sut;
 
     @Test
-    void recipeFromYaml() throws IOException {
-        String yaml =
-                        "- name: test-recipe\n" +
-                        "  description: Replace deprecated spring.datasource.* properties\n" +
-                        "  condition:\n" +
-                        "    type: org.springframework.sbm.common.migration.conditions.TrueCondition\n" +
-                        "  actions:\n" +
-                        "    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter\n" +
-                        "      description: Call a OpenRewrite recipe\n" +
-                        "      openRewriteRecipe: |-\n" +
-                        "        type: specs.openrewrite.org/v1beta/recipe\n" +
-                        "        name: org.openrewrite.java.RemoveAnnotation\n" +
-                        "        displayName: Order imports\n" +
-                        "        description: Order imports\n" +
-                        "        recipeList:\n" +
-                        "          - org.openrewrite.java.RemoveAnnotation:\n" +
-                        "              annotationPattern: \"@java.lang.Deprecated\"\n" +
-                        "          - org.openrewrite.java.format.AutoFormat";
+    void testApply() {
+        String recipeDeclaration = "name: some-recipe";
+        sut.setOpenRewriteRecipe(recipeDeclaration);
 
-        Recipe[] recipes = recipeParser.parseRecipe(yaml);
-        assertThat(recipes[0].getActions().get(0)).isInstanceOf(OpenRewriteDeclarativeRecipeAdapter.class);
-        OpenRewriteDeclarativeRecipeAdapter recipeAdapter = (OpenRewriteDeclarativeRecipeAdapter) recipes[0].getActions().get(0);
+        org.openrewrite.Recipe recipe = mock(org.openrewrite.Recipe.class);
+        when(rewriteRecipeLoader.createRecipe(recipeDeclaration)).thenReturn(recipe);
+        ProjectContext context = mock(ProjectContext.class);
 
-        String javaSource = "@java.lang.Deprecated\n" +
-                "public class Foo {}";
+        sut.apply(context);
 
-        ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", javaSource)
-                .build();
-
-        recipeAdapter.apply(context);
-
-        assertThat(context.getProjectJavaSources().list().get(0).print()).isEqualTo(
-                "public class Foo {\n" +
-                        "}"
-        );
+        verify(rewriteRecipeRunner).run(context, recipe);
     }
 
 
-    @Test
-    public void propagateExceptionFromOpenRewriteRecipe() throws IOException {
-
-        String actionDescription =
-                "- name: test-recipe\n" +
-                        "  description: Replace deprecated spring.datasource.* properties\n" +
-                        "  condition:\n" +
-                        "    type: org.springframework.sbm.common.migration.conditions.TrueCondition\n" +
-                        "  actions:\n" +
-                        "    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter\n" +
-                        "      condition:\n" +
-                        "        type: org.springframework.sbm.common.migration.conditions.TrueCondition\n" +
-                        "        versionStartingWith: \"2.7.\"\n" +
-                        "      description: Add Spring Milestone Repository and bump parent pom to 3.0.0-M3\n" +
-                        "\n" +
-                        "      openRewriteRecipe: |-\n" +
-                        "        type: specs.openrewrite.org/v1beta/recipe\n" +
-                        "        name: org.openrewrite.java.spring.boot3.data.UpgradeSpringData30\n" +
-                        "        displayName: Upgrade to Spring Data 3.0\n" +
-                        "        description: 'Upgrade to Spring Data to 3.0 from any prior version.'\n" +
-                        "        recipeList:\n" +
-                        "          - org.springframework.sbm.engine.recipe.ErrorClass\n";
-
-        Recipe[] recipes = recipeParser.parseRecipe(actionDescription);
-        assertThat(recipes[0].getActions().get(0)).isInstanceOf(OpenRewriteDeclarativeRecipeAdapter.class);
-        OpenRewriteDeclarativeRecipeAdapter recipeAdapter = (OpenRewriteDeclarativeRecipeAdapter) recipes[0].getActions().get(0);
-
-        String javaSource = "@java.lang.Deprecated\n" +
-                "public class Foo {}";
-
-        ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", javaSource)
-                .build();
-
-        assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));
-    }
 }

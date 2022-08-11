@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MigratePersistenceXmlToBootRecipeTest {
 
     @Test
-    void test() {
+    void migrateEclipseLinkPersistence() {
         String targetDirName = "eclipselink-jpa";
         Path sourceDir = Path.of("./testcode/jee/jpa").resolve(targetDirName).resolve("given");
         String recipeName = "migrate-jpa-to-spring-boot";
@@ -82,8 +82,8 @@ public class MigratePersistenceXmlToBootRecipeTest {
                         "</project>"
         );
 
-        Path eclipselinkCOnfig = RecipeIntegrationTestSupport.getResultDir(targetDirName).resolve("src/main/java/com/example/EclipseLinkJpaConfiguration.java"); // FIXME: generated in wrong package
-        assertThat(eclipselinkCOnfig).hasContent(
+        Path eclipselinkConfig = RecipeIntegrationTestSupport.getResultDir(targetDirName).resolve("src/main/java/com/example/EclipseLinkJpaConfiguration.java");
+        assertThat(eclipselinkConfig).hasContent(
                 "package com.example;\n" +
                         "\n" +
                         "import org.eclipse.persistence.config.PersistenceUnitProperties;\n" +

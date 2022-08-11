@@ -16,7 +16,6 @@
 package org.springframework.sbm.java.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.springframework.sbm.build.api.BuildFile;
@@ -96,7 +95,7 @@ public class ClasspathRegistry {
 		public static final ClasspathRegistry INSTANCE = new ClasspathRegistry();
 
 		public static ClasspathRegistry initialDependencies(Set<ResolvedDependency> dependencies) {
-			INSTANCE.initDependencies(dependencies);
+			INSTANCE.setup(dependencies);
 			return INSTANCE;
 		}
 
@@ -132,27 +131,40 @@ public class ClasspathRegistry {
 		return new HashSet<>(currentDependencies.values());
 	}
 
-	private void initDependencies(Set<ResolvedDependency> deps) {
+	private void setup(Set<ResolvedDependency> deps) {
 		initialDependencies.clear();
 		currentDependencies.clear();
+		initializeDepeendencies(deps);
+	}
+
+	private void initializeDepeendencies(Set<ResolvedDependency> deps) {
 		deps.forEach(dep -> {
 			initDependency(dep, initialDependencies, currentDependencies);
 		});
 	}
 
 	private void initDependency(ResolvedDependency d, Map<ResolvedDependency, Path>... maps) {
-		Path dependencyPath = new RewriteMavenArtifactDownloader().downloadArtifact(d);
-		if(dependencyPath != null) {
-			Stream.of(maps).forEach(m -> m.put(d, dependencyPath));
+		if(isExternalDependency(d)) {
+			Path dependencyPath = new RewriteMavenArtifactDownloader().downloadArtifact(d);
+			if(dependencyPath != null) {
+				Stream.of(maps).forEach(m -> m.put(d, dependencyPath));
+			} else {
+				System.out.println(d.getGav() + " has no jars. It has type " + d.getType());
+				initializeDepeendencies(new HashSet<>(d.getDependencies()));
+			}
 		} else {
-			System.out.println(d.getGav() + " has no jars. It has type " + d.getType());
-			initDependencies(new HashSet<>(d.getDependencies()));
+			initializeDepeendencies(new HashSet(d.getDependencies()));
 		}
+
 
 //		Optional<Path> dependencyPath = dependencyHelper.downloadArtifact(d);
 //		if (dependencyPath.isPresent()) {
 //			Stream.of(maps).forEach(m -> m.put(d, dependencyPath.get()));
 //		}
+	}
+
+	private boolean isExternalDependency(ResolvedDependency d) {
+		return d.getRepository() != null;
 	}
 
 }
