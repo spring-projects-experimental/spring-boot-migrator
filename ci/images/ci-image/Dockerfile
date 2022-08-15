@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64  ubuntu:focal-20220801
+FROM ubuntu:focal-20220801
 
 ADD ./setup.sh /setup.sh
 ADD get-jdk-url.sh /get-jdk-url.sh
