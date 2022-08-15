@@ -51,8 +51,8 @@ public class Recipe {
     public Recipe(
             @JsonProperty(value = "name", required = true) String name,
             @JsonProperty(value = "actions", required = true) List<Action> actions,
-            @JsonProperty(value = "condition", required = false) Condition condition,
-            @JsonProperty(value = "order", required = false) Integer order
+            @JsonProperty(value = "condition") Condition condition,
+            @JsonProperty(value = "order") Integer order
     ) {
         this.name = name;
         this.actions = actions;
