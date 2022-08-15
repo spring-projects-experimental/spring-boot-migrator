@@ -19,24 +19,17 @@ import org.springframework.sbm.common.filter.DeletedResourcePathStringFilter;
 import org.springframework.sbm.common.filter.ModifiedResourcePathStringFilter;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;
-import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.git.ProjectSyncVerifier;
+import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
-import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class ApplyCommand extends AbstractCommand<Recipe> {
-
-    private final ProjectContextInitializer projectContextBuilder;
-
-    private final ApplyCommandHelper applyCommandHelper;
-
-    private final ProjectRootPathResolver projectRootPathResolver;
 
     private final RecipesBuilder recipesBuilder;
 
@@ -47,27 +40,25 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
     private final GitSupport gitSupport;
 
     public ApplyCommand(
-            ProjectContextInitializer projectContextBuilder,
-            ApplyCommandHelper applyCommandHelper,
-            ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextSerializer contextSerializer, ProjectSyncVerifier projectSyncVerifier, GitSupport gitSupport) {
+            RecipesBuilder recipesBuilder,
+            ProjectContextSerializer contextSerializer,
+            ProjectSyncVerifier projectSyncVerifier,
+            GitSupport gitSupport) {
         super("apply");
-        this.projectContextBuilder = projectContextBuilder;
-        this.applyCommandHelper = applyCommandHelper;
-        this.projectRootPathResolver = projectRootPathResolver;
         this.recipesBuilder = recipesBuilder;
         this.contextSerializer = contextSerializer;
         this.projectSyncVerifier = projectSyncVerifier;
         this.gitSupport = gitSupport;
     }
 
-    public Recipe execute(ProjectContext projectContext, String recipeName) {
+    public List<Action> execute(ProjectContext projectContext, String recipeName) {
         Recipe recipe = recipesBuilder.buildRecipes().getRecipeByName(recipeName)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe with name '" + recipeName + "' could not be found"));
 
         // verify that project sources are in sync with in memory representation
         projectSyncVerifier.rescanWhenProjectIsOutOfSyncAndGitAvailable(projectContext);
 
-        recipe.apply(projectContext);
+        List<Action> appliedActions = recipe.apply(projectContext);
 
         // verify that project sources didn't change while running recipe
         projectSyncVerifier.verifyProjectIsInSyncWhenGitAvailable(projectContext);
@@ -80,21 +71,12 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
 
         gitSupport.commitWhenGitAvailable(projectContext, recipeName, modifiedResources, deletedResources);
 
-        return recipe;
+        return appliedActions;
     }
 
     @Override
     @Deprecated
     public Recipe execute(String... arguments) {
-//        if (arguments == null || arguments.length < 2) {
-//            throw new IllegalArgumentException("Apply command needs project path (as first) and recipe name (as second) to be provided");
-//        } else {
-//            Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
-//            // FIXME: This triggers a new scan which shouldn't be required. Retrieve current ProjectContext from...? and use it here.
-//            ProjectContext context = projectContextBuilder.initProjectContext(projectRoot, new RewriteExecutionContext());
-//            return applyCommandHelper.applyRecipe(context, arguments[1]);
-//        }
         return null;
     }
-
 }
