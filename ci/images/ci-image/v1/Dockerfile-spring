@@ -28,6 +28,6 @@ ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 
 ENV JAVA_HOME /opt/openjdk
 ENV PATH $JAVA_HOME/bin:$PATH
-ADD docker-lib.sh /docker-lib.sh
+ADD ../docker-lib.sh /docker-lib.sh
 
 ENTRYPOINT [ "switch", "shell=/bin/bash", "--", "codep", "/bin/docker daemon" ]
