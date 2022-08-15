@@ -17,7 +17,8 @@
 
 set -e
 
-source /usr/local/bin/docker-lib.sh
-start_docker
+#source /usr/local/bin/docker-lib.sh
+#start_docker
+mvn --version
 
 exec "$@"

@@ -5,10 +5,10 @@ anchors:
     username: ((github-repo-user)) # fabapp2
     password: none # ((github-ci-release-token))
     branch: ci
-  docker-hub-mirror-vars: &docker-hub-mirror-vars
-    docker-hub-mirror: ((docker-hub-mirror))
-    docker-hub-mirror-username: ((docker-hub-mirror-username))
-    docker-hub-mirror-password: ((docker-hub-mirror-password))
+#  docker-hub-mirror-vars: &docker-hub-mirror-vars
+#    docker-hub-mirror: ((docker-hub-mirror))
+#    docker-hub-mirror-username: ((docker-hub-mirror-username))
+#    docker-hub-mirror-password: ((docker-hub-mirror-password))
   registry-image-resource-source: &registry-image-resource-source
     username: ((docker-hub-username))
     password: ((docker-hub-password))
@@ -25,10 +25,10 @@ resources:
     source:
       <<: *git-repo-resource-source
   - name: ci-image
-    type: docker-image
+    type: registry-image
     icon: docker
     source:
-#      <<: *registry-image-resource-source
+      <<: *registry-image-resource-source
       repository: fkrueger096/spring-boot-migrator-ci
       tag: latest
 
@@ -41,8 +41,30 @@ resources:
 
 jobs:
 
-#  - name: build-ci-images
-#    plan:
+  - name: build-ci-images
+    plan:
+    - get: git-repo
+    - task: build-ci-image
+      privileged: true
+      config:
+        platform: linux
+        image_resource:
+          type: registry-image
+          source:
+            repository: fkrueger096/spring-boot-migrator-ci
+        inputs:
+          - name: git-repo
+        outputs:
+          - name: image
+        run:
+          path: sh
+          args:
+            - "whoami"
+        params:
+          CONTEXT: git-repo/ci/ci-image/Dockerfile
+    - put: ci-image
+      params:
+        image: image/image.tar
 #      - in_parallel:
 ##          - get: ci-image
 #          - get: git-repo
@@ -61,15 +83,15 @@ jobs:
 #            params:
 #              image: ci-image/image.tar
 
-  - name: spring-boot-migrator-build
-    serial: true
-    plan:
-      - in_parallel:
-          - get: ci-image
-          - get: git-repo
-            trigger: true
-      - in_parallel:
-          - task: build
-            privileged: true
-            image: ci-image
-            file: git-repo/ci/tasks/maven-build/task.yml
+#  - name: spring-boot-migrator-build
+#    serial: true
+#    plan:
+#      - in_parallel:
+#          - get: ci-image
+#          - get: git-repo
+#            trigger: true
+#      - in_parallel:
+#          - task: build
+#            privileged: true
+#            image: ci-image
+#            file: git-repo/ci/tasks/maven-build/task.yml
