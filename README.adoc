@@ -68,6 +68,14 @@ Please refer to the link:CONTRIBUTING.adoc[] for more details.
 
 **This project requires Java 11.**
 
+== Running concourse locally
+
+Get concourse running locally by following this document: https://concourse-ci.org/quick-start.html
+
+set pipeline:
+`fly -t spring set-pipeline --pipeline spring-boot-migrator --config ci/pipeline.yml --load-vars-from ci/vars.yml`
+
 == License
 
 https://www.apache.org/licenses/LICENSE-2.0[Apache License v2.0]
+
