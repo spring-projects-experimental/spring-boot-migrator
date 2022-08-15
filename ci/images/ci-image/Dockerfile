@@ -39,7 +39,7 @@ ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 
 COPY v1/docker-lib.sh /usr/local/bin/docker-lib.sh
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY v1/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["/bin/bash"]
