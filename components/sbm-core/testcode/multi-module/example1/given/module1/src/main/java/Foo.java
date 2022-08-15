@@ -14,19 +14,5 @@
  * limitations under the License.
  */
 
-package org.springframework.sbm.openrewrite.maven;
-
-import org.junit.jupiter.api.Test;
-import org.openrewrite.maven.internal.MavenPomDownloader;
-import org.openrewrite.maven.tree.ManagedDependency;
-import org.openrewrite.maven.tree.ResolvedPom;
-
-public class DownloadingMicrometerMilestoneTest {
-
-//    @Test
-//    void testDownload() {
-//        MavenPomDownloader downloader = new MavenPomDownloader()
-//        ResolvedPom bom = downloader.download(getValues(((ManagedDependency.Imported) d).getGav()), null, ResolvedPom.this, repositories)
-//                .resolve(activeProfiles, downloader, ctx);
-//    }
+public class Foo {
 }

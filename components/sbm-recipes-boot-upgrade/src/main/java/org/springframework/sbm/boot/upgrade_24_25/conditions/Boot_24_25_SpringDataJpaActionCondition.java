@@ -16,6 +16,7 @@
 package org.springframework.sbm.boot.upgrade_24_25.conditions;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.sbm.boot.common.finder.MethodPatternMatchingMethod;
 import org.springframework.sbm.boot.upgrade_24_25.filter.SpringDataJpaAnalyzer;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
@@ -38,7 +39,7 @@ public class Boot_24_25_SpringDataJpaActionCondition implements Condition {
     private boolean evaluateAgainstModule(ProjectContext context) {
         SpringDataJpaAnalyzer springDataJpaAnalyzer = new SpringDataJpaAnalyzer();
         List<MethodCall> callsToGetOneMethod = springDataJpaAnalyzer.findCallsToGetOneMethod(context);
-        List<SpringDataJpaAnalyzer.MatchingMethod> jpaRepositoriesWithGetByIdMethod = springDataJpaAnalyzer.getJpaRepositoriesWithGetByIdMethod(context);
+        List<MethodPatternMatchingMethod> jpaRepositoriesWithGetByIdMethod = springDataJpaAnalyzer.getJpaRepositoriesWithGetByIdMethod(context);
 
         return !(callsToGetOneMethod.isEmpty() || jpaRepositoriesWithGetByIdMethod.isEmpty());
     }

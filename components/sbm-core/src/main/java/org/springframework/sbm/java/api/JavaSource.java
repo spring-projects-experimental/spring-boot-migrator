@@ -35,6 +35,13 @@ public interface JavaSource extends ProjectResource {
 
     List<? extends Import> getImports();
 
+    /**
+     * Check if this JavaSource has any import starting with any of the given {@code impoorts}.
+     *
+     * Internally {@code .contains(impoort)} is used to check against all imports
+     *
+     * @param importPattern array of import starting patterns
+     */
     boolean hasImportStartingWith(String... importPattern);
 
     String getPackageName();

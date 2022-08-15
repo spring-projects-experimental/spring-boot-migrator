@@ -17,6 +17,7 @@ package org.springframework.sbm.boot.upgrade_24_25.filter;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.boot.common.finder.MethodPatternMatchingMethod;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.MethodCall;
 import org.springframework.sbm.java.api.ProjectJavaSources;
@@ -121,7 +122,7 @@ class SpringDataJpaAnalyzerTest {
                 .build();
 
         SpringDataJpaAnalyzer sut = new SpringDataJpaAnalyzer();
-        List<SpringDataJpaAnalyzer.MatchingMethod> match = sut.getJpaRepositoriesWithGetByIdMethod(context);
+        List<MethodPatternMatchingMethod> match = sut.getJpaRepositoriesWithGetByIdMethod(context);
         assertThat(match).hasSize(1);
     }
 }

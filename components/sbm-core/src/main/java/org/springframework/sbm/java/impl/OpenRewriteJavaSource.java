@@ -90,11 +90,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
     }
 
     /**
-     * Check if this JavaSource has any import starting with the any of the given {@code impoorts}.
-     *
-     * Internally {@code .contains(impoort)} is used to check against all imports
-     *
-     * @param impoort array of import starting patterns
+     * {@inheritDoc}
      */
     @Override
     public boolean hasImportStartingWith(String... impoort) {
