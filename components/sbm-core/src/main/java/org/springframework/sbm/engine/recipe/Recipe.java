@@ -22,6 +22,7 @@ import lombok.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,13 +93,17 @@ public class Recipe {
     }
 
     public List<Action> apply(ProjectContext context) {
-        List<Action> applicableActions = actions.stream()
-                .filter(a -> a.isApplicable(context))
-                .collect(Collectors.toList());
 
-        applicableActions.forEach(a -> a.applyWithStatusEvent(context));
+        List<Action> appliedActions = new ArrayList<>();
+        for (Action action : actions) {
 
-        return applicableActions;
+             if (action.isApplicable(context)) {
+                 action.applyWithStatusEvent(context);
+                 appliedActions.add(action);
+             }
+        }
+
+        return appliedActions;
     }
 
     public String getDetails() {
