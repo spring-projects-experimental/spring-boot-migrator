@@ -31,6 +31,21 @@ resources:
       <<: *registry-image-resource-source
       repository: fkrueger096/spring-boot-migrator-ci
       tag: latest
+  - name: ubuntu
+    type: registry-image
+    icon: docker
+    source:
+      repository: library/ubuntu
+      username: ((docker-hub-mirror-username))
+      password: ((docker-hub-mirror-password))
+      tag: focal-20220801
+#  - name: ubuntu-manifests
+#    type: registry-image
+#    icon: docker
+#    source:
+#      repository: library/ubuntu/manifests
+#      username: ((docker-hub-mirror-username))
+#      password: ((docker-hub-mirror-password))
 
 
 #  - name: spring-boot-migrator-image
@@ -44,6 +59,66 @@ jobs:
   - name: build-ci-images
     plan:
     - get: git-repo
+    - get: ubuntu
+      trigger: true
+      params: { format: oci }
+#    - task: generate-docker-creds
+#      config:
+#        platform: linux
+#        image_resource:
+#          type: registry-image
+#          source:
+#            repository: alpine
+#        outputs:
+#          - name: docker_creds
+#        run:
+#          path: ash
+#          args:
+#            - -c
+#            - |
+#              AUTH="$(echo -n '((docker_username)):((docker_password))' | base64)"
+#              cat > docker_creds/config.json <<EOF
+#              { "auths": { "https://index.docker.io/v1/": { "auth": "$AUTH", "email": "<yourdockeremail>" }}}
+#              EOF
+
+#    - task: generate-docker-creds
+#      config:
+#        platform: linux
+#        image_resource:
+#          type: registry-image
+#          source:
+#            repository: library/ubuntu/manifests
+#        outputs:
+#          - name: docker_manifest_creds
+#        run:
+#          path: sh
+#          args:
+#            - -c
+#            - |
+#              AUTH="$(echo -n '((docker-hub-username)):((docker-hub-password))' | base64)"
+#              cat > docker_creds/config.json <<EOF
+#              { "auths": { "https://index.docker.io/v1/": { "auth": "$AUTH", "email": "fkrueger@vmware.com" }}}
+#              EOF
+
+#  - task: generate-docker-creds-manifest
+#      config:
+#        platform: linux
+#        image_resource:
+#          type: registry-image
+#          source:
+#            repository: library/ubuntu
+#        outputs:
+#          - name: docker_creds
+#        run:
+#          path: sh
+#          args:
+#            - -c
+#            - |
+#              AUTH="$(echo -n '((docker-hub-username)):((docker-hub-password))' | base64)"
+#              cat > docker_creds/config.json <<EOF
+#              { "auths": { "https://index.docker.io/v1/": { "auth": "$AUTH", "email": "fkrueger@vmware.com" }}}
+#              EOF
+
     - task: build-ci-image
       privileged: true
       config:
@@ -51,20 +126,24 @@ jobs:
         image_resource:
           type: registry-image
           source:
-            repository: fkrueger096/spring-boot-migrator-ci
+            repository: vito/oci-build-task
         inputs:
           - name: git-repo
+#          - name: ubuntu
+#          - name: docker_creds
+#          - name: docker_manifest_creds
         outputs:
           - name: image
         run:
-          path: sh
-          args:
-            - "whoami"
+          path: build
         params:
-          CONTEXT: git-repo/ci/ci-image/Dockerfile
+          LOGIN: PASS
+          PASS: ((docker-hub-username)):((docker-hub-password))
+          CONTEXT: git-repo/ci/images/ci-image
     - put: ci-image
       params:
         image: image/image.tar
+#        DOCKER_CONFIG: docker_creds
 #      - in_parallel:
 ##          - get: ci-image
 #          - get: git-repo
