@@ -25,9 +25,10 @@ run:
   path: /bin/sh
   args:
     - "-c"
-    - |
-      mkdir -p /root/.docker
-      cat > /root/.docker/config.json <<EOF
-      { "auths": { "https://index.docker.io/v1/": { "auth": "$DOCKER_HUB_AUTH" }}}
-      EOF
-      build
+    - "mvn --version"
+#    - |
+#      mkdir -p /root/.docker
+#      cat > /root/.docker/config.json <<EOF
+#      { "auths": { "https://index.docker.io/v1/": { "auth": "$DOCKER_HUB_AUTH" }}}
+#      EOF
+#      build
