@@ -245,8 +245,6 @@ class NoRepositoryExistsConditionTest {
 
         NoRepositoryExistsCondition noRepositoryExistsCondition = new NoRepositoryExistsCondition();
         noRepositoryExistsCondition.setUrl("https://repo.spring.io/different");
-        noRepositoryExistsCondition.setReleasesEnabled(true);
-        noRepositoryExistsCondition.setSnapshotsEnabled(true);
         boolean noRepositoryExists = noRepositoryExistsCondition.evaluate(context);
 
         assertThat(noRepositoryExists).isTrue();

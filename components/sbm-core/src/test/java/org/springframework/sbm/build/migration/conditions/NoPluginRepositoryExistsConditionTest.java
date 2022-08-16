@@ -243,8 +243,6 @@ class NoPluginRepositoryExistsConditionTest {
 
         NoPluginRepositoryExistsCondition NoPluginRepositoryExistsCondition = new NoPluginRepositoryExistsCondition();
         NoPluginRepositoryExistsCondition.setUrl("https://repo.spring.io/different");
-        NoPluginRepositoryExistsCondition.setReleasesEnabled(true);
-        NoPluginRepositoryExistsCondition.setSnapshotsEnabled(true);
         boolean noRepositoryExists = NoPluginRepositoryExistsCondition.evaluate(context);
 
         assertThat(noRepositoryExists).isTrue();
