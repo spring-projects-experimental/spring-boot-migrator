@@ -22,6 +22,15 @@
         id: "spring-milestone"
         url: "https://repo.spring.io/milestone"
 
+    - type: org.springframework.sbm.build.migration.actions.AddPluginRepositoryAction
+      description: Add Spring Boot milestone plugin repository.
+      id: "spring-milestone"
+      url: "https://repo.spring.io/milestone"
+      snapshotsEnabled: false
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoPluginRepositoryExistsCondition
+        id: "spring-milestone"
+        url: "https://repo.spring.io/milestone"
     -  type: org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction
        description: Move EnableAutoConfiguration Property from spring.factories to AutoConfiguration.imports
        snapshotsEnabled: false
