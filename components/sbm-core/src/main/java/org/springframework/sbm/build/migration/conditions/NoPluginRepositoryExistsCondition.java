@@ -22,17 +22,11 @@ import org.springframework.sbm.engine.recipe.Condition;
 
 @Setter
 public class NoPluginRepositoryExistsCondition implements Condition {
-
-    private String id;
     private String url;
-
-    private Boolean snapshotsEnabled = true;
-
-    private Boolean releasesEnabled = true;
 
     @Override
     public String getDescription() {
-        return "Check that no plugin Repository definition with same id or url exists";
+        return "Check that no Plugin Repository definition with same id or url exists";
     }
 
     @Override
