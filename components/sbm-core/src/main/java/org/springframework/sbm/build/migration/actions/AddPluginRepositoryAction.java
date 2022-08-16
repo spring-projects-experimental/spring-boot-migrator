@@ -17,6 +17,7 @@
 package org.springframework.sbm.build.migration.actions;
 
 import lombok.Setter;
+import org.springframework.sbm.build.api.RepositoryDefinition;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 
@@ -29,6 +30,13 @@ public class AddPluginRepositoryAction extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
+        RepositoryDefinition.RepositoryDefinitionBuilder builder = RepositoryDefinition.builder();
 
+        builder.id(id)
+                .name(name)
+                .url(url);
+
+        RepositoryDefinition repository = builder.build();
+        context.getApplicationModules().getRootModule().getBuildFile().addPluginRepository(repository);
     }
 }

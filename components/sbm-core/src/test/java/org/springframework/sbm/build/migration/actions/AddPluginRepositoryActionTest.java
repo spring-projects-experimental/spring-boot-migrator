@@ -53,21 +53,21 @@ public class AddPluginRepositoryActionTest {
 
         assertThat(context.getBuildFile().print()).isEqualTo(
                 """
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>some.group.id</groupId>
-                    <artifactId>with-artifact</artifactId>
-                    <packaging>jar</packaging>
-                    <version>100.23.01-SNAPSHOT</version>
-                    <pluginRepositories>
-                        <pluginRepository>
-                            <id>repo-id</id>
-                            <name>thename</name>
-                            <url>https://some.url</url>
-                        </pluginRepository>
-                    </pluginRepositories>
-                </project>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <groupId>some.group.id</groupId>
+                            <artifactId>with-artifact</artifactId>
+                            <packaging>jar</packaging>
+                            <version>100.23.01-SNAPSHOT</version>
+                            <pluginRepositories>
+                                <pluginRepository>
+                                    <id>repo-id</id>
+                                    <name>thename</name>
+                                    <url>https://some.url</url>
+                                </pluginRepository>
+                            </pluginRepositories>
+                        </project>
                         """
         );
     }
