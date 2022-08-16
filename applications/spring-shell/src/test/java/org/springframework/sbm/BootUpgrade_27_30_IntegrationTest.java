@@ -47,7 +47,6 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         buildProject();
         verifyParentPomVersion();
-        verifyMicrometerPackageUpdate();
         verifyYamlConfigurationUpdate();
         verifyPropertyConfigurationUpdate();
         verifyConstructorBindingRemoval();
@@ -146,19 +145,6 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                 "    }\n" +
                 "}" +
                 "\n");
-    }
-
-    private void verifyMicrometerPackageUpdate() {
-        String micrometerClass = loadFile(Path.of("src/main/java/org/springboot/example/upgrade/MicrometerConfig.java"));
-        assertThat(micrometerClass).isEqualTo(
-                "package org.springboot.example.upgrade;\n" +
-                "\n" +
-                "import io.micrometer.binder.MeterBinder;\n" +
-                "\n" +
-                "public class MicroMeterConfig {\n" +
-                "\n" +
-                "    private MeterBinder k;\n" +
-                "}\n");
     }
 
     private void verifyYamlConfigurationUpdate() {
