@@ -22,21 +22,10 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 
 @Setter
-public class AddPluginRepositoryAction extends AbstractAction {
-
-    private String id;
-    private String url;
-    private String name;
+public class AddPluginRepositoryAction extends AddGenericRepositoryAction {
 
     @Override
-    public void apply(ProjectContext context) {
-        RepositoryDefinition.RepositoryDefinitionBuilder builder = RepositoryDefinition.builder();
-
-        builder.id(id)
-                .name(name)
-                .url(url);
-
-        RepositoryDefinition repository = builder.build();
-        context.getApplicationModules().getRootModule().getBuildFile().addPluginRepository(repository);
+    protected void addRepository(ProjectContext context, RepositoryDefinition repositoryDefinition) {
+        context.getApplicationModules().getRootModule().getBuildFile().addPluginRepository(repositoryDefinition);
     }
 }
