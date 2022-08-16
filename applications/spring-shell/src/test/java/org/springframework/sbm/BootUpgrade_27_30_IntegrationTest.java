@@ -45,6 +45,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         applyRecipe("boot-2.7-3.0-dependency-version-update");
 
+        buildProject();
         verifyParentPomVersion();
         verifyMicrometerPackageUpdate();
         verifyYamlConfigurationUpdate();
@@ -53,6 +54,10 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyCrudRepoAddition();
         verifyAutoConfigurationIsRefactored();
         verifyEhCacheVersionIsUpgraded();
+    }
+
+    private void buildProject() {
+        executeMavenGoals(getTestDir(), "clean", "verify");
     }
 
     private void verifyEhCacheVersionIsUpgraded() {
