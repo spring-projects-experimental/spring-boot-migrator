@@ -53,24 +53,33 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyCrudRepoAddition();
         verifyAutoConfigurationIsRefactored();
         verifyEhCacheVersionIsUpgraded();
+        verifyJohnzonCoreDependencyIsUpgraded();
+    }
+
+    private void verifyJohnzonCoreDependencyIsUpgraded() {
+        Optional<Dependency> johnzonResult = getDependencyByArtifactId("johnzon-core");
+
+        assertThat(johnzonResult.isPresent()).isTrue();
+
+        Dependency johnzonDependency = johnzonResult.get();
+
+        assertThat(johnzonDependency.getClassifier()).isEqualTo("jakarta");
+        assertThat(johnzonDependency.getArtifactId()).isEqualTo("johnzon-core");
+        assertThat(johnzonDependency.getVersion()).isEqualTo("1.2.18");
+    }
+
+    @NotNull
+    private Optional<Dependency> getDependencyByArtifactId(String artifactId) {
+        Xml.Document mavenAsXMLDocument = getRootBuildFile();
+        List<Dependency> dependencies = getDependencies(mavenAsXMLDocument);
+        return dependencies
+                .stream()
+                .filter(dependency -> dependency.getArtifactId().equals(artifactId))
+                .findFirst();
     }
 
     private void verifyEhCacheVersionIsUpgraded() {
-        String pomContent = loadFile(Path.of("pom.xml"));
-
-        Xml.Document mavenAsXMLDocument = parsePom(pomContent);
-
-        List<Dependency> dependencies = mavenAsXMLDocument
-                .getMarkers()
-                .findFirst(MavenResolutionResult.class)
-                .get()
-                .getPom()
-                .getRequestedDependencies();
-
-        Optional<Dependency> ehcacheResult = dependencies
-                .stream()
-                .filter(dependency -> dependency.getArtifactId().equals("ehcache"))
-                .findFirst();
+        Optional<Dependency> ehcacheResult = getDependencyByArtifactId("ehcache");
 
         assertThat(ehcacheResult).isPresent();
 
@@ -80,6 +89,24 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         assertThat(ehcacheDependency.getGav().getGroupId()).isEqualTo("org.ehcache");
         assertThat(ehcacheDependency.getGav().getVersion()).isNull();
         assertThat(ehcacheDependency.getClassifier()).isEqualTo("jakarta");
+    }
+
+    @NotNull
+    private List<Dependency> getDependencies(Xml.Document mavenAsXMLDocument) {
+        return mavenAsXMLDocument
+                .getMarkers()
+                .findFirst(MavenResolutionResult.class)
+                .get()
+                .getPom()
+                .getRequestedDependencies();
+    }
+
+    @NotNull
+    private Xml.Document getRootBuildFile() {
+        String pomContent = loadFile(Path.of("pom.xml"));
+
+        Xml.Document mavenAsXMLDocument = parsePom(pomContent);
+        return mavenAsXMLDocument;
     }
 
     private void verifyAutoConfigurationIsRefactored() {
@@ -244,9 +271,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
     }
 
     private void verifyParentPomVersion() {
-        String pomContent = loadFile(Path.of("pom.xml"));
-
-        Xml.Document mavenAsXMLDocument = parsePom(pomContent);
+        Xml.Document mavenAsXMLDocument = getRootBuildFile();
 
         Xml.Tag parentTag =mavenAsXMLDocument
                 .getRoot()
