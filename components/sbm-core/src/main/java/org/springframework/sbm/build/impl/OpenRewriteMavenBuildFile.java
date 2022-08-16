@@ -22,7 +22,6 @@ import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.AddDependencyVisitor;
 import org.openrewrite.maven.AddMavenRepository;
@@ -108,7 +107,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                                 )
                         )
                         .collect(Collectors.toList());
-                List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null , ctx);
+                List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx);
 
                 for (int i = 0; i < newMavenFiles.size(); i++) {
                     Optional<MavenResolutionResult> mavenModels = MavenBuildFileUtil.findMavenResolution(mavenFiles.get(i));
@@ -191,31 +190,31 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     /**
      * Retrieve dependencies declared in buildfile with version and scope from dependency management if not explicitly declared.
-     *
+     * <p>
      * Given this pom.xml and a call without any given `scope` parameter
-     *
+     * <p>
      * [source,xml]
      * ----
      * <dependencyManagement>
-     *         <dependencies>
-     *            <dependency>
-     *                 <groupId>org.junit.jupiter</groupId>
-     *                 <artifactId>junit-jupiter</artifactId>
-     *                 <version>5.7.1</version>
-     *                 <scope>test</scope>
-     *             </dependency>
-     *         </dependencies>
-     *     </dependencyManagement>
-     *     <dependencies>
-     *         <dependency>
-     *             <groupId>org.junit.jupiter</groupId>
-     *             <artifactId>junit-jupiter</artifactId>
-     *         </dependency>
-     *     </dependencies>
+     * <dependencies>
+     * <dependency>
+     * <groupId>org.junit.jupiter</groupId>
+     * <artifactId>junit-jupiter</artifactId>
+     * <version>5.7.1</version>
+     * <scope>test</scope>
+     * </dependency>
+     * </dependencies>
+     * </dependencyManagement>
+     * <dependencies>
+     * <dependency>
+     * <groupId>org.junit.jupiter</groupId>
+     * <artifactId>junit-jupiter</artifactId>
+     * </dependency>
+     * </dependencies>
      * ----
-     *
+     * <p>
      * a dependency `org.junit.jupiter:junit-jupiter:5.7.1` with scope `test` will be returned.
-     *
+     * <p>
      * TODO: tests...
      * - with all scopes
      * - Managed versions with type and classifier given
@@ -229,7 +228,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         // FIXME: #7 use getPom().getDependencies() instead ?
         List<Dependency> declaredDependenciesWithEffectiveVersions = requestedDependencies.stream()
                 .filter(d -> {
-                    if(scopes.length == 0) {
+                    if (scopes.length == 0) {
                         return true;
                     } else {
                         // FIXME: scope test should also return compile!
@@ -246,7 +245,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * TODO: #497 Test with declared and transitive dependencies
      */
     @Override
@@ -274,7 +273,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     /**
      * Removes all dependencies matching given regex.
-     *
+     * <p>
      * Example: {@code "com\\.acme\\:artifact\\.id\\:.*"} matches all versions of {@code com.acme:artifact.id}
      *
      * @param regex varargs matching dependency coordinates `groupId:artifactId:version`
@@ -301,7 +300,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .version(calculateVersion(d))
                 .scope(calculateScope(d))
                 .type(d.getType());
-        if(d.getExclusions() != null && ! d.getExclusions().isEmpty()) {
+        if (d.getExclusions() != null && !d.getExclusions().isEmpty()) {
             dependencyBuilder.exclusions(d.getExclusions().stream()
                     .map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build())
                     .collect(Collectors.toList()));
@@ -311,11 +310,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     private String calculateScope(org.openrewrite.maven.tree.Dependency d) {
         String scope = null;
-        if(d.getScope() != null) {
+        if (d.getScope() != null) {
             scope = d.getScope();
         } else {
             Scope managedScope = getPom().getPom().getManagedScope(d.getGroupId(), d.getArtifactId(), null, null);
-            if(managedScope != null) {
+            if (managedScope != null) {
                 scope = managedScope.name().toLowerCase();
             }
         }
@@ -324,11 +323,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     private String calculateVersion(org.openrewrite.maven.tree.Dependency d) {
         String version = null;
-        if(d.getVersion() != null) {
+        if (d.getVersion() != null) {
             version = d.getVersion();
         } else {
             String managedVersion = getPom().getPom().getManagedVersion(d.getGroupId(), d.getArtifactId(), null, null);
-            if(managedVersion != null) {
+            if (managedVersion != null) {
                 version = managedVersion;
             }
         }
@@ -336,7 +335,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     private org.springframework.sbm.build.api.Dependency mapDependency(Scope scope, ResolvedDependency d) {
-       return new Dependency(
+        return new Dependency(
                 d.getGroupId(),
                 d.getArtifactId(),
                 d.getVersion(),
@@ -347,7 +346,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                         .stream()
                         .map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build())
                         .collect(Collectors.toList())
-                );
+        );
     }
 
     public void addDependencyInner(Dependency dependency) {
@@ -476,11 +475,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     private Dependency getDependency(ResolvedManagedDependency d) {
         return Dependency.builder()
-            .groupId(d.getGroupId())
-            .artifactId(d.getArtifactId())
-            .version(d.getVersion())
-            .scope(scopeString(d.getScope()))
-            .build();
+                .groupId(d.getGroupId())
+                .artifactId(d.getArtifactId())
+                .version(d.getVersion())
+                .scope(scopeString(d.getScope()))
+                .build();
     }
 
     @Override
@@ -622,7 +621,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     @Override
     public String getPackaging() {
         String packaging = getPom().getPom().getPackaging();
-        if(packaging == null) {
+        if (packaging == null) {
             packaging = "jar";
         }
         return packaging;
@@ -732,6 +731,36 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                         .snapshotsEnabled(r.isSnapshots())
                         .build()
                 ).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RepositoryDefinition> getPluginRepositories() {
+
+
+        Optional<Xml.Tag> pluginRepositories = getSourceFile()
+                .getRoot()
+                .getChild("pluginRepositories");
+
+        if (pluginRepositories.isPresent()) {
+
+            List<Xml.Tag> pluginRepository = pluginRepositories.get().getChildren("pluginRepository");
+
+            return pluginRepository
+                    .stream()
+                    .map(k -> RepositoryDefinition.builder()
+                            .url(getValue(k.getChild("url")))
+                            .build()
+                    )
+                    .collect(Collectors.toList());
+        }
+
+
+        return List.of();
+    }
+
+    private String getValue(Optional<Xml.Tag> url) {
+
+        return url.flatMap(Xml.Tag::getValue).orElse(null);
     }
 
     private boolean anyRegexMatchesCoordinate(Plugin p, String... regex) {

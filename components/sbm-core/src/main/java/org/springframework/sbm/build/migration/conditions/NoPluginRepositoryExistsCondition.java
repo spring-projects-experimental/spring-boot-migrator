@@ -39,7 +39,8 @@ public class NoPluginRepositoryExistsCondition implements Condition {
     public boolean evaluate(ProjectContext context) {
         // if name is set and repo
 
-        return !context.getBuildFile().getRepositories().stream()
+        return !context.getBuildFile()
+                .getPluginRepositories().stream()
                 .anyMatch(this::urlsAreEqual);
     }
 
