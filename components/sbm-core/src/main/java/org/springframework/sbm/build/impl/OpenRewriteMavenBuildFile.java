@@ -655,12 +655,16 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public List<RepositoryDefinition> getPluginRepositories() {
-        return getSourceFile().getRoot().getChild(PLUGIN_REPOSITORIES).map(t -> t.getChildren(PLUGIN_REPOSITORY)).orElse(List.of()).stream().map(k -> RepositoryDefinition.builder().url(getValue(k.getChild("url"))).build()).collect(Collectors.toList());
-    }
-
-    private String getValue(Optional<Xml.Tag> url) {
-
-        return url.flatMap(Xml.Tag::getValue).orElse(null);
+        return getSourceFile()
+                .getRoot()
+                .getChild(PLUGIN_REPOSITORIES)
+                .map(t -> t.getChildren(PLUGIN_REPOSITORY))
+                .orElse(List.of())
+                .stream()
+                .map(k -> k.getChild("url"))
+                .map(k -> k.orElseThrow(() -> new RuntimeException("url is not set for plugin repository")).getValue())
+                .map(k -> k.orElseThrow(() -> new RuntimeException("url value is not set")))
+                .map(k -> RepositoryDefinition.builder().url(k).build()).collect(Collectors.toList());
     }
 
     private boolean anyRegexMatchesCoordinate(Plugin p, String... regex) {
