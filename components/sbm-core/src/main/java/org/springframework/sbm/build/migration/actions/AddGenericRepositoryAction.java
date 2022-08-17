@@ -43,6 +43,14 @@ public abstract class AddGenericRepositoryAction extends AbstractAction {
     public void apply(ProjectContext context) {
         RepositoryDefinition.RepositoryDefinitionBuilder builder = RepositoryDefinition.builder();
 
+        if (url == null) {
+            throw new IllegalArgumentException("url is a mandatory field");
+        }
+
+        if (id == null) {
+            throw new IllegalArgumentException("id is a mandatory field");
+        }
+
         builder.id(id)
                 .name(name)
                 .url(url);

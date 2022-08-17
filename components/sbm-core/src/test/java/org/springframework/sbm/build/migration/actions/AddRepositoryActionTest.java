@@ -23,6 +23,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Test adding a Repository to a pom.xml")
 class AddRepositoryActionTest {
@@ -242,6 +243,25 @@ class AddRepositoryActionTest {
                     "</project>");
         }
 
+        @Test
+        void shouldThrowExceptionForMissingURLMandatoryAttributes() {
+            AddRepositoryAction sut = new AddRepositoryAction();
+            sut.setId("myId");
+
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> sut.apply(context));
+
+            assertThat(thrown.getMessage()).isEqualTo("url is a mandatory field");
+        }
+
+        @Test
+        void shouldThrowExceptionForMissingIdMandatoryAttributes() {
+            AddRepositoryAction sut = new AddRepositoryAction();
+            sut.setUrl("www.google.com");
+
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> sut.apply(context));
+
+            assertThat(thrown.getMessage()).isEqualTo("id is a mandatory field");
+        }
 
     }
 }
