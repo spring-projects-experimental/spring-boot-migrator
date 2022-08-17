@@ -41,19 +41,37 @@ public class CommonsMultipartResolverSectionBuilder implements Sbu30_UpgradeSect
     @Override
     public Section build(ProjectContext projectContext) {
         List<MatchingMethod> matchingMethods = finder.findMatches(projectContext);
+
+
+
         return ChangeSection.RelevantChangeSection.builder()
                 .title("`CommonsMultipartResolver` support has been removed")
                 .paragraph("Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6")
                 .relevanceSection()
-                .paragraph("The scan found bean declarations of type `CommonsMultipartResolver`")
+                .paragraph("The scan found bean declarations of type `CommonsMultipartResolver`.")
                 .todoSection()
-                .todoList(
-                        TodoList.builder()
-                                .todo(
-                                        TodoList.Todo.builder()
-                                                .text("Remove beans of type `CommonsMultipartResolver` and rely on Spring Boot auto-configuration")
-                                                .build()
-                                )
+                .paragraph("Remove beans of type `CommonsMultipartResolver` and rely on Spring Boot auto-configuration")
+                .todoList(this.buildTodoList(matchingMethods))
+                .build();
+    }
+
+    private TodoList buildTodoList(List<MatchingMethod> matchingMethods) {
+        TodoList.TodoListBuilder todoListBuilder = TodoList.builder();
+        matchingMethods.forEach(m -> {
+            todoListBuilder.todo(
+                    TodoList.Todo.builder()
+                            .text(String.format("Remove from class `%s`", m.getType().getFullyQualifiedName()))
+                            .build()
+            );
+        });
+        return todoListBuilder.build();
+    }
+
+    private TodoList createTodo(String s) {
+        return TodoList.builder()
+                .todo(
+                        TodoList.Todo.builder()
+                                .text(String.format("Remove from class `%s`", s))
                                 .build()
                 )
                 .build();

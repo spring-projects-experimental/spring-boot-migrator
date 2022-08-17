@@ -68,19 +68,5 @@ apply boot-2.4-2.5-upgrade-report
 
 == Relevant Changes
 
-<#if changeSections?has_content>
-<#list changeSections as changeSection>
-=== ${changeSection.title}
-<@p.paragraph changeSection.paragraphs/>
-<#if changeSection.relevanceSection?has_content>
-<@relevance.relevance changeSection.relevanceSection/>
-</#if>
-<#if changeSection.todoSection?has_content>
-<@todo.todos changeSection.todoSection/>
-</#if>
-
-
-</#list>
-<#else>
-No Changes found.
-</#if>
+<#-- Bad practice? How to import another rendered template? -->
+<#include "section.ftl"/>
