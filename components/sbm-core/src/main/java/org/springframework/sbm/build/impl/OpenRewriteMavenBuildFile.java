@@ -100,15 +100,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                     }
                 }
                 MavenParser mavenParser = MavenParser.builder().build();
-                List<Parser.Input> parserInput = mavenFiles.stream()
-                        .map(m -> new Parser.Input(
-                                        m.getSourcePath(),
-                                        null,
-                                        () -> new ByteArrayInputStream(m.printAll().getBytes(StandardCharsets.UTF_8)),
-                                        !Files.exists(m.getSourcePath())
-                                )
-                        )
-                        .collect(Collectors.toList());
+                List<Parser.Input> parserInput = mavenFiles.stream().map(m -> new Parser.Input(m.getSourcePath(), null, () -> new ByteArrayInputStream(m.printAll().getBytes(StandardCharsets.UTF_8)), !Files.exists(m.getSourcePath()))).collect(Collectors.toList());
                 List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx);
 
                 for (int i = 0; i < newMavenFiles.size(); i++) {
@@ -179,15 +171,12 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public boolean hasDeclaredDependencyMatchingRegex(String... regex) {
-        return getDeclaredDependencies().stream()
-                .map(d -> d.getCoordinates())
-                .anyMatch(dc -> Arrays.stream(regex).anyMatch(r -> dc.matches(r)));
+        return getDeclaredDependencies().stream().map(d -> d.getCoordinates()).anyMatch(dc -> Arrays.stream(regex).anyMatch(r -> dc.matches(r)));
     }
 
     @Override
     public boolean hasExactDeclaredDependency(Dependency dependency) {
-        return getDeclaredDependencies().stream()
-                .anyMatch(d -> d.equals(dependency));
+        return getDeclaredDependencies().stream().anyMatch(d -> d.equals(dependency));
     }
 
     /**
@@ -228,42 +217,33 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         // returns dependencies as declared in xml
         List<org.openrewrite.maven.tree.Dependency> requestedDependencies = getPom().getPom().getRequestedDependencies();
         // FIXME: #7 use getPom().getDependencies() instead ?
-        List<Dependency> declaredDependenciesWithEffectiveVersions = requestedDependencies.stream()
-                .filter(d -> {
-                    if (scopes.length == 0) {
-                        return true;
-                    } else {
-                        // FIXME: scope test should also return compile!
-                        return Arrays.asList(scopes).stream().anyMatch(scope -> {
-                            String effectiveScope = d.getScope() == null ? "compile" : d.getScope();
-                            return scope.toString().equalsIgnoreCase(effectiveScope);
-                        });
-                    }
-                })
-                .map(d -> mapDependency(d))
-                .collect(Collectors.toList());
+        List<Dependency> declaredDependenciesWithEffectiveVersions = requestedDependencies.stream().filter(d -> {
+            if (scopes.length == 0) {
+                return true;
+            } else {
+                // FIXME: scope test should also return compile!
+                return Arrays.asList(scopes).stream().anyMatch(scope -> {
+                    String effectiveScope = d.getScope() == null ? "compile" : d.getScope();
+                    return scope.toString().equalsIgnoreCase(effectiveScope);
+                });
+            }
+        }).map(d -> mapDependency(d)).collect(Collectors.toList());
         return declaredDependenciesWithEffectiveVersions;
     }
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * TODO: #497 Test with declared and transitive dependencies
      */
     @Override
     public Set<Dependency> getEffectiveDependencies(Scope scope) {
-        return getPom().getDependencies().get(scope)
-                .stream()
-                .map(d -> mapDependency(scope, d))
-                .collect(Collectors.toSet());
+        return getPom().getDependencies().get(scope).stream().map(d -> mapDependency(scope, d)).collect(Collectors.toSet());
     }
 
     @Override
     public Set<Dependency> getEffectiveDependencies() {
-        return getPom().getDependencies().entrySet()
-                .stream()
-                .flatMap(e -> e.getValue().stream().map(v -> mapDependency(e.getKey(), v)))
-                .collect(Collectors.toSet());
+        return getPom().getDependencies().entrySet().stream().flatMap(e -> e.getValue().stream().map(v -> mapDependency(e.getKey(), v))).collect(Collectors.toSet());
     }
 
     @Override
@@ -275,16 +255,14 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     /**
      * Removes all dependencies matching given regex.
-     * <p>
+     *
      * Example: {@code "com\\.acme\\:artifact\\.id\\:.*"} matches all versions of {@code com.acme:artifact.id}
      *
      * @param regex varargs matching dependency coordinates `groupId:artifactId:version`
      */
     @Override
     public void removeDependenciesMatchingRegex(String... regex) {
-        List<Dependency> dependenciesMatching = getDeclaredDependencies().stream()
-                .filter(c -> Arrays.stream(regex).anyMatch(r -> c.getCoordinates().matches(r)))
-                .collect(Collectors.toList());
+        List<Dependency> dependenciesMatching = getDeclaredDependencies().stream().filter(c -> Arrays.stream(regex).anyMatch(r -> c.getCoordinates().matches(r))).collect(Collectors.toList());
         removeDependenciesInner(dependenciesMatching);
         eventPublisher.publishEvent(new DependenciesChangedEvent(getResolvedDependenciesPaths()));
     }
@@ -296,16 +274,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     private org.springframework.sbm.build.api.Dependency mapDependency(org.openrewrite.maven.tree.Dependency d) {
-        Dependency.DependencyBuilder dependencyBuilder = Dependency.builder()
-                .groupId(d.getGroupId())
-                .artifactId(d.getArtifactId())
-                .version(calculateVersion(d))
-                .scope(calculateScope(d))
-                .type(d.getType());
+        Dependency.DependencyBuilder dependencyBuilder = Dependency.builder().groupId(d.getGroupId()).artifactId(d.getArtifactId()).version(calculateVersion(d)).scope(calculateScope(d)).type(d.getType());
         if (d.getExclusions() != null && !d.getExclusions().isEmpty()) {
-            dependencyBuilder.exclusions(d.getExclusions().stream()
-                    .map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build())
-                    .collect(Collectors.toList()));
+            dependencyBuilder.exclusions(d.getExclusions().stream().map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build()).collect(Collectors.toList()));
         }
         return dependencyBuilder.build();
     }
@@ -337,18 +308,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     private org.springframework.sbm.build.api.Dependency mapDependency(Scope scope, ResolvedDependency d) {
-        return new Dependency(
-                d.getGroupId(),
-                d.getArtifactId(),
-                d.getVersion(),
-                d.getType(),
-                scope.name(),
-                d.getClassifier(),
-                d.getRequested().getExclusions()
-                        .stream()
-                        .map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build())
-                        .collect(Collectors.toList())
-        );
+        return new Dependency(d.getGroupId(), d.getArtifactId(), d.getVersion(), d.getType(), scope.name(), d.getClassifier(), d.getRequested().getExclusions().stream().map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build()).collect(Collectors.toList()));
     }
 
     public void addDependencyInner(Dependency dependency) {
@@ -367,10 +327,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             dependencies.stream().skip(1).forEach(d -> r.doNext(getAddDependencyRecipe(d)));
             apply(r);
             apply(new RefreshPomModel());
-            List<Dependency> exclusions = dependencies.stream()
-                    .filter(not(d -> d.getExclusions().isEmpty()))
-                    .flatMap(d -> d.getExclusions().stream())
-                    .collect(Collectors.toList());
+            List<Dependency> exclusions = dependencies.stream().filter(not(d -> d.getExclusions().isEmpty())).flatMap(d -> d.getExclusions().stream()).collect(Collectors.toList());
 
             excludeDependenciesInner(exclusions);
 
@@ -400,8 +357,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     private boolean hasEffectiveDependency(Dependency d) {
-        return getEffectiveDependencies().stream()
-                .anyMatch(dep -> d.getCoordinates().equals(dep.getCoordinates()));
+        return getEffectiveDependencies().stream().anyMatch(dep -> d.getCoordinates().equals(dep.getCoordinates()));
     }
 
     /**
@@ -421,27 +377,14 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         ClasspathRegistry instance = ClasspathRegistry.getInstance();
         // FIXME: removed dependencies must be removed from ProjectDependenciesRegistry too
         Set<ResolvedDependency> compileDependencies = new HashSet<>(getPom().getDependencies().get(Scope.Compile));
-        Set<ResolvedDependency> testDependencies = getPom().getDependencies().get(Scope.Test)
-                .stream()
-                .flatMap(d -> d.getDependencies().stream())
-                .collect(Collectors.toSet());
+        Set<ResolvedDependency> testDependencies = getPom().getDependencies().get(Scope.Test).stream().flatMap(d -> d.getDependencies().stream()).collect(Collectors.toSet());
         compileDependencies.addAll(testDependencies);
         compileDependencies.forEach(instance::addDependency);
     }
 
     private Recipe getAddDependencyRecipe(Dependency dependency) {
 
-        AddDependencyVisitor addDependencyVisitor = new AddDependencyVisitor(
-                dependency.getGroupId(),
-                dependency.getArtifactId(),
-                dependency.getVersion(),
-                null,
-                dependency.getScope() == null ? "compile" : dependency.getScope(),
-                false,
-                dependency.getType(),
-                dependency.getClassifier(),
-                false,
-                null);
+        AddDependencyVisitor addDependencyVisitor = new AddDependencyVisitor(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion(), null, dependency.getScope() == null ? "compile" : dependency.getScope(), false, dependency.getType(), dependency.getClassifier(), false, null);
 
         return new GenericOpenRewriteRecipe<AddDependencyVisitor>(() -> addDependencyVisitor);
     }
@@ -469,19 +412,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         if (pom.getPom().getDependencyManagement() == null) {
             return Collections.emptyList();
         }
-        return pom.getPom().getDependencyManagement().stream()
-                .map(this::getDependency)
-                .distinct()
-                .collect(Collectors.toList());
+        return pom.getPom().getDependencyManagement().stream().map(this::getDependency).distinct().collect(Collectors.toList());
     }
 
     private Dependency getDependency(ResolvedManagedDependency d) {
-        return Dependency.builder()
-                .groupId(d.getGroupId())
-                .artifactId(d.getArtifactId())
-                .version(d.getVersion())
-                .scope(scopeString(d.getScope()))
-                .build();
+        return Dependency.builder().groupId(d.getGroupId()).artifactId(d.getArtifactId()).version(d.getVersion()).scope(scopeString(d.getScope())).build();
     }
 
     @Override
@@ -498,9 +433,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     @Override
     public List<Path> getResolvedDependenciesPaths() {
         RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader = new RewriteMavenArtifactDownloader();
-        return getPom().getDependencies().get(Scope.Provided).stream()
-                .map(rewriteMavenArtifactDownloader::downloadArtifact)
-                .collect(Collectors.toList());
+        return getPom().getDependencies().get(Scope.Provided).stream().map(rewriteMavenArtifactDownloader::downloadArtifact).collect(Collectors.toList());
 
 /*
         Field classpathField = ReflectionUtils.findField(Java11Parser.class, "classpath");
@@ -557,19 +490,13 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public boolean hasPlugin(Plugin plugin) {
         // TODO: [FK] discuss how to handle conditions. This code is exactly the same as in #AddMavenPluginVisitor.pluginDefinitionExists(Maven.Pom pom) which is private and the test would repeat the test for AddMavenPluginVisitor
         Xml.Document sourceFile = getSourceFile();
-        Optional<Xml.Tag> pluginDefinition = sourceFile.getRoot().getChildren("build").stream()
-                .flatMap(b -> b.getChildren("plugins").stream())
-                .flatMap(b -> b.getChildren("plugin").stream())
-                .filter(p -> p.getChildren("groupId") != null && !p.getChildren("groupId").isEmpty())
-                .filter(p -> {
-                    String groupId = ((Xml.CharData) p.getChildren("groupId").get(0).getContent().get(0)).getText();
-                    return plugin.getGroupId().equals(groupId);
-                })
-                .filter(p -> {
-                    String artifactId = ((Xml.CharData) p.getChildren("artifactId").get(0).getContent().get(0)).getText();
-                    return plugin.getArtifactId().equals(artifactId);
-                })
-                .findFirst();
+        Optional<Xml.Tag> pluginDefinition = sourceFile.getRoot().getChildren("build").stream().flatMap(b -> b.getChildren("plugins").stream()).flatMap(b -> b.getChildren("plugin").stream()).filter(p -> p.getChildren("groupId") != null && !p.getChildren("groupId").isEmpty()).filter(p -> {
+            String groupId = ((Xml.CharData) p.getChildren("groupId").get(0).getContent().get(0)).getText();
+            return plugin.getGroupId().equals(groupId);
+        }).filter(p -> {
+            String artifactId = ((Xml.CharData) p.getChildren("artifactId").get(0).getContent().get(0)).getText();
+            return plugin.getArtifactId().equals(artifactId);
+        }).findFirst();
         return pluginDefinition.isPresent();
     }
 
@@ -671,9 +598,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public void upgradeParentVersion(String version) {
         if (hasParent()) {
             @Nullable Parent parent = getPom().getPom().getRequested().getParent();
-            apply(
-                    new UpgradeParentVersion(parent.getGroupId(), parent.getArtifactId(), version, null)
-            );
+            apply(new UpgradeParentVersion(parent.getGroupId(), parent.getArtifactId(), version, null));
 //            List<Xml.Document> parse = MavenParser.builder().build().parseInputs(List.of(new Parser.Input(getAbsolutePath(), () -> new ByteArrayInputStream(print().getBytes(StandardCharsets.UTF_8)))), getAbsoluteProjectDir(), executionContext);
 //            replaceWith(parse.get(0));
         }
@@ -725,26 +650,12 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public List<RepositoryDefinition> getRepositories() {
-        return getPom().getPom().getRepositories().stream()
-                .map(r -> RepositoryDefinition.builder()
-                        .name(r.getId())
-                        .url(r.getUri())
-                        .releasesEnabled(r.isReleases())
-                        .snapshotsEnabled(r.isSnapshots())
-                        .build()
-                ).collect(Collectors.toList());
+        return getPom().getPom().getRepositories().stream().map(r -> RepositoryDefinition.builder().name(r.getId()).url(r.getUri()).releasesEnabled(r.isReleases()).snapshotsEnabled(r.isSnapshots()).build()).collect(Collectors.toList());
     }
 
     @Override
     public List<RepositoryDefinition> getPluginRepositories() {
-        return getSourceFile()
-                .getRoot()
-                .getChild(PLUGIN_REPOSITORIES)
-                .map(t -> t.getChildren(PLUGIN_REPOSITORY))
-                .orElse(List.of())
-                .stream()
-                .map(k -> RepositoryDefinition.builder().url(getValue(k.getChild("url"))).build())
-                .collect(Collectors.toList());
+        return getSourceFile().getRoot().getChild(PLUGIN_REPOSITORIES).map(t -> t.getChildren(PLUGIN_REPOSITORY)).orElse(List.of()).stream().map(k -> RepositoryDefinition.builder().url(getValue(k.getChild("url"))).build()).collect(Collectors.toList());
     }
 
     private String getValue(Optional<Xml.Tag> url) {
@@ -774,9 +685,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                     Optional<Xml.Tag> pluginTags = buildTag.getChild("plugins");
                     if (pluginTags.isPresent()) {
                         List<Xml.Tag> plugin = pluginTags.get().getChildren("plugin");
-                        List<Plugin> pluginList = plugin.stream()
-                                .map(this::mapToPlugin)
-                                .collect(Collectors.toList());
+                        List<Plugin> pluginList = plugin.stream().map(this::mapToPlugin).collect(Collectors.toList());
                         plugins.addAll(pluginList);
                     }
                 }
@@ -806,10 +715,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
      */
     @Override
     public void removePluginsMatchingRegex(String... regex) {
-        List<String> coordinates = getPlugins().stream()
-                .filter(p -> this.anyRegexMatchesCoordinate(p, regex))
-                .map(p -> p.getGroupId() + ":" + p.getArtifactId())
-                .collect(Collectors.toList());
+        List<String> coordinates = getPlugins().stream().filter(p -> this.anyRegexMatchesCoordinate(p, regex)).map(p -> p.getGroupId() + ":" + p.getArtifactId()).collect(Collectors.toList());
         if (!coordinates.isEmpty()) {
             removePlugins(coordinates.toArray(new String[]{}));
         }
