@@ -655,12 +655,13 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public List<RepositoryDefinition> getPluginRepositories() {
-        return getSourceFile()
+        List<Xml.Tag> tags = getSourceFile()
                 .getRoot()
                 .getChild(PLUGIN_REPOSITORIES)
                 .map(t -> t.getChildren(PLUGIN_REPOSITORY))
-                .orElse(List.of())
-                .stream()
+                .orElse(List.of());
+
+        return tags.stream()
                 .map(k -> k.getChild("url"))
                 .map(k -> k.orElseThrow(() -> new RuntimeException("url is not set for plugin repository")).getValue())
                 .map(k -> k.orElseThrow(() -> new RuntimeException("url value is not set")))
