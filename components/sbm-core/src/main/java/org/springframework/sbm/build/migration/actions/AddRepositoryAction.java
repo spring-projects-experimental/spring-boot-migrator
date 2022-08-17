@@ -16,6 +16,7 @@
 package org.springframework.sbm.build.migration.actions;
 
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.sbm.build.api.RepositoryDefinition;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
@@ -26,7 +27,9 @@ import org.springframework.sbm.engine.recipe.AbstractAction;
 @Setter
 public class AddRepositoryAction extends AbstractAction {
 
+    @NotNull
     private String id;
+    @NotNull
     private String url;
     private String name;
     private String layout;
