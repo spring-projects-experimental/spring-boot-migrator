@@ -17,14 +17,12 @@
 package org.springframework.sbm.build.migration.conditions;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
-class NoRepositoryExistsConditionTest {
+class NoPluginRepositoryExistsConditionTest {
 
     @Test
     void repositoryWithSameUrlAndSnapshotsAndReleasesNotSet() {
@@ -38,20 +36,20 @@ class NoRepositoryExistsConditionTest {
                         "    <artifactId>artifact</artifactId>\n" +
                         "    <version>0.11.2-SNAPSHOT</version>\n" +
                         "    <packaging>jar</packaging>\n" +
-                        "    <repositories>\n" +
-                        "        <repository>\n" +
+                        "    <pluginRepositories>\n" +
+                        "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
-                        "        </repository>\n" +
-                        "    </repositories>\n" +
+                        "        </pluginRepository>\n" +
+                        "    </pluginRepositories>\n" +
                         "</project>";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build();
 
-        NoRepositoryExistsCondition noRepositoryExistsCondition = new NoRepositoryExistsCondition();
-        noRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
-        boolean noRepositoryExists = noRepositoryExistsCondition.evaluate(context);
+        NoPluginRepositoryExistsCondition noPluginRepositoryExistsCondition = new NoPluginRepositoryExistsCondition();
+        noPluginRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
+        boolean noRepositoryExists = noPluginRepositoryExistsCondition.evaluate(context);
 
         assertThat(noRepositoryExists).isFalse();
     }
@@ -68,23 +66,23 @@ class NoRepositoryExistsConditionTest {
                         "    <artifactId>artifact</artifactId>\n" +
                         "    <version>0.11.2-SNAPSHOT</version>\n" +
                         "    <packaging>jar</packaging>\n" +
-                        "    <repositories>\n" +
-                        "        <repository>\n" +
+                        "    <pluginRepositories>\n" +
+                        "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
                         "            <snapshots>\n" +
                         "                <enabled>false</enabled>\n" +
                         "            </snapshots>\n" +
-                        "        </repository>\n" +
-                        "    </repositories>\n" +
+                        "        </pluginRepository>\n" +
+                        "    </pluginRepositories>\n" +
                         "</project>";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build();
 
-        NoRepositoryExistsCondition noRepositoryExistsCondition = new NoRepositoryExistsCondition();
-        noRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
-        boolean noRepositoryExists = noRepositoryExistsCondition.evaluate(context);
+        NoPluginRepositoryExistsCondition NoPluginRepositoryExistsCondition = new NoPluginRepositoryExistsCondition();
+        NoPluginRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
+        boolean noRepositoryExists = NoPluginRepositoryExistsCondition.evaluate(context);
 
         assertThat(noRepositoryExists).isFalse();
     }
@@ -101,23 +99,23 @@ class NoRepositoryExistsConditionTest {
                         "    <artifactId>artifact</artifactId>\n" +
                         "    <version>0.11.2-SNAPSHOT</version>\n" +
                         "    <packaging>jar</packaging>\n" +
-                        "    <repositories>\n" +
-                        "        <repository>\n" +
+                        "    <pluginRepositories>\n" +
+                        "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
                         "            <snapshots>\n" +
                         "                <enabled>true</enabled>\n" +
                         "            </snapshots>\n" +
-                        "        </repository>\n" +
-                        "    </repositories>\n" +
+                        "        </pluginRepository>\n" +
+                        "    </pluginRepositories>\n" +
                         "</project>";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build();
 
-        NoRepositoryExistsCondition noRepositoryExistsCondition = new NoRepositoryExistsCondition();
-        noRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
-        boolean noRepositoryExists = noRepositoryExistsCondition.evaluate(context);
+        NoPluginRepositoryExistsCondition NoPluginRepositoryExistsCondition = new NoPluginRepositoryExistsCondition();
+        NoPluginRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
+        boolean noRepositoryExists = NoPluginRepositoryExistsCondition.evaluate(context);
 
         assertThat(noRepositoryExists).isFalse();
     }
@@ -134,23 +132,23 @@ class NoRepositoryExistsConditionTest {
                         "    <artifactId>artifact</artifactId>\n" +
                         "    <version>0.11.2-SNAPSHOT</version>\n" +
                         "    <packaging>jar</packaging>\n" +
-                        "    <repositories>\n" +
-                        "        <repository>\n" +
+                        "    <pluginRepositories>\n" +
+                        "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
                         "            <releases>\n" +
                         "                <enabled>true</enabled>\n" +
                         "            </releases>\n" +
-                        "        </repository>\n" +
-                        "    </repositories>\n" +
+                        "        </pluginRepository>\n" +
+                        "    </pluginRepositories>\n" +
                         "</project>";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build();
 
-        NoRepositoryExistsCondition noRepositoryExistsCondition = new NoRepositoryExistsCondition();
-        noRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
-        boolean noRepositoryExists = noRepositoryExistsCondition.evaluate(context);
+        NoPluginRepositoryExistsCondition NoPluginRepositoryExistsCondition = new NoPluginRepositoryExistsCondition();
+        NoPluginRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
+        boolean noRepositoryExists = NoPluginRepositoryExistsCondition.evaluate(context);
 
         assertThat(noRepositoryExists).isFalse();
     }
@@ -167,23 +165,23 @@ class NoRepositoryExistsConditionTest {
                         "    <artifactId>artifact</artifactId>\n" +
                         "    <version>0.11.2-SNAPSHOT</version>\n" +
                         "    <packaging>jar</packaging>\n" +
-                        "    <repositories>\n" +
-                        "        <repository>\n" +
+                        "    <pluginRepositories>\n" +
+                        "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
                         "            <releases>\n" +
                         "                <enabled>false</enabled>\n" +
                         "            </releases>\n" +
-                        "        </repository>\n" +
-                        "    </repositories>\n" +
+                        "        </pluginRepository>\n" +
+                        "    </pluginRepositories>\n" +
                         "</project>";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build();
 
-        NoRepositoryExistsCondition noRepositoryExistsCondition = new NoRepositoryExistsCondition();
-        noRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
-        boolean noRepositoryExists = noRepositoryExistsCondition.evaluate(context);
+        NoPluginRepositoryExistsCondition NoPluginRepositoryExistsCondition = new NoPluginRepositoryExistsCondition();
+        NoPluginRepositoryExistsCondition.setUrl("https://repo.spring.io/milestone");
+        boolean noRepositoryExists = NoPluginRepositoryExistsCondition.evaluate(context);
 
         assertThat(noRepositoryExists).isFalse();
     }
@@ -200,20 +198,20 @@ class NoRepositoryExistsConditionTest {
                         "    <artifactId>artifact</artifactId>\n" +
                         "    <version>0.11.2-SNAPSHOT</version>\n" +
                         "    <packaging>jar</packaging>\n" +
-                        "    <repositories>\n" +
-                        "        <repository>\n" +
+                        "    <pluginRepositories>\n" +
+                        "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
-                        "        </repository>\n" +
-                        "    </repositories>\n" +
+                        "        </pluginRepository>\n" +
+                        "    </pluginRepositories>\n" +
                         "</project>";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build();
 
-        NoRepositoryExistsCondition noRepositoryExistsCondition = new NoRepositoryExistsCondition();
-        noRepositoryExistsCondition.setUrl("https://repo.spring.io/different");
-        boolean noRepositoryExists = noRepositoryExistsCondition.evaluate(context);
+        NoPluginRepositoryExistsCondition NoPluginRepositoryExistsCondition = new NoPluginRepositoryExistsCondition();
+        NoPluginRepositoryExistsCondition.setUrl("https://repo.spring.io/different");
+        boolean noRepositoryExists = NoPluginRepositoryExistsCondition.evaluate(context);
 
         assertThat(noRepositoryExists).isTrue();
     }
@@ -230,22 +228,22 @@ class NoRepositoryExistsConditionTest {
                         "    <artifactId>artifact</artifactId>\n" +
                         "    <version>0.11.2-SNAPSHOT</version>\n" +
                         "    <packaging>jar</packaging>\n" +
-                        "    <repositories>\n" +
-                        "        <repository>\n" +
+                        "    <pluginRepositories>\n" +
+                        "        <pluginRepository>\n" +
                         "            <id>repository.spring.milestone</id>\n" +
                         "            <name>Spring Milestone Repository</name>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
-                        "        </repository>\n" +
-                        "    </repositories>\n" +
+                        "        </pluginRepository>\n" +
+                        "    </pluginRepositories>\n" +
                         "</project>";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build();
 
-        NoRepositoryExistsCondition noRepositoryExistsCondition = new NoRepositoryExistsCondition();
-        noRepositoryExistsCondition.setUrl("https://repo.spring.io/different");
-        boolean noRepositoryExists = noRepositoryExistsCondition.evaluate(context);
+        NoPluginRepositoryExistsCondition NoPluginRepositoryExistsCondition = new NoPluginRepositoryExistsCondition();
+        NoPluginRepositoryExistsCondition.setUrl("https://repo.spring.io/different");
+        boolean noRepositoryExists = NoPluginRepositoryExistsCondition.evaluate(context);
 
         assertThat(noRepositoryExists).isTrue();
     }
@@ -262,22 +260,22 @@ class NoRepositoryExistsConditionTest {
                         "    <artifactId>artifact</artifactId>\n" +
                         "    <version>0.11.2-SNAPSHOT</version>\n" +
                         "    <packaging>jar</packaging>\n" +
-                        "    <repositories>\n" +
-                        "        <repository>\n" +
+                        "    <pluginRepositories>\n" +
+                        "        <pluginRepository>\n" +
                         "            <id>repository.spring.milestone</id>\n" +
                         "            <name>Spring Milestone Repository</name>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
-                        "        </repository>\n" +
-                        "    </repositories>\n" +
+                        "        </pluginRepository>\n" +
+                        "    </pluginRepositories>\n" +
                         "</project>";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build();
 
-        NoRepositoryExistsCondition noRepositoryExistsCondition = new NoRepositoryExistsCondition();
-        noRepositoryExistsCondition.setUrl("https://repo.spring.io/different");
-        boolean noRepositoryExists = noRepositoryExistsCondition.evaluate(context);
+        NoPluginRepositoryExistsCondition NoPluginRepositoryExistsCondition = new NoPluginRepositoryExistsCondition();
+        NoPluginRepositoryExistsCondition.setUrl("https://repo.spring.io/different");
+        boolean noRepositoryExists = NoPluginRepositoryExistsCondition.evaluate(context);
 
         assertThat(noRepositoryExists).isTrue();
     }

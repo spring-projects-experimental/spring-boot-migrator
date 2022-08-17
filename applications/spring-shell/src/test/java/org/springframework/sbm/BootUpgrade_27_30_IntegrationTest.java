@@ -45,14 +45,18 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         applyRecipe("boot-2.7-3.0-dependency-version-update");
 
+        buildProject();
         verifyParentPomVersion();
-        verifyMicrometerPackageUpdate();
         verifyYamlConfigurationUpdate();
         verifyPropertyConfigurationUpdate();
         verifyConstructorBindingRemoval();
         verifyCrudRepoAddition();
         verifyAutoConfigurationIsRefactored();
         verifyEhCacheVersionIsUpgraded();
+    }
+
+    private void buildProject() {
+        executeMavenGoals(getTestDir(), "clean", "verify");
     }
 
     private void verifyEhCacheVersionIsUpgraded() {
@@ -141,19 +145,6 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                 "    }\n" +
                 "}" +
                 "\n");
-    }
-
-    private void verifyMicrometerPackageUpdate() {
-        String micrometerClass = loadFile(Path.of("src/main/java/org/springboot/example/upgrade/MicrometerConfig.java"));
-        assertThat(micrometerClass).isEqualTo(
-                "package org.springboot.example.upgrade;\n" +
-                "\n" +
-                "import io.micrometer.binder.MeterBinder;\n" +
-                "\n" +
-                "public class MicroMeterConfig {\n" +
-                "\n" +
-                "    private MeterBinder k;\n" +
-                "}\n");
     }
 
     private void verifyYamlConfigurationUpdate() {
