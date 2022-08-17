@@ -77,6 +77,8 @@ import static java.util.function.Predicate.not;
 @Slf4j
 public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Document> implements BuildFile {
 
+    public static final String PLUGIN_REPOSITORIES = "pluginRepositories";
+    public static final String PLUGIN_REPOSITORY = "pluginRepository";
     private final ApplicationEventPublisher eventPublisher;
 
     // TODO: #7 clarify if RefreshPomModel is still required?
@@ -735,27 +737,14 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public List<RepositoryDefinition> getPluginRepositories() {
-
-
-        Optional<Xml.Tag> pluginRepositories = getSourceFile()
+        return getSourceFile()
                 .getRoot()
-                .getChild("pluginRepositories");
-
-        if (pluginRepositories.isPresent()) {
-
-            List<Xml.Tag> pluginRepository = pluginRepositories.get().getChildren("pluginRepository");
-
-            return pluginRepository
-                    .stream()
-                    .map(k -> RepositoryDefinition.builder()
-                            .url(getValue(k.getChild("url")))
-                            .build()
-                    )
-                    .collect(Collectors.toList());
-        }
-
-
-        return List.of();
+                .getChild(PLUGIN_REPOSITORIES)
+                .map(t -> t.getChildren(PLUGIN_REPOSITORY))
+                .orElse(List.of())
+                .stream()
+                .map(k -> RepositoryDefinition.builder().url(getValue(k.getChild("url"))).build())
+                .collect(Collectors.toList());
     }
 
     private String getValue(Optional<Xml.Tag> url) {
