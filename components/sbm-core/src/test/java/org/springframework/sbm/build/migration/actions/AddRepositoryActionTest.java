@@ -263,6 +263,16 @@ class AddRepositoryActionTest {
 
             assertThat(thrown.getMessage()).isEqualTo("id is marked non-null but is null");
         }
+    }
 
+    @Test
+    public void shouldRefreshPomModel() {
+        ProjectContext context = TestProjectContext.buildProjectContext().build();
+        AddRepositoryAction sut = new AddRepositoryAction();
+        sut.setUrl("my url");
+        sut.setId("my id");
+        sut.apply(context);
+
+        assertThat(context.getBuildFile().getRepositories()).hasSize(1);
     }
 }

@@ -1,0 +1,20 @@
+---
+platform: linux
+
+inputs:
+  - name: git-repo
+  - name: maven-files
+  - name: .m2
+  - name: .rewrite-cache
+  - name: .rewrite
+
+outputs:
+  - name: maven-files
+    path: ~/target
+  - name: git-repo
+
+run:
+  path: /bin/sh
+  args:
+    - "-c"
+    - "cd git-repo && mvn failsafe:integration-test"

@@ -39,6 +39,7 @@ class NoPluginRepositoryExistsConditionTest {
                         "    <pluginRepositories>\n" +
                         "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
+                        "            <id>milestone</id>\n" +
                         "        </pluginRepository>\n" +
                         "    </pluginRepositories>\n" +
                         "</project>";
@@ -69,6 +70,7 @@ class NoPluginRepositoryExistsConditionTest {
                         "    <pluginRepositories>\n" +
                         "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
+                        "            <id>milestone</id>\n" +
                         "            <snapshots>\n" +
                         "                <enabled>false</enabled>\n" +
                         "            </snapshots>\n" +
@@ -102,6 +104,7 @@ class NoPluginRepositoryExistsConditionTest {
                         "    <pluginRepositories>\n" +
                         "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
+                        "            <id>milestone</id>\n" +
                         "            <snapshots>\n" +
                         "                <enabled>true</enabled>\n" +
                         "            </snapshots>\n" +
@@ -135,6 +138,7 @@ class NoPluginRepositoryExistsConditionTest {
                         "    <pluginRepositories>\n" +
                         "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
+                        "            <id>milestone</id>\n" +
                         "            <releases>\n" +
                         "                <enabled>true</enabled>\n" +
                         "            </releases>\n" +
@@ -168,6 +172,7 @@ class NoPluginRepositoryExistsConditionTest {
                         "    <pluginRepositories>\n" +
                         "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
+                        "            <id>milestone</id>\n" +
                         "            <releases>\n" +
                         "                <enabled>false</enabled>\n" +
                         "            </releases>\n" +
@@ -201,6 +206,7 @@ class NoPluginRepositoryExistsConditionTest {
                         "    <pluginRepositories>\n" +
                         "        <pluginRepository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
+                        "            <id>milestone</id>\n" +
                         "        </pluginRepository>\n" +
                         "    </pluginRepositories>\n" +
                         "</project>";
