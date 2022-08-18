@@ -28,11 +28,14 @@ public class Boot_27_30_UpgradeReplaceJohnzonDependencies extends AbstractAction
 
     @Override
     public void apply(ProjectContext context) {
+
         context.getApplicationModules()
                 .stream()
                 .map(ApplicationModule::getBuildFile)
-                .peek(bf -> bf.removeDependenciesMatchingRegex(JOHNZON_DEPENDENCY_PATTERN))
-                .forEach(bf -> bf.addDependency(Dependency.fromCoordinates(JOHNZON_DEPENDENCY)));
+                .forEach(bf -> {
+                    bf.removeDependenciesMatchingRegex(JOHNZON_DEPENDENCY_PATTERN);
+                    bf.addDependency(Dependency.fromCoordinates(JOHNZON_DEPENDENCY));
+                });
     }
 
     @Override
