@@ -241,7 +241,16 @@ class AddRepositoryActionTest {
                     "    </repositories>\n" +
                     "</project>");
         }
+    }
 
+    @Test
+    public void shouldRefreshPomModel() {
+        ProjectContext context = TestProjectContext.buildProjectContext().build();
+        AddRepositoryAction sut = new AddRepositoryAction();
+        sut.setUrl("my url");
+        sut.setId("my id");
+        sut.apply(context);
 
+        assertThat(context.getBuildFile().getRepositories()).hasSize(1);
     }
 }
