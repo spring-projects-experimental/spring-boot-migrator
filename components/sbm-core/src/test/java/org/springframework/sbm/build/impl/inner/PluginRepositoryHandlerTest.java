@@ -11,11 +11,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- TODO/think about:
- * should we validate url format ?
- * should we validate other fields layout, looks like enum
- */
 class PluginRepositoryHandlerTest {
 
     private final PluginRepositoryHandler sut = new PluginRepositoryHandler();
