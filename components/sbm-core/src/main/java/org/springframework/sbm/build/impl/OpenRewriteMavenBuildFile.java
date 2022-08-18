@@ -78,8 +78,6 @@ import static java.util.function.Predicate.not;
 @Slf4j
 public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Document> implements BuildFile {
 
-    public static final String PLUGIN_REPOSITORIES = "pluginRepositories";
-    public static final String PLUGIN_REPOSITORY = "pluginRepository";
     private final ApplicationEventPublisher eventPublisher;
     private PluginRepositoryHandler pluginRepositoryHandler = new PluginRepositoryHandler();
 
