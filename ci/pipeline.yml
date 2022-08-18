@@ -1,0 +1,187 @@
+---
+anchors:
+  git-repo-resource-source: &git-repo-resource-source
+    uri: ((github-repo-uri)) # https://github.com/spring-projects-experimental/spring-boot-migrator
+    username: ((github-repo-user)) # fabapp2
+    password: ((github-ci-release-token))
+    branch: ((branch))
+  registry-image-resource-source: &registry-image-resource-source
+    username: ((docker-hub-username))
+    password: ((docker-hub-password))
+    tag: ((milestone))
+    registry_mirror:
+      host: ((docker-hub-mirror))
+      username: ((docker-hub-mirror-username))
+      password: ((docker-hub-mirror-password))
+  docker-hub-mirror-vars: &docker-hub-mirror-vars
+    docker-hub-mirror: ((docker-hub-mirror))
+    docker-hub-mirror-username: ((docker-hub-mirror-username))
+    docker-hub-mirror-password: ((docker-hub-mirror-password))
+
+resource_types:
+  - name: registry-image
+    type: registry-image
+    source:
+      repository: concourse/registry-image-resource
+      tag: 1.5.0
+  - name: git-pull-request
+    type: docker-image
+    source:
+      repository: ((github-repo-name))
+  - name: pull-request
+    type: registry-image
+    source:
+      repository: teliaoss/github-pr-resource
+      tag: v0.23.0
+
+
+resources:
+# The ci dir in the repo, used to trigger an image build on change
+  - name: ci-images-git-repo
+    type: git
+    icon: github
+    source:
+      uri: ((github-repo-uri))
+      branch: ((branch))
+      paths: ["ci/images/*"]
+# The git repo
+  - name: git-repo
+    type: git
+    icon: github
+    source:
+      <<: *git-repo-resource-source
+# The image used to run the build
+  - name: ci-image
+    type: registry-image
+    icon: docker
+    source:
+      <<: *registry-image-resource-source
+      repository: fkrueger096/spring-boot-migrator-ci
+      tag: latest
+# branches for multi-branch pipeline
+#  - name: branches
+#    type: git-branches
+#    source:
+#      uri: ((github-repo-uri))
+#      branch_regex: '.*'
+
+
+# git PR
+  - name: git-pull-request
+    type: pull-request
+    icon: source-pull
+    source:
+      access_token: ((github-ci-pull-request-token))
+      repository: ((github-repo-name))
+      base_branch: main
+      ignore_paths: [ "ci/*" ]
+
+image_resource:
+  type: registry-image
+  source:
+    repository: concourse/oci-build-task
+    tag: 0.10.0
+    registry_mirror:
+      host: ((docker-hub-mirror))
+      username: ((docker-hub-mirror-username))
+      password: ((docker-hub-mirror-password))
+
+jobs:
+# Build and push CI image when ci-images-git-repo changed
+  - name: build-ci-images
+    plan:
+      - get: ci-images-git-repo
+        trigger: true
+      - get: git-repo
+      - in_parallel:
+          - task: build-ci-image
+            privileged: true
+            file: git-repo/ci/tasks/build-ci-image.yml
+            output_mapping:
+              image: ci-image
+            vars:
+              ci-image-name: ci-image
+              <<: *docker-hub-mirror-vars
+      - in_parallel:
+          - put: ci-image
+            params:
+              image: ci-image/image.tar
+
+# Build application
+  - name: build
+    public: true
+    plan:
+      - in_parallel:
+        - get: ci-image
+        - get: git-repo
+          trigger: true
+      - task: compile
+        image: ci-image
+        file: git-repo/ci/tasks/maven-build.yml
+#      - in_parallel:
+#          fail_fast: true
+#          steps:
+#          - task: run-unit-tests
+#            image: ci-image
+#            file: git-repo/ci/tasks/maven-unit-test.yml
+#          - task: run-integration-tests
+#            image: ci-image
+#            file: git-repo/ci/tasks/maven-integration-test.yml
+
+#  - name: set-feature-pipelines
+#    plan:
+#      - in_parallel:
+#          - get: feature-branches
+#            trigger: true
+#          - get: git-repo
+#      - load_var: branches
+#        file: feature-branches/branches.json
+#      - across:
+#          - var: branch
+#            values: ((.:branches))
+#        set_pipeline: dev
+#        file: examples/pipelines/multi-branch/template.yml
+#        instance_vars: {feature: ((.:branch.groups.feature))}
+#        vars: {branch: ((.:branch.name))}
+
+# Build every new PR
+  - name: build-pull-requests
+    serial: true
+    public: true
+    plan:
+      - get: ci-image
+      - get: git-repo
+        resource: git-pull-request
+        trigger: true
+        version: every
+      - do:
+          - put: git-pull-request
+            params:
+              path: git-repo
+              status: pending
+          - task: build-project
+            image: ci-image
+            file: git-repo/ci/tasks/build-pr-project.yml
+#            timeout: 30m # ((task-timeout))
+        on_success:
+          put: git-pull-request
+          params:
+            path: git-repo
+            status: success
+        on_failure:
+          put: git-pull-request
+          params:
+            path: git-repo
+            status: failure
+
+groups:
+  - name: "builds"
+    jobs: ["build"]
+#  - name: "releases"
+#    jobs: ["stage-milestone", "stage-rc", "stage-release", "promote-milestone", "promote-rc", "promote-release", "create-github-release", "publish-gradle-plugin", "publish-to-sdkman", "update-homebrew-tap"]
+#  - name: "system-tests"
+#    jobs: ["run-system-tests", "jdk18-run-system-tests"]
+  - name: "ci-images"
+    jobs: ["build-ci-images"]
+  - name: "pull-requests"
+    jobs: ["build-pull-requests"]
