@@ -19,7 +19,10 @@ package org.springframework.sbm.build.impl.inner;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.build.api.RepositoryDefinition;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class PluginRepositoryHandler {
@@ -33,10 +36,22 @@ public class PluginRepositoryHandler {
                 .map(t -> t.getChildren(PLUGIN_REPOSITORY))
                 .orElse(List.of());
 
-        return tags.stream()
-                .map(k -> k.getChild("url"))
-                .map(k -> k.orElseThrow(() -> new RuntimeException("url is not set for plugin repository")).getValue())
-                .map(k -> k.orElseThrow(() -> new RuntimeException("url value is not set")))
-                .map(k -> RepositoryDefinition.builder().url(k).build()).collect(Collectors.toList());
+        List<RepositoryDefinition> result = new ArrayList<>();
+        tags.forEach(t -> {
+            RepositoryDefinition.RepositoryDefinitionBuilder builder = RepositoryDefinition.builder();
+            getRepositoryAttribute(t, "url", builder::url, true);
+            getRepositoryAttribute(t, "id", builder::id, false);
+            result.add(builder.build());
+        });
+        return result;
+    }
+
+    private void getRepositoryAttribute(
+            Xml.Tag tag, String attributeName, Consumer<String> initDefinition, boolean mandatory) {
+        Optional<String> attributeValue = tag.getChildValue(attributeName);
+        if (mandatory && attributeValue.isEmpty()) {
+            throw new RuntimeException(attributeName + " is not set for plugin repository");
+        }
+        attributeValue.ifPresent(initDefinition);
     }
 }
