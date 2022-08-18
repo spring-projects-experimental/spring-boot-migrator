@@ -106,10 +106,8 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
     @NotNull
     private Xml.Document getRootBuildFile() {
-        String pomContent = loadFile(Path.of("pom.xml"));
 
-        Xml.Document mavenAsXMLDocument = parsePom(pomContent);
-        return mavenAsXMLDocument;
+        return parsePom(loadFile(Path.of("pom.xml")));
     }
 
     private void verifyAutoConfigurationIsRefactored() {
