@@ -41,7 +41,8 @@ class PluginRepositoryHandlerTest {
                             <url>https://repo.spring.io/milestone</url>
                             <layout>default</layout>
                             <snapshots>
-                                  <enabled>true</enabled>
+                                <checksumPolicy>fail</checksumPolicy>
+                                <enabled>true</enabled>
                             </snapshots>
                         </pluginRepository>
                     </pluginRepositories>
@@ -54,6 +55,7 @@ class PluginRepositoryHandlerTest {
         assertThat(output.get(0).getId()).isEqualTo("spring-milestone");
         assertThat(output.get(0).getLayout()).isEqualTo("default");
         assertThat(output.get(0).getSnapshotsEnabled()).isTrue();
+        assertThat(output.get(0).getSnapshotsChecksumPolicy()).isEqualTo("fail");
     }
 
     @Test

@@ -41,7 +41,6 @@ public class PluginRepositoryHandler {
             getRepositoryAttribute(t, "url", builder::url, true);
             getRepositoryAttribute(t, "id", builder::id, true);
             getRepositoryAttribute(t, "layout", builder::layout, false);
-
             getRepositoryAttribute(t, "snapshots.enabled", (k) -> builder.snapshotsEnabled(Boolean.valueOf(k)), false);
 
             result.add(builder.build());
@@ -49,8 +48,7 @@ public class PluginRepositoryHandler {
         return result;
     }
 
-    private void getRepositoryAttribute(
-            Xml.Tag tag, String attributeName, Consumer<String> initDefinition, boolean mandatory) {
+    private void getRepositoryAttribute(Xml.Tag tag, String attributeName, Consumer<String> initDefinition, boolean mandatory) {
 
         String[] hierarchy = attributeName.split("\\.");
 
