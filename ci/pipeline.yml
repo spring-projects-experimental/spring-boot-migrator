@@ -117,6 +117,8 @@ jobs:
           trigger: true
       - task: compile
         image: ci-image
+        params:
+        BRANCH: ((branch))
         file: git-repo/ci/tasks/maven-build.yml
 #      - in_parallel:
 #          fail_fast: true
