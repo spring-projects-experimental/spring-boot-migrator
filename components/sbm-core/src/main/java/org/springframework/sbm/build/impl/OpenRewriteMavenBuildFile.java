@@ -48,6 +48,7 @@ import org.springframework.sbm.build.api.ParentDeclaration;
 import org.springframework.sbm.build.api.Plugin;
 import org.springframework.sbm.build.api.RepositoryDefinition;
 import org.springframework.sbm.build.api.RewriteMavenParentDeclaration;
+import org.springframework.sbm.build.impl.inner.PluginRepositoryHandler;
 import org.springframework.sbm.build.migration.recipe.AddMavenPlugin;
 import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyManagement;
@@ -77,9 +78,8 @@ import static java.util.function.Predicate.not;
 @Slf4j
 public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Document> implements BuildFile {
 
-    public static final String PLUGIN_REPOSITORIES = "pluginRepositories";
-    public static final String PLUGIN_REPOSITORY = "pluginRepository";
     private final ApplicationEventPublisher eventPublisher;
+    private PluginRepositoryHandler pluginRepositoryHandler = new PluginRepositoryHandler();
 
     // TODO: #7 clarify if RefreshPomModel is still required?
     // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
@@ -739,17 +739,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public List<RepositoryDefinition> getPluginRepositories() {
-        List<Xml.Tag> tags = getSourceFile()
-                .getRoot()
-                .getChild(PLUGIN_REPOSITORIES)
-                .map(t -> t.getChildren(PLUGIN_REPOSITORY))
-                .orElse(List.of());
 
-        return tags.stream()
-                .map(k -> k.getChild("url"))
-                .map(k -> k.orElseThrow(() -> new RuntimeException("url is not set for plugin repository")).getValue())
-                .map(k -> k.orElseThrow(() -> new RuntimeException("url value is not set")))
-                .map(k -> RepositoryDefinition.builder().url(k).build()).collect(Collectors.toList());
+        return pluginRepositoryHandler.getRepositoryDefinitions(getSourceFile());
     }
 
     private boolean anyRegexMatchesCoordinate(Plugin p, String... regex) {
