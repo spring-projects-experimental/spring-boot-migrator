@@ -22,6 +22,15 @@
         id: "spring-milestone"
         url: "https://repo.spring.io/milestone"
 
+    - type: org.springframework.sbm.build.migration.actions.AddPluginRepositoryAction
+      description: Add Spring Boot milestone plugin repository.
+      id: "spring-milestone"
+      url: "https://repo.spring.io/milestone"
+      snapshotsEnabled: false
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoPluginRepositoryExistsCondition
+        id: "spring-milestone"
+        url: "https://repo.spring.io/milestone"
     -  type: org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction
        description: Move EnableAutoConfiguration Property from spring.factories to AutoConfiguration.imports
        snapshotsEnabled: false
@@ -60,22 +69,6 @@
               groupId: org.springframework.boot
               artifactId: spring-boot-dependencies
               newVersion: 3.0.0-M3
-
-    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
-      condition:
-        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "3.0."
-      description: Move micrometer packages
-      openRewriteRecipe: |-
-        type: specs.openrewrite.org/v1beta/recipe
-        name: org.openrewrite.java.spring.boot3.Micrometer_3_0
-        displayName: Micrometer compatible with Boot 3.x
-        description: Switch to Micrometer compatible with Boot 3.x
-        recipeList:
-          - org.openrewrite.java.ChangePackage:
-              oldPackageName: io.micrometer.core.instrument.binder
-              newPackageName: io.micrometer.binder
-              recursive: true
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:

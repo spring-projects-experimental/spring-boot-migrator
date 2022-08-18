@@ -13,31 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build.migration.conditions;
+
+package org.springframework.sbm.build.migration.actions;
 
 import lombok.Setter;
 import org.springframework.sbm.build.api.RepositoryDefinition;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.recipe.Condition;
+import org.springframework.sbm.engine.recipe.AbstractAction;
 
 @Setter
-public class NoRepositoryExistsCondition implements Condition {
-    private String url;
+public class AddPluginRepositoryAction extends AddGenericRepositoryAction {
 
     @Override
-    public String getDescription() {
-        return "Check that no Repository definition with same id or url exists";
-    }
-
-    @Override
-    public boolean evaluate(ProjectContext context) {
-        // if name is set and repo
-
-        return !context.getBuildFile().getRepositories().stream()
-                .anyMatch(this::urlsAreEqual);
-    }
-
-    private boolean urlsAreEqual(RepositoryDefinition r) {
-        return r.getUrl() != null && r.getUrl().equals(url);
+    protected void addRepository(ProjectContext context, RepositoryDefinition repositoryDefinition) {
+        context.getApplicationModules().getRootModule().getBuildFile().addPluginRepository(repositoryDefinition);
     }
 }

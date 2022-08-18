@@ -144,5 +144,8 @@ public interface BuildFile extends ProjectResource {
 
     void addRepository(RepositoryDefinition repository);
 
+    void addPluginRepository(RepositoryDefinition repository);
+
     List<RepositoryDefinition> getRepositories();
+    List<RepositoryDefinition> getPluginRepositories();
 }

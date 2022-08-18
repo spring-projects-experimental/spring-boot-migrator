@@ -21,19 +21,20 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
 @Setter
-public class NoRepositoryExistsCondition implements Condition {
+public class NoPluginRepositoryExistsCondition implements Condition {
     private String url;
 
     @Override
     public String getDescription() {
-        return "Check that no Repository definition with same id or url exists";
+        return "Check that no Plugin Repository definition with same id or url exists";
     }
 
     @Override
     public boolean evaluate(ProjectContext context) {
         // if name is set and repo
 
-        return !context.getBuildFile().getRepositories().stream()
+        return !context.getBuildFile()
+                .getPluginRepositories().stream()
                 .anyMatch(this::urlsAreEqual);
     }
 
