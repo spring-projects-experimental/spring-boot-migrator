@@ -40,6 +40,9 @@ class PluginRepositoryHandlerTest {
                             <id>spring-milestone</id>
                             <url>https://repo.spring.io/milestone</url>
                             <layout>default</layout>
+                            <snapshots>
+                                  <enabled>true</enabled>
+                            </snapshots>
                         </pluginRepository>
                     </pluginRepositories>
                 </project>
@@ -50,6 +53,7 @@ class PluginRepositoryHandlerTest {
         assertThat(output.get(0).getUrl()).isEqualTo("https://repo.spring.io/milestone");
         assertThat(output.get(0).getId()).isEqualTo("spring-milestone");
         assertThat(output.get(0).getLayout()).isEqualTo("default");
+        assertThat(output.get(0).getSnapshotsEnabled()).isTrue();
     }
 
     @Test

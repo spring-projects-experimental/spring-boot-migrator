@@ -41,6 +41,7 @@ public class PluginRepositoryHandler {
             RepositoryDefinition.RepositoryDefinitionBuilder builder = RepositoryDefinition.builder();
             getRepositoryAttribute(t, "url", builder::url, true);
             getRepositoryAttribute(t, "id", builder::id, true);
+            getRepositoryAttribute(t, "layout", builder::layout, false);
             result.add(builder.build());
         });
         return result;
