@@ -43,7 +43,13 @@ class PluginRepositoryHandlerTest {
                             <snapshots>
                                 <checksumPolicy>fail</checksumPolicy>
                                 <enabled>true</enabled>
+                                <updatePolicy>daily</updatePolicy>
                             </snapshots>
+                            <releases>
+                                <checksumPolicy>warn</checksumPolicy>
+                                <enabled>false</enabled>
+                                <updatePolicy>always</updatePolicy>
+                            </releases>
                         </pluginRepository>
                     </pluginRepositories>
                 </project>
@@ -56,6 +62,10 @@ class PluginRepositoryHandlerTest {
         assertThat(output.get(0).getLayout()).isEqualTo("default");
         assertThat(output.get(0).getSnapshotsEnabled()).isTrue();
         assertThat(output.get(0).getSnapshotsChecksumPolicy()).isEqualTo("fail");
+        assertThat(output.get(0).getSnapShotsUpdatePolicy()).isEqualTo("daily");
+        assertThat(output.get(0).getReleasesEnabled()).isFalse();
+        assertThat(output.get(0).getReleasesChecksumPolicy()).isEqualTo("warn");
+        assertThat(output.get(0).getReleasesUpdatePolicy()).isEqualTo("always");
     }
 
     @Test

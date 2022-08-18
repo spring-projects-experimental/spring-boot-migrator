@@ -42,7 +42,7 @@ public class PluginRepositoryHandler {
             getRepositoryAttribute(t, "id", builder::id, true);
             getRepositoryAttribute(t, "layout", builder::layout, false);
             getRepositoryAttribute(t, "snapshots.enabled", (k) -> builder.snapshotsEnabled(Boolean.valueOf(k)), false);
-
+            getRepositoryAttribute(t, "snapshots.checksumPolicy", builder::snapshotsChecksumPolicy, false);
             result.add(builder.build());
         }
         return result;
