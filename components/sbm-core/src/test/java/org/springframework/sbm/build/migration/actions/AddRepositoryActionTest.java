@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.internal.lang.Nullable;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -248,9 +249,9 @@ class AddRepositoryActionTest {
             AddRepositoryAction sut = new AddRepositoryAction();
             sut.setId("myId");
 
-            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> sut.apply(context));
+            NullPointerException thrown = assertThrows(NullPointerException.class, () -> sut.apply(context));
 
-            assertThat(thrown.getMessage()).isEqualTo("url is a mandatory field");
+            assertThat(thrown.getMessage()).isEqualTo("url is marked non-null but is null");
         }
 
         @Test
@@ -258,9 +259,9 @@ class AddRepositoryActionTest {
             AddRepositoryAction sut = new AddRepositoryAction();
             sut.setUrl("www.google.com");
 
-            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> sut.apply(context));
+            NullPointerException thrown = assertThrows(NullPointerException.class, () -> sut.apply(context));
 
-            assertThat(thrown.getMessage()).isEqualTo("id is a mandatory field");
+            assertThat(thrown.getMessage()).isEqualTo("id is marked non-null but is null");
         }
 
     }
