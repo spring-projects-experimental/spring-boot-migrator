@@ -40,7 +40,7 @@ public class PluginRepositoryHandler {
         tags.forEach(t -> {
             RepositoryDefinition.RepositoryDefinitionBuilder builder = RepositoryDefinition.builder();
             getRepositoryAttribute(t, "url", builder::url, true);
-            getRepositoryAttribute(t, "id", builder::id, false);
+            getRepositoryAttribute(t, "id", builder::id, true);
             result.add(builder.build());
         });
         return result;
