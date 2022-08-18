@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.project.buildfile;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -101,6 +102,7 @@ public class OpenRewriteMavenBuildFileTest {
     */
     @Test
     @Tag("integration")
+    @Disabled
     void testResolvedDependenciesWithPomTypeDependency() {
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
