@@ -177,10 +177,6 @@ jobs:
 groups:
   - name: "builds"
     jobs: ["build"]
-#  - name: "releases"
-#    jobs: ["stage-milestone", "stage-rc", "stage-release", "promote-milestone", "promote-rc", "promote-release", "create-github-release", "publish-gradle-plugin", "publish-to-sdkman", "update-homebrew-tap"]
-#  - name: "system-tests"
-#    jobs: ["run-system-tests", "jdk18-run-system-tests"]
   - name: "ci-images"
     jobs: ["build-ci-images"]
   - name: "pull-requests"
