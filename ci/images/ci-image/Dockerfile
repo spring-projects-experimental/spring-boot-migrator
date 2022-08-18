@@ -16,10 +16,8 @@ ENV PATH $PATH:$JAVA_HOME/bin
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 
-#
-
-
+ADD docker-lib.sh /docker-lib.sh
 
 #ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
-#ENTRYPOINT ["sh"]
+#ENTRYPOINT ["/bin/bash"]
 ENTRYPOINT [ "switch", "shell=/bin/bash", "--", "codep", "/bin/docker daemon" ]

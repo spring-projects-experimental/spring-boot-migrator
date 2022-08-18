@@ -29,6 +29,7 @@ import java.io.File;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+//@Disabled("Temporary disabled before CI will be fixed with docker in docker issue: #351")
 public class BootifySimpleJeeAppIntegrationTest extends IntegrationTestBaseClass {
 
 
@@ -39,7 +40,6 @@ public class BootifySimpleJeeAppIntegrationTest extends IntegrationTestBaseClass
 
     @Test
     @Tag("integration")
-    @Disabled("FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/200")
     void migrateSimpleJeeApp() {
         intializeTestProject();
 
