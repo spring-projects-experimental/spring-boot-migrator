@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class PluginRepositoryHandler {
     public static final String PLUGIN_REPOSITORIES = "pluginRepositories";
@@ -37,18 +36,33 @@ public class PluginRepositoryHandler {
                 .orElse(List.of());
 
         List<RepositoryDefinition> result = new ArrayList<>();
-        tags.forEach(t -> {
+        for (Xml.Tag t : tags) {
             RepositoryDefinition.RepositoryDefinitionBuilder builder = RepositoryDefinition.builder();
             getRepositoryAttribute(t, "url", builder::url, true);
             getRepositoryAttribute(t, "id", builder::id, true);
             getRepositoryAttribute(t, "layout", builder::layout, false);
+
+            getRepositoryAttribute(t, "snapshots.enabled", (k) -> builder.snapshotsEnabled(Boolean.valueOf(k)), false);
+
             result.add(builder.build());
-        });
+        }
         return result;
     }
 
     private void getRepositoryAttribute(
             Xml.Tag tag, String attributeName, Consumer<String> initDefinition, boolean mandatory) {
+
+        String[] hierarchy = attributeName.split("\\.");
+
+        for (int i = 0; i < hierarchy.length - 1; i++) {
+            Optional<Xml.Tag> tagOptional = tag.getChild(hierarchy[i]);
+
+            if (tagOptional.isPresent()) {
+                tag = tagOptional.get();
+            }
+        }
+
+        attributeName = hierarchy[hierarchy.length - 1];
         Optional<String> attributeValue = tag.getChildValue(attributeName);
         if (mandatory && attributeValue.isEmpty()) {
             throw new RuntimeException(attributeName + " is not set for plugin repository");
