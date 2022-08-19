@@ -186,12 +186,8 @@ public class OpenRewriteMavenBuildFileTest {
                 .filter(Objects::nonNull)
                 .map(dp -> {
                     String dep = dp.toString();
-                    if(dep.contains(".rewrite/cache/artifacts/")) {
-                        return dep.substring(dep.lastIndexOf(".rewrite/cache/artifacts/") + ".rewrite/cache/artifacts/".length());
-                    } else {
-                        return dep.substring(dep.lastIndexOf("repository/") + "repository/".length());
-                    }
-                }) // strip of path to Maven repository
+                    return dep.substring(dep.lastIndexOf("repository/") + "repository/".length());
+                })
                 .collect(Collectors.toList());
 
 
