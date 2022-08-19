@@ -15,12 +15,14 @@
  */
 package org.springframework.sbm;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+@Disabled("Temporary disabled before CI will be fixed with docker in docker issue: #351")
 public class BootifyAnnotatedServletsIntegrationTest extends IntegrationTestBaseClass {
 
 

@@ -37,6 +37,7 @@ import java.util.concurrent.TimeoutException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
+@Disabled("Temporary disabled before CI will be fixed with docker in docker issue: #351")
 public class BootifySimpleMuleAppIntegrationTest extends IntegrationTestBaseClass {
 
     private static final String FIRST_QUEUE_NAME = "sbm-integration-queue-one";
