@@ -22,13 +22,7 @@ import org.springframework.sbm.engine.recipe.Condition;
 
 @Setter
 public class NoRepositoryExistsCondition implements Condition {
-
-    private String id;
     private String url;
-
-    private Boolean snapshotsEnabled = true;
-
-    private Boolean releasesEnabled = true;
 
     @Override
     public String getDescription() {

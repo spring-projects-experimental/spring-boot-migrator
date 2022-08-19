@@ -15,6 +15,8 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
+import org.springframework.sbm.boot.common.finder.MatchingMethod;
+import org.springframework.sbm.boot.common.finder.MethodPatternMatchingMethod;
 import org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_SpringDataJpaActionCondition;
 import org.springframework.sbm.boot.upgrade_24_25.filter.SpringDataJpaAnalyzer;
 import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
@@ -47,7 +49,7 @@ public class Boot_24_25_SpringDataJpaAction extends AbstractAction {
 
     private void applyToModule(ProjectContext context) {
 
-        List<SpringDataJpaAnalyzer.MatchingMethod> jpaRepositoriesWithGetByIdMethod = springDataJpaAnalyzer.getJpaRepositoriesWithGetByIdMethod(context);
+        List<MethodPatternMatchingMethod> jpaRepositoriesWithGetByIdMethod = springDataJpaAnalyzer.getJpaRepositoriesWithGetByIdMethod(context);
         renameGetByIdMethods(jpaRepositoriesWithGetByIdMethod);
 
         List<MethodCall> callsToGetOneMethods = springDataJpaAnalyzer.findCallsToGetOneMethod(context);
@@ -55,7 +57,7 @@ public class Boot_24_25_SpringDataJpaAction extends AbstractAction {
 
     }
 
-    private void renameGetByIdMethods(List<SpringDataJpaAnalyzer.MatchingMethod> jpaRepositoriesWithGetByIdMethod) {
+    private void renameGetByIdMethods(List<MethodPatternMatchingMethod> jpaRepositoriesWithGetByIdMethod) {
         jpaRepositoriesWithGetByIdMethod.forEach(repo -> {
             String methodPattern = "com.example.springboot24to25example.TaskRepository " + repo.getMethodPattern();
             String newMethodName = "get" + repo.getMethod().getReturnValue() + "ById";

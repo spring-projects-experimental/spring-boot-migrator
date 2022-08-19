@@ -15,6 +15,8 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.filter;
 
+import org.springframework.sbm.boot.common.finder.MatchingMethod;
+import org.springframework.sbm.boot.common.finder.MethodPatternMatchingMethod;
 import org.springframework.sbm.java.api.MethodCall;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSourceAndType;
@@ -29,7 +31,7 @@ public class SpringDataJpaAnalyzer {
         return context.getProjectJavaSources().findMethodCalls("org.springframework.data.jpa.repository.JpaRepository getOne(java.lang.Long)");
     }
 
-    public List<MatchingMethod> getJpaRepositoriesWithGetByIdMethod(ProjectContext context) {
+    public List<MethodPatternMatchingMethod> getJpaRepositoriesWithGetByIdMethod(ProjectContext context) {
         String jpaRepositoryInterface = "org.springframework.data.jpa.repository.JpaRepository";
         List<JavaSourceAndType> jpaRepositories = context.getProjectJavaSources().findTypesImplementing(jpaRepositoryInterface);
         // FIXME: type of PK must be retrieved, moves to rewrite when these migrations are provided as OpenRewrite recipes
@@ -37,23 +39,11 @@ public class SpringDataJpaAnalyzer {
         return findRepositoriesDeclaring(jpaRepositories, methodPattern);
     }
 
-    private List<MatchingMethod> findRepositoriesDeclaring(List<JavaSourceAndType> jpaRepositories, String methodPattern) {
+    private List<MethodPatternMatchingMethod> findRepositoriesDeclaring(List<JavaSourceAndType> jpaRepositories, String methodPattern) {
         return jpaRepositories.stream()
                 .filter(jat -> jat.getType().hasMethod(methodPattern))
-                .map(jat -> new MatchingMethod(jat, methodPattern, jat.getType().getMethod(methodPattern)))
+                .map(jat -> new MethodPatternMatchingMethod(jat.getJavaSource(), jat.getType(), jat.getType().getMethod(methodPattern), methodPattern))
                 .collect(Collectors.toList());
     }
 
-    @Value
-    public class MatchingMethod {
-        private final JavaSourceAndType jat;
-        private final String methodPattern;
-        private final Method method;
-
-        public MatchingMethod(JavaSourceAndType jat, String methodPattern, Method method) {
-            this.jat = jat;
-            this.methodPattern = methodPattern;
-            this.method = method;
-        }
-    }
 }

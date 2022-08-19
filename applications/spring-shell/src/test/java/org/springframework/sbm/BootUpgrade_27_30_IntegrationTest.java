@@ -45,32 +45,44 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         applyRecipe("boot-2.7-3.0-dependency-version-update");
 
+        buildProject();
         verifyParentPomVersion();
-        verifyMicrometerPackageUpdate();
         verifyYamlConfigurationUpdate();
         verifyPropertyConfigurationUpdate();
         verifyConstructorBindingRemoval();
         verifyCrudRepoAddition();
         verifyAutoConfigurationIsRefactored();
         verifyEhCacheVersionIsUpgraded();
+        verifyJohnzonCoreDependencyIsUpgraded();
+    }
+    private void buildProject() {
+        executeMavenGoals(getTestDir(), "clean", "verify");
+    }
+
+    private void verifyJohnzonCoreDependencyIsUpgraded() {
+        Optional<Dependency> johnzonResult = getDependencyByArtifactId("johnzon-core");
+
+        assertThat(johnzonResult.isPresent()).isTrue();
+
+        Dependency johnzonDependency = johnzonResult.get();
+
+        assertThat(johnzonDependency.getClassifier()).isEqualTo("jakarta");
+        assertThat(johnzonDependency.getArtifactId()).isEqualTo("johnzon-core");
+        assertThat(johnzonDependency.getVersion()).isEqualTo("1.2.18");
+    }
+
+    @NotNull
+    private Optional<Dependency> getDependencyByArtifactId(String artifactId) {
+        Xml.Document mavenAsXMLDocument = getRootBuildFile();
+        List<Dependency> dependencies = getDependencies(mavenAsXMLDocument);
+        return dependencies
+                .stream()
+                .filter(dependency -> dependency.getArtifactId().equals(artifactId))
+                .findFirst();
     }
 
     private void verifyEhCacheVersionIsUpgraded() {
-        String pomContent = loadFile(Path.of("pom.xml"));
-
-        Xml.Document mavenAsXMLDocument = parsePom(pomContent);
-
-        List<Dependency> dependencies = mavenAsXMLDocument
-                .getMarkers()
-                .findFirst(MavenResolutionResult.class)
-                .get()
-                .getPom()
-                .getRequestedDependencies();
-
-        Optional<Dependency> ehcacheResult = dependencies
-                .stream()
-                .filter(dependency -> dependency.getArtifactId().equals("ehcache"))
-                .findFirst();
+        Optional<Dependency> ehcacheResult = getDependencyByArtifactId("ehcache");
 
         assertThat(ehcacheResult).isPresent();
 
@@ -80,6 +92,22 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         assertThat(ehcacheDependency.getGav().getGroupId()).isEqualTo("org.ehcache");
         assertThat(ehcacheDependency.getGav().getVersion()).isNull();
         assertThat(ehcacheDependency.getClassifier()).isEqualTo("jakarta");
+    }
+
+    @NotNull
+    private List<Dependency> getDependencies(Xml.Document mavenAsXMLDocument) {
+        return mavenAsXMLDocument
+                .getMarkers()
+                .findFirst(MavenResolutionResult.class)
+                .get()
+                .getPom()
+                .getRequestedDependencies();
+    }
+
+    @NotNull
+    private Xml.Document getRootBuildFile() {
+
+        return parsePom(loadFile(Path.of("pom.xml")));
     }
 
     private void verifyAutoConfigurationIsRefactored() {
@@ -141,19 +169,6 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                 "    }\n" +
                 "}" +
                 "\n");
-    }
-
-    private void verifyMicrometerPackageUpdate() {
-        String micrometerClass = loadFile(Path.of("src/main/java/org/springboot/example/upgrade/MicrometerConfig.java"));
-        assertThat(micrometerClass).isEqualTo(
-                "package org.springboot.example.upgrade;\n" +
-                "\n" +
-                "import io.micrometer.binder.MeterBinder;\n" +
-                "\n" +
-                "public class MicroMeterConfig {\n" +
-                "\n" +
-                "    private MeterBinder k;\n" +
-                "}\n");
     }
 
     private void verifyYamlConfigurationUpdate() {
@@ -244,9 +259,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
     }
 
     private void verifyParentPomVersion() {
-        String pomContent = loadFile(Path.of("pom.xml"));
-
-        Xml.Document mavenAsXMLDocument = parsePom(pomContent);
+        Xml.Document mavenAsXMLDocument = getRootBuildFile();
 
         Xml.Tag parentTag =mavenAsXMLDocument
                 .getRoot()

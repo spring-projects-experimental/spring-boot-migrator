@@ -65,13 +65,13 @@ public class ApplyCommandRenderer {
     @Setter
     private int delay = 250;
 
-    public AttributedString render(Recipe recipe) {
+    public AttributedString render(String recipeName, List<Action> actions) {
         AttributedStringBuilder builder = new AttributedStringBuilder();
         builder.append("\n");
         builder.style(AttributedStyle.DEFAULT.italicDefault());
-        builder.append(recipe.getName());
+        builder.append(recipeName);
         builder.append(" successfully applied the following actions:\n")
-                .append(recipe.getActions().stream()
+                .append(actions.stream()
                         .map(a -> "  (x) " + getDescriptionWithIndent(a))
                         .collect(Collectors.joining("\n")))
                 .append("\n");

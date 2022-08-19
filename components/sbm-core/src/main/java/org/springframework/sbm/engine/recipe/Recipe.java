@@ -22,6 +22,7 @@ import lombok.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,8 +51,8 @@ public class Recipe {
     public Recipe(
             @JsonProperty(value = "name", required = true) String name,
             @JsonProperty(value = "actions", required = true) List<Action> actions,
-            @JsonProperty(value = "condition", required = false) Condition condition,
-            @JsonProperty(value = "order", required = false) Integer order
+            @JsonProperty(value = "condition") Condition condition,
+            @JsonProperty(value = "order") Integer order
     ) {
         this.name = name;
         this.actions = actions;
@@ -91,10 +92,18 @@ public class Recipe {
         return condition.evaluate(context) && actions.stream().anyMatch(a -> a.isApplicable(context));
     }
 
-    public void apply(ProjectContext context) {
-        actions.stream()
-                .filter(a -> a.isApplicable(context))
-                .forEach(a -> a.applyWithStatusEvent(context));
+    public List<Action> apply(ProjectContext context) {
+
+        List<Action> appliedActions = new ArrayList<>();
+        for (Action action : actions) {
+
+             if (action.isApplicable(context)) {
+                 action.applyWithStatusEvent(context);
+                 appliedActions.add(action);
+             }
+        }
+
+        return appliedActions;
     }
 
     public String getDetails() {

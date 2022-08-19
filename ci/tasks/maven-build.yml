@@ -1,0 +1,22 @@
+---
+platform: linux
+
+inputs:
+  - name: git-repo
+
+outputs:
+  - name: maven-files
+    path: ~/target
+  - name: .m2
+    path: /root/.m2
+  - name: .rewrite-cache
+    path: ~/.rewrite-cache
+  - name: .rewrite
+    path: ~/.rewrite
+  - name: git-repo
+
+run:
+  path: /bin/sh
+  args:
+    - "-c"
+    - "cd git-repo &&  mvn clean install"

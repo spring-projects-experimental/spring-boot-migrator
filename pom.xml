@@ -33,6 +33,7 @@
         <spring-shell.version>2.1.0</spring-shell.version>
         <openrewrite.version>7.27.3</openrewrite.version>
         <openrewrite.spring.version>4.23.0</openrewrite.spring.version>
+        <rewrite-migrate-java.version>1.9.1</rewrite-migrate-java.version>
         <spring-boot.version>2.7.2</spring-boot.version>
         <progressbar.version>0.9.3</progressbar.version>
         <testcontainers.version>9baedef17589ff70f7a585c809e0b1beb27eff62</testcontainers.version>
@@ -61,11 +62,11 @@
 
     <repositories>
         <!--  OR Snapshots repo -->
-        <repository>
-            <id>rewrite-snapshots</id>
-            <name>rewrite-snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
+<!--        <repository>-->
+<!--            <id>rewrite-snapshots</id>-->
+<!--            <name>rewrite-snapshots</name>-->
+<!--            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
+<!--        </repository>-->
         <repository>
             <id>jcenter</id>
             <name>jcenter</name>
@@ -224,6 +225,11 @@
                 <groupId>org.openrewrite.recipe</groupId>
                 <artifactId>rewrite-spring</artifactId>
                 <version>${openrewrite.spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrewrite.recipe</groupId>
+                <artifactId>rewrite-migrate-java</artifactId>
+                <version>${rewrite-migrate-java.version}</version>
             </dependency>
             <!-- shrinkwrap -->
             <dependency>
