@@ -100,9 +100,9 @@ public class OpenRewriteMavenBuildFileTest {
     * Currently, the behaviour is related to caching configuration in DependencyHelper.
     * All dependencies that do not exist in ~/.m2/repository get downloaded to ~/.rewrite/cache/artifacts.
     */
-//    @Test
-//    @Disabled
-//    @Tag("integration")
+    @Test
+    @Disabled
+    @Tag("integration")
     void testResolvedDependenciesWithPomTypeDependency() {
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
