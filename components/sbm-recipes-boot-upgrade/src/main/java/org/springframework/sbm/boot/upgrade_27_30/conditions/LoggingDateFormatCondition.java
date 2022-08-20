@@ -15,7 +15,6 @@ public class LoggingDateFormatCondition implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        List<?> propertyFilesWithLoggingDateFormatList = new LoggingDateFormatPropertyFinder().apply(context.getProjectResources());
-        return propertyFilesWithLoggingDateFormatList.isEmpty();
+        return context.search(new LoggingDateFormatPropertyFinder()).isEmpty();
     }
 }
