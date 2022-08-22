@@ -58,12 +58,24 @@ resources:
       <<: *registry-image-resource-source
       repository: fkrueger096/spring-boot-migrator-ci
       tag: latest
-# branches for multi-branch pipeline
-#  - name: branches
-#    type: git-branches
+
+#  - name: github-pre-release
+#    type: github-release
+#    icon: briefcase-download-outline
 #    source:
-#      uri: ((github-repo-uri))
-#      branch_regex: '.*'
+#      owner: spring-projects
+#      repository: spring-boot
+#      access_token: ((github-ci-release-token))
+#      pre_release: true
+#      release: false
+  - name: github-release
+    type: github-release
+    icon: briefcase-download
+    source:
+      owner: spring-projects
+      repository: spring-boot
+      access_token: ((github-ci-release-token))
+      pre_release: false
 
 
 # git PR
