@@ -30,13 +30,13 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java.version>17</java.version>
-        <spring-shell.version>2.1.0</spring-shell.version>
-        <openrewrite.version>7.27.3</openrewrite.version>
+        <spring-shell.version>2.1.1</spring-shell.version>
+        <openrewrite.version>7.28.0</openrewrite.version>
         <openrewrite.spring.version>4.23.0</openrewrite.spring.version>
         <rewrite-migrate-java.version>1.9.1</rewrite-migrate-java.version>
         <spring-boot.version>2.7.3</spring-boot.version>
         <progressbar.version>0.9.3</progressbar.version>
-        <testcontainers.version>9baedef17589ff70f7a585c809e0b1beb27eff62</testcontainers.version>
+        <testcontainers.version>1.17.3</testcontainers.version>
         <maven-invoker.version>3.2.0</maven-invoker.version>
         <shrinkwrap.resolvers.version>3.1.4</shrinkwrap.resolvers.version>
         <lombok.version>1.18.24</lombok.version>

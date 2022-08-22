@@ -39,7 +39,6 @@ public class BootifySimpleJeeAppIntegrationTest extends IntegrationTestBaseClass
 
     @Test
     @Tag("integration")
-    @Disabled("FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/200")
     void migrateSimpleJeeApp() {
         intializeTestProject();
 
