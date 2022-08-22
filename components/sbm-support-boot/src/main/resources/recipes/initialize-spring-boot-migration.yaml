@@ -53,6 +53,8 @@
           artifactId: spring-boot-starter-test
           version: 2.6.3
           scope: test
+      multiModuleHandler:
+        type: org.springframework.sbm.build.migration.actions.AddDependenciesToApplicationModules
       description: Add spring dependencies 'spring-boot-starter' and 'spring-boot-starter-test'.
       detailedDescription: |-
         This code snippet is going to be added to the <dependencies> section in pom.xml
@@ -78,6 +80,8 @@
         - org\.junit\.jupiter\:(junit-jupiter|junit-jupiter-api|junit-jupiter-engine|junit-jupiter-params)\:.*
         - junit\:junit\:.*
         - org\.xmlunit\:xmlunit-core\:.*
+      multiModuleHandler:
+        type: org.springframework.sbm.build.migration.actions.RemoveDependenciesMatchingRegexFromApplicationModules
       description: Delete dependencies to artifacts transitively managed by Spring Boot.
       detailedDescription: |-
         Delete dependencies to artifacts which are transitively managed
@@ -92,6 +96,8 @@
         plugin:
           groupId: org.springframework.boot
           artifactId: spring-boot-maven-plugin
+      multiModuleHandler:
+        type: org.springframework.sbm.build.migration.actions.AddMavenPluginToApplicationModules
       description: Add Spring Boot Maven plugin.
       detailedDescription: |
 

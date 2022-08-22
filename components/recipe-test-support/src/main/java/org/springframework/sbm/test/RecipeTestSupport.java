@@ -60,10 +60,13 @@ public class RecipeTestSupport {
             ValidatorConfiguration.class,
             YamlObjectMapperConfiguration.class,
             ResourceHelperDummy.class,
+            ActionDeserializerRegistry.class,
+            MultiModuleAwareActionDeserializer.class,
+            DefaultActionDeserializer.class,
+            RewriteJavaSearchActionDeserializer.class,
             RewriteRecipeLoader.class,
             SbmRecipeLoader.class,
-            BasePackageCalculator.class,
-            ActionDeserializerRegistry.class
+            BasePackageCalculator.class
     };
 
 
@@ -82,7 +85,6 @@ public class RecipeTestSupport {
         SpringBeanProvider.run(context -> {
             context.start();
             ActionDeserializerRegistry deserializerRegistry = context.getBean(ActionDeserializerRegistry.class);
-            deserializerRegistry.register(AbstractAction.class, new DefaultActionDeserializer());
             ObjectMapper objectMapper = context.getBean("yamlObjectMapper", ObjectMapper.class);
 
             deserializerRegistry.register(OpenRewriteJavaSearchAction.class, new RewriteJavaSearchActionDeserializer(objectMapper, context.getBeanFactory()));

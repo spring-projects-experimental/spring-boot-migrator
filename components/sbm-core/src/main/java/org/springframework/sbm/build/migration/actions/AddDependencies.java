@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
+import lombok.AllArgsConstructor;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.recipe.AbstractAction;
@@ -23,19 +24,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.sbm.engine.recipe.MultiModuleAwareAction;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
 @Getter
 @SuperBuilder
-@NoArgsConstructor
-public class AddDependencies extends AbstractAction {
+public class AddDependencies extends MultiModuleAwareAction {
 
+    public AddDependencies() {
+        super(builder());
+        dependencies = new ArrayList<>();
+    }
+
+    public AddDependencies(List<Dependency> dependencies) {
+        super(builder());
+        this.dependencies = dependencies;
+    }
 
     @Valid
-    private List<Dependency> dependencies;
+    private final List<Dependency> dependencies;
 
     @Override
     public void apply(ProjectContext context) {

@@ -15,24 +15,45 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.sbm.build.api.Plugin;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.sbm.engine.recipe.MultiModuleAwareAction;
+import org.springframework.sbm.engine.recipe.MultiModuleHandler;
 
 import javax.validation.Valid;
 
 @Getter
-public class AddMavenPlugin extends AbstractAction {
+@SuperBuilder
+public class AddMavenPlugin extends MultiModuleAwareAction {
 
     @Setter
     @Valid
     private Plugin plugin;
+
+    public AddMavenPlugin() {
+        super(builder());
+        setMultiModuleHandler(new DefaultMultiModuleHandler());
+    }
 
     @Override
     public void apply(ProjectContext context) {
         context.getBuildFile().addPlugin(plugin);
     }
 
+    private class DefaultMultiModuleHandler implements MultiModuleHandler {
+        @Override
+        public void handle(ProjectContext context) {
+            apply(context);
+        }
+
+        @Override
+        public void setAction(MultiModuleAwareAction action) {
+
+        }
+    }
 }

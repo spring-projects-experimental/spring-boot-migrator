@@ -23,6 +23,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.sbm.engine.context.ProjectContext;
 
 import javax.validation.constraints.NotBlank;
 
@@ -50,6 +51,11 @@ public abstract class AbstractAction implements Action {
                         ? ""
                         : getCondition().getDescription() + " then\n\t  ";
         return conditionDescription + getDescription();
+    }
+
+    @Override
+    public void applyInternal(ProjectContext context) {
+        apply(context);
     }
 
     @Override

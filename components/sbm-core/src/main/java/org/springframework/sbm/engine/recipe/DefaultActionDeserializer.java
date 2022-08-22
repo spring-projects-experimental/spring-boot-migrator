@@ -18,7 +18,9 @@ package org.springframework.sbm.engine.recipe;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DefaultActionDeserializer implements ActionDeserializer {
     @Override
     public Action deserialize(ObjectMapper tolerantObjectMapper, Class<? extends Action> actionClass, JsonNode node, AutowireCapableBeanFactory beanFactory) {
@@ -29,6 +31,7 @@ public class DefaultActionDeserializer implements ActionDeserializer {
 
     @Override
     public boolean canHandle(Class<? extends Action> actionClass) {
-        return AbstractAction.class.isAssignableFrom(actionClass);
+        // TODO: 270 extend hierarchy by DefaultAction type because ComposableAction and DefaultAction will be an AbstractAction
+        return AbstractAction.class.isAssignableFrom(actionClass) && !ComposableAction.class.isAssignableFrom(actionClass);
     }
 }
