@@ -349,7 +349,7 @@ public abstract class IntegrationTestBaseClass {
                 .withNetwork(network)
                 .withNetworkMode("host")
                 .withNetworkAliases(networkedContainer.networkAlias)
-                .withStartupTimeout(Duration.of(60, ChronoUnit.SECONDS))
+                .withStartupTimeout(Duration.of(180, ChronoUnit.SECONDS))
                 .withEnv(envMap);
         genericContainer.start();
 
