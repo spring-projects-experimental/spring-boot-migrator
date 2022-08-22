@@ -29,7 +29,7 @@ import java.io.File;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class BootifySimpleJeeAppIntegrationTest extends IntegrationTestBaseClass {
+public class MigrateSimpleJeeAppIntegrationTest extends IntegrationTestBaseClass {
 
 
     @Override
