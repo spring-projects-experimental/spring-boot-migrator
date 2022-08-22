@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationTestBaseClass {
     @Override
     protected String getTestSubDir() {
-        return "boot-migration-27-30";
+        return "boot-migration-27-30-multi-module";
     }
 
     @Test
