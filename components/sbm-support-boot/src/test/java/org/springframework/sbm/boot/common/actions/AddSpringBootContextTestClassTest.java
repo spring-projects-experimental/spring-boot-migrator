@@ -172,10 +172,10 @@ public class AddSpringBootContextTestClassTest {
 
             sut.apply(projectContext);
 
-            assertThat(projectContext.getApplicationModules().getModule("").getMainJavaSourceSet().list()).isEmpty();
-            assertThat(projectContext.getApplicationModules().getModule("").getTestJavaSourceSet().list()).isEmpty();
-            assertThat(projectContext.getApplicationModules().getModule("module1").getTestJavaSourceSet().list().get(0).getTypes().get(0).getFullyQualifiedName()).isEqualTo("com.example.sbm.SpringBootAppTest");
-            assertThat(projectContext.getApplicationModules().getModule("module2").getTestJavaSourceSet().list()).isEmpty();
+            assertThat(projectContext.getApplicationModules().findModule("com.example.sbm:parent:0.1.0-SNAPSHOT").get().getMainJavaSourceSet().list()).isEmpty();
+            assertThat(projectContext.getApplicationModules().findModule("com.example.sbm:parent:0.1.0-SNAPSHOT").get().getTestJavaSourceSet().list()).isEmpty();
+            assertThat(projectContext.getApplicationModules().findModule("com.example.sbm:module1:0.1.0-SNAPSHOT").get().getTestJavaSourceSet().list().get(0).getTypes().get(0).getFullyQualifiedName()).isEqualTo("com.example.sbm.SpringBootAppTest");
+            assertThat(projectContext.getApplicationModules().findModule("com.example.sbm:module2:0.1.0-SNAPSHOT").get().getTestJavaSourceSet().list()).isEmpty();
         }
     }
 

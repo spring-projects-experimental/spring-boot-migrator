@@ -28,6 +28,7 @@ import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -253,7 +254,7 @@ public class ApplicationModule_searchMainJava_Test {
     private void searchTest(ProjectContext context, AtomicBoolean wasCalled, Consumer<ProjectResourceSet> f, String modulePath) {
         context
                 .getApplicationModules()
-                .getModule(modulePath)
+                .getModule(Path.of(modulePath))
                 .searchMainJava(
                         ((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                             f.accept(projectResourceSet);

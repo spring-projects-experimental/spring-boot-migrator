@@ -129,10 +129,7 @@ jobs:
           trigger: true
       - task: compile
         privileged: true
-#        caches:
-#          - path: .m2/
         image: ci-image
-        params:
         file: git-repo/ci/tasks/maven-build.yml
 #      - in_parallel:
 #          fail_fast: true
