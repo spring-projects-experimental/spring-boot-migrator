@@ -15,21 +15,25 @@
  */
 package org.springframework.sbm.engine.recipe;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class ActionDeserializerRegistry {
-    private final Map<Class<? extends Action>, ActionDeserializer> deserializers = new HashMap<>();
+    private final List<ActionDeserializer> deserializers;
 
+    @Deprecated
     public void register(Class<? extends Action> key, ActionDeserializer actionDeserializationDispatcher) {
-        this.deserializers.put(key, actionDeserializationDispatcher);
+        this.deserializers.add(actionDeserializationDispatcher);
     }
 
     public ActionDeserializer get(Class<? extends Action> key) {
-        return deserializers.values().stream()
+        return deserializers.stream()
                 .filter(d -> d.canHandle(key))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No deserializer found for '" + key + "'"));

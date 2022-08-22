@@ -28,11 +28,11 @@ class AddDependenciesTest {
 
     @Test
     void shouldAddDependency() {
-        AddDependencies sut = new AddDependencies();
-
         Dependency dependency = createDependency();
         List<Dependency> dependencies = List.of(dependency);
-        sut.setDependencies(dependencies);
+        AddDependencies sut = AddDependencies.builder()
+                .dependencies(dependencies)
+                .build();
 
         BuildFile buildFile = mock(BuildFile.class);
         when(buildFile.isRootBuildFile()).thenReturn(true);

@@ -70,6 +70,11 @@ class ActionTest {
         }
 
         @Override
+        public void applyInternal(ProjectContext context) {
+            apply(context);
+        }
+
+        @Override
         public ApplicationEventPublisher getEventPublisher() {
             return publisher;
         }
