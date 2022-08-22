@@ -192,9 +192,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     /**
      * Retrieve dependencies declared in buildfile with version and scope from dependency management if not explicitly declared.
-     * <p>
+     *
      * Given this pom.xml and a call without any given `scope` parameter
-     * <p>
+     *
      * [source,xml]
      * ----
      * <dependencyManagement>
@@ -214,9 +214,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
      * </dependency>
      * </dependencies>
      * ----
-     * <p>
+     *
      * a dependency `org.junit.jupiter:junit-jupiter:5.7.1` with scope `test` will be returned.
-     * <p>
+     *
      * TODO: tests...
      * - with all scopes
      * - Managed versions with type and classifier given
@@ -230,7 +230,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         // FIXME: #7 use getPom().getDependencies() instead ?
         List<Dependency> declaredDependenciesWithEffectiveVersions = requestedDependencies.stream()
                 .filter(d -> {
-                    if (scopes.length == 0) {
+                    if(scopes.length == 0) {
                         return true;
                     } else {
                         // FIXME: scope test should also return compile!
@@ -729,7 +729,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public List<RepositoryDefinition> getRepositories() {
         return getPom().getPom().getRepositories().stream()
                 .map(r -> RepositoryDefinition.builder()
-                        .name(r.getId())
+                        .id(r.getId())
                         .url(r.getUri())
                         .releasesEnabled(r.isReleases())
                         .snapshotsEnabled(r.isSnapshots())
