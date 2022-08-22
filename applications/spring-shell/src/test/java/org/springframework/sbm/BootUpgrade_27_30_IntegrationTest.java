@@ -57,6 +57,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyEhCacheVersionIsUpgraded();
         verifyJohnzonCoreDependencyIsUpgraded();
     }
+
     private void buildProject() {
         executeMavenGoals(getTestDir(), "clean", "verify");
     }
