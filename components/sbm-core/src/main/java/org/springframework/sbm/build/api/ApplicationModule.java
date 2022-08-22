@@ -120,26 +120,8 @@ public class ApplicationModule {
         return new ResourceSet(projectResourceSet, projectRootDir, modulePath, testResourceSet);
     }
 
-    public List<ApplicationModule> getModules() {
-        Optional<MavenResolutionResult> mavenResolution = MavenBuildFileUtil.findMavenResolution(((OpenRewriteMavenBuildFile) buildFile).getSourceFile());
-        List<MavenResolutionResult> modulesMarker = mavenResolution.get().getModules();
-        if ( ! modulesMarker.isEmpty()) {
-            return modulesMarker
-                    .stream()
-                    .map(m -> new ApplicationModule(
-                            m.getPom().getGav().toString(),
-                            this.buildFile,
-                            projectRootDir,
-                            modulePath,
-                            projectResourceSet,
-                            javaRefactoringFactory,
-                            basePackageCalculator,
-                            javaParser
-                    ))
-                    .collect(Collectors.toList());
-        } else {
-            return new ArrayList<>();
-        }
+    public List<String> getDeclaredModules() {
+        return buildFile.getDeclaredModules();
     }
 
     public <T> T search(ProjectResourceFinder<T> finder) {

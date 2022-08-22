@@ -25,7 +25,19 @@ import java.util.Set;
 
 public interface BuildFile extends ProjectResource {
 
+    /**
+     * Returns the dependencies as declared in build file.
+     *
+     * E.g. a dependency that has no version set will have a version of null.
+     */
     List<Dependency> getDeclaredDependencies(Scope... scopes);
+
+    /**
+     * Returns the declared dependencies with resolved attributes.
+     *
+     * E.g. a dependency that has no version set will have its version resolved.
+     */
+    List<Dependency> getRequestedDependencies();
 
     /**
      * Returns any available dependency (declared or transitive) with given scope.
@@ -135,8 +147,8 @@ public interface BuildFile extends ProjectResource {
     Optional<ParentDeclaration> getParentPomDeclaration();
 
     Optional<String> getName();
-    // TODO: add same method to ApplicationModules to add excludes to all relevant dependencies in all BuildFiles
 
+    // TODO: add same method to ApplicationModules to add excludes to all relevant dependencies in all BuildFiles
     /**
      * Adds an exclusion for each of the dependencies in {@code excludedDependencies} to all declared dependencies in this {@code BuildFile} which transitively depend on it.
      */
@@ -147,5 +159,8 @@ public interface BuildFile extends ProjectResource {
     void addPluginRepository(RepositoryDefinition repository);
 
     List<RepositoryDefinition> getRepositories();
+
     List<RepositoryDefinition> getPluginRepositories();
+
+    List<String> getDeclaredModules();
 }

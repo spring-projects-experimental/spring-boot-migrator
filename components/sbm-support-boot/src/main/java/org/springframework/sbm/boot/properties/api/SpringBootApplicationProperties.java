@@ -42,8 +42,13 @@ public class SpringBootApplicationProperties extends PropertiesSource {
         this(absoluteProjectDir, sourceFile, new RewriteExecutionContext());
     }
 
-    public static SpringBootApplicationProperties newApplicationProperties(Path absoluteProjectDir, Path path) {
-        File file = new File(Tree.randomId(), "", Markers.EMPTY, path, List.of(), "", null, false, null, null);
+    public static SpringBootApplicationProperties newApplicationProperties(Path absoluteProjectDir, Path sourcePath) {
+
+        if(absoluteProjectDir.resolve(sourcePath).toFile().isDirectory()) {
+            throw new IllegalArgumentException(String.format("Given sourcePath '%s' is a directory. An existing file with Spring Boot application properties must be passed.", sourcePath));
+        }
+
+        File file = new File(Tree.randomId(), "", Markers.EMPTY, sourcePath, List.of(), "", null, false, null, null);
         SpringBootApplicationProperties springBootApplicationProperties = new SpringBootApplicationProperties(absoluteProjectDir, file);
         springBootApplicationProperties.markChanged();
         return springBootApplicationProperties;

@@ -50,15 +50,17 @@ public class ApplicationModules {
         return stream().collect(Collectors.toUnmodifiableList());
     }
 
-    public ApplicationModule getModule(Path name) {
+    public ApplicationModule getModule(Path modulePath) {
         return modules.stream()
-                .filter(m -> m.getModulePath().equals(name))
+                .filter(m -> m.getModulePath().equals(modulePath))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Could not find module with name '" + name + "'"));
+                .orElseThrow(() -> new IllegalArgumentException("Could not find module with modulePath '" + modulePath + "'"));
     }
 
-    public ApplicationModule getModule(String name) {
-        return getModule(Path.of(name));
+    public Optional<ApplicationModule> findModule(String coordinate) {
+        return modules.stream()
+                .filter(m -> m.getBuildFile().getCoordinates().equals(coordinate))
+                .findFirst();
     }
 
     public List<ApplicationModule> getModules(ApplicationModule module) {
@@ -85,6 +87,11 @@ public class ApplicationModules {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Returns the list of application modules.
+     *
+     * An application module is a module that no other module depends on and which has a parent with packaging of type pom.
+     */
     public List<ApplicationModule> getTopmostApplicationModules() {
         List<ApplicationModule> topmostModules = new ArrayList<>();
         modules.forEach(module -> {
@@ -107,6 +114,21 @@ public class ApplicationModules {
         return topmostModules;
     }
 
+    /**
+     * Returns the list of component modules.
+     *
+     * A component module is a module that another module depends on and that thus will be part of another application module.
+     */
+    public List<ApplicationModule> getComponentModules() {
+        return modules.stream()
+                .filter(this::isDependencyOfAnotherModule)
+                .collect(Collectors.toList());
+    }
+
+    private boolean isDependencyOfAnotherModule(ApplicationModule applicationModule) {
+        return ! noOtherPomDependsOn(applicationModule.getBuildFile());
+    }
+
     private boolean isPackagingOfPom(ParentDeclaration parentPomDeclaration) {
         Optional<ApplicationModule> applicationModule = this.modules.stream()
                 .filter(module -> module.getBuildFile().getCoordinates().equals(parentPomDeclaration.getCoordinates()))
@@ -125,7 +147,7 @@ public class ApplicationModules {
 
     private boolean noOtherPomDependsOn(BuildFile buildFile) {
         return !this.modules.stream()
-                .anyMatch(module -> module.getBuildFile().getDeclaredDependencies().stream().anyMatch(d -> d.getCoordinates().equals(buildFile.getCoordinates())));
+                .anyMatch(module -> module.getBuildFile().getRequestedDependencies().stream().anyMatch(d -> d.getCoordinates().equals(buildFile.getCoordinates())));
     }
 
     public boolean isSingleModuleApplication() {
