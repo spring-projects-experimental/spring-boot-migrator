@@ -18,12 +18,15 @@ package org.springframework.sbm.build.api;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
 @Builder
 public class RepositoryDefinition {
 
+    @NonNull
     private String id;
+    @NonNull
     private String url;
     private String name;
     private String layout;
