@@ -17,10 +17,10 @@
 
 set -e
 
-source $(dirname $0)/common.sh
-repository=$(pwd)/distribution-repository
-mavenRepo=$(pwd)/.m2/repository
-echo $mavenRepo
+#source $(dirname $0)/common.sh
+#repository=$(pwd)/distribution-repository
+#mavenRepo=$(pwd)/.m2/repository
+#echo $mavenRepo
 
 pushd git-repo > /dev/null
 #if [[ -d /opt/openjdk-toolchain ]]; then
@@ -28,5 +28,6 @@ pushd git-repo > /dev/null
 #else
 #  ./gradlew -Dorg.gradle.internal.launcher.welcomeMessageEnabled=false --no-daemon --max-workers=4 -PdeploymentRepository=${repository} build publishAllPublicationsToDeploymentRepository
 #fi
-mvn -Dmaven.repo.local=$mavenRepo  clean install
+#  -Dmaven.repo.local=$mavenRepo
+mvn clean install
 popd > /dev/null
