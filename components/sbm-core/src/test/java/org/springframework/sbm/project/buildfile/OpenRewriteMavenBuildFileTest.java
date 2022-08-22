@@ -101,8 +101,8 @@ public class OpenRewriteMavenBuildFileTest {
     * All dependencies that do not exist in ~/.m2/repository get downloaded to ~/.rewrite/cache/artifacts.
     */
     @Test
-    @Disabled
     @Tag("integration")
+    @Disabled("Fails in CI with 'java.io.FileNotFoundException: /root/.m2/repository/org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar '")
     void testResolvedDependenciesWithPomTypeDependency() {
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
