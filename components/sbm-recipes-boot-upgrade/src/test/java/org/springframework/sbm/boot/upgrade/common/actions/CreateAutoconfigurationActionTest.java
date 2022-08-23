@@ -102,6 +102,91 @@ class CreateAutoconfigurationActionTest {
         );
     }
 
+    @Test
+    public void multiMavenModule() {
+
+        TestProjectContext.
+                buildProjectContext()
+                .addProjectResource("pom.xml",
+                        """
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                    <modelVersion>4.0.0</modelVersion>
+                                    <packaging>pom</packaging>
+                                    <modules>
+                                        <module>spring-app</module>
+                                    </modules>
+                                                                
+                                    <parent>
+                                        <groupId>org.springframework.boot</groupId>
+                                        <artifactId>spring-boot-starter-parent</artifactId>
+                                        <version>2.7.1</version>
+                                    </parent>
+                                    <groupId>com.example</groupId>
+                                    <artifactId>boot-upgrade-27_30</artifactId>
+                                    <version>0.0.1-SNAPSHOT</version>
+                                    <name>boot-upgrade-27_30</name>
+                                    <description>boot-upgrade-27_30</description>
+                                    <properties>
+                                        <java.version>17</java.version>
+                                    </properties>
+                                                                
+                                                                
+                                    <repositories>
+                                        <repository>
+                                            <id>spring-snapshot</id>
+                                            <url>https://repo.spring.io/snapshot</url>
+                                            <releases>
+                                                <enabled>false</enabled>
+                                            </releases>
+                                        </repository>
+                                        <repository>
+                                            <id>spring-milestone</id>
+                                            <url>https://repo.spring.io/milestone</url>
+                                            <snapshots>
+                                                <enabled>false</enabled>
+                                            </snapshots>
+                                        </repository>
+                                        <repository>
+                                            <id>spring-release</id>
+                                            <url>https://repo.spring.io/release</url>
+                                            <snapshots>
+                                                <enabled>false</enabled>
+                                            </snapshots>
+                                        </repository>
+                                    </repositories>
+                                </project>
+                                """)
+                .addProjectResource(
+                        "spring-app/src/main/java/com/hello", """
+                                        package com.hello;
+                                                                
+                                        import org.springframework.context.annotation.Bean;
+                                        import org.springframework.context.annotation.Configuration;
+                                                                
+                                        @Configuration
+                                        public class GreetingConfig {
+                                                                
+                                            @Bean
+                                            public String hello() {
+                                                return "こんにちは";
+                                            }
+                                        }
+                                                                
+                                """);
+        ;
+        context = TestProjectContext.buildProjectContext()
+                .addProjectResource(
+                        "src/main/resources/META-INF/spring.factories",
+                        """
+                                hello.world=something
+                                org.springframework.boot.autoconfigure.EnableAutoConfiguration=XYZ
+                                """
+                )
+                .build();
+    }
+
     private String getNewAutoConfigFile() {
         return getFileAsProjectResource(
                 "/**/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports"
