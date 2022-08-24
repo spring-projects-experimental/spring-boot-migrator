@@ -40,6 +40,7 @@ class NoRepositoryExistsConditionTest {
                         "    <packaging>jar</packaging>\n" +
                         "    <repositories>\n" +
                         "        <repository>\n" +
+                        "            <id>milestone</id>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
                         "        </repository>\n" +
                         "    </repositories>\n" +
@@ -70,6 +71,7 @@ class NoRepositoryExistsConditionTest {
                         "    <packaging>jar</packaging>\n" +
                         "    <repositories>\n" +
                         "        <repository>\n" +
+                        "            <id>milestone</id>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
                         "            <snapshots>\n" +
                         "                <enabled>false</enabled>\n" +
@@ -103,6 +105,7 @@ class NoRepositoryExistsConditionTest {
                         "    <packaging>jar</packaging>\n" +
                         "    <repositories>\n" +
                         "        <repository>\n" +
+                        "            <id>milestone</id>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
                         "            <snapshots>\n" +
                         "                <enabled>true</enabled>\n" +
@@ -136,6 +139,7 @@ class NoRepositoryExistsConditionTest {
                         "    <packaging>jar</packaging>\n" +
                         "    <repositories>\n" +
                         "        <repository>\n" +
+                        "            <id>milestone</id>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
                         "            <releases>\n" +
                         "                <enabled>true</enabled>\n" +
@@ -170,6 +174,7 @@ class NoRepositoryExistsConditionTest {
                         "    <repositories>\n" +
                         "        <repository>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
+                        "            <id>milestone</id>\n" +
                         "            <releases>\n" +
                         "                <enabled>false</enabled>\n" +
                         "            </releases>\n" +
@@ -202,6 +207,7 @@ class NoRepositoryExistsConditionTest {
                         "    <packaging>jar</packaging>\n" +
                         "    <repositories>\n" +
                         "        <repository>\n" +
+                        "            <id>milestone</id>\n" +
                         "            <url>https://repo.spring.io/milestone</url>\n" +
                         "        </repository>\n" +
                         "    </repositories>\n" +

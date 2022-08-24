@@ -14,9 +14,16 @@ outputs:
   - name: .rewrite
     path: ~/.rewrite
   - name: git-repo
-
+params:
+  BRANCH:
+  CI: true
+  SKIP_PRIVILEGED: false
+  DOCKER_HUB_MIRROR:
 run:
-  path: /bin/sh
+  path: bash
   args:
-    - "-c"
-    - "cd git-repo &&  mvn clean install"
+    - -ec
+    - |
+      source /docker-lib.sh
+      start_docker $DOCKER_HUB_MIRROR
+      ${PWD}/git-repo/ci/scripts/build-project.sh

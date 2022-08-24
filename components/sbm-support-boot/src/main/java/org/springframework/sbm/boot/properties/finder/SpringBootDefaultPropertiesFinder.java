@@ -28,8 +28,8 @@ public class SpringBootDefaultPropertiesFinder implements ProjectResourceFinder<
     @Override
     public Optional<SpringBootApplicationProperties> apply(ProjectResourceSet projectResourceSet) {
         return projectResourceSet.stream()
-                .filter(r -> r.getSourceFile() instanceof Properties.File)
-                .map(r -> new SpringBootApplicationProperties(r.getAbsoluteProjectDir(), (Properties.File) r.getSourceFile()))
+                .filter(r -> r instanceof SpringBootApplicationProperties)
+                .map(SpringBootApplicationProperties.class::cast)
                 .filter(SpringBootApplicationProperties::isDefaultProperties)
                 .findFirst();
     }

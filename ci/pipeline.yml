@@ -3,12 +3,12 @@ anchors:
   git-repo-resource-source: &git-repo-resource-source
     uri: ((github-repo-uri)) # https://github.com/spring-projects-experimental/spring-boot-migrator
     username: ((github-repo-user)) # fabapp2
-    password: ((github-ci-release-token))
+ #   password: ((github-ci-release-token))
     branch: ((branch))
   registry-image-resource-source: &registry-image-resource-source
     username: ((docker-hub-username))
     password: ((docker-hub-password))
-    tag: ((milestone))
+    tag: latest #((milestone))
     registry_mirror:
       host: ((docker-hub-mirror))
       username: ((docker-hub-mirror-username))
@@ -58,12 +58,24 @@ resources:
       <<: *registry-image-resource-source
       repository: fkrueger096/spring-boot-migrator-ci
       tag: latest
-# branches for multi-branch pipeline
-#  - name: branches
-#    type: git-branches
+
+#  - name: github-pre-release
+#    type: github-release
+#    icon: briefcase-download-outline
 #    source:
-#      uri: ((github-repo-uri))
-#      branch_regex: '.*'
+#      owner: spring-projects
+#      repository: spring-boot
+#      access_token: ((github-ci-release-token))
+#      pre_release: true
+#      release: false
+  - name: github-release
+    type: github-release
+    icon: briefcase-download
+    source:
+      owner: spring-projects
+      repository: spring-boot
+      access_token: ((github-ci-release-token))
+      pre_release: false
 
 
 # git PR
@@ -116,9 +128,11 @@ jobs:
         - get: git-repo
           trigger: true
       - task: compile
+        privileged: true
+#        caches:
+#          - path: .m2/
         image: ci-image
         params:
-        BRANCH: ((branch))
         file: git-repo/ci/tasks/maven-build.yml
 #      - in_parallel:
 #          fail_fast: true
@@ -162,6 +176,7 @@ jobs:
               path: git-repo
               status: pending
           - task: build-project
+            privileged: true
             image: ci-image
             file: git-repo/ci/tasks/build-pr-project.yml
 #            timeout: 30m # ((task-timeout))
@@ -176,6 +191,31 @@ jobs:
             path: git-repo
             status: failure
 
+  - name: create-github-release
+    serial: true
+    plan:
+      - get: ci-image
+      - get: git-repo
+#      - get: artifactory-repo
+#        trigger: true
+#        passed: [promote-release]
+#        params:
+#          download_artifacts: false
+#          save_build_info: true
+      - task: generate-changelog
+        file: git-repo/ci/tasks/generate-changelog.yml
+        params:
+          RELEASE_TYPE: RELEASE
+          GITHUB_USERNAME: ((github-username))
+          GITHUB_TOKEN: ((github-ci-release-token))
+        vars:
+          <<: *docker-hub-mirror-vars
+      - put: github-release
+        params:
+          name: generated-changelog/tag
+          tag: generated-changelog/tag
+          body: generated-changelog/changelog.md
+
 groups:
   - name: "builds"
     jobs: ["build"]
@@ -183,3 +223,6 @@ groups:
     jobs: ["build-ci-images"]
   - name: "pull-requests"
     jobs: ["build-pull-requests"]
+  - name: "releases"
+    jobs: ["create-github-release"]
+

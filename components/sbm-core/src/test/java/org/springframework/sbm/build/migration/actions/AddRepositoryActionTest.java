@@ -19,10 +19,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.internal.lang.Nullable;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Test adding a Repository to a pom.xml")
 class AddRepositoryActionTest {
@@ -240,6 +242,26 @@ class AddRepositoryActionTest {
                     "        </repository>\n" +
                     "    </repositories>\n" +
                     "</project>");
+        }
+
+        @Test
+        void shouldThrowExceptionForMissingURLMandatoryAttributes() {
+            AddRepositoryAction sut = new AddRepositoryAction();
+            sut.setId("myId");
+
+            NullPointerException thrown = assertThrows(NullPointerException.class, () -> sut.apply(context));
+
+            assertThat(thrown.getMessage()).isEqualTo("url is marked non-null but is null");
+        }
+
+        @Test
+        void shouldThrowExceptionForMissingIdMandatoryAttributes() {
+            AddRepositoryAction sut = new AddRepositoryAction();
+            sut.setUrl("www.google.com");
+
+            NullPointerException thrown = assertThrows(NullPointerException.class, () -> sut.apply(context));
+
+            assertThat(thrown.getMessage()).isEqualTo("id is marked non-null but is null");
         }
     }
 
