@@ -20,7 +20,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
-import org.springframework.sbm.engine.recipe.RecipeUtil;
+import org.springframework.sbm.common.filter.MavenModuleFinderByFileByResourcePath;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.StringProjectResource;
 
@@ -40,8 +40,6 @@ public class CreateAutoconfigurationAction extends AbstractAction {
     public static final String ENABLE_AUTO_CONFIGURATION_KEY = "org.springframework.boot.autoconfigure.EnableAutoConfiguration";
     public static final Pattern COMMENT_REGEX = Pattern.compile("^#.*(\r|\n)+");
 
-    private final RecipeUtil recipeUtil = new RecipeUtil();
-
     @Override
     public void apply(ProjectContext context) {
         Optional<Pair<Properties, ProjectResource>> props = getSpringFactoriesProperties(context);
@@ -59,7 +57,9 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                     .replaceAll(",", "\\\n");
 
 
-            Path enclosingMavenProjectForResource = recipeUtil.getEnclosingMavenProjectForResource(context.getProjectResources(), props.get().getRight().getAbsolutePath());
+            Path enclosingMavenProjectForResource = context.search(
+                    new MavenModuleFinderByFileByResourcePath(props.get().getRight().getAbsolutePath())
+            );
             StringProjectResource springAutoconfigurationFile =
                     new StringProjectResource(
                             enclosingMavenProjectForResource,
@@ -68,7 +68,7 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                     );
             context.getProjectResources().add(springAutoconfigurationFile);
 
-            removeAutoConfigKeyFromSpringFactories(props.get().getLeft(), context,enclosingMavenProjectForResource, props.get().getRight());
+            removeAutoConfigKeyFromSpringFactories(props.get().getLeft(), context, enclosingMavenProjectForResource, props.get().getRight());
         }
     }
 

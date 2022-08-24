@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-package org.springframework.sbm.engine.recipe;
+package org.springframework.sbm.common.filter;
 
+import lombok.AllArgsConstructor;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
-public class RecipeUtil {
 
-    public Path getEnclosingMavenProjectForResource(ProjectResourceSet projectResources, Path absolutePath) {
+@AllArgsConstructor
+public class MavenModuleFinderByFileByResourcePath implements ProjectResourceFinder<Path> {
 
-        List<String> listOfPom = projectResources
+    private final Path resourcePath;
+
+    @Override
+    public Path apply(ProjectResourceSet projectResourceSet) {
+        List<String> listOfPom = projectResourceSet
                 .stream()
                 .map(RewriteSourceFileHolder::getAbsolutePath)
                 .map(Path::toString)
@@ -44,7 +49,7 @@ public class RecipeUtil {
             binarySearchTree.add(path);
         });
 
-        String interestedFile = absolutePath.toAbsolutePath().toString();
+        String interestedFile = resourcePath.toAbsolutePath().toString();
 
         for (int i = interestedFile.length() - 1; i >= 0; i--) {
 
@@ -58,7 +63,7 @@ public class RecipeUtil {
         }
 
         throw new IllegalStateException("Cannot find enclosing maven project for file: "
-                + absolutePath + " could be caused by erroneously calling this function or running a recipe on an " +
+                + resourcePath + " could be caused by erroneously calling this function or running a recipe on an " +
                 "empty project");
     }
 }

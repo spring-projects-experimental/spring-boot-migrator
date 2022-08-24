@@ -17,7 +17,6 @@ package org.springframework.sbm.boot.upgrade.common.actions;
 
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -215,23 +214,7 @@ class CreateAutoconfigurationActionTest {
                         """
                                 org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.hello.GreetingConfig
                                 """)
-                .addProjectResource(
-                        "spring-app/src/main/java/com/hello", """
-                                        package com.hello;
-                                                                
-                                        import org.springframework.context.annotation.Bean;
-                                        import org.springframework.context.annotation.Configuration;
-                                                                
-                                        @Configuration
-                                        public class GreetingConfig {
-                                                                
-                                            @Bean
-                                            public String hello() {
-                                                return "こんにちは";
-                                            }
-                                        }
-                                                                
-                                """).build();
+                .build();
     }
 
     private String getNewAutoConfigFileContents() {

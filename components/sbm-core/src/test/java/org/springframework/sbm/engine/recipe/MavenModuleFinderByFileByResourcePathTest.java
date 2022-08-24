@@ -18,6 +18,7 @@ package org.springframework.sbm.engine.recipe;
 
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
+import org.springframework.sbm.common.filter.MavenModuleFinderByFileByResourcePath;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 
@@ -29,9 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class RecipeUtilTest {
-
-    private final RecipeUtil target = new RecipeUtil();
+class MavenModuleFinderByFileByResourcePathTest {
 
     @Test
     public void getsEnclosingMavenProject() {
@@ -43,8 +42,9 @@ class RecipeUtilTest {
                 )
         );
 
-        Path result = target.getEnclosingMavenProjectForResource(projectResourceSet,
-                file("spring-app/src/main/Hello.java").getAbsolutePath());
+        MavenModuleFinderByFileByResourcePath target = new MavenModuleFinderByFileByResourcePath(file("spring-app/src/main/Hello.java").getAbsolutePath());
+
+        Path result = target.apply(projectResourceSet);
 
         assertThat(result.toAbsolutePath().toString()).isEqualTo("/tmp/spring-app");
     }
@@ -60,8 +60,8 @@ class RecipeUtilTest {
         );
 
 
-        Path result = target.getEnclosingMavenProjectForResource(projectResourceSet,
-                file("src/main/Hello.java").getAbsolutePath());
+        MavenModuleFinderByFileByResourcePath target = new MavenModuleFinderByFileByResourcePath(file("src/main/Hello.java").getAbsolutePath());
+        Path result = target.apply(projectResourceSet);
         assertThat(result.toAbsolutePath().toString()).isEqualTo("/tmp");
 
     }
@@ -80,9 +80,9 @@ class RecipeUtilTest {
                 )
         );
 
+        MavenModuleFinderByFileByResourcePath target = new MavenModuleFinderByFileByResourcePath(file("spring-app-multi/spring-2/src/main/Hello.java").getAbsolutePath());
 
-        Path result = target.getEnclosingMavenProjectForResource(projectResourceSet,
-                file("spring-app-multi/spring-2/src/main/Hello.java").getAbsolutePath());
+        Path result = target.apply(projectResourceSet);
         assertThat(result.toAbsolutePath().toString()).isEqualTo("/tmp/spring-app-multi/spring-2");
 
     }
@@ -99,8 +99,8 @@ class RecipeUtilTest {
                 )
         );
 
-        Path result = target.getEnclosingMavenProjectForResource(projectResourceSet,
-                file("spring-app-2/src/main/Hello.java").getAbsolutePath());
+        MavenModuleFinderByFileByResourcePath target = new MavenModuleFinderByFileByResourcePath(file("spring-app-2/src/main/Hello.java").getAbsolutePath());
+        Path result = target.apply(projectResourceSet);
 
         assertThat(result.toAbsolutePath().toString()).isEqualTo("/tmp/spring-app-2");
     }
@@ -110,9 +110,9 @@ class RecipeUtilTest {
 
         ProjectResourceSet projectResourceSet = new ProjectResourceSet(List.of());
 
-        assertThrows(IllegalStateException.class, () -> target.getEnclosingMavenProjectForResource(projectResourceSet,
-                file("hello/world/A.java").getAbsolutePath()
-        ));
+        MavenModuleFinderByFileByResourcePath target = new MavenModuleFinderByFileByResourcePath(file("hello/world/A.java").getAbsolutePath());
+
+        assertThrows(IllegalStateException.class, () -> target.apply(projectResourceSet));
     }
 
     private RewriteSourceFileHolder<? extends SourceFile> file(String path) {
