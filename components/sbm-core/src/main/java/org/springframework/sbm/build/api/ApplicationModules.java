@@ -81,22 +81,25 @@ public class ApplicationModules {
         MavenResolutionResult mavenResolutionResult = MavenBuildFileUtil.findMavenResolution(((OpenRewriteMavenBuildFile) module.getBuildFile()).getSourceFile()).get();
         List<MavenResolutionResult> modulesMarker = mavenResolutionResult.getModules();
         if (!modulesMarker.isEmpty()) {
-            return filterModulesContainingMavens(modulesMarker);
+            return getModulesContainingMavens(modulesMarker);
         } else {
             return new ArrayList<>();
         }
     }
 
+    /**
+    * Takes a list of {@code MavenResolutionResult}s and returns the modules with matching {@code groupId:artifactId}.
+    */
     @NotNull
-    private List<Module> filterModulesContainingMavens(List<MavenResolutionResult> modulesMarker) {
-        List<String> collect = modulesMarker.stream()
+    private List<Module> getModulesContainingMavens(List<MavenResolutionResult> mavens) {
+        List<String> relevantGroupAndArtifactIds = mavens.stream()
                 .map(m -> m.getPom().getGroupId() + ":" + m.getPom().getArtifactId())
                 .collect(Collectors.toList());
 
         return modules.stream()
                 .filter(module -> {
                     String groupAndArtifactId = module.getBuildFile().getGroupId() + ":" + module.getBuildFile().getArtifactId();
-                    return collect.contains(groupAndArtifactId);
+                    return relevantGroupAndArtifactIds.contains(groupAndArtifactId);
                 })
                 .collect(Collectors.toList());
     }
