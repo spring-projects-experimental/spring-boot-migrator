@@ -27,13 +27,14 @@ import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("Test ApplicationModule.searchTestResources")
-public class ApplicationModule_searchTestResources_Test {
+@DisplayName("Test ApplicationModule.searchMainResources")
+public class Module_searchMainResources_Test {
 
     @Nested
     @DisplayName("Project")
@@ -61,14 +62,14 @@ public class ApplicationModule_searchTestResources_Test {
         }
 
         @Test
-        @DisplayName("with no resources in src/test/resources provides empty ProjectResourceSet to search method")
-        void withNoResourcesInSrcTestResources_providesEmptyProjectResources() {
+        @DisplayName("with no resources in src/main/resources provides empty ProjectResourceSet to search method")
+        void withNoResourcesInSrcMainResources_providesEmptyProjectResources() {
 
             ProjectContext context = builder.build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().list().get(0).searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().list().get(0).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).isEmpty();
                 wasCalled.set(true);
                 return null;
@@ -78,20 +79,20 @@ public class ApplicationModule_searchTestResources_Test {
         }
 
         @Test
-        @DisplayName("with resources in src/test/resources provides ProjectResourceSet with resources from src/test/resources")
-        void withResourcesInSrcTestResourcesProvidesProjectResourcesWithMainResources() {
+        @DisplayName("with resources in src/main/resources provides ProjectResourceSet with resources from src/main/resources")
+        void withResourcesInSrcMainResourcesProvidesProjectResourcesWithMainResources() {
 
             ProjectContext context = TestProjectContext
                     .buildProjectContext()
                     .withMavenBuildFileSource("pom.xml", singlePom)
-                    .addProjectResource("src/test/resources/some-resource.txt", "the content")
+                    .addProjectResource("src/main/resources/some-resource.txt", "the content")
                     .build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().list().get(0).searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().list().get(0).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/test/resources/some-resource.txt");
+                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/main/resources/some-resource.txt");
                 assertThat(projectResourceSet.get(0).print()).isEqualTo("the content");
                 wasCalled.set(true);
                 return null;
@@ -101,8 +102,8 @@ public class ApplicationModule_searchTestResources_Test {
         }
 
         @Test
-        @DisplayName("with resources in src/main/resources and src/test/resources provides ProjectResourceSet with resources from src/test/resources")
-        void withResourcesInTestAndMain_providesResourcesFromTest() {
+        @DisplayName("with resources in src/test/resources and src/main/resources provides ProjectResourceSet with resources from src/main/resources")
+        void withResourcesInTestAndMain_providesResourcesFromMain() {
             ProjectContext context = builder
                     .addProjectResource("src/main/resources/some-resource.txt", "the content")
                     .addProjectResource("src/test/resources/some-resource.txt", "the test content")
@@ -110,10 +111,10 @@ public class ApplicationModule_searchTestResources_Test {
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().list().get(0).searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().list().get(0).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/test/resources/some-resource.txt");
-                assertThat(projectResourceSet.get(0).print()).isEqualTo("the test content");
+                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/main/resources/some-resource.txt");
+                assertThat(projectResourceSet.get(0).print()).isEqualTo("the content");
                 wasCalled.set(true);
                 return null;
             }) );
@@ -122,16 +123,16 @@ public class ApplicationModule_searchTestResources_Test {
         }
 
         @Test
-        @DisplayName("with resources in src/main/resources provides empty ProjectResourceSet to search method")
+        @DisplayName("with resources in src/test/resources provides empty ProjectResourceSet to search method")
         void withResourcesInSrcTestResources_providesEmptyProjectResources() {
 
             ProjectContext context = builder
-                    .addProjectResource("src/main/resources/some-resource.txt", "the content")
+                    .addProjectResource("src/test/resources/some-resource.txt", "the content")
                     .build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().list().get(0).searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().list().get(0).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).isEmpty();
                 wasCalled.set(true);
                 return null;
@@ -225,7 +226,7 @@ public class ApplicationModule_searchTestResources_Test {
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().findModule("com.acme:application:0.0.1-SNAPSHOT").get().searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().getModule(Path.of("application")).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).isEmpty();
                 wasCalled.set(true);
                 return null;
@@ -235,16 +236,16 @@ public class ApplicationModule_searchTestResources_Test {
         }
 
         @Test
-        @DisplayName("with resources in src/test/resources of other module provides empty ProjectResourceSet to search method")
+        @DisplayName("with resources in src/main/resources of other module provides empty ProjectResourceSet to search method")
         void withResourcesInOtherModules_providesEmptyProjectResources() {
 
             ProjectContext context = builder
-                    .addProjectResource("component/src/test/resources/some-resource.txt", "")
+                    .addProjectResource("component/src/main/resources/some-resource.txt", "")
                     .build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().findModule("com.acme:application:0.0.1-SNAPSHOT").get().searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().getModule(Path.of("application")).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).isEmpty();
                 wasCalled.set(true);
                 return null;
@@ -255,7 +256,7 @@ public class ApplicationModule_searchTestResources_Test {
 
 
         @Test
-        @DisplayName("with resources in src/test/resources and src/main/resources provides ProjectResourceSet with resources from src/test/resources")
+        @DisplayName("with resources in src/test/resources and src/main/resources provides ProjectResourceSet with resources from src/main/resources")
         void withResourcesInMainAndTest_providesProjectResourcesFromSrcMainResources() {
 
             ProjectContext context = builder
@@ -265,10 +266,10 @@ public class ApplicationModule_searchTestResources_Test {
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().findModule("com.acme:application:0.0.1-SNAPSHOT").get().searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().getModule(Path.of("application")).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/test/resources/some-resource.txt");
-                assertThat(projectResourceSet.list().get(0).print()).isEqualTo("the test content");
+                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/main/resources/some-resource.txt");
+                assertThat(projectResourceSet.list().get(0).print()).isEqualTo("the content");
                 wasCalled.set(true);
                 return null;
             }) );
@@ -277,18 +278,18 @@ public class ApplicationModule_searchTestResources_Test {
         }
 
         @Test
-        @DisplayName("with resources in src/test/resources provides ProjectResourceSet with resources from stc/test/resources")
+        @DisplayName("with resources in src/main/resources provides ProjectResourceSet with resources from stc/main/resources")
         void withResourcesInMain_providesProjectResourcesFromSrcMainResources() {
 
             ProjectContext context = builder
-                    .addProjectResource("application/src/test/resources/some-resource.txt", "the content")
+                    .addProjectResource("application/src/main/resources/some-resource.txt", "the content")
                     .build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().findModule("com.acme:application:0.0.1-SNAPSHOT").get().searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().getModule(Path.of("application")).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/test/resources/some-resource.txt");
+                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/main/resources/some-resource.txt");
                 assertThat(projectResourceSet.list().get(0).print()).isEqualTo("the content");
                 wasCalled.set(true);
                 return null;

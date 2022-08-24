@@ -26,7 +26,7 @@ import org.raml.v2.api.RamlModelBuilder;
 import org.raml.v2.api.RamlModelResult;
 import org.raml.v2.api.model.v08.api.Api;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.common.api.TextResource.TextSource;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -61,7 +61,7 @@ public class MigrateRamlToSpringMvc extends AbstractAction {
             log.warn("Action " + getClass().getName() + " is not multi module ready.");
         }
 
-        ApplicationModule target = context.getApplicationModules().getRootModule();
+        Module target = context.getApplicationModules().getRootModule();
         ramlFiles.forEach(r -> {
             ramlToJaxRs(context, target, r);
             jaxRsToSpringRest(context);
@@ -73,13 +73,13 @@ public class MigrateRamlToSpringMvc extends AbstractAction {
         new ConvertJaxRsAnnotations().apply(context);
     }
 
-    private void ramlToJaxRs(ProjectContext context, ApplicationModule target, TextSource r) {
+    private void ramlToJaxRs(ProjectContext context, Module target, TextSource r) {
         new RamlToJaxRsTransformer().transform(context, target, r);
     }
 
     class RamlToJaxRsTransformer {
 
-        void transform(ProjectContext context, ApplicationModule target, TextSource r) {
+        void transform(ProjectContext context, Module target, TextSource r) {
             try {
                 String basePackage = target.getMainJavaSourceSet().getJavaSourceLocation().getPackageName();
                 Configuration configuration = new Configuration();

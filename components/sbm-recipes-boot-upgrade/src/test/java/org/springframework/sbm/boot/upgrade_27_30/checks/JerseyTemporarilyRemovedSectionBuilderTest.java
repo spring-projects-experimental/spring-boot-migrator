@@ -16,11 +16,10 @@
 
 package org.springframework.sbm.boot.upgrade_27_30.checks;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.asciidoctor.ChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -34,7 +33,7 @@ public class JerseyTemporarilyRemovedSectionBuilderTest {
 
     @Test
     void shouldBuildSectionWhenFinderHasMatches(){
-        Set<ApplicationModule> matches = Set.of(mock(ApplicationModule.class));
+        Set<Module> matches = Set.of(mock(Module.class));
         ProjectContext context = mock(ProjectContext.class);
         JerseyTemporarilyRemovedFinder finder = mock(JerseyTemporarilyRemovedFinder.class);
         when(finder.findMatches(context)).thenReturn(matches);
@@ -44,7 +43,7 @@ public class JerseyTemporarilyRemovedSectionBuilderTest {
 
     @Test
     void shouldBuildSectionWhenFinderHasNoMatches(){
-        Set<ApplicationModule> matches = Set.of();
+        Set<Module> matches = Set.of();
         ProjectContext context = mock(ProjectContext.class);
         JerseyTemporarilyRemovedFinder finder = mock(JerseyTemporarilyRemovedFinder.class);
         when(finder.findMatches(context)).thenReturn(matches);
@@ -58,7 +57,7 @@ public class JerseyTemporarilyRemovedSectionBuilderTest {
                 .withBuildFileHavingDependencies("org.glassfish.jersey.connectors:jersey-jdk-connector:2.35")
                 .build();
 
-        Set<ApplicationModule> matches = Set.of();
+        Set<Module> matches = Set.of();
 
         JerseyTemporarilyRemovedFinder finder = mock(JerseyTemporarilyRemovedFinder.class);
         when(finder.findMatches(context)).thenReturn(matches);

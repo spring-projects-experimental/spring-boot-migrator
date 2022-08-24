@@ -17,7 +17,7 @@
 package org.springframework.sbm.build.migration.actions;
 
 import lombok.Setter;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.MultiModuleAwareAction;
 import org.springframework.sbm.engine.recipe.MultiModuleHandler;
@@ -31,7 +31,7 @@ public class AddMavenPluginToApplicationModules implements AddMavenPluginToMulti
     @Override
     public void handle(ProjectContext context) {
         context.getApplicationModules().getTopmostApplicationModules().stream()
-                .map(ApplicationModule::getBuildFile)
+                .map(Module::getBuildFile)
                 .forEach(b -> b.addPlugin(action.getPlugin()));
     }
 

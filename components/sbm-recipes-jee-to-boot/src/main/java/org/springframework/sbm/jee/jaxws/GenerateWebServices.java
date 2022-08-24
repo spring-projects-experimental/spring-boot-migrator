@@ -16,7 +16,7 @@
 package org.springframework.sbm.jee.jaxws;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.Plugin;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.recipe.UserInteractions;
@@ -95,7 +95,7 @@ public class GenerateWebServices extends AbstractAction {
                 });
     }
 
-    private void addMavenPluginForJavaSourceGeneration(ApplicationModule module, List<WebServiceDescriptor> descriptors) {
+    private void addMavenPluginForJavaSourceGeneration(Module module, List<WebServiceDescriptor> descriptors) {
         module.getBuildFile().setProperty(PROPERTY_KEY_JAVA_GEN_FOLDER, PROPERTY_VALUE_JAVA_GEN_FOLDER);
 
         List<Plugin.Execution> generateExecs = descriptors.stream().map(d -> Plugin.Execution.builder()
@@ -136,7 +136,7 @@ public class GenerateWebServices extends AbstractAction {
         );
     }
 
-    private void generateWebConfig(ApplicationModule module, List<WebServiceDescriptor> wsDescriptors) {
+    private void generateWebConfig(Module module, List<WebServiceDescriptor> wsDescriptors) {
         JavaSourceLocation location = module.getMainJavaSourceSet().getJavaSourceLocation();
 
         Map<String, Object> params = new HashMap<>();
@@ -167,7 +167,7 @@ public class GenerateWebServices extends AbstractAction {
         module.getMainJavaSourceSet().addJavaSource(module.getProjectRootDirectory(), location.getSourceFolder(), src, location.getPackageName());
     }
 
-    private WebServiceDescriptor processType(ApplicationModule module, Type typeAnnotatedAsWebService) {
+    private WebServiceDescriptor processType(Module module, Type typeAnnotatedAsWebService) {
         Type effectiveType = getEndpointInterfaceTypeType(module, typeAnnotatedAsWebService);
         Xml.Document wsdl = createWsdlFile(module, typeAnnotatedAsWebService);
         if (wsdl != null) {
@@ -178,7 +178,7 @@ public class GenerateWebServices extends AbstractAction {
         }
     }
 
-    private Xml.Document createWsdlFile(ApplicationModule module, Type type) {
+    private Xml.Document createWsdlFile(Module module, Type type) {
         Path p = null;
         String input = null;
         while (p == null) {
@@ -223,7 +223,7 @@ public class GenerateWebServices extends AbstractAction {
         }
     }
 
-    private Type getEndpointInterfaceTypeType(ApplicationModule module, Type type) {
+    private Type getEndpointInterfaceTypeType(Module module, Type type) {
         Annotation annotation = type.getAnnotations().stream().filter(a -> WebServiceDescriptor.WEB_SERVICE_ANNOTATION.equals(a.getFullyQualifiedName())).findFirst().get();
         Expression endPointInterfaceExpression = annotation.getAttribute("endpointInterface");
         if (endPointInterfaceExpression != null) {

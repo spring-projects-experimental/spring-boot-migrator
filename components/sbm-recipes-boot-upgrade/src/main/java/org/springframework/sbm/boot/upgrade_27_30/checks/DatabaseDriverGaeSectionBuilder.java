@@ -17,14 +17,13 @@
 package org.springframework.sbm.boot.upgrade_27_30.checks;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.sbm.boot.SectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.ChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionCheck;
 import org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionCheckResult;
 import org.springframework.sbm.boot.upgrade_27_30.Sbu30_UpgradeSectionBuilder;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.precondition.PreconditionCheck;
 import org.springframework.stereotype.Component;
@@ -41,7 +40,7 @@ public class DatabaseDriverGaeSectionBuilder implements Sbu30_PreconditionCheck,
     @Override
     public Sbu30_PreconditionCheckResult run(ProjectContext context) {
 
-        Set<ApplicationModule> collect = finder.findMatches(context);
+        Set<Module> collect = finder.findMatches(context);
 
         if(collect.isEmpty()) {
             return  new Sbu30_PreconditionCheckResult(PreconditionCheck.ResultState.PASSED, "No dependency to Google AppEngine's AppEngineDriver found.");

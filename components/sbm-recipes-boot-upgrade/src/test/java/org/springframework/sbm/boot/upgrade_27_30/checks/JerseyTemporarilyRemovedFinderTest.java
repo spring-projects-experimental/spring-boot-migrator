@@ -16,11 +16,10 @@
 
 package org.springframework.sbm.boot.upgrade_27_30.checks;
 
-import org.assertj.core.api.Assertions;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.tree.Scope;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -38,7 +37,7 @@ public class JerseyTemporarilyRemovedFinderTest {
                 .build();
 
         JerseyTemporarilyRemovedFinder sut = new JerseyTemporarilyRemovedFinder();
-        Set<ApplicationModule> matches = sut.findMatches(context);
+        Set<Module> matches = sut.findMatches(context);
         assertThat(matches).isNotEmpty();
         assertThat(matches).hasSize(1);
         assertThat(matches.iterator().next().getBuildFile().getDeclaredDependencies(Scope.Compile).get(0).getCoordinates()).isEqualTo(dependencyCoordinates);
@@ -120,7 +119,7 @@ public class JerseyTemporarilyRemovedFinderTest {
                 .build();
 
         JerseyTemporarilyRemovedFinder sut = new JerseyTemporarilyRemovedFinder();
-        Set<ApplicationModule> matches = sut.findMatches(context);
+        Set<Module> matches = sut.findMatches(context);
         assertThat(context.getApplicationModules().list()).hasSize(3);
         assertThat(matches).isNotEmpty();
         assertThat(matches).hasSize(1);

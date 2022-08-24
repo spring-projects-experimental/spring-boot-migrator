@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.filter;
 
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 import org.springframework.sbm.project.resource.ProjectResource;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CreateDatasourceInitializerAnalyzer {
-    public List<SpringBootApplicationProperties> findPropertyFilesContainingDataProperty(ApplicationModule module, List<SpringBootApplicationProperties> applicationProperties) {
+    public List<SpringBootApplicationProperties> findPropertyFilesContainingDataProperty(Module module, List<SpringBootApplicationProperties> applicationProperties) {
         List<SpringBootApplicationProperties> sqlDataFileProperty = findPropertyFilesContainingProperty(applicationProperties, "spring.datasource.data");
         return sqlDataFileProperty;
     }
@@ -36,25 +36,25 @@ public class CreateDatasourceInitializerAnalyzer {
                 .collect(Collectors.toList());
     }
 
-    public List<SpringBootApplicationProperties> findPropertyFilesContainingSchemaProperty(ApplicationModule module, List<SpringBootApplicationProperties> applicationProperties) {
+    public List<SpringBootApplicationProperties> findPropertyFilesContainingSchemaProperty(Module module, List<SpringBootApplicationProperties> applicationProperties) {
         return findPropertyFilesContainingProperty(applicationProperties, "spring.datasource.schema");
     }
 
-    public List<ProjectResource> findSchemaAndDataFiles(ApplicationModule module) {
+    public List<ProjectResource> findSchemaAndDataFiles(Module module) {
         return module.search(new PathPatternMatchingProjectResourceFinder(List.of("**/resources/**/schema.sql", "**/resources/**/data.sql")));
     }
 
-    public List<SpringBootApplicationProperties> findPropertyFilesContainingDataUsernameProperty(ApplicationModule module) {
+    public List<SpringBootApplicationProperties> findPropertyFilesContainingDataUsernameProperty(Module module) {
         List<SpringBootApplicationProperties> applicationProperties = module.search(new SpringBootApplicationPropertiesResourceListFilter());
         return findPropertyFilesContainingProperty(applicationProperties, "spring.datasource.data-username");
     }
 
-    public List<SpringBootApplicationProperties> findPropertyFilesContainingDataPasswordProperty(ApplicationModule context) {
+    public List<SpringBootApplicationProperties> findPropertyFilesContainingDataPasswordProperty(Module context) {
         List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
         return findPropertyFilesContainingProperty(applicationProperties, "spring.datasource.data-password");
     }
 
-    public List<SpringBootApplicationProperties> findPropertyFilesContainingSchemaUsernameProperty(ApplicationModule context) {
+    public List<SpringBootApplicationProperties> findPropertyFilesContainingSchemaUsernameProperty(Module context) {
         List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
         return findPropertyFilesContainingProperty(applicationProperties, "spring.datasource.schema-username");
     }

@@ -19,7 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 
@@ -48,7 +48,7 @@ public class AddSpringBootApplicationPropertiesAction extends AbstractAction {
         }
     }
 
-    public void apply(ApplicationModule module) {
+    public void apply(Module module) {
         SpringBootApplicationProperties springBootApplicationProperties = SpringBootApplicationProperties.newApplicationProperties(module.getProjectRootDirectory(), module.getModulePath().resolve(APPLICATION_PROPERTIES_PATH));
         module.getMainResourceSet().addResource(springBootApplicationProperties);
     }

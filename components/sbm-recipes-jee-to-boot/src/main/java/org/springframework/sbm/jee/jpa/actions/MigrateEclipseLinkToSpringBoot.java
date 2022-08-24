@@ -21,7 +21,7 @@ import freemarker.template.Template;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
@@ -55,7 +55,7 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
-        List<ApplicationModule> affectedModules = context.getApplicationModules().stream()
+        List<Module> affectedModules = context.getApplicationModules().stream()
                 .filter(b -> b.getBuildFile().hasDeclaredDependencyMatchingRegex("org\\.eclipse\\.persistence\\:.*"))
                 .collect(Collectors.toList());
 
@@ -251,7 +251,7 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
         return basePackageCalculator.calculateBasePackage(projectJavaSources.list());
     }
 
-    private void declareDependencyToSpringBootStarterDataJpaWithHibernateExcluded(ApplicationModule m) {
+    private void declareDependencyToSpringBootStarterDataJpaWithHibernateExcluded(Module m) {
         if(m.getBuildFile().hasDeclaredDependencyMatchingRegex("org\\.springframework\\.boot\\:spring-boot-starter-data-jpa\\:.*")) {
             m.getBuildFile().excludeDependencies(createExcludedDependencies());
         } else {
@@ -286,7 +286,7 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
         );
     }
 
-    private List<SpringBootJpaProperty> extractEclipseLinkProperties(ApplicationModule module) {
+    private List<SpringBootJpaProperty> extractEclipseLinkProperties(Module module) {
         List<SpringBootJpaProperty> springBootJpaProperties = new ArrayList<>();
 
         Optional<PersistenceXml> optPersistenceXml = module.search(new PersistenceXmlResourceFilter());
@@ -300,7 +300,7 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
             .orElse(springBootJpaProperties);
     }
 
-    private void addClassToModule(ApplicationModule m, Path projectRootDir, Path sourceFolder, String packageName, String configurationCode) {
+    private void addClassToModule(Module m, Path projectRootDir, Path sourceFolder, String packageName, String configurationCode) {
         m.getMainJavaSourceSet().addJavaSource(projectRootDir, configurationCode, packageName);
     }
 
@@ -327,7 +327,7 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
     private void declareDependencyToSpringBootStarterDataJpaWithHibernateExcluded() {
     }
 
-    private void upgradeEclipseLink(ApplicationModule m) {
+    private void upgradeEclipseLink(Module m) {
 
     }
 

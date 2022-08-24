@@ -16,7 +16,7 @@
 package org.springframework.sbm.jee.jsf.actions;
 
 import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -32,14 +32,14 @@ public class AddJoinfacesDependencies extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
         if (context.getApplicationModules().isSingleModuleApplication()) {
-            ApplicationModule module = context.getApplicationModules().getRootModule();
+            Module module = context.getApplicationModules().getRootModule();
             applyToModule(module);
         } else {
             throw new MultiModuleApplicationNotSupportedException("Action can only be applied to applications with single module.");
         }
     }
 
-    private void applyToModule(ApplicationModule module) {
+    private void applyToModule(Module module) {
         JsfImplementation jsfImplementation = getJsfImplementationInUse(module);
 
         if (jsfImplementation.equals(JsfImplementation.UNKNOWN)) {
@@ -59,7 +59,7 @@ public class AddJoinfacesDependencies extends AbstractAction {
         return false;
     }
 
-    private void addJoinfacesDependencies(JsfImplementation jsfImplementation, ApplicationModule module) {
+    private void addJoinfacesDependencies(JsfImplementation jsfImplementation, Module module) {
         if (jsfImplementation.equals(JsfImplementation.APACHE_MYFACES)) {
             addMyFacesDependencies(module);
         } else if (jsfImplementation.equals(JsfImplementation.MOJARRA)) {
@@ -67,7 +67,7 @@ public class AddJoinfacesDependencies extends AbstractAction {
         }
     }
 
-    private void addMojarraDependencies(ApplicationModule context) {
+    private void addMojarraDependencies(Module context) {
         Dependency joinfacesStarter = Dependency.builder()
                 .groupId("org.joinfaces")
                 .artifactId("jsf-spring-boot-starter")
@@ -77,7 +77,7 @@ public class AddJoinfacesDependencies extends AbstractAction {
         context.getBuildFile().addDependencies(List.of(joinfacesStarter));
     }
 
-    private void addMyFacesDependencies(ApplicationModule context) {
+    private void addMyFacesDependencies(Module context) {
         Dependency joinfacesStarter = Dependency.builder()
                 .groupId("org.joinfaces")
                 .artifactId("jsf-spring-boot-starter")
@@ -98,7 +98,7 @@ public class AddJoinfacesDependencies extends AbstractAction {
         context.getBuildFile().addDependencies(List.of(joinfacesStarter, myfacesStarter));
     }
 
-    private void addJoinfacesDependencyManagement(ApplicationModule context) {
+    private void addJoinfacesDependencyManagement(Module context) {
         Dependency joinfacesDependencyManagement = Dependency.builder()
                 .groupId("org.joinfaces")
                 .artifactId("joinfaces-dependencies")
@@ -109,7 +109,7 @@ public class AddJoinfacesDependencies extends AbstractAction {
         context.getBuildFile().addToDependencyManagement(joinfacesDependencyManagement);
     }
 
-    private JsfImplementation getJsfImplementationInUse(ApplicationModule module) {
+    private JsfImplementation getJsfImplementationInUse(Module module) {
         if (usesMyFaces(module)) {
             return JsfImplementation.APACHE_MYFACES;
         } else if (usesMojarra(module)) {
@@ -119,17 +119,17 @@ public class AddJoinfacesDependencies extends AbstractAction {
         }
     }
 
-    private boolean usesMojarra(ApplicationModule module) {
+    private boolean usesMojarra(Module module) {
         return module.getBuildFile().hasDeclaredDependencyMatchingRegex(
                 "org\\.glassfish\\:javax\\.faces.*",
                 "org\\.glassfish\\:jakarta\\.faces.*");
     }
 
-    private boolean usesMyFaces(ApplicationModule module) {
+    private boolean usesMyFaces(Module module) {
         return module.getBuildFile().hasDeclaredDependencyMatchingRegex("org\\.apache\\.myfaces.*");
     }
 
-    private boolean hasJsfImport(ApplicationModule module) {
+    private boolean hasJsfImport(Module module) {
         return module.getMainJavaSourceSet().hasImportStartingWith("javax.faces");
     }
 

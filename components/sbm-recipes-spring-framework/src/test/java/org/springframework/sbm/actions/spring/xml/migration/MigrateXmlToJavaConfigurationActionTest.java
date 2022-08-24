@@ -17,7 +17,7 @@ package org.springframework.sbm.actions.spring.xml.migration;
 
 import org.springframework.sbm.build.api.ApplicationModules;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,9 +54,9 @@ class MigrateXmlToJavaConfigurationActionTest {
 
         List<RewriteSourceFileHolder> xmlBeanFiles = List.of();
         MigrationContext migrationContext = mock(MigrationContext.class);
-        ApplicationModule module1 = mock(ApplicationModule.class);
-        ApplicationModule module2 = mock(ApplicationModule.class);
-        List<ApplicationModule> modules = List.of(module1, module2);
+        Module module1 = mock(Module.class);
+        Module module2 = mock(Module.class);
+        List<Module> modules = List.of(module1, module2);
         ApplicationModules applicationModules = new ApplicationModules(modules);
 
         when(actionHelper.getXmlBeanDefinitionFiles(context)).thenReturn(xmlBeanFiles);
