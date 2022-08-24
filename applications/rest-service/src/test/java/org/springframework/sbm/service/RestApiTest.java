@@ -23,10 +23,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
+import org.junit.jupiter.api.*;
 import org.springframework.sbm.service.dto.RecipeInfo;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,18 +45,18 @@ public class RestApiTest {
     
     @TempDir
     File tempFolder;
-    
+
+    @BeforeEach
+    void setup() throws IOException {
+        FileUtils.cleanDirectory(tempFolder);
+    }
+
     @Test
     public void scanNoParameters() throws Exception {
         ResponseEntity<?> recipes = this.restTemplate.postForEntity("http://localhost:" + port + "/scan", null, Object.class);
         assertThat(recipes.getStatusCode().isError()).isTrue();
     }
-    
-    @BeforeEach
-    void setup() throws IOException {
-        FileUtils.cleanDirectory(tempFolder);
-    }
-    
+
     @Test
     public void scanProject() throws Exception {
         File testProject = ProjectUtils.initTestProject(tempFolder, "bootify-jaxrs");
@@ -68,6 +67,7 @@ public class RestApiTest {
     }
     
     @Test
+    @Disabled("Fails somtimes in CI 'RestApiTest.applyRecipe:76 ? ResourceAccess I/O error on POST request for \"htt...' and will be replaced by Websocket API")
     public void applyRecipe() throws Exception {
         File testProject = ProjectUtils.initTestProject(tempFolder, "bootify-jaxrs");
         Path bootAppMainClass = testProject.toPath().resolve("src/main/java/com/example/jee/app/SpringBootApp.java");
