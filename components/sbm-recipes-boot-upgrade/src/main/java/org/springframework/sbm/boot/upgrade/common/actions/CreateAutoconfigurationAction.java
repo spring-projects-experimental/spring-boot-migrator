@@ -15,15 +15,19 @@
  */
 package org.springframework.sbm.boot.upgrade.common.actions;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.engine.recipe.RecipeUtil;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.StringProjectResource;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -32,19 +36,21 @@ import java.util.regex.Pattern;
 public class CreateAutoconfigurationAction extends AbstractAction {
 
     private static final String SPRING_FACTORIES_PATH = "/**/src/main/resources/META-INF/spring.factories";
-    private static final String SPRING_FACTORIES_FILE = "src/main/resources/META-INF/spring.factories";
     private static final String AUTO_CONFIGURATION_IMPORTS = "src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports";
     public static final String ENABLE_AUTO_CONFIGURATION_KEY = "org.springframework.boot.autoconfigure.EnableAutoConfiguration";
     public static final Pattern COMMENT_REGEX = Pattern.compile("^#.*(\r|\n)+");
 
+    private final RecipeUtil recipeUtil = new RecipeUtil();
+
     @Override
     public void apply(ProjectContext context) {
-        Optional<Properties> props = getSpringFactoriesProperties(context);
+        Optional<Pair<Properties, ProjectResource>> props = getSpringFactoriesProperties(context);
+
         if (props.isEmpty()) {
             return;
         }
 
-        Optional<String> springAutoConfigProperties = getEnableAutoConfigFromSpringFactories(props.get());
+        Optional<String> springAutoConfigProperties = getEnableAutoConfigFromSpringFactories(props.get().getLeft());
 
         if (springAutoConfigProperties.isPresent()) {
 
@@ -52,19 +58,24 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                     .get()
                     .replaceAll(",", "\\\n");
 
+
+            Path enclosingMavenProjectForResource = recipeUtil.getEnclosingMavenProjectForResource(context.getProjectResources(), props.get().getRight().getAbsolutePath());
             StringProjectResource springAutoconfigurationFile =
                     new StringProjectResource(
-                            context.getProjectRootDirectory(),
-                            context.getProjectRootDirectory().resolve(AUTO_CONFIGURATION_IMPORTS),
+                            enclosingMavenProjectForResource,
+                            enclosingMavenProjectForResource.resolve(AUTO_CONFIGURATION_IMPORTS),
                             autoConfigString
                     );
             context.getProjectResources().add(springAutoconfigurationFile);
 
-            removeAutoConfigKeyFromSpringFactories(props.get(), context);
+            removeAutoConfigKeyFromSpringFactories(props.get().getLeft(), context,enclosingMavenProjectForResource, props.get().getRight());
         }
     }
 
-    private void removeAutoConfigKeyFromSpringFactories(Properties props, ProjectContext context) {
+    private void removeAutoConfigKeyFromSpringFactories(Properties props,
+                                                        ProjectContext context,
+                                                        Path projectRootDirectory,
+                                                        ProjectResource originalResource) {
         try {
             props.remove(ENABLE_AUTO_CONFIGURATION_KEY);
             StringWriter stringWriter = new StringWriter();
@@ -73,12 +84,12 @@ public class CreateAutoconfigurationAction extends AbstractAction {
 
             StringProjectResource springUpdatedSpringFactories =
                     new StringProjectResource(
-                            context.getProjectRootDirectory(),
-                            context.getProjectRootDirectory().resolve(SPRING_FACTORIES_FILE),
+                            projectRootDirectory,
+                            originalResource.getAbsolutePath(),
                             propertiesWithoutComment
                     );
             context.getProjectResources().replace(
-                    context.getProjectRootDirectory().resolve(SPRING_FACTORIES_FILE),
+                    originalResource.getAbsolutePath(),
                     springUpdatedSpringFactories);
         } catch (IOException e) {
             throw new RuntimeException("Error whilst reading property file", e);
@@ -90,7 +101,7 @@ public class CreateAutoconfigurationAction extends AbstractAction {
         return Optional.ofNullable(content);
     }
 
-    private Optional<Properties> getSpringFactoriesProperties(ProjectContext context) {
+    private Optional<Pair<Properties, ProjectResource>> getSpringFactoriesProperties(ProjectContext context) {
         List<ProjectResource> search = context.search(
                 new PathPatternMatchingProjectResourceFinder(
                         SPRING_FACTORIES_PATH
@@ -102,7 +113,7 @@ public class CreateAutoconfigurationAction extends AbstractAction {
 
             try {
                 prop.load(new ByteArrayInputStream(oldConfigFile.getBytes()));
-                return Optional.of(prop);
+                return Optional.of(new ImmutablePair<>(prop, search.get(0)));
             } catch (IOException e) {
                 throw new RuntimeException("Error whilst reading property file " + SPRING_FACTORIES_PATH, e);
             }

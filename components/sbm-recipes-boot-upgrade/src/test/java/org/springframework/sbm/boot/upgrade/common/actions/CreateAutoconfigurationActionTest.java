@@ -17,6 +17,7 @@ package org.springframework.sbm.boot.upgrade.common.actions;
 
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -60,7 +61,7 @@ class CreateAutoconfigurationActionTest {
     public void autoConfigurationImportsContent() {
         action.apply(context);
 
-        String content = getNewAutoConfigFile();
+        String content = getNewAutoConfigFileContents();
 
         assertThat(content).isEqualTo("XYZ");
     }
@@ -93,7 +94,7 @@ class CreateAutoconfigurationActionTest {
 
         action.apply(context);
 
-        String content = getNewAutoConfigFile();
+        String content = getNewAutoConfigFileContents();
 
         assertThat(content).isEqualTo("""
                 XYZ
@@ -105,7 +106,17 @@ class CreateAutoconfigurationActionTest {
     @Test
     public void multiMavenModule() {
 
-        TestProjectContext.
+        context = setupMultiMavenSpringModule();
+
+        action.apply(context);
+
+        List<ProjectResource> projectResources = getAutoConfigFileAsProjectResource();
+
+        assertThat(projectResources).hasSize(1);
+    }
+
+    private ProjectContext setupMultiMavenSpringModule() {
+        return TestProjectContext.
                 buildProjectContext()
                 .addProjectResource("pom.xml",
                         """
@@ -158,6 +169,52 @@ class CreateAutoconfigurationActionTest {
                                     </repositories>
                                 </project>
                                 """)
+                .addProjectResource("spring-app/pom.xml",
+                        """
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                                                
+                                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                    <parent>
+                                        <artifactId>boot-upgrade-27_30</artifactId>
+                                        <groupId>com.example</groupId>
+                                        <version>0.0.1-SNAPSHOT</version>
+                                    </parent>
+                                    <modelVersion>4.0.0</modelVersion>
+                                                                
+                                    <artifactId>spring-app</artifactId>
+                                                                
+                                    <properties>
+                                        <maven.compiler.source>17</maven.compiler.source>
+                                        <maven.compiler.target>17</maven.compiler.target>
+                                    </properties>
+                                    <dependencies>
+                                        <dependency>
+                                            <groupId>org.springframework.boot</groupId>
+                                            <artifactId>spring-boot-starter-web</artifactId>
+                                        </dependency>
+                                        <dependency>
+                                            <groupId>org.springframework.boot</groupId>
+                                            <artifactId>spring-boot-starter-data-jpa</artifactId>
+                                        </dependency>
+                                    </dependencies>
+                                                            
+                                    <build>
+                                        <plugins>
+                                            <plugin>
+                                                <groupId>org.springframework.boot</groupId>
+                                                <artifactId>spring-boot-maven-plugin</artifactId>
+                                            </plugin>
+                                        </plugins>
+                                    </build>
+                                </project>
+                                                                
+                                """)
+                .addProjectResource("spring-app/src/main/resources/META-INF//spring.factories",
+                        """
+                                org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.hello.GreetingConfig
+                                """)
                 .addProjectResource(
                         "spring-app/src/main/java/com/hello", """
                                         package com.hello;
@@ -174,23 +231,17 @@ class CreateAutoconfigurationActionTest {
                                             }
                                         }
                                                                 
-                                """);
-        ;
-        context = TestProjectContext.buildProjectContext()
-                .addProjectResource(
-                        "src/main/resources/META-INF/spring.factories",
-                        """
-                                hello.world=something
-                                org.springframework.boot.autoconfigure.EnableAutoConfiguration=XYZ
-                                """
-                )
-                .build();
+                                """).build();
     }
 
-    private String getNewAutoConfigFile() {
+    private String getNewAutoConfigFileContents() {
+        return getAutoConfigFileAsProjectResource().get(0).print();
+    }
+
+    private List<ProjectResource> getAutoConfigFileAsProjectResource() {
         return getFileAsProjectResource(
                 "/**/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports"
-        ).get(0).print();
+        );
     }
 
     private List<ProjectResource> getFileAsProjectResource(String path) {
