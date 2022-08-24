@@ -16,7 +16,7 @@
 package org.springframework.sbm.boot.common.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
@@ -46,14 +46,14 @@ public class AddSpringBootContextTestClassAction extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
-        List<ApplicationModule> applicationModules = context.getApplicationModules().getTopmostApplicationModules();
+        List<Module> modules = context.getApplicationModules().getTopmostApplicationModules();
 
-        applicationModules.forEach(module -> {
+        modules.forEach(module -> {
             handleModule(module);
         });
     }
 
-    private void handleModule(ApplicationModule module) {
+    private void handleModule(Module module) {
 
         JavaSourceSet mainJavaSourceSet = module.getMainJavaSourceSet();
         JavaSourceSet testJavaSourceSet = module.getTestJavaSourceSet();

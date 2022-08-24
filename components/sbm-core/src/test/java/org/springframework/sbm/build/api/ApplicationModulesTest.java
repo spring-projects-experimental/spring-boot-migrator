@@ -116,7 +116,7 @@ class ApplicationModulesTest {
 
     @Test
     void rootModule() {
-        ApplicationModule rootModule = sut.getRootModule();
+        Module rootModule = sut.getRootModule();
         assertThat(rootModule.getModulePath()).isEqualTo(Path.of(""));
         assertThat(rootModule.getBuildFile().getCoordinates()).isEqualTo("org.example:parent:1.0-SNAPSHOT");
 //        assertThat(rootModule.getModules().get(0).getBuildFile().getCoordinates()).isEqualTo("org.example:module1:1.0-SNAPSHOT");
@@ -128,20 +128,20 @@ class ApplicationModulesTest {
 
     @Test
     void getModule() {
-        ApplicationModule parentModule = sut.findModule("org.example:parent:1.0-SNAPSHOT").get();
+        Module parentModule = sut.findModule("org.example:parent:1.0-SNAPSHOT").get();
         assertThat(parentModule.getBuildFile().getCoordinates()).isEqualTo("org.example:parent:1.0-SNAPSHOT");
 
-        ApplicationModule module1 = sut.findModule("org.example:module1:1.0-SNAPSHOT").get();
+        Module module1 = sut.findModule("org.example:module1:1.0-SNAPSHOT").get();
         assertThat(module1.getBuildFile().getCoordinates()).isEqualTo("org.example:module1:1.0-SNAPSHOT");
 
-        ApplicationModule module2 = sut.findModule("org.example:module2:1.0-SNAPSHOT").get();
+        Module module2 = sut.findModule("org.example:module2:1.0-SNAPSHOT").get();
         assertThat(module2.getBuildFile().getCoordinates()).isEqualTo("org.example:module2:1.0-SNAPSHOT");
     }
 
     @Test
     void applicationModule() {
         assertThat(sut.getTopmostApplicationModules()).hasSize(1);
-        ApplicationModule applicationModule = sut.getTopmostApplicationModules().get(0);
+        Module applicationModule = sut.getTopmostApplicationModules().get(0);
         assertThat(applicationModule.getModulePath()).isEqualTo(Path.of("module1"));
         assertThat(applicationModule.getBuildFile().getCoordinates()).isEqualTo("org.example:module1:1.0-SNAPSHOT");
     }
@@ -149,7 +149,7 @@ class ApplicationModulesTest {
     @Test
     void componentModule() {
         assertThat(sut.getComponentModules()).hasSize(1);
-        ApplicationModule applicationModule = sut.getTopmostApplicationModules().get(0);
+        Module applicationModule = sut.getTopmostApplicationModules().get(0);
         assertThat(applicationModule.getModulePath()).isEqualTo(Path.of("module1"));
         assertThat(applicationModule.getBuildFile().getCoordinates()).isEqualTo("org.example:module1:1.0-SNAPSHOT");
     }

@@ -23,7 +23,7 @@ import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperti
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 import org.springframework.sbm.boot.upgrade_24_25.filter.CreateDatasourceInitializerAnalyzer;
 import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.project.resource.ProjectResource;
@@ -43,7 +43,7 @@ public class Boot_24_25_CreateDatasourceInitializerAction extends AbstractAction
     @Override
     public void apply(ProjectContext context) {
         if (context.getApplicationModules().isSingleModuleApplication()) {
-            ApplicationModule module = context.getApplicationModules().getRootModule();
+            Module module = context.getApplicationModules().getRootModule();
             List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
             applyToModule(module, applicationProperties);
         } else {
@@ -51,7 +51,7 @@ public class Boot_24_25_CreateDatasourceInitializerAction extends AbstractAction
         }
     }
 
-    private void applyToModule(ApplicationModule module, List<SpringBootApplicationProperties> applicationProperties) {
+    private void applyToModule(Module module, List<SpringBootApplicationProperties> applicationProperties) {
         CreateDatasourceInitializerAnalyzer analyzer = new CreateDatasourceInitializerAnalyzer();
         List<SpringBootApplicationProperties> sqlDataFileProperty = analyzer.findPropertyFilesContainingDataProperty(module, applicationProperties);
 
@@ -123,7 +123,7 @@ public class Boot_24_25_CreateDatasourceInitializerAction extends AbstractAction
         applicationPropertiesList.forEach(p -> p.setProperty(propertyName, propertyValue));
     }
 
-    private String calculatePackage(ApplicationModule module) {
+    private String calculatePackage(Module module) {
         return module.getMainJavaSourceSet().getJavaSourceLocation().getPackageName();
     }
 

@@ -17,7 +17,7 @@ package org.springframework.sbm.build.migration.actions;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
@@ -40,7 +40,7 @@ public class BumpParentPomVersion extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
         context.getApplicationModules().stream()
-                .map(ApplicationModule::getBuildFile)
+                .map(Module::getBuildFile)
                 .filter(BuildFile::hasParent)
                 .filter(b -> b.getParentPomDeclaration().get().getGroupId().equals(groupId))
                 .filter(b -> b.getParentPomDeclaration().get().getArtifactId().equals(artifactId))

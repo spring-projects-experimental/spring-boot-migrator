@@ -20,7 +20,7 @@ import org.springframework.sbm.common.util.LinuxWindowsPathUnifier;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.java.api.JavaSourceLocation;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -50,14 +50,14 @@ public class ImportSpringXmlConfigAction extends AbstractAction {
     public void apply(ProjectContext context) {
         if (context.getApplicationModules().isSingleModuleApplication()) {
             List<RewriteSourceFileHolder> xmlFiles = getResourcesToImport(context);
-            ApplicationModule module = context.getApplicationModules().getRootModule();
+            Module module = context.getApplicationModules().getRootModule();
             applyToModule(module, xmlFiles);
         } else {
             throw new MultiModuleApplicationNotSupportedException("Action can only be applied to applications with single module.");
         }
     }
 
-    private void applyToModule(ApplicationModule module, List<RewriteSourceFileHolder> xmlFiles) {
+    private void applyToModule(Module module, List<RewriteSourceFileHolder> xmlFiles) {
 
         JavaSourceSet mainJavaSourceSet = module.getMainJavaSourceSet();
         JavaSourceLocation sourceFileLocation = mainJavaSourceSet.getJavaSourceLocation();

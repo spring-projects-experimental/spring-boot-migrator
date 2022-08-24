@@ -16,8 +16,8 @@
 package org.springframework.sbm.engine.context;
 
 import org.openrewrite.java.JavaParser;
-import org.springframework.sbm.build.api.ApplicationModule;
 import org.springframework.sbm.build.api.ApplicationModules;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.RootBuildFileFilter;
 import org.springframework.sbm.build.filter.BuildFileProjectResourceFilter;
@@ -57,16 +57,16 @@ public class ProjectContext {
         return projectResources;
     }
 
-    public List<ApplicationModule> getModules() {
+    public List<Module> getModules() {
         return search(new BuildFileProjectResourceFilter()).stream()
                 .map(this::mapToModule)
                 .collect(Collectors.toList());
     }
 
-    private ApplicationModule mapToModule(BuildFile buildFile) {
+    private Module mapToModule(BuildFile buildFile) {
         String buildFileName = "";
         Path modulePath = projectRootDirectory.relativize(buildFile.getAbsolutePath().getParent());
-        return new ApplicationModule(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator, javaParser);
+        return new Module(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator, javaParser);
     }
 
     public BuildFile getBuildFile() {

@@ -17,7 +17,7 @@
 package org.springframework.sbm.boot.upgrade_27_30.checks;
 
 import org.jetbrains.annotations.NotNull;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.stereotype.Component;
 
@@ -25,9 +25,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class JerseyTemporarilyRemovedFinder implements Sbm30_Finder<Set<ApplicationModule>> {
+public class JerseyTemporarilyRemovedFinder implements Sbm30_Finder<Set<Module>> {
     @Override
-    public @NotNull Set<ApplicationModule> findMatches(ProjectContext context) {
+    public @NotNull Set<Module> findMatches(ProjectContext context) {
         return context.getApplicationModules().stream()
                 .filter(m -> m.getBuildFile().hasDeclaredDependencyMatchingRegex("org\\.glassfish\\.jersey.*\\:.*\\:.*"))
                 .collect(Collectors.toSet());

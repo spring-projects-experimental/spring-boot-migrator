@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.recipe.AbstractAction;

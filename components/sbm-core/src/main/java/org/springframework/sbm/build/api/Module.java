@@ -32,7 +32,6 @@ import lombok.RequiredArgsConstructor;
 import org.openrewrite.SourceFile;
 
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class ApplicationModule {
+public class Module {
 
     @Getter
     private final String name;
@@ -118,6 +117,20 @@ public class ApplicationModule {
     public ResourceSet getTestResourceSet() {
         Path testResourceSet = buildFile.getTestResourceFolder();
         return new ResourceSet(projectResourceSet, projectRootDir, modulePath, testResourceSet);
+    }
+
+    public List<Module> getModules() {
+        Optional<MavenResolutionResult> mavenResolution = MavenBuildFileUtil.findMavenResolution(((OpenRewriteMavenBuildFile) buildFile).getSourceFile());
+        List<MavenResolutionResult> modulesMarker = mavenResolution.get().getModules();
+        if (!modulesMarker.isEmpty()) {
+            return modulesMarker
+                    .stream()
+                    .map(m -> new Module(m.getPom().getGav().toString(), this.buildFile, projectRootDir, modulePath,
+                                         projectResourceSet, javaRefactoringFactory, basePackageCalculator, javaParser))
+                    .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     public List<String> getDeclaredModules() {

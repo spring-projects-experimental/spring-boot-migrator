@@ -36,7 +36,7 @@ import java.util.function.Consumer;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Test ApplicationModule.searchTestJava")
-public class ApplicationModule_searchMainJava_Test {
+public class Module_searchMainJava_Test {
 
     @Nested
     @DisplayName("Project")

@@ -16,7 +16,7 @@
 package org.springframework.sbm.build.migration.actions;
 
 import lombok.experimental.SuperBuilder;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -50,7 +50,7 @@ public class RemoveDependenciesMatchingRegex extends MultiModuleAwareAction {
     @Override
     public void apply(ProjectContext context) {
         context.getModules().stream()
-                .map(ApplicationModule::getBuildFile)
+                .map(Module::getBuildFile)
                 .filter(b -> b.hasDeclaredDependencyMatchingRegex(dependenciesRegex.toArray(new String[0])))
                 .forEach(b -> b.removeDependenciesMatchingRegex(dependenciesRegex.toArray(new String[0])));
     }

@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.jee.jaxws;
 
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.java.api.*;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -126,7 +126,7 @@ class WebServiceDescriptor {
     }
 
 
-    public JavaSource generateEndpoint(ApplicationModule module) {
+    public JavaSource generateEndpoint(Module module) {
         List<WebServiceOperation> ops = (endpointInterface == null ? typeAnnotatedAsWebService.getMethods().stream().filter(m -> m.getVisibility() == Visibility.PUBLIC) : endpointInterface.getMethods().stream())
                 .map(this::createWebServiceOperation)
                 .collect(Collectors.toList());
@@ -192,7 +192,7 @@ class WebServiceDescriptor {
         return op;
     }
 
-    private JavaSource generateEndpointSource(ApplicationModule module, List<WebServiceOperation> ops) {
+    private JavaSource generateEndpointSource(Module module, List<WebServiceOperation> ops) {
         JavaSource clazzSource = module.getMainJavaSourceSet()
                 .stream()
                 .filter(js -> js.getTypes().stream().filter(t -> typeAnnotatedAsWebService.getFullyQualifiedName().equals(t.getFullyQualifiedName())).findFirst().isPresent())
@@ -286,7 +286,7 @@ class WebServiceDescriptor {
         }
     }
 
-    public boolean isPojoCodePresent(ApplicationModule module) {
+    public boolean isPojoCodePresent(Module module) {
         return module.getMainJavaSourceSet().list().stream()
                 .filter(js -> packageName.equals(js.getPackageName()))
                 .findFirst()

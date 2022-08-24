@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.project.buildfile;
 
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.DisplayName;
@@ -91,7 +91,7 @@ public class MultiModulePlayground {
         @Test
         @DisplayName("When getModules() is called on root module it must contain the child modules.")
         void testGetModulesOnRootModule() {
-            ApplicationModule module = context.getApplicationModules().getModule(Path.of(""));
+            Module module = context.getApplicationModules().getModule(Path.of(""));
             assertThat(context.getApplicationModules().getModules(module)).hasSize(1);
             assertThat(context.getApplicationModules().getModules(module).get(0).getBuildFile().print()).isEqualTo(childPom);
         }

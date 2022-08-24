@@ -17,7 +17,7 @@ package org.springframework.sbm.actions.spring.xml.migration;
 
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
@@ -36,7 +36,7 @@ public class XmlToJavaConfigurationMigration {
 
     private final BeanMethodFactory beanMethodFactory;
 
-    void migrateSpringXmlBeanDefinitionsToJavaConfig(MigrationContext migrationContext, ApplicationModule module, List<RewriteSourceFileHolder> xmlBeanFiles) {
+    void migrateSpringXmlBeanDefinitionsToJavaConfig(MigrationContext migrationContext, Module module, List<RewriteSourceFileHolder> xmlBeanFiles) {
         Path sourceFolder = module.getBuildFile().getSourceFolders().get(0);
         String packageName = module.getMainJavaSourceSet().getJavaSourceLocation().getPackageName();
         xmlBeanFiles.forEach(xmlBeanFile -> {

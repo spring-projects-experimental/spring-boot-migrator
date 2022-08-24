@@ -17,10 +17,7 @@
 package org.springframework.sbm.boot.upgrade_27_30.checks;
 
 import org.jetbrains.annotations.NotNull;
-import org.springframework.sbm.build.api.ApplicationModule;
 import org.springframework.sbm.engine.context.ProjectContext;
-
-import java.util.Set;
 
 public interface Sbm30_Finder<T> {
     @NotNull <T> T findMatches(ProjectContext context);

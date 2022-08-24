@@ -18,7 +18,6 @@ package org.springframework.sbm.build.api;
 import org.intellij.lang.annotations.Language;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -26,7 +25,7 @@ import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-class ApplicationModuleTest {
+class ModuleTest {
 
     /**
      * Searches for files in {@code /src/main/resources} of this module.
@@ -115,9 +114,9 @@ class ApplicationModuleTest {
                 .addJavaSource("module2/src/test/java", javaSource4)
                 .build();
 
-        ApplicationModule parentModule = context.getApplicationModules().getModule(Path.of(""));
-        ApplicationModule module1 = context.getApplicationModules().getModule(Path.of("module1"));
-        ApplicationModule module2 = context.getApplicationModules().getModule(Path.of("module2"));
+        Module parentModule = context.getApplicationModules().getModule(Path.of(""));
+        Module module1 = context.getApplicationModules().getModule(Path.of("module1"));
+        Module module2 = context.getApplicationModules().getModule(Path.of("module2"));
 
         assertThat(parentModule.getMainJavaSourceSet().list()).isEmpty();
 

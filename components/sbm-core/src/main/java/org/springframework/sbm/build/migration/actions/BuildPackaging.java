@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -37,11 +37,10 @@ public class BuildPackaging extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
-        context
-                .getApplicationModules()
+        context.getApplicationModules()
                 .getTopmostApplicationModules()
                 .stream()
-                .map(ApplicationModule::getBuildFile)
+                .map(Module::getBuildFile)
                 .filter(b -> ! b.getPackaging().equalsIgnoreCase(packaging))
                 .forEach(buildFile -> buildFile.setPackaging(packaging));
 
