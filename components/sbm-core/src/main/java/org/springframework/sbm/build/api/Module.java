@@ -20,6 +20,7 @@ import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.springframework.sbm.build.impl.JavaSourceSetImpl;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
+import org.springframework.sbm.common.util.Verify;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
@@ -167,6 +168,14 @@ public class Module {
     public <T> T searchTestJava(ProjectResourceFinder<T> finder) {
         ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getTestJavaSourceSet().getAbsolutePath().toAbsolutePath().normalize()));
         return finder.apply(resourceSet);
+    }
+
+    /**
+     * Checks if any resources of this {@code Module} matches the given {@code resourcePath}.
+     */
+    public boolean contains(Path resourcePath) {
+        Verify.absolutePath(resourcePath);
+        return getModuleResources().stream().anyMatch(r -> r.getAbsolutePath().toString().equals(resourcePath.toString()));
     }
 
     /**

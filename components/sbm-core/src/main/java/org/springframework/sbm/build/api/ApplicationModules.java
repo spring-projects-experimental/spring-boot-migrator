@@ -60,9 +60,21 @@ public class ApplicationModules {
     }
 
     public Optional<Module> findModule(String coordinate) {
-        return modules.stream()
-                .filter(m -> m.getBuildFile().getCoordinates().equals(coordinate))
-                .findFirst();
+        return modules.stream().filter(m -> m.getBuildFile().getCoordinates().equals(coordinate)).findFirst();
+    }
+
+    public Module getModule(String name) {
+        if("root".equals(name)) name = "";
+        return getModule(Path.of(name));
+    }
+
+    /**
+     * Searches in all modules for a resource with given {@code resourcePath} and returns first match.
+     *
+     * @param resourcePath must be an <b>absolute path</b> of the resource
+     */
+    public Optional<Module> findModuleContaining(Path resourcePath) {
+        return modules.stream().filter(m -> m.contains(resourcePath)).findFirst();
     }
 
     public List<Module> getModules(Module module) {
