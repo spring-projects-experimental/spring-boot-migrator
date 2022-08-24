@@ -18,7 +18,7 @@ package org.springframework.sbm;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-public class BootifyJpaApplicationIntegrationTest extends IntegrationTestBaseClass {
+public class MigrateJpaApplicationIntegrationTest extends IntegrationTestBaseClass {
 
     @Override
     protected String getTestSubDir() {

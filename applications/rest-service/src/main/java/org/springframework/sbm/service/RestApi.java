@@ -49,6 +49,7 @@ public class RestApi {
     @PostMapping("/apply")
     void apply(@RequestParam("projectPath") String projectPath, @RequestParam("recipe") String recipe) {
         // FIXME: ProjectContext must be cached and used here
+        // FIXME: Apply should not do implicit scan.
         ProjectContext projectContext = scanCommand.execute(projectPath);
         applyCommand.execute(projectContext, recipe);
     }

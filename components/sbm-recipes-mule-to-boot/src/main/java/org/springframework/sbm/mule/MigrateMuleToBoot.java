@@ -23,6 +23,7 @@ import org.springframework.sbm.build.migration.actions.AddDependencies;
 import org.springframework.sbm.build.migration.actions.RemoveDependenciesMatchingRegex;
 import org.springframework.sbm.build.migration.actions.RemovePluginsMatchingRegex;
 import org.springframework.sbm.build.migration.conditions.NoDependencyExistMatchingRegex;
+import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.java.migration.actions.AddTypeAnnotationToTypeAnnotatedWith;
 import org.springframework.sbm.java.migration.conditions.HasNoTypeAnnotation;
@@ -52,7 +53,8 @@ public class MigrateMuleToBoot {
                         * Add dependencies for spring integration
                         */
                         AddDependencies.builder()
-                                .condition(NoDependencyExistMatchingRegex.builder()
+                                .condition(
+                                        NoDependencyExistMatchingRegex.builder()
                                             .dependencies(List.of(
                                                     "org.springframework.boot:spring-boot-starter-web:2.5.5",
                                                     "org.springframework.boot:spring-boot-starter-integration:2.5.5",
@@ -61,35 +63,38 @@ public class MigrateMuleToBoot {
                                                     "org.springframework.integration:spring-integration-stream:2.5.5"
                                             )
                                         )
-                                        .build())
-                                        .dependencies(List.of(
-                                                Dependency.builder()
-                                                        .groupId("org.springframework.boot")
-                                                        .artifactId("spring-boot-starter-web")
-                                                        .version("2.5.5")
-                                                        .build(),
-                                                Dependency.builder()
-                                                        .groupId("org.springframework.boot")
-                                                        .artifactId("spring-boot-starter-integration")
-                                                        .version("2.5.5")
-                                                        .build(),
-                                                Dependency.builder()
-                                                        .groupId("org.springframework.integration")
-                                                        .artifactId("spring-integration-amqp")
-                                                        .version("5.4.4")
-                                                        .build(),
-                                                Dependency.builder()
-                                                        .groupId("org.springframework.integration")
-                                                        .artifactId("spring-integration-stream")
-                                                        .version("5.4.4")
-                                                        .build(),
-                                                Dependency.builder()
-                                                        .groupId("org.springframework.integration")
-                                                        .artifactId("spring-integration-http")
-                                                        .version("5.4.4")
-                                                        .build()
-                                        ))
-                                        .build(),
+                                        .build()
+                                )
+                                .dependencies(
+                                    List.of(
+                                        Dependency.builder()
+                                                .groupId("org.springframework.boot")
+                                                .artifactId("spring-boot-starter-web")
+                                                .version("2.5.5")
+                                                .build(),
+                                        Dependency.builder()
+                                                .groupId("org.springframework.boot")
+                                                .artifactId("spring-boot-starter-integration")
+                                                .version("2.5.5")
+                                                .build(),
+                                        Dependency.builder()
+                                                .groupId("org.springframework.integration")
+                                                .artifactId("spring-integration-amqp")
+                                                .version("5.4.4")
+                                                .build(),
+                                        Dependency.builder()
+                                                .groupId("org.springframework.integration")
+                                                .artifactId("spring-integration-stream")
+                                                .version("5.4.4")
+                                                .build(),
+                                        Dependency.builder()
+                                                .groupId("org.springframework.integration")
+                                                .artifactId("spring-integration-http")
+                                                .version("5.4.4")
+                                                .build()
+                                    )
+                                )
+                                .build(),
 
                         /*
                         * Annotate Spring Boot Application class with @EnableIntegration
@@ -121,6 +126,7 @@ public class MigrateMuleToBoot {
                         * Remove Mule dependencies
                         */
                         RemoveDependenciesMatchingRegex.builder()
+                                .condition(Condition.TRUE)
                                 .dependenciesRegex(List.of("org\\.mule\\..*", "com\\.mulesoft\\..*"))
                                 .build(),
 
@@ -128,6 +134,7 @@ public class MigrateMuleToBoot {
                         * Remove Mule plugins
                         */
                         RemovePluginsMatchingRegex.builder()
+                                .condition(Condition.TRUE)
                                 .pluginsRegex(List.of("org\\.mule\\..*", "com\\.mulesoft\\..*"))
                                 .build()
 

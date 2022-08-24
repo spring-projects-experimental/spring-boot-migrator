@@ -23,16 +23,6 @@ import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
-import org.openrewrite.maven.AddDependencyVisitor;
-import org.openrewrite.maven.AddMavenRepository;
-import org.openrewrite.maven.ChangePackaging;
-import org.openrewrite.maven.ChangePropertyValue;
-import org.openrewrite.maven.ExcludeDependency;
-import org.openrewrite.maven.MavenParser;
-import org.openrewrite.maven.MavenVisitor;
-import org.openrewrite.maven.RemoveDependency;
-import org.openrewrite.maven.RemoveProperty;
-import org.openrewrite.maven.UpgradeParentVersion;
 import org.openrewrite.maven.*;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.Parent;
@@ -192,31 +182,31 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     /**
      * Retrieve dependencies declared in buildfile with version and scope from dependency management if not explicitly declared.
-     * <p>
+     *
      * Given this pom.xml and a call without any given `scope` parameter
-     * <p>
+     *
      * [source,xml]
      * ----
      * <dependencyManagement>
-     * <dependencies>
-     * <dependency>
-     * <groupId>org.junit.jupiter</groupId>
-     * <artifactId>junit-jupiter</artifactId>
-     * <version>5.7.1</version>
-     * <scope>test</scope>
-     * </dependency>
-     * </dependencies>
-     * </dependencyManagement>
-     * <dependencies>
-     * <dependency>
-     * <groupId>org.junit.jupiter</groupId>
-     * <artifactId>junit-jupiter</artifactId>
-     * </dependency>
-     * </dependencies>
+     *         <dependencies>
+     *            <dependency>
+     *                 <groupId>org.junit.jupiter</groupId>
+     *                 <artifactId>junit-jupiter</artifactId>
+     *                 <version>5.7.1</version>
+     *                 <scope>test</scope>
+     *             </dependency>
+     *         </dependencies>
+     *     </dependencyManagement>
+     *     <dependencies>
+     *         <dependency>
+     *             <groupId>org.junit.jupiter</groupId>
+     *             <artifactId>junit-jupiter</artifactId>
+     *         </dependency>
+     *     </dependencies>
      * ----
-     * <p>
+     *
      * a dependency `org.junit.jupiter:junit-jupiter:5.7.1` with scope `test` will be returned.
-     * <p>
+     *
      * TODO: tests...
      * - with all scopes
      * - Managed versions with type and classifier given
@@ -230,7 +220,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         // FIXME: #7 use getPom().getDependencies() instead ?
         List<Dependency> declaredDependenciesWithEffectiveVersions = requestedDependencies.stream()
                 .filter(d -> {
-                    if (scopes.length == 0) {
+                    if(scopes.length == 0) {
                         return true;
                     } else {
                         // FIXME: scope test should also return compile!
@@ -241,6 +231,34 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                     }
                 })
                 .map(d -> mapDependency(d))
+                .collect(Collectors.toList());
+        return declaredDependenciesWithEffectiveVersions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Dependency> getRequestedDependencies() {
+        List<org.openrewrite.maven.tree.Dependency> requestedDependencies = getPom().getPom().getRequestedDependencies();
+        // FIXME: #7 use getPom().getDependencies() instead ?
+        List<Dependency> declaredDependenciesWithEffectiveVersions = requestedDependencies.stream()
+                .map(d -> mapDependency(d))
+                .map(d -> {
+                    if(d.getType() == null || d.getClassifier() == null || d.getVersion() == null) {
+                        List<ResolvedDependency> dependencies = getPom().findDependencies(d.getGroupId(), d.getArtifactId(),
+                                                                                          d.getScope() != null ? Scope.fromName(d.getScope()) : null);
+                        ResolvedDependency resolvedDependency = dependencies.get(0);
+                        d.setVersion(resolvedDependency.getVersion());
+                        d.setClassifier(resolvedDependency.getClassifier());
+                        d.setType(resolvedDependency.getType());
+                        if(d.getScope() == null ) {
+                            String s = resolveScope(d.getGroupId(), d.getArtifactId(), d.getType(), d.getClassifier());
+                            d.setScope(s);
+                        }
+                    }
+                    return d;
+                })
                 .collect(Collectors.toList());
         return declaredDependenciesWithEffectiveVersions;
     }
@@ -299,8 +317,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         Dependency.DependencyBuilder dependencyBuilder = Dependency.builder()
                 .groupId(d.getGroupId())
                 .artifactId(d.getArtifactId())
-                .version(calculateVersion(d))
-                .scope(calculateScope(d))
+                .version(d.getVersion())
+                .scope(d.getScope())
                 .type(d.getType());
         if (d.getExclusions() != null && !d.getExclusions().isEmpty()) {
             dependencyBuilder.exclusions(d.getExclusions().stream()
@@ -310,22 +328,14 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         return dependencyBuilder.build();
     }
 
-    private String calculateScope(org.openrewrite.maven.tree.Dependency d) {
-        String scope = null;
-        if (d.getScope() != null) {
-            scope = d.getScope();
-        } else {
-            Scope managedScope = getPom().getPom().getManagedScope(d.getGroupId(), d.getArtifactId(), null, null);
-            if (managedScope != null) {
-                scope = managedScope.name().toLowerCase();
-            }
-        }
-        return scope;
+    private String resolveScope(String groupId, String artifactId, @Nullable String type, @Nullable String classifier) {
+        Scope managedScope = getPom().getPom().getManagedScope(groupId, artifactId, type, classifier);
+        return managedScope != null ? managedScope.name().toLowerCase() : null;
     }
 
     private String calculateVersion(org.openrewrite.maven.tree.Dependency d) {
         String version = null;
-        if (d.getVersion() != null) {
+        if (d.getVersion() != null && !d.getVersion().startsWith("${")) {
             version = d.getVersion();
         } else {
             String managedVersion = getPom().getPom().getManagedVersion(d.getGroupId(), d.getArtifactId(), null, null);
@@ -491,10 +501,10 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
         apply(new RefreshPomModel());
     }
-
     // FIXME: #7 rework dependencies/classpath registry
     // collect declared dependencies (jar/pom)
     // resolve classpath according to list of jar/pom
+
     @Override
     public List<Path> getResolvedDependenciesPaths() {
         RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader = new RewriteMavenArtifactDownloader();
@@ -729,7 +739,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public List<RepositoryDefinition> getRepositories() {
         return getPom().getPom().getRepositories().stream()
                 .map(r -> RepositoryDefinition.builder()
-                        .name(r.getId())
+                        .id(r.getId())
                         .url(r.getUri())
                         .releasesEnabled(r.isReleases())
                         .snapshotsEnabled(r.isSnapshots())
@@ -738,8 +748,15 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     @Override
-    public List<RepositoryDefinition> getPluginRepositories() {
+    public List<String> getDeclaredModules() {
+        List<MavenResolutionResult> modulesMarker = getPom().getModules();
+        return modulesMarker.stream()
+                .map(m -> m.getPom().getGav().toString())
+                .collect(Collectors.toList());
+    }
 
+    @Override
+    public List<RepositoryDefinition> getPluginRepositories() {
         return pluginRepositoryHandler.getRepositoryDefinitions(getSourceFile());
     }
 

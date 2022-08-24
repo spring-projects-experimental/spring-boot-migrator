@@ -17,6 +17,7 @@ package org.springframework.sbm.engine.context;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.ActionDeserializer;
 import org.springframework.sbm.search.recipe.actions.OpenRewriteJavaSearchAction;
@@ -32,15 +33,11 @@ import java.util.Collection;
 import java.util.Properties;
 
 @Component
+@RequiredArgsConstructor
 public class RewriteJavaSearchActionDeserializer implements ActionDeserializer {// extends StdDeserializer<FrameworkSupportAction> {
 
     protected final ObjectMapper yamlObjectMapper;
     protected final AutowireCapableBeanFactory beanFactory;
-
-    public RewriteJavaSearchActionDeserializer(ObjectMapper tolerantObjectMapper, AutowireCapableBeanFactory beanFactory) {
-        this.yamlObjectMapper = tolerantObjectMapper;
-        this.beanFactory = beanFactory;
-    }
 
     @Override
     public Action deserialize(ObjectMapper tolerantObjectMapper, Class<? extends Action> actionClass, JsonNode node, AutowireCapableBeanFactory parser) {

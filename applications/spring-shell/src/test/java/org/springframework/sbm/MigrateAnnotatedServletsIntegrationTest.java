@@ -23,7 +23,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Disabled("Temporary disabled before CI will be fixed with docker in docker issue: #351")
-public class BootifyAnnotatedServletsIntegrationTest extends IntegrationTestBaseClass {
+public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBaseClass {
 
 
     @Override

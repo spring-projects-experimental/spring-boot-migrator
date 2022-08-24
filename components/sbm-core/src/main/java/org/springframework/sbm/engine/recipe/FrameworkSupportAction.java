@@ -47,6 +47,11 @@ public class FrameworkSupportAction implements Action {
     }
 
     @Override
+    public void applyInternal(ProjectContext context) {
+        apply(context);
+    }
+
+    @Override
     public boolean isAutomated() {
         return false;
     }

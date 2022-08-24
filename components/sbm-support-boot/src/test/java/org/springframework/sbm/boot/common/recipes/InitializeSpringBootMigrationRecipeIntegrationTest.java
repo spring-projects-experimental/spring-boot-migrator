@@ -27,4 +27,11 @@ public class InitializeSpringBootMigrationRecipeIntegrationTest {
                 .andApplyRecipeComparingWithExpected("initialize-spring-boot-migration");
     }
 
+    @Test
+    void initializeSimpleMultiModuleProjectAsSpringBootApplication() {
+        String applicationDir = "multi-module-simple";
+        RecipeIntegrationTestSupport.initializeProject(applicationDir)
+                .andApplyRecipeComparingWithExpected("initialize-spring-boot-migration");
+    }
+
 }
