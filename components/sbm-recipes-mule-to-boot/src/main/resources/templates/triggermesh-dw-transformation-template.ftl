@@ -1,8 +1,8 @@
 <#if packageName?has_content>
-    package ${packageName};
+package ${packageName};
 
 <#else>
-    package com.example.javadsl;
+package com.example.javadsl;
 
 </#if>
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,11 +14,11 @@ import java.net.http.HttpResponse;
 
 public class ${className} {
     public static class DataWeavePayload {
-    public String input_data;
-    public String spell;
-    public String input_content_type;
-    public String output_content_type;
-};
+        public String input_data;
+        public String spell;
+        public String input_content_type;
+        public String output_content_type;
+    };
 
     public static String transform(TmDwPayload payload) {
         String uuid = payload.getId();
