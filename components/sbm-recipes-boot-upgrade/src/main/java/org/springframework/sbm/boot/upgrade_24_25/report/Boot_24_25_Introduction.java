@@ -40,7 +40,7 @@ public class Boot_24_25_Introduction implements UpgradeSectionBuilder {
         String groupId = buildFile.getGroupId();
         String artifactId = buildFile.getArtifactId();
         String version = buildFile.getVersion();
-        Optional<String> foundSpringVersion = buildFile.getDeclaredDependencies().stream().filter(d -> d.getGroupId().equals("org.springframework.boot")).map(d -> d.getVersion()).findFirst();
+        Optional<String> foundSpringVersion = buildFile.getRequestedDependencies().stream().filter(d -> d.getGroupId().equals("org.springframework.boot")).map(d -> d.getVersion()).findFirst();
         if(foundSpringVersion.isEmpty()) {
             throw new RuntimeException(String.format("Could not retrieve Spring version from declared dependencies in %s", buildFile.getAbsolutePath()));
         }

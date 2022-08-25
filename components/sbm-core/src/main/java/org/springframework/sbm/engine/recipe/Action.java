@@ -34,7 +34,7 @@ public interface Action {
             eventPublisher.publishEvent(new ActionStartedEvent(getDescription()));
         }
         try {
-            apply(context);
+            applyInternal(context);
         } catch(Exception e) {
             String message = "'" + this.getDescription() + "' failed: " + e.getMessage();
             if (eventPublisher != null) {
@@ -46,6 +46,8 @@ public interface Action {
             eventPublisher.publishEvent(new ActionFinishedEvent(getDescription()));
         }
     }
+
+    void applyInternal(ProjectContext context);
 
     ApplicationEventPublisher getEventPublisher();
 

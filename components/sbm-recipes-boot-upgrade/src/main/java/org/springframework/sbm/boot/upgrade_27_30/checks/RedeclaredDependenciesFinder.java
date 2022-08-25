@@ -19,7 +19,7 @@ package org.springframework.sbm.boot.upgrade_27_30.checks;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.ResolvedManagedDependency;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -66,7 +66,7 @@ public class RedeclaredDependenciesFinder implements Sbm30_Finder<Set<Dependency
     }
 
     @NotNull
-    private Map<String, String> prepareManagedDependenciesMap(ApplicationModule am) {
+    private Map<String, String> prepareManagedDependenciesMap(Module am) {
         List<ResolvedManagedDependency> managedDependencies = ((MavenResolutionResult) (((OpenRewriteMavenBuildFile) am.getBuildFile()).getPom())).getPom().getDependencyManagement();
         return managedDependencies.stream()
                 .filter(d -> d.getVersion() != null && !d.getVersion().isEmpty())

@@ -21,7 +21,7 @@ import freemarker.template.Template;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
@@ -48,7 +48,7 @@ public class AddJmsConfigAction extends AbstractAction {
     public void apply(ProjectContext context) {
 
         if (context.getApplicationModules().isSingleModuleApplication()) {
-            ApplicationModule module = context.getApplicationModules().getRootModule();
+            Module module = context.getApplicationModules().getRootModule();
             applyToModule(module);
         } else {
             throw new MultiModuleApplicationNotSupportedException("Action can only be applied to applications with single module, but multiple build files were found: ['" + context.getApplicationModules().stream().map(am -> am.getBuildFile().getAbsolutePath().toString()).collect(Collectors.joining("', '")) + "']");
@@ -56,7 +56,7 @@ public class AddJmsConfigAction extends AbstractAction {
 
     }
 
-    private void applyToModule(ApplicationModule module) {
+    private void applyToModule(Module module) {
         JavaSourceSet mainJavaSourceSet = module.getMainJavaSourceSet();
         JavaSourceLocation location = mainJavaSourceSet.getJavaSourceLocation();
 

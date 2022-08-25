@@ -15,13 +15,13 @@
  */
 package org.springframework.sbm.project.buildfile;
 
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
@@ -31,13 +31,11 @@ import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.stringtemplate.v4.compiler.STParser;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Timer;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,6 +43,50 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class OpenRewriteMavenBuildFileTest {
+
+    /*
+     * Test that the coordinate for a declared dependency with version set as property contains the resolved value of the
+     * version property.
+     */
+    @Test
+    void coordinatesForRequestedDependencies_withVersionProperty_shouldHaveResolvedVersionNumber() {
+
+        @Language("xml")
+        String applicationPom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>org.example</groupId>
+                    <artifactId>some-module</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <properties>
+                        <maven.compiler.source>17</maven.compiler.source>
+                        <maven.compiler.target>17</maven.compiler.target>
+                        <validation-api.version>2.0.1.Final</validation-api.version>
+                    </properties>
+                    <dependencies>
+                        <dependency>
+                            <groupId>javax.validation</groupId>
+                            <artifactId>validation-api</artifactId>
+                            <version>${validation-api.version}</version>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """;
+
+        BuildFile buildFile = TestProjectContext
+                .buildProjectContext()
+                .withMavenRootBuildFileSource(applicationPom)
+                .build()
+                .getApplicationModules()
+                .list()
+                .get(0)
+                .getBuildFile();
+
+        assertThat(buildFile.getRequestedDependencies().get(0).getCoordinates()).isEqualTo("javax.validation:validation-api:2.0.1.Final");
+    }
 
     @Test
     @Tag("integration")
@@ -144,12 +186,8 @@ public class OpenRewriteMavenBuildFileTest {
                 .filter(Objects::nonNull)
                 .map(dp -> {
                     String dep = dp.toString();
-                    if(dep.contains(".rewrite/cache/artifacts/")) {
-                        return dep.substring(dep.lastIndexOf(".rewrite/cache/artifacts/") + ".rewrite/cache/artifacts/".length());
-                    } else {
-                        return dep.substring(dep.lastIndexOf("repository/") + "repository/".length());
-                    }
-                }) // strip of path to Maven repository
+                    return dep.substring(dep.lastIndexOf("repository/") + "repository/".length());
+                })
                 .collect(Collectors.toList());
 
 
@@ -564,51 +602,133 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
+    void getRequestedDependencies() {
+        @Language("xml")
+        String pomSource = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>com.example</groupId>
+                    <artifactId>some-example</artifactId>
+                    <packaging>jar</packaging>
+                    <version>8.0.5-SNAPSHOT</version>
+                    <dependencyManagement>
+                        <dependencies>
+                           <dependency>
+                                <groupId>org.junit.jupiter</groupId>
+                                <artifactId>junit-jupiter</artifactId>
+                                <version>5.7.1</version>
+                                <scope>test</scope>
+                            </dependency>
+                        </dependencies>
+                    </dependencyManagement>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.junit.jupiter</groupId>
+                            <artifactId>junit-jupiter</artifactId>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.junit.jupiter</groupId>
+                            <artifactId>junit-jupiter-api</artifactId>
+                            <version>5.6.3</version>
+                            <scope>test</scope>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.mockito</groupId>
+                            <artifactId>mockito-core</artifactId>
+                            <version>3.7.7</version>
+                            <scope>test</scope>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.tomee</groupId>
+                            <artifactId>openejb-core-hibernate</artifactId>
+                            <version>8.0.5</version>
+                            <type>pom</type>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """;
+        ProjectContext build = TestProjectContext.buildProjectContext()
+                .withMavenRootBuildFileSource(pomSource)
+                .build();
+
+        List<Dependency> dependencies = build.getBuildFile().getRequestedDependencies();
+
+        assertThat(dependencies).hasSize(4);
+
+        assertThat(dependencies)
+                .anyMatch(d -> d.getGroupId().equals("org.junit.jupiter") &&
+                        d.getArtifactId().equals("junit-jupiter") &&
+                        d.getVersion().equals("5.7.1") &&
+                        d.getScope().equals("test"))
+                .anyMatch(d -> d.getGroupId().equals("org.junit.jupiter") &&
+                        d.getArtifactId().equals("junit-jupiter-api") &&
+                        d.getVersion().equals("5.6.3") &&
+                        d.getScope().equals("test"))
+                .anyMatch(d -> d.getGroupId().equals("org.mockito") &&
+                        d.getArtifactId().equals("mockito-core") &&
+                        d.getVersion().equals("3.7.7") &&
+                        d.getScope().equals("test"))
+                .anyMatch(d -> d.getGroupId().equals("org.mockito") &&
+                        d.getArtifactId().equals("mockito-core") &&
+                        d.getVersion().equals("3.7.7") &&
+                        d.getScope().equals("test"))
+                .anyMatch(d -> d.getGroupId().equals("org.apache.tomee") &&
+                        d.getArtifactId().equals("openejb-core-hibernate") &&
+                        d.getVersion().equals("8.0.5") &&
+                        d.getType().equals("pom"));
+    }
+
+    @Test
     void testGetDeclaredDependencies() {
+        @Language("xml")
         String pomSource =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "    <groupId>com.example</groupId>\n" +
-                        "    <artifactId>some-example</artifactId>\n" +
-                        "    <packaging>jar</packaging>\n" +
-                        "    <version>8.0.5-SNAPSHOT</version>\n" +
-                        "    <dependencyManagement>\n" +
-                        "        <dependencies>\n" +
-                        "           <dependency>\n" +
-                        "                <groupId>org.junit.jupiter</groupId>\n" +
-                        "                <artifactId>junit-jupiter</artifactId>\n" +
-                        "                <version>5.7.1</version>\n" +
-                        "                <scope>test</scope>\n" +
-                        "            </dependency>\n" +
-                        "        </dependencies>\n" +
-                        "    </dependencyManagement>\n" +
-                        "    <dependencies>\n" +
-                        "        <dependency>\n" +
-                        "            <groupId>org.junit.jupiter</groupId>\n" +
-                        "            <artifactId>junit-jupiter</artifactId>\n" +
-                        "        </dependency>\n" +
-                        "        <dependency>\n" +
-                        "            <groupId>org.junit.jupiter</groupId>\n" +
-                        "            <artifactId>junit-jupiter-api</artifactId>\n" +
-                        "            <version>5.6.3</version>\n" +
-                        "            <scope>test</scope>\n" +
-                        "        </dependency>\n" +
-                        "        <dependency>\n" +
-                        "            <groupId>org.mockito</groupId>\n" +
-                        "            <artifactId>mockito-core</artifactId>\n" +
-                        "            <version>3.7.7</version>\n" +
-                        "            <scope>test</scope>\n" +
-                        "        </dependency>\n" +
-                        "        <dependency>\n" +
-                        "            <groupId>org.apache.tomee</groupId>\n" +
-                        "            <artifactId>openejb-core-hibernate</artifactId>\n" +
-                        "            <version>8.0.5</version>\n" +
-                        "            <type>pom</type>\n" +
-                        "        </dependency>\n" +
-                        "    </dependencies>\n" +
-                        "</project>\n";
+                """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>com.example</groupId>
+                    <artifactId>some-example</artifactId>
+                    <packaging>jar</packaging>
+                    <version>8.0.5-SNAPSHOT</version>
+                    <dependencyManagement>
+                        <dependencies>
+                           <dependency>
+                                <groupId>org.junit.jupiter</groupId>
+                                <artifactId>junit-jupiter</artifactId>
+                                <version>5.7.1</version>
+                                <scope>test</scope>
+                            </dependency>
+                        </dependencies>
+                    </dependencyManagement>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.junit.jupiter</groupId>
+                            <artifactId>junit-jupiter</artifactId>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.junit.jupiter</groupId>
+                            <artifactId>junit-jupiter-api</artifactId>
+                            <version>5.6.3</version>
+                            <scope>test</scope>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.mockito</groupId>
+                            <artifactId>mockito-core</artifactId>
+                            <version>3.7.7</version>
+                            <scope>test</scope>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.tomee</groupId>
+                            <artifactId>openejb-core-hibernate</artifactId>
+                            <version>8.0.5</version>
+                            <type>pom</type>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """;
         ProjectContext build = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomSource)
                 .build();
@@ -620,8 +740,8 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(dependencies)
                 .anyMatch(d -> d.getGroupId().equals("org.junit.jupiter") &&
                         d.getArtifactId().equals("junit-jupiter") &&
-                        d.getVersion().equals("5.7.1") &&
-                        d.getScope().equals("test"))
+                        d.getVersion() == null &&
+                        d.getScope() == null)
                 .anyMatch(d -> d.getGroupId().equals("org.junit.jupiter") &&
                         d.getArtifactId().equals("junit-jupiter-api") &&
                         d.getVersion().equals("5.6.3") &&

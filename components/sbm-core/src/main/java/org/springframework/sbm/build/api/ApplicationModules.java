@@ -19,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -28,65 +27,90 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/***
+ * Represents all modules in the {@code ProjectCOntext}.
+ */
 public class ApplicationModules {
-    private final List<ApplicationModule> modules;
+    private final List<Module> modules;
 
-    public ApplicationModules(List<ApplicationModule> modules) {
+    public ApplicationModules(List<Module> modules) {
         this.modules = modules;
     }
 
-    public Stream<ApplicationModule> stream() {
+    public Stream<Module> stream() {
         return modules.stream();
     }
 
-    public ApplicationModule getRootModule() {
+    public Module getRootModule() {
         return modules.stream()
                 .sorted((m2, m1) -> m1.getBuildFile().getAbsolutePath().toString().compareTo(m2.getBuildFile().getAbsolutePath().toString()))
                 .findFirst()
                 .orElse(modules.get(0));
     }
 
-    public List<ApplicationModule> list() {
+    public List<Module> list() {
         return stream().collect(Collectors.toUnmodifiableList());
     }
 
-    public ApplicationModule getModule(Path name) {
+    public Module getModule(Path modulePath) {
         return modules.stream()
-                .filter(m -> m.getModulePath().equals(name))
+                .filter(m -> m.getModulePath().equals(modulePath))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Could not find module with name '" + name + "'"));
+                .orElseThrow(() -> new IllegalArgumentException("Could not find module with modulePath '" + modulePath + "'"));
     }
 
-    public ApplicationModule getModule(String name) {
+    public Optional<Module> findModule(String coordinate) {
+        return modules.stream().filter(m -> m.getBuildFile().getCoordinates().equals(coordinate)).findFirst();
+    }
+
+    public Module getModule(String name) {
+        if("root".equals(name)) name = "";
         return getModule(Path.of(name));
     }
 
-    public List<ApplicationModule> getModules(ApplicationModule module) {
+    /**
+     * Searches in all modules for a resource with given {@code resourcePath} and returns first match.
+     *
+     * @param resourcePath must be an <b>absolute path</b> of the resource
+     */
+    public Optional<Module> findModuleContaining(Path resourcePath) {
+        return modules.stream().filter(m -> m.contains(resourcePath)).findFirst();
+    }
+
+    public List<Module> getModules(Module module) {
         MavenResolutionResult mavenResolutionResult = MavenBuildFileUtil.findMavenResolution(((OpenRewriteMavenBuildFile) module.getBuildFile()).getSourceFile()).get();
         List<MavenResolutionResult> modulesMarker = mavenResolutionResult.getModules();
         if (!modulesMarker.isEmpty()) {
-            return filterModulesContainingMavens(modulesMarker);
+            return getModulesContainingMavens(modulesMarker);
         } else {
             return new ArrayList<>();
         }
     }
 
+    /**
+    * Takes a list of {@code MavenResolutionResult}s and returns the modules with matching {@code groupId:artifactId}.
+    */
     @NotNull
-    private List<ApplicationModule> filterModulesContainingMavens(List<MavenResolutionResult> modulesMarker) {
-        List<String> collect = modulesMarker.stream()
+    private List<Module> getModulesContainingMavens(List<MavenResolutionResult> mavens) {
+        List<String> relevantGroupAndArtifactIds = mavens.stream()
                 .map(m -> m.getPom().getGroupId() + ":" + m.getPom().getArtifactId())
                 .collect(Collectors.toList());
 
         return modules.stream()
                 .filter(module -> {
                     String groupAndArtifactId = module.getBuildFile().getGroupId() + ":" + module.getBuildFile().getArtifactId();
-                    return collect.contains(groupAndArtifactId);
+                    return relevantGroupAndArtifactIds.contains(groupAndArtifactId);
                 })
                 .collect(Collectors.toList());
     }
 
-    public List<ApplicationModule> getTopmostApplicationModules() {
-        List<ApplicationModule> topmostModules = new ArrayList<>();
+    /**
+     * Returns the list of application modules.
+     *
+     * An application module is a module that no other module depends on and which has a parent with packaging of type pom.
+     */
+    public List<Module> getTopmostApplicationModules() {
+        List<Module> topmostModules = new ArrayList<>();
         modules.forEach(module -> {
             // is jar
             if ("jar".equals(module.getBuildFile().getPackaging())) { // FIXME: other types could be topmost too, e.g. 'war'
@@ -107,8 +131,23 @@ public class ApplicationModules {
         return topmostModules;
     }
 
+    /**
+     * Returns the list of component modules.
+     *
+     * A component module is a module that another module depends on and that thus will be part of another application module.
+     */
+    public List<Module> getComponentModules() {
+        return modules.stream()
+                .filter(this::isDependencyOfAnotherModule)
+                .collect(Collectors.toList());
+    }
+
+    private boolean isDependencyOfAnotherModule(Module applicationModule) {
+        return ! noOtherPomDependsOn(applicationModule.getBuildFile());
+    }
+
     private boolean isPackagingOfPom(ParentDeclaration parentPomDeclaration) {
-        Optional<ApplicationModule> applicationModule = this.modules.stream()
+        Optional<Module> applicationModule = this.modules.stream()
                 .filter(module -> module.getBuildFile().getCoordinates().equals(parentPomDeclaration.getCoordinates()))
                 .findFirst();
         if (applicationModule.isPresent()) {
@@ -125,7 +164,7 @@ public class ApplicationModules {
 
     private boolean noOtherPomDependsOn(BuildFile buildFile) {
         return !this.modules.stream()
-                .anyMatch(module -> module.getBuildFile().getDeclaredDependencies().stream().anyMatch(d -> d.getCoordinates().equals(buildFile.getCoordinates())));
+                .anyMatch(module -> module.getBuildFile().getRequestedDependencies().stream().anyMatch(d -> d.getCoordinates().equals(buildFile.getCoordinates())));
     }
 
     public boolean isSingleModuleApplication() {

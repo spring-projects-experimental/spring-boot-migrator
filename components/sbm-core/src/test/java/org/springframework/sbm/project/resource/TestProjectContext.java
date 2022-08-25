@@ -25,10 +25,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
-import org.springframework.sbm.build.migration.MavenPomCacheProvider;
 import org.springframework.sbm.build.resource.BuildFileResourceWrapper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
+import org.springframework.sbm.engine.context.ProjectContextSerializer;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.java.JavaSourceProjectResourceWrapper;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
@@ -422,6 +422,17 @@ public class TestProjectContext {
                     "</project>\n";
             resources.put(projectRoot.resolve("pom.xml").normalize(), xml);
             return this;
+        }
+
+        /**
+         * Helper to write the created {@code ProjectContext} back to the file system.
+         * It will be written to {@code DEFAULT_PROJECT_ROOT} if not set otherwise.
+         */
+        ProjectContext buildAndSerialize() {
+            ProjectContext context = build();
+            ProjectContextSerializer serializer = new ProjectContextSerializer(new ProjectResourceSetSerializer(new ProjectResourceSerializer()));
+            serializer.writeChanges(context);
+            return context;
         }
 
         public ProjectContext build() {

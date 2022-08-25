@@ -41,6 +41,7 @@ import static org.mockito.Mockito.*;
         CustomValidator.class,
         ResourceHelper.class,
         ActionDeserializerRegistry.class,
+        DefaultActionDeserializer.class,
         RewriteMigrationResultMerger.class,
         RewriteRecipeRunner.class,
         RewriteSourceFileWrapper.class,

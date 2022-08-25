@@ -16,7 +16,7 @@
 package org.springframework.sbm.boot.upgrade_27_30.actions;
 
 import org.springframework.sbm.boot.upgrade_27_30.conditions.JohnzonDependencyCondition;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
@@ -31,7 +31,7 @@ public class Boot_27_30_UpgradeReplaceJohnzonDependencies extends AbstractAction
 
         context.getApplicationModules()
                 .stream()
-                .map(ApplicationModule::getBuildFile)
+                .map(Module::getBuildFile)
                 .forEach(bf -> {
                     bf.removeDependenciesMatchingRegex(JOHNZON_DEPENDENCY_PATTERN);
                     bf.addDependency(Dependency.fromCoordinates(JOHNZON_DEPENDENCY));

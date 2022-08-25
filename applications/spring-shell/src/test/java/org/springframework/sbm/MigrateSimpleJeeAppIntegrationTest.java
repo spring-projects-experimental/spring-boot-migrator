@@ -29,8 +29,8 @@ import java.io.File;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class BootifySimpleJeeAppIntegrationTest extends IntegrationTestBaseClass {
-
+@Disabled("Temporary disabled before CI will be fixed with docker in docker issue: #351")
+public class MigrateSimpleJeeAppIntegrationTest extends IntegrationTestBaseClass {
 
     @Override
     protected String getTestSubDir() {

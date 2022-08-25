@@ -15,29 +15,43 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
+import lombok.experimental.SuperBuilder;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.*;
+import org.springframework.sbm.engine.recipe.MultiModuleAwareAction;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
 @Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class RemoveDependenciesMatchingRegex extends AbstractAction {
+@SuperBuilder
+public class RemoveDependenciesMatchingRegex extends MultiModuleAwareAction {
 
     @Valid
     @NotEmpty
     private List<String> dependenciesRegex;
 
+    public RemoveDependenciesMatchingRegex() {
+        super(builder());
+        this.dependenciesRegex = new ArrayList<>();
+    }
+
+    public RemoveDependenciesMatchingRegex(List<String> dependenciesRegex) {
+        super(builder());
+        this.dependenciesRegex = dependenciesRegex;
+    }
+
     @Override
     public void apply(ProjectContext context) {
-        BuildFile buildFile = context.getBuildFile();
-        buildFile.removeDependenciesMatchingRegex(dependenciesRegex.toArray(new String[0]));
+        context.getModules().stream()
+                .map(Module::getBuildFile)
+                .filter(b -> b.hasDeclaredDependencyMatchingRegex(dependenciesRegex.toArray(new String[0])))
+                .forEach(b -> b.removeDependenciesMatchingRegex(dependenciesRegex.toArray(new String[0])));
     }
 }

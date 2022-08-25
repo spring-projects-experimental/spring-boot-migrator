@@ -20,6 +20,7 @@ import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.springframework.sbm.build.impl.JavaSourceSetImpl;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
+import org.springframework.sbm.common.util.Verify;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
@@ -32,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 import org.openrewrite.SourceFile;
 
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class ApplicationModule {
+public class Module {
 
     @Getter
     private final String name;
@@ -120,26 +120,22 @@ public class ApplicationModule {
         return new ResourceSet(projectResourceSet, projectRootDir, modulePath, testResourceSet);
     }
 
-    public List<ApplicationModule> getModules() {
+    public List<Module> getModules() {
         Optional<MavenResolutionResult> mavenResolution = MavenBuildFileUtil.findMavenResolution(((OpenRewriteMavenBuildFile) buildFile).getSourceFile());
         List<MavenResolutionResult> modulesMarker = mavenResolution.get().getModules();
-        if ( ! modulesMarker.isEmpty()) {
+        if (!modulesMarker.isEmpty()) {
             return modulesMarker
                     .stream()
-                    .map(m -> new ApplicationModule(
-                            m.getPom().getGav().toString(),
-                            this.buildFile,
-                            projectRootDir,
-                            modulePath,
-                            projectResourceSet,
-                            javaRefactoringFactory,
-                            basePackageCalculator,
-                            javaParser
-                    ))
+                    .map(m -> new Module(m.getPom().getGav().toString(), this.buildFile, projectRootDir, modulePath,
+                                         projectResourceSet, javaRefactoringFactory, basePackageCalculator, javaParser))
                     .collect(Collectors.toList());
         } else {
             return new ArrayList<>();
         }
+    }
+
+    public List<String> getDeclaredModules() {
+        return buildFile.getDeclaredModules();
     }
 
     public <T> T search(ProjectResourceFinder<T> finder) {
@@ -172,6 +168,14 @@ public class ApplicationModule {
     public <T> T searchTestJava(ProjectResourceFinder<T> finder) {
         ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getTestJavaSourceSet().getAbsolutePath().toAbsolutePath().normalize()));
         return finder.apply(resourceSet);
+    }
+
+    /**
+     * Checks if any resources of this {@code Module} matches the given {@code resourcePath}.
+     */
+    public boolean contains(Path resourcePath) {
+        Verify.absolutePath(resourcePath);
+        return getModuleResources().stream().anyMatch(r -> r.getAbsolutePath().toString().equals(resourcePath.toString()));
     }
 
     /**

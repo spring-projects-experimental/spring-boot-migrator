@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -26,7 +27,131 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AddMavenDependencyManagementActionTest {
 
     @Test
-    void shouldDelegateToBuildFile() {
+    void shouldAddToRootPomInMultiModuleProject() {
+        @Language("xml")
+        final String PARENT_POM = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>org.example</groupId>
+                    <artifactId>parent</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <packaging>pom</packaging>
+                    <properties>
+                        <maven.compiler.source>17</maven.compiler.source>
+                        <maven.compiler.target>17</maven.compiler.target>
+                    </properties>
+                    <modules>
+                        <module>module1</module>
+                        <module>module2</module>
+                    </modules>
+                </project>
+                """;
+        @Language("xml")
+        final String APPLICATION_POM = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <parent>
+                        <groupId>org.example</groupId>
+                        <artifactId>parent</artifactId>
+                        <version>1.0-SNAPSHOT</version>
+                        <relativePath>../pom.xml</relativePath>
+                    </parent>
+                    <artifactId>module1</artifactId>
+                    <properties>
+                        <maven.compiler.source>17</maven.compiler.source>
+                        <maven.compiler.target>17</maven.compiler.target>
+                    </properties>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.example</groupId>
+                            <artifactId>module2</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """;
+        @Language("xml")
+        final String COMPONENT_POM = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <parent>
+                        <groupId>org.example</groupId>
+                        <artifactId>parent</artifactId>
+                        <version>1.0-SNAPSHOT</version>
+                        <relativePath>../pom.xml</relativePath>
+                    </parent>
+                    <artifactId>module2</artifactId>
+                    <properties>
+                        <maven.compiler.source>17</maven.compiler.source>
+                        <maven.compiler.target>17</maven.compiler.target>
+                    </properties>
+                </project>
+                """;
+
+        ProjectContext context = TestProjectContext
+                .buildProjectContext()
+                .withMavenRootBuildFileSource(PARENT_POM)
+                .withMavenBuildFileSource("module1/pom.xml", APPLICATION_POM)
+                .withMavenBuildFileSource("module2/pom.xml", COMPONENT_POM)
+                .build();
+
+        AddMavenDependencyManagementAction sut = new AddMavenDependencyManagementAction();
+        sut.setGroupId("org.springframework.boot");
+        sut.setArtifactId("spring-boot-dependencies");
+        sut.setVersion("2.7.1");
+        sut.setDependencyType("pom");
+        sut.setScope("import");
+        sut.apply(context);
+
+        @Language("xml")
+        String expectedParentPom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>org.example</groupId>
+                    <artifactId>parent</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <packaging>pom</packaging>
+                    <properties>
+                        <maven.compiler.source>17</maven.compiler.source>
+                        <maven.compiler.target>17</maven.compiler.target>
+                    </properties>
+                    <modules>
+                        <module>module1</module>
+                        <module>module2</module>
+                    </modules>
+                    <dependencyManagement>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-dependencies</artifactId>
+                                <version>2.7.1</version>
+                                <type>pom</type>
+                                <scope>import</scope>
+                            </dependency>
+                        </dependencies>
+                    </dependencyManagement>
+                </project>
+                """;
+        assertThat(context.getApplicationModules().getRootModule().getBuildFile().print()).isEqualToIgnoringNewLines(expectedParentPom);
+        assertThat(context.getApplicationModules().findModule("org.example:module1:1.0-SNAPSHOT").get().getBuildFile().print()).isEqualToIgnoringNewLines(APPLICATION_POM);
+        assertThat(context.getApplicationModules().findModule("org.example:module2:1.0-SNAPSHOT").get().getBuildFile().print()).isEqualToIgnoringNewLines(COMPONENT_POM);
+    }
+
+
+    @Test
+    void shouldAddToRootPomInSingleModuleProject() {
 
         String pomSource =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

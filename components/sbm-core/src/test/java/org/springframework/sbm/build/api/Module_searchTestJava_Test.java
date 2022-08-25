@@ -28,6 +28,7 @@ import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -35,7 +36,7 @@ import java.util.function.Consumer;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Test ApplicationModule.searchTestJava")
-public class ApplicationModule_searchMainJava_Test {
+public class Module_searchTestJava_Test {
 
     @Nested
     @DisplayName("Project")
@@ -60,58 +61,58 @@ public class ApplicationModule_searchMainJava_Test {
         }
 
         @Test
-        @DisplayName("with no classes in src/main/java provides empty ProjectResourceSet to search method")
-        void withNoClassesInSrcMainJava_providesEmptyProjectResources() {
+        @DisplayName("with no classes in src/test/java provides empty ProjectResourceSet to search method")
+        void withNoClassesInSrcTestJava_providesEmptyProjectResources() {
 
             ProjectContext context = builder.build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
-            verifySearchMain(context, projectResourceSet -> {
+            verifySearchTest(context, projectResourceSet -> {
                 assertThat(projectResourceSet.list()).isEmpty();
             }, "");
         }
 
         @Test
-        @DisplayName("with classes in src/main/java provides ProjectResourceSet with classes from src/main/java")
-        void withClassesInSrcMainJavaProvidesProjectResourcesWithMainClasses() {
+        @DisplayName("with classes in src/test/java provides ProjectResourceSet with classes from src/test/java")
+        void withClassesInSrcTestJavaProvidesProjectResourcesWithTestClasses() {
 
             ProjectContext context = TestProjectContext
                     .buildProjectContext()
                     .withMavenBuildFileSource("pom.xml", singlePom)
-                    .addJavaSource("src/main/java", "public class SomeClass{}")
+                    .addJavaSource("src/test/java", "public class SomeClass{}")
                     .build();
 
-            verifySearchMain(context, projectResourceSet -> {
+            verifySearchTest(context, projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/main/java/SomeClass.java");
+                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/test/java/SomeClass.java");
                 assertThat(projectResourceSet.get(0).print()).isEqualTo("public class SomeClass{}");
             }, "");
         }
 
         @Test
-        @DisplayName("with classes in src/main/java and src/test/java provides ProjectResourceSet with classes from src/main/java")
-        void withClassesInTestAndMain_providesClassesFromMain() {
+        @DisplayName("with classes in src/main/java and src/test/java provides ProjectResourceSet with classes from src/test/java")
+        void withClassesInTestAndMain_providesClassesFromTest() {
             ProjectContext context = builder
                     .addJavaSource("src/main/java", "public class SomeClass{}")
                     .addJavaSource("src/test/java", "public class SomeClassTest{}")
                     .build();
 
-            verifySearchMain(context, projectResourceSet -> {
+            verifySearchTest(context, projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/main/java/SomeClass.java");
-                assertThat(projectResourceSet.get(0).print()).isEqualTo("public class SomeClass{}");
+                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/test/java/SomeClassTest.java");
+                assertThat(projectResourceSet.get(0).print()).isEqualTo("public class SomeClassTest{}");
             }, "");
         }
 
         @Test
-        @DisplayName("with classes in src/test/java provides empty ProjectResourceSet to search method")
-        void withClassesInSrcTestJava_providesEmptyProjectResources() {
+        @DisplayName("with classes in src/main/java provides empty ProjectResourceSet to search method")
+        void withClassesInSrcMainJava_providesEmptyProjectResources() {
 
             ProjectContext context = builder
-                    .addProjectResource("src/test/java/SomeClass.java", "public class SomeClass{}")
+                    .addProjectResource("src/main/java/SomeClass.java", "public class SomeClass{}")
                     .build();
 
-            verifySearchMain(context, projectResourceSet -> assertThat(projectResourceSet.list()).isEmpty(), "");
+            verifySearchTest(context, projectResourceSet -> assertThat(projectResourceSet.list()).isEmpty(), "");
         }
     }
 
@@ -192,7 +193,7 @@ public class ApplicationModule_searchMainJava_Test {
         @DisplayName("with no classes provides empty ProjectResourceSet to search method")
         void withNoClasses_providesEmptyProjectResources() {
             ProjectContext context = builder.build();
-            verifySearchMain(context, (projectResourceSet) -> assertThat(projectResourceSet.list()).isEmpty(),
+            verifySearchTest(context, (projectResourceSet) -> assertThat(projectResourceSet.list()).isEmpty(),
                              "application");
         }
 
@@ -201,50 +202,51 @@ public class ApplicationModule_searchMainJava_Test {
         void withClassesInOtherModules_providesEmptyProjectResources() {
 
             ProjectContext context = builder
-                    .addJavaSource("component/src/main/java", "public class SomeClass{}")
+                    .addJavaSource("component/src/test/java", "public class SomeClass{}")
                     .build();
 
-            verifySearchMain(context, (projectResourceSet) -> assertThat(projectResourceSet.list()).isEmpty(),
+            verifySearchTest(context, (projectResourceSet) -> assertThat(projectResourceSet.list()).isEmpty(),
                              "application");
         }
 
         @Test
-        @DisplayName("with classes in src/test/java and src/main/java provides ProjectResourceSet with classes from src/main/java")
-        void withClassesInMainAndTest_providesClassesFromSrcMainJava() {
+        @DisplayName("with classes in src/test/java and src/main/java provides ProjectResourceSet with classes from src/test/java")
+        void withResourcesInMainAndTest_providesProjectResourcesFromSrcMainResources() {
 
             ProjectContext context = builder
                     .addJavaSource("application/src/main/java", "public class SomeClass{}")
                     .addJavaSource("application/src/test/java", "public class SomeClassTest{}")
                     .build();
 
-            verifySearchMain(context,
+            verifySearchTest(context,
                              (projectResourceSet) -> {
                                 assertThat(projectResourceSet.list()).hasSize(1);
-                                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/main/java/SomeClass.java");
-                                assertThat(projectResourceSet.list().get(0).print()).isEqualTo("public class SomeClass{}");
+                                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/test/java/SomeClassTest.java");
+                                assertThat(projectResourceSet.list().get(0).print()).isEqualTo("public class SomeClassTest{}");
                             },
-                             "application");
+                            "application");
         }
 
         @Test
-        @DisplayName("with classes in src/main/java provides ProjectResourceSet with classes from stc/main/java")
-        void withClassesInMain_providesClassesFromSrcMainJava() {
+        @DisplayName("with classes in src/test/java provides ProjectResourceSet with classes from stc/test/java")
+        void withClassesInTest_providesClassesFromSrcTestJava() {
 
             ProjectContext context = builder
-                    .addJavaSource("application/src/main/java", "public class SomeClass{}")
+                    .addJavaSource("application/src/test/java", "public class SomeClassTest{}")
                     .build();
 
-            verifySearchMain(context,
+            verifySearchTest(context,
                              projectResourceSet -> {
                                 assertThat(projectResourceSet.list()).hasSize(1);
-                                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/main/java/SomeClass.java");
-                                assertThat(projectResourceSet.list().get(0).print()).isEqualTo("public class SomeClass{}");
+                                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo(
+                                        "application/src/test/java/SomeClassTest.java");
+                                assertThat(projectResourceSet.list().get(0).print()).isEqualTo("public class SomeClassTest{}");
                             },
                              "application");
         }
     }
 
-    private void verifySearchMain(ProjectContext context, Consumer<ProjectResourceSet> projectResourceSetConsumer, String modulePath) {
+    private void verifySearchTest(ProjectContext context, Consumer<ProjectResourceSet> projectResourceSetConsumer, String modulePath) {
         AtomicBoolean wasCalled = new AtomicBoolean(false);
         searchTest(context, wasCalled, projectResourceSetConsumer, modulePath);
         assertThat(wasCalled).isTrue();
@@ -253,8 +255,8 @@ public class ApplicationModule_searchMainJava_Test {
     private void searchTest(ProjectContext context, AtomicBoolean wasCalled, Consumer<ProjectResourceSet> f, String modulePath) {
         context
                 .getApplicationModules()
-                .getModule(modulePath)
-                .searchMainJava(
+                .getModule(Path.of(modulePath))
+                .searchTestJava(
                         ((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                             f.accept(projectResourceSet);
                             wasCalled.set(true);

@@ -29,25 +29,21 @@ import javax.annotation.PostConstruct;
 @Configuration
 public class YamlObjectMapperConfiguration {
 
-    @Autowired
-    private ActionDeserializerRegistry actionDeserializerRegistry;
-
-    @PostConstruct
-    void registerActionDeserializer() {
-        DefaultActionDeserializer actionDeserializer = new DefaultActionDeserializer();
-        actionDeserializerRegistry.register(AbstractAction.class, actionDeserializer);
+    @Bean
+    YAMLMapper yamlObjectMapper() {
+        YAMLMapper yamlMapper = new YAMLMapper();
+        return yamlMapper;
     }
 
     @Bean
-    YAMLMapper yamlObjectMapper(AutowireCapableBeanFactory beanFactory, ActionDeserializerRegistry actionDeserializers) {
-        YAMLMapper yamlMapper = new YAMLMapper();
-        yamlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    ActionDeserializationDispatcher actionDeserializationDispatcher(AutowireCapableBeanFactory beanFactory, YAMLMapper yamlObjectMapper, ActionDeserializerRegistry actionDeserializers) {
+        ActionDeserializationDispatcher actionDeserializationDispatcher = new ActionDeserializationDispatcher(yamlObjectMapper, beanFactory, actionDeserializers);
+        yamlObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         SimpleModule module =
                 new SimpleModule("CustomDeserializer", new Version(1, 0, 0, null, null, null));
-        module.addDeserializer(Condition.class, new ConditionDeserializer(yamlMapper, beanFactory));
-        module.addDeserializer(Action.class, new ActionDeserializationDispatcher(yamlMapper, beanFactory, actionDeserializers));
-        yamlMapper.registerModule(module);
-
-        return yamlMapper;
+        module.addDeserializer(Condition.class, new ConditionDeserializer(yamlObjectMapper, beanFactory));
+        module.addDeserializer(Action.class, actionDeserializationDispatcher);
+        yamlObjectMapper.registerModule(module);
+        return actionDeserializationDispatcher;
     }
 }

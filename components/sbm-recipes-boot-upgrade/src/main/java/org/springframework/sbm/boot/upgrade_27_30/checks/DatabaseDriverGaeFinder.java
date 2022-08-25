@@ -18,7 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30.checks;
 
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.java.tree.JavaType;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
@@ -29,18 +29,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
-public class DatabaseDriverGaeFinder implements Sbm30_Finder<Set<ApplicationModule>> {
+public class DatabaseDriverGaeFinder implements Sbm30_Finder<Set<Module>> {
 
     @Override
     @NotNull
-    public Set<ApplicationModule> findMatches(ProjectContext context) {
+    public Set<Module> findMatches(ProjectContext context) {
         return context.getApplicationModules()
                 .stream()
                 .filter(this::hasClassAppEngineDriverOnClasspath)
                 .collect(Collectors.toSet());
     }
 
-    private boolean hasClassAppEngineDriverOnClasspath(ApplicationModule m) {
+    private boolean hasClassAppEngineDriverOnClasspath(Module m) {
         return Stream.concat(m.getTestJavaSourceSet().stream(), m.getMainJavaSourceSet().stream())
                 .anyMatch(js -> {
                     if (dependsOn(js, "com.google.appengine.api.rdbms.AppEngineDriver")) {

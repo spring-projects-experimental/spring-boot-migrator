@@ -15,19 +15,32 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
+import lombok.experimental.SuperBuilder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.Builder;
 import lombok.Setter;
+import org.springframework.sbm.engine.recipe.Condition;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
-@Builder
 @Setter
+@SuperBuilder
 public class RemovePluginsMatchingRegex extends AbstractAction {
 
     private List<String> pluginsRegex;
+
+    public RemovePluginsMatchingRegex() {
+        super(builder());
+    }
+
+    public RemovePluginsMatchingRegex(List<String> pluginsRegex) {
+        super(builder());
+        this.pluginsRegex = pluginsRegex;
+    }
 
     @Override
     public void apply(ProjectContext context) {

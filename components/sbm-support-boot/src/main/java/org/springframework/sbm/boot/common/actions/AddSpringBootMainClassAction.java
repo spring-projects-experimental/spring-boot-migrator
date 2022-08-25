@@ -16,7 +16,7 @@
 package org.springframework.sbm.boot.common.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSourceLocation;
@@ -40,15 +40,15 @@ public class AddSpringBootMainClassAction extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
-        List<ApplicationModule> applicationModules = context.getApplicationModules().getTopmostApplicationModules();
+        List<Module> modules = context.getApplicationModules().getTopmostApplicationModules();
 
-        applicationModules.forEach(module -> {
+        modules.forEach(module -> {
             applyToModule(module);
         });
 
     }
 
-    private void applyToModule(ApplicationModule module) {
+    private void applyToModule(Module module) {
 
         JavaSourceSet mainJavaSourceSet = module.getMainJavaSourceSet();
         JavaSourceLocation location = mainJavaSourceSet.getJavaSourceLocation();

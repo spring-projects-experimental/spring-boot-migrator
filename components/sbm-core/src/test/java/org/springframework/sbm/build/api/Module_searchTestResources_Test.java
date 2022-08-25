@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Test ApplicationModule.searchTestResources")
-public class ApplicationModule_searchTestResources_Test {
+public class Module_searchTestResources_Test {
 
     @Nested
     @DisplayName("Project")
@@ -225,7 +225,7 @@ public class ApplicationModule_searchTestResources_Test {
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().getModule("application").searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().findModule("com.acme:application:0.0.1-SNAPSHOT").get().searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).isEmpty();
                 wasCalled.set(true);
                 return null;
@@ -244,7 +244,7 @@ public class ApplicationModule_searchTestResources_Test {
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().getModule("application").searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().findModule("com.acme:application:0.0.1-SNAPSHOT").get().searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).isEmpty();
                 wasCalled.set(true);
                 return null;
@@ -265,7 +265,7 @@ public class ApplicationModule_searchTestResources_Test {
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().getModule("application").searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().findModule("com.acme:application:0.0.1-SNAPSHOT").get().searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
                 assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/test/resources/some-resource.txt");
                 assertThat(projectResourceSet.list().get(0).print()).isEqualTo("the test content");
@@ -286,7 +286,7 @@ public class ApplicationModule_searchTestResources_Test {
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().getModule("application").searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules().findModule("com.acme:application:0.0.1-SNAPSHOT").get().searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
                 assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/test/resources/some-resource.txt");
                 assertThat(projectResourceSet.list().get(0).print()).isEqualTo("the content");

@@ -235,13 +235,8 @@ A common multi-module project has a root modules which consists of one or more c
 [source, java]
 ....
 public void apply(ProjectContext context) {
-    // Retrieve ApplicationModules
-    // TODO: Maybe ProjectModules ?
     Modules modules = context.getModules();
-
-    // TODO: is this sufficient --> must all child modules share same groupId?
-    Module module = modules.getModule("module-artifact-id");
-
+    Module module = modules.getModule("path/of/module");
     boolean isMultiModule = modules.isMultiModuleProject();
     Module root = modules.getRootModule(); // type="pom" or type="ear"
     modules.getApplicationModules(); // type="war", containing "main" method
@@ -250,6 +245,16 @@ public void apply(ProjectContext context) {
     List<Module> parentModules = module.getParentModules();
     List<Module> subModules = module.getSubModules();
 }
+....
+
+=====  Finding the `Module` containing a resource
+
+NOTE: Only "Maven" `main` and `test` are used as source sets and any settings in the pom.xml or otherwise are ignored.
+
+[source,java]
+....
+ProjectResource pr = ...
+Optional<Module> module = context.getModules.findModuleContaining(pr.getAbsolutePath());
 ....
 
 

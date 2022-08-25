@@ -18,7 +18,7 @@ package org.springframework.sbm.jee.jpa.actions;
 import org.springframework.sbm.boot.properties.actions.AddSpringBootApplicationPropertiesAction;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.jee.jpa.api.Persistence;
@@ -31,15 +31,15 @@ public class MigratePersistenceXmlToApplicationPropertiesAction extends Abstract
 
     @Override
     public void apply(ProjectContext context) {
-        ApplicationModule applicationModule = context.getApplicationModules().stream()
+        Module module = context.getApplicationModules().stream()
                 .filter(m -> m.search(new PersistenceXmlResourceFilter()).isPresent())
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No file 'META-INF/persistence.xml' could be found."));
 
-        PersistenceXml persistenceXml = applicationModule.search(new PersistenceXmlResourceFilter()).get();
-        List<SpringBootApplicationProperties> applicationProperties = applicationModule.search(new SpringBootApplicationPropertiesResourceListFilter());
+        PersistenceXml persistenceXml = module.search(new PersistenceXmlResourceFilter()).get();
+        List<SpringBootApplicationProperties> applicationProperties = module.search(new SpringBootApplicationPropertiesResourceListFilter());
         if (applicationProperties.isEmpty()) {
-            new AddSpringBootApplicationPropertiesAction().apply(applicationModule);
+            new AddSpringBootApplicationPropertiesAction().apply(module);
             applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
         }
         mapPersistenceXmlToApplicationProperties(applicationProperties.get(0), persistenceXml);

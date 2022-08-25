@@ -15,8 +15,7 @@
  */
 package org.springframework.sbm.boot.common.conditions;
 
-import lombok.Setter;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.ParentDeclaration;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -41,7 +40,7 @@ public class HasSpringBootStarterParent implements Condition {
     @Override
     public boolean evaluate(ProjectContext context) {
         return context.getApplicationModules().stream()
-                .map(ApplicationModule::getBuildFile)
+                .map(Module::getBuildFile)
                 .filter(BuildFile::hasParent)
                 .map(BuildFile::getParentPomDeclaration)
                 .filter(Optional::isPresent)

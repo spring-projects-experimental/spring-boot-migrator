@@ -82,6 +82,9 @@ void apply(ProjectContext context) {
 
 Read the <<Specialized_Resources, Specialized Resources>> section to learn how you can provide new Specialized Resources.
 
+=== Multi module projects
+
+
 === Application Lifecycle
 
 ==== Scan Application

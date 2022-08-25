@@ -18,7 +18,7 @@ package org.springframework.sbm.project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ApplicationModules_getTopmostApplicationModulesTest {
+class ApplicationModules_getTopmostModulesTest {
 
     @Nested
     public class GivenSingleModuleProjectWithExternalParentPom {
@@ -60,9 +60,9 @@ class ApplicationModules_getTopmostApplicationModulesTest {
 
         @Test
         void whenGetTopmostApplicationModulesThenChildModuleShouldBeReturned() {
-            List<ApplicationModule> topmostApplicationModules = projectContext.getApplicationModules().getTopmostApplicationModules();
-            assertThat(topmostApplicationModules).hasSize(1);
-            assertThat(topmostApplicationModules.get(0).getBuildFile().getSourcePath().toString()).isEqualTo("pom.xml");
+            List<Module> topmostModules = projectContext.getApplicationModules().getTopmostApplicationModules();
+            assertThat(topmostModules).hasSize(1);
+            assertThat(topmostModules.get(0).getBuildFile().getSourcePath().toString()).isEqualTo("pom.xml");
         }
     }
 
@@ -110,9 +110,9 @@ class ApplicationModules_getTopmostApplicationModulesTest {
 
         @Test
         void whenGetTopmostApplicationModulesThenChildModuleShouldBeReturned() {
-            List<ApplicationModule> topmostApplicationModules = projectContext.getApplicationModules().getTopmostApplicationModules();
-            assertThat(topmostApplicationModules).hasSize(1);
-            assertThat(topmostApplicationModules.get(0).getBuildFile().getSourcePath()).isEqualTo(Path.of("module1/pom.xml"));
+            List<Module> topmostModules = projectContext.getApplicationModules().getTopmostApplicationModules();
+            assertThat(topmostModules).hasSize(1);
+            assertThat(topmostModules.get(0).getBuildFile().getSourcePath()).isEqualTo(Path.of("module1/pom.xml"));
         }
     }
 
@@ -184,9 +184,10 @@ class ApplicationModules_getTopmostApplicationModulesTest {
 
         @Test
         void whenGetTopmostApplicationModulesThenChildPom1ShouldBeReturned() {
-            List<ApplicationModule> topmostApplicationModules = projectContext.getApplicationModules().getTopmostApplicationModules();
-            assertThat(topmostApplicationModules).hasSize(1);
-            assertThat(topmostApplicationModules.get(0).getBuildFile().getSourcePath().toString()).isEqualTo(Path.of("module1/pom.xml").toString());
+            List<Module> topmostModules = projectContext.getApplicationModules().getTopmostApplicationModules();
+            assertThat(topmostModules).hasSize(1);
+            assertThat(
+                    topmostModules.get(0).getBuildFile().getSourcePath().toString()).isEqualTo(Path.of("module1/pom.xml").toString());
         }
     }
 
@@ -281,9 +282,10 @@ class ApplicationModules_getTopmostApplicationModulesTest {
 
         @Test
         void whenGetTopmostApplicationModulesThenPom1AndPom3ShouldBeReturned() {
-            List<ApplicationModule> topmostApplicationModules = projectContext.getApplicationModules().getTopmostApplicationModules();
-            assertThat(topmostApplicationModules).hasSize(2);
-            List<String> topmostApplicationModulePaths = topmostApplicationModules.stream().map(m -> m.getBuildFile().getSourcePath().toString()).collect(Collectors.toList());
+            List<Module> topmostModules = projectContext.getApplicationModules().getTopmostApplicationModules();
+            assertThat(topmostModules).hasSize(2);
+            List<String> topmostApplicationModulePaths = topmostModules
+                    .stream().map(m -> m.getBuildFile().getSourcePath().toString()).collect(Collectors.toList());
             assertThat(topmostApplicationModulePaths).contains(Path.of("module1/pom.xml").toString(), Path.of("module3/pom.xml").toString());
         }
     }
