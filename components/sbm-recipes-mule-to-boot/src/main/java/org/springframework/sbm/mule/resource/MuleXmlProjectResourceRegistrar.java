@@ -38,6 +38,8 @@ public class MuleXmlProjectResourceRegistrar implements ProjectResourceWrapper<M
 
     @Override
     public MuleXml wrapRewriteSourceFileHolder(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
+
+
         Parser.Input input = new Parser.Input(rewriteSourceFileHolder.getAbsolutePath(), () -> new ByteArrayInputStream(rewriteSourceFileHolder.print().getBytes(StandardCharsets.UTF_8)));
         List<Xml.Document> documents = new XmlParser().parseInputs(List.of(input), rewriteSourceFileHolder.getAbsoluteProjectDir(), new RewriteExecutionContext());
         return new MuleXml(rewriteSourceFileHolder.getAbsoluteProjectDir(), documents.get(0));

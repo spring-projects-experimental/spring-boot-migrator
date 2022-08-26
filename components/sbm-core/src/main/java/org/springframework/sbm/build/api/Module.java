@@ -145,9 +145,26 @@ public class Module {
     }
 
     private List<RewriteSourceFileHolder<? extends SourceFile>> getModuleResources() {
-        return projectResourceSet.stream()
-                .filter(r -> r.getAbsolutePath().toString().startsWith(projectRootDir.resolve(modulePath).toString()))
+        List<Path> moduleSourceSets = new ArrayList<>();
+        moduleSourceSets.addAll(buildFile.getSourceFolders()); // src/main/java, src/gen/java --> /module1/src/main/java
+        moduleSourceSets.addAll(buildFile.getResourceFolders());
+        moduleSourceSets.addAll(buildFile.getTestSourceFolders());
+        moduleSourceSets.addAll(buildFile.getTestResourceFolders());
+
+        List<RewriteSourceFileHolder<? extends SourceFile>> moduleResources = moduleSourceSets
+                .stream()
+                .flatMap(p -> projectResourceSet.stream().filter(r -> this.isResourceOnPath(r, p)))
                 .collect(Collectors.toList());
+        // add pom.xml as it is not part of any source set
+        moduleResources.add((OpenRewriteMavenBuildFile)getBuildFile());
+        return moduleResources;
+    }
+
+    /**
+     * Decides if a given {@code resource} is on the given {@code path}.
+     */
+    private boolean isResourceOnPath(RewriteSourceFileHolder<? extends SourceFile> resource, Path path) {
+         return resource.getAbsolutePath().toString().startsWith(path.toString());
     }
 
     public <T> T searchMainResources(ProjectResourceFinder<T> finder) {
@@ -175,7 +192,7 @@ public class Module {
      */
     public boolean contains(Path resourcePath) {
         Verify.absolutePath(resourcePath);
-        return getModuleResources().stream().anyMatch(r -> r.getAbsolutePath().toString().equals(resourcePath.toString()));
+        return getModuleResources().stream().anyMatch(r -> r.getAbsolutePath().equals(resourcePath));
     }
 
     /**
