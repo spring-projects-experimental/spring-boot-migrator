@@ -21,7 +21,6 @@ import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
-import org.springframework.sbm.common.filter.MavenModuleFinderByFileByResourcePath;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.StringProjectResource;
 
@@ -62,9 +61,6 @@ public class CreateAutoconfigurationAction extends AbstractAction {
             ProjectResource springFactoriesResource = props.get().getRight();
 
             Path springFactoriesPath = springFactoriesResource.getAbsolutePath();
-            Path enclosingMavenProjectForResource = context.search(
-                    new MavenModuleFinderByFileByResourcePath(springFactoriesPath)
-            );
 
             Optional<Module> springFactoriesApplicationModule = context
                     .getApplicationModules()
@@ -73,6 +69,8 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                     .findFirst();
 
             if (springFactoriesApplicationModule.isPresent()) {
+                Path enclosingMavenProjectForResource = springFactoriesApplicationModule.get().getBuildFile()
+                        .getAbsolutePath().getParent();
                 StringProjectResource springAutoconfigurationFile =
                         new StringProjectResource(
                                 enclosingMavenProjectForResource,
