@@ -69,11 +69,7 @@ public class CreateAutoconfigurationAction extends AbstractAction {
             Optional<Module> springFactoriesApplicationModule = context
                     .getApplicationModules()
                     .stream()
-                    .filter(k -> k.getBuildFile()
-                            .getResourceFolders()
-                            .stream()
-                            .anyMatch(l -> springFactoriesPath.toString().startsWith(l.toString()))
-                    )
+                    .filter(k -> k.contains(springFactoriesPath))
                     .findFirst();
 
             if (springFactoriesApplicationModule.isPresent()) {
