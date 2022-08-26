@@ -17,7 +17,7 @@ package org.springframework.sbm.boot.upgrade.common.actions;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.sbm.build.api.ApplicationModule;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
@@ -66,7 +66,7 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                     new MavenModuleFinderByFileByResourcePath(springFactoriesPath)
             );
 
-            Optional<ApplicationModule> springFactoriesApplicationModule = context
+            Optional<Module> springFactoriesApplicationModule = context
                     .getApplicationModules()
                     .stream()
                     .filter(k -> k.getBuildFile()
