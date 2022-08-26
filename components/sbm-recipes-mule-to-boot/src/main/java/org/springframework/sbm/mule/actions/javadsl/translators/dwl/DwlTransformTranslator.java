@@ -16,11 +16,14 @@
 
 package org.springframework.sbm.mule.actions.javadsl.translators.dwl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Version;
 import freemarker.template.Template;
+import lombok.Setter;
 import org.mulesoft.schema.mule.ee.dw.TransformMessageType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.java.util.Helper;
 import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.actions.javadsl.translators.MuleComponentToSpringIntegrationDslTranslator;
@@ -37,6 +40,11 @@ import java.util.Map;
 public class DwlTransformTranslator implements MuleComponentToSpringIntegrationDslTranslator<TransformMessageType> {
     public static final String TRANSFORM_STATEMENT_CONTENT = ".transform($CLASSNAME::transform)";
     public static final String externalPackageName = "com.example.javadsl";
+
+    @Autowired
+    @Setter
+    @JsonIgnore
+    private Configuration templateConfiguration;
 
     /* Define the stubs for adding the transformation as a comment to be addressed */
     private static final String externalClassContentPrefixTemplate = "package " + externalPackageName + ";\n\n" +
@@ -137,8 +145,12 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
 
         StringWriter sw  = new StringWriter();
         try {
-            Configuration templateConfiguration = new Configuration(new Version("2.3.0"));
-            templateConfiguration.setTemplateLoader(new FileTemplateLoader(new File("./src/main/resources/templates")));
+            // In cases where the template library is not initialized (unit testing)
+            if (templateConfiguration == null) {
+                templateConfiguration = new Configuration(new Version("2.3.0"));
+                templateConfiguration.setTemplateLoader(new FileTemplateLoader(new File("./src/main/resources/templates")));
+            }
+
             Template template = templateConfiguration.getTemplate("triggermesh-dw-transformation-template.ftl");
             template.process(templateParams, sw);
         } catch (Exception e) {
