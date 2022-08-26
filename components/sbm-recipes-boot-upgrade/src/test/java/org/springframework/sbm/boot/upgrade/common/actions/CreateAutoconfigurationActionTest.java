@@ -240,7 +240,7 @@ class CreateAutoconfigurationActionTest {
                                 </project>
                                                                 
                                 """)
-                .addProjectResource("spring-app/src/main/resources/META-INF//spring.factories",
+                .addProjectResource("spring-app/src/main/resources/META-INF/spring.factories",
                         """
                                 org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.hello.GreetingConfig
                                 """)
