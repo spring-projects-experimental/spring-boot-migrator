@@ -17,6 +17,7 @@ package org.springframework.sbm.boot.upgrade.common.actions;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.sbm.build.api.ApplicationModule;
 import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
@@ -48,7 +49,8 @@ public class CreateAutoconfigurationAction extends AbstractAction {
             return;
         }
 
-        Optional<String> springAutoConfigProperties = getEnableAutoConfigFromSpringFactories(props.get().getLeft());
+        Properties springProps = props.get().getLeft();
+        Optional<String> springAutoConfigProperties = getEnableAutoConfigFromSpringFactories(springProps);
 
         if (springAutoConfigProperties.isPresent()) {
 
@@ -57,18 +59,37 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                     .replaceAll(",", "\\\n");
 
 
-            Path enclosingMavenProjectForResource = context.search(
-                    new MavenModuleFinderByFileByResourcePath(props.get().getRight().getAbsolutePath())
-            );
-            StringProjectResource springAutoconfigurationFile =
-                    new StringProjectResource(
-                            enclosingMavenProjectForResource,
-                            enclosingMavenProjectForResource.resolve(AUTO_CONFIGURATION_IMPORTS),
-                            autoConfigString
-                    );
-            context.getProjectResources().add(springAutoconfigurationFile);
+            ProjectResource springFactoriesResource = props.get().getRight();
 
-            removeAutoConfigKeyFromSpringFactories(props.get().getLeft(), context, enclosingMavenProjectForResource, props.get().getRight());
+            Path springFactoriesPath = springFactoriesResource.getAbsolutePath();
+            Path enclosingMavenProjectForResource = context.search(
+                    new MavenModuleFinderByFileByResourcePath(springFactoriesPath)
+            );
+
+            Optional<ApplicationModule> springFactoriesApplicationModule = context
+                    .getApplicationModules()
+                    .stream()
+                    .filter(k -> k.getBuildFile()
+                            .getResourceFolders()
+                            .stream()
+                            .anyMatch(l -> springFactoriesPath.toString().startsWith(l.toString()))
+                    )
+                    .findFirst();
+
+            if (springFactoriesApplicationModule.isPresent()) {
+                StringProjectResource springAutoconfigurationFile =
+                        new StringProjectResource(
+                                enclosingMavenProjectForResource,
+                                enclosingMavenProjectForResource.resolve(AUTO_CONFIGURATION_IMPORTS),
+                                autoConfigString
+                        );
+                context.getProjectResources().add(springAutoconfigurationFile);
+
+                removeAutoConfigKeyFromSpringFactories(springProps, context, enclosingMavenProjectForResource, springFactoriesResource);
+            }
+            else {
+                throw new IllegalStateException("could not find module for resource: " + springFactoriesPath);
+            }
         }
     }
 

@@ -112,6 +112,95 @@ class CreateAutoconfigurationActionTest {
         List<ProjectResource> projectResources = getAutoConfigFileAsProjectResource();
 
         assertThat(projectResources).hasSize(1);
+        assertSpringConfigFileContentsInProject("spring-app");
+    }
+
+    @Test
+    public void moduleInsideModuleMavenSetup() {
+        context = moduleInModuleProjectContext();
+        action.apply(context);
+        List<ProjectResource> projectResources = getAutoConfigFileAsProjectResource();
+        assertThat(projectResources).hasSize(1);
+
+        assertSpringConfigFileContentsInProject("app/spring-app");
+    }
+
+    private void assertSpringConfigFileContentsInProject(String project) {
+        List<ProjectResource> content = getAutoConfigFileAsProjectResource();
+        assertThat(content).hasSize(1);
+        assertThat(content.get(0).getAbsolutePath().toString())
+                .isEqualTo(TestProjectContext.getDefaultProjectRoot()
+                        + "/" + project + "/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports");
+
+        List<ProjectResource> oldFile = getFileAsProjectResource(EXISTING_SPRING_FACTORIES_FILE);
+        assertThat(oldFile).hasSize(1);
+        assertThat(oldFile.get(0).getAbsolutePath().toString())
+                .isEqualTo(TestProjectContext.getDefaultProjectRoot() +
+                        "/" + project + "/src/main/resources/META-INF/spring.factories");
+
+        assertThat(oldFile.get(0).print()).isEqualTo("");
+    }
+
+    private ProjectContext moduleInModuleProjectContext() {
+        return TestProjectContext.
+                buildProjectContext()
+                .addProjectResource("pom.xml",
+                        """
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                    <modelVersion>4.0.0</modelVersion>
+                                    <modules>
+                                        <module>app</module>
+                                    </modules>
+                                    <groupId>com.example</groupId>
+                                    <artifactId>root</artifactId>
+                                    <version>v1</version>
+                                    <name>root</name>
+                                </project>
+                                """)
+                .addProjectResource("app/pom.xml",
+                        """
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                                                
+                                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                    <parent>
+                                        <artifactId>root</artifactId>
+                                        <groupId>com.example</groupId>
+                                        <version>v1</version>
+                                    </parent>
+                                    <modelVersion>4.0.0</modelVersion>
+                                                                
+                                    <artifactId>app</artifactId>
+                                    <modules>
+                                        <module>spring-app</module>
+                                    </modules>
+                                </project>
+                                """)
+                .addProjectResource("app/spring-app/pom.xml",
+                        """
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                                                
+                                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                    <parent>
+                                        <artifactId>app</artifactId>
+                                        <groupId>com.example</groupId>
+                                        <version>v1</version>
+                                    </parent>
+                                    <modelVersion>4.0.0</modelVersion>
+                                                                
+                                    <artifactId>spring-app</artifactId>
+                                </project>
+                                """)
+                .addProjectResource("app/spring-app/src/main/resources/META-INF/spring.factories",
+                        """
+                                org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.hello.GreetingConfig
+                                """)
+                .build();
     }
 
     private ProjectContext setupMultiMavenSpringModule() {
@@ -127,45 +216,10 @@ class CreateAutoconfigurationActionTest {
                                     <modules>
                                         <module>spring-app</module>
                                     </modules>
-                                                                
-                                    <parent>
-                                        <groupId>org.springframework.boot</groupId>
-                                        <artifactId>spring-boot-starter-parent</artifactId>
-                                        <version>2.7.1</version>
-                                    </parent>
                                     <groupId>com.example</groupId>
-                                    <artifactId>boot-upgrade-27_30</artifactId>
-                                    <version>0.0.1-SNAPSHOT</version>
-                                    <name>boot-upgrade-27_30</name>
-                                    <description>boot-upgrade-27_30</description>
-                                    <properties>
-                                        <java.version>17</java.version>
-                                    </properties>
-                                                                
-                                                                
-                                    <repositories>
-                                        <repository>
-                                            <id>spring-snapshot</id>
-                                            <url>https://repo.spring.io/snapshot</url>
-                                            <releases>
-                                                <enabled>false</enabled>
-                                            </releases>
-                                        </repository>
-                                        <repository>
-                                            <id>spring-milestone</id>
-                                            <url>https://repo.spring.io/milestone</url>
-                                            <snapshots>
-                                                <enabled>false</enabled>
-                                            </snapshots>
-                                        </repository>
-                                        <repository>
-                                            <id>spring-release</id>
-                                            <url>https://repo.spring.io/release</url>
-                                            <snapshots>
-                                                <enabled>false</enabled>
-                                            </snapshots>
-                                        </repository>
-                                    </repositories>
+                                    <artifactId>root</artifactId>
+                                    <version>v1</version>
+                                    <name>root</name>
                                 </project>
                                 """)
                 .addProjectResource("spring-app/pom.xml",
@@ -176,37 +230,13 @@ class CreateAutoconfigurationActionTest {
                                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                                          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
                                     <parent>
-                                        <artifactId>boot-upgrade-27_30</artifactId>
+                                        <artifactId>root</artifactId>
                                         <groupId>com.example</groupId>
-                                        <version>0.0.1-SNAPSHOT</version>
+                                        <version>v1</version>
                                     </parent>
                                     <modelVersion>4.0.0</modelVersion>
                                                                 
                                     <artifactId>spring-app</artifactId>
-                                                                
-                                    <properties>
-                                        <maven.compiler.source>17</maven.compiler.source>
-                                        <maven.compiler.target>17</maven.compiler.target>
-                                    </properties>
-                                    <dependencies>
-                                        <dependency>
-                                            <groupId>org.springframework.boot</groupId>
-                                            <artifactId>spring-boot-starter-web</artifactId>
-                                        </dependency>
-                                        <dependency>
-                                            <groupId>org.springframework.boot</groupId>
-                                            <artifactId>spring-boot-starter-data-jpa</artifactId>
-                                        </dependency>
-                                    </dependencies>
-                                                            
-                                    <build>
-                                        <plugins>
-                                            <plugin>
-                                                <groupId>org.springframework.boot</groupId>
-                                                <artifactId>spring-boot-maven-plugin</artifactId>
-                                            </plugin>
-                                        </plugins>
-                                    </build>
                                 </project>
                                                                 
                                 """)
