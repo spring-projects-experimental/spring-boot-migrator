@@ -64,9 +64,7 @@ public class CreateAutoconfigurationAction extends AbstractAction {
 
             Optional<Module> springFactoriesApplicationModule = context
                     .getApplicationModules()
-                    .stream()
-                    .filter(k -> k.contains(springFactoriesPath))
-                    .findFirst();
+                    .findModuleContaining(springFactoriesPath);
 
             if (springFactoriesApplicationModule.isPresent()) {
                 Path enclosingMavenProjectForResource = springFactoriesApplicationModule.get().getBuildFile()
