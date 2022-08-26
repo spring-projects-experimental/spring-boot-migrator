@@ -16,15 +16,8 @@
 
 package org.springframework.sbm;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.maven.MavenParser;
-import org.openrewrite.xml.tree.Xml;
-
-import java.nio.file.Path;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationTestBaseClass {
     @Override
@@ -34,7 +27,7 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
 
     @Test
     @Tag("integration")
-    void migrateSimpleApplication() {
+    void migrateMultiModuleApplication() {
         intializeTestProject();
 
         scanProject();
@@ -42,42 +35,9 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
         applyRecipe("boot-2.7-3.0-dependency-version-update");
 
         buildProject();
-
-//        verifyParentPomVersion();
     }
 
     private void buildProject() {
         executeMavenGoals(getTestDir(), "clean", "verify");
-    }
-
-    private void verifyParentPomVersion() {
-        Xml.Document mavenAsXMLDocument = getRootBuildFile();
-
-        Xml.Tag parentTag =mavenAsXMLDocument
-                .getRoot()
-                .getChildren("parent").get(0);
-
-        String version = parentTag.getChildValue("version").get();
-
-        String groupId = parentTag.getChildValue("groupId").get();
-        String artifactId = parentTag.getChildValue("artifactId").get();
-
-        assertThat(version).isEqualTo("3.0.0-M3");
-        assertThat(groupId).isEqualTo("org.springframework.boot");
-        assertThat(artifactId).isEqualTo("spring-boot-starter-parent");
-    }
-
-
-    @NotNull
-    private Xml.Document getRootBuildFile() {
-
-        return parsePom(loadFile(Path.of("spring-app/pom.xml")));
-    }
-
-
-    @NotNull
-    private Xml.Document parsePom(String pomContent) {
-        MavenParser mavenParser = new MavenParser.Builder().build();
-        return mavenParser.parse(pomContent).get(0);
     }
 }
