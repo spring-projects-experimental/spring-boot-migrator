@@ -71,7 +71,7 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                         .getAbsolutePath().getParent();
                 StringProjectResource springAutoconfigurationFile =
                         new StringProjectResource(
-                                enclosingMavenProjectForResource,
+                                context.getProjectRootDirectory(),
                                 enclosingMavenProjectForResource.resolve(AUTO_CONFIGURATION_IMPORTS),
                                 autoConfigString
                         );
