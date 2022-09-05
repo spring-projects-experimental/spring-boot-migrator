@@ -20,9 +20,13 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.tree.Dependency;
+import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.xml.tree.Xml;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -44,6 +48,38 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
         buildProject();
 
         verifyParentPomVersion();
+        verifyEhCacheVersionIsUpgraded();
+    }
+
+    private void verifyEhCacheVersionIsUpgraded() {
+        Optional<Dependency> ehcacheResult = getDependencyByArtifactId("ehcache", "spring-app/");
+
+        assertThat(ehcacheResult).isPresent();
+
+        Dependency ehcacheDependency = ehcacheResult.get();
+
+        assertThat(ehcacheDependency.getArtifactId()).isEqualTo("ehcache");
+        assertThat(ehcacheDependency.getGav().getGroupId()).isEqualTo("org.ehcache");
+        assertThat(ehcacheDependency.getGav().getVersion()).isNull();
+        assertThat(ehcacheDependency.getClassifier()).isEqualTo("jakarta");
+    }
+
+    private Optional<Dependency> getDependencyByArtifactId(String artifactId, String module) {
+        Xml.Document mavenAsXMLDocument = getBuildFileByModule(module);
+        List<Dependency> dependencies = getDependencies(mavenAsXMLDocument);
+        return dependencies
+                .stream()
+                .filter(dependency -> dependency.getArtifactId().equals(artifactId))
+                .findFirst();
+    }
+
+    private List<Dependency> getDependencies(Xml.Document mavenAsXMLDocument) {
+        return mavenAsXMLDocument
+                .getMarkers()
+                .findFirst(MavenResolutionResult.class)
+                .get()
+                .getPom()
+                .getRequestedDependencies();
     }
 
     private void verifyParentPomVersion() {
@@ -63,10 +99,18 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
         assertThat(artifactId).isEqualTo("spring-boot-starter-parent");
     }
 
+
+    @NotNull
+    private Xml.Document getBuildFileByModule(String app) {
+
+        return parsePom(loadFile(Path.of(app + "pom.xml")));
+    }
+
+
     @NotNull
     private Xml.Document getRootBuildFile() {
 
-        return parsePom(loadFile(Path.of("pom.xml")));
+        return getBuildFileByModule("");
     }
 
     @NotNull
