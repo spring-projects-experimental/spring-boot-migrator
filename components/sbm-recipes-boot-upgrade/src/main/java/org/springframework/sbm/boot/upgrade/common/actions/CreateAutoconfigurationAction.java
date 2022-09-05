@@ -79,9 +79,6 @@ public class CreateAutoconfigurationAction extends AbstractAction {
 
                 removeAutoConfigKeyFromSpringFactories(springProps, context, enclosingMavenProjectForResource, springFactoriesResource);
             }
-            else {
-                throw new IllegalStateException("could not find module for resource: " + springFactoriesPath);
-            }
         }
     }
 
