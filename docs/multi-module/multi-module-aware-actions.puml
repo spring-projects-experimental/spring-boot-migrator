@@ -1,0 +1,41 @@
+@startuml
+
+interface Action {
+    apply(ProjectContext)
+}
+
+class AbstractAction {
+}
+
+AbstractAction ..|> Action
+
+class MultiModuleAwareAction {
+    handler : MultiModuleHandler
+}
+
+MultiModuleAwareAction --|> AbstractAction
+
+class MultiModuleHandler {
+    apply(ProjectContext)
+}
+
+MultiModuleAwareAction .> MultiModuleHandler
+
+class AddDependency {
+}
+
+class AddDependencyActionConfig {
+    groupId
+    artifactId
+    version
+    ...
+}
+
+class AddDependencyToSpringApplicationModules {
+}
+MultiModuleHandler <|.. AddDependencyToSpringApplicationModules
+AddDependencyToSpringApplicationModules .> AddDependencyActionConfig
+AddDependency --|> MultiModuleAwareAction
+AddDependency ..> AddDependencyActionConfig
+
+@enduml
