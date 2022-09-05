@@ -99,24 +99,28 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
         assertThat(artifactId).isEqualTo("spring-boot-starter-parent");
     }
 
+    @NotNull
+    private Xml.Document getRootBuildFile() {
+        return parsePom(loadFile(Path.of("pom.xml")));
+    }
 
     @NotNull
     private Xml.Document getBuildFileByModule(String app) {
 
-        return parsePom(loadFile(Path.of(app + "pom.xml")));
+        return parseSubmodulePom(loadFile(Path.of("pom.xml")), loadFile(Path.of(app + "pom.xml")));
     }
 
-
-    @NotNull
-    private Xml.Document getRootBuildFile() {
-
-        return getBuildFileByModule("");
-    }
 
     @NotNull
     private Xml.Document parsePom(String pomContent) {
         MavenParser mavenParser = new MavenParser.Builder().build();
         return mavenParser.parse(pomContent).get(0);
+    }
+
+    @NotNull
+    private Xml.Document parseSubmodulePom(String parentPom, String pomContent) {
+        MavenParser mavenParser = new MavenParser.Builder().build();
+        return mavenParser.parse(parentPom, pomContent).get(1);
     }
 
     private void buildProject() {
