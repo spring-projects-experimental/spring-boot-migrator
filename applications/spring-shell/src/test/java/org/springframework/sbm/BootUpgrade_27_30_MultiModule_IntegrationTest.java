@@ -50,7 +50,25 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
         verifyParentPomVersion();
         verifyYamlConfigurationUpdate();
         verifyPropertyConfigurationUpdate();
+        verifyConstructorBindingRemoval();
         verifyEhCacheVersionIsUpgraded();
+    }
+
+    private void verifyConstructorBindingRemoval() {
+        String constructorBindingConfigClass = loadJavaFileFromSubmodule("spring-app/", "org.springboot.example.upgrade", "ConstructorBindingConfig");
+        assertThat(constructorBindingConfigClass).isEqualTo("package org.springboot.example.upgrade;\n" +
+                "\n" +
+                "import org.springframework.boot.context.properties.ConfigurationProperties;\n" +
+                "\n" +
+                "@ConfigurationProperties(prefix = \"mail\")\n" +
+                "public class ConstructorBindingConfig {\n" +
+                "    private String hostName;\n" +
+                "\n" +
+                "    public ConstructorBindingConfig(String hostName) {\n" +
+                "        this.hostName = hostName;\n" +
+                "    }\n" +
+                "}" +
+                "\n");
     }
 
     private void verifyYamlConfigurationUpdate() {
