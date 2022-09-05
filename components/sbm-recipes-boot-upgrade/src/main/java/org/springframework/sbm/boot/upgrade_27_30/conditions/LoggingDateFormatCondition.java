@@ -26,7 +26,7 @@ public class LoggingDateFormatCondition implements Condition {
 
     @Override
     public String getDescription() {
-        return null;
+        return "Check if 'logging.pattern.dateformat' is declared.";
     }
 
     @Override
