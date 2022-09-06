@@ -112,8 +112,8 @@ public class ApplicationModules {
     public List<Module> getTopmostApplicationModules() {
         List<Module> topmostModules = new ArrayList<>();
         modules.forEach(module -> {
-            // is jar
-            if ("jar".equals(module.getBuildFile().getPackaging())) { // FIXME: other types could be topmost too, e.g. 'war'
+            // is jar or mule-application? (mulesoft apps don't get switched over to JARs until after the recipe runs)
+            if ("jar".equals(module.getBuildFile().getPackaging()) || "mule-application".equals(module.getBuildFile().getPackaging())) { // FIXME: other types could be topmost too, e.g. 'war'
                 // no other pom depends on this pom in its dependency section
                 if (noOtherPomDependsOn(module.getBuildFile())) {
                     // has no parent or parent has packaging pom
