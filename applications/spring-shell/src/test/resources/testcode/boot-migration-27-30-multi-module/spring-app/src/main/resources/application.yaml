@@ -1,0 +1,158 @@
+spring:
+  datasource:
+    data: testdata
+    url: jdbc:h2:mem:testdb
+    data-username: sa
+    schema-username: sa
+    schema-password: password
+    driverClassName: org.h2.Driver
+    schema: table1
+    initialization-mode: mode1
+    data-password: password
+    sql-script-encoding: UTF-8
+    platform: pls
+    separator: k
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  activemq:
+    pool:
+      max-sessions-per-connection: '300'
+      use-anonymous-producers: 'true'
+      block-if-full: 'true'
+      block-if-full-timeout: 'true'
+      time-between-expiration-check: '22'
+      idle-timeout: '12'
+      enabled: 'true'
+      max-connections: '200'
+    user: user
+    packages:
+      trust-all: 'true'
+      trusted: 'true'
+    send-timeout: '11'
+    password: password
+    broker-url: http://google.com
+    close-timeout: '13'
+    non-blocking-redelivery: 'true'
+    in-memory: 'true'
+  artemis:
+    pool:
+      idle-timeout: '1'
+      use-anonymous-producers: 'true'
+      block-if-full-timeout: 'true'
+      time-between-expiration-check: '10'
+      max-sessions-per-connection: '10'
+      max-connections: '100'
+      enabled: 'true'
+      block-if-full: 'true'
+  jta:
+    atomikos:
+      properties:
+        checkpoint-interval: '10'
+        recovery:
+          retry-interval: '2'
+          delay: '5'
+          max-retries: '3'
+          forget-orphaned-log-entries-delay: '4'
+        serial-jta-transactions: transaction
+        default-max-wait-time-on-shutdown: '8'
+        max-timeout: '6'
+        default-jta-timeout: '9'
+        max-actives: '7'
+        allow-sub-transactions: 'true'
+        log-base-name: /tmp1
+        transaction-manager-unique-name: name1
+        force-shutdown-on-vm-exit: 'true'
+        enable-logging: 'false'
+        log-base-dir: /tmp2
+    transaction-manager-id: '1'
+    log-dir: /tmp
+  elasticsearch:
+    rest:
+      username: username
+      read-timeout: '2'
+      connection-timeout: '1'
+      sniffer:
+        interval: '4'
+        delay-after-failure: '3'
+      password: testpassword
+  data:
+    elasticsearch:
+      client:
+        reactive:
+          connection-timeout: '1000'
+          password: abc
+          use-ssl: 'false'
+          socket-timeout: '100'
+          max-in-memory-size: '122'
+          username: testUser
+  h2:
+    console:
+      path: "/tmp"
+      settings:
+        web-admin-password: "password"
+        web-allow-others: 'true'
+        trace: 'true'
+      enabled: 'true'
+  graphql:
+    schema:
+      file-extensions: .txt
+      introspection:
+        enabled: 'true'
+      locations: abc
+      printer:
+        enabled: 'false'
+    cors:
+      allowed-origins: '*'
+      allowed-headers: hello
+      allow-credentials: 'true'
+      allowed-origin-patterns: '*'
+      allowed-methods: POST
+      exposed-headers: fd
+      max-age: '22'
+    path: 'null'
+    graphiql:
+      enabled: 'false'
+      path: /path2
+    websocket:
+      path: /path
+      connection-init-timeout: '2'
+  jersey:
+    servlet:
+      load-on-startup: 'true'
+    application-path: '"/path"'
+    filter:
+      order: '"desc"'
+    init: 'true'
+    type: type1
+  config:
+    use-legacy-processing: 'false'
+  security:
+    saml2:
+      relyingparty:
+        registration:
+          idpone:
+            identityprovider:
+              verification:
+                credentials:
+                  certificate-location: classpath:saml/idpone.crt
+              entity-id: https://idpone.com
+              sso-url: https://idpone.com
+  webflux:
+    session:
+      cookie:
+        same-site: 'true'
+  cache:
+    infinispan:
+      config: '"config2"'
+    ehcache:
+      config: '"config1"'
+management:
+  metrics:
+    graphql:
+      autotime:
+        percentiles: '100'
+        percentiles-histogram: '20'
+  endpoint:
+    jolokia:
+      enabled: 'true'
+      config: '"abc"'

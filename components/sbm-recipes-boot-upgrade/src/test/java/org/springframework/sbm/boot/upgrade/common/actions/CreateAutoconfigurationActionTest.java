@@ -60,7 +60,7 @@ class CreateAutoconfigurationActionTest {
     public void autoConfigurationImportsContent() {
         action.apply(context);
 
-        String content = getNewAutoConfigFile();
+        String content = getNewAutoConfigFileContents();
 
         assertThat(content).isEqualTo("XYZ");
     }
@@ -93,7 +93,7 @@ class CreateAutoconfigurationActionTest {
 
         action.apply(context);
 
-        String content = getNewAutoConfigFile();
+        String content = getNewAutoConfigFileContents();
 
         assertThat(content).isEqualTo("""
                 XYZ
@@ -102,10 +102,159 @@ class CreateAutoconfigurationActionTest {
         );
     }
 
-    private String getNewAutoConfigFile() {
+    @Test
+    public void multiMavenModule() {
+
+        context = setupMultiMavenSpringModule();
+
+        action.apply(context);
+
+        List<ProjectResource> projectResources = getAutoConfigFileAsProjectResource();
+
+        assertThat(projectResources).hasSize(1);
+        assertSpringConfigFileContentsInProject("spring-app");
+    }
+
+    @Test
+    public void moduleInsideModuleMavenSetup() {
+        context = moduleInModuleProjectContext();
+        action.apply(context);
+        List<ProjectResource> projectResources = getAutoConfigFileAsProjectResource();
+        assertThat(projectResources).hasSize(1);
+
+        assertSpringConfigFileContentsInProject("app/spring-app");
+    }
+
+    private void assertSpringConfigFileContentsInProject(String project) {
+        List<ProjectResource> content = getAutoConfigFileAsProjectResource();
+        assertThat(content).hasSize(1);
+        assertThat(content.get(0).getAbsolutePath().toString())
+                .isEqualTo(TestProjectContext.getDefaultProjectRoot()
+                        + "/" + project + "/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports");
+
+        List<ProjectResource> oldFile = getFileAsProjectResource(EXISTING_SPRING_FACTORIES_FILE);
+        assertThat(oldFile).hasSize(1);
+        assertThat(oldFile.get(0).getAbsolutePath().toString())
+                .isEqualTo(TestProjectContext.getDefaultProjectRoot() +
+                        "/" + project + "/src/main/resources/META-INF/spring.factories");
+
+        assertThat(oldFile.get(0).print()).isEqualTo("");
+    }
+
+    private ProjectContext moduleInModuleProjectContext() {
+        return TestProjectContext.
+                buildProjectContext()
+                .addProjectResource("pom.xml",
+                        """
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                    <modelVersion>4.0.0</modelVersion>
+                                    <modules>
+                                        <module>app</module>
+                                    </modules>
+                                    <groupId>com.example</groupId>
+                                    <artifactId>root</artifactId>
+                                    <version>v1</version>
+                                    <name>root</name>
+                                </project>
+                                """)
+                .addProjectResource("app/pom.xml",
+                        """
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                                                
+                                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                    <parent>
+                                        <artifactId>root</artifactId>
+                                        <groupId>com.example</groupId>
+                                        <version>v1</version>
+                                    </parent>
+                                    <modelVersion>4.0.0</modelVersion>
+                                                                
+                                    <artifactId>app</artifactId>
+                                    <modules>
+                                        <module>spring-app</module>
+                                    </modules>
+                                </project>
+                                """)
+                .addProjectResource("app/spring-app/pom.xml",
+                        """
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                                                
+                                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                    <parent>
+                                        <artifactId>app</artifactId>
+                                        <groupId>com.example</groupId>
+                                        <version>v1</version>
+                                    </parent>
+                                    <modelVersion>4.0.0</modelVersion>
+                                                                
+                                    <artifactId>spring-app</artifactId>
+                                </project>
+                                """)
+                .addProjectResource("app/spring-app/src/main/resources/META-INF/spring.factories",
+                        """
+                                org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.hello.GreetingConfig
+                                """)
+                .build();
+    }
+
+    private ProjectContext setupMultiMavenSpringModule() {
+        return TestProjectContext.
+                buildProjectContext()
+                .addProjectResource("pom.xml",
+                        """
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                    <modelVersion>4.0.0</modelVersion>
+                                    <packaging>pom</packaging>
+                                    <modules>
+                                        <module>spring-app</module>
+                                    </modules>
+                                    <groupId>com.example</groupId>
+                                    <artifactId>root</artifactId>
+                                    <version>v1</version>
+                                    <name>root</name>
+                                </project>
+                                """)
+                .addProjectResource("spring-app/pom.xml",
+                        """
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                                                
+                                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                    <parent>
+                                        <artifactId>root</artifactId>
+                                        <groupId>com.example</groupId>
+                                        <version>v1</version>
+                                    </parent>
+                                    <modelVersion>4.0.0</modelVersion>
+                                                                
+                                    <artifactId>spring-app</artifactId>
+                                </project>
+                                                                
+                                """)
+                .addProjectResource("spring-app/src/main/resources/META-INF/spring.factories",
+                        """
+                                org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.hello.GreetingConfig
+                                """)
+                .build();
+    }
+
+    private String getNewAutoConfigFileContents() {
+        return getAutoConfigFileAsProjectResource().get(0).print();
+    }
+
+    private List<ProjectResource> getAutoConfigFileAsProjectResource() {
         return getFileAsProjectResource(
                 "/**/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports"
-        ).get(0).print();
+        );
     }
 
     private List<ProjectResource> getFileAsProjectResource(String path) {
