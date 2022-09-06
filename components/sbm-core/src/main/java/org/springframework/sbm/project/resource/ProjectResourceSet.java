@@ -37,7 +37,7 @@ public class ProjectResourceSet {
     }
 
     public List<RewriteSourceFileHolder<? extends SourceFile>> list() {
-        return stream().collect(Collectors.toUnmodifiableList());
+        return stream().toList();
     }
 
     public Stream<RewriteSourceFileHolder<? extends SourceFile>> stream() {

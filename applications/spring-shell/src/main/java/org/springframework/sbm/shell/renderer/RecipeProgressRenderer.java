@@ -122,7 +122,7 @@ public class RecipeProgressRenderer {
 
 
     public synchronized void failProcess() {
-        while (!stepsDeque.isEmpty()) {
+        if (!stepsDeque.isEmpty()) {
             if (stepsDeque.peek().getClass().isAssignableFrom(ProcessStep.class)) {
                 String fail = ((ProcessStep) stepsDeque.pop()).fail();
                 printer.printAndNewLine(fail);
