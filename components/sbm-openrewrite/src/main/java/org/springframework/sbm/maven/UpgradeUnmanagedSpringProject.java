@@ -19,55 +19,74 @@ package org.springframework.sbm.maven;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.internal.ListUtils;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenIsoVisitor;
+import org.openrewrite.maven.internal.MavenPomDownloader;
+import org.openrewrite.maven.tree.GroupArtifactVersion;
+import org.openrewrite.maven.tree.Pom;
 import org.openrewrite.maven.tree.ResolvedDependency;
+import org.openrewrite.maven.tree.ResolvedManagedDependency;
+import org.openrewrite.maven.tree.ResolvedPom;
 import org.openrewrite.xml.ChangeTagValueVisitor;
 import org.openrewrite.xml.tree.Xml;
 
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-@AllArgsConstructor
 public class UpgradeUnmanagedSpringProject extends Recipe {
 
     private String springVersion;
+
+    private static Map<String, String> map = new HashMap<>();
+
+    public UpgradeUnmanagedSpringProject(String springVersion) {
+
+        this.springVersion = springVersion;
+    }
 
     @Override
     public String getDisplayName() {
         return "Upgrade unmanaged spring project";
     }
 
+    private void updateMap () {
+        Map<Path, Pom> poms = new HashMap<>();
+        MavenPomDownloader downloader = new MavenPomDownloader(poms, new InMemoryExecutionContext());
+        GroupArtifactVersion gav = new GroupArtifactVersion("org.springframework.boot", "spring-boot-dependencies", springVersion);
+        String relativePath = "";
+        ResolvedPom containingPom = null;
+        Pom pom = downloader.download(gav, relativePath, containingPom, List.of());
+        ResolvedPom resolvedPom = pom.resolve(List.of(), downloader, new InMemoryExecutionContext());
+        List<ResolvedManagedDependency> dependencyManagement = resolvedPom.getDependencyManagement();
+        map = new HashMap<>();
+        dependencyManagement.forEach(k -> map.put(k.getGroupId() + ":" + k.getArtifactId().toLowerCase(), k.getVersion()));
+    }
+
     @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
-        return new MavenIsoVisitor<ExecutionContext>() {
+        updateMap();
+
+        return new MavenIsoVisitor<>() {
             @Override
             public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
 
                 if (isDependencyTag()) {
                     ResolvedDependency dependency = findDependency(tag);
 
-                    if (dependency.getArtifactId().equals("spring-boot-starter-web")) {
+                    String key = dependency.getGroupId() + ":" + dependency.getArtifactId();
+                    if (map.containsKey(key)) {
+                        String dependencyVersion = map.get(key);
                         Optional<Xml.Tag> version = tag.getChild("version");
                         if (version.isPresent()) {
 
-                            doAfterVisit(new ChangeTagValueVisitor(version.get(), "3.0.0-M3"));
-                        }
-                    }
-                    if (dependency.getArtifactId().equals("metrics-annotation")) {
-                        Optional<Xml.Tag> version = tag.getChild("version");
-                        if (version.isPresent()) {
-
-                            doAfterVisit(new ChangeTagValueVisitor(version.get(), "4.2.9"));
-                        }
-                    }
-                    if (dependency.getArtifactId().equals("spring-boot-starter-test")) {
-                        Optional<Xml.Tag> version = tag.getChild("version");
-                        if (version.isPresent()) {
-
-                            doAfterVisit(new ChangeTagValueVisitor(version.get(), "3.0.0-M3"));
+                            doAfterVisit(new ChangeTagValueVisitor(version.get(), dependencyVersion));
                         }
                     }
                 }
