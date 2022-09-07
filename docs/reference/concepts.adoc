@@ -133,3 +133,23 @@ When git support is enabled SBM commits the changes applied by running the recip
 
 Since 0.9.0 SBM starts to support https://maven.apache.org/guides/mini/guide-multiple-modules.html#the-reactor[multi module applications].
 
+
+=== Spring Boot Resources
+
+==== Spring RestController Bean
+Classes annotated with Spring `@RestController` annotation can be found using the `FindRestControllerBeans` finder.
+
+[source,java]
+.....
+List<RestControllerBean> restController = projectContext.search(new FindRestControllerBeans());
+
+List<RestMethod> restMethods = restController.get(0).getRestMethods();
+
+restMethods.get(0).
+.....
+
+
+
+
+
+

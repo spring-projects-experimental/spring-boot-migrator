@@ -73,8 +73,8 @@ public class OpenRewriteAnnotation implements Annotation {
     }
 
     @Override
-    public boolean hasAttribute(String timeout) {
-        return false;
+    public boolean hasAttribute(String attribute) {
+        return getAttributes().containsKey(attribute);
     }
 
     @Override
