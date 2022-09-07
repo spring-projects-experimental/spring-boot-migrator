@@ -16,14 +16,10 @@
 
 package org.springframework.sbm.maven;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
-import org.openrewrite.internal.ListUtils;
-import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.GroupArtifactVersion;
@@ -39,12 +35,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class UpgradeUnmanagedSpringProject extends Recipe {
 
     private String springVersion;
 
-    private static Map<String, String> map = new HashMap<>();
+    private static Map<String, String> springBootDependenciesMap;
 
     public UpgradeUnmanagedSpringProject(String springVersion) {
 
@@ -56,7 +53,14 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         return "Upgrade unmanaged spring project";
     }
 
-    private void updateMap () {
+    public synchronized Map<String, String> getDependenciesMap() {
+        if (springBootDependenciesMap == null) {
+            springBootDependenciesMap = buildDependencyMap();
+        }
+        return springBootDependenciesMap;
+    }
+
+    private Map<String, String> buildDependencyMap () {
         Map<Path, Pom> poms = new HashMap<>();
         MavenPomDownloader downloader = new MavenPomDownloader(poms, new InMemoryExecutionContext());
         GroupArtifactVersion gav = new GroupArtifactVersion("org.springframework.boot", "spring-boot-dependencies", springVersion);
@@ -65,14 +69,19 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         Pom pom = downloader.download(gav, relativePath, containingPom, List.of());
         ResolvedPom resolvedPom = pom.resolve(List.of(), downloader, new InMemoryExecutionContext());
         List<ResolvedManagedDependency> dependencyManagement = resolvedPom.getDependencyManagement();
-        map = new HashMap<>();
-        dependencyManagement.forEach(k -> map.put(k.getGroupId() + ":" + k.getArtifactId().toLowerCase(), k.getVersion()));
+        return dependencyManagement
+                .stream()
+                .filter(d -> d.getVersion() != null)
+                .collect(Collectors.toMap(
+                        d -> d.getGroupId() + ":" + d.getArtifactId().toLowerCase(),
+                        ResolvedManagedDependency::getVersion,
+                        (k1, k2) -> {
+                            return k2;
+                        }));
     }
 
     @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
-        updateMap();
-
         return new MavenIsoVisitor<>() {
             @Override
             public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
@@ -81,8 +90,8 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                     ResolvedDependency dependency = findDependency(tag);
 
                     String key = dependency.getGroupId() + ":" + dependency.getArtifactId();
-                    if (map.containsKey(key)) {
-                        String dependencyVersion = map.get(key);
+                    if (getDependenciesMap().containsKey(key)) {
+                        String dependencyVersion = getDependenciesMap().get(key);
                         Optional<Xml.Tag> version = tag.getChild("version");
                         if (version.isPresent()) {
 
