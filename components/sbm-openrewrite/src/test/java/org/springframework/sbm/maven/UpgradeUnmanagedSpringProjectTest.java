@@ -33,7 +33,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     void shouldUpdateBomVersionTo30() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
 
         List<Throwable> errors = new ArrayList<>();
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
@@ -142,7 +142,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     void shouldNotUpdateSinceTheProjectIsNotSpringy() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
         List<Throwable> errors = new ArrayList<>();
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
             ex.printStackTrace();
@@ -182,7 +182,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     void shouldNotUpdateBomForOldVersion() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
 
         List<Throwable> errors = new ArrayList<>();
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {

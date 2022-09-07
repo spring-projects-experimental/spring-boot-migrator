@@ -16,13 +16,10 @@
 
 package org.springframework.sbm.maven;
 
-import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
-import org.openrewrite.java.tree.J;
-import org.openrewrite.marker.Markers;
 import org.openrewrite.marker.SearchResult;
 import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.maven.internal.MavenPomDownloader;
@@ -36,17 +33,22 @@ import org.openrewrite.xml.tree.Xml;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class UpgradeUnmanagedSpringProject extends Recipe {
 
     public static final String SPRINGBOOT_GROUP = "org.springframework.boot";
     private final String springVersion;
-
+    private final String minVersion;
     private Map<String, String> springBootDependenciesMap;
 
-    public UpgradeUnmanagedSpringProject(String springVersion) {
+    private final Pattern versionPattern;
+
+    public UpgradeUnmanagedSpringProject(String springVersion, String minVersion) {
 
         this.springVersion = springVersion;
+        this.minVersion = minVersion;
+        this.versionPattern = Pattern.compile(minVersion);
     }
 
     @Override
@@ -57,11 +59,16 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                 Xml.Tag resultTag = super.visitTag(tag, executionContext);
                 if (isDependencyTag()) {
                     ResolvedDependency dependency = findDependency(resultTag);
-                    if (dependency.getGroupId().equals(SPRINGBOOT_GROUP)) {
+                    if (dependency.getGroupId().equals(SPRINGBOOT_GROUP)
+                        && satisfiesMinVersion(dependency.getVersion())) {
                         return resultTag.withMarkers(resultTag.getMarkers().addIfAbsent(new SearchResult(UUID.randomUUID(), "SpringBoot dependency")));
                     }
                 }
                 return resultTag;
+            }
+
+            private boolean satisfiesMinVersion(String version) {
+                return versionPattern.matcher(version).matches();
             }
         };
     }
