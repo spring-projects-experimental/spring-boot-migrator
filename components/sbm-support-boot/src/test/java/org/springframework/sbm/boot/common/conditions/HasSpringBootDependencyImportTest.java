@@ -1,13 +1,10 @@
 package org.springframework.sbm.boot.common.conditions;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
-import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class HasSpringBootDependencyImportTest {
 
@@ -46,5 +43,4 @@ class HasSpringBootDependencyImportTest {
 
         assertThat(result).isTrue();
     }
-
 }
