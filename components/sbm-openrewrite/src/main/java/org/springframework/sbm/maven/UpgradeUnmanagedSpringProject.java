@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 public class UpgradeUnmanagedSpringProject extends Recipe {
 
-    private String springVersion;
+    private final String springVersion;
 
     private Map<String, String> springBootDependenciesMap;
 
@@ -94,7 +94,6 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                         String dependencyVersion = getDependenciesMap().get(key);
                         Optional<Xml.Tag> version = tag.getChild("version");
                         if (version.isPresent()) {
-
                             doAfterVisit(new ChangeTagValueVisitor(version.get(), dependencyVersion));
                         }
                     }
