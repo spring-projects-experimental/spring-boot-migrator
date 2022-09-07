@@ -22,6 +22,8 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.marker.Markers;
+import org.openrewrite.marker.SearchResult;
 import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.GroupArtifactVersion;
@@ -33,10 +35,7 @@ import org.openrewrite.xml.ChangeTagValueVisitor;
 import org.openrewrite.xml.tree.Xml;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class UpgradeUnmanagedSpringProject extends Recipe {
 
@@ -55,13 +54,14 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         return new MavenIsoVisitor<>() {
             @Override
             public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
+                Xml.Tag resultTag = super.visitTag(tag, executionContext);
                 if (isDependencyTag()) {
-                    ResolvedDependency dependency = findDependency(tag);
+                    ResolvedDependency dependency = findDependency(resultTag);
                     if (dependency.getGroupId().equals(SPRINGBOOT_GROUP)) {
-                        return tag.withMarkers(tag.getMarkers().searchResult());
+                        return resultTag.withMarkers(resultTag.getMarkers().addIfAbsent(new SearchResult(UUID.randomUUID(), "SpringBoot dependency")));
                     }
                 }
-                return super.visitTag(tag, executionContext);
+                return resultTag;
             }
         };
     }
