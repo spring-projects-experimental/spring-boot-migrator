@@ -20,7 +20,6 @@ import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class HasSpringBootDependencyImport implements Condition {

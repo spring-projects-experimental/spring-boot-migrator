@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class HasSpringBootDependencyImportTest {
 
+    // TODO: check a case where this condition does not apply
     @Test
     public void conditionShouldBeTrueForImport() {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
