@@ -16,22 +16,37 @@
 
 package org.springframework.sbm.boot.common.conditions;
 
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
+import java.util.regex.Pattern;
+
 public class HasSpringBootDependencyManuallyManaged implements Condition  {
+    private Pattern versionPattern = Pattern.compile(".*");
+
     @Override
     public String getDescription() {
-        return null;
+        return String.format("Check if any Build file has a manually managed dependences with a version matching pattern '%s'.", versionPattern);
+    }
+
+    public void setVersionPattern(String versionPattern) {
+        this.versionPattern = Pattern.compile(versionPattern);
     }
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return false;
-    }
-
-
-    public void setVersionPattern(String s) {
-
+        return context.getApplicationModules()
+                .stream()
+                .map(Module::getBuildFile)
+                .anyMatch(b ->
+                        b.getDeclaredDependencies()
+                                .stream()
+                                .anyMatch(k ->
+                                        k.getCoordinates()
+                                                .matches("org.springframework.boot:\\.*:"
+                                                        + versionPattern
+                                                )
+                                ));
     }
 }
