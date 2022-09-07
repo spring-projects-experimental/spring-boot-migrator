@@ -41,7 +41,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
 
     private String springVersion;
 
-    private static Map<String, String> springBootDependenciesMap;
+    private Map<String, String> springBootDependenciesMap;
 
     public UpgradeUnmanagedSpringProject(String springVersion) {
 
