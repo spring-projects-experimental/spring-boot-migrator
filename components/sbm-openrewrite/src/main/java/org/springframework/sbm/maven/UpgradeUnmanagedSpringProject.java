@@ -16,10 +16,12 @@
 
 package org.springframework.sbm.maven;
 
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
+import org.openrewrite.java.tree.J;
 import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.GroupArtifactVersion;
@@ -35,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class UpgradeUnmanagedSpringProject extends Recipe {
 
@@ -47,6 +48,25 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
 
         this.springVersion = springVersion;
     }
+
+//    @Override
+//    protected TreeVisitor<?, ExecutionContext> getApplicableTest() {
+//        return new MavenIsoVisitor<>() {
+//            @Override
+//            public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
+//                return super.visitTag(tag, executionContext);
+//            }
+//
+//            private J.ClassDeclaration ceaseVisit(J.ClassDeclaration classDecl) {
+//                return classDecl;
+//            }
+//
+//            @NotNull
+//            private J.ClassDeclaration applyThisRecipe(J.ClassDeclaration classDecl) {
+//                return classDecl.withMarkers(classDecl.getMarkers().searchResult());
+//            }
+//        };
+//    }
 
     @Override
     public String getDisplayName() {
