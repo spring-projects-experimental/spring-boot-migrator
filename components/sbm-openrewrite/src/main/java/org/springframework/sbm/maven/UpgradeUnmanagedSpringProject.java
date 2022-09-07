@@ -40,6 +40,7 @@ import java.util.Optional;
 
 public class UpgradeUnmanagedSpringProject extends Recipe {
 
+    public static final String SPRINGBOOT_GROUP = "org.springframework.boot";
     private final String springVersion;
 
     private Map<String, String> springBootDependenciesMap;
@@ -49,24 +50,21 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         this.springVersion = springVersion;
     }
 
-//    @Override
-//    protected TreeVisitor<?, ExecutionContext> getApplicableTest() {
-//        return new MavenIsoVisitor<>() {
-//            @Override
-//            public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
-//                return super.visitTag(tag, executionContext);
-//            }
-//
-//            private J.ClassDeclaration ceaseVisit(J.ClassDeclaration classDecl) {
-//                return classDecl;
-//            }
-//
-//            @NotNull
-//            private J.ClassDeclaration applyThisRecipe(J.ClassDeclaration classDecl) {
-//                return classDecl.withMarkers(classDecl.getMarkers().searchResult());
-//            }
-//        };
-//    }
+    @Override
+    protected TreeVisitor<?, ExecutionContext> getApplicableTest() {
+        return new MavenIsoVisitor<>() {
+            @Override
+            public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
+                if (isDependencyTag()) {
+                    ResolvedDependency dependency = findDependency(tag);
+                    if (dependency.getGroupId().equals(SPRINGBOOT_GROUP)) {
+                        return tag.withMarkers(tag.getMarkers().searchResult());
+                    }
+                }
+                return super.visitTag(tag, executionContext);
+            }
+        };
+    }
 
     @Override
     public String getDisplayName() {
