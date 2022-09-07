@@ -69,15 +69,12 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         Pom pom = downloader.download(gav, relativePath, containingPom, List.of());
         ResolvedPom resolvedPom = pom.resolve(List.of(), downloader, new InMemoryExecutionContext());
         List<ResolvedManagedDependency> dependencyManagement = resolvedPom.getDependencyManagement();
-        return dependencyManagement
+        Map<String, String> dependencyMap = new HashMap<>();
+        dependencyManagement
                 .stream()
                 .filter(d -> d.getVersion() != null)
-                .collect(Collectors.toMap(
-                        d -> d.getGroupId() + ":" + d.getArtifactId().toLowerCase(),
-                        ResolvedManagedDependency::getVersion,
-                        (k1, k2) -> {
-                            return k2;
-                        }));
+                .forEach(d -> dependencyMap.put(d.getGroupId() + ":" + d.getArtifactId().toLowerCase(), d.getVersion()));
+        return dependencyMap;
     }
 
     @Override
