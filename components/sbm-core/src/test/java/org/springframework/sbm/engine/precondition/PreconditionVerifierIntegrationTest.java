@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -131,7 +132,8 @@ public class PreconditionVerifierIntegrationTest {
         assertThat(preconditionVerificationResult.getResults().get(0).getState()).isEqualTo(PreconditionCheck.ResultState.PASSED);
         assertThat(preconditionVerificationResult.getResults().get(0).getMessage()).isEqualTo("Found pom.xml.");
         assertThat(preconditionVerificationResult.getResults().get(1).getState()).isEqualTo(PreconditionCheck.ResultState.PASSED);
-        assertThat(preconditionVerificationResult.getResults().get(1).getMessage()).isEqualTo("'sbm.gitSupportEnabled' is 'true', changes will be committed to branch [master] after each recipe.");
+
+        assertThat(preconditionVerificationResult.getResults().get(1).getMessage()).matches("'sbm\\.gitSupportEnabled' is 'true', changes will be committed to branch \\[(master|main)\\] after each recipe\\.");
         assertThat(preconditionVerificationResult.getResults().get(2).getState()).isEqualTo(PreconditionCheck.ResultState.PASSED);
         assertThat(preconditionVerificationResult.getResults().get(2).getMessage()).isEqualTo("Found required source dir 'src/main/java'.");
         assertThat(preconditionVerificationResult.getResults().get(3).getState()).isEqualTo(PreconditionCheck.ResultState.PASSED);
