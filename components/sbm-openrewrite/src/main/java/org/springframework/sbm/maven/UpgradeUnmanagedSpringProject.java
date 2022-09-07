@@ -54,10 +54,39 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     @Override
     protected TreeVisitor<?, ExecutionContext> getApplicableTest() {
         return new MavenIsoVisitor<>() {
+            private boolean validForFurtherReview = true;
+
+            @Override
+            public Xml.Document visitDocument(Xml.Document document, ExecutionContext executionContext) {
+
+                new MavenIsoVisitor<Integer>() {
+                    @Override
+                    public Xml.Tag visitTag(Xml.Tag tag, Integer executionContext) {
+                        if (isParentTag()) {
+
+                            Optional<Xml.Tag> artifactId = tag.getChild("artifactId");
+
+                            if (artifactId.isPresent()) {
+                                Optional<String> artifactIdValue = artifactId.get().getValue();
+                                if (artifactIdValue.isPresent()) {
+                                    if (artifactIdValue.get().equals("spring-boot-starter-parent")) {
+                                        validForFurtherReview = false;
+                                    }
+                                }
+                            }
+                        }
+                        return super.visitTag(tag, executionContext);
+                    }
+                }.visit(document, 0);
+
+                return super.visitDocument(document, executionContext);
+            }
+
             @Override
             public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
                 Xml.Tag resultTag = super.visitTag(tag, executionContext);
-                if (isDependencyTag()) {
+
+                if (isDependencyTag() && validForFurtherReview) {
                     ResolvedDependency dependency = findDependency(resultTag);
                     if (dependency.getGroupId().equals(SPRINGBOOT_GROUP)
                         && satisfiesMinVersion(dependency.getVersion())) {
@@ -115,9 +144,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                     if (getDependenciesMap().containsKey(key)) {
                         String dependencyVersion = getDependenciesMap().get(key);
                         Optional<Xml.Tag> version = tag.getChild("version");
-                        if (version.isPresent()) {
-                            doAfterVisit(new ChangeTagValueVisitor(version.get(), dependencyVersion));
-                        }
+                        version.ifPresent(xml -> doAfterVisit(new ChangeTagValueVisitor(xml, dependencyVersion)));
                     }
                 }
                 return super.visitTag(tag, executionContext);
