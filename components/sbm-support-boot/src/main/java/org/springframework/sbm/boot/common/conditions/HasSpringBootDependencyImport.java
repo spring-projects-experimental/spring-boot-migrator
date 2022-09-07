@@ -15,14 +15,12 @@
  */
 package org.springframework.sbm.boot.common.conditions;
 
-import org.springframework.sbm.build.api.BuildFile;
+import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.Module;
-import org.springframework.sbm.build.api.ParentDeclaration;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
-import java.util.Optional;
-import java.util.regex.Matcher;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class HasSpringBootDependencyImport implements Condition {
@@ -39,8 +37,18 @@ public class HasSpringBootDependencyImport implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return context.getApplicationModules().stream()
+
+        return context.getApplicationModules()
+                .stream()
                 .map(Module::getBuildFile)
-                .anyMatch(b -> b.hasDeclaredDependencyMatchingRegex("org.springframework.boot:spring-boot-dependencies:" + versionPattern));
+                .anyMatch(b ->
+                        b.getRequestedManagedDependencies()
+                                .stream()
+                                .anyMatch(k ->
+                                        k.getCoordinates()
+                                                .matches("org.springframework.boot:spring-boot-dependencies:"
+                                                        + versionPattern
+                                                )
+                                ));
     }
 }

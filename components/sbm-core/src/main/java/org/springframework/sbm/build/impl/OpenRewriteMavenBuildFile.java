@@ -485,6 +485,19 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Dependency> getRequestedManagedDependencies() {
+        return this.getPom().getPom().getRequested()
+                .getDependencyManagement()
+                .stream()
+                .map(k -> Dependency.builder()
+                        .artifactId(k.getArtifactId())
+                        .version(k.getVersion())
+                        .groupId(k.getGroupId())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     private Dependency getDependency(ResolvedManagedDependency d) {
         return Dependency.builder()
                 .groupId(d.getGroupId())
