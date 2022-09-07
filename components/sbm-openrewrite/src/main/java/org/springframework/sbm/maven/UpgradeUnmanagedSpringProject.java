@@ -38,8 +38,10 @@ import java.util.regex.Pattern;
 public class UpgradeUnmanagedSpringProject extends Recipe {
 
     public static final String SPRINGBOOT_GROUP = "org.springframework.boot";
+    public static final String SPRING_BOOT_STARTER_PARENT = "spring-boot-starter-parent";
+    public static final String SPRING_BOOT_DEPENDENCIES = "spring-boot-dependencies";
+    public static final String ARTIFACT_ID = "artifactId";
     private final String springVersion;
-    private final String minVersion;
     private Map<String, String> springBootDependenciesMap;
 
     private final Pattern versionPattern;
@@ -47,7 +49,6 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     public UpgradeUnmanagedSpringProject(String springVersion, String minVersion) {
 
         this.springVersion = springVersion;
-        this.minVersion = minVersion;
         this.versionPattern = Pattern.compile(minVersion);
     }
 
@@ -64,16 +65,19 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                     public Xml.Tag visitTag(Xml.Tag tag, Integer executionContext) {
                         if (isParentTag()) {
 
-                            Optional<Xml.Tag> artifactId = tag.getChild("artifactId");
+                            Optional<Xml.Tag> artifactId = tag.getChild(ARTIFACT_ID);
 
                             if (artifactId.isPresent()) {
                                 Optional<String> artifactIdValue = artifactId.get().getValue();
                                 if (artifactIdValue.isPresent()) {
-                                    if (artifactIdValue.get().equals("spring-boot-starter-parent")) {
+                                    if (artifactIdValue.get().equals(SPRING_BOOT_STARTER_PARENT)) {
                                         validForFurtherReview = false;
                                     }
                                 }
                             }
+                        }
+                        if (isManagedDependencyTag(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES)) {
+                            validForFurtherReview = false;
                         }
                         return super.visitTag(tag, executionContext);
                     }
@@ -117,7 +121,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     private Map<String, String> buildDependencyMap () {
         Map<Path, Pom> poms = new HashMap<>();
         MavenPomDownloader downloader = new MavenPomDownloader(poms, new InMemoryExecutionContext());
-        GroupArtifactVersion gav = new GroupArtifactVersion("org.springframework.boot", "spring-boot-dependencies", springVersion);
+        GroupArtifactVersion gav = new GroupArtifactVersion(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES, springVersion);
         String relativePath = "";
         ResolvedPom containingPom = null;
         Pom pom = downloader.download(gav, relativePath, containingPom, List.of());
