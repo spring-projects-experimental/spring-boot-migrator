@@ -1,7 +1,7 @@
 - name: boot-2.7-3.0-dependency-version-update
   description: Bump spring-boot-starter-parent from 2.7.x to 3.0.0-M3
   condition:
-    type: org.springframework.sbm.boot.common.conditions.HasSpringBootStarterParent
+    type: org.springframework.sbm.boot.common.conditions.HasSpringBootProject
 #    TODO: pattern should also allow 3.0.* as it can't be re-run otherwise after bumping the version to 3.0.0
     versionPattern: "2\\.7\\..*"
 
@@ -31,6 +31,19 @@
         type: org.springframework.sbm.build.migration.conditions.NoPluginRepositoryExistsCondition
         id: "spring-milestone"
         url: "https://repo.spring.io/milestone"
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      description: Update unmanaged explicit dependency
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.springframework.sbm.maven.UpgradeUnmanagedSpringProject
+        displayName: Upgrade unmanaged dependencies to Spring 3.0
+        description: 'Upgrade unmanaged dependencies to Spring to 3.0 from specified prior version.'
+        recipeList:
+          - org.springframework.sbm.maven.UpgradeUnmanagedSpringProject:
+              minVersion: "2\\.7\\..*"
+              springVersion: 3.0.0-M3
+
     -  type: org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction
        description: Move EnableAutoConfiguration Property from spring.factories to AutoConfiguration.imports
        snapshotsEnabled: false
@@ -69,19 +82,6 @@
               groupId: org.springframework.boot
               artifactId: spring-boot-dependencies
               newVersion: 3.0.0-M3
-
-    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
-      description: Update unmanaged explicit dependency
-
-      openRewriteRecipe: |-
-        type: specs.openrewrite.org/v1beta/recipe
-        name: org.springframework.sbm.maven.UpgradeUnmanagedSpringProject
-        displayName: Upgrade unmanaged dependencies to Spring 3.0
-        description: 'Upgrade unmanaged dependencies to Spring to 3.0 from specified prior version.'
-        recipeList:
-          - org.springframework.sbm.maven.UpgradeUnmanagedSpringProject:
-              minVersion: "2\\.7\\..*"
-              springVersion: 3.0.0-M3
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
