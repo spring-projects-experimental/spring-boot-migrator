@@ -472,4 +472,115 @@ public class UpgradeUnmanagedSpringProjectTest {
                         """);
 
     }
+
+    @Test
+    void shouldUpdateVersionsWithPropertyVariable() {
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
+
+        List<Throwable> errors = new ArrayList<>();
+        InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
+            ex.printStackTrace();
+            errors.add(ex);
+        });
+
+        MavenParser parser = MavenParser.builder().build();
+        List<Xml.Document> documentList = parser.parse("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>com.example</groupId>
+                    <artifactId>explicit-deps-app</artifactId>
+                    <version>0.0.1-SNAPSHOT</version>
+                    <name>explicit-deps-app</name>
+                    <description>explicit-deps-app</description>
+                    <properties>
+                        <java.version>17</java.version>
+                        <maven.compiler.source>17</maven.compiler.source>
+                        <maven.compiler.target>17</maven.compiler.target>
+                        <spring.version>2.7.3</spring.version>
+                    </properties>
+
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-web</artifactId>
+                            <version>${spring.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>io.dropwizard.metrics</groupId>
+                            <artifactId>metrics-annotation</artifactId>
+                            <version>4.2.8</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-test</artifactId>
+                            <version>${spring.version}</version>
+                            <scope>test</scope>
+                        </dependency>
+                    </dependencies>
+
+                    <build>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-maven-plugin</artifactId>
+                            </plugin>
+                        </plugins>
+                    </build>
+                </project>
+                                """);
+
+        List<Result> result = recipe.run(documentList, ctx);
+
+        assertThat(result).hasSize(1);
+
+        assertThat(result.get(0).getAfter().printAll())
+                .isEqualTo("""
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <groupId>com.example</groupId>
+                            <artifactId>explicit-deps-app</artifactId>
+                            <version>0.0.1-SNAPSHOT</version>
+                            <name>explicit-deps-app</name>
+                            <description>explicit-deps-app</description>
+                            <properties>
+                                <java.version>17</java.version>
+                                <maven.compiler.source>17</maven.compiler.source>
+                                <maven.compiler.target>17</maven.compiler.target>
+                                <spring.version>3.0.0-M3</spring.version>
+                            </properties>
+                                                
+                            <dependencies>
+                                <dependency>
+                                    <groupId>org.springframework.boot</groupId>
+                                    <artifactId>spring-boot-starter-web</artifactId>
+                                    <version>${spring.version}</version>
+                                </dependency>
+                                <dependency>
+                                    <groupId>io.dropwizard.metrics</groupId>
+                                    <artifactId>metrics-annotation</artifactId>
+                                    <version>4.2.9</version>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.springframework.boot</groupId>
+                                    <artifactId>spring-boot-starter-test</artifactId>
+                                    <version>${spring.version}</version>
+                                    <scope>test</scope>
+                                </dependency>
+                            </dependencies>
+                                                
+                            <build>
+                                <plugins>
+                                    <plugin>
+                                        <groupId>org.springframework.boot</groupId>
+                                        <artifactId>spring-boot-maven-plugin</artifactId>
+                                    </plugin>
+                                </plugins>
+                            </build>
+                        </project>
+                        """);
+    }
 }
