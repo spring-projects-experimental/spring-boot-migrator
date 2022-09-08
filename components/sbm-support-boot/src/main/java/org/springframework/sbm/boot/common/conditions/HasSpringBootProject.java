@@ -15,6 +15,9 @@ public class HasSpringBootProject implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return false;
+
+        return parentCondition.evaluate(context) ||
+                importCondition.evaluate(context) ||
+                manualManagedCondition.evaluate(context);
     }
 }
