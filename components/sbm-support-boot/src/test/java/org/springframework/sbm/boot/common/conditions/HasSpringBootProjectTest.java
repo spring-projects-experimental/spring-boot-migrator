@@ -2,6 +2,8 @@ package org.springframework.sbm.boot.common.conditions;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -30,15 +32,20 @@ class HasSpringBootProjectTest {
     @InjectMocks
     HasSpringBootProject hasSpringBootProject;
 
-    @Test
-    public void conditionShouldBeTrueIfOneIsTrue() {
+    @ParameterizedTest
+    @CsvSource(value = {
+            //isParentManaged, dependencyManaged, manuallyManaged, expected
+            "true,             false,             false,           true"
+    })
+    public void conditionShouldBeTrueIfOneIsTrue(boolean isParentManaged,
+                                                 boolean dependencyManaged,
+                                                 boolean manuallyManaged,
+                                                 boolean expectedResult) {
         ProjectContext context = TestProjectContext.buildProjectContext().build();
-        when(parentCondition.evaluate(context)).thenReturn(true);
-        when(importCondition.evaluate(context)).thenReturn(false);
-        when(manuallyManagedCondition.evaluate(context)).thenReturn(false);
+        when(parentCondition.evaluate(context)).thenReturn(isParentManaged);
+        when(importCondition.evaluate(context)).thenReturn(dependencyManaged);
+        when(manuallyManagedCondition.evaluate(context)).thenReturn(manuallyManaged);
 
-        boolean result = hasSpringBootProject.evaluate(context);
-
-        assertThat(result).isTrue();
+        assertThat(hasSpringBootProject.evaluate(context)).isEqualTo(expectedResult);
     }
 }
