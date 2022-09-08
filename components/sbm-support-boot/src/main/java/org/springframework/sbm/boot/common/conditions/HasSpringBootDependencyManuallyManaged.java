@@ -44,7 +44,7 @@ public class HasSpringBootDependencyManuallyManaged implements Condition  {
                                 .stream()
                                 .anyMatch(k ->
                                         k.getCoordinates()
-                                                .matches("org.springframework.boot:\\.*:"
+                                                .matches("org\\.springframework\\.boot:.*:"
                                                         + versionPattern
                                                 )
                                 ));

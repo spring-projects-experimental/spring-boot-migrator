@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HasSpringBootDependencyManuallyManagedTest {
+
     @Test
     public void conditionToBeTrueIfSpringProjectIsManuallyManaged() {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
@@ -37,11 +38,6 @@ class HasSpringBootDependencyManuallyManagedTest {
     <version>0.0.1-SNAPSHOT</version>
     <name>explicit-deps-app</name>
     <description>explicit-deps-app</description>
-    <properties>
-        <java.version>17</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -61,15 +57,6 @@ class HasSpringBootDependencyManuallyManagedTest {
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>
                 """)
                 .build();
@@ -80,5 +67,82 @@ class HasSpringBootDependencyManuallyManagedTest {
         boolean result = condition.evaluate(projectContext);
 
         assertThat(result).isTrue();
+    }
+
+    @Test
+    public void conditionToBeFalseIfNoSpringBootDependency() {
+        ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                .withMavenRootBuildFileSource("""
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>explicit-deps-app</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>explicit-deps-app</name>
+    <description>explicit-deps-app</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-annotation</artifactId>
+            <version>4.2.8</version>
+        </dependency>
+    </dependencies>
+</project>
+                """)
+                .build();
+
+        HasSpringBootDependencyManuallyManaged condition = new HasSpringBootDependencyManuallyManaged();
+        condition.setVersionPattern("2\\.7\\..*");
+
+        boolean result = condition.evaluate(projectContext);
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void conditionToBeFalseByOldVersion() {
+        ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                .withMavenRootBuildFileSource("""
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>explicit-deps-app</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>explicit-deps-app</name>
+    <description>explicit-deps-app</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-annotation</artifactId>
+            <version>4.2.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>2.6.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
+                """)
+                .build();
+
+        HasSpringBootDependencyManuallyManaged condition = new HasSpringBootDependencyManuallyManaged();
+        condition.setVersionPattern("2\\.7\\..*");
+
+        boolean result = condition.evaluate(projectContext);
+
+        assertThat(result).isFalse();
     }
 }
