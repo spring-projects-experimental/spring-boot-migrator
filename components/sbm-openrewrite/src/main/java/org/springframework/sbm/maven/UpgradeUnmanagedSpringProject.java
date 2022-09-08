@@ -16,6 +16,7 @@
 
 package org.springframework.sbm.maven;
 
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
@@ -90,14 +91,32 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
             public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
                 Xml.Tag resultTag = super.visitTag(tag, executionContext);
 
-                if (isDependencyTag() && validForFurtherReview) {
-                    ResolvedDependency dependency = findDependency(resultTag);
-                    if (dependency.getGroupId().equals(SPRINGBOOT_GROUP)
-                        && satisfiesMinVersion(dependency.getVersion())) {
-                        return resultTag.withMarkers(resultTag.getMarkers().addIfAbsent(new SearchResult(UUID.randomUUID(), "SpringBoot dependency")));
+                if (validForFurtherReview) {
+                    if (isManagedDependencyTag()) {
+
+                        ResolvedManagedDependency managedDependency = findManagedDependency(resultTag);
+
+                        if (managedDependency.getGroupId().equals(SPRINGBOOT_GROUP)
+                                && satisfiesMinVersion(managedDependency.getVersion())) {
+                            return applyThisRecipe(resultTag);
+                        }
+                    }
+
+                    if (isDependencyTag()) {
+                        ResolvedDependency dependency = findDependency(resultTag);
+                        if (dependency.getGroupId().equals(SPRINGBOOT_GROUP)
+                                && satisfiesMinVersion(dependency.getVersion())) {
+                            return applyThisRecipe(resultTag);
+                        }
                     }
                 }
+
                 return resultTag;
+            }
+
+            @NotNull
+            private Xml.Tag applyThisRecipe(Xml.Tag resultTag) {
+                return resultTag.withMarkers(resultTag.getMarkers().addIfAbsent(new SearchResult(UUID.randomUUID(), "SpringBoot dependency")));
             }
 
             private boolean satisfiesMinVersion(String version) {
@@ -118,7 +137,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         return springBootDependenciesMap;
     }
 
-    private Map<String, String> buildDependencyMap () {
+    private Map<String, String> buildDependencyMap() {
         Map<Path, Pom> poms = new HashMap<>();
         MavenPomDownloader downloader = new MavenPomDownloader(poms, new InMemoryExecutionContext());
         GroupArtifactVersion gav = new GroupArtifactVersion(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES, springVersion);
@@ -141,17 +160,26 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
             @Override
             public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
 
+                if (isManagedDependencyTag()) {
+                    ResolvedManagedDependency managedDependency = findManagedDependency(tag);
+                    String key = managedDependency.getGroupId() + ":" + managedDependency.getArtifactId();
+                    mayBeUpdateVersion(key, tag);
+                }
                 if (isDependencyTag()) {
                     ResolvedDependency dependency = findDependency(tag);
 
                     String key = dependency.getGroupId() + ":" + dependency.getArtifactId();
-                    if (getDependenciesMap().containsKey(key)) {
-                        String dependencyVersion = getDependenciesMap().get(key);
-                        Optional<Xml.Tag> version = tag.getChild("version");
-                        version.ifPresent(xml -> doAfterVisit(new ChangeTagValueVisitor(xml, dependencyVersion)));
-                    }
+                    mayBeUpdateVersion(key, tag);
                 }
                 return super.visitTag(tag, executionContext);
+            }
+
+            private void mayBeUpdateVersion(String key, Xml.Tag tag) {
+                if (getDependenciesMap().containsKey(key)) {
+                    String dependencyVersion = getDependenciesMap().get(key);
+                    Optional<Xml.Tag> version = tag.getChild("version");
+                    version.ifPresent(xml -> doAfterVisit(new ChangeTagValueVisitor(xml, dependencyVersion)));
+                }
             }
         };
     }
