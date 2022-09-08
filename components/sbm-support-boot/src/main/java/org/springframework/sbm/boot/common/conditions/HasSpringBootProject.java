@@ -8,6 +8,17 @@ public class HasSpringBootProject implements Condition {
     private HasSpringBootDependencyImport importCondition;
     private HasSpringBootDependencyManuallyManaged manualManagedCondition;
 
+    public void setVersionPattern(String versionPattern) {
+        parentCondition = new HasSpringBootStarterParent();
+        parentCondition.setVersionPattern(versionPattern);
+
+        importCondition = new HasSpringBootDependencyImport();
+        importCondition.setVersionPattern(versionPattern);
+
+        manualManagedCondition = new HasSpringBootDependencyManuallyManaged();
+        manualManagedCondition.setVersionPattern(versionPattern);
+    }
+
     @Override
     public String getDescription() {
         return null;

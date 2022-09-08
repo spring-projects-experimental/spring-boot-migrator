@@ -140,7 +140,7 @@ public class UpgradeUnmanagedSpringProjectTest {
     }
 
     @Test
-    void shouldNotUpdateSinceTheProjectIsNotSpringy() {
+    void shouldNotUpdateSinceTheProjectIsNotSpring() {
         Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
         List<Throwable> errors = new ArrayList<>();
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
