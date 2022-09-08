@@ -16,13 +16,16 @@
 
 package org.springframework.sbm.boot.common.conditions;
 
+import org.jetbrains.annotations.NotNull;
+import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-public class HasSpringBootDependencyManuallyManaged implements Condition  {
+public class HasSpringBootDependencyManuallyManaged implements Condition {
     private Pattern versionPattern = Pattern.compile(".*");
 
     @Override
@@ -39,14 +42,21 @@ public class HasSpringBootDependencyManuallyManaged implements Condition  {
         return context.getApplicationModules()
                 .stream()
                 .map(Module::getBuildFile)
-                .anyMatch(b ->
-                        b.getDeclaredDependencies()
-                                .stream()
-                                .anyMatch(k ->
-                                        k.getCoordinates()
-                                                .matches("org\\.springframework\\.boot:.*:"
-                                                        + versionPattern
-                                                )
-                                ));
+                .anyMatch(b -> {
+                    boolean matchedInDependencies = b.getDeclaredDependencies()
+                            .stream()
+                            .anyMatch(matchesSpringBootPattern());
+
+                    boolean matchedInManagedDependencies = b.getRequestedManagedDependencies()
+                            .stream()
+                            .anyMatch(matchesSpringBootPattern());
+
+                    return matchedInDependencies || matchedInManagedDependencies;
+                });
+    }
+
+    @NotNull
+    private Predicate<Dependency> matchesSpringBootPattern() {
+        return k -> k.getCoordinates().matches("org\\.springframework\\.boot:.*:" + versionPattern);
     }
 }
