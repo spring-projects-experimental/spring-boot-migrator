@@ -44,14 +44,25 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     public static final String SPRING_BOOT_STARTER_PARENT = "spring-boot-starter-parent";
     public static final String SPRING_BOOT_DEPENDENCIES = "spring-boot-dependencies";
     public static final String ARTIFACT_ID = "artifactId";
-    private final String springVersion;
+    private String springVersion;
     private Map<String, String> springBootDependenciesMap;
 
-    private final Pattern versionPattern;
+    private Pattern versionPattern;
+
+    public UpgradeUnmanagedSpringProject() {
+    }
 
     public UpgradeUnmanagedSpringProject(String springVersion, String minVersion) {
 
         this.springVersion = springVersion;
+        this.versionPattern = Pattern.compile(minVersion);
+    }
+
+    public void setSpringVersion(String springVersion) {
+        this.springVersion = springVersion;
+    }
+
+    public void setMinVersion(String minVersion) {
         this.versionPattern = Pattern.compile(minVersion);
     }
 
