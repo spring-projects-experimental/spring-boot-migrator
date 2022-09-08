@@ -22,6 +22,8 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.marker.SearchResult;
+import org.openrewrite.maven.AddProperty;
+import org.openrewrite.maven.ChangePropertyValue;
 import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.GroupArtifactVersion;
@@ -178,7 +180,16 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                 if (getDependenciesMap().containsKey(key)) {
                     String dependencyVersion = getDependenciesMap().get(key);
                     Optional<Xml.Tag> version = tag.getChild("version");
-                    version.ifPresent(xml -> doAfterVisit(new ChangeTagValueVisitor(xml, dependencyVersion)));
+                    if (version.isEmpty() || version.get().getValue().isEmpty()) {
+                        return;
+                    }
+                    String versionValue = version.get().getValue().get();
+                    if (versionValue.startsWith("${")) {
+                        String propertyName = versionValue.substring(2, versionValue.length() - 1);
+                        version.ifPresent(xml -> doAfterVisit(new ChangePropertyValue(propertyName, dependencyVersion, true)));
+                    } else {
+                        version.ifPresent(xml -> doAfterVisit(new ChangeTagValueVisitor(xml, dependencyVersion)));
+                    }
                 }
             }
         };
