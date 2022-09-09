@@ -23,14 +23,20 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotBlank;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Getter
 @Setter
 @SuperBuilder
-@AllArgsConstructor
+//@AllArgsConstructor
 @NoArgsConstructor
 public abstract class AbstractAction implements Action {
 
@@ -38,6 +44,9 @@ public abstract class AbstractAction implements Action {
     private String description;
 
     private Condition condition = Condition.TRUE;
+
+    private AtomicReference<Answer> answer;
+    private CountDownLatch countDownLatch;
 
     @Autowired
     @JsonIgnore
@@ -61,5 +70,28 @@ public abstract class AbstractAction implements Action {
     @Override
     public boolean isAutomated() {
         return !this.getClass().isAssignableFrom(DisplayDescription.class);
+    }
+
+    public Answer askQuestion(Question question) {
+        countDownLatch = new CountDownLatch(1);
+        eventPublisher.publishEvent(new UserInputRequestedEvent(question));
+        int timeout = 50;
+        try {
+            countDownLatch.await(timeout, TimeUnit.MINUTES);
+            Answer theAnswer = answer.get();
+            return theAnswer;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(String.format("Timeout after waiting %d minutes for user input.", timeout));
+        }
+    }
+
+    @Component
+    class UserCreatedListener implements ApplicationListener<UserInputProvidedEvent> {
+        @Override
+        public void onApplicationEvent(UserInputProvidedEvent event) {
+            // handle UserCreatedEvent
+            answer.set(event.getUserInput());
+            countDownLatch.countDown();
+        }
     }
 }
