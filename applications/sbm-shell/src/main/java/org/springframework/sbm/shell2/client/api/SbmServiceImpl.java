@@ -16,11 +16,16 @@
 package org.springframework.sbm.shell2.client.api;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompClientSupport;
+import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.shell2.ScanProgressUpdate;
+import org.springframework.sbm.shell2.client.StompSessionStore;
 import org.springframework.sbm.shell2.client.events.UserInputRequestedEvent;
 import org.springframework.sbm.shell2.client.events.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -33,28 +38,34 @@ import java.util.stream.IntStream;
  */
 @Service
 @RequiredArgsConstructor
-public class SbmServiceImpl implements SbmService {
+public class SbmServiceImpl extends StompSessionHandlerAdapter implements SbmService {
+
+    private static final String DESTINATION = "/sbm/scan";
+    private final StompSessionStore sessionStore;
 
     @Override
     public void scan(Path projectRoot, Consumer<ScanProgressUpdatedEvent> scanProgressUpdatedEventConsumer, Consumer<ScanCompletedEvent> scanCompletedEventConsumer) {
-        // TODO: remove simulation of scan
-        new Thread(() -> {
-            IntStream.range(0, 10).forEach(i-> {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                scanProgressUpdatedEventConsumer.accept(new ScanProgressUpdatedEvent(new ScanProgressUpdate()));
-            });
-            scanCompletedEventConsumer.accept(new ScanCompletedEvent(new ScanResult(
-                    List.of(
-                            Recipe.builder().name("recipe-1").build(),
-                            Recipe.builder().name("recipe-2").build())
-                    )
-                )
-            );
-        }).run();
+
+        sessionStore.getStompSession().send(DESTINATION, "scan");
+//
+//        // TODO: remove simulation of scan
+//        new Thread(() -> {
+//            IntStream.range(0, 10).forEach(i-> {
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                scanProgressUpdatedEventConsumer.accept(new ScanProgressUpdatedEvent(new ScanProgressUpdate()));
+//            });
+//            scanCompletedEventConsumer.accept(new ScanCompletedEvent(new ScanResult(
+//                    List.of(
+//                            Recipe.builder().name("recipe-1").build(),
+//                            Recipe.builder().name("recipe-2").build())
+//                    )
+//                )
+//            );
+//        }).run();
     }
 
     @Override
