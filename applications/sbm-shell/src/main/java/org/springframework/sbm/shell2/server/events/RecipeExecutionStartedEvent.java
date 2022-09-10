@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.api;
-
-import org.springframework.sbm.shell2.ScanUpdate;
+package org.springframework.sbm.shell2.server.events;
 
 /**
  * @author Fabian Krüger
  */
-public class ScanUpdateEvent {
-    public ScanUpdate getUpdate() {
-        return null;
-    }
+public class RecipeExecutionStartedEvent {
 }

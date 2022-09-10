@@ -17,5 +17,5 @@
 
 mvn clean package
 pushd target
-java -jar spring-boot-migrator.jar
+java  -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=localhost:8000 -jar spring-boot-migrator.jar
 popd

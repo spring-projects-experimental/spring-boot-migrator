@@ -13,22 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2;
-
-import org.springframework.sbm.shell2.server.api.RecipeExecutionResult;
-import org.springframework.sbm.shell2.server.events.RecipeExecutionProgressUpdateEvent;
-import org.springframework.stereotype.Component;
+package org.springframework.sbm.shell2.server.events;
 
 /**
  * @author Fabian Krüger
  */
-@Component
-public class ApplyRecipeResultRenderer {
-    public void render(RecipeExecutionResult result) {
-        System.out.println("Applied recipe " + result.recipeName());
-    }
-
-    public void renderProgress(RecipeExecutionProgressUpdateEvent e) {
-
-    }
+public class RecipeActionCompletedEvent {
 }

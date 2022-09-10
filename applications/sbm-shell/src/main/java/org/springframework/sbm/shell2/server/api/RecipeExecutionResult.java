@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.springframework.sbm.shell2.api;
-
-import java.nio.file.Path;
+package org.springframework.sbm.shell2.server.api;
 
 /**
  * @author Fabian Krüger
  */
-public interface SbmService {
-    void scan(Path projectRoot);
-
-    void apply(String selectedRecipe);
+public record RecipeExecutionResult(String recipeName) {
 }

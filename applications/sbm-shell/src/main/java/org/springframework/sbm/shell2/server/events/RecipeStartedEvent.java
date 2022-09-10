@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2;
+package org.springframework.sbm.shell2.server.events;
 
 /**
  * @author Fabian Krüger
  */
-public class ScanUpdate {
+public class RecipeStartedEvent extends SbmServiceEvent {
+    public RecipeStartedEvent(Object source) {
+        super(source);
+    }
 }

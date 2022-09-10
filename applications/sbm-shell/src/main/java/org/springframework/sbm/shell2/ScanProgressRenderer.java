@@ -15,14 +15,10 @@
  */
 package org.springframework.sbm.shell2;
 
-import org.springframework.shell.component.MultiItemSelector;
-import org.springframework.shell.component.support.SelectorItem;
 import org.springframework.shell.standard.AbstractShellComponent;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Fabian Krüger
@@ -30,26 +26,11 @@ import java.util.stream.Collectors;
 @Component
 public class ScanProgressRenderer extends AbstractShellComponent {
     public void renderResult(ScanResult scanResult) {
-        List<SelectorItem<String>> items = scanResult.applicableRecipes().stream()
-                .map(r -> SelectorItem.of(r.getName(), r.getName()))
-                .collect(Collectors.toList());
-
-        MultiItemSelector<String, SelectorItem<String>> component = new MultiItemSelector<>(getTerminal(), items, "testSimple", null);
-
-        component.setResourceLoader(getResourceLoader());
-        component.setTemplateExecutor(getTemplateExecutor());
-
-        MultiItemSelector.MultiItemSelectorContext<String, SelectorItem<String>> context = component.run(MultiItemSelector.MultiItemSelectorContext.empty());
-
-        String result = context.getResultItems().stream()
-                .map(si -> si.getItem())
-                .collect(Collectors.joining(","));
-
-        System.out.println("Got value " + result);
+        System.out.println("Scan finished");
     }
 
-    public void renderUpdate(ScanUpdate scanUpdate) {
-
+    public void renderUpdate(ScanProgressUpdate scanProgressUpdate) {
+        System.out.println("Scan update");
     }
 
     public void startScan(Path path) {

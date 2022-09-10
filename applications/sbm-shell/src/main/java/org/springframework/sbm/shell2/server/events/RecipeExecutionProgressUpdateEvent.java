@@ -13,19 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.api;
-
-import org.springframework.context.ApplicationEvent;
+package org.springframework.sbm.shell2.server.events;
 
 /**
  * @author Fabian Krüger
  */
-public class ApplicableRecipeSelectedEvent extends ApplicationEvent {
-    public ApplicableRecipeSelectedEvent(Object source) {
-        super(source);
-    }
-
-    public String getSelectedRecipe() {
-        return (String) getSource();
-    }
+public record RecipeExecutionProgressUpdateEvent() {
 }
