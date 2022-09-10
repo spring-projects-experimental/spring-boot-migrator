@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.server.events;
-
-import java.nio.file.Path;
+package org.springframework.sbm.shell2.client.events;
 
 /**
  * @author Fabian Krüger
  */
-public record ScanStartedEvent(Path scanPath) {
+public record RecipeExecutionProgressUpdateEvent() {
 }

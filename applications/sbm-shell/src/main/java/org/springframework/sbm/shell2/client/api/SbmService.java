@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package org.springframework.sbm.shell2.server.api;
+package org.springframework.sbm.shell2.client.api;
 
-import org.springframework.sbm.engine.events.ActionStartedEvent;
-import org.springframework.sbm.shell2.ScanResult;
-import org.springframework.sbm.shell2.server.events.*;
+import org.springframework.sbm.engine.recipe.Answer;
+import org.springframework.sbm.shell2.client.events.UserInputRequestedEvent;
+import org.springframework.sbm.shell2.client.events.RecipeExecutionCompletedEvent;
+import org.springframework.sbm.shell2.client.events.RecipeExecutionProgressUpdateEvent;
+import org.springframework.sbm.shell2.client.events.ScanCompletedEvent;
+import org.springframework.sbm.shell2.client.events.ScanProgressUpdatedEvent;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author Fabian Krüger
@@ -33,5 +37,6 @@ public interface SbmService {
 
     void apply(String selectedRecipe,
                Consumer<RecipeExecutionProgressUpdateEvent> recipeExecutionProgressUpdateEventConsumer,
-               Consumer<RecipeExecutionCompletedEvent> recipeExecutionCompletedEventConsumer);
+               Consumer<RecipeExecutionCompletedEvent> recipeExecutionCompletedEventConsumer,
+               Function<UserInputRequestedEvent, Answer> userInputRequestedEventConsumer);
 }

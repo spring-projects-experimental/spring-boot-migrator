@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.events.UserInputRequestedEvent;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -86,7 +87,7 @@ class AbstractAction_askQuestion_Test {
         @Override
         public void onApplicationEvent(UserInputRequestedEvent event) {
             SelectOneQuestion source = (SelectOneQuestion) event.getSource();
-            eventPublisher.publishEvent(new UserInputProvidedEvent(new Answer(source.getOptions().get(1).getKey())));
+            eventPublisher.publishEvent(new UserInputProvidedEvent(new Answer(List.of(source.getOptions().get(1).getKey()))));
         }
     }
 

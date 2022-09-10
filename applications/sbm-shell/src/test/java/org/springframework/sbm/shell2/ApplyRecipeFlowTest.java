@@ -25,18 +25,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.sbm.engine.recipe.Answer;
 import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.sbm.shell2.server.api.RecipeExecutionResult;
-import org.springframework.sbm.shell2.server.api.SbmService;
-import org.springframework.sbm.shell2.server.events.RecipeExecutionCompletedEvent;
-import org.springframework.sbm.shell2.server.events.RecipeExecutionProgressUpdateEvent;
-import org.springframework.sbm.shell2.server.events.ScanCompletedEvent;
-import org.springframework.sbm.shell2.server.events.ScanProgressUpdatedEvent;
+import org.springframework.sbm.shell2.client.events.UserInputRequestedEvent;
+import org.springframework.sbm.shell2.client.api.RecipeExecutionResult;
+import org.springframework.sbm.shell2.client.api.SbmService;
+import org.springframework.sbm.shell2.client.api.ScanResult;
+import org.springframework.sbm.shell2.client.events.RecipeExecutionCompletedEvent;
+import org.springframework.sbm.shell2.client.events.RecipeExecutionProgressUpdateEvent;
+import org.springframework.sbm.shell2.client.events.ScanCompletedEvent;
+import org.springframework.sbm.shell2.client.events.ScanProgressUpdatedEvent;
 import org.springframework.shell.component.support.SelectorItem;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -59,12 +63,14 @@ class ApplyRecipeFlowTest {
     private SbmService sbmService;
     @Mock
     private UserInputScanner userInputScanner;
+    @Mock
+    private UserInputRequester userInputRequester;
     @InjectMocks
     private ApplyRecipeFlow sut;
 
     @BeforeEach
     void beforeEach() {
-        sut = new ApplyRecipeFlow(shellContext, sbmService, scanProgressRenderer, applicableRecipeResultRenderer, userInputScanner);
+        sut = new ApplyRecipeFlow(shellContext, sbmService, scanProgressRenderer, applicableRecipeResultRenderer, userInputScanner, userInputRequester);
     }
 
     @Test
@@ -72,7 +78,7 @@ class ApplyRecipeFlowTest {
         Path rootPath = Path.of("some-application");
 
         // user will enter path
-        when(userInputScanner.askForPath()).thenReturn(rootPath);
+        when(userInputScanner.askForPath("Enter path to project")).thenReturn(rootPath);
 
         // start scan
         sut.scanCommand();
@@ -120,7 +126,8 @@ class ApplyRecipeFlowTest {
         // apply selected recipe
         ArgumentCaptor<Consumer<RecipeExecutionProgressUpdateEvent>> recipeExecutionProgressUpdateEvent = ArgumentCaptor.forClass(Consumer.class);
         ArgumentCaptor<Consumer<RecipeExecutionCompletedEvent>> recipeExecutionCompletedEvent = ArgumentCaptor.forClass(Consumer.class);
-        verify(sbmService).apply(ArgumentMatchers.eq("r1"), recipeExecutionProgressUpdateEvent.capture(), recipeExecutionCompletedEvent.capture());
+        ArgumentCaptor<Function<UserInputRequestedEvent, Answer>> userInputRequestedEvent = ArgumentCaptor.forClass(Function.class);
+        verify(sbmService).apply(ArgumentMatchers.eq("r1"), recipeExecutionProgressUpdateEvent.capture(), recipeExecutionCompletedEvent.capture(), userInputRequestedEvent.capture());
         recipeExecutionCompletedEvent.getValue();
     }
 
@@ -137,7 +144,7 @@ class ApplyRecipeFlowTest {
         // User not asked to select recipe
         verify(userInputScanner, never()).askForSingleSelection(any());
         // No recipe applied
-        verify(sbmService, never()).apply(any(), any(), any());
+        verify(sbmService, never()).apply(any(), any(), any(), any());
     }
 
     @Test

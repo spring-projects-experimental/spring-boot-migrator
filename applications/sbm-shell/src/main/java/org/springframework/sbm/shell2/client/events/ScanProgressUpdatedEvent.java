@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.server.events;
+package org.springframework.sbm.shell2.client.events;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.sbm.shell2.server.api.RecipeExecutionResult;
+import org.springframework.sbm.shell2.ScanProgressUpdate;
 
 /**
  * @author Fabian Krüger
  */
-public class RecipeExecutionCompletedEvent extends SbmServiceEvent {
-
-    public RecipeExecutionResult getResult() {
-        return (RecipeExecutionResult) getSource();
-    }
-
-    public RecipeExecutionCompletedEvent(Object source) {
-        super(source);
-    }
-
+public record ScanProgressUpdatedEvent(ScanProgressUpdate update) {
 }

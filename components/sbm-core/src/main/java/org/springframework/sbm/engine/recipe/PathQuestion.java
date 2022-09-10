@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.server.events;
+package org.springframework.sbm.engine.recipe;
+
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author Fabian Krüger
  */
-public record RecipeExecutionProgressUpdateEvent() {
+@SuperBuilder
+public class PathQuestion extends Question {
+    protected PathQuestion() {
+        super(builder());
+    }
 }

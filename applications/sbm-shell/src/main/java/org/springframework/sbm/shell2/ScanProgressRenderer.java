@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.shell2;
 
+import org.springframework.sbm.shell2.client.api.ScanResult;
 import org.springframework.shell.standard.AbstractShellComponent;
 import org.springframework.stereotype.Component;
 

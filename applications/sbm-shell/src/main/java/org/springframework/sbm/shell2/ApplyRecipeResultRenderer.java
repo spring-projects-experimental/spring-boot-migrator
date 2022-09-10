@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.shell2;
 
-import org.springframework.sbm.shell2.server.api.RecipeExecutionResult;
-import org.springframework.sbm.shell2.server.events.RecipeExecutionProgressUpdateEvent;
+import org.springframework.sbm.shell2.client.api.RecipeExecutionResult;
+import org.springframework.sbm.shell2.client.events.RecipeExecutionProgressUpdateEvent;
 import org.springframework.stereotype.Component;
 
 /**

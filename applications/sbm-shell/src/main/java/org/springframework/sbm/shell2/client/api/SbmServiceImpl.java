@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.server.api;
+package org.springframework.sbm.shell2.client.api;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.sbm.engine.events.ActionStartedEvent;
-import org.springframework.sbm.engine.recipe.Recipe;
+import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.shell2.ScanProgressUpdate;
-import org.springframework.sbm.shell2.ScanResult;
-import org.springframework.sbm.shell2.server.events.*;
+import org.springframework.sbm.shell2.client.events.UserInputRequestedEvent;
+import org.springframework.sbm.shell2.client.events.*;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 /**
@@ -60,12 +58,24 @@ public class SbmServiceImpl implements SbmService {
     }
 
     @Override
-    public void apply(String selectedRecipe, Consumer<RecipeExecutionProgressUpdateEvent> recipeExecutionProgressUpdateEventConsumer, Consumer<RecipeExecutionCompletedEvent> recipeExecutionCompletedEventConsumer) {
+    public void apply(String selectedRecipe,
+                      Consumer<RecipeExecutionProgressUpdateEvent> recipeExecutionProgressUpdateEventConsumer,
+                      Consumer<RecipeExecutionCompletedEvent> recipeExecutionCompletedEventConsumer,
+                      Function<UserInputRequestedEvent, Answer> userInputRequestedEventConsumer) {
         // TODO: remove simulation of apply
         new Thread(() -> {
             IntStream.range(0, 10).forEach(i-> {
                 try {
                     Thread.sleep(100);
+                    if(i%3==0) {
+                        Answer answer = userInputRequestedEventConsumer.apply(new UserInputRequestedEvent(
+                                SelectOneQuestion
+                                        .builder()
+                                        .option(Option.of("A", "a"))
+                                        .option(Option.of("B", "b"))
+                                        .build()));
+                        System.out.println("Thanks for answering: " + answer.userInput());
+                    }
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }

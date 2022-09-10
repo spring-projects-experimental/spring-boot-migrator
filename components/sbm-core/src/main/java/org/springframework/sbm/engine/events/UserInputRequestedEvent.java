@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2;
+package org.springframework.sbm.engine.events;
 
-import org.springframework.sbm.engine.recipe.Recipe;
-
-import java.util.List;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.sbm.engine.recipe.Question;
 
 /**
  * @author Fabian Krüger
  */
-public record ScanResult(List<Recipe> applicableRecipes) {
+public class UserInputRequestedEvent extends ApplicationEvent {
+
+    public UserInputRequestedEvent(Question question) {
+        super(question);
+    }
+
+    public Question getQuestion() {
+        return (Question) getSource();
+    }
 }

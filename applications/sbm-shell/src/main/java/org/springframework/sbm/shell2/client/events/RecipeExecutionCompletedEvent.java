@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.engine.recipe;
+package org.springframework.sbm.shell2.client.events;
 
-import org.springframework.context.ApplicationEvent;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.sbm.shell2.client.api.RecipeExecutionResult;
 
 /**
  * @author Fabian Krüger
  */
-public class UserInputRequestedEvent extends ApplicationEvent {
-
-    public UserInputRequestedEvent(Question question) {
-        super(question);
-    }
-
-    public Question getQuestion() {
-        return (Question) getSource();
-    }
+@RequiredArgsConstructor
+public class RecipeExecutionCompletedEvent {
+    @Getter
+    private final RecipeExecutionResult result;
 }

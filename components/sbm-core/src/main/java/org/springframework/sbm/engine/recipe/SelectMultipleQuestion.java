@@ -15,13 +15,20 @@
  */
 package org.springframework.sbm.engine.recipe;
 
+import lombok.Getter;
+import lombok.Singular;
 import lombok.experimental.SuperBuilder;
+
+import java.util.List;
 
 /**
  * @author Fabian Krüger
  */
 @SuperBuilder
+@Getter
 public class SelectMultipleQuestion extends Question {
+    @Singular
+    private List<Option> options;
     protected SelectMultipleQuestion() {
         super(builder());
     }

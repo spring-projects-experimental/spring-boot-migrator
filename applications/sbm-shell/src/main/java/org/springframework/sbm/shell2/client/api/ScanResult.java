@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.server.events;
+package org.springframework.sbm.shell2.client.api;
+
+import org.springframework.sbm.engine.recipe.Recipe;
+
+import java.util.List;
 
 /**
  * @author Fabian Krüger
  */
-public class RecipeStartedEvent extends SbmServiceEvent {
-    public RecipeStartedEvent(Object source) {
-        super(source);
-    }
+public record ScanResult(List<Recipe> applicableRecipes) {
 }

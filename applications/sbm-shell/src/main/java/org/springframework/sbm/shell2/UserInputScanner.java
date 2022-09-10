@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.shell2;
 
+import org.springframework.shell.component.MultiItemSelector;
 import org.springframework.shell.component.PathInput;
 import org.springframework.shell.component.SingleItemSelector;
 import org.springframework.shell.component.support.SelectorItem;
@@ -23,31 +24,35 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Fabian Krüger
  */
 @Component
 public class UserInputScanner extends AbstractShellComponent {
-    public Path askForPath() {
+    public Path askForPath(String text) {
         PathInput component = new PathInput(getTerminal(), "Enter value");
         component.setResourceLoader(getResourceLoader());
         component.setTemplateExecutor(getTemplateExecutor());
+        System.out.println(text);
         PathInput.PathInputContext context = component.run(PathInput.PathInputContext.empty());
         Path projectRoot = context.getResultValue();
         return projectRoot;
     }
 
     public String askForSingleSelection(List<SelectorItem<String>> items) {
-
         SingleItemSelector<String, SelectorItem<String>> component = new SingleItemSelector<>(getTerminal(), items, "applicableRecipes", null);
-
         component.setResourceLoader(getResourceLoader());
         component.setTemplateExecutor(getTemplateExecutor());
-
         SingleItemSelector.SingleItemSelectorContext<String, SelectorItem<String>> context = component.run(SingleItemSelector.SingleItemSelectorContext.empty());
-
         return context.getResultItem().get().getItem();
+    }
+
+    public List<String> askForMultipleSelection(List<SelectorItem<String>> items) {
+        MultiItemSelector<String, SelectorItem<String>> component = new MultiItemSelector<>(getTerminal(), items, "applicableRecipes", null);
+        component.setResourceLoader(getResourceLoader());
+        component.setTemplateExecutor(getTemplateExecutor());
+        MultiItemSelector.MultiItemSelectorContext<String, SelectorItem<String>> context = component.run(MultiItemSelector.MultiItemSelectorContext.empty());
+        return context.getValues();
     }
 }

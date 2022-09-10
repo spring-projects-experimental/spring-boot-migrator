@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.server.events;
-
-import org.springframework.sbm.shell2.ScanResult;
+package org.springframework.sbm.shell2.client.api;
 
 /**
  * @author Fabian Krüger
  */
-public record ScanCompletedEvent(ScanResult scanResult) {
+public record RecipeExecutionResult(String recipeName) {
 }

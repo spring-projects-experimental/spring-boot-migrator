@@ -15,8 +15,10 @@
  */
 package org.springframework.sbm.engine.recipe;
 
+import java.util.List;
+
 /**
  * @author Fabian Krüger
  */
-public record Answer(String userInput) {
+public record Answer(List<String> userInput) {
 }
