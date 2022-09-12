@@ -27,11 +27,7 @@ import org.openrewrite.maven.ChangePropertyValue;
 import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.maven.UpdateMavenModel;
 import org.openrewrite.maven.internal.MavenPomDownloader;
-import org.openrewrite.maven.tree.GroupArtifactVersion;
-import org.openrewrite.maven.tree.Pom;
-import org.openrewrite.maven.tree.ResolvedDependency;
-import org.openrewrite.maven.tree.ResolvedManagedDependency;
-import org.openrewrite.maven.tree.ResolvedPom;
+import org.openrewrite.maven.tree.*;
 import org.openrewrite.xml.ChangeTagValueVisitor;
 import org.openrewrite.xml.tree.Xml;
 
@@ -157,8 +153,12 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         GroupArtifactVersion gav = new GroupArtifactVersion(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES, springVersion);
         String relativePath = "";
         ResolvedPom containingPom = null;
-        Pom pom = downloader.download(gav, relativePath, containingPom, List.of());
-        ResolvedPom resolvedPom = pom.resolve(List.of(), downloader, new InMemoryExecutionContext());
+        List<MavenRepository> repositories = new ArrayList<>();
+        repositories.add(new MavenRepository("repository.spring.milestone", "https://repo.spring.io/milestone", true, true, null, null));
+        repositories.add(new MavenRepository("spring-snapshot", "https://repo.spring.io/snapshot", false, true, null, null));
+        repositories.add(new MavenRepository("spring-release", "https://repo.spring.io/release", true, false, null, null));
+        Pom pom = downloader.download(gav, relativePath, containingPom, repositories);
+        ResolvedPom resolvedPom = pom.resolve(List.of(), downloader, repositories, new InMemoryExecutionContext());
         List<ResolvedManagedDependency> dependencyManagement = resolvedPom.getDependencyManagement();
         Map<String, String> dependencyMap = new HashMap<>();
         dependencyManagement
