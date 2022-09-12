@@ -318,14 +318,18 @@ public abstract class IntegrationTestBaseClass {
         }
     }
 
-    protected String loadJavaFile(String packageName, String className) {
+    protected String loadJavaFileFromSubmodule(String submodulePath, String packageName, String className) {
         try {
-            Path classPath = testDir.resolve("src/main/java").resolve(packageName.replace(".", "/"));
+            Path classPath = testDir.resolve(submodulePath + "src/main/java").resolve(packageName.replace(".", "/"));
             Path classFile = classPath.resolve(className + ".java");
             return Files.readString(classFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected String loadJavaFile(String packageName, String className) {
+        return loadJavaFileFromSubmodule("", packageName, className);
     }
 
     /**
