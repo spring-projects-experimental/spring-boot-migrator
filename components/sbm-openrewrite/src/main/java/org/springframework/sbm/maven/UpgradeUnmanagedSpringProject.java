@@ -22,7 +22,6 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.marker.SearchResult;
-import org.openrewrite.maven.AddProperty;
 import org.openrewrite.maven.ChangePropertyValue;
 import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.maven.UpdateMavenModel;
@@ -41,26 +40,26 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     public static final String SPRING_BOOT_STARTER_PARENT = "spring-boot-starter-parent";
     public static final String SPRING_BOOT_DEPENDENCIES = "spring-boot-dependencies";
     public static final String ARTIFACT_ID = "artifactId";
-    private String springVersion;
+    private String newVersion;
     private Map<String, String> springBootDependenciesMap;
 
-    private Pattern versionPattern;
+    private Pattern oldVersionPattern;
 
     public UpgradeUnmanagedSpringProject() {
     }
 
-    public UpgradeUnmanagedSpringProject(String springVersion, String minVersion) {
+    public UpgradeUnmanagedSpringProject(String newVersion, String versionPattern) {
 
-        this.springVersion = springVersion;
-        this.versionPattern = Pattern.compile(minVersion);
+        this.newVersion = newVersion;
+        this.oldVersionPattern = Pattern.compile(versionPattern);
     }
 
-    public void setSpringVersion(String springVersion) {
-        this.springVersion = springVersion;
+    public void setNewVersion(String newVersion) {
+        this.newVersion = newVersion;
     }
 
-    public void setMinVersion(String minVersion) {
-        this.versionPattern = Pattern.compile(minVersion);
+    public void setVersionPattern(String versionPattern) {
+        this.oldVersionPattern = Pattern.compile(versionPattern);
     }
 
     @Override
@@ -107,7 +106,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                         ResolvedManagedDependency managedDependency = findManagedDependency(resultTag);
 
                         if ((managedDependency != null) && managedDependency.getGroupId().equals(SPRINGBOOT_GROUP)
-                                && satisfiesMinVersion(managedDependency.getVersion())) {
+                                && satisfiesOldVersionPattern(managedDependency.getVersion())) {
                             return applyThisRecipe(resultTag);
                         }
                     }
@@ -115,7 +114,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                     if (isDependencyTag()) {
                         ResolvedDependency dependency = findDependency(resultTag);
                         if ((dependency != null) && dependency.getGroupId().equals(SPRINGBOOT_GROUP)
-                                && satisfiesMinVersion(dependency.getVersion())) {
+                                && satisfiesOldVersionPattern(dependency.getVersion())) {
                             return applyThisRecipe(resultTag);
                         }
                     }
@@ -129,8 +128,8 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                 return resultTag.withMarkers(resultTag.getMarkers().addIfAbsent(new SearchResult(UUID.randomUUID(), "SpringBoot dependency")));
             }
 
-            private boolean satisfiesMinVersion(String version) {
-                return versionPattern.matcher(version).matches();
+            private boolean satisfiesOldVersionPattern(String version) {
+                return oldVersionPattern.matcher(version).matches();
             }
         };
     }
@@ -150,7 +149,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     private Map<String, String> buildDependencyMap() {
         Map<Path, Pom> poms = new HashMap<>();
         MavenPomDownloader downloader = new MavenPomDownloader(poms, new InMemoryExecutionContext());
-        GroupArtifactVersion gav = new GroupArtifactVersion(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES, springVersion);
+        GroupArtifactVersion gav = new GroupArtifactVersion(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES, newVersion);
         String relativePath = "";
         ResolvedPom containingPom = null;
         List<MavenRepository> repositories = new ArrayList<>();

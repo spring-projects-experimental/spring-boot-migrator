@@ -55,8 +55,8 @@
         description: 'Upgrade to SpringBoot to 3.0 from any prior version.'
         recipeList:
           - org.springframework.sbm.maven.UpgradeUnmanagedSpringProject:
-              minVersion: "2\\.7\\..*"
-              springVersion: 3.0.0-M3
+              versionPattern: "2\\.7\\..*"
+              newVersion: 3.0.0-M3
           - org.openrewrite.maven.ChangeDependencyClassifier:
               groupId: org.ehcache
               artifactId: ehcache
