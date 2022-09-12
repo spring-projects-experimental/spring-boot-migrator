@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.client;
+package org.springframework.sbm.shell2.client.stomp;
 
-import org.springframework.messaging.simp.stomp.StompFrameHandler;
-import org.springframework.messaging.simp.stomp.StompHeaders;
-
-import java.lang.reflect.Type;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.messaging.simp.stomp.StompSession;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Fabian Krüger
  */
-public class MigrationResultHandler implements StompFrameHandler {
-    @Override
-    public Type getPayloadType(StompHeaders headers) {
-        return null;
-    }
-
-    @Override
-    public void handleFrame(StompHeaders headers, Object payload) {
-
-    }
+@Component
+public class StompSessionStore {
+    @Getter
+    @Setter
+    private StompSession stompSession;
 }

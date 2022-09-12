@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.client;
+package org.springframework.sbm.shell2.client.stomp;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
@@ -25,12 +27,14 @@ import java.lang.reflect.Type;
 /**
  * @author Fabian Krüger
  */
+@RequiredArgsConstructor
 public class StompClientSessionHandler extends StompSessionHandlerAdapter {
 
+    private final ApplicationEventPublisher eventPublisher;
     @Override
     public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
         System.out.println("Successfully connected to server");
-        session.subscribe("/queue/recipes/applicable", new UpdateAvailableRecipes());
+        session.subscribe("/queue/recipes/applicable", new TransformAndPublishScanCompletedEvent(eventPublisher));
         session.subscribe("/queue/migration/logs", new MigrationLogsHandler());
         session.subscribe("/queue/migration/result", new MigrationResultHandler());
     }
@@ -46,4 +50,5 @@ public class StompClientSessionHandler extends StompSessionHandlerAdapter {
 
         }
     }
+
 }

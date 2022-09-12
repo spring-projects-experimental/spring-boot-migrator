@@ -21,14 +21,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.sbm.shell2.client.*;
+import org.springframework.sbm.shell2.client.stomp.MigrationResultHandler;
+import org.springframework.sbm.shell2.client.stomp.StompClientSessionHandler;
+import org.springframework.sbm.shell2.client.stomp.StompSessionStore;
+import org.springframework.sbm.shell2.client.stomp.WsClientConfig;
 
 /**
  * @author Fabian Krüger
  */
 @Disabled
 @SpringBootTest(classes = {
-        WsClientConfig.class, MigrationResultHandler.class, StompClientSessionHandler.class, StompSessionStore.class, UpdateAvailableRecipes.class, WsClientConfig.class
+        WsClientConfig.class, MigrationResultHandler.class, StompClientSessionHandler.class, StompSessionStore.class, WsClientConfig.class
 })
 public class SbmClientTest {
 

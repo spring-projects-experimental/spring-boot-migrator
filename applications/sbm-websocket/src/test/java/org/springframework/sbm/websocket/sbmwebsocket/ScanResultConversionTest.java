@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.client.api;
+package org.springframework.sbm.websocket.sbmwebsocket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.recipe.Recipe;
+import org.springframework.sbm.websocket.ScanResult;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -23,6 +28,12 @@ import java.util.List;
 /**
  * @author Fabian Krüger
  */
-public record ScanResult(List<Recipe> applicableRecipes, Path scannedDir, int timeElapsed) {
+public class ScanResultConversionTest {
+    @Test
+    void test_renameMe() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ScanResult sr = new ScanResult(List.of(Recipe.builder().name("the-recipe").build()), Path.of("foo"), 100);
+        String s = objectMapper.writeValueAsString(sr);
+        System.out.println(s);
+    }
 }
-

@@ -16,20 +16,37 @@
 
 package org.springframework.sbm.websocket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Controller;
 
-@Controller
-public class GreetingController {
+import java.nio.file.Path;
 
-  @MessageMapping("/scan")
-  @SendTo("/topic/applicableRecipes")
-  public String greeting(String message) throws Exception {
-    Thread.sleep(1000); // simulated delay
-    System.out.println("scanning " + message);
-    return "applicableRceipes: " + "some list of recipes"; //new Greeting("Hello, " + HtmlUtils.htmlEscape(message) + "!");
+@Controller
+@RequiredArgsConstructor
+public class SbmWebsocketController {
+
+  private final SbmService sbmService;
+
+  @MessageMapping({"/scan"})
+  @SendTo("/queue/recipes/applicable")
+  public ScanResult scan(String message) throws Exception {
+    Path rootPath = Path.of(message);
+    ScanResult scanResult = sbmService.scan(rootPath);
+    return scanResult;
+  }
+
+  @MessageMapping("/apply")
+  @SendTo("/queue/migration/result")
+  public RecipeExecutionResult apply(String recipeName) {
+    return sbmService.apply(recipeName);
   }
 
   @SubscribeMapping("/topic/hello")

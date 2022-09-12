@@ -24,16 +24,13 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.recipe.Answer;
+import org.springframework.sbm.engine.recipe.Question;
 import org.springframework.sbm.engine.recipe.Recipe;
+import org.springframework.sbm.shell2.client.api.*;
 import org.springframework.sbm.shell2.client.events.UserInputRequestedEvent;
-import org.springframework.sbm.shell2.client.api.RecipeExecutionResult;
-import org.springframework.sbm.shell2.client.api.SbmService;
-import org.springframework.sbm.shell2.client.api.ScanResult;
 import org.springframework.sbm.shell2.client.events.RecipeExecutionCompletedEvent;
 import org.springframework.sbm.shell2.client.events.RecipeExecutionProgressUpdateEvent;
-import org.springframework.sbm.shell2.client.events.ScanCompletedEvent;
 import org.springframework.sbm.shell2.client.events.ScanProgressUpdatedEvent;
 import org.springframework.shell.component.support.SelectorItem;
 
@@ -54,13 +51,13 @@ class ApplyRecipeFlowTest {
     @Mock
     private SbmShellContext shellContext;
     @Mock
-    private ApplicationEventPublisher eventPublisher;
-    @Mock
     private ScanProgressRenderer scanProgressRenderer;
     @Mock
     private ApplyRecipeResultRenderer applicableRecipeResultRenderer;
     @Mock
-    private SbmService sbmService;
+    private SbmClient sbmClient;
+    @Mock
+    private SbmClientFactory sbmClientFactory;
     @Mock
     private UserInputScanner userInputScanner;
     @Mock
@@ -70,7 +67,13 @@ class ApplyRecipeFlowTest {
 
     @BeforeEach
     void beforeEach() {
-        sut = new ApplyRecipeFlow(shellContext, sbmService, scanProgressRenderer, applicableRecipeResultRenderer, userInputScanner, userInputRequester);
+        ArgumentCaptor<Consumer<ScanProgressUpdate>> scanProgressCaptor = ArgumentCaptor.forClass(Consumer.class);
+        ArgumentCaptor<Consumer<ScanResult>> scanResultCaptor = ArgumentCaptor.forClass(Consumer.class);
+        ArgumentCaptor<Consumer<RecipeExecutionProgress>> recipeProgressCaptor = ArgumentCaptor.forClass(Consumer.class);
+        ArgumentCaptor<Consumer<RecipeExecutionResult>> recipeResultCaptor = ArgumentCaptor.forClass(Consumer.class);
+        ArgumentCaptor<Function<Question, Answer>> questionCaptor = ArgumentCaptor.forClass(Function.class);
+        when(sbmClientFactory.create(scanProgressCaptor.capture(), scanResultCaptor.capture(), recipeProgressCaptor.capture(), recipeResultCaptor.capture(), questionCaptor.capture())).thenReturn(sbmClient);
+        sut = new ApplyRecipeFlow(shellContext, scanProgressRenderer, applicableRecipeResultRenderer, userInputScanner, userInputRequester, sbmClientFactory);
     }
 
     @Test
@@ -83,38 +86,33 @@ class ApplyRecipeFlowTest {
         // start scan
         sut.scanCommand();
 
+        // render
+        verify(scanProgressRenderer).startScan(rootPath);
+
         // rootPath set in shell context
         ArgumentCaptor<Path> pathAc = ArgumentCaptor.forClass(Path.class);
         verify(shellContext).setScannedPath(pathAc.capture());
         assertThat(pathAc.getValue()).isEqualTo(rootPath);
-        // render
-        verify(scanProgressRenderer).startScan(rootPath);
-        // scan was started
-        ArgumentCaptor<Consumer<ScanProgressUpdatedEvent>> ac = ArgumentCaptor.forClass(Consumer.class);
-        ArgumentCaptor<Consumer<ScanCompletedEvent>> ac2 = ArgumentCaptor.forClass(Consumer.class);
-        verify(sbmService).scan(ArgumentMatchers.eq(rootPath), ac.capture(), ac2.capture());
-        Consumer<ScanProgressUpdatedEvent> value = ac.getValue();
     }
 
     @Test
     void handleScanProgressUpdateEvent() {
         ScanProgressUpdate update = new ScanProgressUpdate();
-        sut.handleScanProgressUpdateEvent(new ScanProgressUpdatedEvent(update));
+        sut.handleScanProgressUpdate(update);
         ArgumentCaptor<ScanProgressUpdate> ac = ArgumentCaptor.forClass(ScanProgressUpdate.class);
         verify(scanProgressRenderer).renderUpdate(ac.capture());
         assertThat(ac.getValue()).isSameAs(update);
     }
 
     @Test
-    void handleScanCompleteEventWithApplicableRecipes() {
+    void handleScanResultWithApplicableRecipes() {
         // scan returns two recipes
         List<Recipe> applicableRecipes = List.of(Recipe.builder().name("r1").build(), Recipe.builder().name("r2").build());
-        ScanResult scanResult = new ScanResult(applicableRecipes);
-        ScanCompletedEvent scanCompletedEvent = new ScanCompletedEvent(scanResult);
+        ScanResult scanResult = new ScanResult(applicableRecipes, Path.of("some-path"), 100);
         // user selects r1
         when(userInputScanner.askForSingleSelection(any())).thenReturn("r1");
 
-        sut.handleScanCompletedEvent(scanCompletedEvent);
+        sut.handleScanCompletedEvent(scanResult);
 
         // result rendered
         verify(scanProgressRenderer).renderResult(scanResult);
@@ -127,45 +125,41 @@ class ApplyRecipeFlowTest {
         ArgumentCaptor<Consumer<RecipeExecutionProgressUpdateEvent>> recipeExecutionProgressUpdateEvent = ArgumentCaptor.forClass(Consumer.class);
         ArgumentCaptor<Consumer<RecipeExecutionCompletedEvent>> recipeExecutionCompletedEvent = ArgumentCaptor.forClass(Consumer.class);
         ArgumentCaptor<Function<UserInputRequestedEvent, Answer>> userInputRequestedEvent = ArgumentCaptor.forClass(Function.class);
-        verify(sbmService).apply(ArgumentMatchers.eq("r1"), recipeExecutionProgressUpdateEvent.capture(), recipeExecutionCompletedEvent.capture(), userInputRequestedEvent.capture());
-        recipeExecutionCompletedEvent.getValue();
+        verify(sbmClient).apply(ArgumentMatchers.eq("r1"));
     }
 
     @Test
     void handleScanCompleteEventWithNoRecipes() {
         // scan returns no recipes
         List<Recipe> applicableRecipes = List.of();
-        ScanResult scanResult = new ScanResult(applicableRecipes);
-        ScanCompletedEvent scanCompletedEvent = new ScanCompletedEvent(scanResult);
-        sut.handleScanCompletedEvent(scanCompletedEvent);
+        ScanResult scanResult = new ScanResult(applicableRecipes, Path.of("some-path"), 100);
+        sut.handleScanCompletedEvent(scanResult);
 
         // result rendered
         verify(scanProgressRenderer).renderResult(scanResult);
         // User not asked to select recipe
         verify(userInputScanner, never()).askForSingleSelection(any());
         // No recipe applied
-        verify(sbmService, never()).apply(any(), any(), any(), any());
+        verify(sbmClient, never()).apply(any());
     }
 
     @Test
     void handleRecipeExecutionProgressUpdateEvent() {
-        RecipeExecutionProgressUpdateEvent e = new RecipeExecutionProgressUpdateEvent();
-        sut.handleRecipeExecutionProgressUpdateEvent(e);
-        verify(applicableRecipeResultRenderer).renderProgress(e);
+        RecipeExecutionProgress p = new RecipeExecutionProgress();
+        sut.handleRecipeExecutionProgressUpdate(p);
+        verify(applicableRecipeResultRenderer).renderProgress(p);
     }
 
     @Test
     void handleRecipeExecutionCompletedEvent() {
         RecipeExecutionResult result = new RecipeExecutionResult("recipe-name");
         Path rootPath = Path.of("scanned-application");
+
         when(shellContext.getScannedPath()).thenReturn(rootPath);
 
-        sut.handleRecipeExecutionCompletedEvent(new RecipeExecutionCompletedEvent(result));
+        sut.handleRecipeExecutionResult(result);
 
+        verify(sbmClient).scan(rootPath);
         verify(applicableRecipeResultRenderer).render(result);
-        // render
-        verify(scanProgressRenderer).startScan(rootPath);
-        // scan was started
-        verify(sbmService).scan(ArgumentMatchers.eq(rootPath), any(), any());
     }
 }

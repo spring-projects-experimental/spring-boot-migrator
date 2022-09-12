@@ -15,13 +15,11 @@
  */
 package org.springframework.sbm.shell2;
 
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.sbm.engine.recipe.Answer;
 import org.springframework.sbm.engine.recipe.Question;
-import org.springframework.sbm.shell2.client.events.UserInputRequestedEvent;
-import org.springframework.sbm.shell2.client.api.RecipeExecutionResult;
-import org.springframework.sbm.shell2.client.api.SbmService;
-import org.springframework.sbm.shell2.client.events.*;
+import org.springframework.sbm.shell2.client.api.*;
 import org.springframework.shell.component.support.SelectorItem;
 import org.springframework.shell.standard.AbstractShellComponent;
 import org.springframework.shell.standard.ShellComponent;
@@ -35,15 +33,34 @@ import java.util.stream.Collectors;
  * @author Fabian Krüger
  */
 @ShellComponent
-@RequiredArgsConstructor
 public class ApplyRecipeFlow extends AbstractShellComponent {
 
     private final SbmShellContext shellContext;
-    private final SbmService sbmService;
     private final ScanProgressRenderer scanProgressRenderer;
     private final ApplyRecipeResultRenderer applyRecipeResultRenderer;
     private final UserInputScanner userInputScanner;
     private final UserInputRequester userInputRequester;
+    private final SbmClient sbmClient;
+
+    public ApplyRecipeFlow(SbmShellContext shellContext,
+                           ScanProgressRenderer scanProgressRenderer,
+                           ApplyRecipeResultRenderer applyRecipeResultRenderer,
+                           UserInputScanner userInputScanner,
+                           UserInputRequester userInputRequester,
+                           SbmClientFactory sbmClientFactory) {
+        this.shellContext = shellContext;
+        this.scanProgressRenderer = scanProgressRenderer;
+        this.applyRecipeResultRenderer = applyRecipeResultRenderer;
+        this.userInputScanner = userInputScanner;
+        this.userInputRequester = userInputRequester;
+        this.sbmClient = sbmClientFactory.create(
+                (scanUpdate) -> this.handleScanProgressUpdate(scanUpdate),
+                (scanResult) -> this.handleScanCompletedEvent(scanResult),
+                (recipeProgress) -> this.handleRecipeExecutionProgressUpdate(recipeProgress),
+                (recipeResult) -> this.handleRecipeExecutionResult(recipeResult),
+                (question) -> this.handleUserInputRequested(question)
+        );
+    }
 
     /**
      * Starts a scan
@@ -52,30 +69,39 @@ public class ApplyRecipeFlow extends AbstractShellComponent {
     public void scanCommand() {
         Path projectRoot = userInputScanner.askForPath("Enter path to project");
         shellContext.setScannedPath(projectRoot);
-        startScanProcess(projectRoot);
-    }
-
-    private void startScanProcess(Path projectRoot) {
+        sbmClient.scan(projectRoot);
         scanProgressRenderer.startScan(projectRoot);
-        sbmService.scan(projectRoot,
-                        (e) -> this.handleScanProgressUpdateEvent(e),
-                        (e) -> this.handleScanCompletedEvent(e));
     }
 
-    public void handleScanProgressUpdateEvent(ScanProgressUpdatedEvent event) {
-        ScanProgressUpdate scanProgressUpdate = event.update();
-        scanProgressRenderer.renderUpdate(scanProgressUpdate);
+    private void applyRecipe(String selectedRecipeName) {
+        sbmClient.apply(selectedRecipeName);
+//        sbmService.apply(selectedRecipeName,
+//                         (e) -> this.handleRecipeExecutionProgressUpdate(e),
+//                         (e) -> this.handleRecipeExecutionResult(e),
+//                         (e) -> this.handleUserInputRequested(e));
+    }
+
+    //    private void startScanProcess(Path projectRoot) {
+//
+//        sbmService.scan(projectRoot,
+//                        (e) -> this.handleScanProgressUpdateEvent(e),
+//                        (e) -> this.handleScanCompletedEvent(e));
+
+//    }
+
+    public void handleScanProgressUpdate(ScanProgressUpdate progressUpdate) {
+        scanProgressRenderer.renderUpdate(progressUpdate);
     }
 
     /**
      * Handle {@code ScanCompletedEvent}s and ask user to select the recipe to apply.
      */
-    public void handleScanCompletedEvent(ScanCompletedEvent scanCompletedEvent) {
-        List<SelectorItem<String>> items = scanCompletedEvent.scanResult().applicableRecipes().stream()
+    public void handleScanCompletedEvent(ScanResult scanResult) {
+        List<SelectorItem<String>> items = scanResult.applicableRecipes().stream()
                                             .map(r -> SelectorItem.of(r.getName(), r.getName()))
                                             .collect(Collectors.toList());
 
-        scanProgressRenderer.renderResult(scanCompletedEvent.scanResult());
+        scanProgressRenderer.renderResult(scanResult);
 
         if(!items.isEmpty()) {
             String selectedRecipe = userInputScanner.askForSingleSelection(items);
@@ -83,25 +109,18 @@ public class ApplyRecipeFlow extends AbstractShellComponent {
         }
     }
 
-    private void applyRecipe(String selectedRecipeName) {
-        sbmService.apply(selectedRecipeName,
-                         (e) -> this.handleRecipeExecutionProgressUpdateEvent(e),
-                         (e) -> this.handleRecipeExecutionCompletedEvent(e),
-                         (e) -> this.handleUserInputRequestedEvent(e));
-    }
-
-    private Answer handleUserInputRequestedEvent(UserInputRequestedEvent e) {
-        Question question = e.question();
+    private Answer handleUserInputRequested(Question question) {
         return userInputRequester.ask(question);
     }
 
-    void handleRecipeExecutionProgressUpdateEvent(RecipeExecutionProgressUpdateEvent e) {
+    void handleRecipeExecutionProgressUpdate(RecipeExecutionProgress e) {
         applyRecipeResultRenderer.renderProgress(e);
     }
 
-    void handleRecipeExecutionCompletedEvent(RecipeExecutionCompletedEvent event) {
-        RecipeExecutionResult result = event.getResult();
+    void handleRecipeExecutionResult(RecipeExecutionResult result) {
         applyRecipeResultRenderer.render(result);
-        startScanProcess(shellContext.getScannedPath());
+        Path scannedPath = shellContext.getScannedPath();
+        sbmClient.scan(scannedPath);
+        scanProgressRenderer.startScan(scannedPath);
     }
 }

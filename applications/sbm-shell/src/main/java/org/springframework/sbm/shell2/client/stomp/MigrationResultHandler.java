@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.client;
+package org.springframework.sbm.shell2.client.stomp;
 
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -23,15 +23,14 @@ import java.lang.reflect.Type;
 /**
  * @author Fabian Krüger
  */
-public class UpdateAvailableRecipes implements StompFrameHandler {
+public class MigrationResultHandler implements StompFrameHandler {
     @Override
     public Type getPayloadType(StompHeaders headers) {
-        return String.class;
+        return null;
     }
 
     @Override
     public void handleFrame(StompHeaders headers, Object payload) {
-        String cast = String.class.cast(payload);
-        System.out.println(getClass().getName() + " Consumer received: " + payload);
+
     }
 }

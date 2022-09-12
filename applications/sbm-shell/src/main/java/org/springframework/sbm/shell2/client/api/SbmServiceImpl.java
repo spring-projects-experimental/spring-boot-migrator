@@ -16,19 +16,22 @@
 package org.springframework.sbm.shell2.client.api;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.stomp.StompClientSupport;
-import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.simp.stomp.*;
 import org.springframework.sbm.engine.recipe.*;
-import org.springframework.sbm.shell2.ScanProgressUpdate;
-import org.springframework.sbm.shell2.client.StompSessionStore;
+import org.springframework.sbm.shell2.client.stomp.StompSessionStore;
 import org.springframework.sbm.shell2.client.events.UserInputRequestedEvent;
 import org.springframework.sbm.shell2.client.events.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.web.socket.client.WebSocketClient;
+import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
+import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -37,16 +40,23 @@ import java.util.stream.IntStream;
  * @author Fabian Krüger
  */
 @Service
+@Deprecated
 @RequiredArgsConstructor
 public class SbmServiceImpl extends StompSessionHandlerAdapter implements SbmService {
 
     private static final String DESTINATION = "/sbm/scan";
     private final StompSessionStore sessionStore;
 
-    @Override
-    public void scan(Path projectRoot, Consumer<ScanProgressUpdatedEvent> scanProgressUpdatedEventConsumer, Consumer<ScanCompletedEvent> scanCompletedEventConsumer) {
+    private final ApplicationEventPublisher eventPublisher;
+    private StompSession stompSession;
 
-        sessionStore.getStompSession().send(DESTINATION, "scan");
+
+    @Override
+    public void scan(Path projectRoot) {
+
+        StompSession session = getStompSession();
+        session.send("/sbm/scan", projectRoot.toString());
+        session.send(DESTINATION, projectRoot.toString());
 //
 //        // TODO: remove simulation of scan
 //        new Thread(() -> {
@@ -67,6 +77,37 @@ public class SbmServiceImpl extends StompSessionHandlerAdapter implements SbmSer
 //            );
 //        }).run();
     }
+
+    private StompSession getStompSession() {
+        try {
+            WebSocketClient webSocketClient = new StandardWebSocketClient();
+            WebSocketStompClient stompClient = new WebSocketStompClient(webSocketClient);
+            stompClient.setMessageConverter(new StringMessageConverter());
+//        TaskScheduler taskScheduler;
+//        stompClient.setTaskScheduler(taskScheduler); // for heartbeats
+            String url = "ws://127.0.0.1:8080/endpoint";
+            StompSessionHandler sessionHandler = new DeadEndStompSessionHandler();
+            ListenableFuture<StompSession> connect = stompClient.connect(url, sessionHandler);
+            stompSession = connect.get();
+            return stompSession;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /*
+    public class MyStompSessionHandler extends StompSessionHandlerAdapter {
+
+        @Override
+        public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
+            session.subscribe("/queue/recipes/applicable", new TransformAndPublishScanCompletedEvent(eventPublisher));
+            session.subscribe("/queue/migration/logs", new StompClientSessionHandler.MigrationLogsHandler());
+            session.subscribe("/queue/migration/result", new MigrationResultHandler());
+        }
+    }
+    */
 
     @Override
     public void apply(String selectedRecipe,
@@ -96,4 +137,30 @@ public class SbmServiceImpl extends StompSessionHandlerAdapter implements SbmSer
         }).run();
     }
 
+    private class ApplicableRecipeUpdateHandler  extends StompSessionHandlerAdapter {
+        private Consumer<ScanResult> scanCompletedEventConsumer;
+
+        public ApplicableRecipeUpdateHandler(Consumer<ScanResult> scanCompletedEventConsumer) {
+            this.scanCompletedEventConsumer = scanCompletedEventConsumer;
+        }
+
+        @Override
+        public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
+            session.subscribe("/queue/recipes/applicable", new StompFrameHandler() {
+                @Override
+                public Type getPayloadType(StompHeaders headers) {
+                    return ScanResult.class;
+                }
+
+                @Override
+                public void handleFrame(StompHeaders headers, Object payload) {
+                    ScanResult scanResult = ScanResult.class.cast(payload);
+                    scanCompletedEventConsumer.accept(scanResult);
+                }
+            });
+        }
+    }
+
+    private class DeadEndStompSessionHandler extends StompSessionHandlerAdapter {
+    }
 }

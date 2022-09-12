@@ -20,8 +20,6 @@ import org.springframework.sbm.engine.recipe.Answer;
 import org.springframework.sbm.shell2.client.events.UserInputRequestedEvent;
 import org.springframework.sbm.shell2.client.events.RecipeExecutionCompletedEvent;
 import org.springframework.sbm.shell2.client.events.RecipeExecutionProgressUpdateEvent;
-import org.springframework.sbm.shell2.client.events.ScanCompletedEvent;
-import org.springframework.sbm.shell2.client.events.ScanProgressUpdatedEvent;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -30,10 +28,9 @@ import java.util.function.Function;
 /**
  * @author Fabian Krüger
  */
+@Deprecated
 public interface SbmService {
-    void scan(Path projectRoot,
-              Consumer<ScanProgressUpdatedEvent> scanProgressUpdatedEventConsumer,
-              Consumer<ScanCompletedEvent> scanCompletedEventConsumer);
+    void scan(Path projectRoot);
 
     void apply(String selectedRecipe,
                Consumer<RecipeExecutionProgressUpdateEvent> recipeExecutionProgressUpdateEventConsumer,

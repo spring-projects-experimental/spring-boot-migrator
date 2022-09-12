@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.client;
+package org.springframework.sbm.websocket;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.stereotype.Component;
+import org.springframework.sbm.engine.recipe.Recipe;
+import org.springframework.stereotype.Service;
+
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  * @author Fabian Krüger
  */
-@Component
-public class StompSessionStore {
-    @Getter
-    @Setter
-    private StompSession stompSession;
+@Service
+public class SbmService {
+    public ScanResult scan(Path rootPath) {
+        return new ScanResult(List.of(
+                Recipe.builder().name("recipe-1").build(),
+                Recipe.builder().name("recipe-2").build(),
+                Recipe.builder().name("recipe-3").build()
+        ), rootPath, 100);
+    }
+
+    public RecipeExecutionResult apply(String recipeName) {
+        return new RecipeExecutionResult(recipeName);
+    }
 }
