@@ -19,11 +19,19 @@ package org.springframework.sbm;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.internal.MavenPomDownloader;
+import org.openrewrite.maven.tree.Dependency;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.ResolvedManagedDependency;
 import org.openrewrite.xml.tree.Xml;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -44,38 +52,125 @@ public class BootUpgrade_27_30_ManuallyManaged_IntegrationTest extends Integrati
 
         buildProject();
 
-        verifyManagedDependency("spring-boot-starter-web", "3.0.0-M3");
-        verifyManagedDependency("spring-boot-starter-test", "3.0.0-M3");
-        verifyManagedDependency("metrics-annotation", "4.2.9");
+        Xml.Document rootBuildFile = getRootBuildFile();
+        Xml.Document applicationBuildFile = getApplicationBuildFile();
+        InMemoryExecutionContext inMemoryExecutionContext = new InMemoryExecutionContext();
+        applicationBuildFile.getMarkers().findFirst(MavenResolutionResult.class)
+                .get()
+                .getPom()
+                .resolve(inMemoryExecutionContext, new MavenPomDownloader(new HashMap<>(), inMemoryExecutionContext));
+
+        verifyManagedDependency(rootBuildFile, "spring-boot-starter-test", "3.0.0-M3");
+        verifyManagedDependency(rootBuildFile, "metrics-annotation", "4.2.9");
+        verifyProperty(applicationBuildFile, "spring-boot-starter-web.version", "3.0.0-M3");
+        verifyDependencyWithClassifier(applicationBuildFile, "ehcache", "3.10.0", "jakarta");
+
+        verifyConstructorBindingRemoval();
     }
 
-    private void verifyManagedDependency(String artifactId, String version) {
-        Xml.Document mavenAsXMLDocument = getRootBuildFile();
+    private void verifyManagedDependency(Xml.Document mavenAsXMLDocument, String artifactId, String version) {
+        Optional<ResolvedManagedDependency> managedDependency = getManagedDependencyByArtifactId(mavenAsXMLDocument, artifactId);
+        assertThat(managedDependency).isPresent();
+        assertThat(managedDependency.get().getVersion()).isEqualTo(version);
+    }
 
-        List<Xml.Tag> dependencies = mavenAsXMLDocument
-                .getRoot()
-                .getChildren("dependencyManagement")
-                .get(0)
-                .getChildren("dependencies")
-                .get(0)
-                .getChildren("dependency");
+    private void verifyDependency(Xml.Document mavenAsXMLDocument, String artifactId, String version) {
+        verifyDependencyWithClassifier(mavenAsXMLDocument, artifactId, version, null);
+    }
 
-        for (Xml.Tag dependency : dependencies) {
-            if (dependency.getChildValue("artifactId").isPresent() && dependency.getChildValue("artifactId").get().equals(artifactId)) {
-                assertThat(dependency.getChildValue("version").isPresent()).isTrue();
-                assertThat(dependency.getChildValue("version").get()).isEqualTo(version);
-            }
+    private void verifyDependencyWithClassifier(Xml.Document mavenAsXMLDocument, String artifactId, String version, String classifier) {
+        Optional<Dependency> dependency = getDependencyByArtifactId(mavenAsXMLDocument, artifactId);
+        assertThat(dependency).isPresent();
+        assertThat(dependency.get().getVersion()).isEqualTo(version);
+        if (classifier != null) {
+            assertThat(dependency.get().getClassifier()).isEqualTo(classifier);
         }
     }
+
+    @NotNull
+    private Optional<Dependency> getDependencyByArtifactId(Xml.Document mavenAsXMLDocument, String artifactId) {
+        List<Dependency> dependencies = getDependencies(mavenAsXMLDocument);
+        return dependencies
+                .stream()
+                .filter(dependency -> dependency.getArtifactId().equals(artifactId))
+                .findAny();
+    }
+
+    @NotNull
+    private List<Dependency> getDependencies(Xml.Document mavenAsXMLDocument) {
+        return mavenAsXMLDocument
+                .getMarkers()
+                .findFirst(MavenResolutionResult.class)
+                .get()
+                .getPom()
+                .getRequestedDependencies();
+    }
+
+    private void verifyProperty(Xml.Document mavenAsXMLDocument, String name, String value) {
+        Map<String, String> props = getProperties(mavenAsXMLDocument);
+        assertThat(props.containsKey(name)).isTrue();
+        assertThat(props.get(name)).isEqualTo(value);
+    }
+
+    @NotNull
+    private Map<String, String> getProperties(Xml.Document mavenAsXMLDocument) {
+        return mavenAsXMLDocument
+                .getMarkers()
+                .findFirst(MavenResolutionResult.class)
+                .get()
+                .getPom()
+                .getProperties();
+    }
+
+    @NotNull
+    Optional<ResolvedManagedDependency> getManagedDependencyByArtifactId(Xml.Document mavenAsXMLDocument, String artifactId) {
+        return getManagedDependencies(mavenAsXMLDocument)
+                .stream()
+                .filter(md -> md.getArtifactId().equals(artifactId))
+                .findAny();
+    }
+
+    @NotNull
+    private List<ResolvedManagedDependency> getManagedDependencies(Xml.Document mavenAsXMLDocument) {
+        return mavenAsXMLDocument
+                .getMarkers()
+                .findFirst(MavenResolutionResult.class)
+                .get()
+                .getPom()
+                .getDependencyManagement();
+    }
+
     @NotNull
     private Xml.Document getRootBuildFile() {
         return parsePom(loadFile(Path.of("pom.xml")));
     }
 
     @NotNull
+    private Xml.Document getApplicationBuildFile() {
+        return parsePom(loadFile(Path.of("spring-app/pom.xml")));
+    }
+
+    @NotNull
     private Xml.Document parsePom(String pomContent) {
         MavenParser mavenParser = new MavenParser.Builder().build();
         return mavenParser.parse(pomContent).get(0);
+    }
+
+    private void verifyConstructorBindingRemoval() {
+        String constructorBindingConfigClass = loadJavaFileFromSubmodule("spring-app/", "org.springboot.example.upgrade", "ConstructorBindingConfig");
+        assertThat(constructorBindingConfigClass).isEqualTo("package org.springboot.example.upgrade;\n" +
+                "\n" +
+                "import org.springframework.boot.context.properties.ConfigurationProperties;\n" +
+                "\n" +
+                "@ConfigurationProperties(prefix = \"mail\")\n" +
+                "public class ConstructorBindingConfig {\n" +
+                "    private String hostName;\n" +
+                "\n" +
+                "    public ConstructorBindingConfig(String hostName) {\n" +
+                "        this.hostName = hostName;\n" +
+                "    }\n" +
+                "}" +
+                "\n");
     }
 
     private void buildProject() {

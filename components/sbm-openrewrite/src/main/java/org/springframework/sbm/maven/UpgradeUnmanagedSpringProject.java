@@ -25,6 +25,7 @@ import org.openrewrite.marker.SearchResult;
 import org.openrewrite.maven.AddProperty;
 import org.openrewrite.maven.ChangePropertyValue;
 import org.openrewrite.maven.MavenIsoVisitor;
+import org.openrewrite.maven.UpdateMavenModel;
 import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.GroupArtifactVersion;
 import org.openrewrite.maven.tree.Pom;
@@ -109,7 +110,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
 
                         ResolvedManagedDependency managedDependency = findManagedDependency(resultTag);
 
-                        if (managedDependency.getGroupId().equals(SPRINGBOOT_GROUP)
+                        if ((managedDependency != null) && managedDependency.getGroupId().equals(SPRINGBOOT_GROUP)
                                 && satisfiesMinVersion(managedDependency.getVersion())) {
                             return applyThisRecipe(resultTag);
                         }
@@ -117,7 +118,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
 
                     if (isDependencyTag()) {
                         ResolvedDependency dependency = findDependency(resultTag);
-                        if (dependency.getGroupId().equals(SPRINGBOOT_GROUP)
+                        if ((dependency != null) && dependency.getGroupId().equals(SPRINGBOOT_GROUP)
                                 && satisfiesMinVersion(dependency.getVersion())) {
                             return applyThisRecipe(resultTag);
                         }
@@ -180,9 +181,10 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                 }
                 if (isDependencyTag()) {
                     ResolvedDependency dependency = findDependency(tag);
-
-                    String key = dependency.getGroupId() + ":" + dependency.getArtifactId();
-                    mayBeUpdateVersion(key, tag);
+                    if (dependency != null) {
+                        String key = dependency.getGroupId() + ":" + dependency.getArtifactId();
+                        mayBeUpdateVersion(key, tag);
+                    }
                 }
                 return super.visitTag(tag, executionContext);
             }
@@ -201,6 +203,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                     } else {
                         version.ifPresent(xml -> doAfterVisit(new ChangeTagValueVisitor(xml, dependencyVersion)));
                     }
+                    doAfterVisit(new UpdateMavenModel<>());
                 }
             }
         };

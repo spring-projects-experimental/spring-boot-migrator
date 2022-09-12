@@ -32,18 +32,6 @@
         id: "spring-milestone"
         url: "https://repo.spring.io/milestone"
 
-    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
-      description: Update unmanaged explicit dependency
-      openRewriteRecipe: |-
-        type: specs.openrewrite.org/v1beta/recipe
-        name: org.springframework.sbm.maven.UpgradeUnmanagedSpringProject
-        displayName: Upgrade unmanaged dependencies to Spring 3.0
-        description: 'Upgrade unmanaged dependencies to Spring to 3.0 from specified prior version.'
-        recipeList:
-          - org.springframework.sbm.maven.UpgradeUnmanagedSpringProject:
-              minVersion: "2\\.7\\..*"
-              springVersion: 3.0.0-M3
-
     -  type: org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction
        description: Move EnableAutoConfiguration Property from spring.factories to AutoConfiguration.imports
        snapshotsEnabled: false
@@ -57,16 +45,18 @@
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
-        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "2.7."
-      description: Add Spring Milestone Repository and bump parent pom to 3.0.0-M3
-
+        type: org.springframework.sbm.boot.common.conditions.HasSpringBootProject
+        versionPattern: "2\\.7\\..*"
+      description: Add Spring Milestone Repository and bump SpringBoot to 3.0.0-M3
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
         name: org.openrewrite.java.spring.boot3.data.UpgradeSpringData30
-        displayName: Upgrade to Spring Data 3.0
-        description: 'Upgrade to Spring Data to 3.0 from any prior version.'
+        displayName: Upgrade to SpringBoot 3.0
+        description: 'Upgrade to SpringBoot to 3.0 from any prior version.'
         recipeList:
+          - org.springframework.sbm.maven.UpgradeUnmanagedSpringProject:
+              minVersion: "2\\.7\\..*"
+              springVersion: 3.0.0-M3
           - org.openrewrite.maven.ChangeDependencyClassifier:
               groupId: org.ehcache
               artifactId: ehcache
@@ -85,8 +75,8 @@
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
-        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "3.0."
+        type: org.springframework.sbm.boot.common.conditions.HasSpringBootProject
+        versionPattern: "3\\.0\\..*"
       description: Migrate SAML configuration to Spring Boot 3.0 in yaml format
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
@@ -100,8 +90,8 @@
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
-        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "3.0."
+        type: org.springframework.sbm.boot.common.conditions.HasSpringBootProject
+        versionPattern: "3\\.0\\..*"
       description: Migrate SAML configuration to Spring Boot 3.0 in properties format
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
@@ -113,8 +103,8 @@
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
-        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "3.0."
+        type: org.springframework.sbm.boot.common.conditions.HasSpringBootProject
+        versionPattern: "3\\.0\\..*"
       description: Remove redundant @ConstructorBinding annotations when applicable
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
@@ -126,15 +116,15 @@
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteNamedRecipeAdapter
       condition:
-        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "3.0."
+        type: org.springframework.sbm.boot.common.conditions.HasSpringBootProject
+        versionPattern: "3\\.0\\..*"
       description: Replace javax with new jakarta packages
       openRewriteRecipeName: org.openrewrite.java.migrate.JavaxMigrationToJakarta
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
-        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "3.0."
+        type: org.springframework.sbm.boot.common.conditions.HasSpringBootProject
+        versionPattern: "3\\.0\\..*"
       description: Add CrudRepository interface extension additionaly to PagingAndSortingRepository
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
@@ -154,8 +144,8 @@
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
-        type: org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion
-        versionStartingWith: "3.0."
+        type: org.springframework.sbm.boot.common.conditions.HasSpringBootProject
+        versionPattern: "3\\.0\\..*"
       description: Migrate configuration to SpringBoot 3.0 in properties format
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
