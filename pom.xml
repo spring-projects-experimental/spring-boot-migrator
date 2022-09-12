@@ -278,6 +278,12 @@
                 <artifactId>jaxb-runtime</artifactId>
                 <version>2.3.3</version>
             </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>ST4</artifactId>
+                <version>4.3.4</version>
+                <scope>compile</scope>
+            </dependency>
             <!-- or uses different version then spring boot, explicitly overwrite version -->
             <!--
             <dependency>
