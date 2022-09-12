@@ -17,6 +17,7 @@
 package org.springframework.sbm.boot.upgrade_27_30.checks;
 
 import org.springframework.sbm.java.api.JavaSourceAndType;
+import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
 import org.springframework.sbm.java.impl.OpenRewriteType;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
@@ -36,10 +37,10 @@ public class ApacheSolrRepositoryBeanFinder implements ProjectResourceFinder<Lis
         return projectResourceSet.stream()
                 .filter(OpenRewriteJavaSource.class::isInstance)
                 .map(OpenRewriteJavaSource.class::cast)
-                .filter(js -> js.getTypes().stream().anyMatch(t -> t.getFullyQualifiedName().equals(SOLR_REPOSITORY_CLASS)))
+                .filter(js -> js.getTypes().stream().anyMatch(this::isSolrRepository))
                 .map(js -> {
                     Optional<OpenRewriteType> type = js.getTypes().stream()
-                            .filter(t -> t.getFullyQualifiedName().equals(SOLR_REPOSITORY_CLASS))
+                            .filter(this::isSolrRepository)
                             .findFirst();
                     if(type.isPresent()) {
                         return new JavaSourceAndType(js, type.get());
@@ -48,5 +49,12 @@ public class ApacheSolrRepositoryBeanFinder implements ProjectResourceFinder<Lis
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+    private boolean isSolrRepository(OpenRewriteType t) {
+        return t.getExtends()
+                .map(Type::getFullyQualifiedName)
+                .filter(SOLR_REPOSITORY_CLASS::equals)
+                .isPresent();
     }
 }
