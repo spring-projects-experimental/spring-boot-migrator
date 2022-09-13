@@ -15,12 +15,9 @@
  */
 package org.springframework.sbm.support.openrewrite.java;
 
+import org.openrewrite.*;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.PrintOutputCapture;
-import org.openrewrite.Result;
 import org.openrewrite.java.JavaPrinter;
 import org.openrewrite.java.search.FindAnnotations;
 import org.openrewrite.java.tree.J;
@@ -45,11 +42,11 @@ public class CodeCommentTest {
         FindAnnotations findAnnotations = new FindAnnotations("@java.lang.Deprecated");
 
         List<J.CompilationUnit> cus = List.of(compilationUnit);
-        List<Result> results = findAnnotations.run(cus);
+        RecipeRun recipeRun = findAnnotations.run(cus);
 
         String markerText = "\n/*\n Found @Deprecated without attributes: \n - please set markedForRemoval \n - please set since \nhere --> */ ";
 
-        J.CompilationUnit cu = (J.CompilationUnit) results.get(0).getAfter();
+        J.CompilationUnit cu = (J.CompilationUnit) recipeRun.getResults().get(0).getAfter();
 
         JavaPrinter<ExecutionContext> javaPrinter = new JavaPrinter<>() {
             @Override

@@ -81,7 +81,7 @@ public class PropertiesSource extends RewriteSourceFileHolder<Properties.File> {
 
     private void apply(Recipe r) {
         File rewriteResource = getSourceFile();
-        List<Result> results = r.run(List.of(rewriteResource), executionContext);
+        List<Result> results = r.run(List.of(rewriteResource), executionContext).getResults();
         if (!results.isEmpty()) {
             replaceWith(getSourceFile().getClass().cast(results.get(0).getAfter()));
         }

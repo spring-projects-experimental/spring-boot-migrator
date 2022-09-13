@@ -15,12 +15,12 @@
  */
 package org.springframework.sbm.support.openrewrite.java;
 
+import org.openrewrite.RecipeRun;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openrewrite.Result;
 import org.openrewrite.java.tree.J;
 
 import java.util.List;
@@ -90,9 +90,9 @@ class RemoveAnnotationVisitorTest {
         J.CompilationUnit result = cu;
         for (J.MethodDeclaration md : methodDeclarationList) {
             RemoveAnnotationVisitor sut1 = new RemoveAnnotationVisitor(md, "javax.ejb.TransactionAttribute");
-            List<Result> run = new GenericOpenRewriteRecipe(() -> sut1).run(List.of(result));
-            if (!run.isEmpty()) {
-                result = (J.CompilationUnit) run.get(0).getAfter();
+            RecipeRun run = new GenericOpenRewriteRecipe(() -> sut1).run(List.of(result));
+            if (!run.getResults().isEmpty()) {
+                result = (J.CompilationUnit) run.getResults().get(0).getAfter();
             }
         }
 
@@ -133,9 +133,9 @@ class RemoveAnnotationVisitorTest {
         J.CompilationUnit result = cu;
         for (J.VariableDeclarations vd : variableDeclarations) {
             RemoveAnnotationVisitor sut1 = new RemoveAnnotationVisitor(vd, "javax.ejb.EJB");
-            List<Result> run = new GenericOpenRewriteRecipe(() -> sut1).run(List.of(result));
-            if (!run.isEmpty()) {
-                result = (J.CompilationUnit) run.get(0).getAfter();
+            RecipeRun run = new GenericOpenRewriteRecipe(() -> sut1).run(List.of(result));
+            if (!run.getResults().isEmpty()) {
+                result = (J.CompilationUnit) run.getResults().get(0).getAfter();
             }
         }
 

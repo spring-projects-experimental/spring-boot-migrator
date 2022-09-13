@@ -68,7 +68,7 @@ public class JeeWebXmlProjectResourceRegistrar implements ProjectResourceWrapper
         return (
                 Xml.Document.class.isAssignableFrom(rewriteSourceFileHolder.getSourceFile().getClass()) &&
                 rewriteSourceFileHolder.getAbsolutePath().getFileName().endsWith("web.xml") &&
-                ! new FindTags("/web-app").run(List.of(rewriteSourceFileHolder.getSourceFile())).isEmpty());
+                ! new FindTags("/web-app").run(List.of(rewriteSourceFileHolder.getSourceFile())).getResults().isEmpty());
     }
 
     @Override

@@ -77,7 +77,7 @@ public class OpenRewriteRecipeAdapterAction extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
         List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles);
+        List<Result> results = recipe.run(rewriteSourceFiles).getResults();
         resultMerger.mergeResults(context, results);
     }
 

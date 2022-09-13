@@ -17,7 +17,7 @@ package org.springframework.sbm.openrewrite;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.Result;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.maven.ExcludeDependency;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
@@ -52,8 +52,8 @@ public class ExcludeDependencyTest {
 
         Xml.Document maven = MavenParser.builder().build().parse(pomXml).get(0);
         ExcludeDependency excludeDependency = new ExcludeDependency("org.junit.jupiter", "junit-jupiter-api", "test");
-        List<Result> run = excludeDependency.run(List.of(maven));
-        assertThat(run.get(0).getAfter().printAll()).isEqualTo(
+        RecipeRun run = excludeDependency.run(List.of(maven));
+        assertThat(run.getResults().get(0).getAfter().printAll()).isEqualTo(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                         "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
                         "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +

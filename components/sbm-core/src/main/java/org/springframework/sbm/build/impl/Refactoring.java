@@ -51,7 +51,7 @@ class Refactoring<P> {
     }
 
     private List<Result> executeRecipe(Recipe recipe) {
-        List<Result> results = recipe.run(List.of(pom.getSourceFile()));
+        List<Result> results = recipe.run(List.of(pom.getSourceFile())).getResults();
         return results;
     }
 
