@@ -18,7 +18,7 @@ package org.springframework.sbm.support.openrewrite.api;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.Result;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.UpgradeDependencyVersion;
 import org.openrewrite.xml.tree.Xml;
@@ -103,9 +103,9 @@ public class UpgradeDependencyVersionTest {
         String version = "2.5.3";
         UpgradeDependencyVersion sut = new UpgradeDependencyVersion(groupId, artifactId, version, null, false);
 
-        List<Result> results = sut.run(mavens);
+        RecipeRun recipeRun = sut.run(mavens);
 
-        assertThat(results.get(0).getAfter().printAll()).isEqualTo(expectedPomXml);
+        assertThat(recipeRun.getResults().get(0).getAfter().printAll()).isEqualTo(expectedPomXml);
     }
 
     @Test
@@ -148,9 +148,9 @@ public class UpgradeDependencyVersionTest {
         String version = "2.5.3";
         UpgradeDependencyVersion sut = new UpgradeDependencyVersion(groupId, artifactId, version, null, true);
 
-        List<Result> results = sut.run(mavens);
+        RecipeRun recipeRun = sut.run(mavens);
 
-        assertThat(results.get(0).getAfter().printAll()).isEqualTo(expectedPomXml);
+        assertThat(recipeRun.getResults().get(0).getAfter().printAll()).isEqualTo(expectedPomXml);
     }
 
     @Test
@@ -189,13 +189,12 @@ public class UpgradeDependencyVersionTest {
         String version = "latest.release";
         UpgradeDependencyVersion sut = new UpgradeDependencyVersion(groupId, artifactId, version, null, false);
 
-        List<Result> results = sut.run(mavens);
+        RecipeRun results = sut.run(mavens);
 
-        assertThat(results.get(0).getAfter().printAll()).isEqualTo(expectedPomXml);
+        assertThat(results.getResults().get(0).getAfter().printAll()).isEqualTo(expectedPomXml);
     }
 
     @Test
-    @Disabled
     void testUpgradeDependency_nullVersion() {
         String groupId = "org.springframework.boot";
         String artifactId = "spring-boot-starter-test";
@@ -203,7 +202,7 @@ public class UpgradeDependencyVersionTest {
         UpgradeDependencyVersion sut = new UpgradeDependencyVersion(groupId, artifactId, version, null, false);
 
         AtomicBoolean exceptionThrown = new AtomicBoolean(false);
-        List<Result> results = sut.run(mavens, new InMemoryExecutionContext((e) -> {
+        RecipeRun results = sut.run(mavens, new InMemoryExecutionContext((e) -> {
             e.printStackTrace();
             exceptionThrown.set(true);
         }));

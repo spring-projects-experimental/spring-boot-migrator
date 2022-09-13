@@ -142,7 +142,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
             annotation = "@" + annotation;
         }
         FindAnnotations findAnnotation = new FindAnnotations(annotation);
-        List<Result> results = findAnnotation.run(List.of(getCompilationUnit()));
+        List<Result> results = findAnnotation.run(List.of(getCompilationUnit())).getResults();
         return !results.isEmpty();
     }
 

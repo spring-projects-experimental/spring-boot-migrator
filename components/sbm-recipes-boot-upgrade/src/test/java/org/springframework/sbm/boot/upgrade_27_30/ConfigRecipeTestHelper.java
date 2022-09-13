@@ -45,7 +45,7 @@ public class ConfigRecipeTestHelper {
         List<Yaml.Documents> document = new YamlParser().parse(source);
         return RewriteTest
                 .fromRuntimeClasspath(recipeName)
-                .run(document, ctx);
+                .run(document, ctx).getResults();
     }
 
 //    public static List<Result> runRecipeOnProperties(@Language("properties") String source, String recipeName) {

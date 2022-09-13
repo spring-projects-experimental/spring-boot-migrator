@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.support.openrewrite.recipes;
 
-import org.openrewrite.Result;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.OpenRewriteApiTest;
@@ -48,8 +48,8 @@ public class ChangeTypeTest {
 
         J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(javaSource, "javax:javaee-api:8.0", "org.springframework:spring-web:5.3.7", "com.google.code.findbugs:jsr305:3.0.2");
 
-        List<Result> results = changeType.run(List.of(compilationUnit));
-        assertThat(results.get(0).getAfter().printAll()).isEqualTo(
+        RecipeRun recipeRun = changeType.run(List.of(compilationUnit));
+        assertThat(recipeRun.getResults().get(0).getAfter().printAll()).isEqualTo(
                 "import org.springframework.http.HttpStatus;\n" +
                 "\n" +
                 "public class TestController {\n" +

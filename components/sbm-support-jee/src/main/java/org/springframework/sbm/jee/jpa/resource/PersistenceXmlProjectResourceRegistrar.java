@@ -45,7 +45,7 @@ public class PersistenceXmlProjectResourceRegistrar implements ProjectResourceWr
     }
 
     private boolean hasPersistenceRootTag(Xml.Document xml) {
-        List<Result> results = new FindTags("/persistence").run(List.of(xml));
+        List<Result> results = new FindTags("/persistence").run(List.of(xml)).getResults();
         return ! results.isEmpty();
     }
 

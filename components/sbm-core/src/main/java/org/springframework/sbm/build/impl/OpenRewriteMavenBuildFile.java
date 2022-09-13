@@ -145,7 +145,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         // FIXME: #7 Make ExecutionContext a Spring Bean and caching configurable, also if the project root is used as workdir it must be added to .gitignore
         // FIXME: #7 this made it veeery slow
         //executionContext.putMessage("org.openrewrite.maven.pomCache", new RocksdbMavenPomCache(this.getAbsoluteProjectDir()));
-        List<Result> result = recipe.run(List.of(getSourceFile()), executionContext);
+        List<Result> result = recipe.run(List.of(getSourceFile()), executionContext).getResults();
         if (!result.isEmpty()) {
             replaceWith((Xml.Document) result.get(0).getAfter());
         }
@@ -838,7 +838,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             recipe.doNext(new RemoveMavenPlugin(split[0], split[1]));
         }
 
-        List<Result> run = recipe.run(List.of(getSourceFile()), executionContext);
+        List<Result> run = recipe.run(List.of(getSourceFile()), executionContext).getResults();
         if (!run.isEmpty()) {
             replaceWith((Xml.Document) run.get(0).getAfter());
         }
