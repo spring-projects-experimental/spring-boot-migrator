@@ -54,15 +54,10 @@ public class BootUpgrade_27_30_ManuallyManaged_IntegrationTest extends Integrati
         buildProject();
 
         Xml.Document rootBuildFile = getRootBuildFile();
-        Xml.Document applicationBuildFile = getApplicationBuildFile();
-        InMemoryExecutionContext inMemoryExecutionContext = new InMemoryExecutionContext();
-        applicationBuildFile.getMarkers().findFirst(MavenResolutionResult.class)
-                .get()
-                .getPom()
-                .resolve(inMemoryExecutionContext, new MavenPomDownloader(new HashMap<>(), inMemoryExecutionContext));
-
         verifyManagedDependency(rootBuildFile, "spring-boot-starter-test", "3.0.0-M3");
         verifyManagedDependency(rootBuildFile, "metrics-annotation", "4.2.9");
+
+        Xml.Document applicationBuildFile = getApplicationBuildFile();
         verifyProperty(applicationBuildFile, "spring-boot-starter-web.version", "3.0.0-M3");
         verifyDependencyWithClassifier(applicationBuildFile, "ehcache", "3.10.0", "jakarta");
 
