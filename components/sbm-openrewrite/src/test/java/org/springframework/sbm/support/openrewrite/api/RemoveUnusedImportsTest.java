@@ -15,10 +15,10 @@
  */
 package org.springframework.sbm.support.openrewrite.api;
 
+import org.openrewrite.RecipeRun;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
 import org.springframework.sbm.support.openrewrite.java.MavenPomDownloaderTest;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.Result;
 import org.openrewrite.java.RemoveUnusedImports;
 import org.openrewrite.java.tree.J;
 
@@ -61,9 +61,9 @@ public class RemoveUnusedImportsTest {
         List<J.CompilationUnit> compilationUnits = OpenRewriteTestSupport.createCompilationUnitsFromStrings(List.of("javax.ejb:javax.ejb-api:3.2", "org.springframework.boot:spring-boot-starter-data-jpa:2.4.2"), javaCode);
 
         RemoveUnusedImports sut = new RemoveUnusedImports();
-        List<Result> run = sut.run(compilationUnits);
+        RecipeRun run = sut.run(compilationUnits);
 
-        assertThat(run.get(0).getAfter().printAll()).isEqualTo(expected);
+        assertThat(run.getResults().get(0).getAfter().printAll()).isEqualTo(expected);
 
     }
 }

@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.support.openrewrite.api;
 
+import org.openrewrite.RecipeRun;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.Result;
 import org.openrewrite.java.tree.J;
 
 import java.util.List;
@@ -49,8 +49,8 @@ public class RemoveImportTest {
 
         final J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(source, "javax.ejb:javax.ejb-api:3.2", "org.springframework.boot:spring-boot-starter-data-jpa:2.4.2");
 
-        List<Result> results = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(compilationUnit.getClasses().get(0), "javax.ejb.TransactionAttribute")).run(List.of(compilationUnit));
-        J.CompilationUnit compilationUnit1 = (J.CompilationUnit) results.get(0).getAfter();
+        RecipeRun results = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(compilationUnit.getClasses().get(0), "javax.ejb.TransactionAttribute")).run(List.of(compilationUnit));
+        J.CompilationUnit compilationUnit1 = (J.CompilationUnit) results.getResults().get(0).getAfter();
 
         assertThat(compilationUnit1.printAll()).isEqualTo(
                 "import org.springframework.transaction.annotation.Propagation;\n" +

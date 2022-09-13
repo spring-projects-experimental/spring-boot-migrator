@@ -98,7 +98,7 @@ public class UpgradeBomTo30Test {
                 </project>
                 """);
 
-        List<Result> result = recipe.run(documentList, ctx);
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(1);
 
@@ -211,7 +211,7 @@ public class UpgradeBomTo30Test {
                 </project>
                 """);
 
-        List<Result> result = recipe.run(documentList, ctx);
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(0);
     }

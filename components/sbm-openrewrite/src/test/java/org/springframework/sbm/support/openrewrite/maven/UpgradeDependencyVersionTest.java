@@ -17,7 +17,7 @@ package org.springframework.sbm.support.openrewrite.maven;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.Result;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.UpgradeParentVersion;
 import org.openrewrite.xml.tree.Xml;
@@ -57,9 +57,9 @@ public class UpgradeDependencyVersionTest {
                 .parse(pomXml)
                 .get(0);
 
-        List<Result> results = new UpgradeParentVersion("org.springframework.boot", "spring-boot-starter-parent", "2.5.6", null).run(List.of(maven));
+        RecipeRun recipeRun = new UpgradeParentVersion("org.springframework.boot", "spring-boot-starter-parent", "2.5.6", null).run(List.of(maven));
 
-        assertThat(results.get(0).getAfter().printAll()).isEqualTo(
+        assertThat(recipeRun.getResults().get(0).getAfter().printAll()).isEqualTo(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
                 "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
