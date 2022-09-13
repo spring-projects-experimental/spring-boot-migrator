@@ -16,6 +16,7 @@
 
 package org.springframework.sbm;
 
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -147,13 +148,13 @@ public class BootUpgrade_27_30_ManuallyManaged_IntegrationTest extends Integrati
 
     @NotNull
     private Xml.Document getApplicationBuildFile() {
-        return parsePom(loadFile(Path.of("spring-app/pom.xml")));
+        return parsePom(loadFile(Path.of("spring-app/pom.xml")), loadFile(Path.of("pom.xml")));
     }
 
     @NotNull
-    private Xml.Document parsePom(String pomContent) {
+    private Xml.Document parsePom(@Language("xml") String... pomContents) {
         MavenParser mavenParser = new MavenParser.Builder().build();
-        return mavenParser.parse(pomContent).get(0);
+        return mavenParser.parse(pomContents).get(0);
     }
 
     private void verifyConstructorBindingRemoval() {
