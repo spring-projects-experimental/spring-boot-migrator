@@ -36,8 +36,8 @@ public class SbmWebsocketController {
   private final SbmService sbmService;
 
   @MessageMapping({"/scan"})
-  @SendTo("/queue/recipes/applicable")
-  public ScanResult scan(String message) throws Exception {
+  @SendTo("/queue/scan/result")
+  public ScanResult scan(String message) {
     Path rootPath = Path.of(message);
     ScanResult scanResult = sbmService.scan(rootPath);
     return scanResult;
@@ -45,8 +45,8 @@ public class SbmWebsocketController {
 
   @MessageMapping("/apply")
   @SendTo("/queue/migration/result")
-  public RecipeExecutionResult apply(String recipeName) {
-    return sbmService.apply(recipeName);
+  public RecipeExecutionResult apply(RecipeExecutionRequest request) {
+    return sbmService.apply(request.recipeName());
   }
 
   @SubscribeMapping("/topic/hello")

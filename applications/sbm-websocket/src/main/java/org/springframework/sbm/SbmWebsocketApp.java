@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.client.api;
+package org.springframework.sbm;
 
-import lombok.*;
-
-import java.nio.file.Path;
-import java.util.List;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * @author Fabian Krüger
  */
-@AllArgsConstructor
-@Setter
-@Getter
-@NoArgsConstructor
-public class ScanResult {
-    private List<Recipe> applicableRecipes;
-    private Path scannedDir;
-    private int timeElapsed;
+@SpringBootApplication
+public class SbmWebsocketApp {
+    public static void main(String[] args) {
+        SpringApplication.run(SbmWebsocketApp.class, args);
+    }
 }
-

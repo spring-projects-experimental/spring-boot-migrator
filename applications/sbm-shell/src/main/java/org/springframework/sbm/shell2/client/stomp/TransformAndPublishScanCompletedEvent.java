@@ -41,7 +41,7 @@ public class TransformAndPublishScanCompletedEvent implements StompFrameHandler 
     @Override
     public void handleFrame(StompHeaders headers, Object payload) {
         ScanResult scanResult = ScanResult.class.cast(payload);
-        log.debug(String.format("Received ScanCompletedEvent with %d applicable recipes", scanResult.applicableRecipes()));
+        log.debug(String.format("Received ScanCompletedEvent with %d applicable recipes", scanResult.getApplicableRecipes()));
         eventPublisher.publishEvent(new ScanCompletedEvent(scanResult));
     }
 }

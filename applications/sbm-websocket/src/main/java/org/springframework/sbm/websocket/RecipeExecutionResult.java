@@ -15,8 +15,21 @@
  */
 package org.springframework.sbm.websocket;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
+import org.springframework.sbm.engine.recipe.Action;
+
+import java.util.List;
+
 /**
  * @author Fabian Krüger
  */
-public record RecipeExecutionResult(String recipeName) {
+@RequiredArgsConstructor
+@Getter
+@Setter
+public class RecipeExecutionResult {
+    private final List<Action> appliedActions;
 }

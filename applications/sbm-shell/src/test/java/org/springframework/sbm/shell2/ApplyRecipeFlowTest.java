@@ -26,16 +26,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.sbm.engine.recipe.Answer;
 import org.springframework.sbm.engine.recipe.Question;
-import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.shell2.client.api.*;
 import org.springframework.sbm.shell2.client.events.UserInputRequestedEvent;
 import org.springframework.sbm.shell2.client.events.RecipeExecutionCompletedEvent;
 import org.springframework.sbm.shell2.client.events.RecipeExecutionProgressUpdateEvent;
-import org.springframework.sbm.shell2.client.events.ScanProgressUpdatedEvent;
 import org.springframework.shell.component.support.SelectorItem;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -82,6 +81,8 @@ class ApplyRecipeFlowTest {
 
         // user will enter path
         when(userInputScanner.askForPath("Enter path to project")).thenReturn(rootPath);
+        CompletableFuture<ScanResult> future = mock(CompletableFuture.class);
+        when(sbmClient.scan(rootPath)).thenReturn(future);
 
         // start scan
         sut.scanCommand();
@@ -125,7 +126,7 @@ class ApplyRecipeFlowTest {
         ArgumentCaptor<Consumer<RecipeExecutionProgressUpdateEvent>> recipeExecutionProgressUpdateEvent = ArgumentCaptor.forClass(Consumer.class);
         ArgumentCaptor<Consumer<RecipeExecutionCompletedEvent>> recipeExecutionCompletedEvent = ArgumentCaptor.forClass(Consumer.class);
         ArgumentCaptor<Function<UserInputRequestedEvent, Answer>> userInputRequestedEvent = ArgumentCaptor.forClass(Function.class);
-        verify(sbmClient).apply(ArgumentMatchers.eq("r1"));
+        verify(sbmClient).apply(any(Path.class), ArgumentMatchers.eq("r1"));
     }
 
     @Test
@@ -140,7 +141,7 @@ class ApplyRecipeFlowTest {
         // User not asked to select recipe
         verify(userInputScanner, never()).askForSingleSelection(any());
         // No recipe applied
-        verify(sbmClient, never()).apply(any());
+        verify(sbmClient, never()).apply(any(), any());
     }
 
     @Test

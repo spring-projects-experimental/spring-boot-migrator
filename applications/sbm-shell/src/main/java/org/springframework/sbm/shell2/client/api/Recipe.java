@@ -15,21 +15,23 @@
  */
 package org.springframework.sbm.shell2.client.api;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.nio.file.Path;
 import java.util.List;
 
 /**
  * @author Fabian Krüger
  */
-@AllArgsConstructor
-@Setter
-@Getter
+@Data
+@Builder
 @NoArgsConstructor
-public class ScanResult {
-    private List<Recipe> applicableRecipes;
-    private Path scannedDir;
-    private int timeElapsed;
-}
+@AllArgsConstructor
+public class Recipe {
 
+    String name;
+    List<Action> actions;
+
+}

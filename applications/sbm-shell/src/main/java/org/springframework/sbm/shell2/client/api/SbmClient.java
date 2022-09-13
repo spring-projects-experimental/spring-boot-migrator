@@ -16,11 +16,7 @@
 package org.springframework.sbm.shell2.client.api;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.converter.ByteArrayMessageConverter;
-import org.springframework.messaging.converter.CompositeMessageConverter;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.simp.stomp.*;
 import org.springframework.sbm.engine.recipe.Answer;
 import org.springframework.sbm.engine.recipe.Question;
@@ -34,8 +30,7 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -57,14 +52,18 @@ public class SbmClient {
         this.stompSessionHandler = stompSessionHandler;
     }
 
-    public void apply(String selectedRecipeName) {
+    public void apply(Path projectRootPath, String selectedRecipeName) {
         StompSession stompSession = getStompSession(stompSessionHandler);
-        stompSession.send(APPLY_DESTINATION, selectedRecipeName);
+        RecipeExecutionRequest recipeExecutionRequest = new RecipeExecutionRequest(projectRootPath, selectedRecipeName);
+        stompSession.send(APPLY_DESTINATION, recipeExecutionRequest);
     }
 
-    public void scan(Path projectRoot) {
+    public CompletableFuture<ScanResult> scan(Path projectRoot) {
         StompSession session = getStompSession(stompSessionHandler);
         session.send(SCAN_DESTINATION, projectRoot.toString());
+        // FIXME: this does not work, fix this or find another way to keep the console from printing `>`
+        CompletableFuture<ScanResult> future = new CompletableFuture();
+        return future;
     }
 
     private StompSession getStompSession(StompSessionHandler sessionHandler) {
@@ -83,7 +82,7 @@ public class SbmClient {
 //                        )
                 );
                 TaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
-//                stompClient.setTaskScheduler(taskScheduler); // for heartbeats
+                stompClient.setTaskScheduler(taskScheduler); // for heartbeats
                 String url = HANDSHAKE_URL;
                 ListenableFuture<StompSession> connect = stompClient.connect(url, sessionHandler);
                 stompSession = connect.get();
@@ -97,11 +96,13 @@ public class SbmClient {
     }
 
     public static class SbmClientStompClientSessionHandler extends StompSessionHandlerAdapter  {
+
         private final Consumer<ScanProgressUpdate> scanProgressUpdateConsumer;
         private final Consumer<ScanResult> scanResultConsumer;
         private final Consumer<RecipeExecutionProgress> recipeExecutionProgressConsumer;
         private final Consumer<RecipeExecutionResult> recipeExecutionResultConsumer;
         private final Function<Question, Answer> questionConsumer;
+        private StompSession session;
 
         public SbmClientStompClientSessionHandler(
                 Consumer<ScanProgressUpdate> scanProgressUpdateConsumer,
@@ -118,10 +119,12 @@ public class SbmClient {
 
         @Override
         public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-            session.subscribe("/queue/recipes/applicable", new ScanResultFrameHandler(scanResultConsumer));
+            session.subscribe("/queue/scan/result", new ScanResultFrameHandler(scanResultConsumer));
             session.subscribe("/queue/scan/progress", new ScanProgressUpdateHandler(scanProgressUpdateConsumer));
             session.subscribe("/queue/migration/progress", new RecipeExecutionProgressHandler(recipeExecutionProgressConsumer));
             session.subscribe("/queue/migration/result", new RecipeExecutionResultHandler(recipeExecutionResultConsumer));
+            session.subscribe("/queue/question", new QuestionHandler(questionConsumer));
+            this.session = session;
         }
 
         @Override
@@ -178,6 +181,27 @@ public class SbmClient {
                 super(RecipeExecutionResult.class, consumer);
             }
         }
+        private class QuestionHandler implements StompFrameHandler {
 
+            private final Function<Question, Answer> consumer;
+            private Consumer<Answer> answerConsumer;
+
+            public QuestionHandler(Function<Question, Answer> consumer) {
+                this.consumer = consumer;
+                this.answerConsumer = answerConsumer;
+            }
+
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return Question.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                Question question = Question.class.cast(payload);
+                Answer answer = consumer.apply(question);
+                session.send("queue/question/answer", answer);
+            }
+        }
     }
 }

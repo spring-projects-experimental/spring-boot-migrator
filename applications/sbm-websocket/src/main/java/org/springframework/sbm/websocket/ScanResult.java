@@ -15,13 +15,37 @@
  */
 package org.springframework.sbm.websocket;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
 import org.springframework.sbm.engine.recipe.Recipe;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Fabian Krüger
  */
-public record ScanResult(List<Recipe> applicableRecipes, Path scannedDir, int timeElapsed) {
+@RequiredArgsConstructor
+@Getter
+public class ScanResult{
+    private final List<Recipe> applicableRecipes;
+    private final Path scannedDir;
+    private final int timeElapsed;
+    private final PreconditionVerificationResult result;
+
+    public ScanResult(PreconditionVerificationResult result, Path scannedDir, int timeElapsed) {
+        this.result = result;
+        this.scannedDir = scannedDir;
+        this.timeElapsed = timeElapsed;
+        applicableRecipes = null;
+    }
+
+    public ScanResult(List<Recipe> recipes, Path scannedDir, int timeElapsed) {
+        this.scannedDir = scannedDir;
+        this.timeElapsed = timeElapsed;
+        result = null;
+        applicableRecipes = recipes;
+    }
 }

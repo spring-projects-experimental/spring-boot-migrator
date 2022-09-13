@@ -15,8 +15,6 @@
  */
 package org.springframework.sbm.shell2;
 
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.sbm.engine.recipe.Answer;
 import org.springframework.sbm.engine.recipe.Question;
 import org.springframework.sbm.shell2.client.api.*;
@@ -27,6 +25,8 @@ import org.springframework.shell.standard.ShellMethod;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -58,8 +58,7 @@ public class ApplyRecipeFlow extends AbstractShellComponent {
                 (scanResult) -> this.handleScanCompletedEvent(scanResult),
                 (recipeProgress) -> this.handleRecipeExecutionProgressUpdate(recipeProgress),
                 (recipeResult) -> this.handleRecipeExecutionResult(recipeResult),
-                (question) -> this.handleUserInputRequested(question)
-        );
+                (question) -> this.handleUserInputRequested(question));
     }
 
     /**
@@ -69,12 +68,19 @@ public class ApplyRecipeFlow extends AbstractShellComponent {
     public void scanCommand() {
         Path projectRoot = userInputScanner.askForPath("Enter path to project");
         shellContext.setScannedPath(projectRoot);
-        sbmClient.scan(projectRoot);
+        CompletableFuture<ScanResult> scan = sbmClient.scan(projectRoot);
         scanProgressRenderer.startScan(projectRoot);
+        try {
+            scan.get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private void applyRecipe(String selectedRecipeName) {
-        sbmClient.apply(selectedRecipeName);
+    private void applyRecipe(Path projectRootPath, String selectedRecipeName) {
+        sbmClient.apply(projectRootPath, selectedRecipeName);
 //        sbmService.apply(selectedRecipeName,
 //                         (e) -> this.handleRecipeExecutionProgressUpdate(e),
 //                         (e) -> this.handleRecipeExecutionResult(e),
@@ -97,7 +103,7 @@ public class ApplyRecipeFlow extends AbstractShellComponent {
      * Handle {@code ScanCompletedEvent}s and ask user to select the recipe to apply.
      */
     public void handleScanCompletedEvent(ScanResult scanResult) {
-        List<SelectorItem<String>> items = scanResult.applicableRecipes().stream()
+        List<SelectorItem<String>> items = scanResult.getApplicableRecipes().stream()
                                             .map(r -> SelectorItem.of(r.getName(), r.getName()))
                                             .collect(Collectors.toList());
 
@@ -105,7 +111,7 @@ public class ApplyRecipeFlow extends AbstractShellComponent {
 
         if(!items.isEmpty()) {
             String selectedRecipe = userInputScanner.askForSingleSelection(items);
-            applyRecipe(selectedRecipe);
+            applyRecipe(scanResult.getScannedDir(), selectedRecipe);
         }
     }
 

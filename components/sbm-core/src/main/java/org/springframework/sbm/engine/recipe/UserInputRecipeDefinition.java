@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.engine.recipe;
 
-import lombok.Builder;
 import lombok.experimental.SuperBuilder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +25,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
  * @author Fabian Krüger
  */
 @Configuration
-public class UseerInputRecipe {
+public class UserInputRecipeDefinition {
     @Bean
     public Recipe userInputRecipe(ApplicationEventPublisher eventPublisher) {
         MyAction action = MyAction.builder().condition(Condition.TRUE).build();

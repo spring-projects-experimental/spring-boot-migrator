@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.websocket;
+package org.springframework.sbm.shell2.client.api;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Fabian Krüger
  */
-@SpringBootApplication
-public class SbmWebsocketApp {
-    public static void main(String[] args) {
-        SpringApplication.run(SbmWebsocketApp.class, args);
-    }
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Action {
+    String name;
 }

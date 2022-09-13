@@ -15,21 +15,10 @@
  */
 package org.springframework.sbm.shell2.client.api;
 
-import lombok.*;
-
 import java.nio.file.Path;
-import java.util.List;
 
 /**
  * @author Fabian Krüger
  */
-@AllArgsConstructor
-@Setter
-@Getter
-@NoArgsConstructor
-public class ScanResult {
-    private List<Recipe> applicableRecipes;
-    private Path scannedDir;
-    private int timeElapsed;
+public record RecipeExecutionRequest(Path projectRootPath, String recipeName) {
 }
-

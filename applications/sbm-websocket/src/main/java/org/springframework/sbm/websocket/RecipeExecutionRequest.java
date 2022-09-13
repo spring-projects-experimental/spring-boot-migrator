@@ -13,23 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell2.client.api;
-
-import lombok.*;
+package org.springframework.sbm.websocket;
 
 import java.nio.file.Path;
-import java.util.List;
 
 /**
  * @author Fabian Krüger
  */
-@AllArgsConstructor
-@Setter
-@Getter
-@NoArgsConstructor
-public class ScanResult {
-    private List<Recipe> applicableRecipes;
-    private Path scannedDir;
-    private int timeElapsed;
+public record RecipeExecutionRequest(Path projectRootPath, String recipeName) {
 }
-
