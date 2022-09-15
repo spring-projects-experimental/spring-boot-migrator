@@ -30,7 +30,7 @@ class HasSpringBootStarterParentTest {
                         """)
                 .build();
 
-        HasSpringBootStarterParent condition = new HasSpringBootStarterParent();
+        HasDecalredSpringBootStarterParent condition = new HasDecalredSpringBootStarterParent();
         condition.setVersionPattern("2\\.7\\..*");
 
         boolean result = condition.evaluate(projectContext);
@@ -55,7 +55,7 @@ class HasSpringBootStarterParentTest {
                         """)
                 .build();
 
-        HasSpringBootStarterParent condition = new HasSpringBootStarterParent();
+        HasDecalredSpringBootStarterParent condition = new HasDecalredSpringBootStarterParent();
         condition.setVersionPattern("2\\.7\\..*");
 
         boolean result = condition.evaluate(projectContext);
@@ -86,7 +86,7 @@ class HasSpringBootStarterParentTest {
                         """)
                 .build();
 
-        HasSpringBootStarterParent condition = new HasSpringBootStarterParent();
+        HasDecalredSpringBootStarterParent condition = new HasDecalredSpringBootStarterParent();
         condition.setVersionPattern("2\\.7\\..*");
 
         boolean result = condition.evaluate(projectContext);

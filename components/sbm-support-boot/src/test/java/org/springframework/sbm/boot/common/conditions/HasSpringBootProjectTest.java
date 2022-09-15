@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class HasSpringBootProjectTest {
     @Mock
-    HasSpringBootStarterParent parentCondition;
+    HasDecalredSpringBootStarterParent parentCondition;
     @Mock
     HasSpringBootDependencyImport importCondition;
     @Mock

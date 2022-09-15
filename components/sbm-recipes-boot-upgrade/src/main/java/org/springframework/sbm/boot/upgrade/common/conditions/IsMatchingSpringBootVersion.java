@@ -43,7 +43,7 @@ public class IsMatchingSpringBootVersion implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        HasDeclaredSpringBootParentOfVersion hasSpringBootParentOfVersion = new HasDeclaredSpringBootParentOfVersion();
+        HasSpringBootParentOfVersion hasSpringBootParentOfVersion = new HasSpringBootParentOfVersion();
         hasSpringBootParentOfVersion.setVersionStartingWith(versionPattern);
         String versionRegex = versionPattern.replace(".", "\\.") + ".*";
         AnyDependencyExistMatchingRegex anyDependencyExistMatchingRegex = new AnyDependencyExistMatchingRegex(List.of("org\\.springframework\\.boot\\:.*\\:" + versionRegex));

@@ -4,12 +4,12 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
 public class IsSpringBootProject implements Condition {
-    private HasSpringBootStarterParent parentCondition;
+    private HasDecalredSpringBootStarterParent parentCondition;
     private HasSpringBootDependencyImport importCondition;
     private HasSpringBootDependencyManuallyManaged manualManagedCondition;
 
     public void setVersionPattern(String versionPattern) {
-        parentCondition = new HasSpringBootStarterParent();
+        parentCondition = new HasDecalredSpringBootStarterParent();
         parentCondition.setVersionPattern(versionPattern);
 
         importCondition = new HasSpringBootDependencyImport();

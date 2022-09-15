@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HasSpringBootStarterParent implements Condition {
+public class HasDecalredSpringBootStarterParent implements Condition {
     private Pattern versionPattern = Pattern.compile(".*");
 
     @Override
