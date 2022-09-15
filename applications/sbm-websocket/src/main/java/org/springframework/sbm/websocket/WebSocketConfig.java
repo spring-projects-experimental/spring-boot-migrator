@@ -3,6 +3,7 @@ package org.springframework.sbm.websocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.MethodParameter;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
+@Profile("websocket")
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
   @Override

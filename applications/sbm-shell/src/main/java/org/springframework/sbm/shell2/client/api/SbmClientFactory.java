@@ -15,9 +15,15 @@
  */
 package org.springframework.sbm.shell2.client.api;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.sbm.engine.events.UserInputRequestedEvent;
 import org.springframework.sbm.engine.recipe.Answer;
 import org.springframework.sbm.engine.recipe.Question;
+import org.springframework.sbm.engine.recipe.UserInputProvidedEvent;
 import org.springframework.sbm.shell2.ScanProgressUpdate;
+import org.springframework.sbm.websocket.SpringApplicationEventSbmService;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Consumer;
@@ -27,22 +33,54 @@ import java.util.function.Function;
  * @author Fabian Krüger
  */
 @Component
+@RequiredArgsConstructor
 public class SbmClientFactory {
-    public SbmClient create(Consumer<ScanProgressUpdate> scanProgressUpdateConsumer,
-                            Consumer<ScanResult> scanResultConsumer,
-                            Consumer<RecipeExecutionProgress> recipeExecutionProgressConsumer,
-                            Consumer<RecipeExecutionResult> recipeExecutionResultConsumer,
-                            Function<Question, Answer> questionConsumer) {
 
-        SbmClient.SbmClientStompClientSessionHandler stompSessionHandler = new SbmClient.SbmClientStompClientSessionHandler(
+    private final SpringApplicationEventSbmService sbmService;
+    private final ApplicationEventPublisher eventPublisher;
+    private Function<Question, Answer> questionConsumer;
+
+    public SbmClient createWebsocketClient(Consumer<ScanProgressUpdate> scanProgressUpdateConsumer,
+                                           Consumer<ScanResult> scanResultConsumer,
+                                           Consumer<RecipeExecutionProgress> recipeExecutionProgressConsumer,
+                                           Consumer<RecipeExecutionResult> recipeExecutionResultConsumer,
+                                           Function<Question, Answer> questionConsumer) {
+
+        SbmWebsocketClient.SbmClientStompClientSessionHandler stompSessionHandler = new SbmWebsocketClient.SbmClientStompClientSessionHandler(
                 scanProgressUpdateConsumer,
                 scanResultConsumer,
                 recipeExecutionProgressConsumer,
                 recipeExecutionResultConsumer,
                 questionConsumer);
 
-        SbmClient sbmClient = new SbmClient(stompSessionHandler);
+        SbmClient sbmClient = new SbmWebsocketClient(stompSessionHandler);
 
         return sbmClient;
+    }
+
+    public SbmClient createSpringApplicationEventClient(Consumer<ScanProgressUpdate> scanProgressUpdateConsumer,
+                                                        Consumer<ScanResult> scanResultConsumer,
+                                                        Consumer<RecipeExecutionProgress> recipeExecutionProgressConsumer,
+                                                        Consumer<RecipeExecutionResult> recipeExecutionResultConsumer,
+                                                        Function<Question, Answer> questionConsumer) {
+
+        SbmClient sbmClient = new SpringApplicationEventClient(
+                scanProgressUpdateConsumer,
+                scanResultConsumer,
+                recipeExecutionProgressConsumer,
+                recipeExecutionResultConsumer,
+                questionConsumer,
+                sbmService,
+                eventPublisher);
+        this.questionConsumer = questionConsumer;
+        return sbmClient;
+    }
+
+    // Just here because SbmClient is not a Spring bean (yet)
+    @EventListener(UserInputRequestedEvent.class)
+    void onUserInputRequestedEvent(UserInputRequestedEvent event) {
+        Question question = event.getQuestion();
+        Answer answer = this.questionConsumer.apply(question);
+        eventPublisher.publishEvent(new UserInputProvidedEvent(answer));
     }
 }

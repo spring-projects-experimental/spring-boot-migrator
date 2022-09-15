@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.springframework.sbm.shell2;
+package org.springframework.sbm;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;

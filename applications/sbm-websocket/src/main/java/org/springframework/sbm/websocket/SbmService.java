@@ -16,42 +16,30 @@
 package org.springframework.sbm.websocket;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.converter.*;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
-import org.springframework.sbm.engine.events.UserInputRequestedEvent;
 import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
-import org.springframework.sbm.engine.recipe.*;
-import org.springframework.stereotype.Component;
+import org.springframework.sbm.engine.recipe.Action;
+import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Fabian Krüger
  */
-@Service
 @RequiredArgsConstructor
 public class SbmService {
 
-    private final ScanCommand scanCommand;
-    private final ApplicableRecipeListCommand applicableRecipeListCommand;
-    private final ProjectContextHolder projectContextHolder;
-    private final ApplyCommand applyCommand;
-
-    private final SimpMessagingTemplate messagingTemplate;
+    protected final ScanCommand scanCommand;
+    protected final ApplicableRecipeListCommand applicableRecipeListCommand;
+    protected final ProjectContextHolder projectContextHolder;
+    protected final ApplyCommand applyCommand;
 
     public ScanResult scan(Path projectRoot) {
         List<Resource> resources = scanCommand.scanProjectRoot(projectRoot);
@@ -74,24 +62,4 @@ public class SbmService {
         }
         return new RecipeExecutionResult(List.of());
     }
-
-    /**
-     * Listen to {@code UserInputRequestedEvent}s and forward them to websocket destination {@code 'queue/question'}.
-     */
-    @EventListener(UserInputRequestedEvent.class)
-    void onUserInputRequestedEvent(UserInputRequestedEvent event) {
-        Question question = event.getQuestion();
-        Message<Question> message = MessageBuilder.withPayload(question).build();
-
-        List<MessageConverter> converters = new ArrayList<MessageConverter>();
-        converters.add(new MappingJackson2MessageConverter()); // used to handle json messages
-        converters.add(new ByteArrayMessageConverter());
-        converters.add(new StringMessageConverter()); // used to handle raw strings
-
-        CompositeMessageConverter converter = new CompositeMessageConverter(converters);
-
-        messagingTemplate.send("/queue/question", message);
-        messagingTemplate.setMessageConverter(converter);
-    }
-
 }

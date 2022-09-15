@@ -71,7 +71,7 @@ class ApplyRecipeFlowTest {
         ArgumentCaptor<Consumer<RecipeExecutionProgress>> recipeProgressCaptor = ArgumentCaptor.forClass(Consumer.class);
         ArgumentCaptor<Consumer<RecipeExecutionResult>> recipeResultCaptor = ArgumentCaptor.forClass(Consumer.class);
         ArgumentCaptor<Function<Question, Answer>> questionCaptor = ArgumentCaptor.forClass(Function.class);
-        when(sbmClientFactory.create(scanProgressCaptor.capture(), scanResultCaptor.capture(), recipeProgressCaptor.capture(), recipeResultCaptor.capture(), questionCaptor.capture())).thenReturn(sbmClient);
+        when(sbmClientFactory.createWebsocketClient(scanProgressCaptor.capture(), scanResultCaptor.capture(), recipeProgressCaptor.capture(), recipeResultCaptor.capture(), questionCaptor.capture())).thenReturn(sbmClient);
         sut = new ApplyRecipeFlow(shellContext, scanProgressRenderer, applicableRecipeResultRenderer, userInputScanner, userInputRequester, sbmClientFactory);
     }
 

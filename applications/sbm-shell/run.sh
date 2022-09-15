@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-mvn clean package
+mvn clean package  -DskipTests
 pushd target
 java  -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=localhost:8000 -jar spring-boot-migrator.jar
 popd
