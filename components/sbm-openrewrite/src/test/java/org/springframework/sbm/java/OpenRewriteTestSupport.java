@@ -16,13 +16,10 @@
 package org.springframework.sbm.java;
 
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.openrewrite.*;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.assertj.core.api.Assertions;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.Recipe;
-import org.openrewrite.Result;
-import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaVisitor;
@@ -137,7 +134,7 @@ public class OpenRewriteTestSupport {
      * @param expected source code after applying the visitor
      */
     public static <P> void verifyChange(JavaIsoVisitor<ExecutionContext> visitor, J.CompilationUnit given, String expected) {
-        final Collection<Result> newChanges = refactor(given, visitor);
+        final Collection<Result> newChanges = refactor(given, visitor).getResults();
         Assertions.assertThat(newChanges.iterator().hasNext()).as("No change was found.").isTrue();
         Assertions.assertThat(given.printAll())
                 .as(TestDiff.of(given.printAll(), newChanges.iterator().next().getBefore().printAll()))
@@ -165,7 +162,7 @@ public class OpenRewriteTestSupport {
      */
     public static <P> void verifyChangeIgnoringGiven(JavaIsoVisitor<ExecutionContext> visitor, String given, String expected, String... classpath) {
         J.CompilationUnit compilationUnit = createCompilationUnit(given, classpath);
-        final Collection<Result> newChanges = refactor(compilationUnit, visitor);
+        final Collection<Result> newChanges = refactor(compilationUnit, visitor).getResults();
         Assertions.assertThat(newChanges.iterator().hasNext()).as("No change was found.").isTrue();
         Assertions.assertThat(expected)
                 .as(TestDiff.of(expected, newChanges.iterator().next().getAfter().printAll()))
@@ -181,7 +178,7 @@ public class OpenRewriteTestSupport {
      */
     public static <P> void verifyNoChange(Supplier<JavaIsoVisitor<ExecutionContext>> visitor, String given, String... classpath) {
         J.CompilationUnit compilationUnit = createCompilationUnit(given, classpath);
-        final Collection<Result> newChanges = refactor(compilationUnit, visitor.get());
+        final Collection<Result> newChanges = refactor(compilationUnit, visitor.get()).getResults();
         Assertions.assertThat(newChanges).isEmpty();
     }
 
@@ -194,7 +191,7 @@ public class OpenRewriteTestSupport {
      */
     public static <P> void verifyNoChange(JavaIsoVisitor<ExecutionContext> visitor, String given, String... classpath) {
         J.CompilationUnit compilationUnit = createCompilationUnit(given, classpath);
-        final Collection<Result> newChanges = refactor(compilationUnit, visitor);
+        final Collection<Result> newChanges = refactor(compilationUnit, visitor).getResults();
         Assertions.assertThat(newChanges).isEmpty();
     }
 
@@ -244,7 +241,7 @@ public class OpenRewriteTestSupport {
                 .collect(Collectors.toList());
     }
 
-    private static <P> Collection<Result> refactor(J.CompilationUnit given, JavaVisitor<ExecutionContext> visitor) {
+    private static <P> RecipeRun refactor(J.CompilationUnit given, JavaVisitor<ExecutionContext> visitor) {
         GenericOpenRewriteTestRecipe<JavaVisitor<ExecutionContext>> recipe = new GenericOpenRewriteTestRecipe<>(visitor);
         return recipe.run(List.of(given));
     }

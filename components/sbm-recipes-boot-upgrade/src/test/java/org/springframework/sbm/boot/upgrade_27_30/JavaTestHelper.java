@@ -57,7 +57,7 @@ public class JavaTestHelper {
 
         List<J.CompilationUnit> cu = parser.parse(before);
 
-        List<Result> result = recipe.run(cu, ctx);
+        List<Result> result = recipe.run(cu, ctx).getResults();
 
         assertThat(errors).hasSize(0);
         return result;
