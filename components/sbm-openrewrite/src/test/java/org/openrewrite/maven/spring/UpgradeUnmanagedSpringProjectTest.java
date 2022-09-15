@@ -207,7 +207,6 @@ public class UpgradeUnmanagedSpringProjectTest {
 
         List<Result> result = recipe.run(documentList, ctx);
         assertThat(result).hasSize(0);
-
     }
 
     @Test
