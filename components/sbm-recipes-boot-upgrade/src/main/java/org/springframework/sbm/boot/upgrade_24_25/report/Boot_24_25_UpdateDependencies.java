@@ -20,7 +20,7 @@ import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.ChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
-import org.springframework.sbm.boot.upgrade.common.conditions.HasSpringBootParentOfVersion;
+import org.springframework.sbm.boot.upgrade.common.conditions.HasDeclaredSpringBootParentOfVersion;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ import java.nio.file.Path;
 public class Boot_24_25_UpdateDependencies implements UpgradeSectionBuilder {
     @Override
     public boolean isApplicable(ProjectContext projectContext) {
-        HasSpringBootParentOfVersion condition = new HasSpringBootParentOfVersion();
+        HasDeclaredSpringBootParentOfVersion condition = new HasDeclaredSpringBootParentOfVersion();
         condition.setVersionStartingWith("2.4.");
         return condition.evaluate(projectContext);
     }

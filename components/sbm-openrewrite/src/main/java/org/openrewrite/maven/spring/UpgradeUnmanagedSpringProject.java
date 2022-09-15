@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.sbm.maven;
+package org.openrewrite.maven.spring;
 
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
@@ -41,9 +41,9 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     public static final String SPRING_BOOT_DEPENDENCIES = "spring-boot-dependencies";
     public static final String ARTIFACT_ID = "artifactId";
     private String newVersion;
-    private Map<String, String> springBootDependenciesMap;
-
     private Pattern oldVersionPattern;
+
+    private Map<String, String> springBootDependenciesMap;
 
     public UpgradeUnmanagedSpringProject() {
     }
@@ -69,14 +69,13 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
 
             @Override
             public Xml.Document visitDocument(Xml.Document document, ExecutionContext executionContext) {
-
+                Xml.Document resultDocument = super.visitDocument(document, executionContext);
                 new MavenIsoVisitor<Integer>() {
                     @Override
                     public Xml.Tag visitTag(Xml.Tag tag, Integer executionContext) {
+                        Xml.Tag resultTag = super.visitTag(tag, executionContext);
                         if (isParentTag()) {
-
-                            Optional<Xml.Tag> artifactId = tag.getChild(ARTIFACT_ID);
-
+                            Optional<Xml.Tag> artifactId = resultTag.getChild(ARTIFACT_ID);
                             if (artifactId.isPresent()) {
                                 Optional<String> artifactIdValue = artifactId.get().getValue();
                                 if (artifactIdValue.isPresent()) {
@@ -89,11 +88,11 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                         if (isManagedDependencyTag(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES)) {
                             validForFurtherReview = false;
                         }
-                        return super.visitTag(tag, executionContext);
+                        return resultTag;
                     }
-                }.visit(document, 0);
+                }.visit(resultDocument, 0);
 
-                return super.visitDocument(document, executionContext);
+                return resultDocument;
             }
 
             @Override
@@ -102,9 +101,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
 
                 if (validForFurtherReview) {
                     if (isManagedDependencyTag()) {
-
                         ResolvedManagedDependency managedDependency = findManagedDependency(resultTag);
-
                         if ((managedDependency != null) && managedDependency.getGroupId().equals(SPRINGBOOT_GROUP)
                                 && satisfiesOldVersionPattern(managedDependency.getVersion())) {
                             return applyThisRecipe(resultTag);
@@ -172,20 +169,20 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         return new MavenIsoVisitor<>() {
             @Override
             public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
-
+                Xml.Tag resultTag = super.visitTag(tag, executionContext);
                 if (isManagedDependencyTag()) {
-                    ResolvedManagedDependency managedDependency = findManagedDependency(tag);
+                    ResolvedManagedDependency managedDependency = findManagedDependency(resultTag);
                     String key = managedDependency.getGroupId() + ":" + managedDependency.getArtifactId();
-                    mayBeUpdateVersion(key, tag);
+                    mayBeUpdateVersion(key, resultTag);
                 }
                 if (isDependencyTag()) {
-                    ResolvedDependency dependency = findDependency(tag);
+                    ResolvedDependency dependency = findDependency(resultTag);
                     if (dependency != null) {
                         String key = dependency.getGroupId() + ":" + dependency.getArtifactId();
-                        mayBeUpdateVersion(key, tag);
+                        mayBeUpdateVersion(key, resultTag);
                     }
                 }
-                return super.visitTag(tag, executionContext);
+                return resultTag;
             }
 
             private void mayBeUpdateVersion(String key, Xml.Tag tag) {

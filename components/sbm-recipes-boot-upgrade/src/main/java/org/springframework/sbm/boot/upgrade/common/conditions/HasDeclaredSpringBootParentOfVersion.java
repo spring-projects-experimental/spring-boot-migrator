@@ -15,13 +15,12 @@
  */
 package org.springframework.sbm.boot.upgrade.common.conditions;
 
-import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
-public class HasSpringBootParentOfVersion implements Condition {
+public class HasDeclaredSpringBootParentOfVersion implements Condition {
 
     /**
      * VersionPattern will be used for {@code startsWith} check against the version number found.

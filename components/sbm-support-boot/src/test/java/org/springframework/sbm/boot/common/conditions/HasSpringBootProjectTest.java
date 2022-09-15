@@ -26,7 +26,7 @@ class HasSpringBootProjectTest {
     HasSpringBootDependencyManuallyManaged manuallyManagedCondition;
 
     @InjectMocks
-    HasSpringBootProject hasSpringBootProject;
+    IsSpringBootProject hasSpringBootProject;
 
     @ParameterizedTest
     @CsvSource(value = {
@@ -73,7 +73,7 @@ class HasSpringBootProjectTest {
                         """)
                 .build();
 
-        HasSpringBootProject condition = new HasSpringBootProject();
+        IsSpringBootProject condition = new IsSpringBootProject();
         condition.setVersionPattern("2\\.7\\..*");
 
         boolean result = condition.evaluate(projectContext);

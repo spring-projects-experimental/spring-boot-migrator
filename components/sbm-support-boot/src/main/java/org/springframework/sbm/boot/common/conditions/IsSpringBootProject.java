@@ -3,7 +3,7 @@ package org.springframework.sbm.boot.common.conditions;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
-public class HasSpringBootProject implements Condition {
+public class IsSpringBootProject implements Condition {
     private HasSpringBootStarterParent parentCondition;
     private HasSpringBootDependencyImport importCondition;
     private HasSpringBootDependencyManuallyManaged manualManagedCondition;
