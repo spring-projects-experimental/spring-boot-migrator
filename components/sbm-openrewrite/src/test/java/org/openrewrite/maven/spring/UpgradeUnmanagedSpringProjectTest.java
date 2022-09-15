@@ -20,6 +20,7 @@ import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.Result;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.tree.MavenResolutionResult;
@@ -100,7 +101,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                 </project>
                                 """);
 
-        List<Result> result = recipe.run(documentList, ctx);
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(1);
 
@@ -205,7 +206,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                 </project>
                                 """);
 
-        List<Result> result = recipe.run(documentList, ctx);
+        List<Result> result = recipe.run(documentList, ctx).getResults();
         assertThat(result).hasSize(0);
     }
 
@@ -268,7 +269,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                 </project>
                                 """);
 
-        List<Result> result = recipe.run(documentList, ctx);
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(0);
     }
@@ -338,7 +339,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                 </project>
                                 """);
 
-        List<Result> result = recipe.run(documentList, ctx);
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(0);
     }
@@ -412,7 +413,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                 </project>
                                 """);
 
-        List<Result> result = recipe.run(documentList, ctx);
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(0);
     }
@@ -482,7 +483,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                     </build>
                 </project>
                                 """);
-        List<Result> result = recipe.run(documentList, ctx);
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(1);
 
@@ -612,7 +613,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                 </project>
                                 """);
 
-        List<Result> result = recipe.run(documentList, ctx);
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(1);
 
@@ -741,7 +742,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                 </project>
                                 """);
 
-        List<Result> result = recipe.run(documentList, ctx);
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(1);
 
@@ -862,7 +863,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                 </project>
                 """);
 
-        List<Result> result = recipe.run(documentList, ctx);
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(1);
 
