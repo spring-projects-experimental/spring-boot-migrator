@@ -52,18 +52,18 @@ public class SbmClient {
         this.stompSessionHandler = stompSessionHandler;
     }
 
-    public void apply(Path projectRootPath, String selectedRecipeName) {
-        StompSession stompSession = getStompSession(stompSessionHandler);
-        RecipeExecutionRequest recipeExecutionRequest = new RecipeExecutionRequest(projectRootPath, selectedRecipeName);
-        stompSession.send(APPLY_DESTINATION, recipeExecutionRequest);
-    }
-
     public CompletableFuture<ScanResult> scan(Path projectRoot) {
         StompSession session = getStompSession(stompSessionHandler);
         session.send(SCAN_DESTINATION, projectRoot.toString());
         // FIXME: this does not work, fix this or find another way to keep the console from printing `>`
         CompletableFuture<ScanResult> future = new CompletableFuture();
         return future;
+    }
+
+    public void apply(Path projectRootPath, String selectedRecipeName) {
+        StompSession stompSession = getStompSession(stompSessionHandler);
+        RecipeExecutionRequest recipeExecutionRequest = new RecipeExecutionRequest(projectRootPath, selectedRecipeName);
+        stompSession.send(APPLY_DESTINATION, recipeExecutionRequest);
     }
 
     private StompSession getStompSession(StompSessionHandler sessionHandler) {

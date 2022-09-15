@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.converter.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -80,7 +82,16 @@ public class SbmService {
     void onUserInputRequestedEvent(UserInputRequestedEvent event) {
         Question question = event.getQuestion();
         Message<Question> message = MessageBuilder.withPayload(question).build();
+
+        List<MessageConverter> converters = new ArrayList<MessageConverter>();
+        converters.add(new MappingJackson2MessageConverter()); // used to handle json messages
+        converters.add(new ByteArrayMessageConverter());
+        converters.add(new StringMessageConverter()); // used to handle raw strings
+
+        CompositeMessageConverter converter = new CompositeMessageConverter(converters);
+
         messagingTemplate.send("/queue/question", message);
+        messagingTemplate.setMessageConverter(converter);
     }
 
 }

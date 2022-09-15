@@ -18,7 +18,7 @@ package org.springframework.sbm.shell2.client.stomp;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.converter.*;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
@@ -47,7 +47,15 @@ public class WsClientConfig implements WebSocketMessageBrokerConfigurer {
     public WebSocketStompClient webSocketStompClient(WebSocketClient webSocketClient,
                                                      StompSessionHandler stompSessionHandler) {
         WebSocketStompClient webSocketStompClient = new WebSocketStompClient(webSocketClient);
-        webSocketStompClient.setMessageConverter(new MappingJackson2MessageConverter());
+
+        List<MessageConverter> converters = new ArrayList<MessageConverter>();
+        converters.add(new MappingJackson2MessageConverter()); // used to handle json messages
+        converters.add(new ByteArrayMessageConverter());
+        converters.add(new StringMessageConverter()); // used to handle raw strings
+
+        webSocketStompClient.setMessageConverter(new CompositeMessageConverter(converters));
+
+//        webSocketStompClient.setMessageConverter(new MappingJackson2MessageConverter());
         TaskScheduler taskScheduler = new DefaultManagedTaskScheduler();
         webSocketStompClient.setTaskScheduler(taskScheduler);
         webSocketStompClient.setAutoStartup(true);

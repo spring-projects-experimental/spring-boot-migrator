@@ -89,7 +89,7 @@ public abstract class AbstractAction implements Action {
         @Override
         public void onApplicationEvent(UserInputProvidedEvent event) {
             // handle UserCreatedEvent
-            answer.set(event.getUserInput());
+            answer = new AtomicReference<>(event.getUserInput());
             countDownLatch.countDown();
         }
     }

@@ -8,7 +8,7 @@
         <version>2.7.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
+    <groupId>org.springframework.sbm</groupId>
     <artifactId>sbm-websocket</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>sbm-websocket</name>
