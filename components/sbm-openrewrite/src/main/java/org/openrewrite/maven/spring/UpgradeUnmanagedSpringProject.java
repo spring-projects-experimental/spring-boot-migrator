@@ -69,13 +69,11 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
 
             @Override
             public Xml.Document visitDocument(Xml.Document document, ExecutionContext executionContext) {
-                Xml.Document resultDocument = super.visitDocument(document, executionContext);
                 new MavenIsoVisitor<Integer>() {
                     @Override
                     public Xml.Tag visitTag(Xml.Tag tag, Integer executionContext) {
-                        Xml.Tag resultTag = super.visitTag(tag, executionContext);
                         if (isParentTag()) {
-                            Optional<Xml.Tag> artifactId = resultTag.getChild(ARTIFACT_ID);
+                            Optional<Xml.Tag> artifactId = tag.getChild(ARTIFACT_ID);
                             if (artifactId.isPresent()) {
                                 Optional<String> artifactIdValue = artifactId.get().getValue();
                                 if (artifactIdValue.isPresent()) {
@@ -88,11 +86,12 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                         if (isManagedDependencyTag(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES)) {
                             validForFurtherReview = false;
                         }
-                        return resultTag;
-                    }
-                }.visit(resultDocument, 0);
 
-                return resultDocument;
+                        return super.visitTag(tag, executionContext);
+                    }
+                }.visit(document, 0);
+
+                return super.visitDocument(document, executionContext);
             }
 
             @Override
@@ -142,28 +141,6 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         }
         return springBootDependenciesMap;
     }
-
-    private Map<String, String> buildDependencyMap() {
-        Map<Path, Pom> poms = new HashMap<>();
-        MavenPomDownloader downloader = new MavenPomDownloader(poms, new InMemoryExecutionContext());
-        GroupArtifactVersion gav = new GroupArtifactVersion(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES, newVersion);
-        String relativePath = "";
-        ResolvedPom containingPom = null;
-        List<MavenRepository> repositories = new ArrayList<>();
-        repositories.add(new MavenRepository("repository.spring.milestone", "https://repo.spring.io/milestone", true, true, null, null));
-        repositories.add(new MavenRepository("spring-snapshot", "https://repo.spring.io/snapshot", false, true, null, null));
-        repositories.add(new MavenRepository("spring-release", "https://repo.spring.io/release", true, false, null, null));
-        Pom pom = downloader.download(gav, relativePath, containingPom, repositories);
-        ResolvedPom resolvedPom = pom.resolve(List.of(), downloader, repositories, new InMemoryExecutionContext());
-        List<ResolvedManagedDependency> dependencyManagement = resolvedPom.getDependencyManagement();
-        Map<String, String> dependencyMap = new HashMap<>();
-        dependencyManagement
-                .stream()
-                .filter(d -> d.getVersion() != null)
-                .forEach(d -> dependencyMap.put(d.getGroupId() + ":" + d.getArtifactId().toLowerCase(), d.getVersion()));
-        return dependencyMap;
-    }
-
     @Override
     protected TreeVisitor<?, ExecutionContext> getVisitor() {
         return new MavenIsoVisitor<>() {
@@ -203,5 +180,26 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                 }
             }
         };
+    }
+
+    private Map<String, String> buildDependencyMap() {
+        Map<Path, Pom> poms = new HashMap<>();
+        MavenPomDownloader downloader = new MavenPomDownloader(poms, new InMemoryExecutionContext());
+        GroupArtifactVersion gav = new GroupArtifactVersion(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES, newVersion);
+        String relativePath = "";
+        ResolvedPom containingPom = null;
+        List<MavenRepository> repositories = new ArrayList<>();
+        repositories.add(new MavenRepository("repository.spring.milestone", "https://repo.spring.io/milestone", true, true, null, null));
+        repositories.add(new MavenRepository("spring-snapshot", "https://repo.spring.io/snapshot", false, true, null, null));
+        repositories.add(new MavenRepository("spring-release", "https://repo.spring.io/release", true, false, null, null));
+        Pom pom = downloader.download(gav, relativePath, containingPom, repositories);
+        ResolvedPom resolvedPom = pom.resolve(List.of(), downloader, repositories, new InMemoryExecutionContext());
+        List<ResolvedManagedDependency> dependencyManagement = resolvedPom.getDependencyManagement();
+        Map<String, String> dependencyMap = new HashMap<>();
+        dependencyManagement
+                .stream()
+                .filter(d -> d.getVersion() != null)
+                .forEach(d -> dependencyMap.put(d.getGroupId() + ":" + d.getArtifactId().toLowerCase(), d.getVersion()));
+        return dependencyMap;
     }
 }
