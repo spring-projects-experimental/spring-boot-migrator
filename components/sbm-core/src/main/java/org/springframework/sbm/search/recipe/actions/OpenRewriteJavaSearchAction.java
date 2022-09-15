@@ -72,7 +72,7 @@ public class OpenRewriteJavaSearchAction extends FrameworkSupportAction {
 
 
     public void apply(ProjectContext context) {
-        OpenRewriteRecipeJavaSearch recipeJavaSearch = new OpenRewriteRecipeJavaSearch((compilationUnits -> rewriteRecipe.run(compilationUnits)), javaParser);
+        OpenRewriteRecipeJavaSearch recipeJavaSearch = new OpenRewriteRecipeJavaSearch((compilationUnits -> rewriteRecipe.run(compilationUnits).getResults()), javaParser);
         recipeJavaSearch.commentFindings(context.getProjectJavaSources().list(), commentText);
     }
 

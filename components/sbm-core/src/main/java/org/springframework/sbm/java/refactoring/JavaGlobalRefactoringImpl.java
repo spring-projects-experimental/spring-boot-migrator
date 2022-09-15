@@ -130,7 +130,7 @@ public class JavaGlobalRefactoringImpl implements JavaGlobalRefactoring {
 
     List<Result> executeRecipe(List<J.CompilationUnit> compilationUnits, Recipe recipe) {
         // FIXME #7 added RewriteExecutionContext here, remove again?
-        List<Result> results = recipe.run(compilationUnits, new RewriteExecutionContext());
+        List<Result> results = recipe.run(compilationUnits, new RewriteExecutionContext()).getResults();
 //         List<Result> results = recipe.run(compilationUnits, new RewriteExecutionContext(), new ForkJoinScheduler(new ForkJoinPool(1)), 10, 1);
         return results;
     }

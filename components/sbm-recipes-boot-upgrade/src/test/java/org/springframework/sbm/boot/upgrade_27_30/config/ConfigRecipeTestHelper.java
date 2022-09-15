@@ -45,7 +45,7 @@ public class ConfigRecipeTestHelper {
         List<Yaml.Documents> document = new YamlParser().parse(source);
         return RewriteTest
                 .fromRuntimeClasspath(recipeName)
-                .run(document, ctx);
+                .run(document, ctx).getResults();
     }
 
     public static List<Result> runRecipeOnProperties(@Language("properties") String source, String recipeName) {
@@ -53,7 +53,7 @@ public class ConfigRecipeTestHelper {
         List<Properties.File> document = new PropertiesParser().parse(source);
         return RewriteTest
                 .fromRuntimeClasspath(recipeName)
-                .run(document, ctx);
+                .run(document, ctx).getResults();
     }
 
     public static Pair<String, String> provideIO(String inputFilePath) throws IOException {

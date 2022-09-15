@@ -17,7 +17,7 @@ package org.springframework.sbm.support.openrewrite.java;
 
 import org.junit.jupiter.api.Test;
 import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.Result;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
@@ -41,8 +41,8 @@ class AddAnnotationVisitorTest {
         String snippet = "@Stateless(name = \"test\")";
 
         AddAnnotationVisitor sut = new AddAnnotationVisitor(() -> OpenRewriteTestSupport.getJavaParser(ejbDependency), target, snippet, annotationImport);
-        List<Result> run = new GenericOpenRewriteRecipe<>(() -> sut).run(List.of(compilationUnit), new InMemoryExecutionContext());
-        J.CompilationUnit afterVisit = (J.CompilationUnit) run.get(0).getAfter();
+        RecipeRun run = new GenericOpenRewriteRecipe<>(() -> sut).run(List.of(compilationUnit), new InMemoryExecutionContext());
+        J.CompilationUnit afterVisit = (J.CompilationUnit) run.getResults().get(0).getAfter();
 
         assertThat(afterVisit.printAll()).isEqualTo(
                 "import javax.ejb.Stateless;\n" +
@@ -62,9 +62,9 @@ class AddAnnotationVisitorTest {
                 "}";
         J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(code);
         AddAnnotationVisitor sut = new AddAnnotationVisitor(() -> OpenRewriteTestSupport.getJavaParser("org.junit.jupiter:junit-jupiter-api:5.7.1"), compilationUnit.getClasses().get(0).getBody().getStatements().get(0), "@Test", "org.junit.jupiter.api.Test");
-        List<Result> results = new GenericOpenRewriteRecipe<>(() -> sut).run(List.of(compilationUnit));
-        assertThat(results).isNotEmpty();
-        assertThat(results.get(0).getAfter().printAll()).isEqualTo(
+        RecipeRun recipeRun = new GenericOpenRewriteRecipe<>(() -> sut).run(List.of(compilationUnit));
+        assertThat(recipeRun.getResults()).isNotEmpty();
+        assertThat(recipeRun.getResults().get(0).getAfter().printAll()).isEqualTo(
                 "import org.junit.jupiter.api.Test;\n" +
                         "\n" +
                         "public class Foo {\n" +
@@ -84,9 +84,9 @@ class AddAnnotationVisitorTest {
         J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(code);
 
         AddAnnotationVisitor sut = new AddAnnotationVisitor(OpenRewriteTestSupport.getJavaParser(), compilationUnit.getClasses().get(0).getBody().getStatements().get(0), "@Deprecated", "java.lang.Deprecated");
-        List<Result> result = new GenericOpenRewriteRecipe<>(() -> sut).run(List.of(compilationUnit));
-        assertThat(result).isNotEmpty();
-        assertThat(result.get(0).getAfter().printAll()).isEqualTo(
+        RecipeRun recipeRun = new GenericOpenRewriteRecipe<>(() -> sut).run(List.of(compilationUnit));
+        assertThat(recipeRun.getResults()).isNotEmpty();
+        assertThat(recipeRun.getResults().get(0).getAfter().printAll()).isEqualTo(
                         "public class Foo {\n" +
                         "    @Deprecated\n" +
                         "    private int bar;\n" +

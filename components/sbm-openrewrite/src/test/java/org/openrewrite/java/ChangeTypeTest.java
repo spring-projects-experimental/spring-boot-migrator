@@ -17,6 +17,7 @@
 package org.openrewrite.java;
 
 import org.junit.jupiter.api.Test;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.Result;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.JavaParser;
@@ -55,8 +56,9 @@ public class ChangeTypeTest {
                 .build();
         List<J.CompilationUnit> compilationUnits = javaParser.parse(javaSource);
 
-        List<Result> results = new ChangeType("javax.ws.rs.core.Response$ResponseBuilder", "org.springframework.http.ResponseEntity$BodyBuilder", false).run(compilationUnits);
+        RecipeRun run = new ChangeType("javax.ws.rs.core.Response$ResponseBuilder",
+                                       "org.springframework.http.ResponseEntity$BodyBuilder", false).run(compilationUnits);
 
-        System.out.println(results.get(0).getAfter().printAll());
+        System.out.println(run.getResults().get(0).getAfter().printAll());
     }
 }
