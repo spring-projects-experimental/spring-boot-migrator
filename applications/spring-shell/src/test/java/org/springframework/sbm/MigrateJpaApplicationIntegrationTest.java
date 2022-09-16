@@ -18,6 +18,8 @@ package org.springframework.sbm;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class MigrateJpaApplicationIntegrationTest extends IntegrationTestBaseClass {
 
     @Override
@@ -41,7 +43,47 @@ public class MigrateJpaApplicationIntegrationTest extends IntegrationTestBaseCla
                 "migrate-stateless-ejb",
                 "migrate-jpa-to-spring-boot"
         );
-        // TODO: add assertions
+
+        assertThat(super.loadJavaFile("org.superbiz.injection.h3jpa", "SpringBootApp")).isNotEmpty();
+        assertThat(super.loadTestJavaFile("org.superbiz.injection.h3jpa", "SpringBootAppTest")).isNotEmpty();
+        String movies = loadJavaFile("org.superbiz.injection.h3jpa", "Movies");
+        assertThat(movies).contains(
+                """
+                package org.superbiz.injection.h3jpa;
+                 
+                import org.springframework.stereotype.Service;
+                import org.springframework.transaction.annotation.Transactional;
+                
+                import javax.persistence.EntityManager;
+                import javax.persistence.PersistenceContext;
+                import javax.persistence.Query;
+                import java.util.List;
+                
+                @Service
+                @Transactional
+                public class Movies {
+                
+                    @PersistenceContext(unitName = "default")
+                    private EntityManager entityManager;
+                
+                    public void addMovie(Movie movie) throws Exception {
+                        entityManager.persist(movie);
+                    }
+                
+                    public void deleteMovie(Movie movie) throws Exception {
+                        movie = entityManager.find(Movie.class, movie.getId());
+                        entityManager.remove(movie);
+                    }
+                
+                    public List<Movie> getMovies() throws Exception {
+                        Query query = entityManager.createQuery("SELECT m from Movie as m");
+                        return query.getResultList();
+                    }
+                 
+                }
+                """
+        );
+
     }
 
 }

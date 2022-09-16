@@ -152,7 +152,7 @@ class MigrateWlsEjbDeploymentDescriptorTest {
                 "import javax.ejb.Stateless;\n" +
                 "import org.springframework.transaction.annotation.Transactional;\n" +
                 "@Stateless(name=\"daFoo\")\n" +
-                "@Transactional(timeout = 200000)\n" +
+                "@Transactional(timeout=200000)\n" +
                 "public class Foo {}"
         );
     }
