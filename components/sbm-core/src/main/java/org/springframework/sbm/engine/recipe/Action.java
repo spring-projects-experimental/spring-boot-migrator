@@ -36,7 +36,7 @@ public interface Action {
         try {
             applyInternal(context);
         } catch(Exception e) {
-            String message = "'" + this.getDescription() + "' failed: " + e.getMessage();
+            String message = "Action ["+this.getClass().getSimpleName()+"] '" + this.getDescription() + "' failed: " + e.getMessage();
             if (eventPublisher != null) {
                 eventPublisher.publishEvent(new ActionFailedEvent(message));
             }

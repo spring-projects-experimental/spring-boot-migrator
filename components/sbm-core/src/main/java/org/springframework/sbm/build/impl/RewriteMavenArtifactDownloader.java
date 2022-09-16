@@ -52,7 +52,7 @@ public class RewriteMavenArtifactDownloader extends MavenArtifactDownloader {
                                 .readTimeout(2, TimeUnit.SECONDS)
                                 .build()
                 ),
-                (t) -> log.error("Error while downloading dependencies", t)
+                (t) -> log.warn("Error while downloading dependencies", t)
         );
 
 //        super(new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository")),
