@@ -13,5 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://xmlns.jcp.org/xml/ns/javaee", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://xmlns.jcp.org/xml/ns/javaee", elementFormDefault = XmlNsForm.UNSET)
 package org.springframework.sbm.project.web.api;
+
+import javax.xml.bind.annotation.XmlNsForm;

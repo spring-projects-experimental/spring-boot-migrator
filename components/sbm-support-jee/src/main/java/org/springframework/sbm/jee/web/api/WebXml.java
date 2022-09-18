@@ -25,8 +25,13 @@ import org.openrewrite.xml.tree.Xml;
 
 import javax.xml.bind.*;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.util.StreamReaderDelegate;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,16 +52,7 @@ public class WebXml extends RewriteSourceFileHolder<Xml.Document> {
     }
 
     private WebAppType initWebApp(Xml.Document resource) {
-        final WebAppType webApp;
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(WebAppType.class);
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            JAXBElement element = (JAXBElement) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(resource.printAll().getBytes()));
-            webApp = (WebAppType) element.getValue();
-            return webApp;
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
+        return new WebXmlUnmarshaller().unmarshal(resource.printAll());
     }
 
     public static class MyNamespacePrefixMapper extends NamespacePrefixMapper {
@@ -80,9 +76,6 @@ public class WebXml extends RewriteSourceFileHolder<Xml.Document> {
 
     @Override
     public String print() {
-
-//        StringWriter sw = new StringWriter();
-//        JAXB.marshal(webAppType, sw);
         try {
             JAXBElement<WebAppType> element = new JAXBElement<>(new QName("", "web-app"), WebAppType.class, webApp);
             JAXBContext jaxbContext = JAXBContext.newInstance(WebAppType.class);
@@ -127,7 +120,7 @@ public class WebXml extends RewriteSourceFileHolder<Xml.Document> {
     List<ServletDefinition> getServletDefinitions() {
         final Map<String, ServletDefinition> servlets = new HashMap<>();
 
-        for(JAXBElement<?> e : webApp.getModuleNameOrDescriptionAndDisplayName()) { //.forEach(e -> {
+        for(JAXBElement<?> e : webApp.getModuleNameOrDescriptionAndDisplayName()) {
 
             if (e.getDeclaredType().isAssignableFrom(ServletType.class)) {
                 ServletType servletType = (ServletType) e.getValue();
@@ -165,5 +158,40 @@ public class WebXml extends RewriteSourceFileHolder<Xml.Document> {
 
     public String getVersion() {
         return webApp.getVersion();
+    }
+
+    static class WebXmlUnmarshaller {
+
+        /**
+         * Takes the raw web.xml source and attempts to map it to JAXB classes created from a 4.0 web-app schema.
+         * Namespace information will be removed to allow unmarshalling all versions into the same JAXB model classes.
+         */
+        public WebAppType unmarshal(String xml) {
+            try {
+                XMLStreamReader xsr = XMLInputFactory.newFactory().createXMLStreamReader(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+                WebXml.WebXmlUnmarshaller.XMLReaderWithoutNamespace xr = new WebXml.WebXmlUnmarshaller.XMLReaderWithoutNamespace(xsr);
+                JAXBContext jaxbContext = JAXBContext.newInstance(WebAppType.class);
+                Unmarshaller jc = jaxbContext.createUnmarshaller();
+                return jc.unmarshal(xr, WebAppType.class).getValue();
+            } catch (JAXBException | XMLStreamException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        class XMLReaderWithoutNamespace extends StreamReaderDelegate {
+            public XMLReaderWithoutNamespace(XMLStreamReader reader) {
+                super(reader);
+            }
+
+            @Override
+            public String getAttributeNamespace(int arg0) {
+                return "";
+            }
+
+            @Override
+            public String getNamespaceURI() {
+                return "";
+            }
+        }
     }
 }
