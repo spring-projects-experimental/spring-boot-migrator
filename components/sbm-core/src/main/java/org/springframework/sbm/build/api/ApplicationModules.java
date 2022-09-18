@@ -112,9 +112,8 @@ public class ApplicationModules {
      */
     public List<Module> getTopmostApplicationModules() {
         List<Module> topmostModules = new ArrayList<>();
-        Set<String> packagingTypes = Set.of("jar","war");
+        Set<String> packagingTypes = Set.of("jar","war","mule-application");
         modules.forEach(module -> {
-            // is jar
             if (packagingTypes.contains(module.getBuildFile().getPackaging())) {
                 // no other pom depends on this pom in its dependency section
                 if (noOtherPomDependsOn(module.getBuildFile())) {
