@@ -87,6 +87,8 @@ public interface BuildFile extends ProjectResource {
 
     List<Dependency> getDependencyManagement();
 
+    List<Dependency> getRequestedManagedDependencies();
+
     void addToDependencyManagement(Dependency dependency);
 
     void addToDependencyManagementInner(Dependency dependency);
