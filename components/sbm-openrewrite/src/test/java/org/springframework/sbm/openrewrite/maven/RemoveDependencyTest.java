@@ -18,7 +18,7 @@ package org.springframework.sbm.openrewrite.maven;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.Result;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.RemoveDependency;
 import org.openrewrite.maven.tree.MavenResolutionResult;
@@ -52,11 +52,11 @@ public class RemoveDependencyTest {
 
         List<Xml.Document> mavens = MavenParser.builder().build().parse(pomXml);
 
-        List<Result> run = new RemoveDependency("org.apache.tomee", "openejb-core-hibernate", null).run(mavens);
+        RecipeRun run = new RemoveDependency("org.apache.tomee", "openejb-core-hibernate", null).run(mavens);
 
-        System.out.println(run.get(0).getAfter().printAll());
+        System.out.println(run.getResults().get(0).getAfter().printAll());
 
-        assertThat(run.get(0).getAfter().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequestedDependencies()).isEmpty();
+        assertThat(run.getResults().get(0).getAfter().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequestedDependencies()).isEmpty();
     }
 
     @Test
@@ -82,9 +82,9 @@ public class RemoveDependencyTest {
 
         assertThat(mavens.get(0).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequestedDependencies()).hasSize(1);
 
-        List<Result> run = new RemoveDependency("org.junit.jupiter", "junit-jupiter-api", null).run(mavens);
+        RecipeRun run = new RemoveDependency("org.junit.jupiter", "junit-jupiter-api", null).run(mavens);
 
-        assertThat(run.get(0).getAfter().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequestedDependencies()).isEmpty();
+        assertThat(run.getResults().get(0).getAfter().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequestedDependencies()).isEmpty();
     }
 
     @Test
@@ -112,11 +112,9 @@ public class RemoveDependencyTest {
 
         assertThat(mavens.get(0).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequestedDependencies()).hasSize(1);
 
-        List<Result> run = new RemoveDependency("org.junit.jupiter", "junit-jupiter", "test").run(mavens);
+        RecipeRun run = new RemoveDependency("org.junit.jupiter", "junit-jupiter", "test").run(mavens);
 
-        System.out.println(run.get(0).getAfter().printAll());
-
-        assertThat(run.get(0).getAfter().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequestedDependencies()).isEmpty();
+        assertThat(run.getResults().get(0).getAfter().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequestedDependencies()).isEmpty();
 
     }
 }

@@ -37,7 +37,7 @@ public class RewriteRecipeRunner {
                 (t) -> {
                     throw new RuntimeException(t);
                 }
-        ));
+        )).getResults();
         resultMerger.mergeResults(context, results);
     }
 

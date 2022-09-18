@@ -149,18 +149,11 @@ public class ClasspathRegistry {
 			if(dependencyPath != null) {
 				Stream.of(maps).forEach(m -> m.put(d, dependencyPath));
 			} else {
-				System.out.println(d.getGav() + " has no jars. It has type " + d.getType());
 				initializeDepeendencies(new HashSet<>(d.getDependencies()));
 			}
 		} else {
 			initializeDepeendencies(new HashSet(d.getDependencies()));
 		}
-
-
-//		Optional<Path> dependencyPath = dependencyHelper.downloadArtifact(d);
-//		if (dependencyPath.isPresent()) {
-//			Stream.of(maps).forEach(m -> m.put(d, dependencyPath.get()));
-//		}
 	}
 
 	private boolean isExternalDependency(ResolvedDependency d) {

@@ -25,7 +25,7 @@ public class DeletedResourcePathStringFilter implements ProjectResourceFinder<Li
 
     @Override
     public List<String> apply(ProjectResourceSet projectResourceSet) {
-        return projectResourceSet.stream()
+        return projectResourceSet.streamIncludingDeleted()
                 .filter(r -> r.isDeleted() && !r.getAbsolutePath().toFile().isDirectory())
                 .map(r -> r.getAbsolutePath().toString())
                 .collect(Collectors.toList());

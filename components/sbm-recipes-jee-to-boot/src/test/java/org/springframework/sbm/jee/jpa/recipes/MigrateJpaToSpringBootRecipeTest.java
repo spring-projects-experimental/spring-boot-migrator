@@ -28,6 +28,7 @@ import org.springframework.sbm.jee.jpa.actions.MigrateEclipseLinkToSpringBoot;
 import org.springframework.sbm.jee.jpa.actions.MigratePersistenceXmlToApplicationPropertiesAction;
 import freemarker.template.Configuration;
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.jee.jpa.actions.RenameUnitNameOfPersistenceContextAnnotationsToDefault;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -53,7 +54,9 @@ public class MigrateJpaToSpringBootRecipeTest {
                     RemoveDependenciesMatchingRegex.class,
                     AddTypeAnnotationToTypeAnnotatedWith.class,
                     MigrateEclipseLinkToSpringBoot.class,
-                    DeleteFileMatchingPattern.class);
+                    DeleteFileMatchingPattern.class,
+                    RenameUnitNameOfPersistenceContextAnnotationsToDefault.class
+            );
             assertThatRecipeHasCondition(recipe, FileExist.class);
 
             // Action: migrate persistence.xml to Spring application.properties

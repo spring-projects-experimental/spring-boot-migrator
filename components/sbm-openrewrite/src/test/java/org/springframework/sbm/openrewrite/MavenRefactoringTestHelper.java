@@ -17,7 +17,7 @@ package org.springframework.sbm.openrewrite;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
-import org.openrewrite.Result;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.xml.tree.Xml;
@@ -30,32 +30,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MavenRefactoringTestHelper {
     public static void verifyChange(String pomXml, String refactoredPomXml, MavenVisitor visitor) {
-        List<Result> results = applyVisitor(pomXml, visitor);
-        assertEquals(refactoredPomXml, results.iterator().next().getAfter().printAll());
+        RecipeRun recipeRun = applyVisitor(pomXml, visitor);
+        assertEquals(refactoredPomXml, recipeRun.getResults().iterator().next().getAfter().printAll());
     }
 
     public static void verifyChange(String pomXml, String refactoredPomXml, Recipe recipe) {
-        List<Result> results = applyRecipe(pomXml, recipe);
-        assertEquals(refactoredPomXml, results.iterator().next().getAfter().printAll());
+        RecipeRun recipeRun = applyRecipe(pomXml, recipe);
+        assertEquals(refactoredPomXml, recipeRun.getResults().iterator().next().getAfter().printAll());
     }
 
     public static void verifyNoChange(String pomXml, String refactoredPomXml, MavenVisitor visitor) {
-        List<Result> results = applyVisitor(pomXml, visitor);
-        assertThat(results).isEmpty();
+        RecipeRun recipeRun = applyVisitor(pomXml, visitor);
+        assertThat(recipeRun.getResults()).isEmpty();
     }
 
-    private static List<Result> applyRecipe(String pomXml, Recipe recipe) {
-        List<Xml.Document> mavenList = MavenParser.builder().build().parse(pomXml);
-        return recipe.run(mavenList);
+    private static RecipeRun applyRecipe(String pomXml, Recipe recipe) {
+        List<Xml.Document> documents = MavenParser.builder().build().parse(pomXml);
+        return recipe.run(documents);
     }
 
-    private static List<Result> applyVisitor(String pomXml, MavenVisitor<ExecutionContext> visitor) {
+    private static RecipeRun applyVisitor(String pomXml, MavenVisitor<ExecutionContext> visitor) {
         GenericOpenRewriteRecipe<MavenVisitor<ExecutionContext>> recipe = new GenericOpenRewriteRecipe<>(() -> visitor);
         return applyRecipe(pomXml, recipe);
     }
 
     public static void verifyNoChange(String pomXml, Recipe recipe) {
-        List<Result> results = applyRecipe(pomXml, recipe);
-        assertThat(results).isEmpty();
+        RecipeRun recipeRun = applyRecipe(pomXml, recipe);
+        assertThat(recipeRun.getResults()).isEmpty();
     }
 }

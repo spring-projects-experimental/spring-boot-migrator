@@ -97,7 +97,7 @@ public class OpenRewriteRecipeAdapterAction extends AbstractAction {
                                 new InMemoryExecutionContext())
         );
 
-        List<Result> res = recipe.run(sourceFiles);
+        List<Result> res = recipe.run(sourceFiles).getResults();
 		for (Result r : res) {
 			replaceWrappedResource(projectResources.get(r.getBefore().getSourcePath()), r);
 		}
