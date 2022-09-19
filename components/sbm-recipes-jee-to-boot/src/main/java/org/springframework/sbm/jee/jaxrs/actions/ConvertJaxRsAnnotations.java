@@ -55,7 +55,7 @@ public class ConvertJaxRsAnnotations extends AbstractAction {
                 .forEach(this::convertJaxRsMethodToSpringMvc);
     }
 
-    private void convertJaxRsMethodToSpringMvc(Method method) {
+    void convertJaxRsMethodToSpringMvc(Method method) {
         Map<String, Expression> attrs = new LinkedHashMap<>();
         Set<String> methods = new LinkedHashSet<>();
         var annotations = method.getAnnotations();
@@ -127,11 +127,13 @@ public class ConvertJaxRsAnnotations extends AbstractAction {
             }
 
             sb.append(attrs.entrySet().stream()
-                    .map(e -> e.getKey() + " = " + e.getValue().print())
-                    .collect(Collectors.joining(", ")));
+                              .map(e -> e.getKey() + " = " + e.getValue().print())
+                              .collect(Collectors.joining(", ")));
 
             if (!methods.isEmpty()) {
-                sb.append(", ");
+                if(!attrs.entrySet().isEmpty()) {
+                    sb.append(", ");
+                }
                 if (methods.size() == 1) {
                     sb.append("method = RequestMethod." + methods.iterator().next());
                 } else {

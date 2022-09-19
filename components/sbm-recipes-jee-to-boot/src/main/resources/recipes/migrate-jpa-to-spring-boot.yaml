@@ -88,3 +88,9 @@
       condition:
         type: org.springframework.sbm.common.migration.conditions.TrueCondition
       pattern: '/**/persistence.xml'
+
+    - type: org.springframework.sbm.jee.jpa.actions.RenameUnitNameOfPersistenceContextAnnotationsToDefault
+      description: Set 'unitName' attribute from @PersistenceContext annotations to 'default' when different
+      condition:
+        type: org.springframework.sbm.java.migration.conditions.HasMemberAnnotation
+        annotation: javax.persistence.PersistenceContext

@@ -15,22 +15,19 @@
  */
 package org.springframework.sbm.boot.common.conditions;
 
+import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.Module;
-import org.springframework.sbm.build.api.BuildFile;
-import org.springframework.sbm.build.api.ParentDeclaration;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
-import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HasSpringBootStarterParent implements Condition {
+public class HasSpringBootDependencyImport implements Condition {
     private Pattern versionPattern = Pattern.compile(".*");
 
     @Override
     public String getDescription() {
-        return String.format("Check if any Build file has a spring-boot-starter-parent as parent with a version matching pattern '%s'.", versionPattern);
+        return String.format("Check if any Build file has a spring-boot-dependencies import with a version matching pattern '%s'.", versionPattern);
     }
 
     public void setVersionPattern(String versionPattern) {
@@ -39,14 +36,18 @@ public class HasSpringBootStarterParent implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return context.getApplicationModules().stream()
+
+        return context.getApplicationModules()
+                .stream()
                 .map(Module::getBuildFile)
-                .filter(BuildFile::hasParent)
-                .map(BuildFile::getParentPomDeclaration)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(ParentDeclaration::getVersion)
-                .map(versionPattern::matcher)
-                .anyMatch(Matcher::matches);
+                .anyMatch(b ->
+                        b.getRequestedManagedDependencies()
+                                .stream()
+                                .anyMatch(k ->
+                                        k.getCoordinates()
+                                                .matches("org.springframework.boot:spring-boot-dependencies:"
+                                                        + versionPattern
+                                                )
+                                ));
     }
 }
