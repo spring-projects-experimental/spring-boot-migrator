@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.boot.common.conditions;
 
+import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -40,14 +41,25 @@ public class HasSpringBootDependencyImport implements Condition {
         return context.getApplicationModules()
                 .stream()
                 .map(Module::getBuildFile)
-                .anyMatch(b ->
-                        b.getRequestedManagedDependencies()
-                                .stream()
-                                .anyMatch(k ->
-                                        k.getCoordinates()
-                                                .matches("org.springframework.boot:spring-boot-dependencies:"
-                                                        + versionPattern
-                                                )
-                                ));
+                .anyMatch(this::hasBuildFileDependencyImport);
+    }
+
+    private boolean hasBuildFileDependencyImport(BuildFile buildFile) {
+        return buildFile.getRequestedManagedDependencies().stream()
+                .map( md -> resolveCoordinates(buildFile, md))
+                .anyMatch(c -> c.matches("org.springframework.boot:spring-boot-dependencies:"
+                        + versionPattern));
+    }
+
+    private String resolveCoordinates(BuildFile buildFile, Dependency md) {
+        String coordinates = md.getCoordinates();
+        if (md.getVersion().startsWith("${")) {
+            String version = buildFile.getProperty(md.getVersion().substring(2, md.getVersion().length() - 1));
+            if (version != null) {
+                // TODO: check into account properties imported from parent poms
+                coordinates = md.getGroupId() + ":" + md.getArtifactId() + ":" + version;
+            }
+        }
+        return coordinates;
     }
 }

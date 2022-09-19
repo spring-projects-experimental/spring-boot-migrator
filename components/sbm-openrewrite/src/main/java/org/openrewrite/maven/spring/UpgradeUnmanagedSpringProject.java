@@ -27,6 +27,8 @@ import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.maven.UpdateMavenModel;
 import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.*;
+import org.openrewrite.semver.LatestRelease;
+import org.openrewrite.semver.VersionComparator;
 import org.openrewrite.xml.ChangeTagValueVisitor;
 import org.openrewrite.xml.tree.Xml;
 
@@ -44,6 +46,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     private Pattern oldVersionPattern;
 
     private Map<String, String> springBootDependenciesMap;
+    private VersionComparator versionComparator = new LatestRelease(null);
 
     public UpgradeUnmanagedSpringProject() {
     }
@@ -65,57 +68,24 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     @Override
     protected TreeVisitor<?, ExecutionContext> getApplicableTest() {
         return new MavenIsoVisitor<>() {
-            private boolean validForFurtherReview = true;
-
-            @Override
-            public Xml.Document visitDocument(Xml.Document document, ExecutionContext executionContext) {
-                new MavenIsoVisitor<Integer>() {
-                    @Override
-                    public Xml.Tag visitTag(Xml.Tag tag, Integer executionContext) {
-                        if (isParentTag()) {
-                            Optional<Xml.Tag> artifactId = tag.getChild(ARTIFACT_ID);
-                            if (artifactId.isPresent()) {
-                                Optional<String> artifactIdValue = artifactId.get().getValue();
-                                if (artifactIdValue.isPresent()) {
-                                    if (artifactIdValue.get().equals(SPRING_BOOT_STARTER_PARENT)) {
-                                        validForFurtherReview = false;
-                                    }
-                                }
-                            }
-                        }
-                        if (isManagedDependencyTag(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES)) {
-                            validForFurtherReview = false;
-                        }
-
-                        return super.visitTag(tag, executionContext);
-                    }
-                }.visit(document, 0);
-
-                return super.visitDocument(document, executionContext);
-            }
-
             @Override
             public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
                 Xml.Tag resultTag = super.visitTag(tag, executionContext);
-
-                if (validForFurtherReview) {
-                    if (isManagedDependencyTag()) {
-                        ResolvedManagedDependency managedDependency = findManagedDependency(resultTag);
-                        if ((managedDependency != null) && managedDependency.getGroupId().equals(SPRINGBOOT_GROUP)
-                                && satisfiesOldVersionPattern(managedDependency.getVersion())) {
-                            return applyThisRecipe(resultTag);
-                        }
-                    }
-
-                    if (isDependencyTag()) {
-                        ResolvedDependency dependency = findDependency(resultTag);
-                        if ((dependency != null) && dependency.getGroupId().equals(SPRINGBOOT_GROUP)
-                                && satisfiesOldVersionPattern(dependency.getVersion())) {
-                            return applyThisRecipe(resultTag);
-                        }
+                if (isManagedDependencyTag()) {
+                    ResolvedManagedDependency managedDependency = findManagedDependency(resultTag);
+                    if ((managedDependency != null) && managedDependency.getGroupId().equals(SPRINGBOOT_GROUP)
+                            && satisfiesOldVersionPattern(managedDependency.getVersion())) {
+                        return applyThisRecipe(resultTag);
                     }
                 }
 
+                if (isDependencyTag()) {
+                    ResolvedDependency dependency = findDependency(resultTag);
+                    if ((dependency != null) && dependency.getGroupId().equals(SPRINGBOOT_GROUP)
+                            && satisfiesOldVersionPattern(dependency.getVersion())) {
+                        return applyThisRecipe(resultTag);
+                    }
+                }
                 return resultTag;
             }
 
@@ -172,6 +142,9 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                         return;
                     }
                     String versionValue = version.get().getValue().get();
+                    if (!isVersionToUpgrade(dependencyVersion, versionValue)) {
+                        return;
+                    }
                     if (versionValue.startsWith("${")) {
                         String propertyName = versionValue.substring(2, versionValue.length() - 1);
                         version.ifPresent(xml -> doAfterVisit(new ChangePropertyValue(propertyName, dependencyVersion, true)));
@@ -180,6 +153,20 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                     }
                     doAfterVisit(new UpdateMavenModel<>());
                 }
+            }
+
+            private boolean isVersionToUpgrade(String upgradeVersion, String versionValue) {
+                String currentVersion = versionValue;
+                if (versionValue.startsWith("${")) {
+                    String versionName = versionValue.substring(2, versionValue.length() - 1);
+                    Map<String, String> properties = getResolutionResult().getPom().getProperties();
+                    if ((properties != null) && properties.containsKey(versionName)) {
+                        currentVersion = properties.get(versionName);
+                    } else {
+                        return false;
+                    }
+                }
+                return versionComparator.compare(null, upgradeVersion, currentVersion) > 0;
             }
         };
     }
