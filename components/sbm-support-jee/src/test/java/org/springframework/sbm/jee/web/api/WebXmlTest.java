@@ -27,7 +27,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled("See #")
 public class WebXmlTest {
 
     public static final String GIVEN_SERVLET_NAME = "TheServlet";
@@ -53,6 +52,7 @@ public class WebXmlTest {
             "</web-app>";
 
     @Test
+    @Disabled("See #416")
     void deserializeMovieFunExampleWebXml() {
         String webXmlSource = """
                 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
@@ -94,6 +94,7 @@ public class WebXmlTest {
     }
 
     @Test
+    @Disabled("See #416")
     void deserializeWebXml() throws IOException, JAXBException {
 
         String expectedXml =
@@ -124,6 +125,7 @@ public class WebXmlTest {
     }
 
     @Test
+    @Disabled("See #416")
     void deleteServletDefinition() throws JAXBException {
         String expectedXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
