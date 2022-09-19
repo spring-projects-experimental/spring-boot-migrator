@@ -66,18 +66,18 @@ public class WebXml extends RewriteSourceFileHolder<Xml.Document> {
 
     private WebAppType initWebApp(Xml.Document resource) {
 
-        final WebAppType webApp;
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(WebAppType.class);
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            JAXBElement element = (JAXBElement) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(resource.printAll().getBytes()));
-            webApp = (WebAppType) element.getValue();
-            return webApp;
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
+//        final WebAppType webApp;
+//        try {
+//            JAXBContext jaxbContext = JAXBContext.newInstance(WebAppType.class);
+//            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+//            JAXBElement element = (JAXBElement) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(resource.printAll().getBytes()));
+//            webApp = (WebAppType) element.getValue();
+//            return webApp;
+//        } catch (JAXBException e) {
+//            throw new RuntimeException(e);
+//        }
 
-//        return new WebXmlUnmarshaller().unmarshal(resource.printAll());
+        return new WebXmlUnmarshaller().unmarshal(resource.printAll());
     }
 
     public static class MyNamespacePrefixMapper extends NamespacePrefixMapper {
