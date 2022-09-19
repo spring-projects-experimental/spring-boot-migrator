@@ -149,8 +149,10 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                 Xml.Tag resultTag = super.visitTag(tag, executionContext);
                 if (isManagedDependencyTag()) {
                     ResolvedManagedDependency managedDependency = findManagedDependency(resultTag);
-                    String key = managedDependency.getGroupId() + ":" + managedDependency.getArtifactId();
-                    mayBeUpdateVersion(key, resultTag);
+                    if (managedDependency != null) {
+                        String key = managedDependency.getGroupId() + ":" + managedDependency.getArtifactId();
+                        mayBeUpdateVersion(key, resultTag);
+                    }
                 }
                 if (isDependencyTag()) {
                     ResolvedDependency dependency = findDependency(resultTag);
