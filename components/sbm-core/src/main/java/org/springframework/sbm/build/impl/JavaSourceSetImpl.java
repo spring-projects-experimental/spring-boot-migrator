@@ -18,6 +18,7 @@ package org.springframework.sbm.build.impl;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
+import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
@@ -62,7 +63,8 @@ public class JavaSourceSetImpl implements JavaSourceSet {
     @Deprecated(forRemoval = true)
     public JavaSource addJavaSource(Path projectRoot, Path sourceFolder, String sourceCode, String packageName) {
         // FIXME: #7 JavaParser
-        javaParser.reset();
+        JavaParser javaParser = JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
+//        javaParser.reset();
         List<J.CompilationUnit> compilationUnits = javaParser.parse(sourceCode);
         J.CompilationUnit parsedCompilationUnit = compilationUnits.get(0);
         String sourceFileName = parsedCompilationUnit.getSourcePath().toString();
