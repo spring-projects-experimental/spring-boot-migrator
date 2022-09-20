@@ -48,8 +48,7 @@ import java.util.function.Supplier;
 public class MigrateJaxRsRecipe {
 
 
-    private final JavaParser javaParserSupplier = JavaParser.fromJavaVersion().classpath(
-            ClasspathRegistry.getInstance().getCurrentDependencies()).build();
+    private final Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
 
     @Bean
     public Recipe jaxRs(RewriteRecipeLoader rewriteRecipeLoader, RewriteRecipeRunner rewriteRecipeRunner) {
@@ -102,7 +101,7 @@ public class MigrateJaxRsRecipe {
                                 JavaRecipeAction.builder()
                                         .condition(HasImportStartingWith.builder().value("javax.ws.rs.core.MediaType").build())
                                         .description("Replace JaxRs MediaType with it's Spring equivalent.")
-                                        .recipe(new ReplaceMediaType(() -> javaParserSupplier))
+                                        .recipe(new ReplaceMediaType(javaParserSupplier))
                                         .build(),
 
                                 JavaRecipeAction.builder()
@@ -126,7 +125,7 @@ public class MigrateJaxRsRecipe {
                                 JavaRecipeAction.builder()
                                         .condition(HasImportStartingWith.builder().value("javax.ws.rs.core.Response").build())
                                         .description("Replace JaxRs Response and ResponseBuilder with it's Spring equivalent.")
-                                        .recipe(new SwapResponseWithResponseEntity(() -> javaParserSupplier))
+                                        .recipe(new SwapResponseWithResponseEntity(javaParserSupplier))
                                         .build(),
 
                                 OpenRewriteDeclarativeRecipeAdapter.builder()
@@ -137,9 +136,9 @@ public class MigrateJaxRsRecipe {
                                         .openRewriteRecipe(
                                                 """
                                                 type: specs.openrewrite.org/v1beta/recipe
-                                                name: org.openrewrite.java.spring.boot3.data.UpgradeSpringData30
-                                                displayName: Upgrade to SpringBoot 3.0
-                                                description: 'Upgrade to SpringBoot to 3.0 from any prior version.'
+                                                name: org.springframework.sbm.jee.MakeRequestParamsOptional
+                                                displayName: Set required=false for @RequestParam without 'required'
+                                                description: Set required=false for @RequestParam without 'required'
                                                 recipeList:
                                                   - org.openrewrite.java.AddOrUpdateAnnotationAttribute:
                                                       annotationType: "org.springframework.web.bind.annotation.RequestParam"
