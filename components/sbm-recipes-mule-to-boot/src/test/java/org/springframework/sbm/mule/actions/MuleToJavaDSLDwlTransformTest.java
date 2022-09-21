@@ -130,8 +130,12 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                                 "                .handle((p, h) -> {\n" +
                                 "                    TmDwPayload dwPayload = new TmDwPayload();\n" +
+                                "                    String contentType = \"application/json\";\n" +
+                                "                    if (h.get(\"contentType\") != null) {\n" +
+                                "                        contentType = h.get(\"contentType\").toString();\n" +
+                                "                    }\n" +
                                 "                    dwPayload.setId(h.getId().toString());\n" +
-                                "                    dwPayload.setSourceType(h.get(\"contentType\").toString());\n" +
+                                "                    dwPayload.setSourceType(contentType);\n" +
                                 "                    dwPayload.setSource(h.get(\"http_requestUrl\").toString());\n" +
                                 "                    dwPayload.setPayload(p.toString());\n" +
                                 "                    return dwPayload;\n" +

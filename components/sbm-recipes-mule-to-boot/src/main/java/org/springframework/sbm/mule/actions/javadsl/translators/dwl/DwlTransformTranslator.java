@@ -68,8 +68,10 @@ public class DwlTransformTranslator implements MuleComponentToSpringIntegrationD
     private static final String triggermeshPayloadHandlerContent = "" +
             ".handle((p, h) -> {\n" +
             "                    TmDwPayload dwPayload = new TmDwPayload();\n" +
+            "                    String contentType = \"application/json\";\n" +
+            "                    if (h.get(\"contentType\") != null) { contentType = h.get(\"contentType\").toString(); }\n" +
             "                    dwPayload.setId(h.getId().toString());\n" +
-            "                    dwPayload.setSourceType(h.get(\"contentType\").toString());\n" +
+            "                    dwPayload.setSourceType(contentType);\n" +
             "                    dwPayload.setSource(h.get(\"http_requestUrl\").toString());\n" +
             "                    dwPayload.setPayload(p.toString());\n" +
             "                    return dwPayload;\n" +
