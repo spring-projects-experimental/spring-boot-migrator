@@ -190,4 +190,77 @@ class HasSpringBootDependencyManuallyManagedTest {
 
         assertThat(result).isTrue();
     }
+
+    @Test
+    public void conditionToBeTrueIfVersionIsDefinedInParentPom() {
+        ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                .withMavenRootBuildFileSource("""
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                        <modelVersion>4.0.0</modelVersion>
+                        <packaging>pom</packaging>
+                        <groupId>com.example</groupId>
+                        <artifactId>parent-boot-upgrade-27_30</artifactId>
+                        <version>0.0.1-SNAPSHOT</version>
+                        <name>parent-boot-upgrade-27_30</name>
+                        <description>parent-boot-upgrade-27_30</description>
+                        <properties>
+                            <java.version>17</java.version>
+                            <spring-boot.version>2.7.3</spring-boot.version>
+                        </properties>
+                        <modules>
+                            <module>component1</module>
+                        </modules>
+                        <repositories>
+                            <repository>
+                                <id>spring-milestone</id>
+                                <url>https://repo.spring.io/milestone</url>
+                                <snapshots>
+                                    <enabled>false</enabled>
+                                </snapshots>
+                            </repository>
+                        </repositories>
+                    </project>
+                        """)
+                .withMavenBuildFileSource("component1/pom.xml", """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <parent>
+                        <groupId>com.example</groupId>
+                        <artifactId>parent-boot-upgrade-27_30</artifactId>
+                        <version>0.0.1-SNAPSHOT</version>
+                    </parent>
+                    <groupId>com.example</groupId>
+                    <artifactId>explicit-deps-app</artifactId>
+                    <version>0.0.1-SNAPSHOT</version>
+                    <name>explicit-deps-app</name>
+                    <description>explicit-deps-app</description>
+                
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-web</artifactId>
+                            <version>${spring-boot.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-test</artifactId>
+                            <version>${spring-boot.version}</version>
+                            <scope>test</scope>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """)
+                .build();
+
+        HasSpringBootDependencyManuallyManaged condition = new HasSpringBootDependencyManuallyManaged();
+        condition.setVersionPattern("2\\.7\\..*");
+
+        boolean result = condition.evaluate(projectContext);
+
+        assertThat(result).isTrue();
+    }
 }
