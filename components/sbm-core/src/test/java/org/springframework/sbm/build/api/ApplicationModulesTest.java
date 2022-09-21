@@ -22,10 +22,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ApplicationModulesTest {
 
@@ -104,8 +106,8 @@ class ApplicationModulesTest {
         sut = TestProjectContext
                 .buildProjectContext()
                 .withMavenRootBuildFileSource(PARENT_POM)
-                .withMavenBuildFileSource("amodule1/pom.xml", APPLICATION_POM)
-                .withMavenBuildFileSource("ymodule2/pom.xml", COMPONENT_POM)
+                .withMavenBuildFileSource("module1/pom.xml", APPLICATION_POM)
+                .withMavenBuildFileSource("module2/pom.xml", COMPONENT_POM)
                 .build()
                 .getApplicationModules();
     }
@@ -117,15 +119,20 @@ class ApplicationModulesTest {
     }
 
     @Test
-    void rootModule() {
+    void shouldFindRootModule() {
         Module rootModule = sut.getRootModule();
         assertThat(rootModule.getModulePath()).isEqualTo(Path.of(""));
         assertThat(rootModule.getBuildFile().getCoordinates()).isEqualTo("org.example:parent:1.0-SNAPSHOT");
-//        assertThat(rootModule.getModules().get(0).getBuildFile().getCoordinates()).isEqualTo("org.example:module1:1.0-SNAPSHOT");
-//        assertThat(rootModule.getModules().get(1).getBuildFile().getCoordinates()).isEqualTo("org.example:module2:1.0-SNAPSHOT");
         assertThat(rootModule.getDeclaredModules()).hasSize(2);
         assertThat(rootModule.getDeclaredModules().get(0)).isEqualTo("org.example:module1:1.0-SNAPSHOT");
         assertThat(rootModule.getDeclaredModules().get(1)).isEqualTo("org.example:module2:1.0-SNAPSHOT");
+    }
+
+    @Test
+    void shouldNotFindRootModuleForMissingRootBuildFile() {
+        ApplicationModules applicationModules = new ApplicationModules(List.of());
+
+        assertThatThrownBy(applicationModules::getRootModule).isInstanceOf(RootBuildFileNotFoundException.class);
     }
 
     @Test
