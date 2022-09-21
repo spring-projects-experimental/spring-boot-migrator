@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -102,8 +104,8 @@ class ApplicationModulesTest {
         sut = TestProjectContext
                 .buildProjectContext()
                 .withMavenRootBuildFileSource(PARENT_POM)
-                .withMavenBuildFileSource("module1/pom.xml", APPLICATION_POM)
-                .withMavenBuildFileSource("module2/pom.xml", COMPONENT_POM)
+                .withMavenBuildFileSource("amodule1/pom.xml", APPLICATION_POM)
+                .withMavenBuildFileSource("ymodule2/pom.xml", COMPONENT_POM)
                 .build()
                 .getApplicationModules();
     }

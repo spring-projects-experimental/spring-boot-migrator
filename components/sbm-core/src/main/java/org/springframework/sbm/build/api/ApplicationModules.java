@@ -44,9 +44,9 @@ public class ApplicationModules {
 
     public Module getRootModule() {
         return modules.stream()
-                .sorted((m2, m1) -> m1.getBuildFile().getAbsolutePath().toString().compareTo(m2.getBuildFile().getAbsolutePath().toString()))
+                .filter(m -> m.getBuildFile().isRootBuildFile())
                 .findFirst()
-                .orElse(modules.get(0));
+                .orElseThrow(() -> new RootBuildFileNotFoundException("Module with root build file is missing"));
     }
 
     public List<Module> list() {
