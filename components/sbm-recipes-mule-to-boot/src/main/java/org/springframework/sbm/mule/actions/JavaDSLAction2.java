@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.mule.actions;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -56,6 +57,7 @@ public class JavaDSLAction2 extends AbstractAction {
     private final MuleMigrationContextFactory muleMigrationContextFactory;
     private final Map<Class<?>, TopLevelElementFactory> topLevelTypeMap;
 
+    @Setter
     private boolean muleTriggerMeshTransformEnabled;
 
     @Autowired
@@ -236,10 +238,6 @@ public class JavaDSLAction2 extends AbstractAction {
                 .filter(SpringBootApplicationProperties::isDefaultProperties)
                 .findFirst()
                 .get();
-    }
-
-    public void setMuleTriggerMeshTransformEnabled(boolean mode) {
-        this.muleTriggerMeshTransformEnabled = mode;
     }
 
     private String createTmDwPayloadClass(ProjectContext projectContext) {

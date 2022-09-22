@@ -24,8 +24,6 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@TestMethodOrder(MethodOrderer.MethodName.class)
-//@Disabled("Temporary disabled before CI will be fixed with docker in docker issue: #351")
 class MigrateSimpleMuleAppDataweaveIntegrationTest extends IntegrationTestBaseClass {
     private final RestTemplate restTemplate = new RestTemplate();
     private static RunningNetworkedContainer tmDataweaveContainer;
