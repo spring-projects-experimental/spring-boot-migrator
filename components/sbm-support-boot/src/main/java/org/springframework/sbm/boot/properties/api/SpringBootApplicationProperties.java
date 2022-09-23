@@ -30,7 +30,7 @@ import java.util.List;
 @Setter
 public class SpringBootApplicationProperties extends PropertiesSource {
 
-    private SpringProfile springProfile;
+    private SpringProfile springProfile = new SpringProfile("default");
 
     public SpringBootApplicationProperties(Path absoluteProjectDir, File sourceFile, RewriteExecutionContext executionContext) {
         super(absoluteProjectDir, executionContext, sourceFile);

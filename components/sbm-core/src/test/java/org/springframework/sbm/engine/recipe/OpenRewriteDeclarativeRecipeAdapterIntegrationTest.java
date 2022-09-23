@@ -61,6 +61,8 @@ class OpenRewriteDeclarativeRecipeAdapterIntegrationTest {
                         "    type: org.springframework.sbm.common.migration.conditions.TrueCondition\n" +
                         "  actions:\n" +
                         "    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter\n" +
+                        "      condition:\n" +
+                        "        type: org.springframework.sbm.common.migration.conditions.TrueCondition\n" +
                         "      description: Call a OpenRewrite recipe\n" +
                         "      openRewriteRecipe: |-\n" +
                         "        type: specs.openrewrite.org/v1beta/recipe\n" +
