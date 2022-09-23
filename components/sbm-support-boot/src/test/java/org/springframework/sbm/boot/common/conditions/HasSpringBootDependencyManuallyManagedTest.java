@@ -189,4 +189,51 @@ class HasSpringBootDependencyManuallyManagedTest {
 
         assertThat(result).isTrue();
     }
+
+    @Test
+    public void conditionToBeTrueIfVersionIsDefinedInProperty() {
+        ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                .withMavenRootBuildFileSource("""
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>explicit-deps-app</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>explicit-deps-app</name>
+    <description>explicit-deps-app</description>
+    <properties>
+        <spring-boot.version>2.7.1</spring-boot.version>
+    </properties>                                  
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-annotation</artifactId>
+            <version>4.2.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>2.7.3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
+                """)
+                .build();
+
+        HasSpringBootDependencyManuallyManaged condition = new HasSpringBootDependencyManuallyManaged();
+        condition.setVersionPattern("2\\.7\\..*");
+
+        boolean result = condition.evaluate(projectContext);
+
+        assertThat(result).isTrue();
+    }
 }
