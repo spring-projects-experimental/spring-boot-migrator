@@ -61,7 +61,13 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
     }
 
     @Override
+    @Deprecated
     public Stream<JavaSource> asStream() {
+        return stream();
+    }
+
+    @Override
+    public Stream<JavaSource> stream() {
         return new JavaSourceListFilter().apply(projectResourceSet).stream();
     }
 

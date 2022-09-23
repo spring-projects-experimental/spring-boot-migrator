@@ -10,7 +10,7 @@ jobs:
     name: Asciidoctoring the docs to pretty HTML!
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Get build container
         id: adocbuild
         uses: avattathil/asciidoctor-action@master
