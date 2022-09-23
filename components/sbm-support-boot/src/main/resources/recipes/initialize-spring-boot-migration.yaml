@@ -20,7 +20,7 @@
       name: "add managed dependency to Maven"
       groupId: org.springframework.boot
       artifactId: spring-boot-dependencies
-      version: 2.6.3
+      version: 2.7.3
       dependencyType: pom
       scope: import
       description: Add Spring Boot dependency management section to buildfile.
