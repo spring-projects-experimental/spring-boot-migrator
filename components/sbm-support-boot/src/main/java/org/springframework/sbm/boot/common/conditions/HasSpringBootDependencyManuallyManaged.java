@@ -30,7 +30,7 @@ public class HasSpringBootDependencyManuallyManaged implements Condition {
 
     @Override
     public String getDescription() {
-        return String.format("Check if any Build file has a manually managed dependences with a version matching pattern '%s'.", versionPattern);
+        return String.format("Check if any Build file has a manually managed dependencies with a version matching pattern '%s'.", versionPattern);
     }
 
     public void setVersionPattern(String versionPattern) {

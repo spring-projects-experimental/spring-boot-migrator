@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
+import org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.test.RecipeTestSupport;
@@ -33,7 +34,7 @@ public class BootifyJaxRsAnnotationsRecipeTest {
     @Test
     void test() {
 
-        Recipe jaxRsRecipe = new MigrateJaxRsRecipe(new RewriteJavaParser(new SbmApplicationProperties())).jaxRs();
+        Recipe jaxRsRecipe = new MigrateJaxRsRecipe().jaxRs(null, null);
         Optional<Recipe> recipe = Optional.of(jaxRsRecipe);
         RecipeTestSupport.assertThatRecipeExists(recipe);
         RecipeTestSupport.assertThatRecipeHasActions(recipe,
@@ -46,6 +47,7 @@ public class BootifyJaxRsAnnotationsRecipeTest {
                 JavaRecipeAction.class,
                 JavaRecipeAction.class,
                 JavaRecipeAction.class,
-                JavaRecipeAction.class);
+                JavaRecipeAction.class,
+                OpenRewriteDeclarativeRecipeAdapter.class);
     }
 }

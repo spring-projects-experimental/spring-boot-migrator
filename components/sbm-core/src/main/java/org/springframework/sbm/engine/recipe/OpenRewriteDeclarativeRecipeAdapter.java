@@ -18,12 +18,12 @@ package org.springframework.sbm.engine.recipe;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.openrewrite.Recipe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.context.ProjectContext;
 
-@Builder
-@NoArgsConstructor
+@SuperBuilder
 @AllArgsConstructor
 public class OpenRewriteDeclarativeRecipeAdapter extends AbstractAction {
     @Setter
@@ -32,10 +32,16 @@ public class OpenRewriteDeclarativeRecipeAdapter extends AbstractAction {
 
     @Autowired
     @JsonIgnore
+    @Setter
     private RewriteRecipeLoader rewriteRecipeLoader;
     @JsonIgnore
     @Autowired
+    @Setter
     private RewriteRecipeRunner rewriteRecipeRunner;
+
+    public OpenRewriteDeclarativeRecipeAdapter() {
+        super(builder());
+    }
 
     @Override
     public boolean isApplicable(ProjectContext context) {
