@@ -72,6 +72,13 @@
               artifactId: spring-boot-dependencies
               newVersion: 3.0.0-M3
 
+    - type: org.springframework.sbm.build.migration.actions.SetProperty
+      propertyName: "java.version"
+      propertyValue: "17"
+      description: Set Java version to 17
+      condition:
+        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject

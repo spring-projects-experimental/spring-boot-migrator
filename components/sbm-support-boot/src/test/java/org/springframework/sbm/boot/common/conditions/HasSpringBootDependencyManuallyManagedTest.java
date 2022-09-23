@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.sbm.boot.common.conditions;
 
 import org.junit.jupiter.api.Test;
