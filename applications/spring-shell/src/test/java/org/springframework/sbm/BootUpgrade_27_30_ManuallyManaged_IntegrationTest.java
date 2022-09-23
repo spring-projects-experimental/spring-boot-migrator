@@ -67,10 +67,6 @@ public class BootUpgrade_27_30_ManuallyManaged_IntegrationTest extends Integrati
         assertThat(managedDependency.get().getVersion()).isEqualTo(version);
     }
 
-    private void verifyDependency(Xml.Document mavenAsXMLDocument, String artifactId, String version) {
-        verifyDependencyWithClassifier(mavenAsXMLDocument, artifactId, version, null);
-    }
-
     private void verifyDependencyWithClassifier(Xml.Document mavenAsXMLDocument, String artifactId, String version, String classifier) {
         Optional<Dependency> dependency = getDependencyByArtifactId(mavenAsXMLDocument, artifactId);
         assertThat(dependency).isPresent();
