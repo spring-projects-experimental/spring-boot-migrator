@@ -48,7 +48,7 @@ public class HasSpringBootDependencyImport implements Condition {
         return buildFile.getRequestedManagedDependencies().stream()
                 .map( md -> resolveCoordinates(buildFile, md))
                 .anyMatch(c -> c.matches("org.springframework.boot:spring-boot-dependencies:"
-                        + versionPattern));
+                            + versionPattern));
     }
 
     private String resolveCoordinates(BuildFile buildFile, Dependency md) {
