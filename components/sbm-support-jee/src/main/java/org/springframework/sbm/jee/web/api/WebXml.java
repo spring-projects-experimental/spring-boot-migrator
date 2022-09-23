@@ -22,11 +22,29 @@ import org.springframework.sbm.project.web.api.ServletType;
 import org.springframework.sbm.project.web.api.UrlPatternType;
 import org.springframework.sbm.project.web.api.WebAppType;
 import org.openrewrite.xml.tree.Xml;
+import org.w3c.dom.Document;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import javax.xml.bind.*;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.util.StreamReaderDelegate;
+import javax.xml.transform.sax.SAXSource;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,16 +65,19 @@ public class WebXml extends RewriteSourceFileHolder<Xml.Document> {
     }
 
     private WebAppType initWebApp(Xml.Document resource) {
-        final WebAppType webApp;
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(WebAppType.class);
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            JAXBElement element = (JAXBElement) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(resource.printAll().getBytes()));
-            webApp = (WebAppType) element.getValue();
-            return webApp;
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
+
+//        final WebAppType webApp;
+//        try {
+//            JAXBContext jaxbContext = JAXBContext.newInstance(WebAppType.class);
+//            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+//            JAXBElement element = (JAXBElement) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(resource.printAll().getBytes()));
+//            webApp = (WebAppType) element.getValue();
+//            return webApp;
+//        } catch (JAXBException e) {
+//            throw new RuntimeException(e);
+//        }
+
+        return new WebXmlUnmarshaller().unmarshal(resource.printAll());
     }
 
     public static class MyNamespacePrefixMapper extends NamespacePrefixMapper {
@@ -64,13 +85,7 @@ public class WebXml extends RewriteSourceFileHolder<Xml.Document> {
         public String getPreferredPrefix(String namespaceUri,
                                          String suggestion,
                                          boolean requirePrefix) {
-            if (requirePrefix) {
-                if ("http://xmlns.jcp.org/xml/ns/javaee".equals(namespaceUri)) {
-                    return "";
-                }
-                if ("http://www.w3.org/1999/xlink".equals(namespaceUri)) {
-                    return "xlink";
-                }
+            if (requirePrefix && !"http://xmlns.jcp.org/xml/ns/javaee".equals(namespaceUri)) {
                 return suggestion;
             } else {
                 return "";
@@ -80,9 +95,6 @@ public class WebXml extends RewriteSourceFileHolder<Xml.Document> {
 
     @Override
     public String print() {
-
-//        StringWriter sw = new StringWriter();
-//        JAXB.marshal(webAppType, sw);
         try {
             JAXBElement<WebAppType> element = new JAXBElement<>(new QName("", "web-app"), WebAppType.class, webApp);
             JAXBContext jaxbContext = JAXBContext.newInstance(WebAppType.class);
@@ -127,7 +139,7 @@ public class WebXml extends RewriteSourceFileHolder<Xml.Document> {
     List<ServletDefinition> getServletDefinitions() {
         final Map<String, ServletDefinition> servlets = new HashMap<>();
 
-        for(JAXBElement<?> e : webApp.getModuleNameOrDescriptionAndDisplayName()) { //.forEach(e -> {
+        for(JAXBElement<?> e : webApp.getModuleNameOrDescriptionAndDisplayName()) {
 
             if (e.getDeclaredType().isAssignableFrom(ServletType.class)) {
                 ServletType servletType = (ServletType) e.getValue();
@@ -165,5 +177,147 @@ public class WebXml extends RewriteSourceFileHolder<Xml.Document> {
 
     public String getVersion() {
         return webApp.getVersion();
+    }
+
+    // taken from https://stackoverflow.com/questions/277502/jaxb-how-to-ignore-namespace-during-unmarshalling-xml-document
+    // Using the WebXmlUnmarshaller ignoring namespace failed here
+    public static class NamespaceFilter extends XMLFilterImpl {
+
+        private String usedNamespaceUri;
+        private boolean addNamespace;
+
+        //State variable
+        private boolean addedNamespace = false;
+
+        public NamespaceFilter(String namespaceUri,
+                               boolean addNamespace) {
+            super();
+
+            if (addNamespace)
+                this.usedNamespaceUri = namespaceUri;
+            else
+                this.usedNamespaceUri = "";
+            this.addNamespace = addNamespace;
+        }
+
+
+
+        @Override
+        public void startDocument() throws SAXException {
+            super.startDocument();
+            if (addNamespace) {
+                startControlledPrefixMapping();
+            }
+        }
+
+
+
+        @Override
+        public void startElement(String arg0, String arg1, String arg2,
+                                 Attributes arg3) throws SAXException {
+
+            super.startElement(this.usedNamespaceUri, arg1, arg2, arg3);
+        }
+
+        @Override
+        public void endElement(String arg0, String arg1, String arg2)
+                throws SAXException {
+
+            super.endElement(this.usedNamespaceUri, arg1, arg2);
+        }
+
+        @Override
+        public void startPrefixMapping(String prefix, String url)
+                throws SAXException {
+
+
+            if (addNamespace) {
+                this.startControlledPrefixMapping();
+            } else {
+                //Remove the namespace, i.e. don´t call startPrefixMapping for parent!
+            }
+
+        }
+
+        private void startControlledPrefixMapping() throws SAXException {
+            if (this.addNamespace && !this.addedNamespace) {
+                super.startPrefixMapping("", this.usedNamespaceUri);
+                this.addedNamespace = true;
+            }
+        }
+
+    }
+
+
+    @Deprecated
+    public static class WebXmlUnmarshaller {
+
+        /**
+         * Takes the raw web.xml source and attempts to map it to JAXB classes created from a 4.0 web-app schema.
+         * Namespace information will be removed to allow unmarshalling all versions into the same JAXB model classes.
+         */
+        public WebAppType unmarshal(String xml) {
+            try {
+                /*
+                JAXBContext jc = JAXBContext.newInstance( WebAppType.class );
+                Unmarshaller u = jc.createUnmarshaller();
+
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                dbf.setNamespaceAware(false);
+                DocumentBuilder db = dbf.newDocumentBuilder();
+                Document doc = db.parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+                //If just a string
+                //InputSource is = new InputSource(new StringReader(line));
+                //Document doc = db.parse(is)
+                WebAppType value = u.unmarshal(doc, WebAppType.class).getValue();
+                return value;
+                 */
+
+                /*
+                JAXBContext jc2 = JAXBContext.newInstance(WebAppType.class);
+                Unmarshaller u = jc2.createUnmarshaller();
+
+                SAXParserFactory sax = SAXParserFactory.newInstance();
+                sax.setNamespaceAware(false);
+
+                XMLReader reader = sax.newSAXParser().getXMLReader(); // XMLReaderFactory.createXMLReader();
+                NamespaceFilter inFilter = new NamespaceFilter("http://xmlns.jcp.org/xml/ns/javaee", true);
+//                NamespaceFilter inFilter = new NamespaceFilter(null, false);
+                inFilter.setParent(reader);
+                InputSource is2 = new InputSource(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+                SAXSource source = new SAXSource(inFilter, is2);
+                WebAppType value1 = u.unmarshal(source, WebAppType.class).getValue();
+                return value1;
+                */
+
+
+                XMLStreamReader xsr = XMLInputFactory.newFactory().createXMLStreamReader(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+                WebXml.WebXmlUnmarshaller.XMLReaderWithoutNamespace xr = new WebXml.WebXmlUnmarshaller.XMLReaderWithoutNamespace(xsr);
+                JAXBContext jaxbContext = JAXBContext.newInstance(WebAppType.class);
+                Unmarshaller jc = jaxbContext.createUnmarshaller();
+                WebAppType value = jc.unmarshal(xr, WebAppType.class).getValue();
+                return value;
+            } catch (JAXBException e) {
+                throw new RuntimeException(e);
+            }  catch (XMLStreamException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public static class XMLReaderWithoutNamespace extends StreamReaderDelegate {
+            public XMLReaderWithoutNamespace(XMLStreamReader reader) {
+                super(reader);
+            }
+
+            @Override
+            public String getAttributeNamespace(int arg0) {
+                return "";
+            }
+
+            @Override
+            public String getNamespaceURI() {
+                return "http://xmlns.jcp.org/xml/ns/javaee";
+            }
+        }
     }
 }

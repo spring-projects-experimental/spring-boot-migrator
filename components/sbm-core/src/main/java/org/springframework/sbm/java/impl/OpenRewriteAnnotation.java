@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.java.AddOrUpdateAnnotationAttribute;
 import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.java.api.Annotation;
 import org.springframework.sbm.java.api.Expression;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.support.openrewrite.java.AddOrReplaceAnnotationAttribute;
 import lombok.Getter;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.tree.J;
@@ -79,8 +79,8 @@ public class OpenRewriteAnnotation implements Annotation {
 
     @Override
     public void setAttribute(String attribute, Object value, Class valueType) {
-        AddOrReplaceAnnotationAttribute visitor = new AddOrReplaceAnnotationAttribute(() -> javaParser, wrapped, attribute, value, valueType);
-        refactoring.refactor(visitor);
+        AddOrUpdateAnnotationAttribute recipe = new AddOrUpdateAnnotationAttribute(this.getFullyQualifiedName(), attribute, value.toString(), false);
+        refactoring.refactor(recipe);
     }
 
     @Override

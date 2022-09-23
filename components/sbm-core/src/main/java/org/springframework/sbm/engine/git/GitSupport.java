@@ -250,8 +250,8 @@ public class GitSupport {
     public void commitWhenGitAvailable(ProjectContext context, String appliedRecipeName, List<String> modifiedResources, List<String> deletedResources) {
         if (sbmApplicationProperties.isGitSupportEnabled()) {
             File repoDir = context.getProjectRootDirectory().toFile();
-            modifiedResources = makeRelativeToRoot(modifiedResources, repoDir);
-            deletedResources = makeRelativeToRoot(deletedResources, repoDir);
+            modifiedResources = makeRelativeToRepositoryLocation(modifiedResources, repoDir);
+            deletedResources = makeRelativeToRepositoryLocation(deletedResources, repoDir);
             if (repoExists(repoDir)) {
                 String commitMessage = "SBM: applied recipe '" + appliedRecipeName + "'";
                 Commit latestCommit = addAllAndCommit(repoDir, commitMessage, modifiedResources, deletedResources);
@@ -269,7 +269,7 @@ public class GitSupport {
         }
     }
 
-    private List<String> makeRelativeToRoot(List<String> paths, File projectRootDir) {
+    private List<String> makeRelativeToRepositoryLocation(List<String> paths, File projectRootDir) {
         return paths.stream()
                 .map(p -> projectRootDir.toPath().relativize(Path.of(p).toAbsolutePath().normalize()))
                 .map(Path::toString)

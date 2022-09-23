@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -111,9 +112,9 @@ public class ApplicationModules {
      */
     public List<Module> getTopmostApplicationModules() {
         List<Module> topmostModules = new ArrayList<>();
+        Set<String> packagingTypes = Set.of("jar","war","mule-application");
         modules.forEach(module -> {
-            // is jar
-            if ("jar".equals(module.getBuildFile().getPackaging())) { // FIXME: other types could be topmost too, e.g. 'war'
+            if (packagingTypes.contains(module.getBuildFile().getPackaging())) {
                 // no other pom depends on this pom in its dependency section
                 if (noOtherPomDependsOn(module.getBuildFile())) {
                     // has no parent or parent has packaging pom

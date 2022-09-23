@@ -28,4 +28,9 @@ public class ServletDefinition {
     private String fullyQualifiedServletClassName;
     private String servletName;
     private List<String> urlPattern;
+    private String jspFile;
+
+    public String getJspFile() {
+        return jspFile;
+    }
 }

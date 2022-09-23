@@ -29,7 +29,10 @@ public interface ProjectJavaSources {
 
     List<JavaSource> list();
 
+    @Deprecated
     Stream<JavaSource> asStream();
+
+    Stream<JavaSource> stream();
 
     List<RewriteSourceFileHolder<J.CompilationUnit>> find(Recipe find);
 
