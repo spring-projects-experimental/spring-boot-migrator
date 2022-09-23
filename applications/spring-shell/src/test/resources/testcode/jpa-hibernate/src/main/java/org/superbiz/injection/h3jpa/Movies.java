@@ -26,7 +26,7 @@ import java.util.List;
 @Stateless
 public class Movies {
 
-    @PersistenceContext(unitName = "movie-unit" /*, type = PersistenceContextType.EXTENDED*/)
+    @PersistenceContext(unitName = "movie-unit")
     private EntityManager entityManager;
 
     public void addMovie(Movie movie) throws Exception {

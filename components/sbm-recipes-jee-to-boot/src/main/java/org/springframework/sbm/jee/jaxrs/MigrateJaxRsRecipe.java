@@ -23,8 +23,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.migration.actions.AddDependencies;
 import org.springframework.sbm.build.migration.conditions.NoExactDependencyExist;
+import org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter;
 import org.springframework.sbm.engine.recipe.Recipe;
+import org.springframework.sbm.engine.recipe.RewriteRecipeLoader;
+import org.springframework.sbm.engine.recipe.RewriteRecipeRunner;
 import org.springframework.sbm.java.JavaRecipeAction;
+import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.java.migration.actions.ReplaceTypeAction;
 import org.springframework.sbm.java.migration.conditions.HasAnnotation;
 import org.springframework.sbm.java.migration.conditions.HasImportStartingWith;
@@ -34,19 +38,20 @@ import org.springframework.sbm.jee.jaxrs.recipes.ReplaceMediaType;
 import org.springframework.sbm.jee.jaxrs.recipes.SwapCacheControl;
 import org.springframework.sbm.jee.jaxrs.recipes.SwapHttHeaders;
 import org.springframework.sbm.jee.jaxrs.recipes.SwapResponseWithResponseEntity;
+import org.springframework.sbm.support.openrewrite.java.AddOrReplaceAnnotationAttribute;
 
 import java.util.List;
 import java.util.function.Supplier;
 
 @Configuration
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class MigrateJaxRsRecipe {
 
 
-    private final JavaParser javaParserSupplier;
+    private final Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
 
     @Bean
-    public Recipe jaxRs() {
+    public Recipe jaxRs(RewriteRecipeLoader rewriteRecipeLoader, RewriteRecipeRunner rewriteRecipeRunner) {
         return Recipe.builder()
                 .name("migrate-jax-rs")
                 .order(60)
@@ -96,7 +101,7 @@ public class MigrateJaxRsRecipe {
                                 JavaRecipeAction.builder()
                                         .condition(HasImportStartingWith.builder().value("javax.ws.rs.core.MediaType").build())
                                         .description("Replace JaxRs MediaType with it's Spring equivalent.")
-                                        .recipe(new ReplaceMediaType(() -> javaParserSupplier))
+                                        .recipe(new ReplaceMediaType(javaParserSupplier))
                                         .build(),
 
                                 JavaRecipeAction.builder()
@@ -120,7 +125,27 @@ public class MigrateJaxRsRecipe {
                                 JavaRecipeAction.builder()
                                         .condition(HasImportStartingWith.builder().value("javax.ws.rs.core.Response").build())
                                         .description("Replace JaxRs Response and ResponseBuilder with it's Spring equivalent.")
-                                        .recipe(new SwapResponseWithResponseEntity(() -> javaParserSupplier))
+                                        .recipe(new SwapResponseWithResponseEntity(javaParserSupplier))
+                                        .build(),
+
+                                OpenRewriteDeclarativeRecipeAdapter.builder()
+                                        .condition(HasAnnotation.builder().annotation("org.springframework.web.bind.annotation.RequestParam").build())
+                                        .description("Adds required=false to all @RequestParam annotations")
+                                        .rewriteRecipeLoader(rewriteRecipeLoader)
+                                        .rewriteRecipeRunner(rewriteRecipeRunner)
+                                        .openRewriteRecipe(
+                                                """
+                                                type: specs.openrewrite.org/v1beta/recipe
+                                                name: org.springframework.sbm.jee.MakeRequestParamsOptional
+                                                displayName: Set required=false for @RequestParam without 'required'
+                                                description: Set required=false for @RequestParam without 'required'
+                                                recipeList:
+                                                  - org.openrewrite.java.AddOrUpdateAnnotationAttribute:
+                                                      annotationType: "org.springframework.web.bind.annotation.RequestParam"
+                                                      attributeName: "required"
+                                                      attributeValue: "false"
+                                                      addOnly: true
+                                                """)
                                         .build()
                         )
                 )
