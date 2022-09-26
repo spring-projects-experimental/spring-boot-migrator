@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.springframework.sbm</groupId>
         <artifactId>spring-boot-migrator</artifactId>
-        <version>0.12.0</version>
+        <version>0.12.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>openrewrite-spring-recipes</artifactId>

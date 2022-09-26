@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.springframework.sbm</groupId>
         <artifactId>spring-boot-migrator</artifactId>
-        <version>0.12.0</version>
+        <version>0.12.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-recipes-jee-to-boot</artifactId>
-            <version>0.12.0</version>
+            <version>0.12.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-support-weblogic</artifactId>
-            <version>0.12.0</version>
+            <version>0.12.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
