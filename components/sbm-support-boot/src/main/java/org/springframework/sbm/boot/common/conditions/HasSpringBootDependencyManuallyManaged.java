@@ -43,7 +43,7 @@ public class HasSpringBootDependencyManuallyManaged implements Condition {
                 .stream()
                 .map(Module::getBuildFile)
                 .anyMatch(b -> {
-                    boolean matchedInDependencies = b.getDeclaredDependencies()
+                    boolean matchedInDependencies = b.getRequestedDependencies()
                             .stream()
                             .anyMatch(matchesSpringBootPattern());
 
