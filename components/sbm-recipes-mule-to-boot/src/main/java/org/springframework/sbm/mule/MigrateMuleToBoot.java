@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.mule;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,23 +31,34 @@ import org.springframework.sbm.java.migration.conditions.HasNoTypeAnnotation;
 import org.springframework.sbm.java.migration.conditions.HasTypeAnnotation;
 import org.springframework.sbm.mule.actions.JavaDSLAction2;
 import org.springframework.sbm.mule.conditions.MuleConfigFileExist;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Configuration
 public class MigrateMuleToBoot {
+    private final SbmApplicationProperties sbmProperties;
 
     @Autowired
     private JavaDSLAction2 javaDSLAction2;
 
-
     @Bean
     public Recipe muleRecipe() {
+        String name = "migrate-mule-to-boot";
+        String description = "Migrate Mulesoft 3.9 to Spring Boot.";
+
+        // Flag to enable TriggerMesh ransformation mode
+        if (sbmProperties.isMuleTriggerMeshTransformEnabled()) {
+            name = "migrate-mule-to-triggermesh-boot";
+            description = "Migrate Mulesoft 3.9 to Spring Boot using TriggerMesh.";
+            javaDSLAction2.setMuleTriggerMeshTransformEnabled(true);
+        }
+
         return Recipe.builder()
-                .name("migrate-mule-to-boot")
-                .description("Migrate Mulesoft 3.9 to Spring Boot")
+                .name(name)
+                .description(description)
                 .order(60)
-                .description("Migrate Mulesoft to Spring Boot")
                 .condition(new MuleConfigFileExist())
                 .actions(List.of(
                         /*
