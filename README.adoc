@@ -5,6 +5,14 @@ ____
 Spring Boot Migrator (SBM) aims to help developers upgrade or migrate to https://spring.io/projects/spring-boot[Spring Boot] by providing recipes for automated migrations.
 ____
 
+== Support and Requirements
+
+✅ Java, JDK 17
+✅ Maven
+❌ Kotlin
+❌ Gradle
+
+
 == Spring Boot 3.0 Upgrades
 
 We are working on automated upgrade from Spring Boot 2.7 to Spring Boot 3.0.
