@@ -28,8 +28,8 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
     final private Path absoluteProjectDir;
 
     /**
-     * @param absoluteProjectDir the absolute path to project root
-     * @param sourceFile         the OpenRewrite {@code SourceFile}
+     @param absoluteProjectDir the absolute path to project root
+     @param sourceFile the OpenRewrite {@code SourceFile}
      */
     public RewriteSourceFileHolder(Path absoluteProjectDir, T sourceFile) {
         this.absoluteProjectDir = absoluteProjectDir;
@@ -54,12 +54,11 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
     }
 
     /**
-     * Move the represented resource to another location.
-     * <p>
-     * The given {@code newPath} will be relativized if absolute.
-     * The returned instance represents the same file at the new location.
-     *
-     * @param newPath relative path with filename for the destination
+     Move the represented resource to another location.
+     <p>
+     The given {@code newPath} will be relativized if absolute.
+     The returned instance represents the same file at the new location.
+     @param newPath relative path with filename for the destination
      */
     @Override
     public void moveTo(Path newPath) {
@@ -69,7 +68,8 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
         if (absoluteProjectDir.resolve(newPath).toFile().isDirectory()) {
             newPath = newPath.resolve(this.getAbsolutePath().getFileName());
         }
-        sourceFile = (T) sourceFile.withSourcePath(newPath);
+
+        sourceFile = sourceFile.withSourcePath(newPath);
         this.markChanged();
     }
 
@@ -78,12 +78,11 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
     }
 
     /**
-     * Replace current source file with {@code fixedSourceFile}.
-     * <p>
-     * If {@code fixedSourceFile.print()} differs from current file content,
-     * source file is marked as changed.
-     *
-     * @param fixedSourceFile the new source file
+     Replace current source file with {@code fixedSourceFile}.
+     <p>
+     If {@code fixedSourceFile.print()} differs from current file content,
+     source file is marked as changed.
+     @param fixedSourceFile the new source file
      */
     public void replaceWith(T fixedSourceFile) {
         if (sourceFile != null && !sourceFile.printAll().equals(fixedSourceFile.printAll())) {
