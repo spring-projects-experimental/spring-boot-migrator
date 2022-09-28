@@ -17,6 +17,7 @@ package org.springframework.sbm.project.buildfile;
 
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -88,10 +89,13 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(buildFile.getRequestedDependencies().get(0).getCoordinates()).isEqualTo("javax.validation:validation-api:2.0.1.Final");
     }
 
-    @Test
-    void shouldNotAddDependencyWhenAlreadyExists() {
-        @Language("xml")
-        String applicationPom = """
+    @Nested
+    class HandlingDuplicatedDependencyTest {
+
+        @Test
+        void shouldNotAddDependencyWhenAlreadyExists() {
+            @Language("xml")
+            String applicationPom = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0"
                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -114,24 +118,24 @@ public class OpenRewriteMavenBuildFileTest {
                 </project>
                 """;
 
-        BuildFile buildFile = TestProjectContext
-                .buildProjectContext()
-                .withMavenRootBuildFileSource(applicationPom)
-                .build()
-                .getApplicationModules()
-                .list()
-                .get(0)
-                .getBuildFile();
+            BuildFile buildFile = TestProjectContext
+                    .buildProjectContext()
+                    .withMavenRootBuildFileSource(applicationPom)
+                    .build()
+                    .getApplicationModules()
+                    .list()
+                    .get(0)
+                    .getBuildFile();
 
-        buildFile.addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
-        buildFile.addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
-        assertThat(buildFile.getDeclaredDependencies()).hasSize(1);
-    }
+            buildFile.addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
+            buildFile.addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
+            assertThat(buildFile.getDeclaredDependencies()).hasSize(1);
+        }
 
-    @Test
-    void shouldDuplicateDependencyWithDifferentScope() {
-        @Language("xml")
-        String applicationPom = """
+        @Test
+        void shouldDuplicateDependencyWithDifferentScope() {
+            @Language("xml")
+            String applicationPom = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0"
                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -155,24 +159,24 @@ public class OpenRewriteMavenBuildFileTest {
                 </project>
                 """;
 
-        BuildFile buildFile = TestProjectContext
-                .buildProjectContext()
-                .withMavenRootBuildFileSource(applicationPom)
-                .build()
-                .getApplicationModules()
-                .list()
-                .get(0)
-                .getBuildFile();
+            BuildFile buildFile = TestProjectContext
+                    .buildProjectContext()
+                    .withMavenRootBuildFileSource(applicationPom)
+                    .build()
+                    .getApplicationModules()
+                    .list()
+                    .get(0)
+                    .getBuildFile();
 
-        buildFile.addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
-        assertThat(buildFile.getDeclaredDependencies()).hasSize(2);
-    }
+            buildFile.addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
+            assertThat(buildFile.getDeclaredDependencies()).hasSize(2);
+        }
 
-    @Test
-    void shouldNotDuplicateDependencyInManagedDependencySetting() {
+        @Test
+        void shouldNotDuplicateDependencyInManagedDependencySetting() {
 
-        @Language("xml")
-        String applicationPom = """
+            @Language("xml")
+            String applicationPom = """
 <?xml version="1.0" encoding="UTF-8"?>
     <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -206,23 +210,25 @@ public class OpenRewriteMavenBuildFileTest {
 </project>
                 """;
 
-        BuildFile buildFile = TestProjectContext
-                .buildProjectContext()
-                .withMavenRootBuildFileSource(applicationPom)
-                .build()
-                .getApplicationModules()
-                .list()
-                .get(0)
-                .getBuildFile();
+            BuildFile buildFile = TestProjectContext
+                    .buildProjectContext()
+                    .withMavenRootBuildFileSource(applicationPom)
+                    .build()
+                    .getApplicationModules()
+                    .list()
+                    .get(0)
+                    .getBuildFile();
 
-        buildFile.addDependency(Dependency.fromCoordinates("org.springframework.boot:spring-boot-starter:2.7.4"));
-        Dependency springBootStarterTest = Dependency
-                .fromCoordinates("org.springframework.boot:spring-boot-starter-test:2.7.4");
-        springBootStarterTest.setScope("test");
-        buildFile.addDependency(springBootStarterTest);
+            buildFile.addDependency(Dependency.fromCoordinates("org.springframework.boot:spring-boot-starter:2.7.4"));
+            Dependency springBootStarterTest = Dependency
+                    .fromCoordinates("org.springframework.boot:spring-boot-starter-test:2.7.4");
+            springBootStarterTest.setScope("test");
+            buildFile.addDependency(springBootStarterTest);
 
-        assertThat(buildFile.getDeclaredDependencies()).hasSize(2);
+            assertThat(buildFile.getDeclaredDependencies()).hasSize(2);
+        }
     }
+
 
     @Test
     @Tag("integration")
