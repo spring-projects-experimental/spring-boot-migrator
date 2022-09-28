@@ -5,6 +5,41 @@ ____
 Spring Boot Migrator (SBM) aims to help developers upgrade or migrate to https://spring.io/projects/spring-boot[Spring Boot] by providing recipes for automated migrations.
 ____
 
+== Support and Requirements
+
+✅ Java, JDK 17
+✅ Maven
+❌ Kotlin
+❌ Gradle
+
+
+== Spring Boot 3.0 Upgrades
+
+We are working on automated upgrade from Spring Boot 2.7 to Spring Boot 3.0.
+
+If any of your applications is on 2.7 and uses Maven (Gradle is currently not supproted) we'd be happy if you
+could give SBM a try and provide feedback of how it worked out.
+It is very hard to come up with all the possible setups found in the wild and therefor we need you - the community - to provide feedback to stabilize the recipe.
+
+Thank you!
+
+Download the https://github.com/spring-projects-experimental/spring-boot-migrator/releases[latest release]
+
+- Start SBM: `java -jar spring-boot-migrator.jar`
+- Scan your application: `scan <path to application>`
+- generate a report first: `apply boot-2.7-3.0-upgrade-report`
+- Run the migration: `apply boot-2.7-3.0-dependency-version-update`
+
+=== Contributing
+
+Any contribution is appreciated!
+If you want to get involved, please have a look at https://github.com/spring-projects-experimental/spring-boot-migrator/discussions/446[this discussion] where we provide additional information related to the Spring Boot 3 Upgrade.
+Please don't hesitate to ask questions and provide feedback.
+
+If you decided you want to work on an issue, leave a comment letting us know that you want to work on it and we go from there.
+
+Thank you!
+
 == How SBM works
 
 Spring Boot Migrator uses and is compatible with https://github.com/openrewrite/rewrite[OpenRewrite,window=_blank],
