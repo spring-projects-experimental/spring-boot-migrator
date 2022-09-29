@@ -16,37 +16,19 @@
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.upgrade.common.UpgradeReportUtil;
-import org.springframework.sbm.boot.upgrade.common.conditions.IsMatchingSpringBootVersion;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.Section;
-import org.springframework.sbm.boot.upgrade_24_25.report.*;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.project.resource.StringProjectResource;
 import freemarker.template.Configuration;
-import freemarker.template.Template;
 import lombok.Getter;
-import org.asciidoctor.Asciidoctor;
-import org.asciidoctor.Options;
-import org.asciidoctor.SafeMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.sbm.boot.UpgradeSectionBuilder;
-import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_Introduction;
-import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_SchemaSqlAndDataSqlFiles;
-import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_SeparateCredentials;
-import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_SpringDataJpa;
-import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_SqlScriptDataSourceInitialization;
-import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_UpdateDependencies;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.recipe.AbstractAction;
-import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.project.resource.StringProjectResource;
 
-import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,7 +70,10 @@ public class Boot_24_25_UpgradeReportAction extends AbstractAction {
     @Override
     public boolean isApplicable(ProjectContext context) {
         // Verify it's a 2.4.x Spring Boot project
-        return new IsMatchingSpringBootVersion("2.4.").evaluate(context);
+        IsSpringBootProject isSpringBootProject = new IsSpringBootProject();
+        isSpringBootProject.setVersionPattern("2\\.4\\..*");
+
+        return isSpringBootProject.evaluate(context);
     }
 
     @Getter
