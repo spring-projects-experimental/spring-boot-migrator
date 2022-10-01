@@ -144,7 +144,7 @@ public class ReplaceMediaType extends Recipe {
         // MediaType(String, String) - present on Spring MediaType
         doNext(new RewriteConstructorInvocation(constructorMatcher("javax.ws.rs.core.MediaType", "java.lang.String", "java.lang.String"), (v, m, addImport) -> {
             JavaType type = JavaType.buildType("org.springframework.http.MediaType");
-            return m.withType(type).withConstructorType(m.getConstructorType().withDeclaringType(TypeUtils.asFullyQualified(type)));
+            return m.withConstructorType(m.getConstructorType().withDeclaringType(TypeUtils.asFullyQualified(type)));
         }));
 
         // MediaType(String, String, String) -> MediaType(String, String, Charset)
@@ -162,7 +162,7 @@ public class ReplaceMediaType extends Recipe {
         // MediaType(String, String, Map<String, String>) - present on Spring MediaType
         doNext(new RewriteConstructorInvocation(constructorMatcher("javax.ws.rs.core.MediaType", "java.lang.String", "java.lang.String", "java.util.Map"), (v, m, addImport) -> {
             JavaType type = JavaType.buildType("org.springframework.http.MediaType");
-            return m.withType(type).withConstructorType(m.getConstructorType().withDeclaringType(TypeUtils.asFullyQualified(type)));
+            return m.withConstructorType(m.getConstructorType().withDeclaringType(TypeUtils.asFullyQualified(type)));
         }));
 
         // Type references
