@@ -16,7 +16,11 @@
 package org.springframework.sbm.boot.properties.actions;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 import org.springframework.sbm.build.api.Module;
@@ -27,6 +31,9 @@ import java.nio.file.Path;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
+@SuperBuilder
 public class AddSpringBootApplicationPropertiesAction extends AbstractAction {
 
     public static final Path APPLICATION_PROPERTIES_PATH = Path.of("src/main/resources/application.properties");
