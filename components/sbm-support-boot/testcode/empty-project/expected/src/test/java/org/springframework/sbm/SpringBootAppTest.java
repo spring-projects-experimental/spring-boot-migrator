@@ -1,4 +1,4 @@
-package com.boot.migrator;
+package org.springframework.sbm;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -113,6 +113,7 @@
           </build>
 
     - type: org.springframework.sbm.boot.properties.actions.AddSpringBootApplicationPropertiesAction
+      addDefaultPropertiesFileToTopModules: true
       condition:
         type: org.springframework.sbm.boot.properties.conditions.NoSpringBootApplicationPropertiesExists
       description: Create application.properties file.

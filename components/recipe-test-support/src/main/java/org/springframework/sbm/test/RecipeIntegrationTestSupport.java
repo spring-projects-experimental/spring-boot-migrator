@@ -133,12 +133,11 @@ public class RecipeIntegrationTestSupport {
             try (Stream<Path> walk = Files.walk(expectedProject)) {
                 result = walk.filter(Files::isRegularFile)
                         .map(f -> expectedProject.relativize(f))
-                        .filter(f -> f.toString().startsWith("target/"))
                         .collect(Collectors.toList());
             }
 
             result.stream()
-                    .forEach(r -> assertThat(r).hasSameTextualContentAs(migratedProject.resolve(r)));
+                    .forEach(r -> assertThat(expectedProject.resolve(r)).hasSameTextualContentAs(migratedProject.resolve(r)));
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
