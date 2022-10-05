@@ -1,4 +1,4 @@
-package com.boot.migrator;
+package org.springframework.sbm;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

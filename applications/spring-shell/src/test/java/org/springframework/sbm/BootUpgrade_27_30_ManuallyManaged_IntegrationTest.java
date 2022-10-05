@@ -20,16 +20,13 @@ import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.maven.MavenParser;
-import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.Dependency;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.ResolvedManagedDependency;
 import org.openrewrite.xml.tree.Xml;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -68,10 +65,6 @@ public class BootUpgrade_27_30_ManuallyManaged_IntegrationTest extends Integrati
         Optional<ResolvedManagedDependency> managedDependency = getManagedDependencyByArtifactId(mavenAsXMLDocument, artifactId);
         assertThat(managedDependency).isPresent();
         assertThat(managedDependency.get().getVersion()).isEqualTo(version);
-    }
-
-    private void verifyDependency(Xml.Document mavenAsXMLDocument, String artifactId, String version) {
-        verifyDependencyWithClassifier(mavenAsXMLDocument, artifactId, version, null);
     }
 
     private void verifyDependencyWithClassifier(Xml.Document mavenAsXMLDocument, String artifactId, String version, String classifier) {

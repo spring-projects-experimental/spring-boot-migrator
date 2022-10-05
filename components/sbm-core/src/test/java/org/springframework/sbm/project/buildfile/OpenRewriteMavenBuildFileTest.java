@@ -17,6 +17,7 @@ package org.springframework.sbm.project.buildfile;
 
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -87,6 +88,147 @@ public class OpenRewriteMavenBuildFileTest {
 
         assertThat(buildFile.getRequestedDependencies().get(0).getCoordinates()).isEqualTo("javax.validation:validation-api:2.0.1.Final");
     }
+
+    @Nested
+    class HandlingDuplicatedDependencyTest {
+
+        @Test
+        void shouldNotAddDependencyWhenAlreadyExists() {
+            @Language("xml")
+            String applicationPom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>org.example</groupId>
+                    <artifactId>some-module</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <properties>
+                        <maven.compiler.source>17</maven.compiler.source>
+                        <maven.compiler.target>17</maven.compiler.target>
+                    </properties>
+                    <dependencies>
+                        <dependency>
+                            <groupId>javax.validation</groupId>
+                            <artifactId>validation-api</artifactId>
+                            <version>2.0.1.Final</version>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """;
+
+            BuildFile buildFile = TestProjectContext
+                    .buildProjectContext()
+                    .withMavenRootBuildFileSource(applicationPom)
+                    .build()
+                    .getApplicationModules()
+                    .list()
+                    .get(0)
+                    .getBuildFile();
+
+            buildFile.addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
+            buildFile.addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
+            assertThat(buildFile.getDeclaredDependencies()).hasSize(1);
+        }
+
+        @Test
+        void shouldDuplicateDependencyWithDifferentScope() {
+            @Language("xml")
+            String applicationPom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>org.example</groupId>
+                    <artifactId>some-module</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <properties>
+                        <maven.compiler.source>17</maven.compiler.source>
+                        <maven.compiler.target>17</maven.compiler.target>
+                    </properties>
+                    <dependencies>
+                        <dependency>
+                            <groupId>javax.validation</groupId>
+                            <artifactId>validation-api</artifactId>
+                            <version>2.0.1.Final</version>
+                            <scope>test</scope>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """;
+
+            BuildFile buildFile = TestProjectContext
+                    .buildProjectContext()
+                    .withMavenRootBuildFileSource(applicationPom)
+                    .build()
+                    .getApplicationModules()
+                    .list()
+                    .get(0)
+                    .getBuildFile();
+
+            buildFile.addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
+            assertThat(buildFile.getDeclaredDependencies()).hasSize(2);
+        }
+
+        @Test
+        void shouldNotDuplicateDependencyInManagedDependencySetting() {
+
+            @Language("xml")
+            String applicationPom = """
+<?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.7.4</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>demo</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>demo</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+  			<groupId>org.springframework.boot</groupId>
+  			<artifactId>spring-boot-starter-test</artifactId>
+  			<scope>test</scope>
+  		</dependency>
+	</dependencies>
+
+</project>
+                """;
+
+            BuildFile buildFile = TestProjectContext
+                    .buildProjectContext()
+                    .withMavenRootBuildFileSource(applicationPom)
+                    .build()
+                    .getApplicationModules()
+                    .list()
+                    .get(0)
+                    .getBuildFile();
+
+            buildFile.addDependency(Dependency.fromCoordinates("org.springframework.boot:spring-boot-starter:2.7.4"));
+            Dependency springBootStarterTest = Dependency
+                    .fromCoordinates("org.springframework.boot:spring-boot-starter-test:2.7.4");
+            springBootStarterTest.setScope("test");
+            buildFile.addDependency(springBootStarterTest);
+
+            assertThat(buildFile.getDeclaredDependencies()).hasSize(2);
+        }
+    }
+
 
     @Test
     @Tag("integration")

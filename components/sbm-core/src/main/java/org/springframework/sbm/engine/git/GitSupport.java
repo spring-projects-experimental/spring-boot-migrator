@@ -23,6 +23,7 @@ import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides basic Git support.
@@ -47,37 +50,71 @@ public class GitSupport {
     private final SbmApplicationProperties sbmApplicationProperties;
 
     /**
+     * Find and return a git repository at given location.
+     * It searches up the hierarchy if {@code .git} does not exist in the given directory.
+     *
+     * @param repo the location of the repo to search for. {@code .git} is added to file location if not contained
+     */
+    public static Optional<Repository> findRepository(File repo) {
+        Optional<Repository> repository = Optional.empty();
+        try {
+            repository = Optional.of(new FileRepositoryBuilder().findGitDir(repo).setMustExist(true).build());
+
+        } catch (IllegalArgumentException | IOException e) {
+            log.error("Could not find .git in the given directory '{}' or any of it's parents", repo, e);
+        }
+        return repository;
+    }
+
+    /**
+     * Get the git repository or throw exception
+     */
+    public static Git getGit(File repo) {
+        Repository repository = findRepository(repo).orElseThrow(() -> new RuntimeException());
+        return Git.wrap(repository);
+    }
+
+    /**
      * Adds files to git index.
      *
-     * @param repo         the location of the repo
-     * @param filePatterns the filePatterns to add
+     * @param dirUnderGit a directory which itself or some parent dir contains .git
+     * @param filePatterns the filePatterns for files to add
      */
-    public void add(File repo, String... filePatterns) {
+    public void add(File dirUnderGit, String... filePatterns) {
         try {
-            Git git = getRepository(repo);
+            Git git = getGit(dirUnderGit);
             AddCommand add = git.add();
-            for (String filePattern : filePatterns) {
-                add.addFilepattern(filePattern);
-            }
+            processFilePatterns(dirUnderGit, git, s -> add.addFilepattern(s), filePatterns);
             DirCache call = add.call();
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }
     }
 
+    private void processFilePatterns(File dirUnderGit, Git git, Consumer<String> add, String[] filePatterns) {
+        Path repoDir = git.getRepository().getDirectory().toPath().getParent();
+        Path pathFromGit = repoDir.relativize(dirUnderGit.toPath());
+        for (String filePattern : filePatterns) {
+            if(filePattern.equals(".")) {
+                add.accept(".");
+            } else {
+                filePattern = pathFromGit.resolve(filePattern).toString();
+                add.accept(filePattern);
+            }
+        }
+    }
+
     /**
      * Adds removed files to index.
      *
-     * @param repo    the location of the repo
-     * @param deleted the filePatterns to remove
+     * @param dirUnderGit a directory which itself or some parent dir contains .git
+     * @param filePatterns the filePatterns to remove
      */
-    public void delete(File repo, String... deleted) {
+    public void delete(File dirUnderGit, String... filePatterns) {
         try {
-            Git git = getRepository(repo);
+            Git git = getGit(dirUnderGit);
             RmCommand rm = git.rm();
-            for (String filePattern : deleted) {
-                rm.addFilepattern(filePattern);
-            }
+            processFilePatterns(dirUnderGit, git, s -> rm.addFilepattern(s), filePatterns);
             rm.call();
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
@@ -92,7 +129,7 @@ public class GitSupport {
      */
     public Commit commit(File repo, String message) {
         try {
-            Git git = getRepository(repo);
+            Git git = getGit(repo);
             CommitCommand commit = git.commit();
             commit.setMessage(message);
             RevCommit call = commit.call();
@@ -109,10 +146,8 @@ public class GitSupport {
      */
     public Optional<Commit> getLatestCommit(File repo) {
         try {
-            Git git = getRepository(repo);
-            Iterable<RevCommit> revCommits = git.log()
-                    .setMaxCount(1)
-                    .call();
+            Git git = getGit(repo);
+            Iterable<RevCommit> revCommits = git.log().setMaxCount(1).call();
             RevCommit lastCommit = revCommits.iterator().next();
             return Optional.of(new Commit(lastCommit.getName(), lastCommit.getFullMessage()));
         } catch (GitAPIException e) {
@@ -121,37 +156,6 @@ public class GitSupport {
         }
     }
 
-
-    /**
-     * Find and return a git repository at given location.
-     *
-     * @param repo the location of the repo to search for. {@code .git} is added to file location if not contained
-     */
-    public static Optional<Repository> findRepository(File repo) {
-        Optional<Repository> repository = Optional.empty();
-        try {
-            repository = Optional.of(new FileRepositoryBuilder()
-                    .findGitDir(repo)
-                    .setMustExist(true)
-                    .build());
-
-        } catch (IllegalArgumentException | IOException e) {
-        }
-        return repository;
-    }
-
-    /**
-     * Get the git repository or throw exception
-     */
-    public static Git getRepository(File repo) {
-        try {
-            Repository repository = findRepository(repo)
-                    .orElseThrow(() -> new RuntimeException());
-            return Git.open(repository.getDirectory());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * Init a new git repo or return existing
@@ -186,10 +190,7 @@ public class GitSupport {
     public void softReset(File repo, String ref) {
         try {
             Git git = initGit(repo);
-            git.reset()
-                    .setMode(ResetCommand.ResetType.SOFT)
-                    .setRef(ref)
-                    .call();
+            git.reset().setMode(ResetCommand.ResetType.SOFT).setRef(ref).call();
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }
@@ -201,10 +202,9 @@ public class GitSupport {
      * @param repo             the location of the repo
      * @param expectedRevision the revision to check
      */
-    // TODO: test this method
     public boolean hasUncommittedChangesOrDifferentRevision(File repo, String expectedRevision) {
         try {
-            Git git = getRepository(repo);
+            Git git = getGit(repo);
             Status status = git.status().call();
             Optional<Commit> latestCommit = getLatestCommit(repo);
             if (latestCommit.isEmpty()) {
@@ -225,7 +225,6 @@ public class GitSupport {
      * @param modifedResources to add as modified
      * @param deletedResources to add as deleted
      */
-    // TODO: test this method
     public Commit addAllAndCommit(File repo, String commitMessage, List<String> modifedResources, List<String> deletedResources) {
         if (!modifedResources.isEmpty()) {
             String[] modified = modifedResources.toArray(new String[]{});
@@ -246,12 +245,16 @@ public class GitSupport {
         return repository.isPresent();
     }
 
-    // TODO: test this method
     public void commitWhenGitAvailable(ProjectContext context, String appliedRecipeName, List<String> modifiedResources, List<String> deletedResources) {
+        modifiedResources = modifiedResources.stream()
+                .map(r -> context.getProjectRootDirectory().relativize(Path.of(r)).toString())
+                .collect(Collectors.toList());
+        deletedResources = deletedResources.stream()
+                .map(r -> context.getProjectRootDirectory().relativize(Path.of(r)).toString())
+                .collect(Collectors.toList());
+
         if (sbmApplicationProperties.isGitSupportEnabled()) {
             File repoDir = context.getProjectRootDirectory().toFile();
-            modifiedResources = makeRelativeToRepositoryLocation(modifiedResources, repoDir);
-            deletedResources = makeRelativeToRepositoryLocation(deletedResources, repoDir);
             if (repoExists(repoDir)) {
                 String commitMessage = "SBM: applied recipe '" + appliedRecipeName + "'";
                 Commit latestCommit = addAllAndCommit(repoDir, commitMessage, modifiedResources, deletedResources);
@@ -261,7 +264,7 @@ public class GitSupport {
     }
 
     public static Optional<String> getBranchName(File repo) {
-        Git git = getRepository(repo);
+        Git git = getGit(repo);
         try {
             return Optional.ofNullable(git.getRepository().getBranch());
         } catch (IOException e) {
@@ -269,16 +272,30 @@ public class GitSupport {
         }
     }
 
-    private List<String> makeRelativeToRepositoryLocation(List<String> paths, File projectRootDir) {
-        return paths.stream()
-                .map(p -> projectRootDir.toPath().relativize(Path.of(p).toAbsolutePath().normalize()))
+    private List<String> makeRelativeToRepositoryPath(List<String> paths, File projectRootDir) {
+        Path gitPath = projectRootDir.toPath();
+        while (!gitPath.resolve(".git").toFile().isDirectory()) {
+            gitPath = gitPath.getParent();
+            if (gitPath == null) {
+                throw new IllegalArgumentException(
+                        "Could not find a .git dir in given project root dir '%s' or any parent directory.");
+            }
+        }
+        return getRelativePaths(paths, gitPath);
+    }
+
+    @NotNull
+    private List<String> getRelativePaths(List<String> paths, Path curPath) {
+        return paths
+                .stream()
+                .map(p -> curPath.relativize(Path.of(p).toAbsolutePath().normalize()))
                 .map(Path::toString)
                 .collect(Collectors.toList());
     }
 
     public GitStatus getStatus(File repo) {
         try {
-            Git git = getRepository(repo);
+            Git git = getGit(repo);
             Status status = null;
             status = git.status().call();
             GitStatus gitStatus = new GitStatus(status);
@@ -290,7 +307,7 @@ public class GitSupport {
 
     public void switchToBranch(File repo, String branchName) {
         try {
-            Git git = getRepository(repo);
+            Git git = getGit(repo);
             git.checkout().setName(branchName).setCreateBranch(true).call();
         } catch (GitAPIException e) {
             e.printStackTrace();
