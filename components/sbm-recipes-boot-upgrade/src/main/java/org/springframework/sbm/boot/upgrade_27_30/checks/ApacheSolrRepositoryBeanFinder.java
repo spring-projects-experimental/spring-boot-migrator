@@ -17,15 +17,12 @@
 package org.springframework.sbm.boot.upgrade_27_30.checks;
 
 import org.springframework.sbm.java.api.JavaSourceAndType;
-import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
-import org.springframework.sbm.java.impl.OpenRewriteType;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -37,24 +34,13 @@ public class ApacheSolrRepositoryBeanFinder implements ProjectResourceFinder<Lis
         return projectResourceSet.stream()
                 .filter(OpenRewriteJavaSource.class::isInstance)
                 .map(OpenRewriteJavaSource.class::cast)
-                .filter(js -> js.getTypes().stream().anyMatch(this::isSolrRepository))
-                .map(js -> {
-                    Optional<OpenRewriteType> type = js.getTypes().stream()
-                            .filter(this::isSolrRepository)
-                            .findFirst();
-                    if(type.isPresent()) {
-                        return new JavaSourceAndType(js, type.get());
-                    } else {
-                        return null;
-                    }
-                })
+                .filter(js -> js.getTypes().stream().anyMatch(o -> o.isImplementing(SOLR_REPOSITORY_CLASS)))
+                .map(js -> js.getTypes().stream()
+                            .filter(o -> o.isImplementing(SOLR_REPOSITORY_CLASS))
+                            .findFirst()
+                            .map(o -> new JavaSourceAndType(js,o))
+                            .get()
+                )
                 .collect(Collectors.toList());
-    }
-
-    private boolean isSolrRepository(OpenRewriteType t) {
-        return t.getExtends()
-                .map(Type::getFullyQualifiedName)
-                .filter(SOLR_REPOSITORY_CLASS::equals)
-                .isPresent();
     }
 }

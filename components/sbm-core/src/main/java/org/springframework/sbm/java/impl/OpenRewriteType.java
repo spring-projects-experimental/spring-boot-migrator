@@ -17,6 +17,7 @@ package org.springframework.sbm.java.impl;
 
 import org.openrewrite.java.*;
 import org.openrewrite.java.format.WrappingAndBraces;
+import org.openrewrite.java.tree.*;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
@@ -26,20 +27,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.search.DeclaresMethod;
-import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.ClassDeclaration;
-import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.JavaType.Class;
-import org.openrewrite.java.tree.TypeUtils;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.FindCompilationUnitContainingType;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -349,6 +350,15 @@ public class OpenRewriteType implements Type {
             }
         };
         apply(new GenericOpenRewriteRecipe<JavaIsoVisitor<ExecutionContext>>(() -> javaIsoVisitor));
+    }
+
+    public boolean isImplementing(String fqClassName){
+        return getClassDeclaration()
+                .getType()
+                .getInterfaces()
+                .stream()
+                .map(JavaType.FullyQualified::getFullyQualifiedName)
+                .anyMatch(fqClassName::equals);
     }
 
 }
