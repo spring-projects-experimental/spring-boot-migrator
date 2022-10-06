@@ -20,7 +20,6 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.Setter;
 import org.openrewrite.Parser;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
@@ -65,7 +64,10 @@ public class AddMinimalPomXml extends AbstractAction {
         RewriteMavenParser rewriteMavenParser = new RewriteMavenParser();
         Parser.Input input = new Parser.Input(Path.of("pom.xml"), () -> new ByteArrayInputStream(src.getBytes(StandardCharsets.UTF_8)));
         Xml.Document maven = rewriteMavenParser.parseInputs(List.of(input), null, new RewriteExecutionContext(getEventPublisher())).get(0);
-        OpenRewriteMavenBuildFile rewriteMavenBuildFile = new OpenRewriteMavenBuildFile(context.getProjectRootDirectory(), maven, getEventPublisher(), new RewriteExecutionContext(getEventPublisher()));
+        OpenRewriteMavenBuildFile rewriteMavenBuildFile = new OpenRewriteMavenBuildFile(
+                context.getProjectRootDirectory(),
+                maven, getEventPublisher(), new RewriteExecutionContext(getEventPublisher())
+        );
         context.getProjectResources().add(rewriteMavenBuildFile);
     }
 }

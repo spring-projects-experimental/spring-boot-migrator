@@ -135,7 +135,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     private final RewriteExecutionContext executionContext;
 
-    public OpenRewriteMavenBuildFile(Path absoluteProjectPath, Xml.Document sourceFile, ApplicationEventPublisher eventPublisher, RewriteExecutionContext executionContext) {
+
+    public OpenRewriteMavenBuildFile(Path absoluteProjectPath,
+                                     Xml.Document sourceFile,
+                                     ApplicationEventPublisher eventPublisher,
+                                     RewriteExecutionContext executionContext) {
         super(absoluteProjectPath, sourceFile);
         this.eventPublisher = eventPublisher;
         this.executionContext = executionContext;
@@ -360,19 +364,6 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     private String resolveScope(String groupId, String artifactId, @Nullable String type, @Nullable String classifier) {
         Scope managedScope = getPom().getPom().getManagedScope(groupId, artifactId, type, classifier);
         return managedScope != null ? managedScope.name().toLowerCase() : null;
-    }
-
-    private String calculateVersion(org.openrewrite.maven.tree.Dependency d) {
-        String version = null;
-        if (d.getVersion() != null && !d.getVersion().startsWith("${")) {
-            version = d.getVersion();
-        } else {
-            String managedVersion = getPom().getPom().getManagedVersion(d.getGroupId(), d.getArtifactId(), null, null);
-            if (managedVersion != null) {
-                version = managedVersion;
-            }
-        }
-        return version;
     }
 
     private org.springframework.sbm.build.api.Dependency mapDependency(Scope scope, ResolvedDependency d) {
@@ -628,7 +619,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public String getVersion() {
-        return getPom().getPom().getVersion();
+        return evaluate(getPom().getPom().getVersion());
+    }
+
+    private String evaluate(String expression) {
+        return getPom().getPom().getValue(expression);
     }
 
     @Override

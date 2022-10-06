@@ -459,7 +459,8 @@ public class TestProjectContext {
             JavaRefactoringFactory javaRefactoringFactory = new JavaRefactoringFactoryImpl(projectResourceSetHolder);
 
             // create ProjectResourceWrapperRegistry and register Java and Maven resource wrapper
-            BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(eventPublisher, javaParser);
+            BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(
+                    eventPublisher);
             resourceWrapperList.add(buildFileResourceWrapper);
             JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(javaRefactoringFactory, javaParser);
             resourceWrapperList.add(javaSourceProjectResourceWrapper);
