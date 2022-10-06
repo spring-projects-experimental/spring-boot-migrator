@@ -17,7 +17,7 @@ ____
 
 We are working on automated upgrade from Spring Boot 2.7 to Spring Boot 3.0.
 
-If any of your applications is on 2.7 and uses Maven (Gradle is currently not supproted) we'd be happy if you
+If any of your applications is on 2.7 and uses Maven (Gradle is currently not supported), we'd be happy if you
 could give SBM a try and provide feedback of how it worked out.
 It is very hard to come up with all the possible setups found in the wild and therefor we need you - the community - to provide feedback to stabilize the recipe.
 
