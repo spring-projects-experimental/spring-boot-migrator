@@ -264,14 +264,25 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .map(d -> mapDependency(d))
                 .map(d -> {
                     if(d.getType() == null || d.getClassifier() == null || d.getVersion() == null) {
-                        List<ResolvedDependency> dependencies = getPom().findDependencies(d.getGroupId(), d.getArtifactId(),
-                                                                                          d.getScope() != null ? Scope.fromName(d.getScope()) : null);
+
+                        String groupId = getPom().getPom().getValue(d.getGroupId());
+                        String artifactId = getPom().getPom().getValue(d.getArtifactId());
+                        String version = getPom().getPom().getValue(d.getVersion());
+
+                        List<ResolvedDependency> dependencies = getPom().findDependencies(
+                                groupId,
+                                artifactId,
+                                d.getScope() != null ? Scope.fromName(d.getScope()) : null
+                        );
                         ResolvedDependency resolvedDependency = dependencies.get(0);
-                        d.setVersion(resolvedDependency.getVersion());
+                        d.setVersion(version);
                         d.setClassifier(resolvedDependency.getClassifier());
                         d.setType(resolvedDependency.getType());
+                        d.setArtifactId(artifactId);
+                        d.setGroupId(groupId);
+
                         if(d.getScope() == null ) {
-                            String s = resolveScope(d.getGroupId(), d.getArtifactId(), d.getType(), d.getClassifier());
+                            String s = resolveScope(groupId, artifactId, d.getType(), d.getClassifier());
                             d.setScope(s);
                         }
                     }
