@@ -269,9 +269,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .map(d -> {
                     if(d.getType() == null || d.getClassifier() == null || d.getVersion() == null) {
 
-                        String groupId = getPom().getPom().getValue(d.getGroupId());
-                        String artifactId = getPom().getPom().getValue(d.getArtifactId());
-                        String version = getPom().getPom().getValue(d.getVersion());
+                        String groupId = evaluate(d.getGroupId());
+                        String artifactId = evaluate(d.getArtifactId());
+                        String version = evaluate(d.getVersion());
 
                         List<ResolvedDependency> dependencies = getPom().findDependencies(
                                 groupId,
@@ -621,11 +621,6 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public String getVersion() {
         return evaluate(getPom().getPom().getVersion());
     }
-
-    private String evaluate(String expression) {
-        return getPom().getPom().getValue(expression);
-    }
-
     @Override
     public String getCoordinates() {
         return getGroupId() + ":" + getArtifactId() + ":" + getVersion();
@@ -802,4 +797,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         }
     }
 
+
+    private String evaluate(String expression) {
+        return getPom().getPom().getValue(expression);
+    }
 }
