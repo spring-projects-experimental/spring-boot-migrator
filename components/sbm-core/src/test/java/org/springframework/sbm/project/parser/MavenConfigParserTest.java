@@ -74,8 +74,9 @@ class MavenConfigParserTest {
     public void shouldNotErrorWhenMavenConfigIsWrong()  {
 
         List<String> mavenConfigFile = List.of("""
-                -Once upon a time there was a handsome prince
-                who used java and died
+                -Horror Story:
+                A developer used PHP
+                ** Scary music Intensifies **
                 -Dhello
                 """);
 
