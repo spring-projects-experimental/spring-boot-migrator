@@ -16,8 +16,8 @@
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
-import org.springframework.sbm.boot.asciidoctor.IntroductionSection;
 import org.springframework.sbm.boot.asciidoctor.Section;
+import org.springframework.sbm.boot.asciidoctor.IntroductionSection;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.build.api.BuildFile;
 

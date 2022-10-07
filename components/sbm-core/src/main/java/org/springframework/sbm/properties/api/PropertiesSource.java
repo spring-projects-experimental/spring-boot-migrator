@@ -28,10 +28,14 @@ import org.openrewrite.properties.tree.Properties;
 import org.openrewrite.properties.tree.Properties.Entry;
 import org.openrewrite.properties.tree.Properties.File;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 // TODO: fcoi RewriteSourceFileHolder as member ?!
 @Slf4j
@@ -77,6 +81,17 @@ public class PropertiesSource extends RewriteSourceFileHolder<Properties.File> {
             return Optional.of(found.iterator().next().getValue().getText());
         }
 
+    }
+
+    public java.util.Properties getProperties() {
+        String collect = getSourceFile().printAll();
+        try {
+            java.util.Properties properties = new java.util.Properties(collect.length());
+            properties.load(new ByteArrayInputStream(collect.getBytes(StandardCharsets.UTF_8)));
+            return properties;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void apply(Recipe r) {

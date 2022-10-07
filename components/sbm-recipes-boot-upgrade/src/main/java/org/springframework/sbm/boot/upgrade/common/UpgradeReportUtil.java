@@ -43,9 +43,9 @@ public class UpgradeReportUtil {
         String html = asciidoctor.convert(markdown,
                 Options.builder()
                         .toFile(true)
-                        .backend("html5")
+                        .backend("spring-html")
                         .headerFooter(true)
-                        .safe(SafeMode.UNSAFE)
+                        .safe(SafeMode.SERVER)
                         .build());
         return html;
     }

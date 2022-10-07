@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<meta name="author" content="Fabian Krüger">
+<title>Spring Boot 3 Upgrade Report</title>
+<link rel="stylesheet" href="css/site.css">
+<script src="js/setup.js"></script><script defer src="js/site.js"></script>
+
+</head>
+<body id="index" class="book toc2 toc-left"><div id="banner-container" class="container" role="banner">
+  <div id="banner" class="contained" role="banner">
+    <div id="switch-theme">
+      <input type="checkbox" id="switch-theme-checkbox" />
+      <label for="switch-theme-checkbox">Dark Theme</label>
+    </div>
+  </div>
+</div>
+<div id="tocbar-container" class="container" role="navigation">
+  <div id="tocbar" class="contained" role="navigation">
+    <button id="toggle-toc"></button>
+  </div>
+</div>
+<div id="main-container" class="container">
+  <div id="main" class="contained">
+    <div id="doc" class="doc">
+<div id="header">
+<h1>Spring Boot 3 Upgrade Report</h1>
+<div class="details">
+<span id="author" class="author">Fabian Krüger</span><br>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<span id="back-to-index"><a href="index.html">Back to index</a></span><ul class="sectlevel1">
+<li><a href="#introduction">1. Introduction</a></li>
+<li><a href="#relevant-changes">2. Relevant Changes</a>
+<ul class="sectlevel2">
+<li><a href="#changes-to-data-properties">2.1. Changes to Data Properties</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="introduction"><a class="anchor" href="#introduction"></a>1. Introduction</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<tbody>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Scanned dir</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/Users/fkrueger/projects/spring-boot-migrator/components/sbm-recipes-boot-upgrade/target/dummy-test-path</code></p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Revision</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scanned project not under Git</p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Coordinate</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>com.example:dummy-root:0.1.0-SNAPSHOT</code></p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Boot version</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2.7.3</code></p></td>
+</tr>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Changes</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The application was scanned and matched against the changes listed in the
+<a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.5-Release-Notes">Spring Boot 2.5 Release Notes</a>
+as well as from <a href="https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-5.x">Spring Framework 5.x Release Notes</a>.</p>
+</div>
+<div class="paragraph">
+<p>The Relevant Changes section lists all potentially required changes to upgrade the scanned application to Spring Boot 2.5.6.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+JDK 17 is required for Spring Boot 3
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="relevant-changes"><a class="anchor" href="#relevant-changes"></a>2. Relevant Changes</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section lists the changes SBM found to be applicable to upgrade the scanned application to Spring Boot 3.0.0.</p>
+</div>
+<div class="sect2">
+<h3 id="changes-to-data-properties"><a class="anchor" href="#changes-to-data-properties"></a>2.1. Changes to Data Properties</h3>
+<div class="paragraph">
+<p>Issue: <a href="https://github.com/spring-projects-experimental/spring-boot-migrator/issues/123">#123</a>, Contributors: <a href="https://github.com/fabapp2" class="ext-link" target="_blank" rel="noopener">@fabapp2</a></p>
+</div>
+<div class="sect3">
+<h4 id="what-changed"><a class="anchor" href="#what-changed"></a>What Changed</h4>
+<div class="paragraph">
+<p>The data prefix has been reserved for Spring Data and any properties under the <code>data</code> prefix imply that Spring
+Data is required on the classpath.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="why-is-the-application-affected"><a class="anchor" href="#why-is-the-application-affected"></a>Why is the application affected</h4>
+<div class="paragraph">
+<p>The scan found properties with <code>spring.data</code> prefix but no dependency matching <code>org.springframework.data:.*</code>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="file:///Users/fkrueger/projects/spring-boot-migrator/components/sbm-recipes-boot-upgrade/target/dummy-test-path/src/main/resources/application.properties"><code>src/main/resources/application.properties</code></a></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>spring.data.foo</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="file:///Users/fkrueger/projects/spring-boot-migrator/components/sbm-recipes-boot-upgrade/target/dummy-test-path/src/main/resources/application-another.properties"><code>src/main/resources/application-another.properties</code></a></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>spring.data.here</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="remediation"><a class="anchor" href="#remediation"></a>Remediation</h4>
+<div class="paragraph">
+<p>Either add <code>spring-data</code> dependency, rename the property or remove it in case it&#8217;s not required anymore.</p>
+</div>
+<div class="paragraph">
+<p>We want to say thank you to all Contributors:</p>
+</div>
+<div class="paragraph">
+<p>Generated by Spring Boot Migrator (experimental)</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-10-14 00:32:54 +0200
+</div>
+</div>
+</div>
+  </div>
+</div>
+</body>
+</html>

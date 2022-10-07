@@ -1,0 +1,956 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* Asciidoctor styling based on https://gitlab.com/antora/antora-ui-default/-/blob/8751b86b76d6779fbbcf0fccd58fafcf73c49260/src/css/doc.css */
+
+/* Container element styling */
+
+.doc {
+  color: var(--asciidoctor-font-color);
+  hyphens: none;
+  line-height: 1.6;
+  letter-spacing: -0.0027777778rem;
+  margin: 0;
+}
+
+/* Gutter and margins */
+
+.doc #content,
+.doc #footer {
+  margin: 0 2rem;
+}
+
+.doc #header > *:not(#toc) {
+  /* Gutter is not applied directly to #header of toc positioning */
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+
+.doc #content {
+  padding-bottom: 4rem;
+}
+
+/* Doc background embellishment */
+
+#doc {
+  background: no-repeat top right / 305px 147px;
+  background-image: url("../img/doc-background.svg");
+}
+
+.doc #header {
+  margin-right: var(--asciidoctor-doc-embellishment-margin-width);
+}
+
+/* Header Details */
+
+.doc #header .details {
+  background: var(--asciidoctor-details-background);
+  color: var(--asciidoctor-details-font-color);
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.8em;
+}
+
+.doc #header div.details {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#header .details br {
+  display: none;
+}
+
+.doc #header .details span.author:not(:last-of-type)::after {
+  content: "\2022";
+  font-weight: 400;
+  margin: 0.4em;
+  color: var(--asciidoctor-author-separator-color);
+}
+
+.doc #header .details span.last-author::after {
+  display: none;
+}
+
+.doc #header .details #revnumber {
+  flex-basis: 100%;
+  margin-top: 0.5rem;
+  text-transform: capitalize;
+  font-weight: 200;
+}
+
+/* Section setup */
+
+.doc #preamble + .sect1,
+.doc .sect1 + .sect1 {
+  margin-top: 2rem;
+}
+
+.doc .sect1 + .sect1 {
+  border-top: 1px solid var(--asciidoctor-section-divider-color);
+}
+
+/* Headings */
+
+.doc h1 {
+  font-size: 2.3em;
+}
+
+.doc h2 {
+  font-size: 2em;
+}
+
+.doc h3 {
+  font-size: 1.7em;
+}
+
+.doc h4 {
+  font-size: 1.6em;
+}
+
+.doc h5 {
+  font-size: 1.4em;
+}
+
+.doc h6 {
+  font-size: 1.3em;
+}
+
+.doc h1,
+.doc h2,
+.doc h3,
+.doc h4,
+.doc h5,
+.doc h6 {
+  color: var(--asciidoctor-heading-font-color);
+  font-weight: var(--asciidoctor-heading-font-weight);
+  hyphens: none;
+  line-height: 1.3;
+  margin: 1.3rem 0 0;
+  padding-top: 1.8rem;
+}
+
+.doc h1.sect0 {
+  background: var(--asciidoctor-abstract-background);
+  font-size: 1.8em;
+  margin: 1.5rem -1rem 0;
+  padding: 0.5rem 1rem;
+}
+
+.doc h1:first-child {
+  margin: 1.3rem 0;
+}
+
+.doc h2:not(.discrete) {
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding: 1.8rem 1rem 0.1rem;
+}
+
+.doc h3:not(.discrete) {
+  font-weight: var(--asciidoctor-alt-heading-font-weight);
+}
+
+/* Header hover anchors */
+
+.doc h1 .anchor,
+.doc h2 .anchor,
+.doc h3 .anchor,
+.doc h4 .anchor,
+.doc h5 .anchor,
+.doc h6 .anchor {
+  position: absolute;
+  text-decoration: none;
+  width: 2.25ex;
+  margin-left: -2ex;
+  padding-left: 0.5ex;
+  visibility: hidden;
+  font-weight: normal;
+}
+
+.doc h1 .anchor::before,
+.doc h2 .anchor::before,
+.doc h3 .anchor::before,
+.doc h4 .anchor::before,
+.doc h5 .anchor::before,
+.doc h6 .anchor::before {
+  content: "\0023";
+}
+
+.doc h1:hover .anchor,
+.doc h2:hover .anchor,
+.doc h3:hover .anchor,
+.doc h4:hover .anchor,
+.doc h5:hover .anchor,
+.doc h6:hover .anchor {
+  visibility: visible;
+}
+
+.doc p,
+.doc dl {
+  margin: 0;
+}
+
+/* General anchors */
+
+.doc a.bare {
+  hyphens: none;
+}
+
+.doc a {
+  color: var(--asciidoctor-link-font-color);
+}
+
+.doc a:hover {
+  color: var(--asciidoctor-hover-link-font-color);
+}
+
+.doc a.unresolved {
+  color: var(--asciidoctor-unresolved-link-font-color);
+}
+
+/* Code and Pre */
+
+.doc p code,
+.doc thead code,
+.doc .admonitionblock code {
+  color: var(--asciidoctor-code-font-color);
+  background: var(--asciidoctor-code-background);
+  border-radius: 0.25em;
+  font-size: 0.95em;
+  padding: 0.125em 0.25em;
+}
+
+.doc p a code,
+.doc thead a code,
+.doc .admonitionblock a code {
+  color: var(--asciidoctor-code-link-font-color);
+}
+
+.doc code,
+.doc pre {
+  hyphens: none;
+}
+
+.doc pre {
+  font-size: calc(14 / var(--pixel-to-rem));
+  line-height: 1.3;
+  margin: 0;
+}
+
+.doc pre.highlight code,
+.doc .listingblock pre:not(.highlight),
+.doc .literalblock pre {
+  background: var(--asciidoctor-pre-background);
+  box-shadow: inset 0 0 1.75px var(--asciidoctor-pre-border-color);
+  display: block;
+  overflow-x: auto;
+  padding: 0.95rem;
+  border-radius: 4px;
+}
+
+.doc pre.highlight code[data-lang]:before {
+  content: attr(data-lang);
+  text-transform: uppercase;
+  display: block;
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  line-height: 1;
+  font-size: 0.65em;
+  color: var(--asciidoctor-code-data-lang-color);
+}
+
+.doc pre.highlight {
+  position: relative;
+}
+
+.doc table pre.highlight code[data-lang]:before {
+  display: none;
+}
+
+/* General margin and fonts sizing */
+
+.doc blockquote {
+  margin: 0;
+}
+
+.doc .paragraph.lead > p {
+  font-size: calc(18 / var(--pixel-to-rem));
+}
+
+.doc .paragraph,
+.doc .dlist,
+.doc .hdlist,
+.doc .olist,
+.doc .ulist,
+.doc .exampleblock,
+.doc .imageblock,
+.doc .listingblock,
+.doc .literalblock,
+.doc .sidebarblock,
+.doc .verseblock,
+.doc .quoteblock,
+.doc .partintro,
+.doc details,
+.doc hr {
+  margin: 1rem 0 0;
+}
+
+/* Tables */
+
+.doc table.tableblock {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.doc table.tableblock td {
+  min-width: 6rem;
+}
+
+.doc table.tableblock {
+  font-size: calc(15 / var(--pixel-to-rem));
+  margin: 1.5rem 0 0;
+}
+
+.doc table.tableblock + * {
+  margin-top: 2rem;
+}
+
+.doc td.tableblock > .content > :first-child {
+  margin-top: 0;
+}
+
+.doc table.tableblock th,
+.doc table.tableblock td {
+  padding: 0.5rem;
+}
+
+.doc table.tableblock thead th {
+  border-bottom: 2.5px solid var(--asciidoctor-table-border-color);
+}
+
+.doc table.tableblock td,
+.doc table.tableblock > :not(thead) th {
+  border-top: 1px solid var(--asciidoctor-table-border-color);
+  border-bottom: 1px solid var(--asciidoctor-table-border-color);
+}
+
+.doc table.stripes-all > tbody > tr,
+.doc table.stripes-odd > tbody > tr:nth-of-type(odd),
+.doc table.stripes-even > tbody > tr:nth-of-type(even),
+.doc table.stripes-hover > tbody > tr:hover {
+  background: var(--asciidoctor-table-stripe-background);
+}
+
+.doc table.tableblock > tfoot {
+  background: var(--asciidoctor-table-footer-background);
+}
+
+.doc .tableblock pre,
+.doc .tableblock code,
+.doc .listingblock.wrap pre {
+  white-space: pre-wrap;
+}
+
+.doc td:nth-child(1) .tableblock pre,
+.doc td:nth-child(1) .tableblock code,
+.doc td:nth-child(1) .listingblock.wrap pre {
+  white-space: nowrap;
+}
+
+/* Admonition blocks */
+
+.doc .admonitionblock {
+  margin: 2.5rem 0;
+}
+
+.doc .admonitionblock p,
+.doc .admonitionblock td.content {
+  font-size: calc(16 / var(--pixel-to-rem));
+}
+
+.doc .admonitionblock td.content > :not(.title):first-child,
+.doc .admonitionblock td.content > .title + * {
+  margin-top: 0;
+}
+
+.doc .admonitionblock pre {
+  font-size: calc(14 / var(--pixel-to-rem));
+  border: none;
+}
+
+.doc .admonitionblock > table {
+  table-layout: fixed;
+  position: relative;
+  width: 100%;
+}
+
+.doc .admonitionblock td.content {
+  padding: 1rem 1rem 0.75rem;
+  background: var(--asciidoctor-admonition-background);
+  width: 100%;
+  word-wrap: anywhere;
+}
+
+.doc .admonitionblock td.icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: calc(16 / var(--pixel-to-rem));
+  line-height: 1;
+  transform: translate(-0.5rem, -50%);
+  border-radius: 0.45rem;
+  padding: 0.25em 0.075em;
+}
+
+.doc .admonitionblock .icon i {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  height: 16px;
+  background-repeat: no-repeat;
+  background-position: 0.5em 0;
+  filter: invert(100%);
+  padding-left: 2em;
+  vertical-align: initial;
+}
+
+.doc .admonitionblock .icon i::after {
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+  content: attr(title);
+  text-transform: capitalize;
+  filter: invert(100%);
+  font-weight: var(--asciidoctor-admonition-label-font-weight);
+  color: var(--asciidoctor-admonition-font-color);
+  font-style: normal;
+  hyphens: none;
+  padding: 0 0.5em;
+  margin: -0.05em;
+}
+
+i.fa {
+  background-size: 16px 16px;
+}
+
+i.fa.icon-caution {
+  background-image: url("../img/octicons-16.svg#view-flame");
+}
+
+i.fa.icon-important {
+  background-image: url("../img/octicons-16.svg#view-stop");
+}
+
+i.fa.icon-note {
+  background-image: url("../img/octicons-16.svg#view-info");
+}
+
+i.fa.icon-tip {
+  background-image: url("../img/octicons-16.svg#view-light-bulb");
+}
+
+i.fa.icon-warning {
+  background-image: url("../img/octicons-16.svg#view-alert");
+}
+
+.doc .admonitionblock.caution td.icon {
+  background: var(--asciidoctor-admonition-caution-background);
+}
+
+.doc .admonitionblock.important td.icon {
+  background: var(--asciidoctor-admonition-important-background);
+}
+
+.doc .admonitionblock.note .icon {
+  background: var(--asciidoctor-admonition-note-background);
+}
+
+.doc .admonitionblock.tip .icon {
+  background: var(--asciidoctor-admonition-tip-background);
+}
+
+.doc .admonitionblock.warning .icon {
+  background-color: var(--asciidoctor-admonition-warning-background);
+}
+
+/* Images and image blocks */
+
+.doc .imageblock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.doc .imageblock img,
+.doc .image > img {
+  display: inline-block;
+  height: auto;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.doc .image:not(.left):not(.right) > img {
+  margin-top: -0.2em;
+}
+
+/* Quote blocks */
+
+.doc #preamble .abstract blockquote {
+  background: var(--asciidoctor-abstract-background);
+  border-left: 5px solid var(--asciidoctor-abstract-border-color);
+  font-size: calc(16 / var(--pixel-to-rem));
+  padding: 0.75em 1em;
+}
+
+.doc .quoteblock,
+.doc .verseblock {
+  background: var(--asciidoctor-quote-background);
+  border-left: 5px solid var(--asciidoctor-quote-border-color);
+}
+
+.doc .quoteblock {
+  padding: 0.25rem 2rem 1.25rem;
+}
+
+.doc .quoteblock .attribution {
+  color: var(--asciidoctor-quote-attribution-font-color);
+  font-size: calc(15 / var(--pixel-to-rem));
+  margin-top: 0.75rem;
+}
+
+.doc .quoteblock blockquote {
+  margin-top: 1rem;
+}
+
+.doc .quoteblock .paragraph {
+  font-style: italic;
+}
+
+.doc .quoteblock cite {
+  padding-left: 1em;
+}
+
+/* Verse blocks */
+
+.doc .verseblock {
+  font-size: 1.15em;
+  padding: 1rem 2rem;
+}
+
+.doc .verseblock pre {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Lists */
+
+.doc ol,
+.doc ul {
+  margin: 0;
+  padding: 0 0 0 2rem;
+}
+
+.doc ul.checklist,
+.doc ul.none,
+.doc ol.none,
+.doc ul.no-bullet,
+.doc ol.unnumbered,
+.doc ul.unstyled,
+.doc ol.unstyled {
+  list-style-type: none;
+}
+
+.doc ul.no-bullet,
+.doc ol.unnumbered {
+  padding-left: 1.25rem;
+}
+
+.doc ul.unstyled,
+.doc ol.unstyled {
+  padding-left: 0;
+}
+
+.doc ul.circle {
+  list-style-type: square;
+}
+
+.doc ul.disc {
+  list-style-type: square;
+}
+
+.doc ul.square {
+  list-style-type: square;
+}
+
+.doc ol.arabic {
+  list-style-type: decimal;
+}
+
+.doc ol.decimal {
+  list-style-type: decimal-leading-zero;
+}
+
+.doc ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+
+.doc ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+
+.doc ol.lowerroman {
+  list-style-type: lower-roman;
+}
+
+.doc ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+.doc ol.lowergreek {
+  list-style-type: lower-greek;
+}
+
+.doc ul.checklist {
+  padding-left: 0.5rem;
+}
+
+.doc ul.checklist p > i.fa-check-square-o:first-child,
+.doc ul.checklist p > i.fa-square-o:first-child {
+  display: inline-flex;
+  justify-content: center;
+  width: 1.25rem;
+}
+
+.doc ul.checklist i.fa-check-square-o::before {
+  content: "\2713";
+}
+
+.doc ul.checklist i.fa-square-o::before {
+  content: "\274f";
+}
+
+.doc .dlist .dlist,
+.doc .dlist .olist,
+.doc .dlist .ulist,
+.doc .olist .dlist,
+.doc .olist .olist,
+.doc .olist .ulist,
+.doc .ulist .dlist,
+.doc .ulist .olist,
+.doc .ulist .ulist {
+  margin-top: 0.5rem;
+}
+
+.doc .olist li,
+.doc .ulist li {
+  margin-bottom: 0.3rem;
+}
+
+.doc .ulist .listingblock,
+.doc .olist .listingblock,
+.doc .admonitionblock .listingblock {
+  padding: 0;
+}
+
+/* Block Titles */
+
+.doc .admonitionblock .title,
+.doc .exampleblock .title,
+.doc .imageblock .title,
+.doc .literalblock .title,
+.doc .listingblock .title,
+.doc .openblock .title,
+.doc .tableblock caption {
+  color: var(--asciidoctor-caption-font-color);
+  font-size: calc(14 / var(--pixel-to-rem));
+  font-weight: var(--asciidoctor-caption-font-weight);
+  font-style: italic;
+  hyphens: none;
+  letter-spacing: 0.01em;
+  padding-bottom: 0.075rem;
+  text-align: left;
+}
+
+.doc .imageblock .title {
+  margin-top: 0.5rem;
+  padding-bottom: 0;
+}
+
+/* Block content */
+
+.doc .exampleblock > .content {
+  background: var(--asciidoctor-example-background);
+  border: 1px solid var(--asciidoctor-example-border-color);
+  border-radius: 4px;
+  padding: 0.75rem;
+}
+
+.doc .exampleblock > .content > :first-child {
+  margin-top: 0;
+}
+
+/* Sidebars */
+
+.doc .sidebarblock {
+  background: var(--asciidoctor-sidebar-background);
+  padding: 2.2rem 2.2rem;
+}
+
+.doc .sidebarblock > .content > .title {
+  font-size: calc(23 / var(--pixel-to-rem));
+  font-weight: var(--asciidoctor-alt-heading-font-weight);
+  line-height: 1.3;
+  margin-bottom: 1.2rem;
+}
+
+.doc .sidebarblock > .content > :not(.title):first-child {
+  margin-top: 0;
+}
+
+/* Buttons (https://docs.asciidoctor.org/asciidoc/latest/macros/ui-macros/#button-macro-syntax) */
+
+.doc b.button {
+  white-space: nowrap;
+}
+
+.doc b.button::before {
+  content: "[";
+  padding-right: 0.25em;
+}
+
+.doc b.button::after {
+  content: "]";
+  padding-left: 0.25em;
+}
+
+/* Menu (https://docs.asciidoctor.org/asciidoc/latest/macros/ui-macros/#menu-macro-syntax) */
+
+.doc .menuseq,
+.doc .path {
+  hyphens: none;
+}
+
+.doc .menuseq i.caret::before {
+  content: "\203a";
+  font-size: 1.1em;
+  font-weight: var(--asciidoctor-body-font-weight-bold);
+  line-height: calc(1 / 1.1);
+}
+
+/* Keyboard (https://docs.asciidoctor.org/asciidoc/latest/macros/keyboard-macro/) */
+
+.doc kbd {
+  display: inline-block;
+  font-size: calc(12 / var(--pixel-to-rem));
+  background: var(--asciidoctor-kbd-background);
+  border: 1px solid var(--asciidoctor-kbd-border-color);
+  border-radius: 0.25em;
+  box-shadow: 0 1px 0 var(--asciidoctor-kbd-border-color),
+    0 0 0 0.1em var(--body-background) inset;
+  padding: 0.25em 0.5em;
+  vertical-align: text-bottom;
+  white-space: nowrap;
+}
+
+.doc kbd,
+.doc .keyseq {
+  line-height: 1;
+}
+
+.doc .keyseq {
+  font-size: calc(16 / var(--pixel-to-rem));
+}
+
+.doc .keyseq kbd {
+  margin: 0 0.125em;
+}
+
+.doc .keyseq kbd:first-child {
+  margin-left: 0;
+}
+
+.doc .keyseq kbd:last-child {
+  margin-right: 0;
+}
+
+/* Misc */
+
+.doc i.fa {
+  hyphens: none;
+  font-style: normal;
+}
+
+.doc .language-console .hljs-meta {
+  user-select: none;
+}
+
+.doc .dlist dt {
+  font-style: italic;
+}
+
+.doc .dlist dd {
+  margin: 0 0 0.25rem 1.5rem;
+}
+
+.doc .dlist dd:last-of-type {
+  margin-bottom: 0;
+}
+
+.doc td.hdlist1,
+.doc td.hdlist2 {
+  padding: 0.5rem 0 0;
+  vertical-align: top;
+}
+
+.doc tr:first-child > .hdlist1,
+.doc tr:first-child > .hdlist2 {
+  padding-top: 0;
+}
+
+.doc td.hdlist1 {
+  font-weight: var(--body-font-weight-bold);
+  padding-right: 0.25rem;
+}
+
+.doc td.hdlist2 {
+  padding-left: 0.25rem;
+}
+
+.doc .colist {
+  font-size: calc(16 / var(--pixel-to-rem));
+  margin: 0.25rem 0 -0.25rem;
+}
+
+.doc .colist > table > tr > :first-child,
+.doc .colist > table > tbody > tr > :first-child {
+  padding: 0.25em 0.5rem 0;
+  vertical-align: top;
+}
+
+.doc .colist > table > tr > :last-child,
+.doc .colist > table > tbody > tr > :last-child {
+  padding: 0.25rem 0;
+}
+
+.doc .conum[data-value] {
+  /* border: 1px solid currentColor; */
+  font-family: var(--monospace-font-family);
+  border-radius: 100%;
+  display: inline-block;
+  font-size: calc(12.5 / var(--pixel-to-rem));
+  font-style: normal;
+  line-height: 1.2;
+  text-align: center;
+  width: 1.25em;
+  height: 1.25em;
+  letter-spacing: -0.25ex;
+  text-indent: -0.25ex;
+  background: var(--asciidoctor-callout-background);
+  color: var(--asciidoctor-callout-font-color);
+}
+
+.doc .conum[data-value]::after {
+  content: attr(data-value);
+}
+
+.doc .conum[data-value] + b {
+  display: none;
+}
+
+.doc hr {
+  border: solid var(--asciidoctor-section-divider-color);
+  border-width: 2px 0 0;
+  height: 0;
+}
+
+/* Pass-though Classes */
+
+.doc :not(pre).nowrap {
+  white-space: nowrap;
+}
+
+.doc .nobreak {
+  hyphens: none;
+  word-wrap: normal;
+}
+
+.doc .right {
+  float: right;
+}
+
+.doc .left {
+  float: left;
+}
+
+.doc .stretch {
+  width: 100%;
+}
+
+.doc .underline {
+  text-decoration: underline;
+}
+
+.doc .line-through {
+  text-decoration: line-through;
+}
+
+.doc .halign-left {
+  text-align: left;
+}
+
+.doc .halign-right {
+  text-align: right;
+}
+
+.doc .halign-center {
+  text-align: center;
+}
+
+.doc .valign-top {
+  vertical-align: top;
+}
+
+.doc .valign-bottom {
+  vertical-align: bottom;
+}
+
+.doc .valign-middle {
+  vertical-align: middle;
+}
+
+/* Footer */
+
+#footer #footer-text {
+  font-size: calc(14 / var(--pixel-to-rem));
+  color: var(--asciidoctor-footer-font-color);
+  padding: 2rem 0;
+  border-top: 1px solid var(--asciidoctor-section-divider-color);
+}
+
+/* Responsive and Dark Theme Overrides */
+
+html.dark-theme #doc {
+  background: no-repeat top right / 305px 147px;
+  background-image: url("../img/doc-background-dark.svg");
+}
+
+@media screen and (max-width: 1024px) {
+  #doc {
+    background: no-repeat top right / 203px 95px;
+    background-image: url("../img/doc-background.svg");
+  }
+  html.dark-theme #doc {
+    background: no-repeat top right / 203px 95px;
+    background-image: url("../img/doc-background-dark.svg");
+  }
+}
+
+@media screen and (max-width: 800px) {
+  html.dark-theme #doc,
+  #doc {
+    background: none;
+  }
+}

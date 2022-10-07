@@ -1,0 +1,171 @@
+/*
+ * Copyright 2021 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+div.codetools {
+  --button-width: 28px;
+  --button-height: 24px;
+  --arrow-size: 5px;
+  display: flex;
+  position: absolute;
+  bottom: 9px;
+  right: 8px;
+  background: var(--codetools-background-color);
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid var(--codetools-border-color);
+  opacity: 0;
+  transition: opacity 150ms ease-in-out;
+}
+
+.doc pre.highlight:hover div.codetools {
+  opacity: 1;
+}
+
+div.codetools button {
+  width: var(--button-width);
+  height: var(--button-height);
+  filter: var(--codetools-button-filter);
+  background: no-repeat center / 16px 16px;
+  border: none;
+  padding: 0;
+  outline: none;
+}
+
+div.codetools button:not(:last-child) {
+  border-right: 1px solid var(--codetools-divider-color);
+}
+
+div.codetools button:hover {
+  background-color: var(--codetools-hover-background-color);
+  transition: filter 300ms;
+}
+
+div.codetools button:active {
+  filter: var(--codetools-button-active-filter);
+  transition: filter none;
+}
+
+div.codetools button span.label {
+  display: none;
+}
+
+div.codetools button.copy-button {
+  background-image: url("../img/octicons-16.svg#view-clippy");
+}
+
+div.codetools button.unfold-button {
+  background-image: url("../img/octicons-16.svg#view-unfold");
+}
+
+div.codetools button.fold-button {
+  background-image: url("../img/octicons-16.svg#view-fold");
+}
+
+div.codetools span.copied {
+  opacity: 0;
+  display: block;
+  content: "";
+  position: relative;
+  width: var(--button-width);
+  height: var(--button-height);
+  z-index: 1000000;
+  transition: opacity 500ms;
+}
+
+div.codetools button:active span.copied {
+  filter: invert();
+  transition: filter none;
+}
+
+div.codetools span.copied:before {
+  position: absolute;
+  bottom: calc(var(--arrow-size) * -1);
+  left: 50%;
+  margin-left: calc(var(--arrow-size) / -2);
+  content: "";
+  border: var(--arrow-size) solid var(--codetools-popup-background-color);
+  border-color: transparent transparent var(--codetools-popup-background-color)
+    transparent;
+}
+
+div.codetools span.copied:after {
+  content: "Copied to clipboard!";
+  position: absolute;
+  top: calc(var(--button-height) + var(--arrow-size));
+  right: 100%;
+  margin-right: calc(var(--button-width) * -1);
+  background-color: var(--codetools-popup-background-color);
+  color: var(--codetools-popup-font-color);
+  padding: 5px 8px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+div.codetools button.clicked span.copied {
+  opacity: 1;
+}
+
+span.fold-block {
+  position: relative;
+  float: left;
+  clear: left;
+  padding-right: 0.75rem;
+  overflow: hidden;
+}
+
+code.unfolded span.fold-block.hide-when-folded,
+code:not(.unfolded) span.fold-block.hide-when-unfolded {
+  max-height: 99999px;
+  opacity: 1;
+}
+
+code.unfolded span.fold-block.hide-when-unfolded,
+code:not(.unfolded) span.fold-block.hide-when-folded {
+  max-height: 0px;
+  opacity: 0;
+}
+
+code.unfolding span.fold-block.hide-when-folded {
+  max-height: 600px;
+  opacity: 1;
+}
+
+code.folding span.fold-block.hide-when-unfolded {
+  max-height: 400px;
+  opacity: 1;
+}
+
+code.unfolding span.fold-block.hide-when-unfolded,
+code.folding span.fold-block.hide-when-folded {
+  max-height: 0;
+  opacity: 0;
+}
+
+code.unfolding span.fold-block.hide-when-unfolded {
+  transition: max-height 200ms cubic-bezier(0, 1, 0, 1), opacity 200ms linear;
+}
+
+code.folding span.fold-block.hide-when-unfolded {
+  transition: max-height 200ms cubic-bezier(1, 0, 1, 0), opacity 200ms linear;
+}
+
+code.unfolding span.fold-block.hide-when-folded {
+  transition: max-height 200ms cubic-bezier(1, 0, 1, 0), opacity 200ms linear;
+}
+
+code.folding span.fold-block.hide-when-folded {
+  transition: max-height 200ms cubic-bezier(0, 1, 0, 1), opacity 200ms linear;
+}
