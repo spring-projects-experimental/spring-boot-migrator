@@ -13,7 +13,6 @@
       description: "Adds default spring boot properties to project. For multi-module project, adds default spring boot properties to every module with jar packaging"
       condition:
         type: org.springframework.sbm.boot.upgrade_27_30.conditions.LoggingDateFormatCondition
-        addDefaultPropertiesFileToTopModules: true
     - type: org.springframework.sbm.boot.upgrade_27_30.actions.Boot_27_30_AddLoggingDateFormat
       description: "Sets logging date format to yyyy-MM-dd HH:mm:ss.SSS"
       condition:
