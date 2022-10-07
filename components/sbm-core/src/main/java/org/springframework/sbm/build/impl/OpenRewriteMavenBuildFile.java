@@ -279,7 +279,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                                 d.getScope() != null ? Scope.fromName(d.getScope()) : null
                         );
                         ResolvedDependency resolvedDependency = dependencies.get(0);
-                        d.setVersion(version);
+                        d.setVersion(resolvedDependency.getVersion());
                         d.setClassifier(resolvedDependency.getClassifier());
                         d.setType(resolvedDependency.getType());
                         d.setArtifactId(artifactId);
