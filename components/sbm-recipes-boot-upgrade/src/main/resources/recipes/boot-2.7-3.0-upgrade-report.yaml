@@ -17,3 +17,7 @@
       description: "Sets logging date format to yyyy-MM-dd HH:mm:ss.SSS"
       condition:
         type: org.springframework.sbm.boot.upgrade_27_30.conditions.LoggingDateFormatCondition
+    - type: org.springframework.sbm.boot.upgrade_27_30.actions.Boot_27_30_JmxEndpointExposureAction
+      description: "Sets JMX endpoint exposure include to *"
+      condition:
+        type: rg.springframework.sbm.boot.upgrade_27_30.conditions.JmxEndpointExposureCondition
