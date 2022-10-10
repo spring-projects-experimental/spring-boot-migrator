@@ -36,7 +36,7 @@ public class MavenConfigParser {
                 .map(k -> Arrays.stream(k.split("\n")).collect(Collectors.toList()))
                 .flatMap(Collection::stream)
                 .filter(k -> envVarPattern.matcher(k).find())
-                .map(k -> k.replace("-D", ""))
+                .map(k -> k.replace("-D", "").trim())
                 .collect(Collectors.toMap(k -> k.split("=")[0], k -> k.split("=")[1]));
     }
 }
