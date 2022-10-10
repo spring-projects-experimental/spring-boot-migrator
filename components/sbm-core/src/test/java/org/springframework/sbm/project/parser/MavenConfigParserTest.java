@@ -60,14 +60,15 @@ class MavenConfigParserTest {
     }
 
     @Test
-    public void spaces() {
-
+    public void shouldHandleVarsWithoutValue() {
         List<String> mavenConfigFile = List.of(
-                "-Drevision = 1.0.0 ",
-                "");
+                "-DskipTests"
+        );
 
         Map<String, String> output = target.parse(mavenConfigFile);
-        assertThat(output.get("revision")).isEqualTo("1.0.0");
+
+        assertThat(output).hasSize(1);
+        assertThat(output.get("skipTests")).isEqualTo("");
     }
 
     @Test
@@ -76,8 +77,8 @@ class MavenConfigParserTest {
         List<String> mavenConfigFile = List.of(
                 "-Horror Story:",
                 "A developer used PHP",
-                "** Scary music Intensifies **",
-                "-Dhello");
+                "** Scary music Intensifies **"
+                );
 
         Map<String, String> output = target.parse(mavenConfigFile);
 
