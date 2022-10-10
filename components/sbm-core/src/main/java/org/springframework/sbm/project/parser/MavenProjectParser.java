@@ -17,7 +17,6 @@ package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
@@ -62,12 +61,12 @@ public class MavenProjectParser {
     private final MavenArtifactDownloader artifactDownloader;
     private final ApplicationEventPublisher eventPublisher;
     private final JavaProvenanceMarkerFactory javaProvenanceMarkerFactory;
-
     private final JavaParser javaParser;
+    private final MavenConfigHandler mavenConfigHandler;
 
     public List<SourceFile> parse(Path projectDirectory, List<Resource> resources) {
 
-        injectMavenConfigIntoSystemProperties(resources);
+        mavenConfigHandler.injectMavenConfigIntoSystemProperties(resources);
 
         ExecutionContext ctx = new RewriteExecutionContext();
         @Nullable BuildEnvironment buildEnvironment = null;
@@ -170,14 +169,6 @@ public class MavenProjectParser {
         return ListUtils.map(sourceFiles, s -> s.withMarkers(s.getMarkers().addIfAbsent(gitProvenance)));
     }
 
-    private void injectMavenConfigIntoSystemProperties(List<Resource> resources) {
-        List<String> mavenConfigs = getMavenConfigs(resources);
-
-        MavenConfigParser configParser = new MavenConfigParser();
-        Map<String, String> config = configParser.parse(mavenConfigs);
-        config.keySet().forEach(k -> System.setProperty(k, config.get(k)));
-    }
-
 
     private List<J.CompilationUnit> parseTestJavaSources(Path projectDirectory, List<Resource> resources, ExecutionContext ctx, JavaParser javaParser, Xml.Document pomXml, Xml.Document mavenWithMarkers, Path mavenProjectDirectory, List<Marker> javaProvenanceMarkers) {
         MavenResolutionResult mavenResolution = MavenBuildFileUtil.getMavenResolution(mavenWithMarkers);
@@ -229,18 +220,7 @@ public class MavenProjectParser {
     }
 
 
-    private List<String> getMavenConfigs(List<Resource> resources) {
-        return resources.stream()
-                .filter(p -> getPath(p).getFileName().toString().equals("maven.config"))
-                .map( k -> {
-                    try {
-                        return IOUtils.toString(k.getInputStream(), "UTF-8");
-                    } catch (IOException e) {
-                        return "";
-                    }
-                })
-                .collect(Collectors.toList());
-    }
+
 
     public static List<Resource> filterMavenPoms(List<Resource> resources) {
         return resources.stream()
