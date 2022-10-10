@@ -17,51 +17,43 @@
 package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Properties;
 
 @Component
 @RequiredArgsConstructor
 public class MavenConfigHandler {
 
-    private final MavenConfigParser configParser;
+    public void injectMavenConfigIntoSystemProperties(Path projectDirectory) {
 
-    public void injectMavenConfigIntoSystemProperties(List<Resource> resources) {
-        List<String> mavenConfigs = getMavenConfigs(resources);
+        Map<String, String> mavenConfigMap = new HashMap<>();
+        Path mavenConfigPath = projectDirectory.resolve(".mvn/maven.config");
+        if (mavenConfigPath.toFile().exists()) {
+            Properties properties = new Properties();
+            try {
+                properties.load(new FileInputStream(mavenConfigPath.toFile()));
 
-        Map<String, String> config = configParser.parse(mavenConfigs);
-        config.keySet().forEach(k -> System.setProperty(k, config.get(k)));
-    }
+                properties.entrySet().forEach(entry -> {
 
-    private List<String> getMavenConfigs(List<Resource> resources) {
-        return resources.stream()
-                .filter(p -> getPath(p).getFileName().toString().equals("maven.config"))
-                .flatMap(this::readLines)
-                .collect(Collectors.toList());
-    }
+                    String key = entry.getKey().toString();
 
-    private Stream<String> readLines(Resource r){
-        try {
-            return Files.readAllLines(r.getFile().toPath()).stream();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+                    if (key.startsWith("-D")) {
+                        mavenConfigMap.put(key.replace("-D", ""), entry.getValue().toString());
+                    }
+                });
+
+            } catch (IOException e) {
+
+                throw new RuntimeException(e);
+            }
         }
-    }
 
-
-    private static Path getPath(Resource r) {
-        try {
-            return r.getFile().toPath();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        mavenConfigMap.keySet().forEach(k -> System.setProperty(k, mavenConfigMap.get(k)));
     }
 }

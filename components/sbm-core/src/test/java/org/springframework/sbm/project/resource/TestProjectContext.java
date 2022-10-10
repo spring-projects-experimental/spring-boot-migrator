@@ -41,7 +41,6 @@ import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.project.parser.DependencyHelper;
 import org.springframework.sbm.project.parser.JavaProvenanceMarkerFactory;
-import org.springframework.sbm.project.parser.MavenConfigParser;
 import org.springframework.sbm.project.parser.MavenProjectParser;
 import org.springframework.sbm.project.parser.MavenConfigHandler;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
@@ -526,7 +525,7 @@ public class TestProjectContext {
                     eventPublisher,
                     javaProvenanceMarkerFactory,
                     javaParser,
-                    new MavenConfigHandler(new MavenConfigParser()));
+                    new MavenConfigHandler());
 
             GitSupport gitSupport = mock(GitSupport.class);
             when(gitSupport.repoExists(projectRoot.toFile())).thenReturn(true);

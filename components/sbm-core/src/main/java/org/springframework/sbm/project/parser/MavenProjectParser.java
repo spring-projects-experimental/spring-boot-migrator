@@ -66,7 +66,7 @@ public class MavenProjectParser {
 
     public List<SourceFile> parse(Path projectDirectory, List<Resource> resources) {
 
-        mavenConfigHandler.injectMavenConfigIntoSystemProperties(resources);
+        mavenConfigHandler.injectMavenConfigIntoSystemProperties(projectDirectory);
 
         ExecutionContext ctx = new RewriteExecutionContext();
         @Nullable BuildEnvironment buildEnvironment = null;
