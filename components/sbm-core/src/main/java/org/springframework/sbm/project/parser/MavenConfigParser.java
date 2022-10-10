@@ -16,27 +16,39 @@
 
 package org.springframework.sbm.project.parser;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class MavenConfigParser {
-    public Map<String, String> parse(List<String> mavenConfigs) {
-        if (mavenConfigs == null) {
-            return new HashMap<>();
+
+    public Map<String, String> parse(List<String> configLines) {
+        if (configLines == null) {
+            throw new IllegalArgumentException("Empty config Lines");
         }
 
-        Pattern envVarPattern = Pattern.compile("-D.*=.*");
-        return mavenConfigs
-                .stream()
-                .map(k -> Arrays.stream(k.split("\n")).collect(Collectors.toList()))
-                .flatMap(Collection::stream)
-                .filter(k -> envVarPattern.matcher(k).find())
-                .map(k -> k.replace("-D", "").trim())
-                .collect(Collectors.toMap(k -> k.split("=")[0], k -> k.split("=")[1]));
+        Map<String, String> mavenConfigMap = new HashMap<>();
+
+        for(String line : configLines) {
+            String trimmedLine = line.trim();
+            if(trimmedLine.startsWith("-D")) {
+
+                String[] keyAndValue = trimmedLine.replace("-D", "").split("=");
+                if(keyAndValue.length == 2) {
+                    String key = keyAndValue[0].trim();
+                    String value = keyAndValue[1].trim();
+                    mavenConfigMap.put(key, value);
+                }
+            }
+        }
+
+        return mavenConfigMap;
     }
 }

@@ -17,15 +17,16 @@
 package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -43,14 +44,16 @@ public class MavenConfigHandler {
     private List<String> getMavenConfigs(List<Resource> resources) {
         return resources.stream()
                 .filter(p -> getPath(p).getFileName().toString().equals("maven.config"))
-                .map( k -> {
-                    try {
-                        return IOUtils.toString(k.getInputStream(), "UTF-8");
-                    } catch (IOException e) {
-                        return "";
-                    }
-                })
+                .flatMap(this::readLines)
                 .collect(Collectors.toList());
+    }
+
+    private Stream<String> readLines(Resource r){
+        try {
+            return Files.readAllLines(r.getFile().toPath()).stream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

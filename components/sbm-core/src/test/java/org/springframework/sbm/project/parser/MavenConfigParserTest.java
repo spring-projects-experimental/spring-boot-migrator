@@ -23,28 +23,34 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MavenConfigParserTest {
 
     private final MavenConfigParser target = new MavenConfigParser();
 
     @Test
-    public void doesNotErrorOnNullOrEmpty() {
+    public void doesNotErrorOnEmpty() {
 
-        assertThat(target.parse(null)).isEmpty();
         assertThat(target.parse(new ArrayList<>())).isEmpty();
+    }
+
+    @Test
+    public void errorsOnNull() {
+        assertThrows(RuntimeException.class, () -> {
+            target.parse(null);
+        });
     }
 
     @Test
     public void parsesSingleMavenConfig() {
 
-        List<String> mavenConfigFile = List.of("""
-                -Drevision=1.0.0
-                -Dlicense.projectName=projectName
-                 
-                 helloworld=hello
-                 
-                """);
+        List<String> mavenConfigFile = List.of(
+                "-Drevision = 1.0.0",
+                "-Dlicense.projectName=projectName",
+                "",
+                "helloworld=hello",
+                "");
 
         Map<String, String> output = target.parse(mavenConfigFile);
 
@@ -54,31 +60,24 @@ class MavenConfigParserTest {
     }
 
     @Test
-    public void shouldParseMultipleFiles() {
-        List<String> mavenConfigFile = List.of("""
-                -Drevision=1.0.0
-                -Dlicense.projectName=projectName
-                """, """
-                -Dtest=123
-                """);
+    public void spaces() {
+
+        List<String> mavenConfigFile = List.of(
+                "-Drevision = 1.0.0 ",
+                "");
 
         Map<String, String> output = target.parse(mavenConfigFile);
-
-        assertThat(output).hasSize(3);
         assertThat(output.get("revision")).isEqualTo("1.0.0");
-        assertThat(output.get("license.projectName")).isEqualTo("projectName");
-        assertThat(output.get("test")).isEqualTo("123");
     }
 
     @Test
     public void shouldNotErrorWhenMavenConfigIsWrong()  {
 
-        List<String> mavenConfigFile = List.of("""
-                -Horror Story:
-                A developer used PHP
-                ** Scary music Intensifies **
-                -Dhello
-                """);
+        List<String> mavenConfigFile = List.of(
+                "-Horror Story:",
+                "A developer used PHP",
+                "** Scary music Intensifies **",
+                "-Dhello");
 
         Map<String, String> output = target.parse(mavenConfigFile);
 
