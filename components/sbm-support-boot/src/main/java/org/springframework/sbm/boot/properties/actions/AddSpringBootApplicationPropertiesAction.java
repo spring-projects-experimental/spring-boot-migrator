@@ -40,12 +40,8 @@ public class AddSpringBootApplicationPropertiesAction extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
 		if(context.getApplicationModules().isSingleModuleApplication()) {
-			SpringBootApplicationProperties springBootApplicationProperties =
-					SpringBootApplicationProperties.newApplicationProperties(
-							context.getProjectRootDirectory(), APPLICATION_PROPERTIES_PATH);
-			context.getApplicationModules()
-					.getRootModule().getMainResourceSet()
-					.addResource(springBootApplicationProperties);
+			Module rootModule = context.getApplicationModules().getRootModule();
+			this.apply(rootModule);
 		} else {
 			context.getApplicationModules()
 					.getTopmostApplicationModules()
