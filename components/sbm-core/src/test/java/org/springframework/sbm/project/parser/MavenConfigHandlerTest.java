@@ -17,12 +17,9 @@
 package org.springframework.sbm.project.parser;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import org.springframework.sbm.project.TestDummyResource;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -33,17 +30,16 @@ class MavenConfigHandlerTest {
     private final MavenConfigHandler target = new MavenConfigHandler();
 
     @Test
-    public void shouldNotErrorWhenMavenConfigIsWrong(@TempDir Path tempDir) throws IOException {
+    public void shouldNotErrorWhenMavenConfigIsWrong() {
 
-        List<String> contents = List.of(
-                "-Horror Story:",
-                "A developer used PHP",
-                "** Scary music Intensifies **"
-        );
-
-        List<Resource> mavenConfigResource = writeToMavenConfig(tempDir, contents);
+        String contents = """
+                -Horror Story:,
+                A developer used PHP,
+                ** Scary music Intensifies **
+                """;
 
         int propertySizeBefore = System.getProperties().keySet().size();
+        List<Resource> mavenConfigResource = List.of(new TestDummyResource(Path.of(".mvn/maven.config"), contents));
         target.injectMavenConfigIntoSystemProperties(mavenConfigResource);
         int propertySizeAfter = System.getProperties().keySet().size();
 
@@ -51,32 +47,19 @@ class MavenConfigHandlerTest {
     }
 
     @Test
-    public void parsesMavenConfig(@TempDir Path tempDir) throws IOException {
+    public void parsesMavenConfig() {
 
-        List<String> contents = List.of(
-                "-Drevision = 1.0.0",
-                "-Dlicense.projectName=projectName",
-                "helloworld=hello"
-        );
+        String contents = """
+                -Drevision = 1.0.0
+                -Dlicense.projectName=projectName
+                helloworld=hello
+                """;
 
-        List<Resource> mavenConfigResource = writeToMavenConfig(tempDir, contents);
 
-        target.injectMavenConfigIntoSystemProperties(mavenConfigResource);
+        target.injectMavenConfigIntoSystemProperties(List.of(new TestDummyResource(Path.of(".mvn/maven.config"), contents)));
 
         assertThat(System.getProperty("revision")).isEqualTo("1.0.0");
         assertThat(System.getProperty("license.projectName")).isEqualTo("projectName");
         assertThat(System.getProperty("helloworld")).isNull();
-    }
-
-    private List<Resource> writeToMavenConfig(Path tempDir, List<String> lines) throws IOException {
-        Path mavenConfigDirectory = tempDir.resolve(".mvn");
-
-        mavenConfigDirectory.toFile().mkdir();
-
-        Path mavenConfigFile = mavenConfigDirectory.resolve("maven.config");
-
-        Files.write(mavenConfigFile, lines);
-
-        return List.of(new UrlResource(mavenConfigFile.toUri()));
     }
 }
