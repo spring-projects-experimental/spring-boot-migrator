@@ -16,9 +16,10 @@
 
 package org.springframework.sbm.project.parser;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class MavenConfigHandlerTest {
 
+    private final MavenConfigHandler target = new MavenConfigHandler();
 
     @Test
     public void shouldNotErrorWhenMavenConfigIsWrong(@TempDir Path tempDir) throws IOException {
@@ -39,12 +41,10 @@ class MavenConfigHandlerTest {
                 "** Scary music Intensifies **"
         );
 
-        writeToMavenConfig(tempDir, contents);
-
-        MavenConfigHandler target = new MavenConfigHandler();
+        List<Resource> mavenConfigResource = writeToMavenConfig(tempDir, contents);
 
         int propertySizeBefore = System.getProperties().keySet().size();
-        target.injectMavenConfigIntoSystemProperties(tempDir);
+        target.injectMavenConfigIntoSystemProperties(mavenConfigResource);
         int propertySizeAfter = System.getProperties().keySet().size();
 
         assertThat(propertySizeAfter).isEqualTo(propertySizeBefore);
@@ -59,19 +59,16 @@ class MavenConfigHandlerTest {
                 "helloworld=hello"
         );
 
-        writeToMavenConfig(tempDir, contents);
+        List<Resource> mavenConfigResource = writeToMavenConfig(tempDir, contents);
 
-        MavenConfigHandler target = new MavenConfigHandler();
-
-        target.injectMavenConfigIntoSystemProperties(tempDir);
+        target.injectMavenConfigIntoSystemProperties(mavenConfigResource);
 
         assertThat(System.getProperty("revision")).isEqualTo("1.0.0");
         assertThat(System.getProperty("license.projectName")).isEqualTo("projectName");
         assertThat(System.getProperty("helloworld")).isNull();
     }
 
-    @NotNull
-    private Path writeToMavenConfig(Path tempDir,List<String> lines) throws IOException {
+    private List<Resource> writeToMavenConfig(Path tempDir, List<String> lines) throws IOException {
         Path mavenConfigDirectory = tempDir.resolve(".mvn");
 
         mavenConfigDirectory.toFile().mkdir();
@@ -79,6 +76,7 @@ class MavenConfigHandlerTest {
         Path mavenConfigFile = mavenConfigDirectory.resolve("maven.config");
 
         Files.write(mavenConfigFile, lines);
-        return mavenConfigFile;
+
+        return List.of(new UrlResource(mavenConfigFile.toUri()));
     }
 }

@@ -17,34 +17,38 @@
 package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 @Component
 @RequiredArgsConstructor
 public class MavenConfigHandler {
 
-    public void injectMavenConfigIntoSystemProperties(Path projectDirectory) {
+    public void injectMavenConfigIntoSystemProperties(List<Resource> resources) {
+
+        Optional<Resource> mavenConfig = resources.stream().filter(k -> "maven.config".equals(k.getFilename()))
+                .findFirst();
 
         Map<String, String> mavenConfigMap = new HashMap<>();
-        Path mavenConfigPath = projectDirectory.resolve(".mvn/maven.config");
-        if (mavenConfigPath.toFile().exists()) {
+
+        if (mavenConfig.isPresent()) {
             Properties properties = new Properties();
             try {
-                properties.load(new FileInputStream(mavenConfigPath.toFile()));
+                properties.load(mavenConfig.get().getInputStream());
 
-                properties.entrySet().forEach(entry -> {
+                properties.forEach((key, value) -> {
 
-                    String key = entry.getKey().toString();
+                    String varKey = key.toString();
 
-                    if (key.startsWith("-D")) {
-                        mavenConfigMap.put(key.replace("-D", ""), entry.getValue().toString());
+                    if (varKey.startsWith("-D")) {
+                        mavenConfigMap.put(varKey.replace("-D", ""), value.toString());
                     }
                 });
 
