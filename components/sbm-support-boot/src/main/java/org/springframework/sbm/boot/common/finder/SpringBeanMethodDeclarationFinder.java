@@ -49,12 +49,14 @@ public class SpringBeanMethodDeclarationFinder implements ProjectResourceFinder<
                             .filter(t -> t
                                     .getMethods()
                                     .stream()
-                                    .anyMatch(m -> m.getReturnValue().equals(returnValueFqName) && m.hasAnnotation(
-                                            SPRING_BEAN_ANNOTATION)))
+                                    .anyMatch(m -> m.getReturnValue().isPresent() &&
+                                                    m.getReturnValue().get().equals(returnValueFqName) &&
+                                                    m.hasAnnotation(SPRING_BEAN_ANNOTATION)
+                                    ))
                             .forEach(t -> t
                                     .getMethods()
                                     .stream()
-                                    .filter(m -> m.getReturnValue().equals(returnValueFqName))
+                                    .filter(m -> m.getReturnValue().get().equals(returnValueFqName))
                                     .forEach(m -> matches.add(new MatchingMethod(js, t, m))));
                 });
         return matches;
