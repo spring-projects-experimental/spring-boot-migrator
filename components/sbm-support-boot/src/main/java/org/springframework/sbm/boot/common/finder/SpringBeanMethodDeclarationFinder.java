@@ -59,6 +59,7 @@ public class SpringBeanMethodDeclarationFinder implements ProjectResourceFinder<
                                     .filter(m -> m.getReturnValue().get().equals(returnValueFqName))
                                     .forEach(m -> matches.add(new MatchingMethod(js, t, m))));
                 });
+
         return matches;
     }
 }

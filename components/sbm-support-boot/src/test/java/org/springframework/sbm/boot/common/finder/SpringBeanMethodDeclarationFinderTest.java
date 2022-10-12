@@ -167,7 +167,8 @@ class SpringBeanMethodDeclarationFinderTest {
     class WithVoidBeans {
 
         @Test
-        void shouldRecogniseMethodWithVoidReturns() {
+        void shouldReturnEmptyListWithVoidReturnTypeOnBean() {
+
             builder.addJavaSource("src/main/java",
                             """
                             import org.springframework.context.annotation.Configuration;
@@ -184,8 +185,8 @@ class SpringBeanMethodDeclarationFinderTest {
                     )
                     .withBuildFileHavingDependencies("org.springframework:spring-context:5.3.22");
 
-            List<MatchingMethod> matches = builder.build().search(sut);
-            assertThat(matches).hasSize(1);
+            List<MatchingMethod> output = builder.build().search(sut);
+            assertThat(output).isEmpty();
         }
     }
 
