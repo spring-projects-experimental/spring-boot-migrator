@@ -31,6 +31,22 @@
         id: "spring-milestone"
         url: "https://repo.spring.io/milestone"
 
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+      description: Upgrade Spring Cloud Dependencies
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot3.data.UpgradeSpringCloudDependencies
+        displayName: Upgrade to Spring Cloud
+        description: 'Upgrade to Spring Cloud to version 2022.0.0-M4'
+        recipeList:
+          - org.openrewrite.maven.UpgradeDependencyVersion:
+              groupId: org.springframework.cloud
+              artifactId: spring-cloud-dependencies
+              newVersion: 2022.0.0-M4
+
     -  type: org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction
        description: Move EnableAutoConfiguration Property from spring.factories to AutoConfiguration.imports
        snapshotsEnabled: false
