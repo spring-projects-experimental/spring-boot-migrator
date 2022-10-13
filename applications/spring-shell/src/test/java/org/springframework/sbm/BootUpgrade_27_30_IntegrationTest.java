@@ -56,6 +56,15 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyAutoConfigurationIsRefactored();
         verifyEhCacheVersionIsUpgraded();
         verifyJohnzonCoreDependencyIsUpgraded();
+        verifyWireMockDependency();
+    }
+
+    private void verifyWireMockDependency() {
+        Optional<Dependency> wireMock =
+                getDependencyByArtifactId("wiremock-jre8-standalone");
+
+        assertThat(wireMock).isPresent();
+        assertThat(wireMock.get().getVersion()).isEqualTo("2.34.0");
     }
 
     private void buildProject() {
