@@ -51,7 +51,7 @@ public interface Method {
 
     Visibility getVisibility();
 
-    String getReturnValue();
+    Optional<String> getReturnValue();
 
     void rename(String methodPattern, String newName);
 
