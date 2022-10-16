@@ -24,6 +24,7 @@
     <packaging>pom</packaging>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jar.name>spring-boot-migrator</jar.name>
         <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>
         <maven.compiler.target>17</maven.compiler.target>

@@ -18,9 +18,7 @@ package org.springframework.sbm.boot.upgrade.common;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import org.asciidoctor.Asciidoctor;
-import org.asciidoctor.Options;
-import org.asciidoctor.SafeMode;
+import org.asciidoctor.*;
 
 import java.io.StringWriter;
 import java.util.Map;
