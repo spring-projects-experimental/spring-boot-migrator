@@ -25,6 +25,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <jar.name>spring-boot-migrator</jar.name>
         <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>
         <maven.compiler.target>17</maven.compiler.target>
