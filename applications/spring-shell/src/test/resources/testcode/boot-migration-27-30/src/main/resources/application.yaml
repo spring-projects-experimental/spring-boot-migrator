@@ -85,6 +85,17 @@ spring:
           socket-timeout: '100'
           max-in-memory-size: '122'
           username: testUser
+    cassandra:
+      keyspaceName: testKeySpace
+      contactPoints: localhost
+      port: 9042
+      username: testusername
+      schemaAction: NONE
+      request:
+        timeout: 10s
+      connection:
+          connectTimeout: 10s
+          initQueryTimeout: 10s
   h2:
     console:
       path: "/tmp"
