@@ -151,6 +151,36 @@
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
         versionPattern: "3\\.0\\..*"
+      description: Migrate Cassandra configuration to Spring Boot 3.0 in yaml format
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
+        displayName: Migrate Cassandra configuration to Spring Boot 3.0 in yaml format
+        description: Renames spring.data.cassandra.(any) to spring.cassandra.(any)
+        recipeList:
+          - org.openrewrite.yaml.ChangePropertyKey:
+              oldPropertyKey: spring.data.cassandra
+              newPropertyKey: spring.cassandra
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "3\\.0\\..*"
+      description: Migrate Cassandra configuration to Spring Boot 3.0 in properties format
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
+        displayName: Migrate Cassandra properties to Spring Boot 3.0 in properties
+        description: Renames spring.data.cassandra.(any) to spring.cassandra.(any)
+        recipeList:
+          - org.openrewrite.properties.ChangePropertyKey:
+              oldPropertyKey: spring.data.cassandra
+              newPropertyKey: spring.cassandra
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "3\\.0\\..*"
       description: Remove redundant @ConstructorBinding annotations when applicable
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe

@@ -98,6 +98,17 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
                         "                  certificate-location: classpath:saml/idpone.crt\n" +
                         "              entity-id: https://idpone.com\n" +
                         "              sso-url: https://idpone.com\n" +
+                        "  cassandra:\n" +
+                        "    keyspaceName: testKeySpace\n" +
+                        "    contactPoints: localhost\n" +
+                        "    port: 9042\n" +
+                        "    username: testusername\n" +
+                        "    schemaAction: NONE\n" +
+                        "    request:\n" +
+                        "      timeout: 10s\n" +
+                        "    connection:\n" +
+                        "      connectTimeout: 10s\n" +
+                        "      initQueryTimeout: 10s\n" +
                         "  elasticsearch.connection-timeout: '1000'\n" +
                         "  elasticsearch.webclient.max-in-memory-size: '122'\n" +
                         "  elasticsearch.password: abc\n" +
@@ -153,6 +164,16 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
                         "spring.datasource.driverClassName=org.h2.Driver\n" +
                         "spring.datasource.username=sa\n" +
                         "spring.datasource.password=password\n" +
+                        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect\n" +
+                        "\n" +
+                        "spring.cassandra.keyspace-name=testKeySpace\n" +
+                        "spring.cassandra.port=9042\n" +
+                        "spring.cassandra.contact-points=localhost\n" +
+                        "spring.cassandra.username=testusername\n" +
+                        "spring.cassandra.schema-action=NONE\n" +
+                        "spring.cassandra.request.timeout=10s\n" +
+                        "spring.cassandra.connection.connect-timeout=10s\n" +
+                        "spring.cassandra.connection.init-query-timeout=10s\n" +
                         "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect\n" +
                         "logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS\n");
     }
