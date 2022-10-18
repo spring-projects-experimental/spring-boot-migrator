@@ -16,8 +16,6 @@
 
 package org.springframework.sbm.boot.common.finder;
 
-import org.assertj.core.api.Assertions;
-import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,7 +24,6 @@ import org.springframework.sbm.project.resource.TestProjectContext;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class SpringBeanMethodDeclarationFinderTest {
 
@@ -84,7 +81,7 @@ class SpringBeanMethodDeclarationFinderTest {
             assertThat(matches).hasSize(1);
             assertThat(matches.get(0).getJavaSource().getSourcePath().toString()).isEqualTo("src/main/java/MyConfiguration.java");
             assertThat(matches.get(0).getType().getFullyQualifiedName()).isEqualTo("MyConfiguration");
-            assertThat(matches.get(0).getMethod().getReturnValue()).isEqualTo("a.b.c.SomeBean");
+            assertThat(matches.get(0).getMethod().getReturnValue().get()).isEqualTo("a.b.c.SomeBean");
             assertThat(matches.get(0).getMethod().getName()).isEqualTo("someBean");
         }
     }
@@ -154,15 +151,43 @@ class SpringBeanMethodDeclarationFinderTest {
             assertThat(matches).hasSize(2);
             assertThat(matches.get(0).getJavaSource().getSourcePath().toString()).isEqualTo("src/main/java/MyConfiguration.java");
             assertThat(matches.get(0).getType().getFullyQualifiedName()).isEqualTo("MyConfiguration");
-            assertThat(matches.get(0).getMethod().getReturnValue()).isEqualTo("a.b.c.SomeBean");
+            assertThat(matches.get(0).getMethod().getReturnValue()).isPresent();
+            assertThat(matches.get(0).getMethod().getReturnValue().get()).isEqualTo("a.b.c.SomeBean");
             assertThat(matches.get(0).getMethod().getName()).isEqualTo("someBean");
             assertThat(matches.get(1).getJavaSource().getSourcePath().toString()).isEqualTo("src/main/java/MyConfiguration2.java");
             assertThat(matches.get(1).getType().getFullyQualifiedName()).isEqualTo("MyConfiguration2");
             assertThat(matches.get(1).getMethod().getName()).isEqualTo("someBean2");
-            assertThat(matches.get(1).getMethod().getReturnValue()).isEqualTo("a.b.c.SomeBean");
+            assertThat(matches.get(1).getMethod().getReturnValue()).isPresent();
+            assertThat(matches.get(1).getMethod().getReturnValue().get()).isEqualTo("a.b.c.SomeBean");
         }
     }
 
 
+    @Nested
+    class WithVoidBeans {
+
+        @Test
+        void shouldReturnEmptyListWithVoidReturnTypeOnBean() {
+
+            builder.addJavaSource("src/main/java",
+                            """
+                            import org.springframework.context.annotation.Configuration;
+                            import org.springframework.context.annotation.Bean;
+                            
+                            @Configuration
+                            public class MyConfiguration {
+                              @Bean
+                              void someBean() {
+                                  return null;
+                              }
+                            }
+                            """
+                    )
+                    .withBuildFileHavingDependencies("org.springframework:spring-context:5.3.22");
+
+            List<MatchingMethod> output = builder.build().search(sut);
+            assertThat(output).isEmpty();
+        }
+    }
 
 }

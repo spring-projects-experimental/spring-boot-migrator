@@ -229,6 +229,89 @@ public class OpenRewriteMavenBuildFileTest {
         }
     }
 
+    @Nested
+    class ResolvingMavenVariableTest {
+
+        @Test
+        void itResolvesVariables() {
+            @Language("xml")
+            String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>javax.validation</groupId>
+                    <artifactId>demo</artifactId>
+                    <version>1.0.0</version>
+                    <properties>
+                        <javaValidationApiVersion>2.0.1.Final</javaValidationApiVersion>
+                    </properties>
+                    <name>demo</name>
+                    <dependencies>
+                        <dependency>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>validation-api</artifactId>
+                            <version>${javaValidationApiVersion}</version>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """;
+
+            BuildFile buildFile = TestProjectContext
+                    .buildProjectContext()
+                    .withMavenRootBuildFileSource(pom)
+                    .build()
+                    .getApplicationModules()
+                    .list()
+                    .get(0)
+                    .getBuildFile();
+
+            assertThat(buildFile.getRequestedDependencies()).hasSize(1);
+            Dependency javaValidationApiDependency = buildFile.getRequestedDependencies().get(0);
+            assertThat(javaValidationApiDependency.getGroupId()).isEqualTo("javax.validation");
+            assertThat(javaValidationApiDependency.getVersion()).isEqualTo("2.0.1.Final");
+        }
+
+        @Test
+        void itResolvesVariableFromMavenConfig() {
+            @Language("xml")
+            String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>javax.validation</groupId>
+                    <artifactId>demo</artifactId>
+                    <version>${revision}</version>
+                    <properties>
+                        <javaValidationApiVersion>2.0.1.Final</javaValidationApiVersion>
+                    </properties>
+                    <name>demo</name>
+                    <dependencies>
+                        <dependency>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>validation-api</artifactId>
+                            <version>${javaValidationApiVersion}</version>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """;
+
+            BuildFile buildFile = TestProjectContext
+                    .buildProjectContext()
+                    .addProjectResource(".mvn/maven.config", """
+                            -Drevision=1.0.0
+                            """)
+                    .withMavenRootBuildFileSource(pom)
+                    .build()
+                    .getApplicationModules()
+                    .list()
+                    .get(0)
+                    .getBuildFile();
+
+            assertThat(buildFile.getVersion()).isEqualTo("1.0.0");
+        }
+    }
 
     @Test
     @Tag("integration")
