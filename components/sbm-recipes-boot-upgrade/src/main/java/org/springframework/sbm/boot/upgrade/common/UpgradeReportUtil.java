@@ -37,14 +37,18 @@ public class UpgradeReportUtil {
 
 
     public static String renderHtml(String markdown) {
+        return renderHtml(markdown, "spring-html");
+    }
+
+    public static String renderHtml(String markdown, String backend) {
         Asciidoctor asciidoctor = Asciidoctor.Factory.create();
         String html = asciidoctor.convert(markdown,
-                Options.builder()
-                        .toFile(true)
-                        .backend("spring-html")
-                        .headerFooter(true)
-                        .safe(SafeMode.SERVER)
-                        .build());
+                                          Options.builder()
+                                                  .toFile(true)
+                                                  .backend(backend)
+                                                  .headerFooter(true)
+                                                  .safe(SafeMode.SERVER)
+                                                  .build());
         return html;
     }
 }

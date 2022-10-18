@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringBootUpgradeReportRenderer {
     public String renderReport(String s) {
-        String html = UpgradeReportUtil.renderHtml(s);
+        String html = UpgradeReportUtil.renderHtml(s, "html5");
         return html;
     }
 }
