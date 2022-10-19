@@ -173,9 +173,7 @@
         displayName: Migrate Cassandra properties to Spring Boot 3.0 in properties
         description: Renames spring.data.cassandra.(any) to spring.cassandra.(any)
         recipeList:
-          - org.openrewrite.properties.ChangePropertyKey:
-              oldPropertyKey: spring.data.cassandra
-              newPropertyKey: spring.cassandra
+          - org.springframework.sbm.boot.upgrade_27_30.CassandraApplicationPropertiesMove
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
