@@ -27,8 +27,11 @@
     <artifactId>sbm-recipes-boot-upgrade</artifactId>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <spring-asciidoctor-backends.version>0.0.3</spring-asciidoctor-backends.version>
     </properties>
 
     <dependencies>
@@ -76,5 +79,22 @@
             <version>${openrewrite.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>io.spring.asciidoctor.backends</groupId>
+            <artifactId>spring-asciidoctor-backends</artifactId>
+            <version>${spring-asciidoctor-backends.version}</version>
+        </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>spring-release</id>
+            <name>Spring Releases</name>
+            <url>https://repo.spring.io/release</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>

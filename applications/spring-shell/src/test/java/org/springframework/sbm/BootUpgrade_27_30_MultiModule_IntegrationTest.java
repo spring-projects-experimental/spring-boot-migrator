@@ -153,7 +153,8 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
                         "spring.datasource.driverClassName=org.h2.Driver\n" +
                         "spring.datasource.username=sa\n" +
                         "spring.datasource.password=password\n" +
-                        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect\n");
+                        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect\n" +
+                        "logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS\n");
     }
 
     private void verifyEhCacheVersionIsUpgraded() {

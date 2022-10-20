@@ -53,7 +53,7 @@ public class GitSupportTest {
 
         Optional<Repository> repository = GitSupport.findRepository(tmpDir.toFile());
         assertThat(repository).isEmpty();
-        assertThat(sysOutBuffer.toString()).matches("[\\d\\: \\. ]*\\[main\\] ERROR o\\.s\\.sbm\\.engine\\.git\\.GitSupport - Could not find \\.git in the given directory '"+tmpDir.toString().replace("/", "\\/")+"' or any of it's parents(?s).*");
+        assertThat(sysOutBuffer.toString()).matches("[\\d\\: \\. ]*\\[main\\] DEBUG o\\.s\\.sbm\\.engine\\.git\\.GitSupport - Could not find \\.git in the given directory '"+tmpDir.toString().replace("/", "\\/")+"' or any of it's parents(?s).*");
         System.setOut(realSysOut);
     }
 

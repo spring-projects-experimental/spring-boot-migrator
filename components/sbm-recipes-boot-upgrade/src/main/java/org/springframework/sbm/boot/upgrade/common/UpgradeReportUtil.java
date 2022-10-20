@@ -18,9 +18,7 @@ package org.springframework.sbm.boot.upgrade.common;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import org.asciidoctor.Asciidoctor;
-import org.asciidoctor.Options;
-import org.asciidoctor.SafeMode;
+import org.asciidoctor.*;
 
 import java.io.StringWriter;
 import java.util.Map;
@@ -39,14 +37,18 @@ public class UpgradeReportUtil {
 
 
     public static String renderHtml(String markdown) {
+        return renderHtml(markdown, "spring-html");
+    }
+
+    public static String renderHtml(String markdown, String backend) {
         Asciidoctor asciidoctor = Asciidoctor.Factory.create();
         String html = asciidoctor.convert(markdown,
-                Options.builder()
-                        .toFile(true)
-                        .backend("html5")
-                        .headerFooter(true)
-                        .safe(SafeMode.UNSAFE)
-                        .build());
+                                          Options.builder()
+                                                  .toFile(true)
+                                                  .backend(backend)
+                                                  .headerFooter(true)
+                                                  .safe(SafeMode.SERVER)
+                                                  .build());
         return html;
     }
 }
