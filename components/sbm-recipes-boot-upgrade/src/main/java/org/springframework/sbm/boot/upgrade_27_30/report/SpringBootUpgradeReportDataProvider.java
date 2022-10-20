@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +36,11 @@ public class SpringBootUpgradeReportDataProvider implements SpringBootUpgradeRep
         Map<String, Object> data = new HashMap<>();
 
         data.put("timestamp", Instant.now().toString());
-        data.put("contributors", sections.stream().flatMap(s -> s.getAuthors().stream()).collect(Collectors.toList()));
+        Set<SpringBootUpgradeReportSection.Author> authors = sections
+                .stream()
+                .flatMap(s -> s.getAuthors().stream())
+                .collect(Collectors.toSet());
+        data.put("contributors", authors);
 
         String scannedCoordinate = context.getApplicationModules().getRootModule().getBuildFile().getCoordinates();
         data.put("scannedCoordinate", scannedCoordinate);

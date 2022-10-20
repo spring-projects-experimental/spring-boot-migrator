@@ -18,6 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import freemarker.core.ParseException;
 import freemarker.template.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -89,7 +90,7 @@ public class SpringBootUpgradeReportSection {
      * Contributors with pattern {@code Given Name[@githubHandle]}.
      */
     @NotNull
-    private List<String> contributors;
+    private Set<String> contributors;
     /**
      * The name of the recipe for automated migration or {@code null} of none exist.
      */
@@ -192,6 +193,7 @@ public class SpringBootUpgradeReportSection {
 
     @Getter
     @RequiredArgsConstructor
+    @EqualsAndHashCode
     public class Author {
         private final String name;
         private final String handle;
