@@ -116,7 +116,9 @@ public class SpringBootUpgradeReportAction implements Action {
 
 
         List<String> renderedSections = new ArrayList<>();
-        sections.stream().forEach(section -> {
+        sections.stream()
+                .filter(s -> s.shouldRender(context))
+                .forEach(section -> {
             renderedSections.add(section.render(context));
         });
 

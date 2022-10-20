@@ -51,6 +51,10 @@ public class SpringBootUpgradeReportSection {
     public static final String AFFECTED = "Why is the application affected";
     public static final String REMEDIATION = "Remediation";
 
+    public boolean shouldRender(ProjectContext context) {
+        return helper.evaluate(context);
+    }
+
     /**
      * Helper acting as {@link Condition} and data provide for a {@link SpringBootUpgradeReportSection}.
      */
