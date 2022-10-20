@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * @author Fabian Krüger
  */
-public class ChangesToDataPropertiesHelper implements Condition, SpringBootUpgradeReportSection.Helper<List<ChangesToDataPropertiesHelper.Match>> {
+public class ChangesToDataPropertiesHelper implements SpringBootUpgradeReportSection.Helper<List<ChangesToDataPropertiesHelper.Match>> {
 
     private Map<String, List<Match>> data = new HashMap<>();
 
