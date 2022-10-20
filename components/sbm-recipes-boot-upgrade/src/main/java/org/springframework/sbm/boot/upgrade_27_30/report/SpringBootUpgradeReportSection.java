@@ -125,15 +125,13 @@ public class SpringBootUpgradeReportSection {
     public String render(ProjectContext context) {
         if (getHelper().evaluate(context)) {
             Map<String, Object> params = new HashMap<>();
-            if (getHelper() != null) {
-                params = getHelper().getData(context);
-            }
+            params = getHelper().getData(context);
 
             try (StringWriter writer = new StringWriter()) {
                 String templateContent = buildTemplate();
-
-                freemarkerSupport.getStringLoader().putTemplate("section", templateContent);
-                Template t = freemarkerSupport.getConfiguration().getTemplate("section");
+                String templateName = getTitle().replace(" ", "") + UUID.randomUUID();
+                freemarkerSupport.getStringLoader().putTemplate(templateName, templateContent);
+                Template t = freemarkerSupport.getConfiguration().getTemplate(templateName);
                 t.process(params, writer);
                 return writer.toString();
             } catch (TemplateException e) {
