@@ -178,7 +178,7 @@ public class OpenRewriteType implements Type {
                 .stream()
                 .filter(a -> {
                     Object typeObject = a.getAnnotationType().getType();
-                    String simpleName = ((J.Identifier) a.getAnnotationType()).getSimpleName();
+                    String simpleName = a.getSimpleName();
                     if (JavaType.Unknown.class.isInstance(typeObject)) {
                         log.warn("Could not resolve Type for annotation: '" + simpleName + "' while comparing with '" + annotation + "'.");
                         return false;
