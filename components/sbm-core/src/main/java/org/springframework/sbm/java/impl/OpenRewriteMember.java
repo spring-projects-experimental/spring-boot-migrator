@@ -82,7 +82,7 @@ public class OpenRewriteMember implements Member {
                     } else if (type1.getClass().isAssignableFrom(JavaType.Class.class)) {
                         JavaType.Class type = (JavaType.Class) a.getType();
                         if (type == null) {
-                            String simpleName = ((J.Identifier) a.getAnnotationType()).getSimpleName();
+                            String simpleName = a.getSimpleName();
                             log.error("Could not get Type for annotation: '" + simpleName + "' while comparing with '" + annotation + "'.");
                             return false;
                         }
