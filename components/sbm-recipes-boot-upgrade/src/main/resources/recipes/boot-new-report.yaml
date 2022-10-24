@@ -2,7 +2,7 @@
   description: Create a report for Spring Boot Upgrade from 2.7.x to 3.0.x
   condition:
     type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-    versionPattern: "2\\.4\\..*|2\\.5\\..*"
+    versionPattern: "2\\.7\\..*"
 
   actions:
 
