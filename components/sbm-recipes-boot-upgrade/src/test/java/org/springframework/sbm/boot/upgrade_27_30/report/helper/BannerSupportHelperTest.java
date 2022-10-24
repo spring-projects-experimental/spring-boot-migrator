@@ -28,6 +28,7 @@ public class BannerSupportHelperTest {
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .addProjectResource("src/main/resources/banner.gif", "gif-banner")
                 .addProjectResource("src/main/resources/banner.jpg", "jpg-banner")
+                .addProjectResource("src/main/com/test/banner.java","class banner {}")
                 .build();
 
         SpringBootUpgradeReportTestSupport
