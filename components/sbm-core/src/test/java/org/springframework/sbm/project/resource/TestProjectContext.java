@@ -320,6 +320,12 @@ public class TestProjectContext {
             return this;
         }
 
+        /**
+         * Adds a Java source file to the {@code ProjectContext}.
+         *
+         * @param sourcePath e.g. {@code src/main/java} or {@code src/test/java} the package and classname are extracted from the given source code
+         * @param sourceCode the source code of the java file. It will be used to calculate package and classname.
+         */
         public Builder addJavaSource(String sourcePath, String sourceCode) {
             return addJavaSource(Path.of(sourcePath), sourceCode);
         }

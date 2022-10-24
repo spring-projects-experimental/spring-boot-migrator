@@ -17,7 +17,6 @@
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.intellij.lang.annotations.Language;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportTestSupport;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -64,10 +63,6 @@ public class ConstructorBindingHelperTest {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .addJavaSource("src/main/java", javaClassWithConstructorBinding)
-                .addJavaSource("src/main/java", """
-                        package com.example;
-                        public class A {}
-                        """)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1")
                 .build();
 
@@ -115,10 +110,5 @@ public class ConstructorBindingHelperTest {
                 .addJavaSource("src/main/java/com/example/A.java", javaClassWithConstructorBinding)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1")
                 .build();
-
-        SpringBootUpgradeReportTestSupport
-                .generatedSection("Constructor Binding")
-                .fromProjectContext(context)
-                .shouldNotRender();
     }
 }

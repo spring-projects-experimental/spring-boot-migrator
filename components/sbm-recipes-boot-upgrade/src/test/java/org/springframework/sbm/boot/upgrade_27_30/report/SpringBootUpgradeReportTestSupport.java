@@ -91,7 +91,7 @@ public class SpringBootUpgradeReportTestSupport {
         }
 
         public void shouldStartWith(String expectedOutput) {
-            shouldStartWith(expectedOutput, Map.of());
+            shouldStartWith(expectedOutput, defaultMap());
         }
 
         public void shouldStartWith(String expectedOutput, Map<String, String> templateVariables) {
@@ -159,7 +159,6 @@ public class SpringBootUpgradeReportTestSupport {
                     action.apply(reportBuilderData.getContext());
                 });
             } else if(SectionBuilderData.class.isInstance(builderData)) {
-                SectionBuilderData sectionBuilderData = SectionBuilderData.class.cast(builderData);
                 withRecipes(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
