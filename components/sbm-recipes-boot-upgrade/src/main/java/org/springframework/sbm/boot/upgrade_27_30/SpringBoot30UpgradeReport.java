@@ -19,7 +19,6 @@ package org.springframework.sbm.boot.upgrade_27_30;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import freemarker.template.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.upgrade.common.UpgradeReportUtil;
 import org.springframework.sbm.boot.upgrade_24_25.report.Boot_24_25_Introduction;

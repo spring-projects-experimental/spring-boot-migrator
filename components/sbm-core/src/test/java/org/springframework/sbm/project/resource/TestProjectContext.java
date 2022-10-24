@@ -42,6 +42,7 @@ import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.project.parser.DependencyHelper;
 import org.springframework.sbm.project.parser.JavaProvenanceMarkerFactory;
 import org.springframework.sbm.project.parser.MavenProjectParser;
+import org.springframework.sbm.project.parser.MavenConfigHandler;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import org.springframework.sbm.project.parser.ResourceParser;
 import org.springframework.sbm.project.parser.RewriteJsonParser;
@@ -459,7 +460,8 @@ public class TestProjectContext {
             JavaRefactoringFactory javaRefactoringFactory = new JavaRefactoringFactoryImpl(projectResourceSetHolder);
 
             // create ProjectResourceWrapperRegistry and register Java and Maven resource wrapper
-            BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(eventPublisher, javaParser);
+            BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(
+                    eventPublisher);
             resourceWrapperList.add(buildFileResourceWrapper);
             JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(javaRefactoringFactory, javaParser);
             resourceWrapperList.add(javaSourceProjectResourceWrapper);
@@ -516,7 +518,14 @@ public class TestProjectContext {
             MavenArtifactDownloader artifactDownloader = new RewriteMavenArtifactDownloader();
 
             JavaProvenanceMarkerFactory javaProvenanceMarkerFactory = new JavaProvenanceMarkerFactory();
-            MavenProjectParser mavenProjectParser = new MavenProjectParser(resourceParser, mavenParser, artifactDownloader, eventPublisher, javaProvenanceMarkerFactory, javaParser);
+            MavenProjectParser mavenProjectParser = new MavenProjectParser(
+                    resourceParser,
+                    mavenParser,
+                    artifactDownloader,
+                    eventPublisher,
+                    javaProvenanceMarkerFactory,
+                    javaParser,
+                    new MavenConfigHandler());
 
             GitSupport gitSupport = mock(GitSupport.class);
             when(gitSupport.repoExists(projectRoot.toFile())).thenReturn(true);

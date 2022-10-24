@@ -15,6 +15,7 @@ ENV JAVA_HOME /opt/openjdk
 ENV PATH $PATH:$JAVA_HOME/bin
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
+ENV JAVA_TOOL_OPTIONS "-Dfile.encoding=\"UTF-8\""
 
 ADD docker-lib.sh /docker-lib.sh
 
