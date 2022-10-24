@@ -20,6 +20,7 @@ import lombok.Setter;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
+import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.test.RecipeTestSupport;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -73,7 +74,7 @@ public class SpringBootUpgradeReportTestSupport {
 
 
         public void shouldRenderAs(String expectedOutput) {
-            shouldRenderAs(expectedOutput, Map.of());
+            shouldRenderAs(expectedOutput, defaultMap());
         }
 
         public <V, K> void shouldRenderAs(String expectedOutput, Map<String, String> templateVariables) {
@@ -90,6 +91,16 @@ public class SpringBootUpgradeReportTestSupport {
             String expectedOutputRendered = replacePlaceHolders(expectedOutput, templateVariables);
             Consumer<String> assertion = (s) -> assertThat(s).as(TestDiff.of(s, expectedOutputRendered)).startsWith(expectedOutputRendered);
             verify(assertion);
+        }
+
+
+        private Map<String, String> defaultMap() {
+            String path = Path
+                    .of(".")
+                    .toAbsolutePath()
+                    .resolve(TestProjectContext.getDefaultProjectRoot()).toString();
+
+            return Map.of("PATH", path);
         }
 
         private void verify(Consumer<String> assertion) {

@@ -61,8 +61,7 @@ public class ChangesToDataPropertiesReportTest {
                                     ==== Remediation
                                     Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
                                                                           
-                                    """, Map.of("PATH", Path
-                                .of(".").toAbsolutePath().resolve(TestProjectContext.getDefaultProjectRoot()).toString()));
+                                    """);
     }
 
 }
