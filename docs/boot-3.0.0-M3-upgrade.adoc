@@ -1,47 +1,276 @@
-[plantuml,modules,png]
+= Spring Boot 3.0 Upgrade Report
+:report-recipe-file: https://github.com/spring-projects-experimental/spring-boot-migrator/blob/68f9c138d0a2bc138f5c9eb712559bb9a4b04578/components/sbm-recipes-boot-upgrade/src/main/resources/recipes/boot-new-report.yaml[boot-new-report.yaml]
+
+== Upgrade Report
+
+The report is declared in `{report-recipe-file}`
+
+=== Change Sections
+
+Every change after 2.7.x should be covered in a section in the "Spring Boot 3 Upgrade Report".
+
+Every change section has these parts
+
+. A title
+. The description of the change
+. The description of why the scanned application is/might be affected
+. How to remediate
+
+Every section is declared in YAML
+
+==== The title
+[source,yaml]
+....
+      sections:
+
+        - title: The title of the change in the Release Notes or GitHub issue
 ....
 
-component rewrite {
-}
-component "rewrite-spring" {
-}
-component "sbm-openrewrite-boot-upgrade" {
-}
-component "sbm-recipes-boot-upgrade" {
-}
-component "sbm-support-boot" {
+==== The Helper
 
-}
-component "sbm-openrewrite" {
-}
-component "sbm-core" {
+The `Helper` is condition and data provider for the template.
+It must implement `ìsApplicable` and `getData` from `SpringBootUpgradeReportSection.Helper`.
+All variables used in the template must be provided by `getData`.
 
-}
+[source,java]
+....
+    public interface Helper<T> extends Condition {
+        Map<String, T> getData(ProjectContext context);
+    }
+....
 
-note left of sbm-openrewrite
-    Only Helpers, Recipes and Visitors
-end note
+[source,yaml]
+....
+          helper: o.s.sbm.boot.upgrade_27_30.report.helper.ChangesToDataPropertiesHelper <1>
+....
 
-note top of sbm-recipes-boot-upgrade
-    Automated and manual SBM recipes
-    for Spring Boot upgrades
-end note
+==== The Change
 
-note top of sbm-openrewrite-boot-upgrade
-    No dependency on SBM,
-    contains OpenRewrite Recipes and Visitors
-end note
+[source,yaml]
+....
+          info: |-
+            Describes the change, e.g a section from Release Notes.
+            Links to the Release Note or other resources can be added here.
+....
 
+==== The Reason
 
-"sbm-support-boot" --> "sbm-core"
-"sbm-recipes-boot-upgrade" --> "sbm-support-boot"
-"sbm-recipes-boot-upgrade" --> "sbm-openrewrite-boot-upgrade"
-"sbm-recipes-boot-upgrade" --> "rewrite-spring"
-"sbm-core" --> "sbm-openrewrite"
-"sbm-openrewrite" --> rewrite
-"sbm-openrewrite-boot-upgrade" --> "sbm-openrewrite"
-"rewrite-spring" -> "rewrite"
+[source,yaml]
+....
+          reason: |-
+            The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
 
+            <#list matches as match> <2>
+              * file://${match.absolutePath}[`${match.relativePath}`]
+              <#list match.propertiesFound as property>
+              ** `${property}`
+              </#list>
+            </#list>
+....
 
+==== Remediation
+
+[source,yaml]
+....
+          remediation: |-
+            Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
+          gitHubIssue: 123
+          recipe: upgrade-to-spring-boot-3
+          contributor: "Fabian Krüger[@fabapp2]"
 
 ....
+
+==== GitHubIssue
+
+[source,yaml]
+....
+          gitHubIssue: 123
+          contributor: "Fabian Krüger[@fabapp2]"
+          recipe: upgrade-to-spring-boot-3
+....
+
+
+
+
+
+<2> The template for the section can contain freemarker syntax, the data must be provided by the `Helper`
+
+=== Testing
+
+[source,java]
+....
+<1>
+ ProjectContext context = TestProjectContext.buildProjectContext()
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
+                .addProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
+                .build();
+
+        SpringBootUpgradeReportTestSupport.generatedSection("Changes to Data Properties") <2>
+                .fromProjectContext(context) <3>
+                .shouldRenderAs( <4>
+                                    """
+                                    == Changes to Data Properties
+
+                                    === Description
+                                    The data prefix has been reserved for Spring Data and any properties under the `data` prefix imply that Spring\s
+                                    Data is required on the classpath.
+
+                                    === Why it needs to be changed
+                                    The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.* `.
+
+                                      * file://<PATH>/src/main/resources/application.properties[`src/main/resources/application.properties`] <5>
+                                      ** `spring.data.foo`
+                                      * file://<PATH>/src/main/resources/application-another.properties[`src/main/resources/application-another.properties`]
+                                      ** `spring.data.here`
+
+                                    === How to Resolve
+                                    Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
+
+                                    GitHub-issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/123[=123]
+                                      """,
+                        Map.of("PATH", Path.of(".").toAbsolutePath().resolve(TestProjectContext.getDefaultProjectRoot()).toString()) <6>
+                );
+....
+
+<1> create the `ProjectContext`
+<2> use `SpringBootUpgradeReportTestSupport` to test the section with given title
+<3>  pass in the `ProjectContext`
+<4> provide the expected output
+<5> `<PATH>` will be replaced with the values from map
+<6> provide values for replacement
+
+
+==== The YAML
+
+https://www.tablesgenerator.com/markdown_tables[Markdown Table Generator]
+
+https://github.com/Buzzardo/spring-style-guide/blob/master/spring-style-guide.adoc[Spring Style Guide]
+
+[source,yaml]
+....
+- name: boot-2.7-3.0-upgrade-report2
+  description: Create a report for Spring Boot Upgrade from 2.7.x to 3.0.x
+  condition:
+    type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+    versionPattern: "2\\.7\\..*|3\\.0\\..*"
+
+  actions:
+
+    - type: org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportAction
+      file: report
+      condition:
+        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+
+      dataProvider: org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportDataProvider
+
+      header: |-
+        [[index]]
+        = Spring Boot 3 Upgrade Report
+        <#if contributors?has_content>
+        <#list contributors as contributor>
+        ${contributor.name}<#sep>, </#sep>
+        </#list>
+        </#if>
+        :source-highlighter: highlight.js
+        :highlightjs-languages: java
+        :linkcss:
+        :doctype: book
+        :idprefix:
+        :idseparator: -
+        :toc: left
+        :sectnumlevels: 2
+        :toclevels: 2
+        :tabsize: 4
+        :numbered:
+        :sectanchors:
+        :sectnums:
+        :hide-uri-scheme:
+        :docinfo: shared,private
+        :attribute-missing: warn
+        :chomp: default headers packages
+        :spring-boot-artifactory-repo: snapshot
+        :github-tag: main
+        :spring-boot-version: current
+
+        == Introduction
+        <#assign coordinates>${scannedCoordinate}</#assign>
+        [cols="1h,3"]
+        |===
+        | Scanned dir | `${scannedProjectRoot}`
+        | Revision | <#if revision?has_content>`${revision}`<#else>Scanned project not under Git</#if>
+        <#if projectName?has_content>
+        | Project name |  ${projectName}
+        </#if>
+        | Coordinate | `${scannedCoordinate}`
+        | Boot version | `${bootVersion}`
+        <#if numberOfChanges?has_content>
+        | Changes | ${numberOfChanges}
+        </#if>
+        |===
+
+        The application was scanned and matched against the changes listed in the
+        https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.5-Release-Notes[Spring Boot 2.5 Release Notes]
+        as well as from https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-5.x[Spring Framework 5.x Release Notes].
+
+        The Relevant Changes section lists all potentially required changes to upgrade the scanned application to Spring Boot 2.5.6.
+
+        NOTE: JDK 17 is required for Spring Boot 3
+
+        == Relevant Changes
+
+        This section lists the changes SBM found to be applicable to upgrade the scanned application to Spring Boot 3.0.0.
+
+      sections:
+
+        - title: The title
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ChangesToDataPropertiesHelper
+          info: |-
+            The data prefix has been reserved for Spring Data and any properties under the `data` prefix imply that Spring
+            Data is required on the classpath.
+          reason: |-
+            The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
+
+            <#list matches as match>
+              * file://${match.absolutePath}[`${match.relativePath}`]
+              <#list match.propertiesFound as property>
+              ** `${property}`
+              </#list>
+            </#list>
+
+          todos: |-
+            Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
+          gitHubIssue: 123
+          recipe: upgrade-to-spring-boot-3
+          contributor: "Fabian Krüger[@fabapp2]"
+
+      footer: |-
+        Generated by Spring Boot Migrator (experimental)
+....
+
+|===
+|Field |Description
+
+|title
+|The title of the change in the Release Notes or GitHub issue. https://github.com/Buzzardo/spring-style-guide/blob/master/spring-style-guide.adoc#titles-and-subtitles[Headings]
+
+|change
+|Describes the change, e.g a section from Release Notes.
+Links to the Release Note or other resources can be added here.
+
+|affected
+|Describes why the scanned application is affected by this change.
+
+|remediation
+|Describes required changes to the scanned application.
+A https://docs.asciidoctor.org/asciidoc/latest/lists/checklist/[checklist] can be used here.
+
+|gitHubIssue
+|The id (int) of the GitHub issue to this report section.
+
+|contributors
+|List of contributors with pattern `Given Name[@githubHandle]`.
+|===
+
+==== The Helper
+Helper acting as `Condition` and data provider for a `SpringBootUpgradeReportSection`. It provides the  model data for the template.

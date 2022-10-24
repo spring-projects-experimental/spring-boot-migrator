@@ -30,7 +30,6 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import java.nio.file.Path;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @SuperBuilder
@@ -38,25 +37,24 @@ public class AddSpringBootApplicationPropertiesAction extends AbstractAction {
 
     public static final Path APPLICATION_PROPERTIES_PATH = Path.of("src/main/resources/application.properties");
 
-    private Boolean addDefaultPropertiesFileToTopModules = Boolean.FALSE;
-
     @Override
     public void apply(ProjectContext context) {
-        if(addDefaultPropertiesFileToTopModules){
-            context.getApplicationModules()
-                    .getTopmostApplicationModules()
-                    .stream()
-                    .forEach(this::apply);
-        } else {
-            SpringBootApplicationProperties springBootApplicationProperties =
-                    SpringBootApplicationProperties.newApplicationProperties(
-                            context.getProjectRootDirectory(), APPLICATION_PROPERTIES_PATH);
-            context.getProjectResources().add(springBootApplicationProperties);
-        }
+		if(context.getApplicationModules().isSingleModuleApplication()) {
+			Module rootModule = context.getApplicationModules().getRootModule();
+			this.apply(rootModule);
+		} else {
+			context.getApplicationModules()
+					.getTopmostApplicationModules()
+					.forEach(this::apply);
+		}
     }
 
     public void apply(Module module) {
-        SpringBootApplicationProperties springBootApplicationProperties = SpringBootApplicationProperties.newApplicationProperties(module.getProjectRootDirectory(), module.getModulePath().resolve(APPLICATION_PROPERTIES_PATH));
+        SpringBootApplicationProperties springBootApplicationProperties = SpringBootApplicationProperties
+				.newApplicationProperties(
+						module.getProjectRootDirectory(),
+						module.getModulePath().resolve(APPLICATION_PROPERTIES_PATH)
+				);
         module.getMainResourceSet().addResource(springBootApplicationProperties);
     }
 

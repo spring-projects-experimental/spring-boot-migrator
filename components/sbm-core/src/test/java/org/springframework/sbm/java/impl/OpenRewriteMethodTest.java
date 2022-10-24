@@ -16,7 +16,6 @@
 package org.springframework.sbm.java.impl;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -24,6 +23,7 @@ import org.springframework.sbm.testhelper.common.utils.TestDiff;
 
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,6 +70,31 @@ public class OpenRewriteMethodTest {
         Assertions.assertThat(javaSource.print())
                 .as(TestDiff.of(javaSource.print(), expected))
                 .isEqualTo(expected);
+    }
+
+    @Test
+    void getReturnValueHandlesVoidMethods() {
+        String sourceCode = """
+                public class Foo {
+                   void bar() {
+                   }
+                }
+                """;
+
+        JavaSource javaSource = TestProjectContext.buildProjectContext()
+                .withJavaSources(sourceCode)
+                .build()
+                .getProjectJavaSources()
+                .list()
+                .get(0);
+
+        List<Method> method = javaSource.getTypes().stream()
+                .map(Type::getMethods)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+
+        assertThat(method).hasSize(1);
+        assertThat(method.get(0).getReturnValue()).isEmpty();
     }
 
     @Test

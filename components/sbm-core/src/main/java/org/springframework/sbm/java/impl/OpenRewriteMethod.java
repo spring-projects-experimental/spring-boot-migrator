@@ -22,6 +22,7 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.Statement;
+import org.openrewrite.java.tree.TypeTree;
 import org.openrewrite.java.tree.TypeUtils;
 import org.springframework.sbm.java.api.Annotation;
 import org.springframework.sbm.java.api.Method;
@@ -29,7 +30,6 @@ import org.springframework.sbm.java.api.MethodParam;
 import org.springframework.sbm.java.api.Visibility;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
@@ -158,9 +158,13 @@ public class OpenRewriteMethod implements Method {
     }
 
     @Override
-    public String getReturnValue() {
-        JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(getMethodDecl().getReturnTypeExpression().getType());
-        return fullyQualified.getFullyQualifiedName();
+    public Optional<String> getReturnValue() {
+        TypeTree returnTypeExpression = getMethodDecl().getReturnTypeExpression();
+        if (returnTypeExpression == null || returnTypeExpression.getType() == JavaType.Primitive.Void) {
+            return Optional.empty();
+        }
+
+        return Optional.of(TypeUtils.asFullyQualified(returnTypeExpression.getType()).getFullyQualifiedName());
     }
 
     // FIXME: renaming method should not require a methodPattern in this context

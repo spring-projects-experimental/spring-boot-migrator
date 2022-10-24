@@ -59,9 +59,8 @@ public class GitSupport {
         Optional<Repository> repository = Optional.empty();
         try {
             repository = Optional.of(new FileRepositoryBuilder().findGitDir(repo).setMustExist(true).build());
-
         } catch (IllegalArgumentException | IOException e) {
-            log.error("Could not find .git in the given directory '{}' or any of it's parents", repo, e);
+            log.debug("Could not find .git in the given directory '{}' or any of it's parents", repo, e);
         }
         return repository;
     }
