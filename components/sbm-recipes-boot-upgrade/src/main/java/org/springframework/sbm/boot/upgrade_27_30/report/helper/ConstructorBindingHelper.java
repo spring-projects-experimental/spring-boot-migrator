@@ -16,8 +16,13 @@
 
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
+import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.RecipeRun;
+import org.openrewrite.SourceFile;
+import org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.OpenRewriteSourceFilesFinder;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +35,19 @@ public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return true;
+
+        List<? extends SourceFile> rewriteSourceFiles =
+                context.search(new OpenRewriteSourceFilesFinder());
+        RemoveConstructorBindingAnnotation recipe = new RemoveConstructorBindingAnnotation();
+
+        RecipeRun results = recipe.run(rewriteSourceFiles, new InMemoryExecutionContext(
+                (t) -> {
+                    throw new RuntimeException(t);
+                }
+        ));
+
+
+        return !results.getResults().isEmpty();
     }
 
     @Override
