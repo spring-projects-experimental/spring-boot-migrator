@@ -74,21 +74,20 @@ public class ConstructorBindingHelperTest {
                                 Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
                                                                 
                                 ==== What Changed
-                                When using constructor bound @ConfigurationProperties the @ConstructorBinding annotation 
-                                is no longer required if the class has a single parameterized constructor. 
-                                If you have more than one constructor, you’ll still need to use `@ConstructorBinding` 
+                                When using constructor bound @ConfigurationProperties the @ConstructorBinding annotation
+                                is no longer required if the class has a single parameterized constructor.
+                                If you have more than one constructor, you’ll still need to use `@ConstructorBinding`
                                 to tell Spring Boot which one to use.
                                 
-                                For most users, this updated logic will allow for simpler `@ConfigurationProperties` 
-                                classes. If, however, you have a `@ConfigurationProperties` and you want to inject 
-                                beans into the constructor rather than binding it, you’ll now need to add an 
+                                For most users, this updated logic will allow for simpler `@ConfigurationProperties`
+                                classes. If, however, you have a `@ConfigurationProperties` and you want to inject
+                                beans into the constructor rather than binding it, you’ll now need to add an
                                 `@Autowired` annotation.
                                                                 
                                 ==== Why is the application affected
-                                We found usage of `@ConstructorBinding` in following files: 
+                                We found usage of `@ConstructorBinding` in following files:
 
-                                * <PATH>/src/main/resources/banner.gif
-                                * <PATH>/src/main/resources/banner.jpg
+                                * <PATH>/src/main/com/example/ConfigProperties.java
                                                                 
                                 ==== Remediation
                                 Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
