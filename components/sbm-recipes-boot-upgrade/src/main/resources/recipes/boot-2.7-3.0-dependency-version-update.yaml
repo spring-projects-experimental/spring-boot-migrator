@@ -88,6 +88,30 @@
               artifactId: spring-boot-dependencies
               newVersion: 3.0.0-M3
 
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+      description: Miscellaneous migration that are required by Spring 3
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot3.data.MiscSpring30
+        displayName: Misc Upgrades to support SpringBoot 3.0
+        description: 'Misc Upgrades to support SpringBoot 3.0'
+        recipeList:
+          - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
+              oldGroupId: com.github.tomakehurst
+              oldArtifactId: wiremock-jre8
+              newGroupId: com.github.tomakehurst
+              newArtifactId: wiremock-jre8-standalone
+              newVersion: 2.34.0
+          - org.openrewrite.maven.ChangeManagedDependencyGroupIdAndArtifactId:
+              oldGroupId: com.github.tomakehurst
+              oldArtifactId: wiremock-jre8
+              newGroupId: com.github.tomakehurst
+              newArtifactId: wiremock-jre8-standalone
+              newVersion: 2.34.0
+
     - type: org.springframework.sbm.build.migration.actions.SetProperty
       propertyName: "java.version"
       propertyValue: "17"
