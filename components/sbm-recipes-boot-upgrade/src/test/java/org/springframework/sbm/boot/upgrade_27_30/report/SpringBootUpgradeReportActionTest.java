@@ -91,7 +91,7 @@ class SpringBootUpgradeReportActionTest {
                 This section lists the changes SBM found to be applicable to upgrade the scanned application to Spring Boot 3.0.0.\s
 
                 === Changes to Data Properties
-                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/123[#123], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
+                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/441[#441], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
 
                 ==== What Changed
                 The data prefix has been reserved for Spring Data and any properties under the `data` prefix imply that Spring
