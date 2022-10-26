@@ -89,7 +89,7 @@
 
           remediation: |-
             Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
-          gitHubIssue: 123
+          gitHubIssue: 441
           recipe: boot-2.7-3.0-upgrade-report
           contributors:
             - "Fabian Krüger[@fabapp2]"
