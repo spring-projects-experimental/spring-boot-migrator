@@ -15,11 +15,18 @@
  */
 package org.springframework.sbm.build.api;
 
-import lombok.*;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
-import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Singular;
 
 @Getter
 @Setter
@@ -39,7 +46,7 @@ public class Plugin {
     @Singular("execution")
     private List<Execution> executions;
 
-    private String configuration;
+    HashMap<String, Object> configuration;
 
     private String dependencies;
 

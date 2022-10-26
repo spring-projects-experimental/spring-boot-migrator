@@ -15,12 +15,14 @@
  */
 package org.springframework.sbm.build.migration.recipe;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.maven.MavenVisitor;
+import org.openrewrite.maven.internal.MavenXmlMapper;
 import org.openrewrite.xml.AddToTagVisitor;
 import org.openrewrite.xml.ChangeTagValueVisitor;
 import org.openrewrite.xml.XPathMatcher;
@@ -108,7 +110,7 @@ public class AddMavenPlugin extends Recipe {
 		sb.append("</artifactId>\n");
 		sb.append(renderVersion());
 		sb.append(renderExecutions());
-		sb.append(plugin.getConfiguration() != null ? plugin.getConfiguration().trim() + "\n" : "");
+		sb.append(renderConfiguration());
 		sb.append(plugin.getDependencies() != null ? plugin.getDependencies().trim() + "\n" : "");
 		sb.append("</plugin>\n");
 		return sb.toString();
@@ -122,6 +124,21 @@ public class AddMavenPlugin extends Recipe {
 		return plugin.getVersion() != null ? "<version>" + plugin.getVersion() + "</version>\n" : "";
 	}
 
+	private String renderConfiguration(){
+		if (plugin.getConfiguration() != null) {
+			try {
+				String configurationXml = MavenXmlMapper.writeMapper().writerWithDefaultPrettyPrinter()
+						.writeValueAsString(plugin.getConfiguration());
+				return configurationXml.replaceFirst("<HashMap>", "").replace("</HashMap>", "")
+						.trim();
+			}
+			catch (JsonProcessingException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return "";
+	}
+
 	private String renderExecutions() {
 		if (plugin.getExecutions() == null || plugin.getExecutions().isEmpty())
 			return "";
@@ -132,10 +149,10 @@ public class AddMavenPlugin extends Recipe {
 
 	private String renderExecution(Plugin.Execution execution) {
 		return "<execution>\n" + renderId(execution) + renderGoals(execution) + renderPhase(execution)
-				+ renderConfiguration(execution) + "</execution>";
+				+ renderExecutionConfiguration(execution) + "</execution>";
 	}
 
-	private String renderConfiguration(Plugin.Execution execution) {
+	private String renderExecutionConfiguration(Plugin.Execution execution) {
 		return execution.getConfiguration() == null ? "" : execution.getConfiguration().trim();
 	}
 

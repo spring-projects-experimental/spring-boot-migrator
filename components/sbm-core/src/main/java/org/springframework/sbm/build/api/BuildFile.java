@@ -20,6 +20,7 @@ import org.springframework.sbm.project.resource.ProjectResource;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -165,4 +166,8 @@ public interface BuildFile extends ProjectResource {
     List<RepositoryDefinition> getPluginRepositories();
 
     List<String> getDeclaredModules();
+
+	Map<String, Object> getPluginConfiguration(String groupId, String artifactId);
+
+	void changeMavenPluginConfiguration(String groupId, String artifactId, Map<String,Object> configurationMap);
 }

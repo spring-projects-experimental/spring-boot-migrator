@@ -33,7 +33,10 @@ import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -2060,16 +2063,134 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(plugins.get(0).getGroupId()).isEqualTo("org.mule.tools.maven");
         assertThat(plugins.get(0).getArtifactId()).isEqualTo("mule-maven-plugin");
         assertThat(plugins.get(0).getVersion()).isEqualTo("${mule.maven.plugin.version}");
-        assertThat(plugins.get(0).getConfiguration()).isEmpty();
+        assertThat(plugins.get(0).getConfiguration()).isNotEmpty();
 
-        assertThat(plugins.get(1).getGroupId()).isEqualTo("com.mulesoft.munit.tools");
+		assertThat(plugins.get(1).getGroupId()).isEqualTo("com.mulesoft.munit.tools");
         assertThat(plugins.get(1).getArtifactId()).isEqualTo("munit-maven-plugin");
         assertThat(plugins.get(1).getVersion()).isEqualTo("${munit.version}");
-        assertThat(plugins.get(1).getConfiguration()).isEmpty();
+        assertThat(plugins.get(1).getConfiguration()).isNotEmpty();
         assertThat(plugins.get(1).getExecutions()).isEmpty();
     }
 
-    @Test
+	@Test
+	void deserializePluginConfiguration() {
+
+		String pomXml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+						"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
+						"\n" +
+						"    <modelVersion>4.0.0</modelVersion>\n" +
+						"    <groupId>org.springframework.boot</groupId>\n" +
+						"    <artifactId>spring-boot-starter-parent</artifactId>\n" +
+						"    <version>2.7.3</version>\n" +
+						"    <packaging>jar</packaging>\n" +
+						"    <name>hello-world</name>" +
+						" <properties>\n" +
+						"       <source>17</source>\n" +
+						"       <target>17</target>\n" +
+						" </properties>\n" +
+						" <build>\n" +
+						"        <plugins>\n" +
+						"            <plugin>\n" +
+						"                <groupId>org.apache.maven.plugins</groupId>\n" +
+						"                <artifactId>maven-compiler-plugin</artifactId>\n" +
+						"                <configuration>\n" +
+						"                    <source>${source}</source>\n" +
+						"                    <target>17</target>\n" +
+						"                    <fork>false</fork>\n" +
+                        "                    <showWarnings>true</showWarnings>\n" +
+                        "                    <showDeprecation>true</showDeprecation>\n"+
+						"                    <compilerArgs>\n" +
+						"                        <compilerArg>-J-Duser.language=en_us</compilerArg>\n" +
+						"                    </compilerArgs>\n" +
+						"                </configuration>\n" +
+						"            </plugin>\n" +
+						"        </plugins>\n" +
+						"    </build>\n" +
+						"</project>";
+
+		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+
+		Plugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
+				.stream()
+				.filter(plugin -> plugin.getGroupId().equals("org.apache.maven.plugins") &&
+						plugin.getArtifactId().equals("maven-compiler-plugin"))
+				.findAny().orElseThrow();
+
+		Map<String, Object> configurationMap = compilerPlugin.getConfiguration();
+
+		assertThat(configurationMap.get("source")).isEqualTo("${source}");
+		assertThat(configurationMap.get("target")).isEqualTo("17");
+		assertThat(configurationMap.get("fork")).isEqualTo("false");
+	}
+
+	@Test
+	void serializePluginConfiguration() {
+
+		String pomXml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+						"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
+						"\n" +
+						"    <modelVersion>4.0.0</modelVersion>\n" +
+						"    <groupId>org.springframework.boot</groupId>\n" +
+						"    <artifactId>spring-boot-starter-parent</artifactId>\n" +
+						"    <version>2.7.3</version>\n" +
+						"    <packaging>jar</packaging>\n" +
+						"    <name>hello-world</name>" +
+						" <build>\n" +
+						"        <plugins>\n" +
+						"            <plugin>\n" +
+						"                <groupId>org.apache.maven.plugins</groupId>\n" +
+						"                <artifactId>maven-compiler-plugin</artifactId>\n" +
+						"            </plugin>\n" +
+						"        </plugins>\n" +
+						"    </build>\n" +
+						"</project>";
+
+		String expected =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+						"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
+						"\n" +
+						"    <modelVersion>4.0.0</modelVersion>\n" +
+						"    <groupId>org.springframework.boot</groupId>\n" +
+						"    <artifactId>spring-boot-starter-parent</artifactId>\n" +
+						"    <version>2.7.3</version>\n" +
+						"    <packaging>jar</packaging>\n" +
+						"    <name>hello-world</name>" +
+						" <build>\n" +
+						"        <plugins>\n" +
+						"            <plugin>\n" +
+						"                <groupId>org.apache.maven.plugins</groupId>\n" +
+						"                <artifactId>maven-compiler-plugin</artifactId>\n" +
+						"                <configuration>\n" +
+						"                    <source>17</source>\n" +
+						"                    <target>17</target>\n" +
+						"                </configuration>\n" +
+						"            </plugin>\n" +
+						"        </plugins>\n" +
+						"    </build>\n" +
+						"</project>";
+
+		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+
+		Plugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
+				.stream()
+				.filter(plugin -> plugin.getGroupId().equals("org.apache.maven.plugins") &&
+						plugin.getArtifactId().equals("maven-compiler-plugin"))
+				.findAny().orElseThrow();
+
+		Map<String, Object> configurationMap = compilerPlugin.getConfiguration();
+
+		configurationMap.put("source", 17);
+		configurationMap.put("target", 17);
+
+		openRewriteMavenBuildFile.changeMavenPluginConfiguration("org.apache.maven.plugins", "maven-compiler-plugin", configurationMap);
+
+		assertThat(openRewriteMavenBuildFile.print()).isEqualTo(expected);
+
+	}
+
+	@Test
     void removePluginsMatchingRegex() {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +

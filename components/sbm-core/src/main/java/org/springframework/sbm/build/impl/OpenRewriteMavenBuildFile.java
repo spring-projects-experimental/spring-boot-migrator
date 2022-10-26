@@ -15,7 +15,10 @@
  */
 package org.springframework.sbm.build.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
+import org.intellij.lang.annotations.Language;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.Recipe;
@@ -24,11 +27,13 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.*;
+import org.openrewrite.maven.internal.MavenXmlMapper;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.Parent;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.ResolvedManagedDependency;
 import org.openrewrite.maven.tree.Scope;
+import org.openrewrite.xml.internal.XmlPrinter;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFile;
@@ -55,6 +60,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -312,6 +318,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     /**
      * {@inheritDoc}
+     *
+     * TODO: #497 Test with declared and transitive dependencies
      */
     @Override
     public Set<Dependency> getEffectiveDependencies(Scope scope) {
@@ -654,6 +662,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public String getVersion() {
         return resolve(getPom().getPom().getVersion());
     }
+
     @Override
     public String getCoordinates() {
         return getGroupId() + ":" + getArtifactId() + ":" + getVersion();
@@ -785,8 +794,19 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 if (versionTag.isPresent()) {
                     version = versionTag.get().getValue().get();
                 }
-                Plugin plugin = new Plugin(groupId, artifactId, version, List.of(), "", "");
-                return plugin;
+				Optional<Xml.Tag> configurationTag = tag.getChild("configuration");
+				HashMap<String, Object> configuration = new HashMap<>();
+				if (configurationTag.isPresent() && configurationTag.get().getChildren().size() > 0){
+					try {
+						String configurationXml = configurationTag.get().print(new XmlPrinter<>());
+						configuration = MavenXmlMapper.readMapper().readValue(configurationXml, new TypeReference<>() {});
+					}
+					catch (JsonProcessingException e) {
+						throw new RuntimeException(e);
+					}
+
+				}
+				return new Plugin(groupId, artifactId, version, List.of(), configuration, "");
             }
         };
 
@@ -829,6 +849,43 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             replaceWith((Xml.Document) run.get(0).getAfter());
         }
     }
+
+	@Override
+	public Map<String, Object> getPluginConfiguration(String groupId, String artifactId){
+
+		Optional<Plugin> maybeCompilerPlugin = getPlugins()
+				.stream()
+				.filter(plugin -> plugin.getGroupId().equals(groupId) &&
+						plugin.getArtifactId().equals(artifactId))
+				.findAny();
+
+		if (maybeCompilerPlugin.isEmpty()) {
+			return null;
+		}
+
+		return maybeCompilerPlugin.get().getConfiguration();
+	}
+
+	@Override
+	public void changeMavenPluginConfiguration(String groupId, String artifactId,
+			Map<String, Object> configurationMap) {
+		if (configurationMap != null && !configurationMap.isEmpty()) {
+			try {
+				String configurationXml = MavenXmlMapper.writeMapper().writerWithDefaultPrettyPrinter()
+						.writeValueAsString(configurationMap);
+				@Language("xml")
+				String configurationXmlWithoutRoot = configurationXml.replaceFirst("<HashMap>", "").replace("</HashMap>", "")
+						.trim();
+
+				apply(new ChangePluginConfiguration(groupId, artifactId, configurationXmlWithoutRoot));
+
+			}
+			catch (JsonProcessingException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+	}
 
 
     private String resolve(String expression) {
