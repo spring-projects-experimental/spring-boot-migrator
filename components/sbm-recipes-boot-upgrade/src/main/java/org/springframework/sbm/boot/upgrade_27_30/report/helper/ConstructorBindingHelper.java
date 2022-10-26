@@ -23,12 +23,12 @@ import org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.recipe.OpenRewriteSourceFilesFinder;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.Helper<List<String>> {
@@ -38,6 +38,8 @@ public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.
             return super.getSingleSourceApplicableTest();
         }
     }
+
+    private List<String> constructorBindingFiles;
 
     @Override
     public String getDescription() {
@@ -55,13 +57,20 @@ public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.
         GenericOpenRewriteRecipe<TreeVisitor<?, ExecutionContext>> recipe =
                 new GenericOpenRewriteRecipe<>(() -> testVisitor);
 
-        List<RewriteSourceFileHolder<J.CompilationUnit>> rewriteSourceFileHolders = context.getProjectJavaSources().find(recipe);
+        List<RewriteSourceFileHolder<J.CompilationUnit>> rewriteSourceFileHolders =
+                context.getProjectJavaSources().find(recipe);
+
+        constructorBindingFiles = rewriteSourceFileHolders
+                .stream()
+                .map(k -> k.getAbsolutePath().toString())
+                .collect(Collectors.toList());
 
         return !rewriteSourceFileHolders.isEmpty();
     }
 
     @Override
     public Map<String, List<String>> getData(ProjectContext context) {
-        return null;
+
+        return Map.of("files", constructorBindingFiles);
     }
 }

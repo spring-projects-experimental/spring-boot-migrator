@@ -146,7 +146,9 @@
           affected: |-
             We found usage of `@ConstructorBinding` in following files:
             
-            * /Users/sanagaraj/workspace/opensource/spring-boot-migrator/components/sbm-recipes-boot-upgrade/target/dummy-test-path/src/main/com/example/ConfigProperties.java
+            <#list files as file>
+            * ${file}
+            </#list>
           remediation: |-
             Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
             for more information
