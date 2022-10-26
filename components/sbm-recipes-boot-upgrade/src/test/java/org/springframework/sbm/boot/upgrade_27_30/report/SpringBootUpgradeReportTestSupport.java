@@ -18,6 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.test.RecipeTestSupport;
@@ -76,10 +77,14 @@ public class SpringBootUpgradeReportTestSupport {
             shouldRenderAs(expectedOutput, Map.of());
         }
 
-        public <V, K> void shouldRenderAs(String expectedOutput, Map<String, String> templateVariables) {
+        public void shouldRenderAs(String expectedOutput, Map<String, String> templateVariables) {
             String expectedOutputRendered = replacePlaceHolders(expectedOutput, templateVariables);
             Consumer<String> assertion = (s) -> assertThat(s).isEqualTo(expectedOutputRendered);
             verify(assertion);
+        }
+
+        public void shouldNotRender() {
+            verifyDoesNotRender();
         }
 
         public void shouldStartWith(String expectedOutput) {
@@ -92,10 +97,43 @@ public class SpringBootUpgradeReportTestSupport {
             verify(assertion);
         }
 
+        private void verifyDoesNotRender() {
+            if(SectionBuilderData.class.isInstance(builderData)) {
+                SectionBuilderData sectionBuilderData = SectionBuilderData.class.cast(builderData);
+                withRecipes(recipes -> {
+                    Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
+                    SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
+                    List<SpringBootUpgradeReportSection> sections = (List<SpringBootUpgradeReportSection>) ReflectionTestUtils.getField(recipe.getActions().get(0), "sections");
+                    List<SpringBootUpgradeReportSection> matchingSections = sections
+                            .stream()
+                            .filter(s -> s.getTitle().equals(builderData.getTitle()))
+                            .collect(Collectors.toList());
+
+                    if(matchingSections.size() != 1) {
+                        fail("Found " + matchingSections.size() + " Sections with title '" + builderData.getTitle() + "'.");
+                    }
+
+                    SpringBootUpgradeReportSection sectionUnderTest = matchingSections.get(0);
+
+
+                    action.apply(builderData.getContext());
+                    assertThat(sectionUnderTest.getHelper().evaluate(sectionBuilderData.getContext())).isFalse();
+                });
+            } else if(ReportBuilderData.class.isInstance(builderData)) {
+                ReportBuilderData reportBuilderData = ReportBuilderData.class.cast(builderData);
+                withRecipes(recipes -> {
+                    Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
+                    Action action = recipe.apply(reportBuilderData.getContext()).get(0);
+                    List<SpringBootUpgradeReportSection> sections = (List<SpringBootUpgradeReportSection>) ReflectionTestUtils.getField(recipe.getActions().get(0), "sections");
+                    sections.forEach(sectionUnderTest -> assertThat(sectionUnderTest.getHelper().evaluate(reportBuilderData.getContext())).isFalse());
+                });
+            }
+        }
+
         private void verify(Consumer<String> assertion) {
             if(ReportBuilderData.class.isInstance(builderData)) {
                 ReportBuilderData reportBuilderData = ReportBuilderData.class.cast(builderData);
-                verify2(recipes -> {
+                withRecipes(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
                     ReflectionTestUtils.setField(action, "upgradeReportRenderer",
@@ -110,7 +148,7 @@ public class SpringBootUpgradeReportTestSupport {
                 });
             } else if(SectionBuilderData.class.isInstance(builderData)) {
                 SectionBuilderData sectionBuilderData = SectionBuilderData.class.cast(builderData);
-                verify2(recipes -> {
+                withRecipes(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
                     List<SpringBootUpgradeReportSection> sections = (List<SpringBootUpgradeReportSection>) ReflectionTestUtils.getField(recipe.getActions().get(0), "sections");
@@ -133,7 +171,7 @@ public class SpringBootUpgradeReportTestSupport {
             }
         }
 
-        private void verify2(Consumer<Recipes> recipesConsumer) {
+        private void withRecipes(Consumer<Recipes> recipesConsumer) {
             RecipeTestSupport.testRecipe(
                     Path.of("recipes/boot-new-report.yaml"), recipesConsumer,
                     SpringBootUpgradeReportActionDeserializer.class,
