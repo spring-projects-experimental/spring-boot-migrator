@@ -72,7 +72,7 @@ class SpringBootUpgradeReportActionTest {
                 == Introduction
                 [cols="1h,3"]
                 |===
-                | Scanned dir | `/Users/sanagaraj/workspace/opensource/spring-boot-migrator/components/sbm-recipes-boot-upgrade/target/dummy-test-path`
+                | Scanned dir | `<PATH>`
                 | Revision | Scanned project not under Git
                 | Coordinate | `com.example:dummy-root:0.1.0-SNAPSHOT`
                 | Boot version | `2.7.3`
@@ -101,9 +101,9 @@ class SpringBootUpgradeReportActionTest {
                 ==== Why is the application affected
                 The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
                                 
-                  * file:///Users/sanagaraj/workspace/opensource/spring-boot-migrator/components/sbm-recipes-boot-upgrade/target/dummy-test-path/src/main/resources/application.properties[`src/main/resources/application.properties`]
+                  * file://<PATH>/src/main/resources/application.properties[`src/main/resources/application.properties`]
                   ** `spring.data.foo`
-                  * file:///Users/sanagaraj/workspace/opensource/spring-boot-migrator/components/sbm-recipes-boot-upgrade/target/dummy-test-path/src/main/resources/application-another.properties[`src/main/resources/application-another.properties`]
+                  * file://<PATH>/src/main/resources/application-another.properties[`src/main/resources/application-another.properties`]
                   ** `spring.data.here`
                                 
                 ==== Remediation
