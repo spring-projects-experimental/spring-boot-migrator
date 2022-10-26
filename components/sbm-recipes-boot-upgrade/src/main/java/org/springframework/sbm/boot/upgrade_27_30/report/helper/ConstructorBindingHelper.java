@@ -16,18 +16,29 @@
 
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
-import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.RecipeRun;
-import org.openrewrite.SourceFile;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.TreeVisitor;
+import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation;
+import org.openrewrite.java.tree.J;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.OpenRewriteSourceFilesFinder;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.List;
 import java.util.Map;
 
+
 public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.Helper<List<String>> {
+
+    private static class ConstructorBindingAnnotationDetector extends RemoveConstructorBindingAnnotation {
+        public @Nullable TreeVisitor<?, ExecutionContext> getSingleSourceApplicableTest() {
+            return super.getSingleSourceApplicableTest();
+        }
+    }
+
     @Override
     public String getDescription() {
         return "";
@@ -36,18 +47,17 @@ public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.
     @Override
     public boolean evaluate(ProjectContext context) {
 
-        List<? extends SourceFile> rewriteSourceFiles =
-                context.search(new OpenRewriteSourceFilesFinder());
-        RemoveConstructorBindingAnnotation recipe = new RemoveConstructorBindingAnnotation();
+        ConstructorBindingAnnotationDetector constructorBindingAnnotationDetector =
+                new ConstructorBindingAnnotationDetector();
 
-        RecipeRun results = recipe.run(rewriteSourceFiles, new InMemoryExecutionContext(
-                (t) -> {
-                    throw new RuntimeException(t);
-                }
-        ));
+        TreeVisitor<?, ExecutionContext> testVisitor =
+                constructorBindingAnnotationDetector.getSingleSourceApplicableTest();
+        GenericOpenRewriteRecipe<TreeVisitor<?, ExecutionContext>> recipe =
+                new GenericOpenRewriteRecipe<>(() -> testVisitor);
 
+        List<RewriteSourceFileHolder<J.CompilationUnit>> rewriteSourceFileHolders = context.getProjectJavaSources().find(recipe);
 
-        return !results.getResults().isEmpty();
+        return !rewriteSourceFileHolders.isEmpty();
     }
 
     @Override

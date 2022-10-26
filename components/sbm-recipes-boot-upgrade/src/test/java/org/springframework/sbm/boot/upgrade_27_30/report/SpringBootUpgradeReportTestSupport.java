@@ -120,7 +120,6 @@ public class SpringBootUpgradeReportTestSupport {
                     action.apply(reportBuilderData.getContext());
                 });
             } else if(SectionBuilderData.class.isInstance(builderData)) {
-                SectionBuilderData sectionBuilderData = SectionBuilderData.class.cast(builderData);
                 verify2(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);

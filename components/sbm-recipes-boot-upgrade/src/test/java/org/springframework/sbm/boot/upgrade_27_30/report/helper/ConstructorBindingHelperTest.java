@@ -17,6 +17,7 @@
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportTestSupport;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -92,8 +93,24 @@ public class ConstructorBindingHelperTest {
                                                                 
                                 ==== Remediation
                                 Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
-                                for more information 
+                                for more information
                                                                                   
                                     """);
+    }
+
+    @Test
+    @Disabled("show Do I do should not have section?")
+    public void shouldNotReportConstructorBindingSuggestionWhenNothingIsFound() {
+        @Language("java")
+        String javaClassWithConstructorBinding = """
+                package com.example;
+                                                
+                public class A { }
+                """;
+
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .addJavaSource("src/main/java/com/example/A.java", javaClassWithConstructorBinding)
+                .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1")
+                .build();
     }
 }
