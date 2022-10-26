@@ -81,9 +81,9 @@
             The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
             
             <#list matches as match>
-              * file://${match.absolutePath}[`${match.relativePath}`]
+              * file://${match.absolutePath}[`${match.relativePath}`]<#lt>
               <#list match.propertiesFound as property>
-              ** `${property}`
+              ** `${property}`<#lt>
               </#list>
             </#list>
 

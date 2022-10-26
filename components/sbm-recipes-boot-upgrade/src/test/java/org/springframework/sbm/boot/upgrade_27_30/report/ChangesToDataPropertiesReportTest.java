@@ -54,10 +54,10 @@ public class ChangesToDataPropertiesReportTest {
                                     ==== Why is the application affected
                                     The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
                                     
-                                      * file://<PATH>/src/main/resources/application.properties[`src/main/resources/application.properties`]
-                                      ** `spring.data.foo`
-                                      * file://<PATH>/src/main/resources/application-another.properties[`src/main/resources/application-another.properties`]
-                                      ** `spring.data.here`
+                                    * file://<PATH>/src/main/resources/application.properties[`src/main/resources/application.properties`]
+                                    ** `spring.data.foo`
+                                    * file://<PATH>/src/main/resources/application-another.properties[`src/main/resources/application-another.properties`]
+                                    ** `spring.data.here`
                                                        
                                     ==== Remediation
                                     Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
