@@ -56,6 +56,22 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyAutoConfigurationIsRefactored();
         verifyEhCacheVersionIsUpgraded();
         verifyJohnzonCoreDependencyIsUpgraded();
+        verifySpringCloudDependency();
+    }
+
+    private void verifySpringCloudDependency() {
+
+        assertThat(getProperty("spring-cloud.version")).isEqualTo("2022.0.0-M4");
+    }
+
+    private String getProperty(String property) {
+        return getRootBuildFile()
+                .getMarkers()
+                .findFirst(MavenResolutionResult.class)
+                .get()
+                .getPom()
+                .getProperties()
+                .get(property);
     }
 
     private void buildProject() {
