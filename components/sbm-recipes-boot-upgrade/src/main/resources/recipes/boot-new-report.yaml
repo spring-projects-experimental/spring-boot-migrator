@@ -2,7 +2,7 @@
   description: Create a report for Spring Boot Upgrade from 2.7.x to 3.0.x
   condition:
     type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-    versionPattern: "2\\.4\\..*|2\\.5\\..*"
+    versionPattern: "2\\.7\\..*"
 
   actions:
 
@@ -18,7 +18,7 @@
         = Spring Boot 3 Upgrade Report
         <#if contributors?has_content>
         <#list contributors as contributor>
-        ${contributor.name}<#sep>, </#sep>
+        ${contributor.name}<#sep>,</#sep>
         </#list>
         </#if>
         :source-highlighter: highlight.js
@@ -113,6 +113,23 @@
           contributors:
             - "Fabian Krüger[@fabapp2]"
 
+        - title: Banner support
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.BannerSupportHelper
+          change: |-
+            Support for image-based application banners has been removed. banner.gif, banner.jpg, and banner.png 
+            files are now ignored and should be replaced with a text-based banner.txt file.
+          affected: |-
+            The scan found banner image files here:
+
+            <#list files as file>
+            * ${file}
+            </#list>
+          remediation: |-
+            remove image banners and replace it with text-banner with banner.txt file
+          gitHubIssue: 150
+          recipe: boot-2.7-3.0-upgrade-report
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
       footer: |-
         We want to say thank you to all Contributors:
         
