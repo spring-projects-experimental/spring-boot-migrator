@@ -152,7 +152,7 @@ public class VisitorUtils {
 
         @Override
         public String getDisplayName() {
-            return "Adjustt type based on marked expressions";
+            return "Adjust type based on marked expressions";
         }
 
         @Override
