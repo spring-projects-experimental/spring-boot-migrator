@@ -1,8 +1,9 @@
-package org.springframework.sbm.boot.cleanup;
+package org.springframework.sbm.boot.cleanup.actions;
 
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.sbm.boot.cleanup.actions.RemoveRedundantMavenCompilerPluginProperties;
 import org.springframework.sbm.build.migration.actions.OpenRewriteMavenBuildFileTestSupport;
 
 class RemoveRedundantMavenCompilerPluginPropertiesTest {
@@ -242,7 +243,7 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 	}
 
 	@Test
-	void fixedValue() {
+	void fixedValueAndExistingJavaVersionProperty() {
 		String pomXml = """
 				<?xml version="1.0" encoding="UTF-8"?>
 				<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -254,6 +255,7 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 				    <name>clean-maven-properties</name>
 				    <description>Remove Redundant configuration</description>
 				    <properties>
+				        <java.version>15</java.version>				    
 				    </properties>
 				    <build>
 				        <plugins>

@@ -1,4 +1,4 @@
-package org.springframework.sbm.boot.cleanup;
+package org.springframework.sbm.boot.cleanup.actions;
 
 import java.util.Map;
 
@@ -23,7 +23,8 @@ public class RemoveRedundantMavenCompilerPluginProperties extends AbstractAction
 	@Override
 	public void apply(ProjectContext context) {
 
-		Map<String, Object> configurationMap = context.getBuildFile().getPluginConfiguration(GROUP_ID, ARTIFACT_ID);
+		Map<String, Object> configurationMap = context.getBuildFile()
+				.getPluginConfiguration(GROUP_ID, ARTIFACT_ID);
 
 		if (configurationMap == null) {
 			return;
@@ -33,22 +34,29 @@ public class RemoveRedundantMavenCompilerPluginProperties extends AbstractAction
 		String targetValue = (String) configurationMap.get("target");
 
 		if (sourceValue != null && targetValue != null) {
-			String sourceLookupValue = sourceValue, targetLookupValue = targetValue;
-			if (sourceValue.startsWith("${")) {
-				String sourceProperty = sourceValue.replace("${", "").replace("}", "");
-				sourceLookupValue = context.getBuildFile().getProperty(sourceProperty);
-				context.getBuildFile().setProperty(sourceProperty, null);
-			}
-			if (targetValue.startsWith("${")) {
-				String targetProperty = targetValue.replace("${", "").replace("}", "");
-				targetLookupValue = context.getBuildFile().getProperty(targetProperty);
-				context.getBuildFile().setProperty(targetProperty, null);
-			}
+
+			String sourceLookupValue = sourceValue.startsWith("${") ?
+					context.getBuildFile().getProperty(
+							sourceValue.replace("${", "").replace("}", "")
+					) : sourceValue;
+
+			String targetLookupValue = targetValue.startsWith("${") ?
+					context.getBuildFile().getProperty(
+							targetValue.replace("${", "").replace("}", "")
+					) : targetValue;
 
 			if (sourceLookupValue != null && sourceLookupValue.equals(targetLookupValue)) {
 				context.getBuildFile().setProperty(JAVA_VERSION, sourceLookupValue);
 				configurationMap.put("source", MAVEN_COMPILER_SOURCE);
 				configurationMap.put("target", MAVEN_COMPILER_TARGET);
+				if(sourceValue.startsWith("${")){
+					context.getBuildFile()
+							.removePropertyAndReplaceAllOccurrences(sourceValue, JAVA_VERSION);
+				}
+				if (targetValue.startsWith("${")){
+					context.getBuildFile()
+							.removePropertyAndReplaceAllOccurrences(targetValue, JAVA_VERSION);
+				}
 				context.getBuildFile().changeMavenPluginConfiguration(GROUP_ID, ARTIFACT_ID, configurationMap);
 			}
 		}

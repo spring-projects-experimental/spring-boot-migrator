@@ -1,4 +1,4 @@
-package org.springframework.sbm.boot.cleanup;
+package org.springframework.sbm.boot.cleanup.actions;
 
 import java.util.Map;
 
@@ -14,19 +14,20 @@ public class RemoveRedundantMavenCompilerPlugin extends AbstractAction {
 	@Override
 	public void apply(ProjectContext context) {
 
-		Map<String, Object> configurationMap = context.getBuildFile().getPluginConfiguration(GROUP_ID, ARTIFACT_ID);
+		Map<String, Object> configurationMap = context.getBuildFile()
+				.getPluginConfiguration(GROUP_ID, ARTIFACT_ID);
 
 		if (configurationMap == null) {
 			return;
 		}
 
 		long otherConfiguration = configurationMap.entrySet().stream()
-				.filter(config -> !config.getKey().equals("source")).filter(config -> !config.getKey().equals("target"))
+				.filter(config -> !config.getKey().equals("source"))
+				.filter(config -> !config.getKey().equals("target"))
 				.count();
 
 		if (otherConfiguration == 0) {
 			context.getBuildFile().removePlugins(GROUP_ID + ":" + ARTIFACT_ID);
-
 		}
 
 	}

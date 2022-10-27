@@ -1,7 +1,8 @@
-package org.springframework.sbm.boot.cleanup;
+package org.springframework.sbm.boot.cleanup.actions;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.sbm.boot.cleanup.actions.RemoveRedundantMavenCompilerPlugin;
 import org.springframework.sbm.build.migration.actions.OpenRewriteMavenBuildFileTestSupport;
 
 class RemoveRedundantMavenCompilerPluginTest {

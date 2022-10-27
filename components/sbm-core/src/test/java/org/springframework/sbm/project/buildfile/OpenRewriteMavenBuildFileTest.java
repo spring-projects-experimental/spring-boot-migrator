@@ -33,6 +33,7 @@ import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -2096,6 +2097,7 @@ public class OpenRewriteMavenBuildFileTest {
 						"                <artifactId>maven-compiler-plugin</artifactId>\n" +
 						"                <configuration>\n" +
 						"                    <source>${source}</source>\n" +
+						"                    <release>${source}</release>\n" +
 						"                    <target>17</target>\n" +
 						"                    <fork>false</fork>\n" +
                         "                    <showWarnings>true</showWarnings>\n" +
@@ -2188,6 +2190,88 @@ public class OpenRewriteMavenBuildFileTest {
 
 		assertThat(openRewriteMavenBuildFile.print()).isEqualTo(expected);
 
+	}
+
+	@Test
+	void removeAndReplaceAllOccurrences() {
+
+		String pomXml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+						"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
+						"\n" +
+						"    <modelVersion>4.0.0</modelVersion>\n" +
+						"    <groupId>org.springframework.boot</groupId>\n" +
+						"    <artifactId>spring-boot-starter-parent</artifactId>\n" +
+						"    <version>2.7.3</version>\n" +
+						"    <packaging>jar</packaging>\n" +
+						"    <name>hello-world</name>\n" +
+						" <properties>\n" +
+						"       <java.version>17</java.version>\n" +
+						"       <source>17</source>\n" +
+						"       <target>17</target>\n" +
+						" </properties>\n" +
+						" <build>\n" +
+						"        <plugins>\n" +
+						"            <plugin>\n" +
+						"                <groupId>org.apache.maven.plugins</groupId>\n" +
+						"                <artifactId>maven-compiler-plugin</artifactId>\n" +
+						"                <configuration>\n" +
+						"                    <source>${source}</source>\n" +
+						"                    <release>${target}</release>\n" +
+						"                    <target>${target}</target>\n" +
+						"                    <fork>false</fork>\n" +
+						"                    <showWarnings>true</showWarnings>\n" +
+						"                    <showDeprecation>true</showDeprecation>\n"+
+						"                    <compilerArgs>\n" +
+						"                        <compilerArg>-J-Duser.language=en_us</compilerArg>\n" +
+						"                    </compilerArgs>\n" +
+						"                </configuration>\n" +
+						"            </plugin>\n" +
+						"        </plugins>\n" +
+						"    </build>\n" +
+						"</project>";
+
+		String expected =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+						"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
+						"\n" +
+						"    <modelVersion>4.0.0</modelVersion>\n" +
+						"    <groupId>org.springframework.boot</groupId>\n" +
+						"    <artifactId>spring-boot-starter-parent</artifactId>\n" +
+						"    <version>2.7.3</version>\n" +
+						"    <packaging>jar</packaging>\n" +
+						"    <name>hello-world</name>\n" +
+						" <properties>\n" +
+						"       <java.version>17</java.version>\n" +
+						" </properties>\n" +
+						" <build>\n" +
+						"        <plugins>\n" +
+						"            <plugin>\n" +
+						"                <groupId>org.apache.maven.plugins</groupId>\n" +
+						"                <artifactId>maven-compiler-plugin</artifactId>\n" +
+						"                <configuration>\n" +
+						"                    <source>${java.version}</source>\n" +
+						"                    <release>${java.version}</release>\n" +
+						"                    <target>${java.version}</target>\n" +
+						"                    <fork>false</fork>\n" +
+						"                    <showWarnings>true</showWarnings>\n" +
+						"                    <showDeprecation>true</showDeprecation>\n"+
+						"                    <compilerArgs>\n" +
+						"                        <compilerArg>-J-Duser.language=en_us</compilerArg>\n" +
+						"                    </compilerArgs>\n" +
+						"                </configuration>\n" +
+						"            </plugin>\n" +
+						"        </plugins>\n" +
+						"    </build>\n" +
+						"</project>";
+
+		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+		openRewriteMavenBuildFile
+				.removePropertyAndReplaceAllOccurrences("${source}", "${java.version}");
+		openRewriteMavenBuildFile
+				.removePropertyAndReplaceAllOccurrences("${target}", "${java.version}");
+
+		assertThat(openRewriteMavenBuildFile.print()).isEqualTo(expected);
 	}
 
 	@Test
