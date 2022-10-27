@@ -21,6 +21,7 @@ import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.MethodMatcher;
+import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.MethodDeclaration;
 import org.openrewrite.java.tree.J.MethodInvocation;
@@ -161,12 +162,15 @@ public class VisitorUtils {
                 @Override
                 public Return visitReturn(Return _return, ExecutionContext p) {
                     Return r = super.visitReturn(_return, p);
-                    MarkReturnType marker = r.getExpression().getMarkers().findFirst(MarkReturnType.class).orElse(null);
-                    if (marker != null) {
-                        removeMarker(r.getExpression(), marker);
-                        MethodDeclaration method = getCursor().firstEnclosing(MethodDeclaration.class);
-                        if (method != null) {
-                            doAfterVisit(new ChangeMethodReturnTypeRecipe(m -> m.getId().equals(method.getId()), marker.getExpression(), marker.getImports()));
+                    Expression expression = r.getExpression();
+                    if (expression != null) {
+                        MarkReturnType marker = expression.getMarkers().findFirst(MarkReturnType.class).orElse(null);
+                        if (marker != null) {
+                            removeMarker(expression, marker);
+                            MethodDeclaration method = getCursor().firstEnclosing(MethodDeclaration.class);
+                            if (method != null) {
+                                doAfterVisit(new ChangeMethodReturnTypeRecipe(m -> m.getId().equals(method.getId()), marker.getExpression(), marker.getImports()));
+                            }
                         }
                     }
                     return r;
