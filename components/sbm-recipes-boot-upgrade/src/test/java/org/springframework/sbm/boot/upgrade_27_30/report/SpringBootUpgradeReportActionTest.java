@@ -47,6 +47,7 @@ class SpringBootUpgradeReportActionTest {
                         """
                         [[index]]
                         = Spring Boot 3 Upgrade Report
+                        Sandeep Nagaraj, 
                         Fabian Krüger
                         :source-highlighter: highlight.js
                         :highlightjs-languages: java
@@ -76,7 +77,7 @@ class SpringBootUpgradeReportActionTest {
                         | Revision | Scanned project not under Git
                         | Coordinate | `com.example:dummy-root:0.1.0-SNAPSHOT`
                         | Boot version | `2.7.3`
-                        | Changes | 2
+                        | Changes | 3
                         |===
                         
                         The application was scanned and matched against the changes listed in the
