@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.hello.GreetingConfig
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.translation.TranslationService

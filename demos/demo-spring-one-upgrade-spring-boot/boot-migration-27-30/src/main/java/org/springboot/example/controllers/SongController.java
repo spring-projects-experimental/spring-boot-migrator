@@ -16,6 +16,7 @@
 
 package org.springboot.example.controllers;
 
+import com.translation.TranslationService;
 import lombok.RequiredArgsConstructor;
 import org.springboot.example.controllers.dto.Song;
 import org.springboot.example.controllers.dto.TopSongs;
@@ -34,6 +35,7 @@ public class SongController {
 
     private final RegionConfig regionConfig;
     private final SongService songService;
+    private final TranslationService translationService;
 
     @GetMapping("/top-songs")
     public List<TopSongs> getTopSongs() {
@@ -41,6 +43,7 @@ public class SongController {
         List<Song> songs = songService.topSongs();
         return List.of(
                 TopSongs.builder()
+                        .title(translationService.translate("Top 10 songs"))
                         .region(
                                 regionConfig.getRegionCode()
                         )

@@ -25,5 +25,6 @@ import java.util.List;
 @Builder
 public class TopSongs {
     private String region;
+    private String title;
     private List<Song> songs;
 }
