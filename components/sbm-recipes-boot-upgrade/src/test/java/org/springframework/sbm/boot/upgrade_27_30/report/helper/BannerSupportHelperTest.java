@@ -21,6 +21,7 @@ import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReport
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
+
 public class BannerSupportHelperTest {
 
     @Test

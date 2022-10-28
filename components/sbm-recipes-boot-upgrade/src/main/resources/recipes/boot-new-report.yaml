@@ -18,7 +18,7 @@
         = Spring Boot 3 Upgrade Report
         <#if contributors?has_content>
         <#list contributors as contributor>
-        ${contributor.name}<#sep>, </#sep>
+        ${contributor.name}<#sep>,</#sep>
         </#list>
         </#if>
         :source-highlighter: highlight.js
@@ -81,15 +81,15 @@
             The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
             
             <#list matches as match>
-              * file://${match.absolutePath}[`${match.relativePath}`]
+              * file://${match.absolutePath}[`${match.relativePath}`]<#lt>
               <#list match.propertiesFound as property>
-              ** `${property}`
+              ** `${property}`<#lt>
               </#list>
             </#list>
 
           remediation: |-
             Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
-          gitHubIssue: 123
+          gitHubIssue: 441
           recipe: boot-2.7-3.0-upgrade-report
           contributors:
             - "Fabian Krüger[@fabapp2]"
