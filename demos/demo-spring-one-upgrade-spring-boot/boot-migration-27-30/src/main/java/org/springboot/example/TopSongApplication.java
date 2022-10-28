@@ -16,10 +16,13 @@
 
 package org.springboot.example;
 
+import org.springboot.example.upgrade.RegionConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
+@EnableConfigurationProperties(RegionConfig.class)
 public class TopSongApplication {
 
     public static void main(String[] args) {

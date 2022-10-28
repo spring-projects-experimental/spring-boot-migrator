@@ -16,17 +16,22 @@
 
 package org.springboot.example.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springboot.example.controllers.dto.Song;
+import org.springboot.example.upgrade.RegionConfig;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class SongController {
+
+    private final RegionConfig regionConfig;
 
     @GetMapping("/top-songs")
     public List<Song> getTopSongs() {
-        return List.of();
+        return List.of(Song.builder().songName(regionConfig.getRegionCode()).build());
     }
 }

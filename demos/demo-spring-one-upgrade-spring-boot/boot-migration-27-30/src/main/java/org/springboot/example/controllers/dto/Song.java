@@ -16,11 +16,13 @@
 
 package org.springboot.example.controllers.dto;
 
+import lombok.Builder;
 import lombok.Value;
 
 import java.util.UUID;
 
 @Value
+@Builder
 public class Song {
     private UUID id;
     private String songName;
