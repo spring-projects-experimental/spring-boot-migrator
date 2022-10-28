@@ -21,6 +21,14 @@ import org.springboot.example.controllers.dto.Song;
 import org.springboot.example.entity.SongStat;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 @Service
 @RequiredArgsConstructor
 public class SongService {
@@ -28,6 +36,24 @@ public class SongService {
     private final SongStatRepository songStatRepository;
 
     public void songPlayed(Song song) {
-        songStatRepository.save(new SongStat(song.getId(), song.getSongName(), 1));
+        Optional<SongStat> savedSong = songStatRepository.findById(song.getId());
+
+        int songCount = 1;
+
+        if (savedSong.isPresent()) {
+            songCount = savedSong.get().getCount() + 1;
+        }
+
+        songStatRepository.save(new SongStat(song.getId(), song.getSongName(), songCount));
+    }
+
+    public List<Song> topSongs() {
+
+        return StreamSupport
+                .stream(songStatRepository.findAll().spliterator(), false)
+                .sorted(Comparator.comparingInt(SongStat::getCount))
+                .map(k -> Song.builder().songName(k.getSongName()).id(k.getId()).build())
+                .collect(Collectors.toList());
+
     }
 }

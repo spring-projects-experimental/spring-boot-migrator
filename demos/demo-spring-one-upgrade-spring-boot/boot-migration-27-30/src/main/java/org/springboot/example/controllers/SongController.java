@@ -39,19 +39,15 @@ public class SongController {
     @GetMapping("/top-songs")
     public List<TopSongs> getTopSongs() {
 
+        List<Song> songs = songService.topSongs();
         return List.of(
                 TopSongs.builder()
                         .region(
                                 regionConfig.getRegionCode()
                         )
-                        .songs(List.of(
-                                        Song.builder()
-                                                .id(UUID.randomUUID().toString())
-                                                .songName("someName")
-                                                .build()
-                                )
-                        )
-                        .build());
+                        .songs(songs)
+                        .build()
+        );
     }
 
     @PostMapping("/played-song")
