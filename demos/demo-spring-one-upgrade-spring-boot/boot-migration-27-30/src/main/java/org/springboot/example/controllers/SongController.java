@@ -21,6 +21,8 @@ import org.springboot.example.controllers.dto.Song;
 import org.springboot.example.controllers.dto.TopSongs;
 import org.springboot.example.upgrade.RegionConfig;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -47,5 +49,11 @@ public class SongController {
                                 )
                         )
                         .build());
+    }
+
+    @PostMapping("/played-song")
+    public Song topSong(@RequestBody Song song) {
+
+        return Song.builder().songName(song.getSongName()).id(song.getId()).build();
     }
 }
