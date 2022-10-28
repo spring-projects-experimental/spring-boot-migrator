@@ -41,7 +41,7 @@ public class SongController {
                         )
                         .songs(List.of(
                                         Song.builder()
-                                                .id(UUID.randomUUID())
+                                                .id(UUID.randomUUID().toString())
                                                 .songName("someName")
                                                 .build()
                                 )
