@@ -21,12 +21,9 @@ import org.springboot.example.controllers.dto.Song;
 import org.springboot.example.entity.SongStat;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -51,7 +48,7 @@ public class SongService {
 
         return StreamSupport
                 .stream(songStatRepository.findAll().spliterator(), false)
-                .sorted(Comparator.comparingInt(SongStat::getCount))
+                .sorted((o1, o2) -> o2.getCount() - o1.getCount())
                 .map(k -> Song.builder().songName(k.getSongName()).id(k.getId()).build())
                 .collect(Collectors.toList());
 
