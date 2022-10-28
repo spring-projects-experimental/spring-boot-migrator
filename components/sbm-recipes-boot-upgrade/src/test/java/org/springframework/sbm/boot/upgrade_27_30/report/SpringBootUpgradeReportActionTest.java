@@ -15,19 +15,26 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30.report;
 
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.intellij.lang.annotations.Language;
-import org.junit.jupiter.api.DisplayName;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.sbm.test.RecipeIntegrationTestSupport;
+import org.w3c.dom.NodeList;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Fabian Krüger
@@ -77,7 +84,7 @@ class SpringBootUpgradeReportActionTest {
                         | Revision | Scanned project not under Git
                         | Coordinate | `com.example:dummy-root:0.1.0-SNAPSHOT`
                         | Boot version | `2.7.3`
-                        | Changes | 3
+                        | Changes | 2
                         |===
                         
                         The application was scanned and matched against the changes listed in the
@@ -125,7 +132,7 @@ class SpringBootUpgradeReportActionTest {
                         The scan found no property `logging.pattern.dateformat`.
                         
                         ==== Remediation
-                        Set logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS to fall back to the previous log format.
+                        Set `logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS` to fall back to the previous log format.
                         
                         
                         
@@ -137,10 +144,93 @@ class SpringBootUpgradeReportActionTest {
         SpringBootUpgradeReportTestSupport.generatedReport()
                 .fromProjectContext(context)
                 .shouldRenderAs(expectedOutput, Map.of("PATH", Path.of(".").toAbsolutePath().resolve(TestProjectContext.getDefaultProjectRoot()).toString()));
+    }
 
-        Files.deleteIfExists(Path.of(".").toAbsolutePath().resolve("report.html"));
-        Files.createFile(Path.of(".").toAbsolutePath().resolve("report.html"));
-        Files.writeString(Path.of(".").toAbsolutePath().resolve("report.html"), context.getProjectResources().get(3).print(), StandardOpenOption.TRUNCATE_EXISTING);
+    @Test
+    void verifyRenderedHtml(@TempDir Path tempDir) throws IOException {
+        @Language("xml")
+        String pomSource = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <parent>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-parent</artifactId>
+                        <version>2.7.3</version>
+                        <relativePath/> <!-- lookup parent from repository -->
+                    </parent>
+                    <groupId>com.example</groupId>
+                    <artifactId>spring-boot-27</artifactId>
+                    <version>0.0.1-SNAPSHOT</version>
+                    <name>spring-boot-2.7</name>
+                    <description>spring-boot-2.7</description>
+                    <properties>
+                        <java.version>17</java.version>
+                    </properties>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter</artifactId>
+                        </dependency>
+                                                                      
+                        <dependency>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-starter-test</artifactId>
+                            <scope>test</scope>
+                        </dependency>
+                    </dependencies>
+                                                                      
+                    <build>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-maven-plugin</artifactId>
+                            </plugin>
+                        </plugins>
+                    </build>
+                                                                      
+                </project>
+                """;
+
+        TestProjectContext.buildProjectContext()
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .withMavenRootBuildFileSource(pomSource)
+                .addProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
+                .addProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
+                .serializeProjectContext(tempDir);
+
+        RecipeIntegrationTestSupport.initializeProject(tempDir, "spring-upgrade-report")
+                .andApplyRecipe("boot-2.7-3.0-upgrade-report2");
+
+        try (final WebClient webClient = new WebClient()) {
+            webClient.getOptions().setThrowExceptionOnScriptError(false);
+            Path curDir = Path.of(".").toAbsolutePath().normalize();
+            final HtmlPage page = webClient.getPage("file://"+curDir+"/target/testcode/spring-upgrade-report/spring-boot-upgrade-report/report.html");
+
+            final String pageAsText = page.asNormalizedText();
+            List<String> h2Headers = getTextContentOfAllElements(page, "h2");
+            List<String> h3Headers = getTextContentOfAllElements(page, "h3");
+
+            // verify title and some elements to verify the HTML was rendered
+            assertThat(pageAsText.contains("Spring Boot 3 Upgrade Report")).isTrue();
+            assertThat(h2Headers).containsExactly(
+                    "1. Introduction",
+                    "2. Relevant Changes"
+            );
+            assertThat(h3Headers).anySatisfy(e -> e.matches("2\\.\\d Changes to Data Properties"));
+            assertThat(h3Headers).anySatisfy(e -> e.matches("2\\.\\d Logging Date Format"));
+        }
+    }
+
+    @NotNull
+    private List<String> getTextContentOfAllElements(HtmlPage page, String tagName) {
+        NodeList nodes = page.getElementsByTagName(tagName);
+        List<String> elements = new ArrayList<>();
+        for(int i=0; i < nodes.getLength(); i++) {
+            elements.add(nodes.item(i).getTextContent());
+        }
+        return elements;
     }
 
 }
