@@ -3,12 +3,12 @@ package org.springboot.example.upgrade;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
 
-@ConfigurationProperties(prefix = "mail")
+@ConfigurationProperties(prefix = "region")
 @ConstructorBinding
 public class ConstructorBindingConfig {
-    private String hostName;
+    private String regionCode;
 
-    public ConstructorBindingConfig(String hostName) {
-        this.hostName = hostName;
+    public ConstructorBindingConfig(String regionCode) {
+        this.regionCode = regionCode;
     }
 }

@@ -7,19 +7,12 @@ import java.util.List;
 @Component
 public class RepositoryController {
     private final StudentRepoPagingAndSorting studentRepoPagingAndSorting;
-    private final StudentRepoReactiveSorting studentRepoReactiveSorting;
-    private final StudentRepoRxJava3Sorting studentRepoRxJava3Sorting;
 
-    public RepositoryController(StudentRepoPagingAndSorting studentRepoPagingAndSorting, StudentRepoReactiveSorting studentRepoReactiveSorting, StudentRepoRxJava3Sorting studentRepoRxJava3Sorting) {
+    public RepositoryController(StudentRepoPagingAndSorting studentRepoPagingAndSorting) {
         this.studentRepoPagingAndSorting = studentRepoPagingAndSorting;
-        this.studentRepoReactiveSorting = studentRepoReactiveSorting;
-        this.studentRepoRxJava3Sorting = studentRepoRxJava3Sorting;
     }
 
     public void actWithRepositories() {
         studentRepoPagingAndSorting.save(new Student());
-        List.of(new Student())
-                .forEach(studentRepoReactiveSorting::save);
-        studentRepoRxJava3Sorting.save(new Student());
     }
 }
