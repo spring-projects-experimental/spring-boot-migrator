@@ -99,7 +99,6 @@ public class ConstructorBindingHelperTest {
     }
 
     @Test
-    @Disabled("show Do I do should not have section?")
     public void shouldNotReportConstructorBindingSuggestionWhenNothingIsFound() {
         @Language("java")
         String javaClassWithConstructorBinding = """
@@ -112,5 +111,10 @@ public class ConstructorBindingHelperTest {
                 .addJavaSource("src/main/java/com/example/A.java", javaClassWithConstructorBinding)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1")
                 .build();
+
+        SpringBootUpgradeReportTestSupport
+                .generatedSection("Constructor Binding")
+                .fromProjectContext(context)
+                .shouldNotRender();
     }
 }
