@@ -16,15 +16,14 @@
 
 package org.springboot.example.controllers.dto;
 
-
 import lombok.Builder;
 import lombok.Value;
 
-import java.util.UUID;
+import java.util.List;
 
 @Value
 @Builder
-public class Song {
-    private UUID id;
-    private String songName;
+public class TopSongs {
+    private String region;
+    private List<Song> songs;
 }
