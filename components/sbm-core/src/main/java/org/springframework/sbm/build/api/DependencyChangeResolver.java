@@ -7,78 +7,74 @@ import java.util.*;
 import java.util.stream.Collectors;
 import static org.openrewrite.maven.tree.Scope.*;
 
+/**
+ * Resolve the dependency change spec. Their is a ascending
+ * order of the scopes where a higher order covers its predecessor
+ * and more. Below is the ascending order of the scopes.
+ *
+ * Test (lowest), Runtime, Provided, Compile (highest)
+ *
+ * Based on the above scope, the following rule decides the fate
+ * of a proposed dependency change spec.
+ *
+ * Rule 1 :- If the proposed dependency already exists
+ * transitively but its scope is lesser than the proposed
+ * scope, the proposed dependency will be added to  the
+ * build file.
+ *
+ * Rule 2 :- If the proposed dependency already declared
+ * directly but its scope is lesser than the the proposed
+ * scope, the existing dependency will be replaced.
+ *
+ * Rule 3 :- If there is no matching dependency already exists
+ * the proposed dependency will beadded.
+ */
 public class DependencyChangeResolver {
 
     public static final EnumSet<Scope> ALL_SCOPES = EnumSet.range(None, System);
     @NonNull
     private BuildFile buildFile;
-    @NonNull
-    private DependencyChangeSpec proposedChangeSpec;
+    private @NonNull Dependency proposedChangeSpec;
     private List<Dependency> potentialMatches;
 
-    private static Map<Scope, List<Scope>> dependencyGraph = new HashMap<>();
+    private static Map<Scope, List<Scope>> UPGRADE_GRAPH = new HashMap<>();
     static {
-        dependencyGraph.put(Provided, List.of(Provided));
-        dependencyGraph.put(Compile, List.of(Provided,Compile));
-        dependencyGraph.put(System, List.of(Provided,Compile,System));
-        dependencyGraph.put(Test, List.of(Provided,Compile,System,Test));
+        // For a given scope (key), SBM will upgrade ( upsert) if any of the listed scope
+        // exists in the directly included dependencies
+        UPGRADE_GRAPH.put(Compile, List.of(Test,Provided,Runtime));
+        UPGRADE_GRAPH.put(Provided,List.of(Test,Runtime));
+        UPGRADE_GRAPH.put(Runtime,List.of(Test));
+        UPGRADE_GRAPH.put(Test,Collections.emptyList());
     }
 
-    public DependencyChangeResolver(BuildFile buildFile, DependencyChangeSpec proposedChangeSpec){
+    public DependencyChangeResolver(BuildFile buildFile, @NonNull Dependency proposedChangeSpec){
         this.buildFile = buildFile;
         this.proposedChangeSpec = proposedChangeSpec;
         this.potentialMatches = buildFile.getEffectiveDependencies()
                 .stream()
-                .filter(d -> d.equals(this.proposedChangeSpec.getDependency()))
+                .filter(d -> d.equals(this.proposedChangeSpec))
                 .collect(Collectors.toList());
     }
 
     public void apply(){
-        this.upsertDependencies(upgradeDependencySpec().orElse(proposedChangeSpec));
+        if(isUpsertRequired())
+            upsertDependencies(proposedChangeSpec);
     }
 
-    private Optional<DependencyChangeSpec> upgradeDependencySpec() {
-        if(potentialMatches.isEmpty())
-            return Optional.empty();
+    private boolean isUpsertRequired() {
+        if(potentialMatches.isEmpty()) // Rule 3
+            return true;
 
-        Scope proposedDependencyScope = Scope.fromName(proposedChangeSpec.getDependency().getScope());
-        if(proposedDependencyScope == None)
-            proposedDependencyScope = Compile;
+        Scope proposedDependencyScope = Scope.fromName(proposedChangeSpec.getScope());
 
-        //What if the transitive declares the scope as test but the project dont have direct dependency.
-        // Do we really need to care about the transitives?
-        Optional<DependencyChangeSpec> upgradedDependencySpec
-                = potentialMatches
+        return potentialMatches
                 .stream()
                 .map(Dependency::getScope)
                 .map(Scope::fromName)
-                .filter(dependencyGraph.get(proposedDependencyScope)::contains)
-                .map(proposedChangeSpec::changeScope)
-                .findFirst();
-
-        upgradedDependencySpec
-                .orElseThrow(() -> new IllegalArgumentException(getInvalidScopeMessage()));
-
-        return upgradedDependencySpec;
+                .anyMatch(UPGRADE_GRAPH.get(proposedDependencyScope)::contains); // Rule 1
     }
 
-    private String getInvalidScopeMessage() {
-        Scope proposedDependencyScope = Scope.fromName(proposedChangeSpec.getDependency().getScope());
-        List<Scope> allowedScopes = dependencyGraph.get(proposedDependencyScope);
-        List<String> disallowedScopes
-                = ALL_SCOPES
-                .stream()
-                .filter(s -> !allowedScopes.contains(s))
-                .map(Scope::name)
-                .collect(Collectors.toList());
-
-        return "Dependency "
-                + this.proposedChangeSpec.getDependency().getCoordinates()
-                + " already present in scope "
-                + disallowedScopes;
-    }
-
-    private void upsertDependencies(DependencyChangeSpec effectiveSpec){
+    private void upsertDependencies(@NonNull Dependency effectiveSpec){
         List<Dependency> declaredDependencies = buildFile.getDeclaredDependencies(ALL_SCOPES.toArray(new Scope[0]));
 
         List<Dependency> existingDependenciesList = declaredDependencies
@@ -86,8 +82,10 @@ public class DependencyChangeResolver {
                 .filter(proposedChangeSpec::equals)
                 .collect(Collectors.toList());
 
-        buildFile.removeDependencies(existingDependenciesList);
-        buildFile.addDependency(effectiveSpec.getDependency());
+        if(!existingDependenciesList.isEmpty()) // Rule 2
+            buildFile.removeDependencies(existingDependenciesList);
+
+        buildFile.addDependency(proposedChangeSpec);
     }
 
 }
