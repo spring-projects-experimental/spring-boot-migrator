@@ -36,6 +36,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
+ * Test helper to verify the markdown that is provided to asciidoctor.
+ *
  * @author Fabian Krüger
  */
 public class SpringBootUpgradeReportTestSupport {
@@ -139,9 +141,8 @@ public class SpringBootUpgradeReportTestSupport {
                     ReflectionTestUtils.setField(action, "upgradeReportRenderer",
                                                  new SpringBootUpgradeReportRenderer() {
                                                      @Override
-                                                     public String renderReport(String s) {
+                                                     public void writeReport(String s, Path outputDir, String filename) {
                                                          assertion.accept(s);
-                                                         return super.renderReport(s);
                                                      }
                                                  });
                     action.apply(reportBuilderData.getContext());

@@ -20,7 +20,9 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.asciidoctor.*;
 
+import java.io.File;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.util.Map;
 
 public class UpgradeReportUtil {
@@ -40,14 +42,28 @@ public class UpgradeReportUtil {
         return renderHtml(markdown, "spring-html");
     }
 
+    public static void writeHtml(String markdown, Path outputDir, String filename) {
+        Asciidoctor asciidoctor = Asciidoctor.Factory.create();
+        asciidoctor.convert(markdown, Options.builder()
+                    .mkDirs(true)
+                    .toDir(outputDir.toFile())
+                    .toFile(new File(filename))
+                    .backend("spring-html")
+                    .headerFooter(true)
+                    .safe(SafeMode.UNSAFE)
+                    .build()
+        );
+    }
+
     public static String renderHtml(String markdown, String backend) {
         Asciidoctor asciidoctor = Asciidoctor.Factory.create();
+
         String html = asciidoctor.convert(markdown,
                                           Options.builder()
                                                   .toFile(true)
                                                   .backend(backend)
                                                   .headerFooter(true)
-                                                  .safe(SafeMode.SERVER)
+                                                  .safe(SafeMode.UNSAFE)
                                                   .build());
         return html;
     }
