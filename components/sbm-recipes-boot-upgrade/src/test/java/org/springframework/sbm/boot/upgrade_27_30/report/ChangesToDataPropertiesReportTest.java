@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30.report;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
@@ -23,8 +22,6 @@ import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRe
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
-import java.nio.file.Path;
-import java.util.Map;
 
 /**
  * @author Fabian Krüger
