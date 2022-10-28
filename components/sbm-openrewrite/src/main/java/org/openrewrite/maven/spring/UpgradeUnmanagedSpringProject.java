@@ -147,7 +147,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                     }
                     if (versionValue.startsWith("${")) {
                         String propertyName = versionValue.substring(2, versionValue.length() - 1);
-                        version.ifPresent(xml -> doAfterVisit(new ChangePropertyValue(propertyName, dependencyVersion, true)));
+                        version.ifPresent(xml -> doAfterVisit(new ChangePropertyValue(propertyName, dependencyVersion, true, true)));
                     } else {
                         version.ifPresent(xml -> doAfterVisit(new ChangeTagValueVisitor(xml, dependencyVersion)));
                     }
