@@ -17,11 +17,9 @@
 package org.springboot.example.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.hibernate.boot.cfgxml.internal.CfgXmlAccessServiceInitiator;
 import org.springboot.example.controllers.dto.Song;
 import org.springboot.example.controllers.dto.TopSongs;
-import org.springboot.example.entity.SongStat;
-import org.springboot.example.services.SongStatRepository;
+import org.springboot.example.services.SongService;
 import org.springboot.example.upgrade.RegionConfig;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,10 +34,11 @@ import java.util.UUID;
 public class SongController {
 
     private final RegionConfig regionConfig;
-    private final SongStatRepository songStatRepository;
+    private final SongService songService;
 
     @GetMapping("/top-songs")
     public List<TopSongs> getTopSongs() {
+
         return List.of(
                 TopSongs.builder()
                         .region(
@@ -56,10 +55,8 @@ public class SongController {
     }
 
     @PostMapping("/played-song")
-    public Song topSong(@RequestBody Song song) {
+    public void songPlayed(@RequestBody Song song) {
 
-        songStatRepository.save(new SongStat(song.getId(), song.getSongName(), 1));
-        SongStat songStat = songStatRepository.findById(song.getId()).get();
-        return Song.builder().songName(songStat.getSongName()).id(songStat.getId()).build();
+        songService.songPlayed(song);
     }
 }
