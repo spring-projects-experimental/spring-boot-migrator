@@ -17,7 +17,7 @@
 package org.springboot.example.services;
 
 import org.springboot.example.entity.SongStat;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface SongStatRepository extends CrudRepository<SongStat, String> {
+public interface SongStatRepository extends PagingAndSortingRepository<SongStat, String> {
 }
