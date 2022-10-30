@@ -35,20 +35,32 @@ class SubTypeHierarchyTest {
     void testTypeHierarchyNode() {
 
         String javaSource1 =
-                "package a;\n" +
-                        "public interface Foo8 {}";
+                """
+                package a;
+                public interface Foo8 {}
+                """;
         String javaSource2 =
-                "import a.Foo8;\n" +
-                        "public class FooImpl8 implements Foo8 {}";
+                """
+                import a.Foo8;
+                public class FooImpl8 implements Foo8 {}
+                """;
         String javaSource3 =
-                "public class Bar8 extends FooImpl8 {}\n" +
-                        "class Baz8 {}";
+                """
+                public class Bar8 extends FooImpl8 {}
+                class Baz8 {}
+                """;
         String javaSource4 =
-                "public class Banana8 extends Bar8 {}";
+                """
+                public class Banana8 extends Bar8 {}
+                """;
         String javaSource5 =
-                "public abstract class Apple8 extends Bar8 {}";
+                """
+                public abstract class Apple8 extends Bar8 {}
+                """;
         String javaSource6 =
-                "class Papaya8 extends Apple8 {}";
+                """
+                class Papaya8 extends Apple8 {}
+                """;
 
         ProjectJavaSources javaSourceSet = TestProjectContext.buildProjectContext()
                 .withJavaSources(
