@@ -52,16 +52,9 @@ import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
@@ -232,8 +225,8 @@ public class TestProjectContext {
     public static class Builder {
         private Path projectRoot;
         private List<ProjectResourceWrapper> resourceWrapperList = new ArrayList<>();
-        private List<String> dependencyCoordinates = new ArrayList<>();
-        private Map<Path, String> resources = new LinkedHashMap<>();
+        private List<String> dependencies = new ArrayList<>();
+        private Map<Path, String> resourcesWithRelativePaths = new LinkedHashMap<>();
         private ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
         private ProjectResourceWrapperRegistry resourceWrapperRegistry;
         private OpenRewriteMavenBuildFile mockedBuildFile;
@@ -272,7 +265,7 @@ public class TestProjectContext {
         public Builder addProjectResource(Path sourcePath, String content) {
             if (sourcePath.isAbsolute())
                 throw new IllegalArgumentException("Invalid sourcePath given, sourcePath must be given relative from project root.");
-            this.resources.put(projectRoot.resolve(sourcePath).toAbsolutePath().normalize(), content);
+            this.resourcesWithRelativePaths.put(sourcePath.normalize(), content);
             return this;
         }
 
@@ -323,7 +316,7 @@ public class TestProjectContext {
             }
             String fqName = JavaSourceUtil.retrieveFullyQualifiedClassFileName(sourceCode);
             Path sourcePath = sourcePathDir.resolve(fqName);
-            this.resources.put(projectRoot.resolve(sourcePath), sourceCode);
+            this.resourcesWithRelativePaths.put(sourcePath, sourceCode);
             return this;
         }
 
@@ -337,7 +330,7 @@ public class TestProjectContext {
             }
             String fqName = JavaSourceUtil.retrieveFullyQualifiedClassFileName(sourceCode);
             Path sourcePath = Path.of(modulePath).resolve("src/main/java").resolve(fqName);
-            this.resources.put(projectRoot.resolve(sourcePath), sourceCode);
+            this.resourcesWithRelativePaths.put(sourcePath, sourceCode);
             return this;
         }
 
@@ -351,7 +344,7 @@ public class TestProjectContext {
                 String fqName = JavaSourceUtil.retrieveFullyQualifiedClassFileName(sourceCode);
                 Path sourcePath = Path.of("src/main/java").resolve(fqName);
 //                this.javaSourceDefinitions.put(sourcePath, sourceCode);
-                this.resources.put(projectRoot.resolve(sourcePath), sourceCode);
+                this.resourcesWithRelativePaths.put(sourcePath, sourceCode);
             });
 
             return this;
@@ -365,7 +358,7 @@ public class TestProjectContext {
             Arrays.asList(sourceCodes).forEach(sourceCode -> {
                 String fqName = JavaSourceUtil.retrieveFullyQualifiedClassFileName(sourceCode);
                 Path sourcePath = Path.of("src/test/java").resolve(fqName);
-                this.resources.put(projectRoot.resolve(sourcePath), sourceCode);
+                this.resourcesWithRelativePaths.put(sourcePath, sourceCode);
             });
 
             return this;
@@ -379,12 +372,12 @@ public class TestProjectContext {
         public Builder withBuildFileHavingDependencies(String... dependencyCoordinate) {
             if (containsAnyPomXml() || mockedBuildFile != null)
                 throw new IllegalArgumentException("ProjectContext already contains pom.xml files.");
-            this.dependencyCoordinates.addAll(Arrays.asList(dependencyCoordinate));
+            this.dependencies.addAll(Arrays.asList(dependencyCoordinate));
             return this;
         }
 
         public Builder withMavenRootBuildFileSource(String pomSource) {
-            this.resources.put(projectRoot.resolve("pom.xml").normalize(), pomSource);
+            this.resourcesWithRelativePaths.put(Path.of("pom.xml"), pomSource);
             return this;
         }
 
@@ -404,14 +397,14 @@ public class TestProjectContext {
         }
 
         public Builder withMockedBuildFile(OpenRewriteMavenBuildFile mockedBuildFile) {
-            if (containsAnyPomXml() || !dependencyCoordinates.isEmpty())
+            if (containsAnyPomXml() || !dependencies.isEmpty())
                 throw new IllegalArgumentException("ProjectContext already contains pom.xml files.");
             this.mockedBuildFile = mockedBuildFile;
             return this;
         }
 
         public Builder withDummyRootBuildFile() {
-            if (containsAnyPomXml() || !dependencyCoordinates.isEmpty())
+            if (containsAnyPomXml() || !dependencies.isEmpty())
                 throw new IllegalArgumentException("ProjectContext already contains pom.xml files.");
             String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                     "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
@@ -421,39 +414,50 @@ public class TestProjectContext {
                     "    <version>0.1.0-SNAPSHOT</version>\n" +
                     "    <packaging>jar</packaging>\n" +
                     "</project>\n";
-            resources.put(projectRoot.resolve("pom.xml").normalize(), xml);
+            resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
             return this;
         }
 
         /**
-         * Helper to write the created {@code ProjectContext} back to the file system.
-         * It will be written to {@code DEFAULT_PROJECT_ROOT} if not set otherwise.
+         * Serializes the built {@code ProjectContext} to {@code targetDir} and returns it.
          */
-        ProjectContext buildAndSerialize() {
-            ProjectContext context = build();
+        public ProjectContext serializeProjectContext(Path targetDir) {
+            withProjectRoot(targetDir);
+
+            ProjectContext projectContext = build();
+
             ProjectContextSerializer serializer = new ProjectContextSerializer(new ProjectResourceSetSerializer(new ProjectResourceSerializer()));
-            serializer.writeChanges(context);
-            return context;
+            projectContext.getProjectResources().stream()
+                    .forEach(r -> r.markChanged());
+            serializer.writeChanges(projectContext);
+            return projectContext;
         }
 
+        /**
+         * Builds a synthetic {@code ProjectContext} with resources that only existing in-memory.
+         */
         public ProjectContext build() {
+            verifyValidBuildFileSetup();
 
-            // create build files
-            verifyValidBuildFileExists();
+            if (dependencies != null && !dependencies.isEmpty()) {
+                String generatedPomXml = renderPomXmlWithGivenDependencies();
+                resourcesWithRelativePaths.put(Path.of("pom.xml"), generatedPomXml);
+            }
+
+            if (!containsAnyPomXml()) {
+                withDummyRootBuildFile();
+            }
+
+            // create resource map with fully qualified paths
+            Map<Path, String> resourcesWithAbsolutePaths = new LinkedHashMap<>();
+            resourcesWithRelativePaths.entrySet().stream()
+                    .forEach(e -> {
+                        Path absolutePath = projectRoot.resolve(e.getKey()).normalize().toAbsolutePath();
+                        resourcesWithAbsolutePaths.put(absolutePath, e.getValue());
+                    });
 
             // create list of dummy resources
-            List<Resource> scannedResources = mapToResources(resources);
-
-            // path scanner should return the dummy resources
-//            PathScanner pathScanner = mock(PathScanner.class);
-//            when(pathScanner.scan(projectRoot)).thenReturn(scannedResources);
-
-            // precondition verifier should check resources
-            // currently ignored and only called by ScanShellCommand
-//            PreconditionVerifier preconditionVerifier = mock(PreconditionVerifier.class);
-//            PreconditionVerificationResult preconditionVerificationResult = new PreconditionVerificationResult(projectRoot);
-//            when(preconditionVerifier.verifyPreconditions(projectRoot, scannedResources)).thenReturn(preconditionVerificationResult);
-
+            List<Resource> scannedResources = mapToResources(resourcesWithAbsolutePaths);
 
             // create beans
             ProjectResourceSetHolder projectResourceSetHolder = new ProjectResourceSetHolder();
@@ -536,22 +540,9 @@ public class TestProjectContext {
             return projectContextInitializer;
         }
 
-        private void verifyValidBuildFileExists() {
-            verifyValidBuildFileSetup();
-
-            if (dependencyCoordinates != null && !dependencyCoordinates.isEmpty()) {
-                String generatedPomXml = renderPomXmlWithGivenDependencies();
-                resources.put(projectRoot.resolve("pom.xml").normalize(), generatedPomXml);
-            }
-
-            if (!containsAnyPomXml()) {
-                withDummyRootBuildFile();
-            }
-        }
-
         private void verifyValidBuildFileSetup() {
-            boolean containsRootPom = resources.containsKey(projectRoot.resolve("pom.xml").normalize());
-            boolean isClasspathGiven = dependencyCoordinates != null && !dependencyCoordinates.isEmpty();
+            boolean containsRootPom = resourcesWithRelativePaths.containsKey(Path.of("pom.xml"));
+            boolean isClasspathGiven = dependencies != null && !dependencies.isEmpty();
             boolean isMockedBuildFileGiven = mockedBuildFile != null;
 
             if (containsRootPom && isClasspathGiven) {
@@ -565,7 +556,7 @@ public class TestProjectContext {
         }
 
         private boolean containsAnyPomXml() {
-            return resources.keySet().stream().anyMatch(p -> p.toString().endsWith(File.separator + "pom.xml"));
+            return resourcesWithRelativePaths.keySet().stream().anyMatch(k -> k.toString().endsWith("pom.xml"));
         }
 
         private List<Resource> mapToResources(Map<Path, String> resources) {
@@ -592,12 +583,12 @@ public class TestProjectContext {
                     "</project>\n";
 
             String dependenciesText = null;
-            if(dependencyCoordinates.isEmpty()) {
+            if(dependencies.isEmpty()) {
                 dependenciesText = "";
             } else {
                 StringBuilder dependenciesSection = new StringBuilder();
                 dependenciesSection.append("    ").append("<dependencies>").append("\n");
-                dependencyHelper.mapCoordinatesToDependencies(dependencyCoordinates).stream().forEach(dependency -> {
+                dependencyHelper.mapCoordinatesToDependencies(dependencies).stream().forEach(dependency -> {
                     dependenciesSection.append("    ").append("    ").append("<dependency>").append("\n");
                     dependenciesSection.append("    ").append("    ").append("    ").append("<groupId>").append(dependency.getGroupId()).append("</groupId>").append("\n");
                     dependenciesSection.append("    ").append("    ").append("    ").append("<artifactId>").append(dependency.getArtifactId()).append("</artifactId>").append("\n");
@@ -611,7 +602,6 @@ public class TestProjectContext {
             String buildFileSource = xml.replace("{{dependencies}}", dependenciesText);
             return buildFileSource;
         }
-
     }
 
 }

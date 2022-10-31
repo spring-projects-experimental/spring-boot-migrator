@@ -13,19 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.boot.upgrade_27_30.report;
 
-import org.springframework.sbm.boot.upgrade.common.UpgradeReportUtil;
-import org.springframework.stereotype.Component;
+package org.springboot.example.entity;
 
-import java.nio.file.Path;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-/**
- * @author Fabian Krüger
- */
-@Component
-public class SpringBootUpgradeReportRenderer {
-    public void writeReport(String s, Path outputDir, String filename) {
-        UpgradeReportUtil.writeHtml(s, outputDir, filename);
-    }
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class SongStat {
+
+    @Id
+    private String id;
+
+    private String songName;
+
+    private Integer count;
+
+
 }

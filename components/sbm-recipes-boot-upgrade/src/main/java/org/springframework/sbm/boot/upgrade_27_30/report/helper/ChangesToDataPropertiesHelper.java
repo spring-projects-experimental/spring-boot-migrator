@@ -19,11 +19,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportAction;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.build.migration.conditions.NoDependencyExistMatchingRegex;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.recipe.Condition;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

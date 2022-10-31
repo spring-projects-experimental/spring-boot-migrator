@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.boot.upgrade_27_30.report;
 
-import org.springframework.sbm.boot.upgrade.common.UpgradeReportUtil;
-import org.springframework.stereotype.Component;
+package org.springboot.example;
 
-import java.nio.file.Path;
+import org.springboot.example.upgrade.RegionConfig;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-/**
- * @author Fabian Krüger
- */
-@Component
-public class SpringBootUpgradeReportRenderer {
-    public void writeReport(String s, Path outputDir, String filename) {
-        UpgradeReportUtil.writeHtml(s, outputDir, filename);
+@SpringBootApplication
+@EnableConfigurationProperties(RegionConfig.class)
+public class TopSongApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(TopSongApplication.class, args);
     }
 }

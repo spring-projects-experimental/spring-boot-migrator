@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2021 - 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-@import "settings.css";
-@import "settings-dark.css";
-@import "generic.css";
-@import "elements.css";
-@import "components.css";
+package org.springboot.example.controllers.dto;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Value;
+
+@Value
+@Builder
+@AllArgsConstructor
+public class Song {
+    private String id;
+    private String songName;
+}

@@ -195,6 +195,11 @@ public class Module {
         return getModuleResources().stream().anyMatch(r -> r.getAbsolutePath().equals(resourcePath));
     }
 
+    @Override
+    public String toString() {
+        return getBuildFile().getSourcePath()  + " [" + getBuildFile().getCoordinates() + "]";
+    }
+
     /**
      * Class provides filtering on the list of resources in a {@code ProjectResourceSet}.
      * As all read methods rely on {@code stream()}, only this stream has to be filtered. :fingers_crossed:

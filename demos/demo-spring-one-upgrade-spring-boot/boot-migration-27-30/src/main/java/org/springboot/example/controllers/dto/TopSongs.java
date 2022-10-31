@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2021 - 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-html {
-  box-sizing: border-box;
-}
+package org.springboot.example.controllers.dto;
 
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
-}
+import lombok.Builder;
+import lombok.Value;
 
-body {
-  text-size-adjust: none;
+import java.util.List;
+
+@Value
+@Builder
+public class TopSongs {
+    private String region;
+    private List<Song> songs;
 }
