@@ -165,8 +165,10 @@ public class MavenProjectParser {
             List<SourceFile> testResources = resourceParser.parse(projectDirectory, filteredResources, testResourceMarker);
             sourceFiles.addAll(testResources);
         }
-
-        return ListUtils.map(sourceFiles, s -> s.withMarkers(s.getMarkers().addIfAbsent(gitProvenance)));
+        if(gitProvenance != null) {
+            sourceFiles = ListUtils.map(sourceFiles, s -> s.withMarkers(s.getMarkers().addIfAbsent(gitProvenance)));
+        }
+        return sourceFiles;
     }
 
 
