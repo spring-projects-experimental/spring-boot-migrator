@@ -33,23 +33,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SongController {
 
-    private final RegionConfig regionConfig;
     private final SongService songService;
-    private final TranslationService translationService;
 
     @GetMapping("/top-songs")
-    public List<TopSongs> getTopSongs() {
+    public TopSongs getTopSongs() {
 
-        List<Song> songs = songService.topSongs();
-        return List.of(
-                TopSongs.builder()
-                        .title(translationService.translate("Top 10 songs"))
-                        .region(
-                                regionConfig.getRegionCode()
-                        )
-                        .songs(songs)
-                        .build()
-        );
+        return songService.topSongs();
     }
 
     @PostMapping("/played-song")

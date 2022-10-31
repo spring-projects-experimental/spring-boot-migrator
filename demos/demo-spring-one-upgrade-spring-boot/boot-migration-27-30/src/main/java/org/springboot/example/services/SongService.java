@@ -16,9 +16,12 @@
 
 package org.springboot.example.services;
 
+import com.translation.TranslationService;
 import lombok.RequiredArgsConstructor;
 import org.springboot.example.controllers.dto.Song;
+import org.springboot.example.controllers.dto.TopSongs;
 import org.springboot.example.entity.SongStat;
+import org.springboot.example.upgrade.RegionConfig;
 import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +34,8 @@ import java.util.stream.Collectors;
 public class SongService {
 
     private final SongStatRepository songStatRepository;
+    private final RegionConfig regionConfig;
+    private final TranslationService translationService;
 
     public void songPlayed(Song song) {
         Optional<SongStat> savedSong = songStatRepository.findById(song.getId());
@@ -44,14 +49,20 @@ public class SongService {
         songStatRepository.save(new SongStat(song.getId(), song.getSongName(), songCount));
     }
 
-    public List<Song> topSongs() {
+    public TopSongs topSongs() {
 
-        return Streamable
+        List<Song> sortedSongList = Streamable
                 .of(songStatRepository.findAll())
                 .stream()
                 .sorted((o1, o2) -> o2.getCount() - o1.getCount())
                 .map(k -> Song.builder().songName(k.getSongName()).id(k.getId()).build())
                 .collect(Collectors.toList());
+
+        return TopSongs.builder()
+                .region(regionConfig.getRegionCode())
+                .title(translationService.translate("Top 10 songs"))
+                .songs(sortedSongList)
+                .build();
 
     }
 }
