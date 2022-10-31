@@ -19,12 +19,12 @@ package org.springboot.example.services;
 import lombok.RequiredArgsConstructor;
 import org.springboot.example.controllers.dto.Song;
 import org.springboot.example.entity.SongStat;
+import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -46,8 +46,9 @@ public class SongService {
 
     public List<Song> topSongs() {
 
-        return StreamSupport
-                .stream(songStatRepository.findAll().spliterator(), false)
+        return Streamable
+                .of(songStatRepository.findAll())
+                .stream()
                 .sorted((o1, o2) -> o2.getCount() - o1.getCount())
                 .map(k -> Song.builder().songName(k.getSongName()).id(k.getId()).build())
                 .collect(Collectors.toList());
