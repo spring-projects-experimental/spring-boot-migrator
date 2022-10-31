@@ -63,8 +63,8 @@ public class ConstructorBindingHelperTest {
                 """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java/com/example/ConfigProperties.java", javaClassWithConstructorBinding)
-                .addJavaSource("src/main/java/com/example/A.java", """
+                .addJavaSource("src/main/java", javaClassWithConstructorBinding)
+                .addJavaSource("src/main/java", """
                         package com.example;
                         public class A {}
                         """)
@@ -93,7 +93,7 @@ public class ConstructorBindingHelperTest {
                                 ==== Why is the application affected
                                 We found usage of `@ConstructorBinding` in following files:
 
-                                * <PATH>/src/main/com/example/ConfigProperties.java
+                                * <PATH>/src/main/java/com/example/ConfigProperties.java
                                                                 
                                 ==== Remediation
                                 Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
