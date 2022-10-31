@@ -19,6 +19,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.java.search.UsesType;
 import org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
@@ -33,12 +34,6 @@ import java.util.stream.Collectors;
 
 public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.Helper<List<String>> {
 
-    private static class ConstructorBindingAnnotationDetector extends RemoveConstructorBindingAnnotation {
-        public @Nullable TreeVisitor<?, ExecutionContext> getSingleSourceApplicableTest() {
-            return super.getSingleSourceApplicableTest();
-        }
-    }
-
     private List<String> constructorBindingFiles;
 
     @Override
@@ -49,13 +44,8 @@ public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.
     @Override
     public boolean evaluate(ProjectContext context) {
 
-        ConstructorBindingAnnotationDetector constructorBindingAnnotationDetector =
-                new ConstructorBindingAnnotationDetector();
-
-        TreeVisitor<?, ExecutionContext> testVisitor =
-                constructorBindingAnnotationDetector.getSingleSourceApplicableTest();
         GenericOpenRewriteRecipe<TreeVisitor<?, ExecutionContext>> recipe =
-                new GenericOpenRewriteRecipe<>(() -> testVisitor);
+                new GenericOpenRewriteRecipe<>(() -> new UsesType("org.springframework.boot.context.properties.ConstructorBinding"));
 
         List<RewriteSourceFileHolder<J.CompilationUnit>> rewriteSourceFileHolders =
                 context.getProjectJavaSources().find(recipe);

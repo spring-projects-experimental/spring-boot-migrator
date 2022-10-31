@@ -64,6 +64,10 @@ public class ConstructorBindingHelperTest {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .addJavaSource("src/main/java/com/example/ConfigProperties.java", javaClassWithConstructorBinding)
+                .addJavaSource("src/main/java/com/example/A.java", """
+                        package com.example;
+                        public class A {}
+                        """)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1")
                 .build();
 
