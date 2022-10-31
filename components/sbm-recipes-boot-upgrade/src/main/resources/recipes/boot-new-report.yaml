@@ -107,7 +107,7 @@
           affected: |-
             The scan found no property `logging.pattern.dateformat`.
           remediation: |-
-            Set logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS to fall back to the previous log format.
+            Set `logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS` to fall back to the previous log format.
           gitHubIssue: 489
           recipe: boot-2.7-3.0-upgrade-report
           contributors:

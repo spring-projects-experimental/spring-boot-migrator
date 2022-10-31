@@ -27,13 +27,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Condition;
-import org.springframework.sbm.project.resource.StringProjectResource;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +52,8 @@ import java.util.Map;
 @SuperBuilder
 @NoArgsConstructor
 public class SpringBootUpgradeReportAction implements Action {
+
+    private static final String REPORT_DIR = "spring-boot-upgrade-report";
 
     /**
      * Provides data to render header and footer.
@@ -127,12 +129,12 @@ public class SpringBootUpgradeReportAction implements Action {
 
         String renderedFooter = renderTemplate("footer", footer, data);
 
-        String report = renderReport(renderedHeader, renderedSections, renderedFooter);
+        Path outputDir = context.getProjectRootDirectory().resolve(REPORT_DIR);
         String filename = file + ".html";
-        context.getProjectResources().add(new StringProjectResource(context.getProjectRootDirectory(), context.getProjectRootDirectory().resolve(filename), report));
+        writeReport(renderedHeader, renderedSections, renderedFooter, outputDir, filename);
     }
 
-    private String renderReport(String renderedHeader, List<String> sections, String renderedFooter) {
+    private void writeReport(String renderedHeader, List<String> sections, String renderedFooter, Path outputDir, String filename) {
         String key = "report";
         String content = """
                 ${header}
@@ -151,8 +153,15 @@ public class SpringBootUpgradeReportAction implements Action {
         );
 
         String renderedTemplate = renderTemplate(key, content, data);
-        String renderedReport = upgradeReportRenderer.renderReport(renderedTemplate);
+
+        upgradeReportRenderer.writeReport(renderedTemplate, outputDir, filename);
+    }
+
+    private String replaceRelativeLinksToWebResourcesWithAbsoluteLinks(String renderedReport) {
         return renderedReport;
+//                .replace("\"css/site.css", "\"https://docs.spring.io/spring-framework/docs/current/reference/html/css/spring.css")
+//                .replace("\"js/", "\"https://docs.spring.io/spring-framework/docs/current/reference/html/js/")
+//                .replace("\"img/", "\"https://docs.spring.io/spring-framework/docs/current/reference/html/img/");
     }
 
     private String renderTemplate(String key, String content, Map<String, Object> data) {
