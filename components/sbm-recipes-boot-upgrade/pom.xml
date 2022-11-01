@@ -59,10 +59,6 @@
             <artifactId>rewrite-migrate-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openrewrite.recipe</groupId>
-            <artifactId>rewrite-spring</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.spring.asciidoctor.backends</groupId>
             <artifactId>spring-asciidoctor-backends</artifactId>
             <version>${spring-asciidoctor-backends.version}</version>
@@ -99,15 +95,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>spring-release</id>
-            <name>Spring Releases</name>
-            <url>https://repo.spring.io/release</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 </project>
