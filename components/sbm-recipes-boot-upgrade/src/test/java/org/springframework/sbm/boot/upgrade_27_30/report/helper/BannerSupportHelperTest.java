@@ -21,8 +21,6 @@ import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReport
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
-import java.nio.file.Path;
-import java.util.Map;
 
 public class BannerSupportHelperTest {
 
@@ -55,7 +53,6 @@ public class BannerSupportHelperTest {
                                 ==== Remediation
                                 remove image banners and replace it with text-banner with banner.txt file
                                                   
-                                """,
-                                Map.of("PATH", Path.of(".").toAbsolutePath().resolve(TestProjectContext.getDefaultProjectRoot()).toString()));
+                                    """);
     }
 }

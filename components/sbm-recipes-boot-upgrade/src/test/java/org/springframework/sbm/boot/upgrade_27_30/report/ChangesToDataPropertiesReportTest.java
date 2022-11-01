@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30.report;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
@@ -23,8 +22,6 @@ import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRe
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
-import java.nio.file.Path;
-import java.util.Map;
 
 /**
  * @author Fabian Krüger
@@ -44,26 +41,25 @@ public class ChangesToDataPropertiesReportTest {
                 .fromProjectContext(context)
                 .shouldRenderAs(
                         """
-                                    === Changes to Data Properties
-                                    Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/441[#441], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
-                                                                          
-                                    ==== What Changed
-                                    The data prefix has been reserved for Spring Data and any properties under the `data` prefix imply that Spring
-                                    Data is required on the classpath.
-                                                                          
-                                    ==== Why is the application affected
-                                    The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
-                                    
-                                    * file://<PATH>/src/main/resources/application.properties[`src/main/resources/application.properties`]
-                                    ** `spring.data.foo`
-                                    * file://<PATH>/src/main/resources/application-another.properties[`src/main/resources/application-another.properties`]
-                                    ** `spring.data.here`
-                                                       
-                                    ==== Remediation
-                                    Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
-                                                                          
-                                    """,
-                        Map.of("PATH", Path.of(".").toAbsolutePath().resolve(TestProjectContext.getDefaultProjectRoot()).toString()));
+                        === Changes to Data Properties
+                        Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/441[#441], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
+                                                              
+                        ==== What Changed
+                        The data prefix has been reserved for Spring Data and any properties under the `data` prefix imply that Spring
+                        Data is required on the classpath.
+                                                              
+                        ==== Why is the application affected
+                        The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
+                        
+                        * file://<PATH>/src/main/resources/application.properties[`src/main/resources/application.properties`]
+                        ** `spring.data.foo`
+                        * file://<PATH>/src/main/resources/application-another.properties[`src/main/resources/application-another.properties`]
+                        ** `spring.data.here`
+                                           
+                        ==== Remediation
+                        Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
+                                                              
+                        """);
     }
 
     @Test

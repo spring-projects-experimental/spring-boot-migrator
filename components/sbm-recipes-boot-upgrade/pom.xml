@@ -59,9 +59,17 @@
             <artifactId>rewrite-migrate-java</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-spring</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.spring.asciidoctor.backends</groupId>
             <artifactId>spring-asciidoctor-backends</artifactId>
             <version>${spring-asciidoctor-backends.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-spring</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

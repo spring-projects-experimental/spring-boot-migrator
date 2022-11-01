@@ -21,6 +21,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
+import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.test.RecipeTestSupport;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -76,7 +77,7 @@ public class SpringBootUpgradeReportTestSupport {
 
 
         public void shouldRenderAs(String expectedOutput) {
-            shouldRenderAs(expectedOutput, Map.of());
+            shouldRenderAs(expectedOutput, defaultMap());
         }
 
         public void shouldRenderAs(String expectedOutput, Map<String, String> templateVariables) {
@@ -90,13 +91,23 @@ public class SpringBootUpgradeReportTestSupport {
         }
 
         public void shouldStartWith(String expectedOutput) {
-            shouldStartWith(expectedOutput, Map.of());
+            shouldStartWith(expectedOutput, defaultMap());
         }
 
         public void shouldStartWith(String expectedOutput, Map<String, String> templateVariables) {
             String expectedOutputRendered = replacePlaceHolders(expectedOutput, templateVariables);
             Consumer<String> assertion = (s) -> assertThat(s).as(TestDiff.of(s, expectedOutputRendered)).startsWith(expectedOutputRendered);
             verify(assertion);
+        }
+
+
+        private Map<String, String> defaultMap() {
+            String path = Path
+                    .of(".")
+                    .toAbsolutePath()
+                    .resolve(TestProjectContext.getDefaultProjectRoot()).toString();
+
+            return Map.of("PATH", path);
         }
 
         private void verifyDoesNotRender() {
@@ -148,7 +159,6 @@ public class SpringBootUpgradeReportTestSupport {
                     action.apply(reportBuilderData.getContext());
                 });
             } else if(SectionBuilderData.class.isInstance(builderData)) {
-                SectionBuilderData sectionBuilderData = SectionBuilderData.class.cast(builderData);
                 withRecipes(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
