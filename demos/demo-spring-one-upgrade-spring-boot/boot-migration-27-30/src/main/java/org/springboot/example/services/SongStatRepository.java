@@ -19,5 +19,8 @@ package org.springboot.example.services;
 import org.springboot.example.entity.SongStat;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import java.util.List;
+
 public interface SongStatRepository extends PagingAndSortingRepository<SongStat, String> {
+    List<SongStat> findTop10SongsByRegionOrderByTimesPlayedDesc(String region);
 }

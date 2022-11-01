@@ -34,7 +34,7 @@ public class SongStat {
 
     private String songName;
 
-    private Integer count;
+    private Integer timesPlayed;
 
     private String region;
 }

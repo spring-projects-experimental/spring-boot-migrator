@@ -23,7 +23,6 @@ import org.springboot.example.controllers.dto.SongPlayedRequest;
 import org.springboot.example.controllers.dto.TopSongs;
 import org.springboot.example.entity.SongStat;
 import org.springboot.example.upgrade.RegionConfig;
-import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,7 +44,7 @@ public class SongService {
         int songCount = songPlayedRequest.getPlayedTimes();
 
         if (savedSong.isPresent()) {
-            songCount = savedSong.get().getCount() + 1;
+            songCount = savedSong.get().getTimesPlayed() + 1;
         }
 
         songStatRepository.save(new SongStat(
@@ -58,10 +57,11 @@ public class SongService {
 
     public TopSongs topSongs() {
 
-        List<Song> sortedSongList = Streamable
-                .of(songStatRepository.findAll())
+        List<SongStat> top3Songs = songStatRepository
+                .findTop10SongsByRegionOrderByTimesPlayedDesc(regionConfig.getRegionCode());
+
+        List<Song> sortedSongList = top3Songs
                 .stream()
-                .sorted((o1, o2) -> o2.getCount() - o1.getCount())
                 .map(k -> Song.builder().songName(k.getSongName()).id(k.getId()).build())
                 .collect(Collectors.toList());
 
