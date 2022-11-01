@@ -16,18 +16,26 @@
 
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.TreeVisitor;
+import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.java.search.UsesType;
+import org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation;
+import org.openrewrite.java.tree.J;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.OpenRewriteSourceFilesFinder;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class BannerSupportHelper implements SpringBootUpgradeReportSection.Helper<List<String>> {
 
-    private List<Path> foundBanners;
+public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.Helper<List<String>> {
+
+    private List<String> constructorBindingFiles;
 
     @Override
     public String getDescription() {
@@ -36,20 +44,24 @@ public class BannerSupportHelper implements SpringBootUpgradeReportSection.Helpe
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        foundBanners = context
-                .getProjectResources()
+
+        GenericOpenRewriteRecipe<TreeVisitor<?, ExecutionContext>> recipe =
+                new GenericOpenRewriteRecipe<>(() -> new UsesType("org.springframework.boot.context.properties.ConstructorBinding"));
+
+        List<RewriteSourceFileHolder<J.CompilationUnit>> rewriteSourceFileHolders =
+                context.getProjectJavaSources().find(recipe);
+
+        constructorBindingFiles = rewriteSourceFileHolders
                 .stream()
-                .map(RewriteSourceFileHolder::getAbsolutePath)
-                .filter(absolutePath -> absolutePath.toString()
-                        .matches(".*banner.(jpg|gif|png)$")
-                )
+                .map(k -> k.getAbsolutePath().toString())
                 .collect(Collectors.toList());
-        return !foundBanners.isEmpty();
+
+        return !rewriteSourceFileHolders.isEmpty();
     }
 
     @Override
     public Map<String, List<String>> getData(ProjectContext context) {
 
-        return Map.of("files", foundBanners.stream().map(Path::toString).collect(Collectors.toList()));
+        return Map.of("files", constructorBindingFiles);
     }
 }

@@ -130,6 +130,33 @@
           recipe: boot-2.7-3.0-upgrade-report
           contributors:
             - "Sandeep Nagaraj[@sanagaraj-pivotal]"
+
+        - title: Constructor Binding
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConstructorBindingHelper
+          change: |-
+            When using constructor bound @ConfigurationProperties the @ConstructorBinding annotation
+            is no longer required if the class has a single parameterized constructor.
+            If you have more than one constructor, you’ll still need to use `@ConstructorBinding`
+            to tell Spring Boot which one to use.
+
+            For most users, this updated logic will allow for simpler `@ConfigurationProperties`
+            classes. If, however, you have a `@ConfigurationProperties` and you want to inject
+            beans into the constructor rather than binding it, you’ll now need to add an
+            `@Autowired` annotation.
+          affected: |-
+            We found usage of `@ConstructorBinding` in following files:
+            
+            <#list files as file>
+            * ${file}
+            </#list>
+          remediation: |-
+            Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
+            for more information
+          gitHubIssue: 166
+          recipe: boot-2.7-3.0-upgrade-report
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
+
       footer: |-
         We want to say thank you to all Contributors:
         
