@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-package org.springboot.example.entity;
+package org.springboot.example.controllers.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Value;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-@Entity
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class SongStat {
-
-    @Id
-    private String id;
-
-    private String songName;
-
-    private Integer count;
-
+@Value
+public class SongPlayedRequest {
+    private Song song;
+    private int playedTimes;
     private String region;
 }

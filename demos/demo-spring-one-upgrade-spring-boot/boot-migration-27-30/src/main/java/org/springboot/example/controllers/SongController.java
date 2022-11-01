@@ -16,18 +16,14 @@
 
 package org.springboot.example.controllers;
 
-import com.translation.TranslationService;
 import lombok.RequiredArgsConstructor;
-import org.springboot.example.controllers.dto.Song;
+import org.springboot.example.controllers.dto.SongPlayedRequest;
 import org.springboot.example.controllers.dto.TopSongs;
 import org.springboot.example.services.SongService;
-import org.springboot.example.upgrade.RegionConfig;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,8 +38,8 @@ public class SongController {
     }
 
     @PostMapping("/played-song")
-    public void songPlayed(@RequestBody Song song) {
+    public void songPlayed(@RequestBody SongPlayedRequest songPlayedRequest) {
 
-        songService.songPlayed(song);
+        songService.songPlayed(songPlayedRequest);
     }
 }

@@ -19,6 +19,7 @@ package org.springboot.example.services;
 import com.translation.TranslationService;
 import lombok.RequiredArgsConstructor;
 import org.springboot.example.controllers.dto.Song;
+import org.springboot.example.controllers.dto.SongPlayedRequest;
 import org.springboot.example.controllers.dto.TopSongs;
 import org.springboot.example.entity.SongStat;
 import org.springboot.example.upgrade.RegionConfig;
@@ -37,16 +38,22 @@ public class SongService {
     private final RegionConfig regionConfig;
     private final TranslationService translationService;
 
-    public void songPlayed(Song song) {
+    public void songPlayed(SongPlayedRequest songPlayedRequest) {
+        Song song = songPlayedRequest.getSong();
         Optional<SongStat> savedSong = songStatRepository.findById(song.getId());
 
-        int songCount = 1;
+        int songCount = songPlayedRequest.getPlayedTimes();
 
         if (savedSong.isPresent()) {
             songCount = savedSong.get().getCount() + 1;
         }
 
-        songStatRepository.save(new SongStat(song.getId(), song.getSongName(), songCount));
+        songStatRepository.save(new SongStat(
+                song.getId(),
+                song.getSongName(),
+                songCount,
+                songPlayedRequest.getRegion()
+        ));
     }
 
     public TopSongs topSongs() {
