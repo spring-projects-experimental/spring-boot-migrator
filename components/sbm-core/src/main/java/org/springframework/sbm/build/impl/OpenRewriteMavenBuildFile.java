@@ -263,35 +263,45 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     @Override
     public List<Dependency> getRequestedDependencies() {
         List<org.openrewrite.maven.tree.Dependency> requestedDependencies = getPom().getPom().getRequestedDependencies();
+
         // FIXME: #7 use getPom().getDependencies() instead ?
         List<Dependency> declaredDependenciesWithEffectiveVersions = requestedDependencies.stream()
                 .map(d -> mapDependency(d))
                 .map(d -> {
                     if(d.getType() == null || d.getClassifier() == null || d.getVersion() == null) {
 
-                        String groupId = evaluate(d.getGroupId());
-                        String artifactId = evaluate(d.getArtifactId());
-                        String version = evaluate(d.getVersion());
+                        // resolve values for properties like ${my.artifactId} or ${dep.version}
+                        String resolvedGroupId = resolve(d.getGroupId());
+                        String resolvedArtifactId = resolve(d.getArtifactId());
+                        String resolvedVersion = resolve(d.getVersion());
 
                         List<ResolvedDependency> dependencies = getPom().findDependencies(
-                                groupId,
-                                artifactId,
+                                resolvedGroupId,
+                                resolvedArtifactId,
                                 d.getScope() != null ? Scope.fromName(d.getScope()) : null
                         );
-                        if (dependencies.isEmpty()) {
-                            // requested dependency from another module in this multi-module project won't be resolvable
-                            return d;
-                        }
-                        ResolvedDependency resolvedDependency = dependencies.get(0);
-                        d.setVersion(resolvedDependency.getVersion());
-                        d.setClassifier(resolvedDependency.getClassifier());
-                        d.setType(resolvedDependency.getType());
-                        d.setArtifactId(artifactId);
-                        d.setGroupId(groupId);
+//                        if (dependencies.isEmpty()) {
+//                            // requested dependency from another module in this multi-module project won't be resolvable
+//                            d.setGroupId(resolvedGroupId);
+//                            d.setArtifactId(resolvedArtifactId);
+//                            d.setVersion(resolvedVersion);
+////                            return d;
+//                        } else {
+                            ResolvedDependency resolvedDependency = dependencies.get(0);
+                            d.setGroupId(resolvedGroupId);
+                            d.setArtifactId(resolvedArtifactId);
+                            d.setVersion(resolvedDependency.getVersion());
+                            d.setClassifier(resolvedDependency.getClassifier());
+                            d.setType(resolvedDependency.getType());
+//                        }
+
 
                         if(d.getScope() == null ) {
-                            String s = resolveScope(groupId, artifactId, d.getType(), d.getClassifier());
-                            d.setScope(s);
+                            String s = resolveScope(resolvedGroupId, resolvedArtifactId, d.getType(), d.getClassifier());
+                            if(s == null) {
+                                s = "compile";
+                            }
+                            d.setScope(s.toLowerCase());
                         }
                     }
                     return d;
@@ -302,8 +312,6 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     /**
      * {@inheritDoc}
-     *
-     * TODO: #497 Test with declared and transitive dependencies
      */
     @Override
     public Set<Dependency> getEffectiveDependencies(Scope scope) {
@@ -315,10 +323,28 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public Set<Dependency> getEffectiveDependencies() {
-        return getPom().getDependencies().entrySet()
+        Set<Dependency> collect = getPom()
+                .getDependencies()
+                .get(Scope.Compile)
                 .stream()
-                .flatMap(e -> e.getValue().stream().map(v -> mapDependency(e.getKey(), v)))
+                .map(d -> mapDependency(Scope.Compile, d))
                 .collect(Collectors.toSet());
+
+        getPom()
+                .getDependencies()
+                .get(Scope.Provided)
+                .stream()
+                .map(d -> mapDependency(Scope.Provided, d))
+                .forEach(d -> collect.add(d));
+
+        getPom()
+                .getDependencies()
+                .get(Scope.Test)
+                .stream()
+                .map(d -> mapDependency(Scope.Test, d))
+                .forEach(d -> collect.add(d));
+
+        return collect;
     }
 
     @Override
@@ -367,7 +393,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     private String resolveScope(String groupId, String artifactId, @Nullable String type, @Nullable String classifier) {
         Scope managedScope = getPom().getPom().getManagedScope(groupId, artifactId, type, classifier);
-        return managedScope != null ? managedScope.name().toLowerCase() : null;
+        return managedScope != null ? managedScope.name().toLowerCase() : "compile";
     }
 
     private org.springframework.sbm.build.api.Dependency mapDependency(Scope scope, ResolvedDependency d) {
@@ -376,12 +402,15 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 d.getArtifactId(),
                 d.getVersion(),
                 d.getType(),
-                scope.name(),
+                scope.name().toLowerCase(),
                 d.getClassifier(),
-                d.getRequested().getExclusions()
-                        .stream()
-                        .map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build())
-                        .collect(Collectors.toList())
+                d.getRequested().getExclusions() != null ?
+                    d.getRequested().getExclusions()
+                            .stream()
+                            .map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build())
+                            .collect(Collectors.toList())
+                        :
+                        List.of()
         );
     }
 
@@ -623,7 +652,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public String getVersion() {
-        return evaluate(getPom().getPom().getVersion());
+        return resolve(getPom().getPom().getVersion());
     }
     @Override
     public String getCoordinates() {
@@ -802,7 +831,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
 
-    private String evaluate(String expression) {
+    private String resolve(String expression) {
         return getPom().getPom().getValue(expression);
     }
 }
