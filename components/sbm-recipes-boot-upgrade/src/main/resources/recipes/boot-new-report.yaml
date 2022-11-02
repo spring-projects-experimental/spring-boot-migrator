@@ -157,6 +157,48 @@
           contributors:
             - "Sandeep Nagaraj[@sanagaraj-pivotal]"
 
+        - title: Paging and sorting repository
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.PagingAndSortingHelper
+          change: |-
+            Sorting repositories no longer extend their respective CRUD repository.
+
+            The affected interfaces are:
+
+            * `PagingAndSortingRepository` no longer extends `CrudRepository`
+            * `ReactiveSortingRepository` no longer extends `ReactiveCrudRepository`
+            * `RxJavaSortingRepository` no longer extends `RxJavaCrudRepository`
+          affected: |-
+            <#if pagingAndSortingRepos?size != 0>
+            We found classes which uses `PagingAndSortingRepository` in following files:
+            
+            <#list pagingAndSortingRepos as file>
+            * ${file}
+            </#list>
+            
+            </#if>
+            <#if reactivePagingAndSortingRepos?size != 0>
+            We found classes which uses `ReactiveSortingRepository` in following files:
+
+            <#list reactivePagingAndSortingRepos as file>
+            * ${file}
+            </#list>
+            
+            </#if>
+            <#if rxJavaSortingRepos?size != 0>
+            We found classes which uses `RxJavaSortingRepository` in following files:
+
+            <#list rxJavaSortingRepos as file>
+            * ${file}
+            </#list>
+            
+            </#if>
+          remediation: |-
+            If one requires the old behavior one must extend not only the sorting repository, but also the respective CRUD repository explicitly. This was done so the sorting support could easily be combined with the List repositories introduced above.
+          gitHubIssue: 518
+          recipe: boot-2.7-3.0-upgrade-report
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
+
       footer: |-
         We want to say thank you to all Contributors:
         
