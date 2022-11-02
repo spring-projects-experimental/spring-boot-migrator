@@ -67,7 +67,7 @@ public class DependencyHelper {
     }
 
     public Set<Dependency> mapCoordinatesToDependencies(List<String> coordinates) {
-        Set<Dependency> dependencies = new HashSet<>();
+        Set<Dependency> dependencies = new LinkedHashSet<>();
         coordinates.forEach(c -> {
 
             String[] parts = c.split(":");
