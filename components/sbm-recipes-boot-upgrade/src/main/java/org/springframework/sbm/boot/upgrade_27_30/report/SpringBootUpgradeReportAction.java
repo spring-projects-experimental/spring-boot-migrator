@@ -157,13 +157,6 @@ public class SpringBootUpgradeReportAction implements Action {
         upgradeReportRenderer.writeReport(renderedTemplate, outputDir, filename);
     }
 
-    private String replaceRelativeLinksToWebResourcesWithAbsoluteLinks(String renderedReport) {
-        return renderedReport;
-//                .replace("\"css/site.css", "\"https://docs.spring.io/spring-framework/docs/current/reference/html/css/spring.css")
-//                .replace("\"js/", "\"https://docs.spring.io/spring-framework/docs/current/reference/html/js/")
-//                .replace("\"img/", "\"https://docs.spring.io/spring-framework/docs/current/reference/html/img/");
-    }
-
     private String renderTemplate(String key, String content, Map<String, Object> data) {
 
         try (StringWriter writer = new StringWriter()) {
