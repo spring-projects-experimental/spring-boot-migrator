@@ -18,12 +18,14 @@ package org.springframework.sbm.project.buildfile;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.Plugin;
 import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -821,6 +823,82 @@ public class OpenRewriteMavenBuildFileTest {
 
         assertThat(sut.getDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(0);
+    }
+
+    @Nested
+    class GetDependenciesEarMultiModuleTest {
+        @Test
+        void getRequestedDependencies() {
+            ProjectContext context = TestProjectContext.buildFromDir(Path.of("./testcode/jee-ear-project/given"));
+
+
+            // ear module
+            BuildFile ear = getBuildFileByPackagingType(context, "ear");
+
+            List<Dependency> requestedDependenciesInEar = ear.getRequestedDependencies();
+
+            Dependency businessLogic = requestedDependenciesInEar.get(0);
+            assertThat(businessLogic.getGroupId()).isEqualTo("com.example");
+            assertThat(businessLogic.getArtifactId()).isEqualTo("business-logic");
+            assertThat(businessLogic.getScope()).isEqualTo("compile");
+            assertThat(businessLogic.getVersion()).isEqualTo("1.0");
+            assertThat(businessLogic.getType()).isEqualTo("ejb");
+
+            Dependency webapp = requestedDependenciesInEar.get(1);
+            assertThat(webapp.getGroupId()).isEqualTo("com.example");
+            assertThat(webapp.getArtifactId()).isEqualTo("webapp");
+            assertThat(webapp.getScope()).isEqualTo("compile");
+            assertThat(webapp.getVersion()).isEqualTo("1.0");
+            assertThat(webapp.getType()).isEqualTo("war");
+
+            // business-logic
+            BuildFile ejb = getBuildFileByPackagingType(context, "ejb");
+
+            List<Dependency> requestedDependenciesInEjb = ejb.getRequestedDependencies();
+
+            Dependency business = requestedDependenciesInEjb.get(0);
+            assertThat(business.getGroupId()).isEqualTo("org.apache.tomee");
+            assertThat(business.getArtifactId()).isEqualTo("javaee-api");
+            assertThat(business.getScope()).isEqualTo("provided");
+            assertThat(business.getVersion()).isEqualTo("8.0-6");
+            assertThat(business.getType()).isEqualTo("jar");
+
+            // webapp
+            BuildFile web = getBuildFileByPackagingType(context, "war");
+
+            List<Dependency> requestedDependenciesInWeb = web.getRequestedDependencies();
+
+            Dependency jeeApiInWebapp = requestedDependenciesInWeb.get(0);
+            assertThat(jeeApiInWebapp.getGroupId()).isEqualTo("org.apache.tomee");
+            assertThat(jeeApiInWebapp.getArtifactId()).isEqualTo("javaee-api");
+            assertThat(jeeApiInWebapp.getScope()).isEqualTo("provided");
+            assertThat(jeeApiInWebapp.getVersion()).isEqualTo("7.0");
+            assertThat(jeeApiInWebapp.getType()).isEqualTo("jar");
+
+            Dependency jstlInWebapp = requestedDependenciesInWeb.get(1);
+            assertThat(jstlInWebapp.getGroupId()).isEqualTo("javax.servlet");
+            assertThat(jstlInWebapp.getArtifactId()).isEqualTo("jstl");
+            assertThat(jstlInWebapp.getScope()).isEqualTo("provided");
+            assertThat(jstlInWebapp.getVersion()).isEqualTo("1.2");
+            assertThat(jstlInWebapp.getType()).isEqualTo("jar");
+
+            Dependency taglibsInWebapp = requestedDependenciesInWeb.get(2);
+            assertThat(taglibsInWebapp.getGroupId()).isEqualTo("taglibs");
+            assertThat(taglibsInWebapp.getArtifactId()).isEqualTo("standard");
+            assertThat(taglibsInWebapp.getScope()).isEqualTo("provided");
+            assertThat(taglibsInWebapp.getVersion()).isEqualTo("1.1.2");
+            assertThat(taglibsInWebapp.getType()).isEqualTo("jar");
+        }
+
+        // TODO: Add test for getEffectiveDependencies()
+        // TODO: Add test for getDeclaredDecpendencies()
+
+        @NotNull
+        private BuildFile getBuildFileByPackagingType(ProjectContext context, String ear1) {
+            return context.getApplicationModules().stream().map(m -> m.getBuildFile()).filter(b -> {
+                return b.getPackaging().equals(ear1);
+            }).findFirst().get();
+        }
     }
 
     /**

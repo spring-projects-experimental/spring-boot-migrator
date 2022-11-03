@@ -21,6 +21,7 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
@@ -39,19 +40,12 @@ import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.TestDummyResource;
-import org.springframework.sbm.project.parser.DependencyHelper;
-import org.springframework.sbm.project.parser.JavaProvenanceMarkerFactory;
-import org.springframework.sbm.project.parser.MavenProjectParser;
-import org.springframework.sbm.project.parser.MavenConfigHandler;
-import org.springframework.sbm.project.parser.ProjectContextInitializer;
-import org.springframework.sbm.project.parser.ResourceParser;
-import org.springframework.sbm.project.parser.RewriteJsonParser;
-import org.springframework.sbm.project.parser.RewritePlainTextParser;
-import org.springframework.sbm.project.parser.RewriteYamlParser;
+import org.springframework.sbm.project.parser.*;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
@@ -221,6 +215,29 @@ public class TestProjectContext {
     }
 
     public static String getDefaultPackageName() { return DEFAULT_PACKAGE_NAME; }
+
+    public static ProjectContext buildFromDir(Path of) {
+        final Path absoluteProjectRoot = of.toAbsolutePath().normalize();
+        ResourceHelper resourceHelper = new ResourceHelper(new DefaultResourceLoader());
+        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+        List<String> ignorePatterns = List.of(
+                "sbm.ignoredPathsPatterns=**/.git/**,**/target/**,**/build/**,**/.gradle/**,**/.idea/**,**/.mvn/**,**/mvnw/**,**/.gitignore.,**/out/**,**/lib/**,**/*.iml,**/node_modules/**".split(
+                        "\\."));
+        sbmApplicationProperties.setIgnoredPathsPatterns(ignorePatterns);
+        PathScanner pathScanner = new PathScanner(sbmApplicationProperties, resourceHelper);
+        List<Resource> scan = pathScanner.scan(absoluteProjectRoot);
+        Builder builder = TestProjectContext.buildProjectContext();
+        scan.forEach(r -> {
+            try {
+                Path relativePath = absoluteProjectRoot.relativize(r.getFile().toPath());
+                String content = ResourceHelper.getResourceAsString(r);
+                builder.addProjectResource(relativePath, content);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return builder.build();
+    }
 
     public static class Builder {
         private Path projectRoot;
