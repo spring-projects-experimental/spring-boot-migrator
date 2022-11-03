@@ -35,7 +35,7 @@
         <spring-shell.version>2.1.2</spring-shell.version>
         <openrewrite.version>7.32.1</openrewrite.version>
         <openrewrite.spring.version>4.26.0</openrewrite.spring.version>
-        <rewrite-migrate-java.version>1.12.0</rewrite-migrate-java.version>
+        <rewrite-migrate-java.version>1.13.0</rewrite-migrate-java.version>
         <spring-boot.version>2.7.5</spring-boot.version>
         <progressbar.version>0.9.5</progressbar.version>
         <testcontainers.version>1.17.5</testcontainers.version>
