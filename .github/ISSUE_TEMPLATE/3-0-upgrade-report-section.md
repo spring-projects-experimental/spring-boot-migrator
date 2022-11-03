@@ -1,7 +1,7 @@
 ---
-name: '3.0 Upgrade Report: '
+name: 3.0 Upgrade Report Section
 about: Template for Spring Boot 3 Upgrade Report Section
-title: Create Spring Boot 3 Upgrade Report Section
+title: '3.0 Upgrade Report: '
 labels: 3.0.0, upgrade:boot-report
 assignees: ''
 
