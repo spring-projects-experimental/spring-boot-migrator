@@ -39,10 +39,13 @@ as `DataProvider` providing data to the freemarker template markup.
 - [ ] Create a negative test using `shouldNotRender`
 
 
-## Report Section YAML (example)
+## YAML Example
 
 This provides an example with information about how a report section can be defined in `YAML`.
 [Freemarker syntax](https://freemarker.apache.org/docs/ref.html) can be used to render the asciidoctor code.
+
+<details>
+<summary>Report Section YAML (example)</summary>
 
 ````yaml
 - title: Add the title from Release Notes section
@@ -95,5 +98,6 @@ This provides an example with information about how a report section can be defi
     - Displayed Name[@GitHubName]
 ````
 
+</details>
 
 ## Additional Resources & Information
