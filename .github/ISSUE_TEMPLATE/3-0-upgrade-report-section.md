@@ -2,7 +2,7 @@
 name: 3.0 Upgrade Report Section
 about: Template for Spring Boot 3 Upgrade Report Section
 title: '3.0 Upgrade Report: '
-labels: 3.0.0, good first issue, upgrade:boot-report
+labels: '3.0.0, good first issue, type: enhancement, upgrade:boot-report'
 assignees: ''
 
 ---
