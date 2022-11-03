@@ -1,6 +1,6 @@
 ---
-name: Spring Boot 3 Upgrade Report
-about: Describe this issue template's purpose here.
+name: '3.0 Upgrade Report: '
+about: Template for Spring Boot 3 Upgrade Report Section
 title: Create Spring Boot 3 Upgrade Report Section
 labels: 3.0.0, upgrade:boot-report
 assignees: ''
