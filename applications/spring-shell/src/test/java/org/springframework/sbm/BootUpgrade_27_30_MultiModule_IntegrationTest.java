@@ -174,7 +174,6 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
                         "spring.cassandra.request.timeout=10s\n" +
                         "spring.cassandra.connection.connect-timeout=10s\n" +
                         "spring.cassandra.connection.init-query-timeout=10s\n" +
-                        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect\n" +
                         "logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS\n");
     }
 
