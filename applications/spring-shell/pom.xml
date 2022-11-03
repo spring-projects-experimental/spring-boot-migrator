@@ -138,6 +138,10 @@
                                     <groupId>org.asciidoctor</groupId>
                                     <artifactId>asciidoctorj</artifactId>
                                 </dependency>
+                                <dependency>
+                                    <groupId>io.spring.asciidoctor.backends</groupId>
+                                    <artifactId>spring-asciidoctor-backends</artifactId>
+                                </dependency>
                             </requiresUnpack>
                             <mainClass>org.springframework.sbm.SpringShellApplication</mainClass>
                         </configuration>
