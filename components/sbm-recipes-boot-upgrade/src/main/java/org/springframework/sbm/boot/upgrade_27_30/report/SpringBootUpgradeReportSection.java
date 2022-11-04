@@ -23,10 +23,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
+import org.stringtemplate.v4.ST;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
@@ -47,13 +47,7 @@ import java.util.stream.Collectors;
 @Setter
 public class SpringBootUpgradeReportSection {
 
-    public static final String CHANGE = "What Changed";
-    public static final String AFFECTED = "Why is the application affected";
-    public static final String REMEDIATION = "Remediation";
-
-    public boolean shouldRender(ProjectContext context) {
-        return helper.evaluate(context);
-    }
+    private static final String ls = System.lineSeparator();
 
     /**
      * Helper acting as {@link Condition} and data provide for a {@link SpringBootUpgradeReportSection}.
@@ -62,7 +56,16 @@ public class SpringBootUpgradeReportSection {
         /**
          * @return {@code Map<String, T>} the model data for the template.
          */
-        Map<String, T> getData(ProjectContext context);
+        Map<String, T> getData();
+    }
+
+    public static final String CHANGE_HEADER = "What Changed";
+    public static final String AFFECTED = "Why is the application affected";
+
+    public static final String REMEDIATION = "Remediation";
+
+    public boolean shouldRender(ProjectContext context) {
+        return helper.evaluate(context);
     }
 
     /**
@@ -83,8 +86,8 @@ public class SpringBootUpgradeReportSection {
     /**
      * Describes required changes to the scanned application.
      */
-    @NotEmpty
-    private String remediation;
+    @NotNull
+    private Remediation remediation;
     /**
      * The id of the GitHub issue to this report section.
      */
@@ -95,11 +98,6 @@ public class SpringBootUpgradeReportSection {
      */
     @NotNull
     private Set<String> contributors;
-    /**
-     * The name of the recipe for automated migration or {@code null} of none exist.
-     */
-    @Nullable
-    private String recipe;
 
     @JsonIgnore
     private Helper helper;
@@ -107,32 +105,13 @@ public class SpringBootUpgradeReportSection {
     @Autowired
     private SpringBootUpgradeReportFreemarkerSupport freemarkerSupport;
 
-    public List<Author> getAuthors() {
-        return contributors.stream()
-                .map(c -> {
-                    Matcher matcher = Pattern.compile("(.*)\\[(.*)\\]").matcher(c);
-                    if(matcher.find()) {
-                        String name = matcher.group(1);
-                        String handle = matcher.group(2).replace("@", "");
-                        return new Author(name, handle);
-                    } else {
-                        return null;
-                    }
-                })
-                .collect(Collectors.toList());
-    }
-
     public String render(ProjectContext context) {
         if (getHelper().evaluate(context)) {
-            Map<String, Object> params = new HashMap<>();
-            params = getHelper().getData(context);
+            Map<String, Object> params = getHelper().getData();
 
             try (StringWriter writer = new StringWriter()) {
                 String templateContent = buildTemplate();
-                String templateName = getTitle().replace(" ", "") + UUID.randomUUID();
-                freemarkerSupport.getStringLoader().putTemplate(templateName, templateContent);
-                Template t = freemarkerSupport.getConfiguration().getTemplate(templateName);
-                t.process(params, writer);
+                renderTemplate(params, writer, templateContent);
                 return writer.toString();
             } catch (TemplateException e) {
                 throw new RuntimeException(e);
@@ -149,13 +128,77 @@ public class SpringBootUpgradeReportSection {
         throw new IllegalArgumentException("Could not render Sectipn '"+ getTitle()+"', evaluating the context returned false");
     }
 
+    private void renderTemplate(Map<String, Object> params, StringWriter writer, String templateContent) throws IOException, TemplateException {
+        String templateName = getTitle().replace(" ", "") + UUID.randomUUID();
+        freemarkerSupport.getStringLoader().putTemplate(templateName, templateContent);
+        Template t = freemarkerSupport.getConfiguration().getTemplate(templateName);
+        t.process(params, writer);
+    }
+
     @NotNull
     private String buildTemplate() {
         StringBuilder sb = new StringBuilder();
 
-        String ls = System.lineSeparator();
+        renderSectionTitle(sb);
+        renderGitHubInfo(sb);
+        renderLineBreak(sb);
 
-        sb.append("=== ").append(getTitle()).append(ls);
+        renderChangeSubSection(sb);
+        renderLineBreak(sb);
+
+        renderAffectedSubSection(sb);
+        renderLineBreak(sb);
+
+        renderRemediationSubSection(sb);
+
+        return sb.toString();
+    }
+
+    private void renderRemediationSubSection(StringBuilder sb) {
+        renderRemediationTitle(sb);
+        renderRemediationDescription(sb);
+    }
+
+    private void renderRemediationDescription(StringBuilder sb) {
+        sb.append(renderRemediation()).append(ls);
+    }
+
+    private void renderRemediationTitle(StringBuilder sb) {
+        sb.append("==== " + REMEDIATION).append(ls);
+    }
+
+    private void renderAffectedSubSection(StringBuilder sb) {
+        renderAffectedTitle(sb);
+        renderAffectedDescription(sb);
+    }
+
+    private void renderAffectedDescription(StringBuilder sb) {
+        sb.append(getAffected()).append(ls);
+    }
+
+    private void renderChangeSubSection(StringBuilder sb) {
+        renderChangeHeader(sb);
+        renderChangeDecription(sb);
+    }
+
+    private void renderAffectedTitle(StringBuilder sb) {
+        sb.append("==== " + AFFECTED).append(ls);
+    }
+
+    private void renderChangeDecription(StringBuilder sb) {
+        sb.append(getChange()).append(ls);
+    }
+
+    private void renderChangeHeader(StringBuilder sb) {
+        sb.append("==== " + CHANGE_HEADER);
+        renderLineBreak(sb);
+    }
+
+    private void renderLineBreak(StringBuilder sb) {
+        sb.append(ls);
+    }
+
+    private void renderGitHubInfo(StringBuilder sb) {
         if(gitHubIssue != null) {
             sb.append("Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/").append(gitHubIssue).append("[#").append(gitHubIssue).append("]");
         }
@@ -173,23 +216,61 @@ public class SpringBootUpgradeReportSection {
                     });
             sb.append(ls);
         }
-        sb.append(ls)
-        .append("==== " + CHANGE).append(ls)
-        .append(getChange()).append(ls)
-        .append(ls)
-        .append("==== " + AFFECTED).append(ls)
-        .append(getAffected()).append(ls)
-        .append(ls)
-        .append("==== " + REMEDIATION).append(ls)
-        .append(getRemediation()).append(ls)
-        .append(ls);
+    }
 
+    private void renderSectionTitle(StringBuilder sb) {
+        sb.append("=== ").append(title).append(ls);
+    }
 
+    public List<Author> getAuthors() {
+        return contributors.stream()
+                .map(c -> {
+                    Matcher matcher = Pattern.compile("(.*)\\[(.*)\\]").matcher(c);
+                    if(matcher.find()) {
+                        String name = matcher.group(1);
+                        String handle = matcher.group(2).replace("@", "");
+                        return new Author(name, handle);
+                    } else {
+                        return null;
+                    }
+                })
+                .collect(Collectors.toList());
+    }
 
+    private String renderRemediation() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(remediation.getDescription()).append(ls).append(ls);
+        if(remediation.getPossibilities().isEmpty()) {
+            renderResourcesList(sb, remediation);
+        } else {
+            remediation.getPossibilities().forEach(p -> renderRemediationPossibility(sb, p));
+        }
+        return sb.toString();
+    }
 
-        String templateContent = sb.toString();
+    private void renderRemediationPossibility(StringBuilder sb, RemediationPossibility p) {
+        sb.append("===== ").append(p.getTitle()).append(ls);
+        sb.append(p.getDescription()).append(ls).append(ls);
+        renderResourcesList(sb, p);
+        if(p.getRecipe() != null) {
+            sb.append(p.getRecipe()).append(ls).append(ls);
+//            ST st = new ST(
+//                  """
+//                  ++++
+//                  <button name="<RECIPE_NAME>" onclick="alert('sending recipe <RECIPE_NAME>')">Apply reecipe '<RECIPE_NAME>'</button>
+//                  ++++
+//                  """
+//            );
+//            st.add("RECIPE_NAME", p.getRecipe());
+//            sb.append(st.render());
+        }
+    }
 
-        return templateContent;
+    private void renderResourcesList(StringBuilder sb, ResourceList p) {
+        p.getResources().forEach(r -> sb.append("* ").append(r).append(ls));
+        if(!p.getResources().isEmpty()) {
+            sb.append(ls);
+        }
     }
 
 

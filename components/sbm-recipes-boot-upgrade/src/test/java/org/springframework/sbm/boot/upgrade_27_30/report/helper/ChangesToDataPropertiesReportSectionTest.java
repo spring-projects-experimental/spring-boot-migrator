@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.boot.upgrade_27_30.report;
+package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
+import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportTestSupport;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -26,7 +27,7 @@ import org.springframework.sbm.project.resource.TestProjectContext;
 /**
  * @author Fabian Krüger
  */
-public class ChangesToDataPropertiesReportTest {
+public class ChangesToDataPropertiesReportSectionTest {
 
     @Test
     @DisplayName("Changes to Data Properties should render")
@@ -45,7 +46,7 @@ public class ChangesToDataPropertiesReportTest {
                         Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/441[#441], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
                                                               
                         ==== What Changed
-                        The data prefix has been reserved for Spring Data and any properties under the `data` prefix imply that Spring
+                        The data prefix has been reserved for Spring Data and any properties under the `spring.data` prefix imply that Spring
                         Data is required on the classpath.
                                                               
                         ==== Why is the application affected
@@ -58,7 +59,8 @@ public class ChangesToDataPropertiesReportTest {
                                            
                         ==== Remediation
                         Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
-                                                              
+                                           
+                                           
                         """);
     }
 

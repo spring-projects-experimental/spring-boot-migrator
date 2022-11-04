@@ -13,29 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.TreeVisitor;
-import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.search.UsesType;
-import org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.recipe.OpenRewriteSourceFilesFinder;
+import org.springframework.sbm.java.api.JavaSource;
+import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author Fabian Krüger
+ */
+public class SpringMVCAndWebFluxUrlMatchingChangesHelper implements SpringBootUpgradeReportSection.Helper<List<JavaSource>> {
 
-public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.Helper<List<String>> {
-
-    private List<String> constructorBindingFiles;
+    private static final String SPRING_REST_CONTROLLER_FQN = "org.springframework.web.bind.annotation.RestController";
+    private List<JavaSource> matches = new ArrayList<>();
 
     @Override
     public String getDescription() {
@@ -44,22 +43,21 @@ public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.
 
     @Override
     public boolean evaluate(ProjectContext context) {
+        GenericOpenRewriteRecipe<UsesType<ExecutionContext>> usesTypeRecipe = new GenericOpenRewriteRecipe<>(() -> new UsesType<>(SPRING_REST_CONTROLLER_FQN));
 
-        GenericOpenRewriteRecipe<TreeVisitor<?, ExecutionContext>> recipe =
-                new GenericOpenRewriteRecipe<>(() -> new UsesType("org.springframework.boot.context.properties.ConstructorBinding"));
-
-        List<RewriteSourceFileHolder<J.CompilationUnit>> rewriteSourceFileHolders =
-                context.getProjectJavaSources().find(recipe);
-
-        constructorBindingFiles = rewriteSourceFileHolders
-                .stream()
-                .map(k -> k.getAbsolutePath().toString())
+        matches = context.getProjectJavaSources().find(usesTypeRecipe).stream()
+                .filter(m -> OpenRewriteJavaSource.class.isInstance(m))
+                .map(OpenRewriteJavaSource.class::cast)
+                .sorted(Comparator.comparing(RewriteSourceFileHolder::getAbsolutePath))
                 .collect(Collectors.toList());
 
-        return !rewriteSourceFileHolders.isEmpty();
+        return !matches.isEmpty();
     }
 
-    public Map<String, List<String>> getData() {
-        return Map.of("files", constructorBindingFiles);
+    @Override
+    public Map<String, List<JavaSource>> getData() {
+        Map<String, List<JavaSource>> restControllerClasses = new HashMap<>();
+        restControllerClasses.put("restControllers", matches);
+        return restControllerClasses;
     }
 }
