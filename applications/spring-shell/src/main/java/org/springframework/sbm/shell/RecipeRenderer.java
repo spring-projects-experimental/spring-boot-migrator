@@ -28,7 +28,7 @@ import java.util.List;
 @Component
 public class RecipeRenderer {
 
-    public static final String MANUAL_EMOJI = "\uD83D\uDCAA";
+    public static final String MANUAL_EMOJI = "\uD83D\uDCA6";
 
     public static final String AUTOMATED_EMOJI = "\uD83E\uDD16";
 
