@@ -73,7 +73,7 @@ class Module_contains_Test {
 
         String module1Pom = PomBuilder
                 .buiildPom("com.example:parent:1.0", "module1")
-                .dependencies("com.example:module2:1.0")
+                .unscopedDependencies("com.example:module2:1.0")
                 .build();
 
         String module2Pom = PomBuilder.buiildPom("com.example:parent:1.0", "module2").build();

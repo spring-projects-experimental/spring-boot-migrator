@@ -31,6 +31,22 @@
         id: "spring-milestone"
         url: "https://repo.spring.io/milestone"
 
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+      description: Upgrade Spring Cloud Dependencies
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot3.data.UpgradeSpringCloudDependencies
+        displayName: Upgrade to Spring Cloud
+        description: 'Upgrade to Spring Cloud to version 2022.0.0-M4'
+        recipeList:
+          - org.openrewrite.maven.UpgradeDependencyVersion:
+              groupId: org.springframework.cloud
+              artifactId: spring-cloud-dependencies
+              newVersion: 2022.0.0-M4
+
     -  type: org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction
        description: Move EnableAutoConfiguration Property from spring.factories to AutoConfiguration.imports
        snapshotsEnabled: false
@@ -72,6 +88,30 @@
               artifactId: spring-boot-dependencies
               newVersion: 3.0.0-M3
 
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+      description: Miscellaneous migration that are required by Spring 3
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot3.data.MiscSpring30
+        displayName: Misc Upgrades to support SpringBoot 3.0
+        description: 'Misc Upgrades to support SpringBoot 3.0'
+        recipeList:
+          - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
+              oldGroupId: com.github.tomakehurst
+              oldArtifactId: wiremock-jre8
+              newGroupId: com.github.tomakehurst
+              newArtifactId: wiremock-jre8-standalone
+              newVersion: 2.34.0
+          - org.openrewrite.maven.ChangeManagedDependencyGroupIdAndArtifactId:
+              oldGroupId: com.github.tomakehurst
+              oldArtifactId: wiremock-jre8
+              newGroupId: com.github.tomakehurst
+              newArtifactId: wiremock-jre8-standalone
+              newVersion: 2.34.0
+
     - type: org.springframework.sbm.build.migration.actions.SetProperty
       propertyName: "java.version"
       propertyValue: "17"
@@ -106,6 +146,34 @@
         description: Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty.
         recipeList:
           - org.springframework.sbm.boot.upgrade_27_30.SamlRelyingPartyPropertyApplicationPropertiesMove
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "3\\.0\\..*"
+      description: Migrate Cassandra configuration to Spring Boot 3.0 in yaml format
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
+        displayName: Migrate Cassandra configuration to Spring Boot 3.0 in yaml format
+        description: Renames spring.data.cassandra.(any) to spring.cassandra.(any)
+        recipeList:
+          - org.openrewrite.yaml.ChangePropertyKey:
+              oldPropertyKey: spring.data.cassandra
+              newPropertyKey: spring.cassandra
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "3\\.0\\..*"
+      description: Migrate Cassandra configuration to Spring Boot 3.0 in properties format
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
+        displayName: Migrate Cassandra properties to Spring Boot 3.0 in properties
+        description: Renames spring.data.cassandra.(any) to spring.cassandra.(any)
+        recipeList:
+          - org.springframework.sbm.boot.upgrade_27_30.CassandraApplicationPropertiesMove
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
@@ -625,10 +693,15 @@
       condition:
         type: org.springframework.sbm.boot.upgrade_27_30.conditions.LoggingDateFormatCondition
         addDefaultPropertiesFileToTopModules: true
-    - type: org.springframework.sbm.boot.upgrade_27_30.actions.Boot_27_30_AddLoggingDateFormat
 
+    - type: org.springframework.sbm.boot.upgrade_27_30.actions.Boot_27_30_AddLoggingDateFormat
       description: "Sets logging date format to yyyy-MM-dd HH:mm:ss.SSS"
       condition:
         type: org.springframework.sbm.boot.upgrade_27_30.conditions.LoggingDateFormatCondition
+
+    - type: org.springframework.sbm.boot.upgrade_27_30.actions.Boot_27_30_JmxEndpointExposureAction
+      description: "Sets JMX endpoint exposure include to *"
+      condition:
+        type: org.springframework.sbm.boot.upgrade_27_30.conditions.JmxEndpointExposureCondition
 
 

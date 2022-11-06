@@ -20,8 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
-import org.openrewrite.java.JavaParser;
-import org.openrewrite.java.tree.J;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.UpgradeDependencyVersion;
 import org.openrewrite.xml.tree.Xml;

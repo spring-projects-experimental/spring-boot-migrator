@@ -27,6 +27,11 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         System.setProperty("sbm.muleTriggerMeshTransformEnabled", "true");
     }
 
+    private void disableTriggerMeshTransform() {
+        myAction.setMuleTriggerMeshTransformEnabled(false);
+        System.setProperty("sbm.muleTriggerMeshTransformEnabled", "false");
+    }
+
     private static final String muleXmlSetPayload = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
             "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
@@ -230,6 +235,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                        }
                                    }
                                    """);
+        disableTriggerMeshTransform();
     }
 
     @Test
@@ -531,5 +537,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         assertThat(projectContext.getProjectJavaSources().list().get(1).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.TmDwPayload");
         assertThat(projectContext.getProjectJavaSources().list().get(2).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransformTM_2");
         assertThat(projectContext.getProjectJavaSources().list().get(3).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransformTM_0");
+
+        disableTriggerMeshTransform();
     }
 }

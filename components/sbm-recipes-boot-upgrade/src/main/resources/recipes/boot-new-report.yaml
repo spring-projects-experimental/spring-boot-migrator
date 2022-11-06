@@ -2,7 +2,7 @@
   description: Create a report for Spring Boot Upgrade from 2.7.x to 3.0.x
   condition:
     type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-    versionPattern: "2\\.4\\..*|2\\.5\\..*"
+    versionPattern: "2\\.7\\..*"
 
   actions:
 
@@ -18,7 +18,7 @@
         = Spring Boot 3 Upgrade Report
         <#if contributors?has_content>
         <#list contributors as contributor>
-        ${contributor.name}<#sep>, </#sep>
+        ${contributor.name}<#sep>,</#sep>
         </#list>
         </#if>
         :source-highlighter: highlight.js
@@ -81,15 +81,15 @@
             The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
             
             <#list matches as match>
-              * file://${match.absolutePath}[`${match.relativePath}`]
+              * file://${match.absolutePath}[`${match.relativePath}`]<#lt>
               <#list match.propertiesFound as property>
-              ** `${property}`
+              ** `${property}`<#lt>
               </#list>
             </#list>
 
           remediation: |-
             Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
-          gitHubIssue: 123
+          gitHubIssue: 441
           recipe: boot-2.7-3.0-upgrade-report
           contributors:
             - "Fabian Krüger[@fabapp2]"
@@ -107,11 +107,55 @@
           affected: |-
             The scan found no property `logging.pattern.dateformat`.
           remediation: |-
-            Set logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS to fall back to the previous log format.
+            Set `logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS` to fall back to the previous log format.
           gitHubIssue: 489
           recipe: boot-2.7-3.0-upgrade-report
           contributors:
             - "Fabian Krüger[@fabapp2]"
+
+        - title: Banner support
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.BannerSupportHelper
+          change: |-
+            Support for image-based application banners has been removed. banner.gif, banner.jpg, and banner.png 
+            files are now ignored and should be replaced with a text-based banner.txt file.
+          affected: |-
+            The scan found banner image files here:
+
+            <#list files as file>
+            * ${file}
+            </#list>
+          remediation: |-
+            remove image banners and replace it with text-banner with banner.txt file
+          gitHubIssue: 150
+          recipe: boot-2.7-3.0-upgrade-report
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
+
+        - title: Constructor Binding
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConstructorBindingHelper
+          change: |-
+            When using constructor bound @ConfigurationProperties the @ConstructorBinding annotation
+            is no longer required if the class has a single parameterized constructor.
+            If you have more than one constructor, you’ll still need to use `@ConstructorBinding`
+            to tell Spring Boot which one to use.
+
+            For most users, this updated logic will allow for simpler `@ConfigurationProperties`
+            classes. If, however, you have a `@ConfigurationProperties` and you want to inject
+            beans into the constructor rather than binding it, you’ll now need to add an
+            `@Autowired` annotation.
+          affected: |-
+            We found usage of `@ConstructorBinding` in following files:
+            
+            <#list files as file>
+            * ${file}
+            </#list>
+          remediation: |-
+            Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
+            for more information
+          gitHubIssue: 166
+          recipe: boot-2.7-3.0-upgrade-report
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
 
       footer: |-
         We want to say thank you to all Contributors:

@@ -16,17 +16,18 @@
 package org.springframework.sbm.project.buildfile;
 
 import org.intellij.lang.annotations.Language;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.Plugin;
+import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.Member;
@@ -34,9 +35,7 @@ import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -825,6 +824,255 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(sut.getDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(0);
     }
+
+    @Nested
+    class GetDependenciesEarMultiModuleTest {
+        @Test
+        void getRequestedDependencies() {
+            ProjectContext context = TestProjectContext.buildFromDir(Path.of("./testcode/jee-ear-project/given"));
+
+
+            // ear module
+            BuildFile ear = getBuildFileByPackagingType(context, "ear");
+
+            List<Dependency> requestedDependenciesInEar = ear.getRequestedDependencies();
+
+            Dependency businessLogic = requestedDependenciesInEar.get(0);
+            assertThat(businessLogic.getGroupId()).isEqualTo("com.example");
+            assertThat(businessLogic.getArtifactId()).isEqualTo("business-logic");
+            assertThat(businessLogic.getScope()).isEqualTo("compile");
+            assertThat(businessLogic.getVersion()).isEqualTo("1.0");
+            assertThat(businessLogic.getType()).isEqualTo("ejb");
+
+            Dependency webapp = requestedDependenciesInEar.get(1);
+            assertThat(webapp.getGroupId()).isEqualTo("com.example");
+            assertThat(webapp.getArtifactId()).isEqualTo("webapp");
+            assertThat(webapp.getScope()).isEqualTo("compile");
+            assertThat(webapp.getVersion()).isEqualTo("1.0");
+            assertThat(webapp.getType()).isEqualTo("war");
+
+            // business-logic
+            BuildFile ejb = getBuildFileByPackagingType(context, "ejb");
+
+            List<Dependency> requestedDependenciesInEjb = ejb.getRequestedDependencies();
+
+            Dependency business = requestedDependenciesInEjb.get(0);
+            assertThat(business.getGroupId()).isEqualTo("org.apache.tomee");
+            assertThat(business.getArtifactId()).isEqualTo("javaee-api");
+            assertThat(business.getScope()).isEqualTo("provided");
+            assertThat(business.getVersion()).isEqualTo("8.0-6");
+            assertThat(business.getType()).isEqualTo("jar");
+
+            // webapp
+            BuildFile web = getBuildFileByPackagingType(context, "war");
+
+            List<Dependency> requestedDependenciesInWeb = web.getRequestedDependencies();
+
+            Dependency jeeApiInWebapp = requestedDependenciesInWeb.get(0);
+            assertThat(jeeApiInWebapp.getGroupId()).isEqualTo("org.apache.tomee");
+            assertThat(jeeApiInWebapp.getArtifactId()).isEqualTo("javaee-api");
+            assertThat(jeeApiInWebapp.getScope()).isEqualTo("provided");
+            assertThat(jeeApiInWebapp.getVersion()).isEqualTo("7.0");
+            assertThat(jeeApiInWebapp.getType()).isEqualTo("jar");
+
+            Dependency jstlInWebapp = requestedDependenciesInWeb.get(1);
+            assertThat(jstlInWebapp.getGroupId()).isEqualTo("javax.servlet");
+            assertThat(jstlInWebapp.getArtifactId()).isEqualTo("jstl");
+            assertThat(jstlInWebapp.getScope()).isEqualTo("provided");
+            assertThat(jstlInWebapp.getVersion()).isEqualTo("1.2");
+            assertThat(jstlInWebapp.getType()).isEqualTo("jar");
+
+            Dependency taglibsInWebapp = requestedDependenciesInWeb.get(2);
+            assertThat(taglibsInWebapp.getGroupId()).isEqualTo("taglibs");
+            assertThat(taglibsInWebapp.getArtifactId()).isEqualTo("standard");
+            assertThat(taglibsInWebapp.getScope()).isEqualTo("provided");
+            assertThat(taglibsInWebapp.getVersion()).isEqualTo("1.1.2");
+            assertThat(taglibsInWebapp.getType()).isEqualTo("jar");
+        }
+
+        // TODO: Add test for getEffectiveDependencies()
+        // TODO: Add test for getDeclaredDecpendencies()
+
+        @NotNull
+        private BuildFile getBuildFileByPackagingType(ProjectContext context, String ear1) {
+            return context.getApplicationModules().stream().map(m -> m.getBuildFile()).filter(b -> {
+                return b.getPackaging().equals(ear1);
+            }).findFirst().get();
+        }
+    }
+
+    /**
+     * Test get[declared|requested|effective]Dependencies for pom files in multi-module project
+     */
+    @Nested
+    class GetDependenciesMultiModuleTest {
+        String parentPom = PomBuilder
+                .buiildPom("com.example:parent:1.0")
+                .withProperties(Map.of(
+                    "jakarta.version", "3.0.2",
+                    "validation.groupId", "jakarta.validation",
+                    "annotationApi.artifactId", "javax.annotation-api"
+                    )
+                )
+                .withModules("module1", "module2")
+                .build();
+
+        String module1Pom = PomBuilder
+                .buiildPom("com.example:parent:1.0", "module1")
+                .unscopedDependencies("com.example:module2:${project.version}")
+                .testScopeDependencies("javax.annotation:${annotationApi.artifactId}:1.3.2")
+                .build();
+
+        String module2Pom = PomBuilder
+                .buiildPom("com.example:parent:1.0", "module2")
+                .unscopedDependencies("${validation.groupId}:jakarta.validation-api:${jakarta.version}")
+                .build();
+
+        ProjectContext context = TestProjectContext
+                .buildProjectContext()
+                .withMavenRootBuildFileSource(parentPom)
+                .withMavenBuildFileSource("module1", module1Pom)
+                .withMavenBuildFileSource("module2", module2Pom)
+                .build();
+
+        BuildFile module1 = context.getApplicationModules().getModule("module1").getBuildFile();
+        BuildFile module2 = context.getApplicationModules().getModule("module2").getBuildFile();
+
+        @Test
+        @DisplayName("getDeclaredDependencies should return the dependencies as declared in build file")
+        void getDeclaredDependencies() {
+            // Module 1
+            List<Dependency> dependenciesDeclaredInModule1 = module1.getDeclaredDependencies();
+
+            assertThat(dependenciesDeclaredInModule1).hasSize(2);
+
+            Dependency dependency1DeclaredInModule1 = dependenciesDeclaredInModule1.get(0);
+            assertThat(dependency1DeclaredInModule1.getGroupId()).isEqualTo("com.example");
+            assertThat(dependency1DeclaredInModule1.getArtifactId()).isEqualTo("module2");
+            assertThat(dependency1DeclaredInModule1.getVersion()).isEqualTo("${project.version}");
+            assertThat(dependency1DeclaredInModule1.getScope()).isNull();
+            assertThat(dependency1DeclaredInModule1.getClassifier()).isNull();
+            assertThat(dependency1DeclaredInModule1.getExclusions()).isEmpty();
+
+            Dependency dependency2DeclaredInModule1 = dependenciesDeclaredInModule1.get(1);
+            assertThat(dependency2DeclaredInModule1.getGroupId()).isEqualTo("javax.annotation");
+            assertThat(dependency2DeclaredInModule1.getArtifactId()).isEqualTo("${annotationApi.artifactId}");
+            assertThat(dependency2DeclaredInModule1.getVersion()).isEqualTo("1.3.2");
+            assertThat(dependency2DeclaredInModule1.getScope()).isEqualTo("test");
+            assertThat(dependency2DeclaredInModule1.getClassifier()).isNull();
+            assertThat(dependency2DeclaredInModule1.getExclusions()).isEmpty();
+
+            // Module 2
+            List<Dependency> dependenciesDeclaredInModule2 = module2.getDeclaredDependencies();
+
+            assertThat(dependenciesDeclaredInModule2).hasSize(1);
+            Dependency dependencyDeclaredInModule2 = dependenciesDeclaredInModule2.get(0);
+
+            assertThat(dependencyDeclaredInModule2.getGroupId()).isEqualTo("${validation.groupId}");
+            assertThat(dependencyDeclaredInModule2.getArtifactId()).isEqualTo("jakarta.validation-api");
+            assertThat(dependencyDeclaredInModule2.getVersion()).isEqualTo("${jakarta.version}");
+            assertThat(dependencyDeclaredInModule2.getScope()).isNull();
+            assertThat(dependencyDeclaredInModule2.getClassifier()).isNull();
+            assertThat(dependencyDeclaredInModule2.getExclusions()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("getRequestedDependencies should return the declared dependencies with resolved attributes")
+        void getRequestedDependencies() {
+            // Module 1
+            List<Dependency> dependenciesRequestedInModule1 = module1.getRequestedDependencies();
+
+            assertThat(dependenciesRequestedInModule1).hasSize(2);
+            Dependency dependency1DeclaredInModule1 = dependenciesRequestedInModule1.get(0);
+
+            assertThat(dependency1DeclaredInModule1.getGroupId()).isEqualTo("com.example");
+            assertThat(dependency1DeclaredInModule1.getArtifactId()).isEqualTo("module2");
+            assertThat(dependency1DeclaredInModule1.getVersion()).isEqualTo("1.0");
+            assertThat(dependency1DeclaredInModule1.getScope()).isEqualTo("compile");
+            assertThat(dependency1DeclaredInModule1.getClassifier()).isNull();
+            assertThat(dependency1DeclaredInModule1.getExclusions()).isEmpty();
+
+            Dependency dependency2DeclaredInModule1 = dependenciesRequestedInModule1.get(1);
+            assertThat(dependency2DeclaredInModule1.getGroupId()).isEqualTo("javax.annotation");
+            assertThat(dependency2DeclaredInModule1.getArtifactId()).isEqualTo("javax.annotation-api");
+            assertThat(dependency2DeclaredInModule1.getVersion()).isEqualTo("1.3.2");
+            assertThat(dependency2DeclaredInModule1.getScope()).isEqualTo("test");
+            assertThat(dependency2DeclaredInModule1.getClassifier()).isNull();
+            assertThat(dependency2DeclaredInModule1.getExclusions()).isEmpty();
+
+            // Module 2
+            List<Dependency> dependenciesRequestedInModule2 = module2.getRequestedDependencies();
+
+            assertThat(dependenciesRequestedInModule2).hasSize(1);
+            Dependency dependencyDeclaredInModule2 = dependenciesRequestedInModule2.get(0);
+
+            assertThat(dependencyDeclaredInModule2.getGroupId()).isEqualTo("jakarta.validation");
+            assertThat(dependencyDeclaredInModule2.getArtifactId()).isEqualTo("jakarta.validation-api");
+            assertThat(dependencyDeclaredInModule2.getVersion()).isEqualTo("3.0.2");
+            assertThat(dependencyDeclaredInModule2.getScope()).isEqualTo("compile");
+            assertThat(dependencyDeclaredInModule2.getClassifier()).isNull();
+            assertThat(dependencyDeclaredInModule2.getExclusions()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("getRequestedDependencies should return any available dependency (declared or transitive) with given scope")
+        void getEffectiveDependencies() {
+            // Module 1
+            List<Dependency> dependenciesEffectiveInModule1 = new ArrayList(module1.getEffectiveDependencies());
+
+
+            assertThat(dependenciesEffectiveInModule1).hasSize(3);
+            Dependency depToModule2 = findDependencyByCoordinate(dependenciesEffectiveInModule1,"com.example:module2:1.0");
+
+            assertThat(depToModule2.getGroupId()).isEqualTo("com.example");
+            assertThat(depToModule2.getArtifactId()).isEqualTo("module2");
+            assertThat(depToModule2.getVersion()).isEqualTo("1.0");
+            assertThat(depToModule2.getScope()).isEqualTo("compile");
+            assertThat(depToModule2.getClassifier()).isNull();
+            assertThat(depToModule2.getExclusions()).isEmpty();
+
+            Dependency depToAnnotationApi = findDependencyByCoordinate(dependenciesEffectiveInModule1, "javax.annotation:javax.annotation-api:1.3.2");
+
+            assertThat(depToAnnotationApi.getGroupId()).isEqualTo("javax.annotation");
+            assertThat(depToAnnotationApi.getArtifactId()).isEqualTo("javax.annotation-api");
+            assertThat(depToAnnotationApi.getVersion()).isEqualTo("1.3.2");
+            assertThat(depToAnnotationApi.getScope()).isEqualTo("test");
+            assertThat(depToAnnotationApi.getClassifier()).isNull();
+            assertThat(depToAnnotationApi.getExclusions()).isEmpty();
+
+            Dependency transDepToValidationApi = findDependencyByCoordinate(dependenciesEffectiveInModule1, "jakarta.validation:jakarta.validation-api:3.0.2");
+
+            assertThat(transDepToValidationApi.getGroupId()).isEqualTo("jakarta.validation");
+            assertThat(transDepToValidationApi.getArtifactId()).isEqualTo("jakarta.validation-api");
+            assertThat(transDepToValidationApi.getVersion()).isEqualTo("3.0.2");
+            assertThat(transDepToValidationApi.getScope()).isEqualTo("compile");
+            assertThat(transDepToValidationApi.getClassifier()).isNull();
+            assertThat(transDepToValidationApi.getExclusions()).isEmpty();
+
+            // Module 2
+            List<Dependency> dependenciesEffectiveInModule2 = new ArrayList<>(module2.getEffectiveDependencies());
+
+            assertThat(dependenciesEffectiveInModule2).hasSize(1);
+            Dependency dependencyDeclaredInModule2 = findDependencyByCoordinate(dependenciesEffectiveInModule2, "jakarta.validation:jakarta.validation-api:3.0.2");
+
+            assertThat(dependencyDeclaredInModule2.getGroupId()).isEqualTo("jakarta.validation");
+            assertThat(dependencyDeclaredInModule2.getArtifactId()).isEqualTo("jakarta.validation-api");
+            assertThat(dependencyDeclaredInModule2.getVersion()).isEqualTo("3.0.2");
+            assertThat(dependencyDeclaredInModule2.getScope()).isEqualTo("compile");
+            assertThat(dependencyDeclaredInModule2.getClassifier()).isNull();
+            assertThat(dependencyDeclaredInModule2.getExclusions()).isEmpty();
+        }
+
+        @NotNull
+        private Dependency findDependencyByCoordinate(List<Dependency> dependenciesEffectiveInModule1, String anObject) {
+            return dependenciesEffectiveInModule1
+                    .stream()
+                    .filter(d -> d.getCoordinates().equals(anObject))
+                    .findFirst()
+                    .get();
+        }
+    }
+
 
     @Test
     void getRequestedDependencies() {

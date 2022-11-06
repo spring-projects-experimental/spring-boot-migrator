@@ -44,7 +44,7 @@ public class SecurityManagerUsagesFinder extends Recipe {
                 // find System.getSecurityManager()
 
                 J.MethodInvocation m = super.visitMethodInvocation(method, executionContext);
-                if("java.lang.System".equals(m.getMethodType().getDeclaringType().getFullyQualifiedName()) && "getSecurityManager".equals(m.getName().getSimpleName())) {
+                if(m.getMethodType() != null && "java.lang.System".equals(m.getMethodType().getDeclaringType().getFullyQualifiedName()) && "getSecurityManager".equals(m.getName().getSimpleName())) {
                     return m.withMarkers(m.getMarkers().addIfAbsent(new SearchResult(UUID.randomUUID(), "Indicator for usage for SecurityManager: calls to System.getSecurityManager()")));
                 }
                 return m;
