@@ -86,6 +86,9 @@ public class SpringBootUpgradeReportAction implements Action {
     @Autowired
     private SpringBootUpgradeReportFreemarkerSupport freemarkerSupport;
 
+    @Valid
+    List<SpringBootUpgradeReportSection> sections;
+
     @JsonIgnore
     @Autowired
     private DataProvider dataProvider = new DataProvider() {
@@ -95,8 +98,6 @@ public class SpringBootUpgradeReportAction implements Action {
         }
     };
 
-    @Valid
-    List<SpringBootUpgradeReportSection> sections;
 
     @Override
     public String getDescription() {

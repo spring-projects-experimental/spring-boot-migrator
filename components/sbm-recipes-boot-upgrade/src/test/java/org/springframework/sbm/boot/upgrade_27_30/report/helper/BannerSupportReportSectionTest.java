@@ -22,7 +22,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 
-public class BannerSupportHelperTest {
+public class BannerSupportReportSectionTest {
 
     @Test
     public void rendersBannerSupportInformation() {
@@ -37,22 +37,23 @@ public class BannerSupportHelperTest {
                 .fromProjectContext(context)
                 .shouldRenderAs(
                         """
-                                === Banner support
-                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/150[#150], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
-                                                                
-                                ==== What Changed
-                                Support for image-based application banners has been removed. banner.gif, banner.jpg, and banner.png\s
-                                files are now ignored and should be replaced with a text-based banner.txt file.
-                                                                
-                                ==== Why is the application affected
-                                The scan found banner image files here:
-                                                                
-                                * <PATH>/src/main/resources/banner.gif
-                                * <PATH>/src/main/resources/banner.jpg
-                                
-                                ==== Remediation
-                                remove image banners and replace it with text-banner with banner.txt file
-                                                  
-                                    """);
+                        === Banner support
+                        Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/150[#150], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
+                                                        
+                        ==== What Changed
+                        Support for image-based application banners has been removed. banner.gif, banner.jpg, and banner.png
+                        files are now ignored and should be replaced with a text-based banner.txt file.
+                                                        
+                        ==== Why is the application affected
+                        The scan found banner image files here:
+                                                        
+                        * <PATH>/src/main/resources/banner.gif
+                        * <PATH>/src/main/resources/banner.jpg
+                        
+                        ==== Remediation
+                        remove image banners and replace it with text-banner with banner.txt file
+                                        
+                                          
+                        """);
     }
 }

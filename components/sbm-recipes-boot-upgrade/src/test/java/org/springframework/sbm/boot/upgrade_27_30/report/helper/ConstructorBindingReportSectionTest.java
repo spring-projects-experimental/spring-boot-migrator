@@ -22,7 +22,7 @@ import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReport
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
-public class ConstructorBindingHelperTest {
+public class ConstructorBindingReportSectionTest {
 
     @Test
     public void reportMigrationSuggestionsWhenConstructorBindingUsageIsFound() {
@@ -70,7 +70,7 @@ public class ConstructorBindingHelperTest {
                 .generatedSection("Constructor Binding")
                 .fromProjectContext(context)
                 .shouldRenderAs(
-            """
+                   """
                     === Constructor Binding
                     Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
                                                     
@@ -93,8 +93,11 @@ public class ConstructorBindingHelperTest {
                     ==== Remediation
                     Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
                     for more information
-                                                                      
-                        """
+                                       
+                    * https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[Issue 166]   
+                    
+                                                                                       
+                    """
                 );
     }
 
