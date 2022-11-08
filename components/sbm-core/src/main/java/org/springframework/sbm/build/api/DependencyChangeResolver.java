@@ -1,31 +1,33 @@
 package org.springframework.sbm.build.api;
 
 import lombok.NonNull;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openrewrite.maven.tree.Scope;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
 import static org.openrewrite.maven.tree.Scope.*;
 
 /**
  * Resolve the dependency change spec. Their is a ascending
  * order of the scopes where a higher order covers its predecessor
  * and more. Below is the ascending order of the scopes.
- *
+ * <p>
  * Test (lowest), Runtime, Provided, Compile (highest)
- *
+ * <p>
  * Based on the above scope, the following rule decides the fate
  * of a proposed dependency change spec.
- *
+ * <p>
  * Rule 1 :- If the proposed dependency already exists
  * transitively but its scope is lesser than the proposed
  * scope, the proposed dependency will be added to  the
  * build file.
- *
+ * <p>
  * Rule 2 :- If the proposed dependency already declared
  * directly but its scope is lesser than the the proposed
  * scope, the existing dependency will be replaced.
- *
+ * <p>
  * Rule 3 :- If there is no matching dependency already exists
  * the proposed dependency will beadded.
  */
@@ -38,16 +40,17 @@ public class DependencyChangeResolver {
     private List<Dependency> potentialMatches;
 
     private static Map<Scope, List<Scope>> UPGRADE_GRAPH = new HashMap<>();
+
     static {
         // For a given scope (key), SBM will upgrade ( upsert) if any of the listed scope
         // exists in the directly included dependencies
-        UPGRADE_GRAPH.put(Compile, List.of(Test,Provided,Runtime));
-        UPGRADE_GRAPH.put(Provided,List.of(Test,Runtime));
-        UPGRADE_GRAPH.put(Runtime,List.of(Test));
-        UPGRADE_GRAPH.put(Test,Collections.emptyList());
+        UPGRADE_GRAPH.put(Compile, List.of(Test, Provided, Runtime));
+        UPGRADE_GRAPH.put(Provided, List.of(Test, Runtime));
+        UPGRADE_GRAPH.put(Runtime, List.of(Test));
+        UPGRADE_GRAPH.put(Test, Collections.emptyList());
     }
 
-    public DependencyChangeResolver(BuildFile buildFile, @NonNull Dependency proposedChangeSpec){
+    public DependencyChangeResolver(BuildFile buildFile, @NonNull Dependency proposedChangeSpec) {
         this.buildFile = buildFile;
         this.proposedChangeSpec = proposedChangeSpec;
         this.potentialMatches = buildFile.getEffectiveDependencies()
@@ -56,36 +59,31 @@ public class DependencyChangeResolver {
                 .collect(Collectors.toList());
     }
 
-    public void apply(){
-        if(isUpsertRequired())
-            upsertDependencies(proposedChangeSpec);
-    }
-
-    private boolean isUpsertRequired() {
-        if(potentialMatches.isEmpty()) // Rule 3
-            return true;
+    /**
+     * Return a pair of dependencies to be removed ( left) and added ( right)
+     * @return
+     */
+    public Pair<List<Dependency>, Optional<Dependency>> apply() {
+        if (potentialMatches.isEmpty())
+            return Pair.of(Collections.emptyList(), Optional.of(proposedChangeSpec));
 
         Scope proposedDependencyScope = Scope.fromName(proposedChangeSpec.getScope());
+        List<Scope> supersededScopes = UPGRADE_GRAPH.get(proposedDependencyScope);
 
-        return potentialMatches
+        Optional<Dependency> right = potentialMatches
                 .stream()
-                .map(Dependency::getScope)
-                .map(Scope::fromName)
-                .anyMatch(UPGRADE_GRAPH.get(proposedDependencyScope)::contains); // Rule 1
-    }
+                .filter(d -> supersededScopes.contains(fromName(d.getScope())))
+                .findAny()
+                .map(any -> proposedChangeSpec);
 
-    private void upsertDependencies(@NonNull Dependency effectiveSpec){
-        List<Dependency> declaredDependencies = buildFile.getDeclaredDependencies(ALL_SCOPES.toArray(new Scope[0]));
-
-        List<Dependency> existingDependenciesList = declaredDependencies
+        List<Dependency> left = buildFile
+                .getDeclaredDependencies(ALL_SCOPES.toArray(new Scope[0]))
                 .stream()
                 .filter(proposedChangeSpec::equals)
                 .collect(Collectors.toList());
 
-        if(!existingDependenciesList.isEmpty()) // Rule 2
-            buildFile.removeDependencies(existingDependenciesList);
+        return Pair.of(left, right);
 
-        buildFile.addDependency(proposedChangeSpec);
     }
 
 }
