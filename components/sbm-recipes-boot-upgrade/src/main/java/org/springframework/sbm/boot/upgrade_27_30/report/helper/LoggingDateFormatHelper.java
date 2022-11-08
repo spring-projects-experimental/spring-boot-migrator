@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * @author Fabian Krüger
  */
-public class LoggingDateFormatHelper implements SpringBootUpgradeReportSection.Helper {
+public class LoggingDateFormatHelper implements SpringBootUpgradeReportSection.Helper<List<? extends PropertiesSource>> {
 
     private List<? extends PropertiesSource> propertiesSources;
 
@@ -42,7 +42,7 @@ public class LoggingDateFormatHelper implements SpringBootUpgradeReportSection.H
     }
 
     @Override
-    public Map getData(ProjectContext context) {
+    public Map<String, List<? extends PropertiesSource>> getData() {
         return Map.of("properties", propertiesSources);
     }
 }
