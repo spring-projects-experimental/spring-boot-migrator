@@ -97,13 +97,13 @@ class SpringBootUpgradeReportActionTest {
                         
                         == Relevant Changes
                         
-                        This section lists the changes SBM found to be applicable to upgrade the scanned application to Spring Boot 3.0.0.\s
+                        This section lists the changes SBM found to be applicable to upgrade the scanned application to Spring Boot 3.0.0.
                         
                         === Changes to Data Properties
                         Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/441[#441], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
                         
                         ==== What Changed
-                        The data prefix has been reserved for Spring Data and any properties under the `data` prefix imply that Spring
+                        The data prefix has been reserved for Spring Data and any properties under the `spring.data` prefix imply that Spring
                         Data is required on the classpath.
                         
                         ==== Why is the application affected
@@ -118,14 +118,15 @@ class SpringBootUpgradeReportActionTest {
                         Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
                         
                         
+                        
                         === Logging Date Format
                         Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/489[#489], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
                         
                         ==== What Changed
-                        The default format for the date and time component of log messages for Logback and Log4j2 has changed to\s
-                        align with the ISO-8601 standard. The new default format `yyyy-MM-dd’T’HH:mm:ss.SSSXXX` uses a `T` to\s
-                        separate the date and time instead of a space character and adds the timezone offset to the end.\s
-                        The `LOG_DATEFORMAT_PATTERN` environment variable or `logging.pattern.dateformat` property can be used to\s
+                        The default format for the date and time component of log messages for Logback and Log4j2 has changed to
+                        align with the ISO-8601 standard. The new default format `yyyy-MM-dd’T’HH:mm:ss.SSSXXX` uses a `T` to
+                        separate the date and time instead of a space character and adds the timezone offset to the end.
+                        The `LOG_DATEFORMAT_PATTERN` environment variable or `logging.pattern.dateformat` property can be used to
                         restore the previous default value of `yyyy-MM-dd HH:mm:ss.SSS`.
                         
                         ==== Why is the application affected
@@ -133,6 +134,7 @@ class SpringBootUpgradeReportActionTest {
                         
                         ==== Remediation
                         Set `logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS` to fall back to the previous log format.
+                        
                         
                         
                         
