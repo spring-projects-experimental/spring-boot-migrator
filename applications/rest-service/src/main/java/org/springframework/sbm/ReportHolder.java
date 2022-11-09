@@ -13,11 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.boot.upgrade_27_30.report;
+package org.springframework.sbm;
+
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Fabian Krüger
  */
-public interface SpringBootUpgradeReportRenderer {
-    void processReport(String renderedReport);
+@Component
+@Getter
+@Setter
+public class ReportHolder {
+    private String report = "";
 }

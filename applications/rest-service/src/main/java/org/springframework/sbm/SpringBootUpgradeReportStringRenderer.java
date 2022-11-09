@@ -13,23 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.service;
+package org.springframework.sbm;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Primary;
+import org.springframework.sbm.boot.upgrade.common.UpgradeReportUtil;
+import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportRenderer;
+import org.springframework.stereotype.Component;
 
-@SpringBootTest
-public class SpringBootMigratorServiceAppTest {
-    
+/**
+ * @author Fabian Krüger
+ */
+@Component
+@Primary
+public class SpringBootUpgradeReportStringRenderer implements SpringBootUpgradeReportRenderer {
+
     @Autowired
-    RestApi restApi;
-
-    @Test
-    void contextLoads() {
-        assertThat(restApi).isNotNull();
+    private ReportHolder reportHolder;
+    @Override
+    public void processReport(String renderedReport) {
+        String htmlReport = UpgradeReportUtil.renderHtml(renderedReport);
+        reportHolder.setReport(htmlReport);
     }
-
 }

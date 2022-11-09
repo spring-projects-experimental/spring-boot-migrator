@@ -18,6 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
@@ -127,20 +128,31 @@ public class SpringBootUpgradeReportTestSupport {
                     }
 
                     SpringBootUpgradeReportSection sectionUnderTest = matchingSections.get(0);
-
-
-                    action.apply(builderData.getContext());
+                    bruteForceProjectContextIntoProjectContextHolder(builderData.getContext(), action);
                     assertThat(sectionUnderTest.getHelper().evaluate(sectionBuilderData.getContext())).isFalse();
                 });
             } else if(ReportBuilderData.class.isInstance(builderData)) {
                 ReportBuilderData reportBuilderData = ReportBuilderData.class.cast(builderData);
                 withRecipes(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
-                    Action action = recipe.apply(reportBuilderData.getContext()).get(0);
+                    SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.apply(reportBuilderData.getContext()).get(0);
+                    bruteForceProjectContextIntoProjectContextHolder(reportBuilderData.getContext(), action);
                     List<SpringBootUpgradeReportSection> sections = (List<SpringBootUpgradeReportSection>) ReflectionTestUtils.getField(recipe.getActions().get(0), "sections");
                     sections.forEach(sectionUnderTest -> assertThat(sectionUnderTest.getHelper().evaluate(reportBuilderData.getContext())).isFalse());
                 });
             }
+        }
+
+        /**
+         * Another nasty hack required to make the ProjectContext available in ProjectContextHolder which is required by the
+         * hacked implementation of Spring Upgrade report web application.
+         * The {@code SpringBootUpgradeReportFileSystemRenderer} accesses the {@code ProjectContext} through
+         * {@ProjectContextHolder} but its set in {@code ScanShellCommand} which is not available here.
+         */
+        private void bruteForceProjectContextIntoProjectContextHolder(ProjectContext context, SpringBootUpgradeReportAction action) {
+            ProjectContextHolder contextHolder = new ProjectContextHolder();
+            contextHolder.setProjectContext(context);
+            ReflectionTestUtils.setField(action.getUpgradeReportProcessor(), "contextHolder", contextHolder);
         }
 
         private void verify(Consumer<String> assertion) {
@@ -149,19 +161,15 @@ public class SpringBootUpgradeReportTestSupport {
                 withRecipes(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
-                    ReflectionTestUtils.setField(action, "upgradeReportRenderer",
-                                                 new SpringBootUpgradeReportRenderer() {
-                                                     @Override
-                                                     public void writeReport(String s, Path outputDir, String filename) {
-                                                         assertion.accept(s);
-                                                     }
-                                                 });
+                    bruteForceProjectContextIntoProjectContextHolder(builderData.getContext(), action);
+//                    ReflectionTestUtils.setField(action, "upgradeReportProcessor", (SpringBootUpgradeReportFileSystemRenderer) s -> assertion.accept(s));
                     action.apply(reportBuilderData.getContext());
                 });
             } else if(SectionBuilderData.class.isInstance(builderData)) {
                 withRecipes(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
+                    bruteForceProjectContextIntoProjectContextHolder(builderData.getContext(), action);
                     List<SpringBootUpgradeReportSection> sections = (List<SpringBootUpgradeReportSection>) ReflectionTestUtils.getField(recipe.getActions().get(0), "sections");
                     List<SpringBootUpgradeReportSection> matchingSections = sections
                             .stream()
@@ -173,13 +181,37 @@ public class SpringBootUpgradeReportTestSupport {
                     }
 
                     SpringBootUpgradeReportSection sectionUnderTest = matchingSections.get(0);
-
-
                     action.apply(builderData.getContext());
                     String renderedSection = sectionUnderTest.render(builderData.getContext());
-                    assertion.accept(renderedSection);
+                    String renderedSectionWithoutButtonCode = replaceRe4cipeButtonCodeFromExpectedOutput(sectionUnderTest, renderedSection);
+
+                    assertion.accept(renderedSectionWithoutButtonCode);
                 });
             }
+        }
+
+        /**
+         * Another hack, removing the expected button code added to the Asciidoc to free tests from asserting invisible
+         * code of buttons to apply a recipe.
+         */
+        private String replaceRe4cipeButtonCodeFromExpectedOutput(SpringBootUpgradeReportSection sectionUnderTest, String renderedSection) {
+            String recipe = sectionUnderTest.getRecipe();
+            String target = """
+                                                                        
+                    ++++
+                    <form name="recipe-1" action="http://localhost:8080/spring-boot-upgrade" method="post">
+                    <input type="hidden" name="recipeName" value="<RECIPE>" />
+                    <button name="<RECIPE>" type="submit" style="background-color:#71ea5b;border:width: 120px;
+                                                                                                                                                 text-align: center;
+                                                                                                                                                 font-size: 15px;
+                                                                                                                                                 padding: 20px;
+                                                                                                                                                 border-radius: 15px;">Run Recipe</button>
+                    </form>
+                    ++++
+                                                                
+                    """;
+            String buttonCode = target.replace("<RECIPE>", recipe);
+            return renderedSection.replace(buttonCode, "");
         }
 
         private void withRecipes(Consumer<Recipes> recipesConsumer) {
@@ -187,7 +219,7 @@ public class SpringBootUpgradeReportTestSupport {
                     Path.of("recipes/boot-new-report.yaml"), recipesConsumer,
                     SpringBootUpgradeReportActionDeserializer.class,
                     SpringBootUpgradeReportFreemarkerSupport.class,
-                    SpringBootUpgradeReportRenderer.class,
+                    SpringBootUpgradeReportFileSystemRenderer.class,
                     SpringBootUpgradeReportDataProvider.class
             );
         }

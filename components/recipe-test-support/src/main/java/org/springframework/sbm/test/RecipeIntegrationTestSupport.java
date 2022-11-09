@@ -19,6 +19,7 @@ import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
@@ -102,6 +103,7 @@ public class RecipeIntegrationTestSupport {
                     
                     ApplicableRecipeListCommand applicableRecipeListCommand = ctx.getBean(ApplicableRecipeListCommand.class);
                     ProjectContext projectContext = scanCommand.execute(rootDir.toString());
+                    ctx.getBean(ProjectContextHolder.class).setProjectContext(projectContext);
                     List<Recipe> recipesFound = applicableRecipeListCommand.execute(projectContext);
                     Recipe recipe = recipesFound.stream()
                             .filter(r -> r.getName().equals(recipeName))
