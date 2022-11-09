@@ -77,6 +77,7 @@ public class PagingAndSortingHelperTest {
                                 ==== Remediation
                                 If one requires the old behavior one must extend not only the sorting repository, but also the respective CRUD repository explicitly. This was done so the sorting support could easily be combined with the List repositories introduced above.
                                 
+                                
                                     """
                 );
     }
@@ -135,6 +136,7 @@ public class PagingAndSortingHelperTest {
                                                                 
                                 ==== Remediation
                                 If one requires the old behavior one must extend not only the sorting repository, but also the respective CRUD repository explicitly. This was done so the sorting support could easily be combined with the List repositories introduced above.
+                                          
                                                                 
                                 """
                 );
@@ -194,6 +196,7 @@ public class PagingAndSortingHelperTest {
                                                                 
                                 ==== Remediation
                                 If one requires the old behavior one must extend not only the sorting repository, but also the respective CRUD repository explicitly. This was done so the sorting support could easily be combined with the List repositories introduced above.
+                                
                                 
                                     """
                 );
@@ -288,6 +291,7 @@ public class PagingAndSortingHelperTest {
                                                                 
                                 ==== Remediation
                                 If one requires the old behavior one must extend not only the sorting repository, but also the respective CRUD repository explicitly. This was done so the sorting support could easily be combined with the List repositories introduced above.
+                                           
                                                                 
                                 """
                 );

@@ -94,7 +94,7 @@ public class PagingAndSortingHelper implements SpringBootUpgradeReportSection.He
     }
 
     @Override
-    public Map<String, List<String>> getData(ProjectContext context) {
+    public Map<String, List<String>> getData() {
         Map<String, List<String>> map = new HashMap<>();
         map.put("pagingAndSortingRepos", pagingAndSortingRepo);
         map.put("reactivePagingAndSortingRepos", reactivePagingAndSortingRepo);
