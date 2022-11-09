@@ -278,15 +278,15 @@ public class PagingAndSortingHelperTest {
                                 ==== Why is the application affected
                                 We found classes which uses `PagingAndSortingRepository` in following files:
                                                                 
-                                * /Users/sanagaraj/workspace/opensource/spring-boot-migrator/components/sbm-recipes-boot-upgrade/target/dummy-test-path/src/main/java/example/SongStatRepositoryPagingAndSorting.java
+                                * <PATH>/src/main/java/example/SongStatRepositoryPagingAndSorting.java
                                                                 
                                 We found classes which uses `ReactiveSortingRepository` in following files:
                                                                 
-                                * /Users/sanagaraj/workspace/opensource/spring-boot-migrator/components/sbm-recipes-boot-upgrade/target/dummy-test-path/src/main/java/example/SongStatRepositoryReactive.java
+                                * <PATH>/src/main/java/example/SongStatRepositoryReactive.java
                                                                 
                                 We found classes which uses `RxJavaSortingRepository` in following files:
                                                                 
-                                * /Users/sanagaraj/workspace/opensource/spring-boot-migrator/components/sbm-recipes-boot-upgrade/target/dummy-test-path/src/main/java/example/SongStatRepositoryReactiveRx.java
+                                * <PATH>/src/main/java/example/SongStatRepositoryReactiveRx.java
                                                                 
                                                                 
                                 ==== Remediation
