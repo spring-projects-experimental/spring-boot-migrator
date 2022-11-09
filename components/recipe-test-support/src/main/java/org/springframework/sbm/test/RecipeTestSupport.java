@@ -16,6 +16,7 @@
 package org.springframework.sbm.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.context.RewriteJavaSearchActionDeserializer;
 import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
@@ -66,7 +67,8 @@ public class RecipeTestSupport {
             RewriteJavaSearchActionDeserializer.class,
             RewriteRecipeLoader.class,
             SbmRecipeLoader.class,
-            BasePackageCalculator.class
+            BasePackageCalculator.class,
+            ProjectContextHolder.class
     };
 
 
@@ -79,8 +81,8 @@ public class RecipeTestSupport {
      */
     public static void testRecipe(Path recipeFile, Consumer<Recipes> consumer, Class<?>... additionalSpringBeans) {
         List<Class<?>> allSpringBeans = new ArrayList<>();
-        allSpringBeans.addAll(Arrays.asList(springBeans));
-        allSpringBeans.addAll(Arrays.asList(additionalSpringBeans));
+        allSpringBeans.addAll(List.of(springBeans));
+        allSpringBeans.addAll(List.of(additionalSpringBeans));
 
         SpringBeanProvider.run(context -> {
             context.start();

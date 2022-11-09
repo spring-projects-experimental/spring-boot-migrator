@@ -33,7 +33,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class SpringBootUpgradeReportAction implements Action {
 
-    private static final String REPORT_DIR = "spring-boot-upgrade-report";
 
     /**
      * Provides data to render header and footer.
@@ -80,7 +78,7 @@ public class SpringBootUpgradeReportAction implements Action {
     private String footer;
     @JsonIgnore
     @Autowired
-    private SpringBootUpgradeReportRenderer upgradeReportRenderer;
+    private SpringBootUpgradeReportRenderer upgradeReportProcessor;
 
     @JsonIgnore
     @Autowired
@@ -129,13 +127,11 @@ public class SpringBootUpgradeReportAction implements Action {
         String renderedHeader = renderTemplate("header", header, data);
 
         String renderedFooter = renderTemplate("footer", footer, data);
-
-        Path outputDir = context.getProjectRootDirectory().resolve(REPORT_DIR);
-        String filename = file + ".html";
-        writeReport(renderedHeader, renderedSections, renderedFooter, outputDir, filename);
+        String renderedReport = renderReport(renderedHeader, renderedSections, renderedFooter);
+        upgradeReportProcessor.processReport(renderedReport);
     }
 
-    private void writeReport(String renderedHeader, List<String> sections, String renderedFooter, Path outputDir, String filename) {
+    private String renderReport(String renderedHeader, List<String> sections, String renderedFooter) {
         String key = "report";
         String content = """
                 ${header}
@@ -154,8 +150,7 @@ public class SpringBootUpgradeReportAction implements Action {
         );
 
         String renderedTemplate = renderTemplate(key, content, data);
-
-        upgradeReportRenderer.writeReport(renderedTemplate, outputDir, filename);
+        return renderedTemplate;
     }
 
     private String renderTemplate(String key, String content, Map<String, Object> data) {

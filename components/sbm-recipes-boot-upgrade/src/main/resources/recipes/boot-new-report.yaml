@@ -29,7 +29,7 @@
         :idseparator: -
         :toc: left
         :sectnumlevels: 2
-        :toclevels: 2
+        :toclevels: 3
         :tabsize: 4
         :numbered:
         :sectanchors:
@@ -43,6 +43,20 @@
         :spring-boot-version: current
 
         == Introduction
+        This report aims to help with updating spring Boot applications from 2.7 to 3.0.
+        The listed changes should be applied in the given order. 
+        It follows basically this order:
+        
+        . Prepare the 2.7 application
+        . Upgrade Spring Security to 5.8
+        . Upgrade to Spring Boot 3.0
+        
+        NOTE: The recipes should be applied in the given order!
+        
+        You can find us on GitHub.
+        Please report all problems.
+        
+        === Application Information
         <#assign coordinates>${scannedCoordinate}</#assign>
         [cols="1h,3"]
         |===
@@ -109,7 +123,7 @@
             description: |-
               Set `logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS` to fall back to the previous log format.
           gitHubIssue: 489
-          recipe: boot-2.7-3.0-upgrade-report
+          recipe: sbu30-225-logging-date-format
           contributors:
             - "Fabian Krüger[@fabapp2]"
 
