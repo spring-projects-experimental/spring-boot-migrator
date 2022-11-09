@@ -26,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
-import org.stringtemplate.v4.ST;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
@@ -61,7 +60,6 @@ public class SpringBootUpgradeReportSection {
 
     public static final String CHANGE_HEADER = "What Changed";
     public static final String AFFECTED = "Why is the application affected";
-
     public static final String REMEDIATION = "Remediation";
 
     public boolean shouldRender(ProjectContext context) {

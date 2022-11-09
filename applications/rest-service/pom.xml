@@ -31,18 +31,8 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
-            <artifactId>sbm-recipes-spring-framework</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.sbm</groupId>
-            <artifactId>sbm-recipes-jee-to-boot</artifactId>
+            <artifactId>sbm-recipes-boot-upgrade</artifactId>
             <version>0.12.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.sbm</groupId>
-            <artifactId>sbm-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -54,28 +44,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.sbm</groupId>
-            <artifactId>test-helper</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.sbm</groupId>
-            <artifactId>sbm-support-weblogic</artifactId>
-            <version>0.12.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.sbm</groupId>
-            <artifactId>openrewrite-spring-recipes</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
     </dependencies>
 
@@ -90,6 +60,19 @@
                         <goals>
                             <goal>repackage</goal>
                         </goals>
+                        <configuration>
+                            <requiresUnpack>
+                                <dependency>
+                                    <groupId>org.asciidoctor</groupId>
+                                    <artifactId>asciidoctorj</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>io.spring.asciidoctor.backends</groupId>
+                                    <artifactId>spring-asciidoctor-backends</artifactId>
+                                </dependency>
+                            </requiresUnpack>
+                            <finalName>spring-boot-upgrade</finalName>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
