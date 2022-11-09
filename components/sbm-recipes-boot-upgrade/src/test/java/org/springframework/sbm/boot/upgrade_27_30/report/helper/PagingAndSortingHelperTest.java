@@ -71,7 +71,7 @@ public class PagingAndSortingHelperTest {
                                 ==== Why is the application affected
                                 We found classes which uses `PagingAndSortingRepository` in following files:
                                 
-                                * <PATH>/src/main/java/example/SongStatRepository.java
+                                * `<PATH>/src/main/java/example/SongStatRepository.java`
                                                   
                                                                 
                                 ==== Remediation
@@ -131,7 +131,7 @@ public class PagingAndSortingHelperTest {
                                 ==== Why is the application affected
                                 We found classes which uses `ReactiveSortingRepository` in following files:
                                                                 
-                                * <PATH>/src/main/java/example/SongStatRepository.java
+                                * `<PATH>/src/main/java/example/SongStatRepository.java`
                                                                 
                                                                 
                                 ==== Remediation
@@ -191,7 +191,7 @@ public class PagingAndSortingHelperTest {
                                 ==== Why is the application affected
                                 We found classes which uses `RxJavaSortingRepository` in following files:
                                 
-                                * <PATH>/src/main/java/example/SongStatRepository.java
+                                * `<PATH>/src/main/java/example/SongStatRepository.java`
                                                     
                                                                 
                                 ==== Remediation
@@ -278,15 +278,15 @@ public class PagingAndSortingHelperTest {
                                 ==== Why is the application affected
                                 We found classes which uses `PagingAndSortingRepository` in following files:
                                                                 
-                                * <PATH>/src/main/java/example/SongStatRepositoryPagingAndSorting.java
+                                * `<PATH>/src/main/java/example/SongStatRepositoryPagingAndSorting.java`
                                                                 
                                 We found classes which uses `ReactiveSortingRepository` in following files:
                                                                 
-                                * <PATH>/src/main/java/example/SongStatRepositoryReactive.java
+                                * `<PATH>/src/main/java/example/SongStatRepositoryReactive.java`
                                                                 
                                 We found classes which uses `RxJavaSortingRepository` in following files:
                                                                 
-                                * <PATH>/src/main/java/example/SongStatRepositoryReactiveRx.java
+                                * `<PATH>/src/main/java/example/SongStatRepositoryReactiveRx.java`
                                                                 
                                                                 
                                 ==== Remediation

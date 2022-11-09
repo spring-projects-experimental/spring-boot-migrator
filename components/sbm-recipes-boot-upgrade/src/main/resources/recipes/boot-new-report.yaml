@@ -282,7 +282,7 @@
             We found classes which uses `PagingAndSortingRepository` in following files:
             
             <#list pagingAndSortingRepos as file>
-            * ${file}
+            * `${file}`
             </#list>
             
             </#if>
@@ -290,7 +290,7 @@
             We found classes which uses `ReactiveSortingRepository` in following files:
 
             <#list reactivePagingAndSortingRepos as file>
-            * ${file}
+            * `${file}`
             </#list>
             
             </#if>
@@ -298,7 +298,7 @@
             We found classes which uses `RxJavaSortingRepository` in following files:
 
             <#list rxJavaSortingRepos as file>
-            * ${file}
+            * `${file}`
             </#list>
             
             </#if>
