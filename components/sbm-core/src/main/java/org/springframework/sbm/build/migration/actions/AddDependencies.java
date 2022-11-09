@@ -16,8 +16,10 @@
 package org.springframework.sbm.build.migration.actions;
 
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Dependency;
+import org.springframework.sbm.build.api.DependencyChangeResolver;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.Getter;
@@ -29,6 +31,9 @@ import org.springframework.sbm.engine.recipe.MultiModuleAwareAction;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -51,6 +56,23 @@ public class AddDependencies extends MultiModuleAwareAction {
     @Override
     public void apply(ProjectContext context) {
         BuildFile buildFile = context.getBuildFile();
-        buildFile.addDependencies(dependencies);
+        List<Pair<List<Dependency>, Optional<Dependency>>> pairs = dependencies.stream()
+                .map(d -> new DependencyChangeResolver(buildFile, d))
+                .map(DependencyChangeResolver::apply)
+                .collect(Collectors.toList());
+
+        List<Dependency> removeList = pairs.stream()
+                .map(Pair::getLeft)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+
+        List<Dependency> addList = pairs.stream()
+                .map(Pair::getRight)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+
+        buildFile.removeDependencies(removeList);
+        buildFile.addDependencies(addList);
     }
 }
