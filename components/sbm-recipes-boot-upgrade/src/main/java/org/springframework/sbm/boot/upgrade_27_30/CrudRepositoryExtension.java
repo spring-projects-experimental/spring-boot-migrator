@@ -17,7 +17,6 @@ package org.springframework.sbm.boot.upgrade_27_30;
 
 
 import lombok.Setter;
-import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
