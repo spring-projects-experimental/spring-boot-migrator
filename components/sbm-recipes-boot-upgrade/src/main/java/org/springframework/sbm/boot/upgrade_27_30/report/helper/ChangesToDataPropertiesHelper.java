@@ -74,7 +74,7 @@ public class ChangesToDataPropertiesHelper implements SpringBootUpgradeReportSec
     }
 
     @Override
-    public Map<String, List<Match>> getData(ProjectContext context) {
+    public Map<String, List<Match>> getData() {
         return data;
     }
 

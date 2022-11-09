@@ -48,7 +48,7 @@ public class BannerSupportHelper implements SpringBootUpgradeReportSection.Helpe
     }
 
     @Override
-    public Map<String, List<String>> getData(ProjectContext context) {
+    public Map<String, List<String>> getData() {
 
         return Map.of("files", foundBanners.stream().map(Path::toString).collect(Collectors.toList()));
     }

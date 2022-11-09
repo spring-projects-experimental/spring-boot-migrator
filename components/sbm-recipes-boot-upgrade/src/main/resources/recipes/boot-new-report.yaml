@@ -68,29 +68,28 @@
         
         == Relevant Changes
         
-        This section lists the changes SBM found to be applicable to upgrade the scanned application to Spring Boot 3.0.0. 
+        This section lists the changes SBM found to be applicable to upgrade the scanned application to Spring Boot 3.0.0.
 
       sections:
 
         - title: Changes to Data Properties
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ChangesToDataPropertiesHelper
           change: |-
-            The data prefix has been reserved for Spring Data and any properties under the `data` prefix imply that Spring
+            The data prefix has been reserved for Spring Data and any properties under the `spring.data` prefix imply that Spring
             Data is required on the classpath.
           affected: |-
             The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
-            
+
             <#list matches as match>
               * file://${match.absolutePath}[`${match.relativePath}`]<#lt>
               <#list match.propertiesFound as property>
               ** `${property}`<#lt>
               </#list>
             </#list>
-
-          remediation: |-
-            Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
+          remediation:
+            description: |-
+              Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
           gitHubIssue: 441
-          recipe: boot-2.7-3.0-upgrade-report
           contributors:
             - "Fabian Krüger[@fabapp2]"
 
@@ -99,15 +98,16 @@
         - title: Logging Date Format
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.LoggingDateFormatHelper
           change: |-
-            The default format for the date and time component of log messages for Logback and Log4j2 has changed to 
-            align with the ISO-8601 standard. The new default format `yyyy-MM-dd’T’HH:mm:ss.SSSXXX` uses a `T` to 
-            separate the date and time instead of a space character and adds the timezone offset to the end. 
-            The `LOG_DATEFORMAT_PATTERN` environment variable or `logging.pattern.dateformat` property can be used to 
+            The default format for the date and time component of log messages for Logback and Log4j2 has changed to
+            align with the ISO-8601 standard. The new default format `yyyy-MM-dd’T’HH:mm:ss.SSSXXX` uses a `T` to
+            separate the date and time instead of a space character and adds the timezone offset to the end.
+            The `LOG_DATEFORMAT_PATTERN` environment variable or `logging.pattern.dateformat` property can be used to
             restore the previous default value of `yyyy-MM-dd HH:mm:ss.SSS`.
           affected: |-
             The scan found no property `logging.pattern.dateformat`.
-          remediation: |-
-            Set `logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS` to fall back to the previous log format.
+          remediation:
+            description: |-
+              Set `logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS` to fall back to the previous log format.
           gitHubIssue: 489
           recipe: boot-2.7-3.0-upgrade-report
           contributors:
@@ -116,7 +116,7 @@
         - title: Banner support
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.BannerSupportHelper
           change: |-
-            Support for image-based application banners has been removed. banner.gif, banner.jpg, and banner.png 
+            Support for image-based application banners has been removed. banner.gif, banner.jpg, and banner.png
             files are now ignored and should be replaced with a text-based banner.txt file.
           affected: |-
             The scan found banner image files here:
@@ -124,12 +124,13 @@
             <#list files as file>
             * ${file}
             </#list>
-          remediation: |-
-            remove image banners and replace it with text-banner with banner.txt file
+          remediation:
+            description: |-
+              remove image banners and replace it with text-banner with banner.txt file
           gitHubIssue: 150
-          recipe: boot-2.7-3.0-upgrade-report
           contributors:
             - "Sandeep Nagaraj[@sanagaraj-pivotal]"
+
 
         - title: Constructor Binding
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConstructorBindingHelper
@@ -143,19 +144,126 @@
             classes. If, however, you have a `@ConfigurationProperties` and you want to inject
             beans into the constructor rather than binding it, you’ll now need to add an
             `@Autowired` annotation.
+          sources:
+            - https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0.0-M2-Release-Notes#constructingbinding-no-longer-needed-at-the-type-level[Spring Boot Release Notes]
+            - https://docs.spring.io/spring-boot/docs/3.0.0-M4/api/org/springframework/boot/context/properties/ConstructorBinding.html[@ConstructorBinding API]
+            - https://docs.spring.io/spring-boot/docs/3.0.0-M4/api/org/springframework/boot/context/properties/ConfigurationProperties.html[@ConfigurationProperties API]
           affected: |-
             We found usage of `@ConstructorBinding` in following files:
-            
+
             <#list files as file>
             * ${file}
             </#list>
-          remediation: |-
-            Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
-            for more information
+          remediation:
+            description:  |-
+              Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
+              for more information
+            resources:
+              - https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[Issue 166]
           gitHubIssue: 166
           recipe: boot-2.7-3.0-upgrade-report
           contributors:
             - "Sandeep Nagaraj[@sanagaraj-pivotal]"
+
+
+        - title: Spring MVC and WebFlux URL matching changes
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.SpringMVCAndWebFluxUrlMatchingChangesHelper
+          change: |-
+            As of Spring Framework 6.0, the trailing slash matching configuration option has been deprecated and its default value set to `false`.
+            This means that previously, the following controller would match both "GET /some/greeting" and "GET /some/greeting/":
+
+            ```
+            @RestController
+            public class MyController {
+
+              @GetMapping("/some/greeting")
+              public String greeting {
+                return "Hello";
+              }
+
+            }
+            ```
+
+            As of https://github.com/spring-projects/spring-framework/issues/28552[this Spring Framework change], "GET /some/greeting/" doesn't
+            match anymore by default.
+
+            Developers should instead configure explicit redirects/rewrites through a proxy, a Servlet/web filter, or even declare the additional route explicitly on the controller handler (like `@GetMapping("/some/greeting", "/some/greeting/")` for more targeted cases.
+
+            Until your application fully adapts to this change, you can change the default with the following global configuration:
+
+            ```
+            @Configuration
+            public class WebConfiguration implements WebMvcConfigurer {
+
+                @Override
+                public void configurePathMatch(PathMatchConfigurer configurer) {
+                  configurer.setUseTrailingSlashMatch(true);
+                }
+
+            }
+            ```
+          sources:
+            - https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0.0-M4-Release-Notes#spring-mvc-and-webflux-url-matching-changes[Spring Boot Release Notes]
+            - https://github.com/spring-projects/spring-framework/issues/28552[SpringFramework Issue 28552]
+          affected: |-
+            The scan found classes annotated with `@RestController` which could be affected by this change.
+            <#list restControllers as restController>
+              * file://${restController.absolutePath}[`${restController.sourcePath}`]<#lt>
+            </#list>
+          remediation:
+            description: |-
+              You have different choices to remediate this change.
+            possibilities:
+            - title: Do Nothing
+              description:  |-
+                 If no clients expect a response for requests with a trailing `/` nothing needs to done.
+            - title: Configure explicit redirects/rewrites
+              description: |-
+                Configure explicit redirects/rewrites through a proxy, a Servlet/web filter.
+            - title: Add additional path mappings
+              description: |-
+                If only some endpoints should handle requests with a trailing `/`, another path can be provided to the
+                existing request mapping.
+                
+                [source, java]
+                ....
+                @RequestMapping(value = {"/current/path", "current/path/"})
+                
+                @RequestMapping(path = {"/current/path", "current/path/"})
+                
+                @GetMapping(value = {"/current/path", "current/path/"})
+                
+                @GetMapping(path = {"/current/path", "current/path/"})
+                ...
+                ....
+              resources:
+                - https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/GetMapping.html[@GetMapping API]
+                - https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/RequestMapping.html[@RequestMapping API]
+
+            - title: Reset behavior to prior 3.0
+              description: |-
+                If all rest controllers must serve requests with trailing `/`, a `PathMatchConfigurer` should be configured like so:
+                
+                [source, java]
+                ....
+                @Configuration
+                public class WebConfiguration implements WebMvcConfigurer {
+                
+                  @Override
+                  public void configurePathMatch(PathMatchConfigurer configurer) {
+                    configurer.setUseTrailingSlashMatch(true);
+                  }
+              
+                }
+                ....
+
+              recipe: sbu30-248-add-PathMatchConfigurer
+          gitHubIssue: 522
+          projects:
+          - spring-boot
+          - spring-framework
+          contributors:
+          - Fabian Krüger[@fabapp2]
 
         - title: Paging and sorting repository
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.PagingAndSortingHelper
