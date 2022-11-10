@@ -62,6 +62,7 @@ public class CommonsMultipartResolverHelperTest {
                                                          
                          ==== Why is the application affected
                          We found usage of `CommonsMultipartResolver` in following files:
+                         
                          * `example.SongUploadConfig`
                          
                          ==== Remediation
@@ -127,6 +128,7 @@ public class CommonsMultipartResolverHelperTest {
                                                          
                          ==== Why is the application affected
                          We found usage of `CommonsMultipartResolver` in following files:
+                         
                          * `example.SongUploadConfig`
                          * `example.VideoUploadConfig`
                          

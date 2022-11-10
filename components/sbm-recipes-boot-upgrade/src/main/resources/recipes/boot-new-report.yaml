@@ -329,6 +329,7 @@
             Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
           affected: |-
             We found usage of `CommonsMultipartResolver` in following files:
+            
             <#list types as type>
             * `${type}`
             </#list>
