@@ -51,7 +51,7 @@ public class Boot_24_25_UpgradeReportRecipeTest {
         String revision = gitSupport.getLatestCommit(resultDir.toAbsolutePath().toFile()).get().getHash();
 
         String expectedReport =
-                getContent(new ClassPathResource("/expected-report").getFile().toPath())
+                getContent(new ClassPathResource("/expected-report.html").getFile().toPath())
                         .replace("{{REVISION_NUMBER}}", revision);
 
         // verify generated result matches expected report

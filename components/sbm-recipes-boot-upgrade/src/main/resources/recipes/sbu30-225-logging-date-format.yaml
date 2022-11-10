@@ -1,0 +1,10 @@
+- name: sbu30-225-logging-date-format
+  description: Spring boot 3.0 Upgrade - Logging Date Format
+  condition:
+    type: org.springframework.sbm.common.migration.conditions.TrueCondition
+
+  actions:
+    - type: org.springframework.sbm.boot.upgrade_27_30.actions.Boot_27_30_AddLoggingDateFormat
+      description: "Set logging date format to yyyy-MM-dd HH:mm:ss.SSS"
+      condition:
+        type: org.springframework.sbm.boot.upgrade_27_30.conditions.LoggingDateFormatCondition

@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.service;
+package org.springframework.sbm.boot.upgrade_27_30.report;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 
-import org.apache.commons.io.FileUtils;
+/**
+ * @author Fabian Krüger
+ */
+public class ReportConfiguration {
+    private final String renderedTemplate;
+    private final Path outputDir;
+    private final String filename;
 
-public class ProjectUtils {
-    
-    public static File initTestProject(File containerFolder, String name) {
-        try {
-            Path initialPath = Path.of("src/test/resources/test-code/").resolve(name);
-
-            FileUtils.copyDirectory(initialPath.toFile(), containerFolder);
-            
-            return containerFolder;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+    public ReportConfiguration(String renderedTemplate, Path outputDir, String filename) {
+        this.renderedTemplate = renderedTemplate;
+        this.outputDir = outputDir;
+        this.filename = filename;
     }
-
 }
