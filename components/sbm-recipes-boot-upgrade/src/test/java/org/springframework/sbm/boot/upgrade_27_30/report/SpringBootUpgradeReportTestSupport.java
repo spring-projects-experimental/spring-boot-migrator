@@ -195,23 +195,35 @@ public class SpringBootUpgradeReportTestSupport {
          * code of buttons to apply a recipe.
          */
         private String replaceRe4cipeButtonCodeFromExpectedOutput(SpringBootUpgradeReportSection sectionUnderTest, String renderedSection) {
-            String recipe = sectionUnderTest.getRecipe();
-            String target = """
-                                                                        
-                    ++++
-                    <form name="recipe-1" action="http://localhost:8080/spring-boot-upgrade" method="post">
-                    <input type="hidden" name="recipeName" value="<RECIPE>" />
-                    <button name="<RECIPE>" type="submit" style="background-color:#71ea5b;border:width: 120px;
-                                                                                                                                                 text-align: center;
-                                                                                                                                                 font-size: 15px;
-                                                                                                                                                 padding: 20px;
-                                                                                                                                                 border-radius: 15px;">Run Recipe</button>
-                    </form>
-                    ++++
-                                                                
-                    """;
-            String buttonCode = target.replace("<RECIPE>", recipe);
-            return renderedSection.replace(buttonCode, "");
+            StringBuilder sb = new StringBuilder();
+            List<String> buttonCodes = sectionUnderTest
+                    .getRemediation()
+                    .getPossibilities()
+                    .stream()
+                    .filter(p -> p.getRecipe() != null)
+                    .map(RemediationPossibility::getRecipe)
+                    .map(recipe -> {
+                        String target = """
+                                                                                    
+                                ++++
+                                <form name="recipe-1" action="http://localhost:8080/spring-boot-upgrade" method="post">
+                                <input type="hidden" name="recipeName" value="<RECIPE>" />
+                                <button name="<RECIPE>" type="submit" style="background-color:#71ea5b;border:width: 120px;
+                                                                                                                                                             text-align: center;
+                                                                                                                                                             font-size: 15px;
+                                                                                                                                                             padding: 20px;
+                                                                                                                                                             border-radius: 15px;">Run Recipe</button>
+                                </form>
+                                ++++
+                                                                            
+                                """;
+                        return target.replace("<RECIPE>", recipe);
+                    })
+                    .collect(Collectors.toList());
+            for(String buttonCode : buttonCodes) {
+                renderedSection = renderedSection.replace(buttonCode, "");
+            }
+            return renderedSection;
         }
 
         private void withRecipes(Consumer<Recipes> recipesConsumer) {
