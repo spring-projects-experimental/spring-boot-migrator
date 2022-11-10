@@ -309,6 +309,21 @@
           contributors:
             - "Sandeep Nagaraj[@sanagaraj-pivotal]"
 
+        - title: Commons Multipart Upload
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.CommonsMultipartResolverHelper
+          change: |-
+            Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
+          affected: |-
+            We found usage of `CommonsMultipartResolver` in following files:
+            <#list types as type>
+            * `${type}`
+            </#list>
+          remediation:
+            description: |-
+              Remove beans of type `CommonsMultipartResolver` and rely on Spring Boot auto-configuration
+          gitHubIssue: 541
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
       footer: |-
         We want to say thank you to all Contributors:
         
