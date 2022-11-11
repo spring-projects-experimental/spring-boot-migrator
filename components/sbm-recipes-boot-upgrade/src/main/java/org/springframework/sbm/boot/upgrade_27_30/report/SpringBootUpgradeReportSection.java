@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
+import org.stringtemplate.v4.ST;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
@@ -250,18 +251,21 @@ public class SpringBootUpgradeReportSection {
         sb.append("===== ").append(p.getTitle()).append(ls);
         sb.append(p.getDescription()).append(ls).append(ls);
         renderResourcesList(sb, p);
+
         if(p.getRecipe() != null) {
-            sb.append(p.getRecipe()).append(ls).append(ls);
-//            ST st = new ST(
-//                  """
-//                  ++++
-//                  <button name="<RECIPE_NAME>" onclick="alert('sending recipe <RECIPE_NAME>')">Apply reecipe '<RECIPE_NAME>'</button>
-//                  ++++
-//                  """
-//            );
-//            st.add("RECIPE_NAME", p.getRecipe());
-//            sb.append(st.render());
+            sb.append(ls).append(ls);
+            String buttonCode = """
+                    ++++
+                    <form name="apply-<RECIPE>-form" action="http://localhost:8080/spring-boot-upgrade" method="post">
+                    <input type="hidden" name="recipeNames[]" value="<RECIPE>" />	
+                    <button name="<RECIPE>" type="submit"  class="recipeButton"  style="height:30px; width:200px; background-color: #00bf00;" >Run Recipe</button>
+                    </form>
+                    ++++
+                    """;
+            buttonCode = buttonCode.replace("<RECIPE>", p.getRecipe());
+            sb.append(buttonCode);
         }
+
     }
 
     private void renderResourcesList(StringBuilder sb, ResourceList p) {
