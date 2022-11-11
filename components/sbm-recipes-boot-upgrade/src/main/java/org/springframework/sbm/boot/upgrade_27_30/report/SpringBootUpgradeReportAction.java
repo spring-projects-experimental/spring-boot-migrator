@@ -36,6 +36,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Special Action generates a Spring Boot Upgrade report.
@@ -136,6 +137,8 @@ public class SpringBootUpgradeReportAction implements Action {
         String content = """
                 ${header}
                 
+                ${allRecipesButton}
+                
                 <#list sections as changeSection>
                 ${changeSection}
                 </#list>
@@ -144,6 +147,7 @@ public class SpringBootUpgradeReportAction implements Action {
                 """;
 
         Map<String, Object> data = Map.of(
+                "allRecipesButton", renderRunAllRecipesButton(),
                 "header", renderedHeader,
                 "sections", sections,
                 "footer", renderedFooter
@@ -151,6 +155,28 @@ public class SpringBootUpgradeReportAction implements Action {
 
         String renderedTemplate = renderTemplate(key, content, data);
         return renderedTemplate;
+    }
+
+    private String renderRunAllRecipesButton() {
+        String recipeNames = sections
+                .stream()
+                .flatMap(section -> section.getRemediation().getPossibilities().stream())
+                .map(p -> p.getRecipe())
+                .filter(recipe -> recipe != null && !recipe.isEmpty())
+                .map(r -> "<input type=\"hidden\" name=\"recipes[]\" value=\""+r+"\">")
+                .collect(Collectors.joining("\n"));
+
+
+        String buttonCode = """
+                ++++
+                <form name="apply-all-recipes-form" action="http://localhost:8080/spring-boot-upgrade" method="post">
+                <RECIPES>	
+                <button name="apply-all-recipes-button" class="recipeButton" style="height:30px; width:200px; background-color: #00bf00;" type="submit">Run All Recipes</button>
+                </form>
+                ++++
+                """;
+        return buttonCode.replace("<RECIPES>", recipeNames);
+
     }
 
     private String renderTemplate(String key, String content, Map<String, Object> data) {
