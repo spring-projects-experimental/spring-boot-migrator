@@ -1,0 +1,10 @@
+POST http://localhost:8080/spring-boot-upgrade
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="recipeNames[]"
+
+some-recipe
+--WebAppBoundary--
+
+###
