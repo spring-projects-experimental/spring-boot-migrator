@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
+import org.stringtemplate.v4.ST;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
@@ -240,6 +241,7 @@ public class SpringBootUpgradeReportSection {
         sb.append(remediation.getDescription()).append(ls).append(ls);
         if(remediation.getPossibilities().isEmpty()) {
             renderResourcesList(sb, remediation);
+            renderRecipeButton(sb, remediation.getRecipe());
         } else {
             remediation.getPossibilities().forEach(p -> renderRemediationPossibility(sb, p));
         }
@@ -250,17 +252,35 @@ public class SpringBootUpgradeReportSection {
         sb.append("===== ").append(p.getTitle()).append(ls);
         sb.append(p.getDescription()).append(ls).append(ls);
         renderResourcesList(sb, p);
-        if(p.getRecipe() != null) {
-            sb.append(p.getRecipe()).append(ls).append(ls);
-//            ST st = new ST(
-//                  """
-//                  ++++
-//                  <button name="<RECIPE_NAME>" onclick="alert('sending recipe <RECIPE_NAME>')">Apply reecipe '<RECIPE_NAME>'</button>
-//                  ++++
-//                  """
-//            );
-//            st.add("RECIPE_NAME", p.getRecipe());
-//            sb.append(st.render());
+        renderRecipeButton(sb, p.getRecipe());
+    }
+
+    private void renderRecipeButton(StringBuilder sb, String recipe) {
+        if(recipe != null && !recipe.isEmpty()) {
+            sb.append(ls).append(ls);
+            /*
+            <!--
+                    <form name="apply-<RECIPE>-form" action="http://localhost:8080/spring-boot-upgrade" method="post">
+                    <input type="hidden" name="recipeNames[0]" value="<RECIPE>" />
+                    <button name="<RECIPE>" type="submit"  class="recipeButton">Run Recipe</button>
+
+                    </form>
+                    -->
+
+                    <button type="button" class="btn btn-primary recipeButton" onclick="applyRecipes('<RECIPE>')">
+                        Run All Recipes
+                        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                        <span class="visually-hidden">Loading...</span>
+                    </button>
+            */
+            String buttonCode = """
+                    ++++
+                    <div class="run-a-recipe" recipe="<RECIPE>">
+                    </div>                
+                    ++++
+                    """;
+            buttonCode = buttonCode.replace("<RECIPE>", recipe);
+            sb.append(buttonCode);
         }
     }
 

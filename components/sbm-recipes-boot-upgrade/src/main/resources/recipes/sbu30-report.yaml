@@ -1,4 +1,4 @@
-- name: boot-2.7-3.0-upgrade-report2
+- name: sbu30-report
   description: Create a report for Spring Boot Upgrade from 2.7.x to 3.0.x
   condition:
     type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
@@ -23,7 +23,6 @@
         </#if>
         :source-highlighter: highlight.js
         :highlightjs-languages: java
-        :linkcss:
         :doctype: book
         :idprefix:
         :idseparator: -
@@ -41,7 +40,8 @@
         :spring-boot-artifactory-repo: snapshot
         :github-tag: main
         :spring-boot-version: current
-
+        :stylesheet: /css/button.css
+        
         == Introduction
         This report aims to help with updating spring Boot applications from 2.7 to 3.0.
         The listed changes should be applied in the given order. 
@@ -85,6 +85,19 @@
         This section lists the changes SBM found to be applicable to upgrade the scanned application to Spring Boot 3.0.0.
 
       sections:
+        - title: Add Spring Boot dependency and plugin milestone repository
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.MissingHelper
+          change: |-
+            As currently only milestone releases exist these are required
+          affected: |-
+            You want to update to 3.0 so you're affected
+          remediation:
+            description: |-
+              Add Spring Boot milestone repositories.
+            recipe: sbu30-add-milestone-repositories
+          gitHubIssue: 441
+          contributors:
+            - "Fabian Krüger[@fabapp2]"
 
         - title: Changes to Data Properties
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ChangesToDataPropertiesHelper
@@ -103,6 +116,7 @@
           remediation:
             description: |-
               Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
+            recipe: sbu30-migrate-spring-data-properties
           gitHubIssue: 441
           contributors:
             - "Fabian Krüger[@fabapp2]"
@@ -122,8 +136,8 @@
           remediation:
             description: |-
               Set `logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS` to fall back to the previous log format.
+            recipe: sbu30-225-logging-date-format
           gitHubIssue: 489
-          recipe: sbu30-225-logging-date-format
           contributors:
             - "Fabian Krüger[@fabapp2]"
 
@@ -174,6 +188,7 @@
               for more information
             resources:
               - https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[Issue 166]
+            recipe: sbu30-remove-construtor-binding
           gitHubIssue: 166
           recipe: boot-2.7-3.0-upgrade-report
           contributors:
@@ -319,6 +334,7 @@
           remediation:
             description: |-
               If one requires the old behavior one must extend not only the sorting repository, but also the respective CRUD repository explicitly. This was done so the sorting support could easily be combined with the List repositories introduced above.
+            recipe: sbu30-paging-and-sorting-repository
           gitHubIssue: 518
           contributors:
             - "Sandeep Nagaraj[@sanagaraj-pivotal]"

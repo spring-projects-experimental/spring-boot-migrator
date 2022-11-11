@@ -36,6 +36,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Special Action generates a Spring Boot Upgrade report.
@@ -136,6 +139,8 @@ public class SpringBootUpgradeReportAction implements Action {
         String content = """
                 ${header}
                 
+                ${allRecipesButton}
+                
                 <#list sections as changeSection>
                 ${changeSection}
                 </#list>
@@ -144,6 +149,7 @@ public class SpringBootUpgradeReportAction implements Action {
                 """;
 
         Map<String, Object> data = Map.of(
+                "allRecipesButton", renderRunAllRecipesButton(),
                 "header", renderedHeader,
                 "sections", sections,
                 "footer", renderedFooter
@@ -151,6 +157,42 @@ public class SpringBootUpgradeReportAction implements Action {
 
         String renderedTemplate = renderTemplate(key, content, data);
         return renderedTemplate;
+    }
+
+    private String renderRunAllRecipesButton() {
+
+        StringBuilder sb = new StringBuilder();
+
+        List<String> recipes = sections
+                .stream()
+                .flatMap(section -> section.getRemediation().getPossibilities().stream())
+                .map(p -> p.getRecipe())
+                .filter(recipe -> recipe != null && !recipe.isEmpty())
+                .collect(Collectors.toList());
+
+        String renderedRecipeInputs = IntStream
+                .range(0, recipes.size())
+                .mapToObj(idx -> "<input type=\"hidden\" name=\"recipeNames[]\" value=\"" + recipes.get(
+                        idx) + "\">")
+                .collect(Collectors.joining("\n"));
+
+/*
+<form name="apply-all-recipes-form" action="http://localhost:8080/spring-boot-upgrade" method="post">
+                <RECIPES>
+                <button name="apply-all-recipes-button" class="recipeButton" type="submit">Run All Recipes</button>
+                </form>
+*/
+
+
+        String buttonCode = """
+                ++++
+                <div class="run-all-recipe" >
+                                
+                </div>
+                ++++
+                """;
+        return buttonCode.replace("<RECIPES>", renderedRecipeInputs);
+
     }
 
     private String renderTemplate(String key, String content, Map<String, Object> data) {
