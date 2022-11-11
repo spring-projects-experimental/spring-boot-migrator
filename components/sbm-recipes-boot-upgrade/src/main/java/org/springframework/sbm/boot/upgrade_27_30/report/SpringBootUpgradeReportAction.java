@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * Special Action generates a Spring Boot Upgrade report.
@@ -158,12 +160,20 @@ public class SpringBootUpgradeReportAction implements Action {
     }
 
     private String renderRunAllRecipesButton() {
-        String recipeNames = sections
+
+        StringBuilder sb = new StringBuilder();
+
+        List<String> recipes = sections
                 .stream()
                 .flatMap(section -> section.getRemediation().getPossibilities().stream())
                 .map(p -> p.getRecipe())
                 .filter(recipe -> recipe != null && !recipe.isEmpty())
-                .map(r -> "<input type=\"hidden\" name=\"recipes[]\" value=\""+r+"\">")
+                .collect(Collectors.toList());
+
+        String renderedRecipeInputs = IntStream
+                .range(0, recipes.size())
+                .mapToObj(idx -> "<input type=\"hidden\" name=\"recipeNames[]\" value=\"" + recipes.get(
+                        idx) + "\">")
                 .collect(Collectors.joining("\n"));
 
 
@@ -171,11 +181,11 @@ public class SpringBootUpgradeReportAction implements Action {
                 ++++
                 <form name="apply-all-recipes-form" action="http://localhost:8080/spring-boot-upgrade" method="post">
                 <RECIPES>	
-                <button name="apply-all-recipes-button" class="recipeButton" style="height:30px; width:200px; background-color: #00bf00;" type="submit">Run All Recipes</button>
+                <button name="apply-all-recipes-button" class="recipeButton" style="height:60px; width:400px; background-color: #00bf00;font-size:20pt;font-weight:bold" type="submit">Run All Recipes</button>
                 </form>
                 ++++
                 """;
-        return buttonCode.replace("<RECIPES>", recipeNames);
+        return buttonCode.replace("<RECIPES>", renderedRecipeInputs);
 
     }
 

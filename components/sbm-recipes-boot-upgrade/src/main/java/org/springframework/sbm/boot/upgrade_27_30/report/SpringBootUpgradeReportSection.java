@@ -257,7 +257,7 @@ public class SpringBootUpgradeReportSection {
             String buttonCode = """
                     ++++
                     <form name="apply-<RECIPE>-form" action="http://localhost:8080/spring-boot-upgrade" method="post">
-                    <input type="hidden" name="recipeNames[]" value="<RECIPE>" />	
+                    <input type="hidden" name="recipeNames[0]" value="<RECIPE>" />	
                     <button name="<RECIPE>" type="submit"  class="recipeButton"  style="height:30px; width:200px; background-color: #00bf00;" >Run Recipe</button>
                     </form>
                     ++++
