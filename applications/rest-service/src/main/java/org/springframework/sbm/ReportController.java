@@ -28,7 +28,7 @@ class ReportController{
     @GetMapping(path = "/spring-boot-upgrade", produces = MediaType.TEXT_HTML_VALUE)
     @ResponseBody
     public String upgrade() {
-        applyCommand.execute(contextHolder.getProjectContext(), "boot-2.7-3.0-upgrade-report2");
+        // applyCommand.execute(contextHolder.getProjectContext(), "boot-2.7-3.0-upgrade-report2");
         return reportHolder.getReport();
     }
 

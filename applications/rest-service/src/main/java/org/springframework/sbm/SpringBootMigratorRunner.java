@@ -15,41 +15,26 @@
  */
 package org.springframework.sbm;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
-import org.springframework.http.MediaType;
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportFileSystemRenderer;
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportRenderer;
 import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
-import org.springframework.sbm.engine.events.*;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.List;
 
 @Configuration
-public class SpringBootMigratorRunner  implements ApplicationRunner {
+@RequiredArgsConstructor
+public class SpringBootMigratorRunner implements ApplicationRunner {
 
-    @Autowired
-    private ScanCommand scanCommand;
-
-    @Autowired
-    private ProjectContextHolder contextHolder;
+    private final ScanCommand scanCommand;
+    private final ProjectContextHolder contextHolder;
+    private final ApplyCommand applyCommand;
 
     @Override
     public void run(ApplicationArguments args) {
-        if(args.getSourceArgs().length == 0) {
+        if (args.getSourceArgs().length == 0) {
             System.err.println("PLease provide the path to the application as parameter.");
             return;
         }
@@ -57,6 +42,7 @@ public class SpringBootMigratorRunner  implements ApplicationRunner {
         System.out.println("Scanning " + applicationPath);
         ProjectContext context = scanCommand.execute(applicationPath);
         contextHolder.setProjectContext(context);
+        applyCommand.execute(contextHolder.getProjectContext(), "boot-2.7-3.0-upgrade-report2");
         System.out.println("finished scan. Please open: http://localhost:8080/spring-boot-upgrade");
     }
 
