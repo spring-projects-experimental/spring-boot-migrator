@@ -37,10 +37,7 @@ public class MigrateJaxRsAnnotationsRecipeIntegrationTest extends IntegrationTes
                     package com.example.jee.app;
 
                     import org.springframework.http.MediaType;
-                    import org.springframework.web.bind.annotation.PathVariable;
-                    import org.springframework.web.bind.annotation.RequestMapping;
-                    import org.springframework.web.bind.annotation.RequestMethod;
-                    import org.springframework.web.bind.annotation.RestController;
+                    import org.springframework.web.bind.annotation.*;
 
                     @RestController
                     @RequestMapping(value = "/")
@@ -53,7 +50,7 @@ public class MigrateJaxRsAnnotationsRecipeIntegrationTest extends IntegrationTes
                         }
 
                         @RequestMapping(value = "/json", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-                        public String getAllPersons() throws Exception {
+                        public String getAllPersons(@RequestParam(required = false, value = "q") String searchBy) throws Exception {
                             return "{\\"message\\":\\"No person here...\\"";
                         }
 
