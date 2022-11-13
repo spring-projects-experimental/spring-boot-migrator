@@ -23,7 +23,6 @@
         </#if>
         :source-highlighter: highlight.js
         :highlightjs-languages: java
-        :linkcss:
         :doctype: book
         :idprefix:
         :idseparator: -
@@ -41,7 +40,8 @@
         :spring-boot-artifactory-repo: snapshot
         :github-tag: main
         :spring-boot-version: current
-
+        :stylesheet: /css/button.css
+        
         == Introduction
         This report aims to help with updating spring Boot applications from 2.7 to 3.0.
         The listed changes should be applied in the given order. 
