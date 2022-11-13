@@ -176,13 +176,19 @@ public class SpringBootUpgradeReportAction implements Action {
                         idx) + "\">")
                 .collect(Collectors.joining("\n"));
 
+/*
+<form name="apply-all-recipes-form" action="http://localhost:8080/spring-boot-upgrade" method="post">
+                <RECIPES>
+                <button name="apply-all-recipes-button" class="recipeButton" type="submit">Run All Recipes</button>
+                </form>
+*/
+
 
         String buttonCode = """
                 ++++
-                <form name="apply-all-recipes-form" action="http://localhost:8080/spring-boot-upgrade" method="post">
-                <RECIPES>	
-                <button name="apply-all-recipes-button" class="recipeButton" style="height:60px; width:400px; background-color: #00bf00;font-size:20pt;font-weight:bold" type="submit">Run All Recipes</button>
-                </form>
+                <div class="run-all-recipe" >
+                                
+                </div>
                 ++++
                 """;
         return buttonCode.replace("<RECIPES>", renderedRecipeInputs);

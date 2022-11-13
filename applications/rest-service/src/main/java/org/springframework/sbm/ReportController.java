@@ -35,9 +35,17 @@ class ReportController{
     @PostMapping(path = "/spring-boot-upgrade", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.TEXT_HTML_VALUE)
     @ResponseBody
     public String applyRecipes(@RequestParam("recipeNames[]") String[] recipeNames) {
+        /*
         ProjectContext context = contextHolder.getProjectContext();
         List.of(recipeNames).forEach(recipeName -> applyCommand.execute(context, recipeName));
         applyCommand.execute(context, "boot-2.7-3.0-upgrade-report2");
+
+         */
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return reportHolder.getReport();
     }
 }
