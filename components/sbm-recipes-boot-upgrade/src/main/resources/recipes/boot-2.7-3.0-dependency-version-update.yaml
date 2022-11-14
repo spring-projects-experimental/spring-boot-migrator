@@ -58,59 +58,59 @@
         type: org.springframework.sbm.boot.upgrade_27_30.conditions.JohnzonDependencyCondition
       description: Changing JohnzonDependency version and classifier
 
-    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
-      condition:
-        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-        versionPattern: "2\\.7\\..*|3\\.0\\..*"
-      description: Add Spring Milestone Repository and bump SpringBoot to 3.0.0-M3
-      openRewriteRecipe: |-
-        type: specs.openrewrite.org/v1beta/recipe
-        name: org.openrewrite.java.spring.boot3.data.UpgradeSpringData30
-        displayName: Upgrade to SpringBoot 3.0
-        description: 'Upgrade to SpringBoot to 3.0 from any prior version.'
-        recipeList:
-          - org.openrewrite.maven.spring.UpgradeUnmanagedSpringProject:
-              versionPattern: "2\\.7\\..*"
-              newVersion: 3.0.0-M3
-          - org.openrewrite.maven.ChangeDependencyClassifier:
-              groupId: org.ehcache
-              artifactId: ehcache
-              newClassifier: jakarta
-          - org.openrewrite.maven.ChangeDependencyVersion:
-              dependencyPattern: org.ehcache:ehcache
-              newVersion: 3.10.0
-          - org.openrewrite.maven.UpgradeParentVersion:
-              groupId: org.springframework.boot
-              artifactId: spring-boot-starter-parent
-              newVersion: 3.0.0-M3
-          - org.openrewrite.maven.UpgradeDependencyVersion:
-              groupId: org.springframework.boot
-              artifactId: spring-boot-dependencies
-              newVersion: 3.0.0-M3
+#    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+#      condition:
+#        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+#        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+#      description: Add Spring Milestone Repository and bump SpringBoot to 3.0.0-M3
+#      openRewriteRecipe: |-
+#        type: specs.openrewrite.org/v1beta/recipe
+#        name: org.openrewrite.java.spring.boot3.data.UpgradeSpringData30
+#        displayName: Upgrade to SpringBoot 3.0
+#        description: 'Upgrade to SpringBoot to 3.0 from any prior version.'
+#        recipeList:
+#          - org.openrewrite.maven.spring.UpgradeUnmanagedSpringProject:
+#              versionPattern: "2\\.7\\..*"
+#              newVersion: 3.0.0-M3
+#          - org.openrewrite.maven.ChangeDependencyClassifier:
+#              groupId: org.ehcache
+#              artifactId: ehcache
+#              newClassifier: jakarta
+#          - org.openrewrite.maven.ChangeDependencyVersion:
+#              dependencyPattern: org.ehcache:ehcache
+#              newVersion: 3.10.0
+#          - org.openrewrite.maven.UpgradeParentVersion:
+#              groupId: org.springframework.boot
+#              artifactId: spring-boot-starter-parent
+#              newVersion: 3.0.0-M3
+#          - org.openrewrite.maven.UpgradeDependencyVersion:
+#              groupId: org.springframework.boot
+#              artifactId: spring-boot-dependencies
+#              newVersion: 3.0.0-M3
 
-    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
-      condition:
-        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-        versionPattern: "2\\.7\\..*|3\\.0\\..*"
-      description: Miscellaneous migration that are required by Spring 3
-      openRewriteRecipe: |-
-        type: specs.openrewrite.org/v1beta/recipe
-        name: org.openrewrite.java.spring.boot3.data.MiscSpring30
-        displayName: Misc Upgrades to support SpringBoot 3.0
-        description: 'Misc Upgrades to support SpringBoot 3.0'
-        recipeList:
-          - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
-              oldGroupId: com.github.tomakehurst
-              oldArtifactId: wiremock-jre8
-              newGroupId: com.github.tomakehurst
-              newArtifactId: wiremock-jre8-standalone
-              newVersion: 2.34.0
-          - org.openrewrite.maven.ChangeManagedDependencyGroupIdAndArtifactId:
-              oldGroupId: com.github.tomakehurst
-              oldArtifactId: wiremock-jre8
-              newGroupId: com.github.tomakehurst
-              newArtifactId: wiremock-jre8-standalone
-              newVersion: 2.34.0
+#    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+#      condition:
+#        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+#        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+#      description: Miscellaneous migration that are required by Spring 3
+#      openRewriteRecipe: |-
+#        type: specs.openrewrite.org/v1beta/recipe
+#        name: org.openrewrite.java.spring.boot3.data.MiscSpring30
+#        displayName: Misc Upgrades to support SpringBoot 3.0
+#        description: 'Misc Upgrades to support SpringBoot 3.0'
+#        recipeList:
+#          - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
+#              oldGroupId: com.github.tomakehurst
+#              oldArtifactId: wiremock-jre8
+#              newGroupId: com.github.tomakehurst
+#              newArtifactId: wiremock-jre8-standalone
+#              newVersion: 2.34.0
+#          - org.openrewrite.maven.ChangeManagedDependencyGroupIdAndArtifactId:
+#              oldGroupId: com.github.tomakehurst
+#              oldArtifactId: wiremock-jre8
+#              newGroupId: com.github.tomakehurst
+#              newArtifactId: wiremock-jre8-standalone
+#              newVersion: 2.34.0
 
     - type: org.springframework.sbm.build.migration.actions.SetProperty
       propertyName: "java.version"
