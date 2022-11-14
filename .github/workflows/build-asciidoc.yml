@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Get build container
         id: adocbuild
-        uses: avattathil/asciidoctor-action@master
+        uses: avattathil/asciidoctor-action@v2
         with:
           program: "asciidoctor  --backend=html5 -D docs -r asciidoctor-diagram docs/reference/*.adoc"
           # asciidoctor  --backend=html5 -D output docs/reference/developer-documentation.adoc
