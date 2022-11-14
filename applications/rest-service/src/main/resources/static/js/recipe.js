@@ -72,7 +72,7 @@ function applyRecipes(btn) {
         url: "http://localhost:8080/spring-boot-upgrade",
         contentType: 'application/json',
         data: JSON.stringify({
-            recipes: $(btn).attr('recipe')
+            recipes: [$(btn).attr('recipe')]
         }),
         beforeSend: function() {
             state.startedRunningRecipe();
