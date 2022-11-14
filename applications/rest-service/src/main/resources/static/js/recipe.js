@@ -7,7 +7,6 @@ class State {
 
     isRunningARecipe() {
         return this.runningARecipe;
-        this.notifyListeners();
     }
 
     startedRunningRecipe() {
@@ -62,37 +61,34 @@ function runRecipe(element) {
  */
 function applyRecipes(btn) {
 
-    console.log("applying recipes: " + $(btn).attr('recipe'));
+    const recipeName = $(btn).attr('recipe');
+
     if (state.isRunningARecipe()) {
         return;
     }
 
-    console.log(this)
-
     $.ajax({
         type: "POST",
         url: "http://localhost:8080/spring-boot-upgrade",
-        dataType: "json",
         contentType: 'application/json',
         data: JSON.stringify({
             recipes: $(btn).attr('recipe')
         }),
         beforeSend: function() {
-            console.log("before")
             state.startedRunningRecipe();
-        },
-        success: function() {
-            // remove this section from the report
-            jQuery(this).closest('h3').next().remove();
-
         },
         error: function() {
             // mark red flashlights / play alarm sound
         }
-    }).always(function () {
-        console.log("finished recipes")
-        state.completedRunningRecipe();
-    });
+    })
+        .done(function () {
+            $(`.run-a-recipe[recipe='${recipeName}']`)
+                .closest(".sect2")
+                .remove();
+        })
+        .always(function () {
+            state.completedRunningRecipe();
+        });
 }
 
 $( document ).ajaxStart(function() {
