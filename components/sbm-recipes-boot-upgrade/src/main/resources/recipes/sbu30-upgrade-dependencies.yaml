@@ -1,0 +1,35 @@
+- name: sbu30-remove-construtor-binding
+  description: Spring boot 3.0 Upgrade - Upgrade dependencies and Spring Boot version
+  condition:
+    type: org.springframework.sbm.common.migration.conditions.TrueCondition
+  actions:
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+      description: Add Spring Milestone Repository and bump SpringBoot to 3.0.0-M3
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot3.data.UpgradeSpringData30
+        displayName: Upgrade to SpringBoot 3.0
+        description: 'Upgrade to SpringBoot to 3.0 from any prior version.'
+        recipeList:
+          - org.openrewrite.maven.spring.UpgradeUnmanagedSpringProject:
+              versionPattern: "2\\.7\\..*"
+              newVersion: 3.0.0-RC2
+          - org.openrewrite.maven.ChangeDependencyClassifier:
+              groupId: org.ehcache
+              artifactId: ehcache
+              newClassifier: jakarta
+          - org.openrewrite.maven.ChangeDependencyVersion:
+              dependencyPattern: org.ehcache:ehcache
+              newVersion: 3.10.0
+          - org.openrewrite.maven.UpgradeParentVersion:
+              groupId: org.springframework.boot
+              artifactId: spring-boot-starter-parent
+              newVersion: 3.0.0-RC2
+          - org.openrewrite.maven.UpgradeDependencyVersion:
+              groupId: org.springframework.boot
+              artifactId: spring-boot-dependencies
+              newVersion: 3.0.0-RC2
