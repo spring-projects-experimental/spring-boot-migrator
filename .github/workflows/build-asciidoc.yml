@@ -10,10 +10,10 @@ jobs:
     name: Asciidoctoring the docs to pretty HTML!
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # pin@v3
       - name: Get build container
         id: adocbuild
-        uses: tonynv/asciidoctor-action@28d076475809567f00d35696db08f8454d70eabb
+        uses: tonynv/asciidoctor-action@28d076475809567f00d35696db08f8454d70eabb # pin@28d076475809567f00d35696db08f8454d70eabb
         with:
           program: "asciidoctor  --backend=html5 -D docs -r asciidoctor-diagram docs/reference/*.adoc"
           # asciidoctor  --backend=html5 -D output docs/reference/developer-documentation.adoc
@@ -21,9 +21,8 @@ jobs:
           # -a stylesheet=style.css
           # && echo 'docs..io' > docs/CNAME"
       - name: Deploy docs to ghpages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@de7ea6f8efb354206b205ef54722213d99067935 # pin@v3
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_branch: gh-pages
           publish_dir: ./docs
-
