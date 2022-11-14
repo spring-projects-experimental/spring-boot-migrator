@@ -241,6 +241,7 @@ public class SpringBootUpgradeReportSection {
         sb.append(remediation.getDescription()).append(ls).append(ls);
         if(remediation.getPossibilities().isEmpty()) {
             renderResourcesList(sb, remediation);
+            renderRecipeButton(sb, remediation.getRecipe());
         } else {
             remediation.getPossibilities().forEach(p -> renderRemediationPossibility(sb, p));
         }
@@ -251,8 +252,11 @@ public class SpringBootUpgradeReportSection {
         sb.append("===== ").append(p.getTitle()).append(ls);
         sb.append(p.getDescription()).append(ls).append(ls);
         renderResourcesList(sb, p);
+        renderRecipeButton(sb, p.getRecipe());
+    }
 
-        if(p.getRecipe() != null) {
+    private void renderRecipeButton(StringBuilder sb, String recipe) {
+        if(recipe != null && !recipe.isEmpty()) {
             sb.append(ls).append(ls);
             /*
             <!--
@@ -275,10 +279,9 @@ public class SpringBootUpgradeReportSection {
                     </div>                
                     ++++
                     """;
-            buttonCode = buttonCode.replace("<RECIPE>", p.getRecipe());
+            buttonCode = buttonCode.replace("<RECIPE>", recipe);
             sb.append(buttonCode);
         }
-
     }
 
     private void renderResourcesList(StringBuilder sb, ResourceList p) {

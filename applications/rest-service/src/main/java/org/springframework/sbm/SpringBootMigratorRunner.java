@@ -31,6 +31,7 @@ public class SpringBootMigratorRunner implements ApplicationRunner {
     private final ScanCommand scanCommand;
     private final ProjectContextHolder contextHolder;
     private final ApplyCommand applyCommand;
+    private final String REPORT_RECIPE = "sbu30-report";
 
     @Override
     public void run(ApplicationArguments args) {
@@ -42,7 +43,7 @@ public class SpringBootMigratorRunner implements ApplicationRunner {
         System.out.println("Scanning " + applicationPath);
         ProjectContext context = scanCommand.execute(applicationPath);
         contextHolder.setProjectContext(context);
-        applyCommand.execute(contextHolder.getProjectContext(), "boot-2.7-3.0-upgrade-report2");
+        applyCommand.execute(contextHolder.getProjectContext(), REPORT_RECIPE);
         System.out.println("finished scan. Please open: http://localhost:8080/spring-boot-upgrade");
     }
 

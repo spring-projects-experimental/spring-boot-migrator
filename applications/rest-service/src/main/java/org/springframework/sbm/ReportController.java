@@ -38,6 +38,8 @@ class ReportController{
     @Autowired
     private ProjectContextHolder contextHolder;
 
+    private final String REPORT_RECIPE = "sbu30-report";
+
     @GetMapping(path = "/spring-boot-upgrade", produces = MediaType.TEXT_HTML_VALUE)
     @ResponseBody
     public String upgrade() {
@@ -48,34 +50,18 @@ class ReportController{
     @PostMapping(path = "/spring-boot-upgrade", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.TEXT_HTML_VALUE)
     @ResponseBody
     public String applyRecipes(@RequestParam("recipeNames[]") String[] recipeNames) {
-        /*
         ProjectContext context = contextHolder.getProjectContext();
         List.of(recipeNames).forEach(recipeName -> applyCommand.execute(context, recipeName));
-        applyCommand.execute(context, "boot-2.7-3.0-upgrade-report2");
-
-         */
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        applyCommand.execute(context, REPORT_RECIPE);
         return reportHolder.getReport();
     }
 
     @PostMapping(path = "/spring-boot-upgrade")
     @ResponseBody
     public void applyRecipes2(@RequestBody String recipeNames) {
-        /*
         ProjectContext context = contextHolder.getProjectContext();
         List.of(recipeNames).forEach(recipeName -> applyCommand.execute(context, recipeName));
-        applyCommand.execute(context, "boot-2.7-3.0-upgrade-report2");
-
-         */
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        applyCommand.execute(context, REPORT_RECIPE);
     }
 
 }
