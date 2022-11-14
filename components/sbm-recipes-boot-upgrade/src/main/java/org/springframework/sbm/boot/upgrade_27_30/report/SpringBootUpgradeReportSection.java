@@ -254,12 +254,25 @@ public class SpringBootUpgradeReportSection {
 
         if(p.getRecipe() != null) {
             sb.append(ls).append(ls);
+            /*
+            <!--
+                    <form name="apply-<RECIPE>-form" action="http://localhost:8080/spring-boot-upgrade" method="post">
+                    <input type="hidden" name="recipeNames[0]" value="<RECIPE>" />
+                    <button name="<RECIPE>" type="submit"  class="recipeButton">Run Recipe</button>
+
+                    </form>
+                    -->
+
+                    <button type="button" class="btn btn-primary recipeButton" onclick="applyRecipes('<RECIPE>')">
+                        Run All Recipes
+                        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                        <span class="visually-hidden">Loading...</span>
+                    </button>
+            */
             String buttonCode = """
                     ++++
-                    <form name="apply-<RECIPE>-form" action="http://localhost:8080/spring-boot-upgrade" method="post">
-                    <input type="hidden" name="recipeNames[0]" value="<RECIPE>" />	
-                    <button name="<RECIPE>" type="submit"  class="recipeButton">Run Recipe</button>
-                    </form>
+                    <div class="run-a-recipe" recipe="<RECIPE>">
+                    </div>                
                     ++++
                     """;
             buttonCode = buttonCode.replace("<RECIPE>", p.getRecipe());

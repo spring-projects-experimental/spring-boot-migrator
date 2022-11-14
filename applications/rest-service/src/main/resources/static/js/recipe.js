@@ -12,6 +12,8 @@ class State {
 
     startedRunningRecipe() {
         this.runningARecipe = true;
+        // disable all other buttons
+        console.log($("button"))
         this.notifyListeners();
     }
 
@@ -42,7 +44,7 @@ function runRecipe(element) {
 
     $.ajax({
         type: "POST",
-        url: "http://localhost:8080/apply-recipe",
+        url: "http://localhost:8080/spring-boot-upgrade",
         data: JSON.stringify({
             recipe: $(element).attr('recipe')
         }),
@@ -55,20 +57,47 @@ function runRecipe(element) {
         });
 }
 
-function runAllRecipe() {
+/**
+ *
+ */
+function applyRecipes(btn) {
 
+    console.log("applying recipes: " + $(btn).attr('recipe'));
     if (state.isRunningARecipe()) {
         return;
     }
-    state.startedRunningRecipe();
+
+    console.log(this)
 
     $.ajax({
         type: "POST",
-        url: "http://localhost:8080/apply-all-recipe",
+        url: "http://localhost:8080/spring-boot-upgrade",
+        dataType: "json",
+        contentType: 'application/json',
+        data: JSON.stringify({
+            recipes: $(btn).attr('recipe')
+        }),
+        beforeSend: function() {
+            console.log("before")
+            state.startedRunningRecipe();
+        },
+        success: function() {
+            // remove this section from the report
+            jQuery(this).closest('h3').next().remove();
+
+        },
+        error: function() {
+            // mark red flashlights / play alarm sound
+        }
     }).always(function () {
+        console.log("finished recipes")
         state.completedRunningRecipe();
     });
 }
+
+$( document ).ajaxStart(function() {
+    $( ".log" ).text( "Triggered ajaxStart handler." );
+});
 
 
 state.registerListeners(function () {
@@ -92,7 +121,7 @@ function changeAllRecipesButtonState() {
 
 const runAllRecipeInLoadingState = '<button type="button" class="btn btn-primary" id="recipeButton" ' +
     'name="apply-all-recipes-button" action="apply-all-recipes" ' +
-    'onclick="runAllRecipe()" disabled>' +
+    'onclick="applyRecipes()" disabled>' +
     'Run All Recipes' +
     '  <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>\n' +
     '  <span class="visually-hidden">Loading...</span>' +
@@ -100,9 +129,10 @@ const runAllRecipeInLoadingState = '<button type="button" class="btn btn-primary
 
 const runAllRecipeInNormalState = '<button type="button" class="btn btn-primary" id="recipeButton" ' +
     'name="apply-all-recipes-button" action="apply-all-recipes" ' +
-    'onclick="runAllRecipe()">' +
+    'onclick="applyRecipes()">' +
     'Run All Recipes' +
     '</button>';
+
 $(document).ready(function () {
     $(".run-all-recipe").html(runAllRecipeInNormalState);
 
@@ -114,7 +144,7 @@ const runRecipeNormalState = function () {
         const div = $(this);
         div.html('<button type="button" class="btn btn-primary" id="recipeButton" ' +
             'name="apply-recipe-button" recipe="' + div.attr('recipe') + '" ' +
-            'onclick="runRecipe(this)">' +
+            'onclick="applyRecipes(this)">' +
             'Run Recipe' +
             '</button>');
     });
