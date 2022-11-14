@@ -112,12 +112,12 @@
 #              newArtifactId: wiremock-jre8-standalone
 #              newVersion: 2.34.0
 
-    - type: org.springframework.sbm.build.migration.actions.SetProperty
-      propertyName: "java.version"
-      propertyValue: "17"
-      description: Set Java version to 17
-      condition:
-        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+#    - type: org.springframework.sbm.build.migration.actions.SetProperty
+#      propertyName: "java.version"
+#      propertyValue: "17"
+#      description: Set Java version to 17
+#      condition:
+#        type: org.springframework.sbm.common.migration.conditions.TrueCondition
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
@@ -175,25 +175,25 @@
         recipeList:
           - org.springframework.sbm.boot.upgrade_27_30.CassandraApplicationPropertiesMove
 
-    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
-      condition:
-        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-        versionPattern: "3\\.0\\..*"
-      description: Remove redundant @ConstructorBinding annotations when applicable
-      openRewriteRecipe: |-
-        type: specs.openrewrite.org/v1beta/recipe
-        name: org.openrewrite.java.spring.boot3.ImprovedConstructorBinding
-        displayName: Migrate additional Spring Boot properties to 2.7
-        description: Remove redundant @ConstructorBinding annotations when applicable
-        recipeList:
-          - org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation
+#    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+#      condition:
+#        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+#        versionPattern: "3\\.0\\..*"
+#      description: Remove redundant @ConstructorBinding annotations when applicable
+#      openRewriteRecipe: |-
+#        type: specs.openrewrite.org/v1beta/recipe
+#        name: org.openrewrite.java.spring.boot3.ImprovedConstructorBinding
+#        displayName: Migrate additional Spring Boot properties to 2.7
+#        description: Remove redundant @ConstructorBinding annotations when applicable
+#        recipeList:
+#          - org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation
 
-    - type: org.springframework.sbm.engine.recipe.OpenRewriteNamedRecipeAdapter
-      condition:
-        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-        versionPattern: "3\\.0\\..*"
-      description: Replace javax with new jakarta packages
-      openRewriteRecipeName: org.openrewrite.java.migrate.JavaxMigrationToJakarta
+#    - type: org.springframework.sbm.engine.recipe.OpenRewriteNamedRecipeAdapter
+#      condition:
+#        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+#        versionPattern: "3\\.0\\..*"
+#      description: Replace javax with new jakarta packages
+#      openRewriteRecipeName: org.openrewrite.java.migrate.JavaxMigrationToJakarta
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
