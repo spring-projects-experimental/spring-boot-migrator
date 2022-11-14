@@ -86,7 +86,7 @@
 
       sections:
         - title: Add Spring Boot dependency and plugin milestone repository
-          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.MissingHelper
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.AddSpringBootRepositoriesHelper
           change: |-
             As currently only milestone releases exist these are required
           affected: |-

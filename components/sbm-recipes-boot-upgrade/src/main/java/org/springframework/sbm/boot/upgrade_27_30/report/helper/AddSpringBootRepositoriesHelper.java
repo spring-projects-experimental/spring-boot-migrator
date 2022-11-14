@@ -17,13 +17,13 @@
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
+import org.springframework.sbm.build.migration.conditions.NoPluginRepositoryExistsCondition;
+import org.springframework.sbm.build.migration.conditions.NoRepositoryExistsCondition;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.properties.api.PropertiesSource;
 
-import java.util.List;
 import java.util.Map;
 
-public class MissingHelper implements SpringBootUpgradeReportSection.Helper<String>{
+public class AddSpringBootRepositoriesHelper implements SpringBootUpgradeReportSection.Helper<String>{
     @Override
     public String getDescription() {
         return null;
@@ -31,11 +31,11 @@ public class MissingHelper implements SpringBootUpgradeReportSection.Helper<Stri
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return false;
+        return new NoRepositoryExistsCondition().evaluate(context) && new NoPluginRepositoryExistsCondition().evaluate(context);
     }
 
     @Override
     public Map<String, String> getData() {
-        return null;
+        return Map.of();
     }
 }
