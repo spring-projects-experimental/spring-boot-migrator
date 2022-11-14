@@ -139,6 +139,7 @@ public class MigrateJaxRsRecipe {
                                                 name: org.springframework.sbm.jee.MakeRequestParamsOptional
                                                 displayName: Set required=false for @RequestParam without 'required'
                                                 description: Set required=false for @RequestParam without 'required'
+                                                causesAnotherCycle: true
                                                 recipeList:
                                                   - org.openrewrite.java.AddOrUpdateAnnotationAttribute:
                                                       annotationType: "org.springframework.web.bind.annotation.RequestParam"
