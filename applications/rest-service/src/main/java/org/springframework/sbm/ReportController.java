@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportRenderer;
@@ -58,10 +61,17 @@ class ReportController{
 
     @PostMapping(path = "/spring-boot-upgrade")
     @ResponseBody
-    public void applyRecipes2(@RequestBody String recipeNames) {
+    public void applyRecipes2(@RequestBody Recipe recipeNames) {
         ProjectContext context = contextHolder.getProjectContext();
-        List.of(recipeNames).forEach(recipeName -> applyCommand.execute(context, recipeName));
+        recipeNames.getRecipes().forEach(
+                recipeName -> applyCommand.execute(context, recipeName)
+        );
         applyCommand.execute(context, REPORT_RECIPE);
     }
 
+    @Getter
+    @Setter
+    static class Recipe {
+        private List<String> recipes;
+    }
 }
