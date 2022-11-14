@@ -7,14 +7,12 @@ import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Controller
+@CrossOrigin
 class ReportController{
 
     @Autowired
@@ -48,4 +46,21 @@ class ReportController{
         }
         return reportHolder.getReport();
     }
+
+    @PostMapping(path = "/spring-boot-upgrade")
+    @ResponseBody
+    public void applyRecipes2(@RequestBody String recipeNames) {
+        /*
+        ProjectContext context = contextHolder.getProjectContext();
+        List.of(recipeNames).forEach(recipeName -> applyCommand.execute(context, recipeName));
+        applyCommand.execute(context, "boot-2.7-3.0-upgrade-report2");
+
+         */
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
