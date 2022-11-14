@@ -33,3 +33,15 @@
               groupId: org.springframework.boot
               artifactId: spring-boot-dependencies
               newVersion: 3.0.0-RC2
+          - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
+              oldGroupId: com.github.tomakehurst
+              oldArtifactId: wiremock-jre8
+              newGroupId: com.github.tomakehurst
+              newArtifactId: wiremock-jre8-standalone
+              newVersion: 2.34.0
+          - org.openrewrite.maven.ChangeManagedDependencyGroupIdAndArtifactId:
+              oldGroupId: com.github.tomakehurst
+              oldArtifactId: wiremock-jre8
+              newGroupId: com.github.tomakehurst
+              newArtifactId: wiremock-jre8-standalone
+              newVersion: 2.34.0
