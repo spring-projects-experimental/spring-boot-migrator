@@ -21,15 +21,15 @@
         id: "spring-milestone"
         url: "https://repo.spring.io/milestone"
 
-#    - type: org.springframework.sbm.build.migration.actions.AddPluginRepositoryAction
-#      description: Add Spring Boot milestone plugin repository.
-#      id: "spring-milestone"
-#      url: "https://repo.spring.io/milestone"
-#      snapshotsEnabled: false
-#      condition:
-#        type: org.springframework.sbm.build.migration.conditions.NoPluginRepositoryExistsCondition
-#        id: "spring-milestone"
-#        url: "https://repo.spring.io/milestone"
+    - type: org.springframework.sbm.build.migration.actions.AddPluginRepositoryAction
+      description: Add Spring Boot milestone plugin repository.
+      id: "spring-milestone"
+      url: "https://repo.spring.io/milestone"
+      snapshotsEnabled: false
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoPluginRepositoryExistsCondition
+        id: "spring-milestone"
+        url: "https://repo.spring.io/milestone"
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
