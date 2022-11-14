@@ -1,4 +1,4 @@
-- name: boot-2.7-3.0-upgrade-report2
+- name: sbu30-report
   description: Create a report for Spring Boot Upgrade from 2.7.x to 3.0.x
   condition:
     type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
@@ -103,6 +103,7 @@
           remediation:
             description: |-
               Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
+            recipe: sbu30-migrate-spring-data-properties
           gitHubIssue: 441
           contributors:
             - "Fabian Krüger[@fabapp2]"
