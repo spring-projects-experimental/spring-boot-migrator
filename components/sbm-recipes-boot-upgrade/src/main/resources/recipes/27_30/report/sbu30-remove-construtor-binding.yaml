@@ -7,12 +7,12 @@
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-        versionPattern: "3\\.0\\..*"
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
       description: Remove redundant @ConstructorBinding annotations when applicable
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
         name: org.openrewrite.java.spring.boot3.ImprovedConstructorBinding
-        displayName: Migrate additional Spring Boot properties to 2.7
+        displayName: Remove redundant @ConstructorBinding annotations
         description: Remove redundant @ConstructorBinding annotations when applicable
         recipeList:
           - org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation
