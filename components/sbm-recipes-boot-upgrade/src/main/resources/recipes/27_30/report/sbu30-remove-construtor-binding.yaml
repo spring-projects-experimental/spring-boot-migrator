@@ -12,7 +12,7 @@
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
         name: org.openrewrite.java.spring.boot3.ImprovedConstructorBinding
-        displayName: Migrate additional Spring Boot properties to 2.7
+        displayName: Remove redundant @ConstructorBinding annotations
         description: Remove redundant @ConstructorBinding annotations when applicable
         recipeList:
           - org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation
