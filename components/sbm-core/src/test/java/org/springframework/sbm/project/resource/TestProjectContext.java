@@ -423,6 +423,9 @@ public class TestProjectContext {
             return this;
         }
 
+        /**
+         * This method is obsolete to use as a default {@code pom.xml} is always added if not otherwise specified.
+         */
         public Builder withDummyRootBuildFile() {
             if (containsAnyPomXml() || !dependencies.isEmpty())
                 throw new IllegalArgumentException("ProjectContext already contains pom.xml files.");
@@ -459,26 +462,25 @@ public class TestProjectContext {
         public ProjectContext build() {
             verifyValidBuildFileSetup();
 
-            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                    "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                    "    <modelVersion>4.0.0</modelVersion>\n" +
-                    "{{springParentPom}}" +
-                    "    <groupId>com.example</groupId>\n" +
-                    "    <artifactId>dummy-root</artifactId>\n" +
-                    "    <version>0.1.0-SNAPSHOT</version>\n" +
-                    "    <packaging>jar</packaging>\n" +
-                    "{{dependencies}}" +
-                    "</project>\n";
+            if(!containsAnyPomXml()) {
+                String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                        "    <modelVersion>4.0.0</modelVersion>\n" +
+                        "{{springParentPom}}" +
+                        "    <groupId>com.example</groupId>\n" +
+                        "    <artifactId>dummy-root</artifactId>\n" +
+                        "    <version>0.1.0-SNAPSHOT</version>\n" +
+                        "    <packaging>jar</packaging>\n" +
+                        "{{dependencies}}" +
+                        "</project>\n";
 
-            xml = xml
-                    .replace("{{dependencies}}", getDependenciesSection())
-                    .replace("{{springParentPom}}", getSpringParentPomSection());
+                xml = xml
+                        .replace("{{dependencies}}", getDependenciesSection())
+                        .replace("{{springParentPom}}", getSpringParentPomSection());
 
-            resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
-
-            if (!containsAnyPomXml()) {
-                withDummyRootBuildFile();
+                resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
             }
+
 
             // create resource map with fully qualified paths
             Map<Path, String> resourcesWithAbsolutePaths = new LinkedHashMap<>();
@@ -573,17 +575,22 @@ public class TestProjectContext {
         }
 
         private void verifyValidBuildFileSetup() {
-            boolean containsRootPom = resourcesWithRelativePaths.containsKey(Path.of("pom.xml"));
             boolean isClasspathGiven = dependencies != null && !dependencies.isEmpty();
             boolean isMockedBuildFileGiven = mockedBuildFile != null;
+            boolean hasSpringBootParent = this.springVersion.isPresent();
+            boolean containsAnyPomXml = containsAnyPomXml();
 
-            if (containsRootPom && isClasspathGiven) {
-                throw new IllegalArgumentException("Found classpath entries and a root pom.xml in resources. When classpath is provided the root pom gets generated");
-            } else if (containsRootPom && isMockedBuildFileGiven) {
-                throw new IllegalArgumentException("Found mocked BuildFile and a root pom.xml in resources. When mocked BuildFile is provided no other pom.xml must exist");
+            if (containsAnyPomXml && isClasspathGiven) {
+                throw new IllegalArgumentException("Found classpath entries and pom.xml in resources. When classpath is provided the root pom gets generated");
+            } else if (containsAnyPomXml && hasSpringBootParent) {
+                throw new IllegalArgumentException("Found spring boot version for parent pom and root pom.xml in resources. When spring boot version is provided the root pom gets generated");
+            } else if (containsAnyPomXml && isMockedBuildFileGiven) {
+                throw new IllegalArgumentException("Found mocked BuildFile and root pom.xml in resources. When mocked BuildFile is provided no other pom.xml must exist");
             }
             if (mockedBuildFile != null && isClasspathGiven) {
                 throw new IllegalArgumentException("Found mocked BuildFile and classpath entries. When mocked BuildFile is provided no other pom.xml must exist");
+            } else if(mockedBuildFile != null && hasSpringBootParent) {
+                throw new IllegalArgumentException("Found mocked BuildFile and Spring Boot version. When mocked BuildFile is provided no other pom.xml, parent or dependencies must exist");
             }
         }
 

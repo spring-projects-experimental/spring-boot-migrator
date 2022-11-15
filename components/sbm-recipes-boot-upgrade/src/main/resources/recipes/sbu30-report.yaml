@@ -60,13 +60,13 @@
         <#assign coordinates>${scannedCoordinate}</#assign>
         [cols="1h,3"]
         |===
-        | Scanned dir | `${scannedProjectRoot}`
+        | Scanned dir | ${scannedProjectRoot}
         | Revision | <#if revision?has_content>`${revision}`<#else>Scanned project not under Git</#if>
         <#if projectName?has_content>
         | Project name |  ${projectName}
         </#if>
-        | Coordinate | `${scannedCoordinate}`
-        | Boot version | `${bootVersion}`
+        | Coordinate | ${scannedCoordinate}
+        | Boot version | ${bootVersion}
         <#if numberOfChanges?has_content>
         | Changes | ${numberOfChanges}
         </#if>
@@ -150,11 +150,30 @@
             The scan found banner image files here:
 
             <#list files as file>
-            * ${file}
+            * `${file}`
             </#list>
           remediation:
             description: |-
-              remove image banners and replace it with text-banner with banner.txt file
+               and replace it with text-banner with banner.txt file
+            possibilities:
+            - title: Remove image banner
+              description: |- 
+                Remove these image banners 
+        
+                <#list files as file>
+                * `${file}`
+                </#list>
+              recipe: sbu30-remove-image-banner
+            - title: Replace image banner
+              description: |- 
+                Replace these banners 
+                
+                <#list files as file>
+                * `${file}`
+                </#list>
+                
+                with `banner.txt`
+
           gitHubIssue: 150
           contributors:
             - "Sandeep Nagaraj[@sanagaraj-pivotal]"
