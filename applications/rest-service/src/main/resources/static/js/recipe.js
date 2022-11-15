@@ -34,7 +34,7 @@ class State {
 }
 
 const state = new State();
-
+/*
 function runRecipe(element) {
     if (state.isRunningARecipe()) {
         return;
@@ -55,7 +55,7 @@ function runRecipe(element) {
             state.completedRunningRecipe();
         });
 }
-
+*/
 /**
  *
  */
