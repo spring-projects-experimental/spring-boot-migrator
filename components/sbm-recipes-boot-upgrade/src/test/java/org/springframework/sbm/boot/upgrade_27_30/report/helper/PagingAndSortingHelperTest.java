@@ -46,6 +46,7 @@ public class PagingAndSortingHelperTest {
         """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
+                .withSpringBootParentOf("2.7.1")
                 .addJavaSource("src/main/java", javaClassWithPagingAndSortingRepository)
                 .addJavaSource("src/main/java",javaClassWithoutPagingAndSortingRepo)
                 .withBuildFileHavingDependencies("org.springframework.data:spring-data-commons:2.7.1")
@@ -105,6 +106,7 @@ public class PagingAndSortingHelperTest {
         """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
+                .withSpringBootParentOf("2.7.1")
                 .addJavaSource("src/main/java", javaClassWithReactiveSortingRepo)
                 .addJavaSource("src/main/java",javaClassWithoutReactiveSortingRepo)
                 .withBuildFileHavingDependencies("org.springframework.data:spring-data-commons:2.7.1")
@@ -165,7 +167,7 @@ public class PagingAndSortingHelperTest {
         """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .withSpringBootParentOf("2.7,1")
+                .withSpringBootParentOf("2.7.1")
                 .addJavaSource("src/main/java", javaClassWithReactiveSortingRepo)
                 .addJavaSource("src/main/java",javaClassWithoutReactiveSortingRepo)
                 .withBuildFileHavingDependencies("org.springframework.data:spring-data-commons:2.7.1")
@@ -250,6 +252,7 @@ public class PagingAndSortingHelperTest {
         """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
+                .withSpringBootParentOf("2.7.1")
                 .addJavaSource("src/main/java", javaClassWithPagingAndSortingRepository)
                 .addJavaSource("src/main/java",javaClassWithoutPagingAndSortingRepo)
                 .addJavaSource("src/main/java",javaClassWithReactiveSortingRepo)
@@ -309,6 +312,7 @@ public class PagingAndSortingHelperTest {
         """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
+                .withSpringBootParentOf("2.7.1")
                 .addJavaSource("src/main/java",javaClassWithoutPagingAndSortingRepo)
                 .withBuildFileHavingDependencies("org.springframework.data:spring-data-commons:2.7.1")
                 .build();

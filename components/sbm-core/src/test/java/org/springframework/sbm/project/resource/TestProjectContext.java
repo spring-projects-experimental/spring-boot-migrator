@@ -466,11 +466,14 @@ public class TestProjectContext {
                     "    <artifactId>dummy-root</artifactId>\n" +
                     "    <version>0.1.0-SNAPSHOT</version>\n" +
                     "    <packaging>jar</packaging>\n" +
-                    "{{}}\n" +
+                    "{{springParentPom}}\n" +
                     "{{dependencies}}\n" +
                     "</project>\n";
 
-            xml = xml.replace("{{dependencies}}", getDependenciesSection());
+            xml = xml
+                    .replace("{{dependencies}}", getDependenciesSection())
+                    .replace("{{springParentPom}}", getSpringParentPomSection())
+            ;
 
             resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
 
@@ -519,6 +522,7 @@ public class TestProjectContext {
 
             return projectContext;
         }
+
 
         private void orderByOrderAnnotationValue(List<ProjectResourceWrapper> resourceWrapperList) {
             resourceWrapperList.sort(Comparator.comparing(this::getOrder));
@@ -616,6 +620,23 @@ public class TestProjectContext {
             }
 
             return dependenciesSection.toString();
+        }
+
+        @NotNull
+        private String getSpringParentPomSection() {
+
+            if (this.springVersion.isPresent()) {
+                return """
+                            <parent>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-starter-parent</artifactId>
+                                <version>%s</version>
+                                <relativePath/>
+                            </parent>
+                        """.formatted(this.springVersion.get());
+            }
+
+            return "";
         }
 
         public Builder withSpringBootParentOf(String springVersion) {
