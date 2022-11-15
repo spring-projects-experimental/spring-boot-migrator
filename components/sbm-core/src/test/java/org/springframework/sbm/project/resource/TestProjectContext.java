@@ -249,6 +249,9 @@ public class TestProjectContext {
         private OpenRewriteMavenBuildFile mockedBuildFile;
         private DependencyHelper dependencyHelper = new DependencyHelper();
         private SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
+
+        private Optional<String> springVersion = Optional.empty();
+
         private JavaParser javaParser;
 
         public Builder(Path projectRoot) {
@@ -456,10 +459,20 @@ public class TestProjectContext {
         public ProjectContext build() {
             verifyValidBuildFileSetup();
 
-            if (dependencies != null && !dependencies.isEmpty()) {
-                String generatedPomXml = renderPomXmlWithGivenDependencies();
-                resourcesWithRelativePaths.put(Path.of("pom.xml"), generatedPomXml);
-            }
+            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                    "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                    "    <modelVersion>4.0.0</modelVersion>\n" +
+                    "    <groupId>com.example</groupId>\n" +
+                    "    <artifactId>dummy-root</artifactId>\n" +
+                    "    <version>0.1.0-SNAPSHOT</version>\n" +
+                    "    <packaging>jar</packaging>\n" +
+                    "{{}}\n" +
+                    "{{dependencies}}\n" +
+                    "</project>\n";
+
+            xml = xml.replace("{{dependencies}}", getDependenciesSection());
+
+            resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
 
             if (!containsAnyPomXml()) {
                 withDummyRootBuildFile();
@@ -588,22 +601,9 @@ public class TestProjectContext {
 
 
         @NotNull
-        private String renderPomXmlWithGivenDependencies() {
-            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                    "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                    "    <modelVersion>4.0.0</modelVersion>\n" +
-                    "    <groupId>com.example</groupId>\n" +
-                    "    <artifactId>dummy-root</artifactId>\n" +
-                    "    <version>0.1.0-SNAPSHOT</version>\n" +
-                    "    <packaging>jar</packaging>\n" +
-                    "{{dependencies}}\n" +
-                    "</project>\n";
-
-            String dependenciesText = null;
-            if(dependencies.isEmpty()) {
-                dependenciesText = "";
-            } else {
-                StringBuilder dependenciesSection = new StringBuilder();
+        private String getDependenciesSection() {
+            StringBuilder dependenciesSection = new StringBuilder();
+            if(!dependencies.isEmpty()) {
                 dependenciesSection.append("    ").append("<dependencies>").append("\n");
                 dependencyHelper.mapCoordinatesToDependencies(dependencies).stream().forEach(dependency -> {
                     dependenciesSection.append("    ").append("    ").append("<dependency>").append("\n");
@@ -613,11 +613,15 @@ public class TestProjectContext {
                     dependenciesSection.append("    ").append("    ").append("</dependency>").append("\n");
                 });
                 dependenciesSection.append("    ").append("</dependencies>").append("\n");
-                dependenciesText = dependenciesSection.toString();
             }
 
-            String buildFileSource = xml.replace("{{dependencies}}", dependenciesText);
-            return buildFileSource;
+            return dependenciesSection.toString();
+        }
+
+        public Builder withSpringBootParentOf(String springVersion) {
+
+            this.springVersion = Optional.of(springVersion);
+            return this;
         }
     }
 

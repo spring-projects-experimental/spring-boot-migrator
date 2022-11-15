@@ -165,6 +165,7 @@ public class PagingAndSortingHelperTest {
         """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
+                .withSpringBootParentOf("2.7,1")
                 .addJavaSource("src/main/java", javaClassWithReactiveSortingRepo)
                 .addJavaSource("src/main/java",javaClassWithoutReactiveSortingRepo)
                 .withBuildFileHavingDependencies("org.springframework.data:spring-data-commons:2.7.1")

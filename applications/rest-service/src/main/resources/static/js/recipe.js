@@ -77,14 +77,19 @@ function applyRecipes(btn) {
         beforeSend: function() {
             state.startedRunningRecipe();
         },
-        error: function() {
+        error: function(e) {
             // mark red flashlights / play alarm sound
+            console.log("Error while applying recipe: " + e)
         }
     })
         .done(function () {
-            $(`.run-a-recipe[recipe='${recipeName}']`)
-                .closest(".sect2")
-                .remove();
+            // var section = $(`.run-a-recipe[recipe='${recipeName}']`)
+            $(`.run-a-recipe[recipe='${recipeName}']`).fadeOut( 1200, "linear", function() {
+                $(`.run-a-recipe[recipe='${recipeName}']`)
+                    .closest(".sect2")
+                    .remove();
+            });
+
         })
         .always(function () {
             state.completedRunningRecipe();
