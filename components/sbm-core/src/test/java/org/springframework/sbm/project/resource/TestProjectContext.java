@@ -618,7 +618,16 @@ public class TestProjectContext {
                     dependenciesSection.append("    ").append("    ").append("<dependency>").append("\n");
                     dependenciesSection.append("    ").append("    ").append("    ").append("<groupId>").append(dependency.getGroupId()).append("</groupId>").append("\n");
                     dependenciesSection.append("    ").append("    ").append("    ").append("<artifactId>").append(dependency.getArtifactId()).append("</artifactId>").append("\n");
-                    dependenciesSection.append("    ").append("    ").append("    ").append("<version>").append(dependency.getVersion()).append("</version>").append("\n");
+                    if(dependency.getVersion() != null) {
+                        dependenciesSection
+                                .append("    ")
+                                .append("    ")
+                                .append("    ")
+                                .append("<version>")
+                                .append(dependency.getVersion())
+                                .append("</version>")
+                                .append("\n");
+                    }
                     dependenciesSection.append("    ").append("    ").append("</dependency>").append("\n");
                 });
                 dependenciesSection.append("    ").append("</dependencies>").append("\n");

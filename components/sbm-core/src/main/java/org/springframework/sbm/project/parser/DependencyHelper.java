@@ -72,11 +72,15 @@ public class DependencyHelper {
 
             String[] parts = c.split(":");
 
-            if (parts.length != 3) throw new IllegalArgumentException("Given coordinate is invalid '" + c + "'");
+            if (parts.length < 2) throw new IllegalArgumentException("Given coordinate is invalid '" + c + "'");
 
             String groupId = parts[0];
             String artifactId = parts[1];
-            String version = parts[2];
+            String version = null;
+            if(parts.length == 3) {
+                version = parts[2];
+            }
+
 
             MavenRepository mavenRepository = new MavenRepository(
                     "jcenter",
