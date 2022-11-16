@@ -24,7 +24,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>rest-service</artifactId>
+    <artifactId>spring-boot-upgrade</artifactId>
 
     <packaging>jar</packaging>
 
@@ -71,10 +71,12 @@
                                     <artifactId>spring-asciidoctor-backends</artifactId>
                                 </dependency>
                             </requiresUnpack>
-                            <finalName>spring-boot-upgrade</finalName>
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <finalName>spring-boot-upgrade</finalName>
+                </configuration>
             </plugin>
         </plugins>
     </build>
