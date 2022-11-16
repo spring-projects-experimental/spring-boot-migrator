@@ -209,11 +209,8 @@ public class SpringBootUpgradeReportSection {
         if(contributors != null) {
             List<Author> authors = getAuthors();
             sb.append("Contributors: ");
-            authors.stream()
-                    .forEach(a -> {
-                        sb.append("https://github.com/").append(a.getHandle()).append("[@").append(a.getHandle()).append("^, role=\"ext-link\"]");
-                    });
-            sb.append(ls);
+            String authorsString = authors.stream().map(a -> "https://github.com/" + a.getHandle() + "[@" + a.getHandle() + "^, role=\"ext-link\"]").collect(Collectors.joining(", "));
+            sb.append(authorsString).append(ls);
         }
     }
 
