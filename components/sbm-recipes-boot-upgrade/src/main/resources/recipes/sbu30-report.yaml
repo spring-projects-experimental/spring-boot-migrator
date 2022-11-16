@@ -102,6 +102,22 @@
             - "Fabian Krüger[@fabapp2]"
 
 
+        - title: Upgrade Spring Boot Version to 3.0
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeSpringBootVersionHelper
+          change: |-
+            The Spring Boot version changed to 3.0
+          affected: |-
+            Upgrading to Spring Boot 3.0 requires an upgrade of the current Spring Boot version.
+          remediation:
+            description: |-
+              Depending on the way Spring Boot is added, e.g. by referencing `spring-boot-starter-parent` or through 
+              `dependencyManagement` these need to be changed to upgrade to Spring Boot 3.0.
+            recipe: sbu30-upgrade-boot-version
+          githubIssue: TODO
+          contributors:
+            - "Fabian Krüger[@fabapp2]"
+
+
         - title: Changes to Data Properties
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ChangesToDataPropertiesHelper
           change: |-
