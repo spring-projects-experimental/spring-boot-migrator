@@ -56,7 +56,9 @@ public class ControllerTest {
         ProjectContext projectContext = mock(ProjectContext.class);
         when(contextHolder.getProjectContext()).thenReturn(projectContext);
         mockMvc.perform(get("/spring-boot-upgrade")).andExpect(status().isOk());
-        verify(applyCommand).execute(projectContext, "boot-2.7-3.0-upgrade-report2");
+        mockMvc.perform(get("/spring-boot-upgrade")).andExpect(status().isOk());
+        // For the first request the report is created by the runner, for following calls the report is created again
+        verify(applyCommand, times(1)).execute(projectContext, ReportController.REPORT_RECIPE);
     }
 
     @Test
@@ -67,6 +69,6 @@ public class ControllerTest {
                                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                                 .param("recipeNames[]", "recipe1", "recipe2")
         ).andExpect(status().isOk());
-        verify(applyCommand).execute(projectContext, "boot-2.7-3.0-upgrade-report2");
+        verify(applyCommand).execute(projectContext, ReportController.REPORT_RECIPE);
     }
 }
