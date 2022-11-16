@@ -124,7 +124,7 @@ public class SpringBootUpgradeReportSection {
                 throw new RuntimeException(e);
             }
         }
-        throw new IllegalArgumentException("Could not render Sectipn '"+ getTitle()+"', evaluating the context returned false");
+        throw new IllegalArgumentException("Could not render Section '"+ getTitle()+"', evaluating the context returned false");
     }
 
     private void renderTemplate(Map<String, Object> params, StringWriter writer, String templateContent) throws IOException, TemplateException {
