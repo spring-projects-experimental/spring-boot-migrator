@@ -27,7 +27,7 @@
         :idprefix:
         :idseparator: -
         :toc: left
-        :sectnumlevels: 2
+        :sectnumlevels: 3
         :toclevels: 3
         :tabsize: 4
         :numbered:
@@ -85,6 +85,8 @@
         This section lists the changes SBM found to be applicable to upgrade the scanned application to Spring Boot 3.0.0.
 
       sections:
+
+
         - title: Add Spring Boot dependency and plugin milestone repository
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.AddSpringBootRepositoriesHelper
           change: |-
@@ -98,6 +100,7 @@
           gitHubIssue: 441
           contributors:
             - "Fabian Krüger[@fabapp2]"
+
 
         - title: Changes to Data Properties
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ChangesToDataPropertiesHelper
@@ -177,6 +180,7 @@
           gitHubIssue: 150
           contributors:
             - "Sandeep Nagaraj[@sanagaraj-pivotal]"
+            - "Fabian Krüger[@fabapp2]"
 
 
         - title: Constructor Binding
