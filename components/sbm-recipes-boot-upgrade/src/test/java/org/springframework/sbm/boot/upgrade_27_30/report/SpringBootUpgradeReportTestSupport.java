@@ -195,7 +195,6 @@ public class SpringBootUpgradeReportTestSupport {
          * code of buttons to apply a recipe.
          */
         private String replaceRecipeButtonCodeFromExpectedOutput(SpringBootUpgradeReportSection sectionUnderTest, String renderedSection) {
-            StringBuilder sb = new StringBuilder();
             List<String> buttonCodes = new ArrayList<>();
             if(sectionUnderTest.getRemediation().getPossibilities().isEmpty()) {
                 String recipe = sectionUnderTest.getRemediation().getRecipe();
