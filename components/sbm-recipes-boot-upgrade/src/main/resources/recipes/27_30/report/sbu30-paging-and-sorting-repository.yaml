@@ -6,8 +6,7 @@
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
-        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+        type: org.springframework.sbm.boot.upgrade_27_30.report.helper.PagingAndSortingHelper
       description: Add CrudRepository interface extension additionally to PagingAndSortingRepository
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
