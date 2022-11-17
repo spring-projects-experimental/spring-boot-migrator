@@ -247,9 +247,14 @@ public class SpringBootUpgradeReportTestSupport {
         }
 
         private String replacePlaceHolders(String expectedOutput, Map<String, String> templateVariables) {
-            ST st = new ST(expectedOutput);
-            templateVariables.entrySet().stream().forEach(e -> st.add(e.getKey(), e.getValue()));
-            return st.render();
+            StringBuffer sb = new StringBuffer();
+            // hacked, there's most probably a better way but ST couldn't digest html code
+            for(Map.Entry<String, String> kv : templateVariables.entrySet()) {
+                String key = "<" + kv.getKey() + ">";
+                String replacement = kv.getValue();
+                expectedOutput = expectedOutput.replace(key, replacement);
+            }
+            return expectedOutput;
         }
     }
 
