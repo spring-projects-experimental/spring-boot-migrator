@@ -183,7 +183,7 @@ public class SpringBootUpgradeReportTestSupport {
                     SpringBootUpgradeReportSection sectionUnderTest = matchingSections.get(0);
                     action.apply(builderData.getContext());
                     String renderedSection = sectionUnderTest.render(builderData.getContext());
-                    String renderedSectionWithoutButtonCode = replaceRe4cipeButtonCodeFromExpectedOutput(sectionUnderTest, renderedSection);
+                    String renderedSectionWithoutButtonCode = replaceRecipeButtonCodeFromExpectedOutput(sectionUnderTest, renderedSection);
 
                     assertion.accept(renderedSectionWithoutButtonCode);
                 });
@@ -194,32 +194,43 @@ public class SpringBootUpgradeReportTestSupport {
          * Another hack, removing the expected button code added to the Asciidoc to free tests from asserting invisible
          * code of buttons to apply a recipe.
          */
-        private String replaceRe4cipeButtonCodeFromExpectedOutput(SpringBootUpgradeReportSection sectionUnderTest, String renderedSection) {
+        private String replaceRecipeButtonCodeFromExpectedOutput(SpringBootUpgradeReportSection sectionUnderTest, String renderedSection) {
             StringBuilder sb = new StringBuilder();
-            List<String> buttonCodes = sectionUnderTest
-                    .getRemediation()
-                    .getPossibilities()
-                    .stream()
-                    .filter(p -> p.getRecipe() != null)
-                    .map(RemediationPossibility::getRecipe)
-                    .map(recipe -> {
-                        String target = """
+            List<String> buttonCodes = new ArrayList<>();
+            if(sectionUnderTest.getRemediation().getPossibilities().isEmpty()) {
+                String recipe = sectionUnderTest.getRemediation().getRecipe();
+                if(recipe != null) {
+                    String target = """
                                                                                     
-                                ++++
-                                <form name="recipe-1" action="http://localhost:8080/spring-boot-upgrade" method="post">
-                                <input type="hidden" name="recipeName" value="<RECIPE>" />
-                                <button name="<RECIPE>" type="submit" style="background-color:#71ea5b;border:width: 120px;
-                                                                                                                                                             text-align: center;
-                                                                                                                                                             font-size: 15px;
-                                                                                                                                                             padding: 20px;
-                                                                                                                                                             border-radius: 15px;">Run Recipe</button>
-                                </form>
-                                ++++
+                              ++++
+                              <div class="run-a-recipe" recipe="<RECIPE>">
+                              </div>
+                              ++++
                                                                             
-                                """;
-                        return target.replace("<RECIPE>", recipe);
-                    })
-                    .collect(Collectors.toList());
+                              """;
+                    buttonCodes.add(target.replace("<RECIPE>", recipe));
+                }
+            } else {
+                buttonCodes = sectionUnderTest
+                        .getRemediation()
+                        .getPossibilities()
+                        .stream()
+                        .filter(p -> p.getRecipe() != null)
+                        .map(RemediationPossibility::getRecipe)
+                        .map(recipe -> {
+                            String target = """
+                                                                                    
+                              ++++
+                              <div class="run-a-recipe" recipe="<RECIPE>">
+                              </div>
+                              ++++
+                                                                            
+                              """;
+                            return target.replace("<RECIPE>", recipe);
+                        })
+                        .collect(Collectors.toList());
+            }
+
             for(String buttonCode : buttonCodes) {
                 renderedSection = renderedSection.replace(buttonCode, "");
             }
