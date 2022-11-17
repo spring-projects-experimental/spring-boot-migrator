@@ -203,7 +203,7 @@ class SpringBootUpgradeReportActionTest {
                 .serializeProjectContext(tempDir);
 
         RecipeIntegrationTestSupport.initializeProject(tempDir, "spring-upgrade-report")
-                .andApplyRecipe("boot-2.7-3.0-upgrade-report2");
+                .andApplyRecipe("sbu30-report");
 
         try (final WebClient webClient = new WebClient()) {
             webClient.getOptions().setThrowExceptionOnScriptError(false);
