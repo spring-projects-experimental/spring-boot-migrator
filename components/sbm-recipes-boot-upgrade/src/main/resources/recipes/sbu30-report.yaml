@@ -186,8 +186,7 @@
             * `${file}`
             </#list>
           remediation:
-            description: |-
-               and replace it with text-banner with banner.txt file
+            description: ""
             possibilities:
             - title: Remove image banner
               description: |- 
