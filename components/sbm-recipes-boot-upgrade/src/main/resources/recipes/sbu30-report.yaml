@@ -101,6 +101,20 @@
           contributors:
             - "Fabian Krüger[@fabapp2]"
 
+        - title: Upgrade Dependencies
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeDependenciesHelper
+          change: |-
+            Spring Boot 3.0 upgraded many used dependencies. 
+            Also, dependencies previously in the `javax` packages use the new `jakarta` packages now.
+            WARNING: THis is a dummy and needs to be replaced with the matching changes from the release notes!
+          affected: |-
+            List the found dependencies here?
+          remediation:
+            description: |-
+              A comprehensive list of affected dependencies and their new replacements
+            recipe: sbu30-upgrade-dependencies
+          contributors:
+            - "Fabian Krüger[@fabapp2]"
 
         - title: Upgrade Spring Boot Version to 3.0
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeSpringBootVersionHelper
