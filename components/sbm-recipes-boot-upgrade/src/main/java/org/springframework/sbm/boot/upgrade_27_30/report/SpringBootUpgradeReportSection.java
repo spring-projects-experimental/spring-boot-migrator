@@ -245,7 +245,10 @@ public class SpringBootUpgradeReportSection {
 
     private String renderRemediation() {
         StringBuilder sb = new StringBuilder();
-        sb.append(remediation.getDescription()).append(ls).append(ls);
+        if(remediation.getDescription() != null) {
+            sb.append(remediation.getDescription()).append(ls);
+        }
+        sb.append(ls);
         if(remediation.getPossibilities().isEmpty()) {
             renderResourcesList(sb, remediation);
             renderRecipeButton(sb, remediation.getRecipe());
