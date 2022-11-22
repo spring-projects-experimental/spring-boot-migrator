@@ -24,9 +24,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
-import org.stringtemplate.v4.ST;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
@@ -51,12 +51,22 @@ public class SpringBootUpgradeReportSection {
 
     /**
      * Helper acting as {@link Condition} and data provide for a {@link SpringBootUpgradeReportSection}.
+     * @deprecated Use {@link AbstractHelper} instead
      */
+    @Deprecated(forRemoval = true)
     public interface Helper<T> extends Condition {
         /**
          * @return {@code Map<String, T>} the model data for the template.
          */
         Map<String, T> getData();
+    }
+
+    public static abstract class AbstractHelper<T> implements Helper<T> {
+
+        @Override
+        public String getDescription() {
+            return "";
+        }
     }
 
     public static final String CHANGE_HEADER = "What Changed";
@@ -99,7 +109,7 @@ public class SpringBootUpgradeReportSection {
     private Set<String> contributors;
 
     @JsonIgnore
-    private Helper helper;
+    private Helper<Object> helper;
     @JsonIgnore
     @Autowired
     private SpringBootUpgradeReportFreemarkerSupport freemarkerSupport;

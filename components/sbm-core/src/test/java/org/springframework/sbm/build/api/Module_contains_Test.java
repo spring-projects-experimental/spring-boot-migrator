@@ -30,7 +30,7 @@ class Module_contains_Test {
     @Test
     void singleModuleProject() {
         String rootPom = PomBuilder
-                .buiildPom("com.example:parent:1.0")
+                .buildPom("com.example:parent:1.0")
                 .type("jar")
                 .withModules("module1", "module2")
                 .build();
@@ -66,19 +66,19 @@ class Module_contains_Test {
     @Test
     void multiModuleProject() {
         String rootPom = PomBuilder
-                .buiildPom("com.example:parent:1.0")
+                .buildPom("com.example:parent:1.0")
                 .type("pom")
                 .withModules("module1", "module2")
                 .build();
 
         String module1Pom = PomBuilder
-                .buiildPom("com.example:parent:1.0", "module1")
+                .buildPom("com.example:parent:1.0", "module1")
                 .unscopedDependencies("com.example:module2:1.0")
                 .build();
 
-        String module2Pom = PomBuilder.buiildPom("com.example:parent:1.0", "module2").build();
+        String module2Pom = PomBuilder.buildPom("com.example:parent:1.0", "module2").build();
 
-        String moduleInModule1Pom = PomBuilder.buiildPom("com.example:parent:1.0", "module-in-module1").build();
+        String moduleInModule1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module-in-module1").build();
 
 
         String javaClass = """

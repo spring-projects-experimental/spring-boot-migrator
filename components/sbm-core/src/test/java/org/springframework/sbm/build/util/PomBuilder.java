@@ -17,7 +17,6 @@
 package org.springframework.sbm.build.util;
 
 import org.openrewrite.maven.tree.Scope;
-import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.project.parser.DependencyHelper;
 
 import java.util.*;
@@ -34,20 +33,39 @@ public class PomBuilder {
     private Map<Scope, org.openrewrite.maven.tree.Dependency> dependencies = new LinkedHashMap<Scope, org.openrewrite.maven.tree.Dependency>();
 
     private DependencyHelper dependencyHelper = new DependencyHelper();
+    private String parentPom;
 
-    public static PomBuilder buiildPom(String coordinate) {
+    public static PomBuilder buildPom(String coordinate) {
         PomBuilder pomBuilder = new PomBuilder();
         pomBuilder.coordinate = coordinate;
         return pomBuilder;
     }
 
-    public static PomBuilder buiildPom(String parent, String artifactId) {
+    public static PomBuilder buildPom(String parentCoordinate, String artifactId) {
         PomBuilder pomBuilder = new PomBuilder();
-        pomBuilder.parent = parent;
+        pomBuilder.parent = parentCoordinate;
         pomBuilder.artifactId = artifactId;
         return pomBuilder;
     }
 
+    /**
+     * Build a parent pom file with a parent, e.g. spring-boot-starter-parent
+     *
+     * @param parentCoordinate
+     * @param coordinate
+     */
+    public static PomBuilder buildParentPom(String parentCoordinate, String coordinate) {
+        PomBuilder pomBuilder = new PomBuilder();
+        pomBuilder.parentPom = parentCoordinate;
+        pomBuilder.coordinate = coordinate;
+        return pomBuilder;
+    }
+
+    /**
+     * Add modules to a pom.
+     *
+     * @param moduleArtifactNames one or more module artifactIds
+     */
     public PomBuilder withModules(String... moduleArtifactNames) {
         this.modules = Arrays.asList(moduleArtifactNames);
         if(this.modules.stream().anyMatch(m -> m.contains(":"))) throw new RuntimeException("Found ':' in artifact name but artifact names of modules must not be provided as coordinate.");
@@ -62,6 +80,10 @@ public class PomBuilder {
                               <modelVersion>4.0.0</modelVersion>
                           """);
 
+        if(parentPom != null && parent != null) {
+            throw new IllegalStateException("parentPom and parent were set.");
+        }
+
         if (parent != null) {
             String[] coord = parent.split(":");
             sb.append("    <parent>").append("\n");
@@ -70,7 +92,14 @@ public class PomBuilder {
             sb.append("        <version>").append(coord[2]).append("</version>").append("\n");
             sb.append("    </parent>").append("\n");
             sb.append("    <artifactId>").append(artifactId).append("</artifactId>").append("\n");
-        } else {
+        } else if (parentPom != null) {
+            String[] coord = parentPom.split(":");
+            sb.append("    <parent>").append("\n");
+            sb.append("        <groupId>").append(coord[0]).append("</groupId>").append("\n");
+            sb.append("        <artifactId>").append(coord[1]).append("</artifactId>").append("\n");
+            sb.append("        <version>").append(coord[2]).append("</version>").append("\n");
+            sb.append("    </parent>").append("\n");
+        } if (parent == null){
             String[] coord = coordinate.split(":");
             sb.append("    <groupId>").append(coord[0]).append("</groupId>").append("\n");
             sb.append("    <artifactId>").append(coord[1]).append("</artifactId>").append("\n");
@@ -139,14 +168,16 @@ public class PomBuilder {
                     .append(dependency.getArtifactId())
                     .append("</artifactId>")
                     .append("\n");
-            dependenciesSection
-                    .append("    ")
-                    .append("    ")
-                    .append("    ")
-                    .append("<version>")
-                    .append(dependency.getVersion())
-                    .append("</version>")
-                    .append("\n");
+            if(dependency.getVersion() != null) {
+                dependenciesSection
+                        .append("    ")
+                        .append("    ")
+                        .append("    ")
+                        .append("<version>")
+                        .append(dependency.getVersion())
+                        .append("</version>")
+                        .append("\n");
+            }
             if(scope != Scope.None) {
                 dependenciesSection
                         .append("    ")
@@ -173,6 +204,13 @@ public class PomBuilder {
         dependencyHelper.mapCoordinatesToDependencies(Arrays.asList(coordinates))
                 .stream()
                 .forEach(c -> this.dependencies.put(Scope.None, c));
+        return this;
+    }
+
+    public PomBuilder compileScopeDependencies(String... coordinates) {
+        dependencyHelper.mapCoordinatesToDependencies(Arrays.asList(coordinates))
+                .stream()
+                .forEach(c -> this.dependencies.put(Scope.Compile, c));
         return this;
     }
 
