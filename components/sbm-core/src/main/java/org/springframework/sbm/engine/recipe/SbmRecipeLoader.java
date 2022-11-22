@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SbmRecipeLoader implements RecipeLoader {
 
-    static final String PATTERN = "classpath*:/recipes/*";
+    static final String PATTERN = "classpath*:/recipes/**/*.yaml";
     private final RecipeParser recipeParser;
     private final ResourceHelper resourceHelper;
 
