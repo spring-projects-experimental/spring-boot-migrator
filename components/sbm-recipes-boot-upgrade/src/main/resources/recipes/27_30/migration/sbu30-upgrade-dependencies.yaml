@@ -1,0 +1,38 @@
+- name: sbu30-upgrade-dependencies
+  description: Spring boot 3.0 Upgrade - Upgrade dependencies
+  condition:
+    type: org.springframework.sbm.common.migration.conditions.TrueCondition
+  actions:
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+      description: Upgrade dependencies for Spring Boot 3.0
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot3.data.UpgradeSSpringBoot3Dependencies
+        displayName: Upgrade to SpringBoot 3.0
+        description: 'Upgrade to SpringBoot to 3.0 from any prior version.'
+        recipeList:
+          - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
+                oldGroupId: org.ehcache
+                oldArtifactId: ehcache
+                overrideManagedVersion: true
+                newVersion: 3.10.2
+          - org.openrewrite.maven.ChangeDependencyClassifier:
+                groupId: org.ehcache
+                artifactId: ehcache
+                newClassifier: jakarta
+          - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
+                oldGroupId: com.github.tomakehurst
+                oldArtifactId: wiremock-jre8
+                newGroupId: com.github.tomakehurst
+                newArtifactId: wiremock-jre8-standalone
+                newVersion: 2.34.0
+          - org.openrewrite.maven.ChangeDependencyGroupIdAndArtifactId:
+                oldGroupId: com.github.tomakehurst
+                oldArtifactId: wiremock-jre8
+                newGroupId: com.github.tomakehurst
+                newArtifactId: wiremock-jre8-standalone
+                newVersion: 2.34.0

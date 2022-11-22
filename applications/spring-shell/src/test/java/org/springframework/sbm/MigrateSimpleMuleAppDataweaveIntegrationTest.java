@@ -64,6 +64,7 @@ class MigrateSimpleMuleAppDataweaveIntegrationTest extends IntegrationTestBaseCl
         if (tmDataweaveContainer != null && tmDataweaveContainer.getContainer() != null) {
             tmDataweaveContainer.getContainer().stop();
         }
+        System.setProperty("sbm.muleTriggerMeshTransformEnabled", "false");
     }
 
     @Test

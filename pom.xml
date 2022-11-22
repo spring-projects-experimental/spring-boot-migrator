@@ -311,7 +311,7 @@
     </dependencies>
     <modules>
         <module>applications/spring-shell</module>
-        <module>applications/rest-service</module>
+        <module>applications/spring-boot-upgrade</module>
         <module>components/openrewrite-spring-recipes</module>
         <module>components/sbm-recipes-boot-upgrade</module>
         <module>components/sbm-recipes-spring-cloud</module>

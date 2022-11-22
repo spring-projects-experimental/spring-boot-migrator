@@ -105,8 +105,8 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                                                  
                 ==== Why is the application affected
                 The scan found classes annotated with `@RestController` which could be affected by this change.
-                * file://<PATH>/src/main/java/a/example/RestController2.java[`src/main/java/a/example/RestController2.java`]<#lt>
-                * file://<PATH>/src/main/java/b/example/RestController1.java[`src/main/java/b/example/RestController1.java`]<#lt>
+                * file://<PATH>/src/main/java/a/example/RestController2.java[`src/main/java/a/example/RestController2.java`]
+                * file://<PATH>/src/main/java/b/example/RestController1.java[`src/main/java/b/example/RestController1.java`]
                                                  
                 ==== Remediation
                 You have different choices to remediate this change.
@@ -152,8 +152,6 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                 }
                 ....
                 
-                sbu30-248-add-PathMatchConfigurer
-               
                 
                 """;
 

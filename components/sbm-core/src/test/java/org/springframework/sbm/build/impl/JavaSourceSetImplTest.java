@@ -43,7 +43,6 @@ class JavaSourceSetImplTest {
                         "";
 
         JavaSourceSet sut = TestProjectContext.buildProjectContext()
-                .withDummyRootBuildFile()
                 .withJavaSources(sourceCode1, sourceCode2)
                 .build()
                 .getApplicationModules().getRootModule().getMainJavaSourceSet();
