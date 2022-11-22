@@ -87,19 +87,20 @@
       sections:
 
 
-        - title: Add Spring Boot dependency and plugin milestone repository
-          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.AddSpringBootRepositoriesHelper
-          change: |-
-            As currently only milestone releases exist these are required
-          affected: |-
-            You want to update to 3.0 so you're affected
-          remediation:
-            description: |-
-              Add Spring Boot milestone repositories.
-            recipe: sbu30-add-milestone-repositories
-          gitHubIssue: 441
-          contributors:
-            - "Fabian Krüger[@fabapp2]"
+# Note re required anymore now that 3.0 is released. Kept for reference
+#        - title: Add Spring Boot dependency and plugin milestone repository
+#          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.AddSpringBootRepositoriesHelper
+#          change: |-
+#            As currently only milestone releases exist these are required
+#          affected: |-
+#            You want to update to 3.0 so you're affected
+#          remediation:
+#            description: |-
+#              Add Spring Boot milestone repositories.
+#            recipe: sbu30-add-milestone-repositories
+#          gitHubIssue: 441
+#          contributors:
+#            - "Fabian Krüger[@fabapp2]"
 
         - title: Upgrade Dependencies
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeDependenciesHelper
@@ -131,6 +132,58 @@
           contributors:
             - "Fabian Krüger[@fabapp2]"
 
+
+        - title: Actuator Endpoints Sanitization
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ActuatorEndpointsSanitizationHelper
+          change: |-
+            Since, the `/env` and `/configprops` endpoints can contains sensitive values, all values are always masked by default.
+            This used to be case only for keys considered to be sensitive.
+            
+            Instead, this release opts for a more secure default.
+            The keys-based approach has been removed in favor of a role based approach, similar to the health endpoint details.
+            Whether unsanitized values are shown or not can be configured using a property which can have the following values:
+          
+            - `NEVER` - All values are sanitized.
+            - `ALWAYS` - All values are present in the output (sanitizing functions will apply).
+            - `WHEN_AUTHORIZED` - Values are present in the output only if a user is authorized (sanitizing functions will apply).
+            
+            For JMX, users are always considered to be authorized. For HTTP, users are considered to be authorized if they are authenticated and have the specified roles.
+            
+            Sanitization for the QuartzEndpoint is also configurable in the same way.
+          affected: |-
+            The scan found a dependency to actuator on the classpath.
+            
+            <#list matchingBuildFiles as match>
+              * file://${match.absolutePath}[`${match.sourcePath}`]<#lt>
+            </#list>
+          remediation:
+            possibilities:
+              - title: Verify the new sanitization fulfills your requirements
+                description: |- 
+                  Please verify that none of the sanitized values must be plain text to meet your requirements.
+                  If some sanitized values are required in plain text a custom `SanitizingFunction` must be provided.
+                  Please see the documentation about https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/html/howto.html#howto.actuator.sanitize-sensitive-values.customizing-sanitization[Customizing Sanitization^, role="ext-link"] 
+                  for further information on how to do this.
+                resources:
+                  - https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/html/howto.html#howto.actuator.sanitize-sensitive-values[Sanitize Sensitive Values^, role="ext-link"]
+                  - https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/html/howto.html#howto.actuator.sanitize-sensitive-values.customizing-sanitization[Customizing Sanitization^, role="ext-link"]
+# Not available until upgrade to the latest rewrite version which is currently blocked
+#
+#              - title: Reset behavior to prior 3.0
+#                description: |-
+#                  Because Spring Boot Migrator can't tell if the now sanitized properties are required in plain-text,
+#                  the only automated change we can do is setting `management.endpoint.configprops.show-values`,
+#                  `management.endpoint.env.show-values` and `management.endpoint.quartz.show-values` to `ALWAYS`.
+#                  This means the application does not benefit from the new and more secure configuration in Spring Boot 3.0.0.
+#                  We strongly recommend you adjust this configuration to your needs.
+#
+#                  WARNING:  This would result in some values not being sanitized when in 2.7 they would have been.
+#                recipe: sbu30-225-actuator-endpoint-sanitization
+          projects:
+            - spring-boot
+          gitHubIssue: 445
+          contributors:
+            - "Fabian Krüger[@fabapp2]"
 
         - title: Changes to Data Properties
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ChangesToDataPropertiesHelper
@@ -226,8 +279,8 @@
             `@Autowired` annotation.
           sources:
             - https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0.0-M2-Release-Notes#constructingbinding-no-longer-needed-at-the-type-level[Spring Boot Release Notes]
-            - https://docs.spring.io/spring-boot/docs/3.0.0-M4/api/org/springframework/boot/context/properties/ConstructorBinding.html[@ConstructorBinding API]
-            - https://docs.spring.io/spring-boot/docs/3.0.0-M4/api/org/springframework/boot/context/properties/ConfigurationProperties.html[@ConfigurationProperties API]
+            - https://docs.spring.io/spring-boot/docs/3.0.0/api/org/springframework/boot/context/properties/ConstructorBinding.html[@ConstructorBinding API]
+            - https://docs.spring.io/spring-boot/docs/3.0.0/api/org/springframework/boot/context/properties/ConfigurationProperties.html[@ConfigurationProperties API]
           affected: |-
             We found usage of `@ConstructorBinding` in following files:
 
