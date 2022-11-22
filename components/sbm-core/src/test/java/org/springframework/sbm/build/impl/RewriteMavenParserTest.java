@@ -46,7 +46,7 @@ class RewriteMavenParserTest {
 
     @Test
     void customExecutionContextGiven() {
-        String pom = PomBuilder.buiildPom("com.example:project:1.0").build();
+        String pom = PomBuilder.buildPom("com.example:project:1.0").build();
         ExecutionContext ctx = new RewriteExecutionContext();
         sut.parse(ctx, pom);
         // first time when initializing the parser
