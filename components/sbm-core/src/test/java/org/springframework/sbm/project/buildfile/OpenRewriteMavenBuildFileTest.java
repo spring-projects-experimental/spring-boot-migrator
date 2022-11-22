@@ -18,14 +18,12 @@ package org.springframework.sbm.project.buildfile;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
-import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.Plugin;
 import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -907,7 +905,7 @@ public class OpenRewriteMavenBuildFileTest {
     @Nested
     class GetDependenciesMultiModuleTest {
         String parentPom = PomBuilder
-                .buiildPom("com.example:parent:1.0")
+                .buildPom("com.example:parent:1.0")
                 .withProperties(Map.of(
                     "jakarta.version", "3.0.2",
                     "validation.groupId", "jakarta.validation",
@@ -918,13 +916,13 @@ public class OpenRewriteMavenBuildFileTest {
                 .build();
 
         String module1Pom = PomBuilder
-                .buiildPom("com.example:parent:1.0", "module1")
+                .buildPom("com.example:parent:1.0", "module1")
                 .unscopedDependencies("com.example:module2:${project.version}")
                 .testScopeDependencies("javax.annotation:${annotationApi.artifactId}:1.3.2")
                 .build();
 
         String module2Pom = PomBuilder
-                .buiildPom("com.example:parent:1.0", "module2")
+                .buildPom("com.example:parent:1.0", "module2")
                 .unscopedDependencies("${validation.groupId}:jakarta.validation-api:${jakarta.version}")
                 .build();
 
