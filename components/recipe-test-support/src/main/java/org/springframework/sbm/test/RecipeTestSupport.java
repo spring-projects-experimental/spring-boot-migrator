@@ -21,6 +21,7 @@ import org.springframework.sbm.engine.context.RewriteJavaSearchActionDeserialize
 import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.util.BasePackageCalculator;
+import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.search.recipe.actions.OpenRewriteJavaSearchAction;
@@ -34,10 +35,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import javax.validation.Validator;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -66,6 +64,9 @@ public class RecipeTestSupport {
             DefaultActionDeserializer.class,
             RewriteJavaSearchActionDeserializer.class,
             RewriteRecipeLoader.class,
+            RewriteRecipeRunner.class,
+            RewriteMigrationResultMerger.class,
+            RewriteSourceFileWrapper.class,
             SbmRecipeLoader.class,
             BasePackageCalculator.class,
             ProjectContextHolder.class
@@ -86,10 +87,6 @@ public class RecipeTestSupport {
 
         SpringBeanProvider.run(context -> {
             context.start();
-            ActionDeserializerRegistry deserializerRegistry = context.getBean(ActionDeserializerRegistry.class);
-            ObjectMapper objectMapper = context.getBean("yamlObjectMapper", ObjectMapper.class);
-
-            deserializerRegistry.register(OpenRewriteJavaSearchAction.class, new RewriteJavaSearchActionDeserializer(objectMapper, context.getBeanFactory()));
             RecipesBuilder recipesBuilder = context.getBean(RecipesBuilder.class);
             ResourceHelperDummy resourceHelperDummy = context.getBean(ResourceHelperDummy.class);
             resourceHelperDummy.setRecipe(recipeFile);
