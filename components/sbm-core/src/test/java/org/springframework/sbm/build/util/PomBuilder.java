@@ -48,8 +48,9 @@ public class PomBuilder {
         return pomBuilder;
     }
 
-    public PomBuilder withModules(String... modules) {
-        this.modules = Arrays.asList(modules);
+    public PomBuilder withModules(String... moduleArtifactNames) {
+        this.modules = Arrays.asList(moduleArtifactNames);
+        if(this.modules.stream().anyMatch(m -> m.contains(":"))) throw new RuntimeException("Found ':' in artifact name but artifact names of modules must not be provided as coordinate.");
         return this;
     }
 
