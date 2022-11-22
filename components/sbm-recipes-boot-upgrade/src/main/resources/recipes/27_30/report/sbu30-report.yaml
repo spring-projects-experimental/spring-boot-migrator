@@ -73,10 +73,10 @@
         |===
         
         The application was scanned and matched against the changes listed in the
-        https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.5-Release-Notes[Spring Boot 2.5 Release Notes]
+        https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes[Spring Boot 3.0 Release Notes]
         as well as from https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-5.x[Spring Framework 5.x Release Notes].
         
-        The Relevant Changes section lists all potentially required changes to upgrade the scanned application to Spring Boot 2.5.6.
+        The Relevant Changes section lists all potentially required changes to upgrade the scanned application to Spring Boot 3.0.
         
         NOTE: JDK 17 is required for Spring Boot 3
         
