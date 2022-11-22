@@ -252,7 +252,7 @@ public class GitSupport {
                 .map(r -> context.getProjectRootDirectory().relativize(Path.of(r)).toString())
                 .collect(Collectors.toList());
 
-        if (sbmApplicationProperties.isGitSupportEnabled() && !(modifiedResources.isEmpty() || deletedResources.isEmpty())) {
+        if (sbmApplicationProperties.isGitSupportEnabled() && (!modifiedResources.isEmpty() || !deletedResources.isEmpty())) {
             File repoDir = context.getProjectRootDirectory().toFile();
             if (repoExists(repoDir)) {
                 String commitMessage = "SBM: applied recipe '" + appliedRecipeName + "'";

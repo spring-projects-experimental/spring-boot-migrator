@@ -37,23 +37,43 @@ public class BannerSupportReportSectionTest {
                 .fromProjectContext(context)
                 .shouldRenderAs(
                         """
-                        === Banner support
-                        Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/150[#150], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
+                                === Banner support
+                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/150[#150], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"], https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
+                                                                
+                                ==== What Changed
+                                Support for image-based application banners has been removed. banner.gif, banner.jpg, and banner.png
+                                files are now ignored and should be replaced with a text-based banner.txt file.
+                                                                
+                                ==== Why is the application affected
+                                The scan found banner image files here:
+                                                                
+                                * `<PATH>/src/main/resources/banner.gif`
+                                * `<PATH>/src/main/resources/banner.jpg`
                                                         
-                        ==== What Changed
-                        Support for image-based application banners has been removed. banner.gif, banner.jpg, and banner.png
-                        files are now ignored and should be replaced with a text-based banner.txt file.
+                                ==== Remediation
+                                 
                                                         
-                        ==== Why is the application affected
-                        The scan found banner image files here:
+                                ===== Remove image banner
+                                Remove these image banners\s
                                                         
-                        * <PATH>/src/main/resources/banner.gif
-                        * <PATH>/src/main/resources/banner.jpg
-                        
-                        ==== Remediation
-                        remove image banners and replace it with text-banner with banner.txt file
-                                        
-                                          
-                        """);
+                                * `<PATH>/src/main/resources/banner.gif`
+                                * `<PATH>/src/main/resources/banner.jpg`
+                                                        
+                                                        
+                                                        
+                                ++++
+                                <div class="run-a-recipe" recipe="sbu30-remove-image-banner">
+                                </div>
+                                ++++
+                                ===== Replace image banner
+                                Replace these banners\s
+                                                        
+                                * `<PATH>/src/main/resources/banner.gif`
+                                * `<PATH>/src/main/resources/banner.jpg`
+                                                        
+                                with `banner.txt`
+                                                
+                                                  
+                                """);
     }
 }

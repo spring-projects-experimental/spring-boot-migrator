@@ -55,7 +55,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Unknown class [" + clazz + "]", e);
         }
-        if (!ClassUtils.getAllInterfacesForClassAsSet(conditionClass).contains(Condition.class)) {
+        if (!Condition.class.isAssignableFrom(conditionClass)) {
             throw new IllegalArgumentException("Class [" + clazz + "] doesn't implement Condition interface");
         }
 
