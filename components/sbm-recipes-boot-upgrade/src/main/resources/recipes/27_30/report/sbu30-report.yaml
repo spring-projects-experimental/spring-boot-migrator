@@ -1,0 +1,413 @@
+- name: sbu30-report
+  description: Create a report for Spring Boot Upgrade from 2.7.x to 3.0.x
+  condition:
+    type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+    versionPattern: "2\\.7\\..*"
+
+  actions:
+
+    - type: org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportAction
+      file: report
+      condition:
+        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+
+      dataProvider: org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportDataProvider
+
+      header: |-
+        [[index]]
+        = Spring Boot 3 Upgrade Report
+        <#if contributors?has_content>
+        <#list contributors as contributor>
+        ${contributor.name}<#sep>,</#sep>
+        </#list>
+        </#if>
+        :source-highlighter: highlight.js
+        :highlightjs-languages: java
+        :doctype: book
+        :idprefix:
+        :idseparator: -
+        :toc: left
+        :sectnumlevels: 3
+        :toclevels: 3
+        :tabsize: 4
+        :numbered:
+        :sectanchors:
+        :sectnums:
+        :hide-uri-scheme:
+        :docinfo: shared,private
+        :attribute-missing: warn
+        :chomp: default headers packages
+        :spring-boot-artifactory-repo: snapshot
+        :github-tag: main
+        :spring-boot-version: current
+        :stylesheet: /css/button.css
+        
+        == Introduction
+        This report aims to help with updating spring Boot applications from 2.7 to 3.0.
+        The listed changes should be applied in the given order. 
+        It follows basically this order:
+        
+        . Prepare the 2.7 application
+        . Upgrade Spring Security to 5.8
+        . Upgrade to Spring Boot 3.0
+        
+        NOTE: The recipes should be applied in the given order!
+        
+        You can find us on GitHub.
+        Please report all problems.
+        
+        === Application Information
+        <#assign coordinates>${scannedCoordinate}</#assign>
+        [cols="1h,3"]
+        |===
+        | Scanned dir | ${scannedProjectRoot}
+        | Revision | <#if revision?has_content>`${revision}`<#else>Scanned project not under Git</#if>
+        <#if projectName?has_content>
+        | Project name |  ${projectName}
+        </#if>
+        | Coordinate | ${scannedCoordinate}
+        | Boot version | ${bootVersion}
+        <#if numberOfChanges?has_content>
+        | Changes | ${numberOfChanges}
+        </#if>
+        |===
+        
+        The application was scanned and matched against the changes listed in the
+        https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.5-Release-Notes[Spring Boot 2.5 Release Notes]
+        as well as from https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-5.x[Spring Framework 5.x Release Notes].
+        
+        The Relevant Changes section lists all potentially required changes to upgrade the scanned application to Spring Boot 2.5.6.
+        
+        NOTE: JDK 17 is required for Spring Boot 3
+        
+        == Relevant Changes
+        
+        This section lists the changes SBM found to be applicable to upgrade the scanned application to Spring Boot 3.0.0.
+
+      sections:
+
+
+        - title: Add Spring Boot dependency and plugin milestone repository
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.AddSpringBootRepositoriesHelper
+          change: |-
+            As currently only milestone releases exist these are required
+          affected: |-
+            You want to update to 3.0 so you're affected
+          remediation:
+            description: |-
+              Add Spring Boot milestone repositories.
+            recipe: sbu30-add-milestone-repositories
+          gitHubIssue: 441
+          contributors:
+            - "Fabian Krüger[@fabapp2]"
+
+        - title: Upgrade Dependencies
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeDependenciesHelper
+          change: |-
+            Spring Boot 3.0 upgraded many used dependencies. 
+            Also, dependencies previously in the `javax` packages use the new `jakarta` packages now.
+            WARNING: THis is a dummy and needs to be replaced with the matching changes from the release notes!
+          affected: |-
+            List the found dependencies here?
+          remediation:
+            description: |-
+              A comprehensive list of affected dependencies and their new replacements
+            recipe: sbu30-upgrade-dependencies
+          contributors:
+            - "Fabian Krüger[@fabapp2]"
+
+        - title: Upgrade Spring Boot Version to 3.0
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeSpringBootVersionHelper
+          change: |-
+            The Spring Boot version changed to 3.0
+          affected: |-
+            Upgrading to Spring Boot 3.0 requires an upgrade of the current Spring Boot version.
+          remediation:
+            description: |-
+              Depending on the way Spring Boot is added, e.g. by referencing `spring-boot-starter-parent` or through 
+              `dependencyManagement` these need to be changed to upgrade to Spring Boot 3.0.
+            recipe: sbu30-upgrade-boot-version
+          githubIssue: TODO
+          contributors:
+            - "Fabian Krüger[@fabapp2]"
+
+
+        - title: Changes to Data Properties
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ChangesToDataPropertiesHelper
+          change: |-
+            The data prefix has been reserved for Spring Data and any properties under the `spring.data` prefix imply that Spring
+            Data is required on the classpath.
+          affected: |-
+            The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
+
+            <#list matches as match>
+              * file://${match.absolutePath}[`${match.relativePath}`]<#lt>
+              <#list match.propertiesFound as property>
+              ** `${property}`<#lt>
+              </#list>
+            </#list>
+          remediation:
+            description: |-
+              Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
+            recipe: sbu30-migrate-spring-data-properties
+          gitHubIssue: 441
+          contributors:
+            - "Fabian Krüger[@fabapp2]"
+
+
+
+        - title: Logging Date Format
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.LoggingDateFormatHelper
+          change: |-
+            The default format for the date and time component of log messages for Logback and Log4j2 has changed to
+            align with the ISO-8601 standard. The new default format `yyyy-MM-dd’T’HH:mm:ss.SSSXXX` uses a `T` to
+            separate the date and time instead of a space character and adds the timezone offset to the end.
+            The `LOG_DATEFORMAT_PATTERN` environment variable or `logging.pattern.dateformat` property can be used to
+            restore the previous default value of `yyyy-MM-dd HH:mm:ss.SSS`.
+          affected: |-
+            The scan found no property `logging.pattern.dateformat`.
+          remediation:
+            description: |-
+              Set `logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS` to fall back to the previous log format.
+            recipe: sbu30-225-logging-date-format
+          gitHubIssue: 489
+          contributors:
+            - "Fabian Krüger[@fabapp2]"
+
+        - title: Banner support
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.BannerSupportHelper
+          change: |-
+            Support for image-based application banners has been removed. banner.gif, banner.jpg, and banner.png
+            files are now ignored and should be replaced with a text-based banner.txt file.
+          affected: |-
+            The scan found banner image files here:
+
+            <#list files as file>
+            * `${file}`
+            </#list>
+          remediation:
+            description: ""
+            possibilities:
+            - title: Remove image banner
+              description: |- 
+                Remove these image banners 
+        
+                <#list files as file>
+                * `${file}`
+                </#list>
+              recipe: sbu30-remove-image-banner
+            - title: Replace image banner
+              description: |- 
+                Replace these banners 
+                
+                <#list files as file>
+                * `${file}`
+                </#list>
+                
+                with `banner.txt`
+
+          gitHubIssue: 150
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
+            - "Fabian Krüger[@fabapp2]"
+
+
+        - title: Constructor Binding
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConstructorBindingHelper
+          change: |-
+            When using constructor bound @ConfigurationProperties the @ConstructorBinding annotation
+            is no longer required if the class has a single parameterized constructor.
+            If you have more than one constructor, you’ll still need to use `@ConstructorBinding`
+            to tell Spring Boot which one to use.
+
+            For most users, this updated logic will allow for simpler `@ConfigurationProperties`
+            classes. If, however, you have a `@ConfigurationProperties` and you want to inject
+            beans into the constructor rather than binding it, you’ll now need to add an
+            `@Autowired` annotation.
+          sources:
+            - https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0.0-M2-Release-Notes#constructingbinding-no-longer-needed-at-the-type-level[Spring Boot Release Notes]
+            - https://docs.spring.io/spring-boot/docs/3.0.0-M4/api/org/springframework/boot/context/properties/ConstructorBinding.html[@ConstructorBinding API]
+            - https://docs.spring.io/spring-boot/docs/3.0.0-M4/api/org/springframework/boot/context/properties/ConfigurationProperties.html[@ConfigurationProperties API]
+          affected: |-
+            We found usage of `@ConstructorBinding` in following files:
+
+            <#list files as file>
+            * ${file}
+            </#list>
+          remediation:
+            description:  |-
+              Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
+              for more information
+            resources:
+              - https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[Issue 166]
+            recipe: sbu30-remove-construtor-binding
+          gitHubIssue: 166
+          recipe: boot-2.7-3.0-upgrade-report
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
+
+
+        - title: Spring MVC and WebFlux URL matching changes
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.SpringMVCAndWebFluxUrlMatchingChangesHelper
+          change: |-
+            As of Spring Framework 6.0, the trailing slash matching configuration option has been deprecated and its default value set to `false`.
+            This means that previously, the following controller would match both "GET /some/greeting" and "GET /some/greeting/":
+
+            ```
+            @RestController
+            public class MyController {
+
+              @GetMapping("/some/greeting")
+              public String greeting {
+                return "Hello";
+              }
+
+            }
+            ```
+
+            As of https://github.com/spring-projects/spring-framework/issues/28552[this Spring Framework change], "GET /some/greeting/" doesn't
+            match anymore by default.
+
+            Developers should instead configure explicit redirects/rewrites through a proxy, a Servlet/web filter, or even declare the additional route explicitly on the controller handler (like `@GetMapping("/some/greeting", "/some/greeting/")` for more targeted cases.
+
+            Until your application fully adapts to this change, you can change the default with the following global configuration:
+
+            ```
+            @Configuration
+            public class WebConfiguration implements WebMvcConfigurer {
+
+                @Override
+                public void configurePathMatch(PathMatchConfigurer configurer) {
+                  configurer.setUseTrailingSlashMatch(true);
+                }
+
+            }
+            ```
+          sources:
+            - https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0.0-M4-Release-Notes#spring-mvc-and-webflux-url-matching-changes[Spring Boot Release Notes]
+            - https://github.com/spring-projects/spring-framework/issues/28552[SpringFramework Issue 28552]
+          affected: |-
+            The scan found classes annotated with `@RestController` which could be affected by this change.
+            <#list restControllers as restController>
+              * file://${restController.absolutePath}[`${restController.sourcePath}`]<#lt>
+            </#list>
+          remediation:
+            description: |-
+              You have different choices to remediate this change.
+            possibilities:
+            - title: Do Nothing
+              description:  |-
+                 If no clients expect a response for requests with a trailing `/` nothing needs to done.
+            - title: Configure explicit redirects/rewrites
+              description: |-
+                Configure explicit redirects/rewrites through a proxy, a Servlet/web filter.
+            - title: Add additional path mappings
+              description: |-
+                If only some endpoints should handle requests with a trailing `/`, another path can be provided to the
+                existing request mapping.
+                
+                [source, java]
+                ....
+                @RequestMapping(value = {"/current/path", "current/path/"})
+                
+                @RequestMapping(path = {"/current/path", "current/path/"})
+                
+                @GetMapping(value = {"/current/path", "current/path/"})
+                
+                @GetMapping(path = {"/current/path", "current/path/"})
+                ...
+                ....
+              resources:
+                - https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/GetMapping.html[@GetMapping API]
+                - https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/RequestMapping.html[@RequestMapping API]
+
+            - title: Reset behavior to prior 3.0
+              description: |-
+                If all rest controllers must serve requests with trailing `/`, a `PathMatchConfigurer` should be configured like so:
+                
+                [source, java]
+                ....
+                @Configuration
+                public class WebConfiguration implements WebMvcConfigurer {
+                
+                  @Override
+                  public void configurePathMatch(PathMatchConfigurer configurer) {
+                    configurer.setUseTrailingSlashMatch(true);
+                  }
+              
+                }
+                ....
+
+              recipe: sbu30-248-add-PathMatchConfigurer
+          gitHubIssue: 522
+          projects:
+          - spring-boot
+          - spring-framework
+          contributors:
+          - Fabian Krüger[@fabapp2]
+
+        - title: Paging and sorting repository
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.PagingAndSortingHelper
+          change: |-
+            Sorting repositories no longer extend their respective CRUD repository.
+
+            The affected interfaces are:
+
+            * `PagingAndSortingRepository` no longer extends `CrudRepository`
+            * `ReactiveSortingRepository` no longer extends `ReactiveCrudRepository`
+            * `RxJavaSortingRepository` no longer extends `RxJavaCrudRepository`
+          sources:
+            - https://github.com/spring-projects/spring-data-commons/wiki/Spring-Data-2022.0-%28Turing%29-Release-Notes#sorting-repositories-no-longer-inherit-from-crud-repositories
+          affected: |-
+            <#if pagingAndSortingRepos?size != 0>
+            We found classes which uses `PagingAndSortingRepository` in following files:
+            
+            <#list pagingAndSortingRepos as file>
+            * `${file}`
+            </#list>
+            
+            </#if>
+            <#if reactivePagingAndSortingRepos?size != 0>
+            We found classes which uses `ReactiveSortingRepository` in following files:
+
+            <#list reactivePagingAndSortingRepos as file>
+            * `${file}`
+            </#list>
+            
+            </#if>
+            <#if rxJavaSortingRepos?size != 0>
+            We found classes which uses `RxJavaSortingRepository` in following files:
+
+            <#list rxJavaSortingRepos as file>
+            * `${file}`
+            </#list>
+            
+            </#if>
+          remediation:
+            description: |-
+              If one requires the old behavior one must extend not only the sorting repository, but also the respective CRUD repository explicitly. This was done so the sorting support could easily be combined with the List repositories introduced above.
+            recipe: sbu30-paging-and-sorting-repository
+          gitHubIssue: 518
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
+
+        - title: Commons Multipart Upload
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.CommonsMultipartResolverHelper
+          change: |-
+            Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
+          affected: |-
+            We found usage of `CommonsMultipartResolver` in following files:
+            
+            <#list types as type>
+            * `${type}`
+            </#list>
+          remediation:
+            description: |-
+              Remove beans of type `CommonsMultipartResolver` and rely on Spring Boot auto-configuration
+          gitHubIssue: 541
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
+      footer: |-
+        We want to say thank you to all Contributors:
+        
+        Generated by Spring Boot Migrator (experimental)

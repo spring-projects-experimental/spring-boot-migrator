@@ -19,7 +19,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
-import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -29,6 +28,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.stringtemplate.v4.ST;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -115,7 +115,7 @@ public class SpringBootUpgradeReportTestSupport {
             if(SectionBuilderData.class.isInstance(builderData)) {
                 SectionBuilderData sectionBuilderData = SectionBuilderData.class.cast(builderData);
                 withRecipes(recipes -> {
-                    Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
+                    Recipe recipe = recipes.getRecipeByName("sbu30-report").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
                     List<SpringBootUpgradeReportSection> sections = (List<SpringBootUpgradeReportSection>) ReflectionTestUtils.getField(recipe.getActions().get(0), "sections");
                     List<SpringBootUpgradeReportSection> matchingSections = sections
@@ -134,7 +134,7 @@ public class SpringBootUpgradeReportTestSupport {
             } else if(ReportBuilderData.class.isInstance(builderData)) {
                 ReportBuilderData reportBuilderData = ReportBuilderData.class.cast(builderData);
                 withRecipes(recipes -> {
-                    Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
+                    Recipe recipe = recipes.getRecipeByName("sbu30-report").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.apply(reportBuilderData.getContext()).get(0);
                     bruteForceProjectContextIntoProjectContextHolder(reportBuilderData.getContext(), action);
                     List<SpringBootUpgradeReportSection> sections = (List<SpringBootUpgradeReportSection>) ReflectionTestUtils.getField(recipe.getActions().get(0), "sections");
@@ -159,7 +159,7 @@ public class SpringBootUpgradeReportTestSupport {
             if(ReportBuilderData.class.isInstance(builderData)) {
                 ReportBuilderData reportBuilderData = ReportBuilderData.class.cast(builderData);
                 withRecipes(recipes -> {
-                    Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
+                    Recipe recipe = recipes.getRecipeByName("sbu30-report").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
                     bruteForceProjectContextIntoProjectContextHolder(builderData.getContext(), action);
 //                    ReflectionTestUtils.setField(action, "upgradeReportProcessor", (SpringBootUpgradeReportFileSystemRenderer) s -> assertion.accept(s));
@@ -167,7 +167,7 @@ public class SpringBootUpgradeReportTestSupport {
                 });
             } else if(SectionBuilderData.class.isInstance(builderData)) {
                 withRecipes(recipes -> {
-                    Recipe recipe = recipes.getRecipeByName("boot-2.7-3.0-upgrade-report2").get();
+                    Recipe recipe = recipes.getRecipeByName("sbu30-report").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
                     bruteForceProjectContextIntoProjectContextHolder(builderData.getContext(), action);
                     List<SpringBootUpgradeReportSection> sections = (List<SpringBootUpgradeReportSection>) ReflectionTestUtils.getField(recipe.getActions().get(0), "sections");
@@ -183,7 +183,7 @@ public class SpringBootUpgradeReportTestSupport {
                     SpringBootUpgradeReportSection sectionUnderTest = matchingSections.get(0);
                     action.apply(builderData.getContext());
                     String renderedSection = sectionUnderTest.render(builderData.getContext());
-                    String renderedSectionWithoutButtonCode = replaceRe4cipeButtonCodeFromExpectedOutput(sectionUnderTest, renderedSection);
+                    String renderedSectionWithoutButtonCode = replaceRecipeButtonCodeFromExpectedOutput(sectionUnderTest, renderedSection);
 
                     assertion.accept(renderedSectionWithoutButtonCode);
                 });
@@ -194,32 +194,42 @@ public class SpringBootUpgradeReportTestSupport {
          * Another hack, removing the expected button code added to the Asciidoc to free tests from asserting invisible
          * code of buttons to apply a recipe.
          */
-        private String replaceRe4cipeButtonCodeFromExpectedOutput(SpringBootUpgradeReportSection sectionUnderTest, String renderedSection) {
-            StringBuilder sb = new StringBuilder();
-            List<String> buttonCodes = sectionUnderTest
-                    .getRemediation()
-                    .getPossibilities()
-                    .stream()
-                    .filter(p -> p.getRecipe() != null)
-                    .map(RemediationPossibility::getRecipe)
-                    .map(recipe -> {
-                        String target = """
+        private String replaceRecipeButtonCodeFromExpectedOutput(SpringBootUpgradeReportSection sectionUnderTest, String renderedSection) {
+            List<String> buttonCodes = new ArrayList<>();
+            if(sectionUnderTest.getRemediation().getPossibilities().isEmpty()) {
+                String recipe = sectionUnderTest.getRemediation().getRecipe();
+                if(recipe != null) {
+                    String target = """
                                                                                     
-                                ++++
-                                <form name="recipe-1" action="http://localhost:8080/spring-boot-upgrade" method="post">
-                                <input type="hidden" name="recipeName" value="<RECIPE>" />
-                                <button name="<RECIPE>" type="submit" style="background-color:#71ea5b;border:width: 120px;
-                                                                                                                                                             text-align: center;
-                                                                                                                                                             font-size: 15px;
-                                                                                                                                                             padding: 20px;
-                                                                                                                                                             border-radius: 15px;">Run Recipe</button>
-                                </form>
-                                ++++
+                              ++++
+                              <div class="run-a-recipe" recipe="<RECIPE>">
+                              </div>
+                              ++++
                                                                             
-                                """;
-                        return target.replace("<RECIPE>", recipe);
-                    })
-                    .collect(Collectors.toList());
+                              """;
+                    buttonCodes.add(target.replace("<RECIPE>", recipe));
+                }
+            } else {
+                buttonCodes = sectionUnderTest
+                        .getRemediation()
+                        .getPossibilities()
+                        .stream()
+                        .filter(p -> p.getRecipe() != null)
+                        .map(RemediationPossibility::getRecipe)
+                        .map(recipe -> {
+                            String target = """
+                                                                                    
+                              ++++
+                              <div class="run-a-recipe" recipe="<RECIPE>">
+                              </div>
+                              ++++
+                                                                            
+                              """;
+                            return target.replace("<RECIPE>", recipe);
+                        })
+                        .collect(Collectors.toList());
+            }
+
             for(String buttonCode : buttonCodes) {
                 renderedSection = renderedSection.replace(buttonCode, "");
             }
@@ -228,7 +238,7 @@ public class SpringBootUpgradeReportTestSupport {
 
         private void withRecipes(Consumer<Recipes> recipesConsumer) {
             RecipeTestSupport.testRecipe(
-                    Path.of("recipes/boot-new-report.yaml"), recipesConsumer,
+                    Path.of("recipes/27_30/report/sbu30-report.yaml"), recipesConsumer,
                     SpringBootUpgradeReportActionDeserializer.class,
                     SpringBootUpgradeReportFreemarkerSupport.class,
                     SpringBootUpgradeReportFileSystemRenderer.class,
@@ -237,9 +247,14 @@ public class SpringBootUpgradeReportTestSupport {
         }
 
         private String replacePlaceHolders(String expectedOutput, Map<String, String> templateVariables) {
-            ST st = new ST(expectedOutput);
-            templateVariables.entrySet().stream().forEach(e -> st.add(e.getKey(), e.getValue()));
-            return st.render();
+            StringBuffer sb = new StringBuffer();
+            // hacked, there's most probably a better way but ST couldn't digest html code
+            for(Map.Entry<String, String> kv : templateVariables.entrySet()) {
+                String key = "<" + kv.getKey() + ">";
+                String replacement = kv.getValue();
+                expectedOutput = expectedOutput.replace(key, replacement);
+            }
+            return expectedOutput;
         }
     }
 

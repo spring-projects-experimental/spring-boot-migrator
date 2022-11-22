@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.J;
+import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -42,6 +43,13 @@ public class PagingAndSortingHelper implements SpringBootUpgradeReportSection.He
 
     @Override
     public boolean evaluate(ProjectContext context) {
+        IsSpringBootProject isSpringBootProject = new IsSpringBootProject();
+        isSpringBootProject.setVersionPattern("2\\.7\\..*|3\\.0\\..*");
+        boolean isSpringBootApplication = isSpringBootProject.evaluate(context);
+        if(!isSpringBootApplication) {
+            return false;
+        }
+
         //CrudRepositoryExtension
         List<RewriteSourceFileHolder<J.CompilationUnit>> pagingAndSortingFileHolders =
                 context.getProjectJavaSources().find(pagingAndSortingFinders("org.springframework.data.repository.PagingAndSortingRepository"));
