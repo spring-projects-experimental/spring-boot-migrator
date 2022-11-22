@@ -5,10 +5,10 @@
     versionPattern: "2\\.7\\..*|3\\.0\\..*"
 
   actions:
-#    - type: org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionChecks
-#      description: "Check if the application adheres to preconditions."
-#      condition:
-#        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+    - type: org.springframework.sbm.boot.upgrade_27_30.Sbu30_PreconditionChecks
+      description: "Check if the application adheres to preconditions."
+      condition:
+        type: org.springframework.sbm.common.migration.conditions.TrueCondition
 
       # TODO: upgrades for 2.7
     - type: org.springframework.sbm.build.migration.actions.AddRepositoryAction
@@ -46,7 +46,6 @@
               groupId: org.springframework.cloud
               artifactId: spring-cloud-dependencies
               newVersion: 2022.0.0-M4
-
     -  type: org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction
        description: Move EnableAutoConfiguration Property from spring.factories to AutoConfiguration.imports
        snapshotsEnabled: false
@@ -87,7 +86,6 @@
               groupId: org.springframework.boot
               artifactId: spring-boot-dependencies
               newVersion: 3.0.0-M3
-
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
@@ -111,7 +109,7 @@
               newGroupId: com.github.tomakehurst
               newArtifactId: wiremock-jre8-standalone
               newVersion: 2.34.0
-
+    # Also moved to sbu30-
     - type: org.springframework.sbm.build.migration.actions.SetProperty
       propertyName: "java.version"
       propertyValue: "17"
@@ -133,7 +131,6 @@
           - org.openrewrite.yaml.ChangeKey:
               oldKeyPath: $.spring.security.saml2.relyingparty.registration.*[?(@.identityprovider)]
               newKey: assertingparty
-
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
@@ -146,7 +143,6 @@
         description: Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty.
         recipeList:
           - org.springframework.sbm.boot.upgrade_27_30.SamlRelyingPartyPropertyApplicationPropertiesMove
-
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
@@ -161,7 +157,6 @@
           - org.openrewrite.yaml.ChangePropertyKey:
               oldPropertyKey: spring.data.cassandra
               newPropertyKey: spring.cassandra
-
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
@@ -174,11 +169,10 @@
         description: Renames spring.data.cassandra.(any) to spring.cassandra.(any)
         recipeList:
           - org.springframework.sbm.boot.upgrade_27_30.CassandraApplicationPropertiesMove
-
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-        versionPattern: "3\\.0\\..*"
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
       description: Remove redundant @ConstructorBinding annotations when applicable
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
@@ -187,7 +181,6 @@
         description: Remove redundant @ConstructorBinding annotations when applicable
         recipeList:
           - org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation
-
     - type: org.springframework.sbm.engine.recipe.OpenRewriteNamedRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
@@ -199,7 +192,7 @@
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
         versionPattern: "3\\.0\\..*"
-      description: Add CrudRepository interface extension additionaly to PagingAndSortingRepository
+      description: Add CrudRepository interface extension additionally to PagingAndSortingRepository
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
         name: org.springframework.sbm.boot.upgrade_27_30.SpringBootPropertiesManual_2_7CrudRepo
@@ -215,7 +208,6 @@
           - org.springframework.sbm.boot.upgrade_27_30.CrudRepositoryExtension:
               pagingAndSortingRepository: org.springframework.data.repository.reactive.RxJava3SortingRepository
               targetCrudRepository: org.springframework.data.repository.reactive.RxJava3CrudRepository
-
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
@@ -324,7 +316,6 @@
         - org.openrewrite.properties.ChangePropertyKey:
             oldPropertyKey: spring.datasource.sql-script-encoding
             newPropertyKey: spring.sql.init.encoding
-    
         - org.openrewrite.yaml.ChangePropertyKey:
             oldPropertyKey: spring.elasticsearch.rest.connection-timeout
             newPropertyKey: spring.elasticsearch.connection-timeout
@@ -452,7 +443,6 @@
             propertyKey: spring.activemq.user
         - org.openrewrite.properties.DeleteProperty:
             propertyKey: spring.activemq.user
-
         - org.openrewrite.yaml.DeleteProperty:
             propertyKey: spring.artemis.pool.block-if-full
         - org.openrewrite.properties.DeleteProperty:
@@ -485,7 +475,6 @@
             propertyKey: spring.artemis.pool.use-anonymous-producers
         - org.openrewrite.properties.DeleteProperty:
             propertyKey: spring.artemis.pool.use-anonymous-producers
-
         - org.openrewrite.yaml.DeleteProperty:
             propertyKey: spring.cache.ehcache.config
         - org.openrewrite.properties.DeleteProperty:
@@ -606,7 +595,6 @@
             propertyKey: spring.graphql.websocket.path
         - org.openrewrite.properties.DeleteProperty:
             propertyKey: spring.graphql.websocket.path
-
         - org.openrewrite.yaml.DeleteProperty:
             propertyKey: spring.jta.atomikos.properties.allow-sub-transactions
         - org.openrewrite.properties.DeleteProperty:
@@ -687,7 +675,6 @@
             propertyKey: spring.jta.log-dir
         - org.openrewrite.properties.DeleteProperty:
             propertyKey: spring.jta.log-dir
-
     - type: org.springframework.sbm.boot.properties.actions.AddSpringBootApplicationPropertiesAction
       description: "Adds default spring boot properties to project. For multi-module project, adds default spring boot properties to every module with jar packaging"
       condition:
@@ -703,5 +690,3 @@
       description: "Sets JMX endpoint exposure include to *"
       condition:
         type: org.springframework.sbm.boot.upgrade_27_30.conditions.JmxEndpointExposureCondition
-
-
