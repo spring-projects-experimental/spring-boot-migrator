@@ -186,18 +186,18 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         repositories.add(new MavenRepository("spring-release", "https://repo.spring.io/release", true, false, null, null));
         Pom pom = null;
         ResolvedPom resolvedPom = null;
+        Map<String, String> dependencyMap = new HashMap<>();
         try {
             pom = downloader.download(gav, relativePath, containingPom, repositories);
             resolvedPom = pom.resolve(List.of(), downloader, repositories, new InMemoryExecutionContext());
+            List<ResolvedManagedDependency> dependencyManagement = resolvedPom.getDependencyManagement();
+            dependencyManagement
+                    .stream()
+                    .filter(d -> d.getVersion() != null)
+                    .forEach(d -> dependencyMap.put(d.getGroupId() + ":" + d.getArtifactId().toLowerCase(), d.getVersion()));
         } catch (MavenDownloadingException e) {
             log.error("Error while downloading dependency.", e);
         }
-        List<ResolvedManagedDependency> dependencyManagement = resolvedPom.getDependencyManagement();
-        Map<String, String> dependencyMap = new HashMap<>();
-        dependencyManagement
-                .stream()
-                .filter(d -> d.getVersion() != null)
-                .forEach(d -> dependencyMap.put(d.getGroupId() + ":" + d.getArtifactId().toLowerCase(), d.getVersion()));
         return dependencyMap;
     }
 }
