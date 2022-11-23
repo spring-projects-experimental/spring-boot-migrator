@@ -115,6 +115,9 @@ public interface BuildFile extends ProjectResource {
 
     Path getMainResourceFolder();
 
+    /**
+     * Sets existing property or adds new property.
+     */
     void setProperty(String key, String value);
 
     String getProperty(String key);

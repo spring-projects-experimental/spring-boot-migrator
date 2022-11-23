@@ -2427,6 +2427,25 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
+    void setProperty() {
+        String parentPom = PomBuilder.buiildPom("com.example:parent:0.1")
+                .withPackaging("pom")
+                .withModules("moduleA")
+                .withProperties(Map.of("some-property", "value1"))
+                .build();
+        String moduleA = PomBuilder.buiildPom("com.example:parent:0.1", "moduleA").build();
+        ProjectContext context = TestProjectContext
+                .buildProjectContext()
+                .withMavenRootBuildFileSource(parentPom)
+                .withMavenBuildFileSource("moduleA", moduleA)
+                .build();
+        BuildFile moduleABuildFile = context.getApplicationModules().getTopmostApplicationModules().get(0).getBuildFile();
+        moduleABuildFile.setProperty("some-property", "different-value");
+        assertThat(moduleABuildFile.getProperty("some-property")).isEqualTo("different-value");
+        assertThat(context.getApplicationModules().getRootModule().getBuildFile().getProperty("some-property")).isEqualTo("value1");
+    }
+
+    @Test
     void hasParentWithParentShouldReturnTrue() {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
