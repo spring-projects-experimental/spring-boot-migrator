@@ -1,5 +1,8 @@
 = Spring Boot Migrator (SBM)
 
+image:https://img.shields.io/github/license/spring-projects-experimental/spring-boot-migrator[GitHub]
+image:https://img.shields.io/github/v/release/spring-projects-experimental/spring-boot-migrator[GitHub release (latest by date)]
+image:https://img.shields.io/github/downloads/spring-projects-experimental/spring-boot-migrator/0.12.0/total[GitHub release (latest by date)]
 image:https://badges.gitter.im/spring-boot-migrator/community.svg[link="https://gitter.im/spring-boot-migrator/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
 
 [quote]
