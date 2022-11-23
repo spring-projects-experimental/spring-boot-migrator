@@ -39,7 +39,7 @@ public class CodeCommentTest {
                         "   @Deprecated public void test() {}" +
                         "}";
         J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnitFromString(javaCode);
-        FindAnnotations findAnnotations = new FindAnnotations("@java.lang.Deprecated");
+        FindAnnotations findAnnotations = new FindAnnotations("@java.lang.Deprecated", false);
 
         List<J.CompilationUnit> cus = List.of(compilationUnit);
         RecipeRun recipeRun = findAnnotations.run(cus);
