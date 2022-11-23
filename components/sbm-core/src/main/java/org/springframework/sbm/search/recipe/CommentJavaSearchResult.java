@@ -48,9 +48,9 @@ public class CommentJavaSearchResult implements Marker {
     }
 
     @Override
-    public <T extends Tree> T withId(final UUID id) {
+    public <M extends Marker> M withId(final UUID id) {
         CommentJavaSearchResult commentJavaSearchResult = this.id == id ? this : new CommentJavaSearchResult(id, searchResult.getDescription());
-        return (T) commentJavaSearchResult;
+        return (M) commentJavaSearchResult;
     }
 
     public String getComment() {
