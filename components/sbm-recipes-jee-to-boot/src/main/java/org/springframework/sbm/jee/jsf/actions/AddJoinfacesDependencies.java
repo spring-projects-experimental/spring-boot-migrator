@@ -21,9 +21,12 @@ import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.sbm.jee.ejb.api.EjbJarXml;
+import org.springframework.sbm.jee.ejb.filter.EjbJarXmlResourceFilter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j

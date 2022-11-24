@@ -85,6 +85,7 @@ public class MavenProjectParser {
                 .collect(Collectors.toList());
 
         eventPublisher.publishEvent(new StartedScanningProjectResourceSetEvent("Maven", inputs.size()));
+
         List<Xml.Document> mavens = mavenParser.parseInputs(inputs, projectDirectory, ctx);
         eventPublisher.publishEvent(new FinishedScanningProjectResourceSetEvent());
 

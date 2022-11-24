@@ -67,6 +67,7 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
 
         List<String> deletedResources = projectContext.search(new DeletedResourcePathStringFilter());
 
+        // FIXME: Use already existing modifiedResources, deletedResources instead of whole ProjectContext
         contextSerializer.writeChanges(projectContext);
 
         gitSupport.commitWhenGitAvailable(projectContext, recipeName, modifiedResources, deletedResources);

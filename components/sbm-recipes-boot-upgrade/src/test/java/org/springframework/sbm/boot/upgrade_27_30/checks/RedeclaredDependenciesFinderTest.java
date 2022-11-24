@@ -23,6 +23,7 @@ import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
+import java.nio.file.Path;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,17 +42,15 @@ class RedeclaredDependenciesFinderTest {
                     <artifactId>parent</artifactId>
                     <version>1.0.0</version>
                     <packaging>pom</packaging>
+                    <modules>
+                        <module>module1</module>
+                    </modules>
                     <dependencyManagement>
                         <dependencies>
                             <dependency>
-                                <groupId>com.dependency.group</groupId>
-                                <artifactId>artifact1</artifactId>
-                                <version>3.0.0</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>com.dependency.group</groupId>
-                                <artifactId>artifact2</artifactId>
-                                <version>3.0.0</version>
+                                <groupId>javax.validation</groupId>
+                                <artifactId>validation-api</artifactId>
+                                <version>2.0.0.Final</version>
                             </dependency>
                         </dependencies>
                     </dependencyManagement>
@@ -73,25 +72,16 @@ class RedeclaredDependenciesFinderTest {
                     <packaging>jar</packaging>
                     <dependencies>
                         <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact1</artifactId>
-                            <version>2.0.0</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact2</artifactId>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact3</artifactId>
-                            <version>1.0.0</version>
+                            <groupId>javax.validation</groupId>
+                            <artifactId>validation-api</artifactId>
+                            <version>1.1.0.Final</version>
                         </dependency>
                     </dependencies>
                 </project>
                 """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .withMavenBuildFileSource("", parentPomXml)
+                .withMavenRootBuildFileSource(parentPomXml)
                 .withMavenBuildFileSource("module1", module1PomXml)
                 .build();
 
@@ -100,12 +90,13 @@ class RedeclaredDependenciesFinderTest {
         assertThat(context.getApplicationModules().list()).hasSize(2);
         assertThat(matches).hasSize(1);
         RedeclaredDependency explicitDependency = matches.iterator().next();
-        String explicitVersionDependencyCoordinates = "com.dependency.group:artifact1:2.0.0";
+        String explicitVersionDependencyCoordinates = "javax.validation:validation-api:1.1.0.Final";
         assertThat(explicitDependency.getRedeclaredDependency().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
-        assertThat(explicitDependency.getOriginalVersion()).isEqualTo("3.0.0");
+        assertThat(explicitDependency.getOriginalVersion()).isEqualTo("2.0.0.Final");
     }
 
     @Test
+
     void shouldReportSameVersion() {
         @Language("xml")
         String parentPomXml =
@@ -120,14 +111,9 @@ class RedeclaredDependenciesFinderTest {
                     <dependencyManagement>
                         <dependencies>
                             <dependency>
-                                <groupId>com.dependency.group</groupId>
-                                <artifactId>artifact1</artifactId>
-                                <version>3.0.0</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>com.dependency.group</groupId>
-                                <artifactId>artifact2</artifactId>
-                                <version>3.0.0</version>
+                                <groupId>javax.validation</groupId>
+                                <artifactId>validation-api</artifactId>
+                                <version>2.0.0.Final</version>
                             </dependency>
                         </dependencies>
                     </dependencyManagement>
@@ -149,18 +135,9 @@ class RedeclaredDependenciesFinderTest {
                     <packaging>jar</packaging>
                     <dependencies>
                         <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact1</artifactId>
-                            <version>3.0.0</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact2</artifactId>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact3</artifactId>
-                            <version>3.0.0</version>
+                            <groupId>javax.validation</groupId>
+                            <artifactId>validation-api</artifactId>
+                            <version>2.0.0.Final</version>
                         </dependency>
                     </dependencies>
                 </project>
@@ -176,9 +153,9 @@ class RedeclaredDependenciesFinderTest {
         assertThat(context.getApplicationModules().list()).hasSize(2);
         assertThat(matches).hasSize(1);
         RedeclaredDependency explicitDependency = matches.iterator().next();
-        String explicitVersionDependencyCoordinates = "com.dependency.group:artifact1:3.0.0";
+        String explicitVersionDependencyCoordinates =  "javax.validation:validation-api:2.0.0.Final";
         assertThat(explicitDependency.getRedeclaredDependency().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
-        assertThat(explicitDependency.getOriginalVersion()).isEqualTo("3.0.0");
+        assertThat(explicitDependency.getOriginalVersion()).isEqualTo("2.0.0.Final");
     }
 
     @Test
@@ -196,14 +173,14 @@ class RedeclaredDependenciesFinderTest {
                     <dependencyManagement>
                         <dependencies>
                             <dependency>
-                                <groupId>com.dependency.group</groupId>
-                                <artifactId>artifact1</artifactId>
+                                <groupId>javax.el</groupId>
+                                <artifactId>javax.el-api</artifactId>
                                 <version>3.0.0</version>
                             </dependency>
                             <dependency>
-                                <groupId>com.dependency.group</groupId>
-                                <artifactId>artifact2</artifactId>
-                                <version>3.0.0</version>
+                                <groupId>javax.validation</groupId>
+                                <artifactId>validation-api</artifactId>
+                                <version>2.0.0.Final</version>
                             </dependency>
                         </dependencies>
                     </dependencyManagement>
@@ -221,30 +198,25 @@ class RedeclaredDependenciesFinderTest {
                     <version>1.0.0</version>
                     <packaging>jar</packaging>
                     <dependencyManagement>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.example</groupId>
-                            <artifactId>bom</artifactId>
-                            <version>1.0.0</version>
-                            <type>pom</type>
-                            <scope>import</scope>
-                        </dependency>
-                    </dependencies>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.example</groupId>
+                                <artifactId>bom</artifactId>
+                                <version>1.0.0</version>
+                                <type>pom</type>
+                                <scope>import</scope>
+                            </dependency>
+                        </dependencies>
                     </dependencyManagement>
                     <dependencies>
                         <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact1</artifactId>
-                            <version>2.0.0</version>
+                            <groupId>javax.el</groupId>
+                            <artifactId>javax.el-api</artifactId>
+                            <version>2.2.5</version>
                         </dependency>
                         <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact2</artifactId>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact3</artifactId>
-                            <version>1.0.0</version>
+                            <groupId>javax.validation</groupId>
+                            <artifactId>validation-api</artifactId>
                         </dependency>
                     </dependencies>
                 </project>
@@ -255,8 +227,8 @@ class RedeclaredDependenciesFinderTest {
                 .withMavenBuildFileSource("module1", module1PomXml)
                 .build();
 
-        String explicitVersionDependencyCoordinates = "com.dependency.group:artifact1:2.0.0";
-        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of("com.dependency.group:artifact1", "com.dependency.group:artifact2"));
+        String explicitVersionDependencyCoordinates = "javax.el:javax.el-api:2.2.5";
+        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of("javax.el:javax.el-api", "javax.validation:validation-api"));
         Set<RedeclaredDependency> matches = finder.findMatches(context);
         assertThat(context.getApplicationModules().list()).hasSize(2);
         assertThat(matches).isNotEmpty();
@@ -278,19 +250,14 @@ class RedeclaredDependenciesFinderTest {
                     <packaging>jar</packaging>
                     <dependencies>
                         <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact1</artifactId>
-                            <version>2.0.0</version>
+                            <groupId>javax.el</groupId>
+                            <artifactId>javax.el-api</artifactId>
+                            <version>3.0.0</version>
                         </dependency>
                         <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact2</artifactId>
-                            <version>2.0.0</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact3</artifactId>
-                            <version>1.0.0</version>
+                            <groupId>javax.validation</groupId>
+                            <artifactId>validation-api</artifactId>
+                            <version>2.0.0.Final</version>
                         </dependency>
                     </dependencies>
                 </project>
@@ -300,7 +267,7 @@ class RedeclaredDependenciesFinderTest {
                 .withMavenBuildFileSource("module1", module1PomXml)
                 .build();
 
-        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of("com.dependency.group:artifact1", "com.dependency.group:artifact2", "com.dependency.group:artifact3"));
+        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of("javax.el:javax.el-api", "javax.validation:validation-api"));
         Set<RedeclaredDependency> matches = finder.findMatches(context);
         assertThat(context.getApplicationModules().list()).hasSize(1);
         assertThat(matches).isEmpty();
@@ -318,17 +285,20 @@ class RedeclaredDependenciesFinderTest {
                     <artifactId>parent</artifactId>
                     <version>1.0.0</version>
                     <packaging>pom</packaging>
+                    <modules>
+                        <module>module1</module>
+                    </modules>
                     <dependencyManagement>
                         <dependencies>
                             <dependency>
-                                <groupId>com.dependency.group</groupId>
-                                <artifactId>artifact1</artifactId>
+                                <groupId>javax.el</groupId>
+                                <artifactId>javax.el-api</artifactId>
                                 <version>3.0.0</version>
                             </dependency>
                             <dependency>
-                                <groupId>com.dependency.group</groupId>
-                                <artifactId>artifact2</artifactId>
-                                <version>3.0.0</version>
+                                <groupId>javax.validation</groupId>
+                                <artifactId>javax.validation-api</artifactId>
+                                <version>2.0.0.Final</version>
                             </dependency>
                         </dependencies>
                     </dependencyManagement>
@@ -345,43 +315,45 @@ class RedeclaredDependenciesFinderTest {
                         <groupId>com.example</groupId>
                         <artifactId>parent</artifactId>
                         <version>1.0.0</version>
+                        <relativePath/>
                     </parent>
                     <artifactId>module1</artifactId>
                     <packaging>jar</packaging>
                     <dependencyManagement>
                         <dependencies>
                             <dependency>
-                                <groupId>com.dependency.group</groupId>
-                                <artifactId>artifact3</artifactId>
-                                <version>3.0.0</version>
+                                <groupId>javax.transaction</groupId>
+                                <artifactId>javax.transaction-api</artifactId>
+                                <version>1.3</version>
                             </dependency>
                         </dependencies>
                     </dependencyManagement>
 
                     <dependencies>
                         <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact1</artifactId>
-                            <version>2.0.0</version>
+                            <groupId>javax.validation</groupId>
+                            <artifactId>javax.validation-api</artifactId>
+                            <version>1.1.0.Final</version>
                         </dependency>
                         <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact2</artifactId>
-                            <version>1.5.0</version>
+                            <groupId>javax.el</groupId>
+                            <artifactId>javax.el-api</artifactId>
+                            <version>2.2.5</version>
                         </dependency>
                         <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact3</artifactId>
-                            <version>1.0.0</version>
-                        </dependency>
+                            <groupId>javax.transaction</groupId>
+                            <artifactId>javax.transaction-api</artifactId>
+                            <version>1.2</version>
+                        </dependency>             
                     </dependencies>
                 </project>
                 """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .withMavenBuildFileSource("", parentPomXml)
+                .withMavenRootBuildFileSource(parentPomXml)
                 .withMavenBuildFileSource("module1", module1PomXml)
-                .build();
+                .serializeProjectContext(Path.of("./target/test"));
+//                .build();
 
         RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of());
         Set<RedeclaredDependency> matches = finder.findMatches(context);
@@ -389,19 +361,19 @@ class RedeclaredDependenciesFinderTest {
         assertThat(matches).hasSize(3);
         assertThat(matches).contains(new RedeclaredDependency(
                 Dependency.builder()
-                        .groupId("com.dependency.group")
-                        .artifactId("artifact1")
-                        .version("2.0.0").build(), "3.0.0"));
+                        .groupId("javax.validation")
+                        .artifactId("validation-api")
+                        .version("1.1.0.Final").build(), "2.0.0.Final"));
         assertThat(matches).contains(new RedeclaredDependency(
                 Dependency.builder()
-                        .groupId("com.dependency.group")
-                        .artifactId("artifact2")
-                        .version("1.5.0").build(), "3.0.0"));
+                        .groupId("javax.el")
+                        .artifactId("javax.el-api")
+                        .version("2.2.5").build(), "3.0.0"));
         assertThat(matches).contains(new RedeclaredDependency(
                 Dependency.builder()
-                        .groupId("com.dependency.group")
-                        .artifactId("artifact3")
-                        .version("1.0.0").build(), "3.0.0"));
+                        .groupId("javax.transaction")
+                        .artifactId("javax.transaction-api")
+                        .version("1.2").build(), "1.3"));
     }
 
     @Test
