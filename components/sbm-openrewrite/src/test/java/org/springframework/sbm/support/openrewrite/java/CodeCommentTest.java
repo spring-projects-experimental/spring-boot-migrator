@@ -34,17 +34,24 @@ public class CodeCommentTest {
 
     @Test
     void markerAsComment() {
-        String javaCode =
-                "public class SomeTest {" +
-                        "   @Deprecated public void test() {}" +
-                        "}";
+        String javaCode = """
+                        public class SomeTest {   
+                            @Deprecated public void test() {}
+                        }
+                        """;
         J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnitFromString(javaCode);
         FindAnnotations findAnnotations = new FindAnnotations("@java.lang.Deprecated", false);
 
         List<J.CompilationUnit> cus = List.of(compilationUnit);
         RecipeRun recipeRun = findAnnotations.run(cus);
 
-        String markerText = "\n/*\n Found @Deprecated without attributes: \n - please set markedForRemoval \n - please set since \nhere --> */ ";
+        String markerText = """
+                /*
+                 Found @Deprecated without attributes:
+                 - please set markedForRemoval
+                 - please set since
+                here --> */
+                """;
 
         J.CompilationUnit cu = (J.CompilationUnit) recipeRun.getResults().get(0).getAfter();
 
@@ -62,8 +69,10 @@ public class CodeCommentTest {
         ((JavaPrinter) javaPrinter).visit(cu, outputCapture);
         String s = outputCapture.out.toString();
 
-        assertThat(s)
-                .isEqualTo(
-                        "public class SomeTest {   " + markerText + "@Deprecated public void test() {}}");
+        assertThat(s).isEqualTo("""
+                                public class SomeTest {
+                                    %s/*~~>*/@Deprecated public void test() {}
+                                }
+                                """.formatted(markerText));
     }
 }
