@@ -555,6 +555,8 @@ public class OpenRewriteMavenBuildFileTest {
                                 .version("2.0.1.Final")
                                 .build());
 
+
+
         Class<DependenciesChangedEvent> event = DependenciesChangedEvent.class;
         ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(event);
         assertEventPublished(eventPublisher, argumentCaptor, event, 1);

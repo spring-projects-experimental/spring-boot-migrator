@@ -344,7 +344,7 @@ class RedeclaredDependenciesFinderTest {
                             <groupId>javax.transaction</groupId>
                             <artifactId>javax.transaction-api</artifactId>
                             <version>1.2</version>
-                        </dependency>            
+                        </dependency>           
                     </dependencies>
                 </project>
                 """;
