@@ -178,53 +178,55 @@ public class ConvertJaxRsAnnotationsTest {
 
     @Test
     void replaceMethodAnnotations() throws Exception {
-        String sourceCode =
-                "import javax.ws.rs.Path;\n" +
-                        "import javax.ws.rs.Consumes;\n" +
-                        "import javax.ws.rs.*;\n" +
-                        "import javax.ws.rs.Path;\n" +
-                        "import javax.ws.rs.PathParam;\n" +
-                        "import javax.ws.rs.Produces;\n" +
-                        "import javax.ws.rs.core.MediaType;\n" +
-                        "        \n" +
-                        "                                   \n" +
-                        "@Path(\"/hello\")                                   \n" +
-                        "class ControllerClass {             \n" +
-                        "    @POST\n" +
-                        "    @GET\n" +
-                        "    @PUT\n" +
-                        "    @DELETE\n" +
-                        "    @Path(\"/json/{name}\")\n" +
-                        "    @Produces({\"image/jpeg\", \"image/gif\", \"image/png\", MediaType.APPLICATION_XML})\n" +
-                        "    @Consumes(\"application/json\")\n" +
-                        "    public String getHelloWorldJSON(@PathParam(\"name\") String name) {\n" +
-                        "        return \"Hello\";\n" +
-                        "    }\n" +
-                        "    public String notAnEndpoint(@PathParam(\"name\") String name) {\n" +
-                        "        return \"Hello\";\n" +
-                        "    }\n" +
-                        "}";
+        String sourceCode = """
+                import javax.ws.rs.Path;
+                import javax.ws.rs.Consumes;
+                import javax.ws.rs.*;
+                import javax.ws.rs.Path;
+                import javax.ws.rs.PathParam;
+                import javax.ws.rs.Produces;
+                import javax.ws.rs.core.MediaType;
+                       \s
+                                                  \s
+                @Path("/hello")                                  \s
+                class ControllerClass {            \s
+                    @POST
+                    @GET
+                    @PUT
+                    @DELETE
+                    @Path("/json/{name}")
+                    @Produces({"image/jpeg", "image/gif", "image/png", MediaType.APPLICATION_XML})
+                    @Consumes("application/json")
+                    public String getHelloWorldJSON(@PathParam("name") String name) {
+                        return "Hello";
+                    }
+                    public String notAnEndpoint(@PathParam("name") String name) {
+                        return "Hello";
+                    }
+                }
+                """;
 
-        String expected =
-                "import org.springframework.web.bind.annotation.RequestMapping;\n" +
-                        "import org.springframework.web.bind.annotation.RequestMethod;\n" +
-                        "import org.springframework.web.bind.annotation.RestController;\n" +
-                        "import javax.ws.rs.PathParam;\n" +
-                        "import javax.ws.rs.core.MediaType;\n" +
-                        "\n" +
-                        "\n" +
-                        "@RestController\n" +
-                        "@RequestMapping(value = \"/hello\")\n" +
-                        "class ControllerClass {\n" +
-                        "    @RequestMapping(value = \"/json/{name}\", produces = {\"image/jpeg\", \"image/gif\", \"image/png\", MediaType.APPLICATION_XML}, consumes = \"application/json\"," +
-                        " method = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})\n" +
-                        "    public String getHelloWorldJSON(@PathParam(\"name\") String name) {\n" +
-                        "        return \"Hello\";\n" +
-                        "    }\n" +
-                        "    public String notAnEndpoint(@PathParam(\"name\") String name) {\n" +
-                        "        return \"Hello\";\n" +
-                        "    }\n" +
-                        "}";
+        String expected = """
+                import org.springframework.web.bind.annotation.RequestMapping;
+                import org.springframework.web.bind.annotation.RequestMethod;
+                import org.springframework.web.bind.annotation.RestController;
+                
+                import javax.ws.rs.PathParam;
+                import javax.ws.rs.core.MediaType;
+                                
+                                
+                @RestController
+                @RequestMapping(value = "/hello")
+                class ControllerClass {
+                    @RequestMapping(value = "/json/{name}", produces = {"image/jpeg", "image/gif", "image/png", MediaType.APPLICATION_XML}, consumes = "application/json", method = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
+                    public String getHelloWorldJSON(@PathParam("name") String name) {
+                        return "Hello";
+                    }
+                    public String notAnEndpoint(@PathParam("name") String name) {
+                        return "Hello";
+                    }
+                }
+                """;
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withJavaSources(sourceCode)
