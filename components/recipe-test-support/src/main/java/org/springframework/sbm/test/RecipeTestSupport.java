@@ -16,6 +16,8 @@
 package org.springframework.sbm.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.sbm.build.impl.MavenSettingsInitializer;
+import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.context.RewriteJavaSearchActionDeserializer;
 import org.springframework.sbm.engine.recipe.*;
@@ -69,7 +71,9 @@ public class RecipeTestSupport {
             RewriteSourceFileWrapper.class,
             SbmRecipeLoader.class,
             BasePackageCalculator.class,
-            ProjectContextHolder.class
+            ProjectContextHolder.class,
+            RewriteMavenParser.class,
+            MavenSettingsInitializer.class
     };
 
 

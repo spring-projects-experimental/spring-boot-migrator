@@ -29,6 +29,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.build.migration.MavenPomCacheProvider;
@@ -78,6 +79,7 @@ import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.
         RewritePropertiesParser.class,
         MavenProjectParser.class,
         RewriteMavenParser.class,
+        MavenSettingsInitializer.class,
         RewriteXmlParser.class,
         ResourceHelper.class,
         ResourceLoader.class,

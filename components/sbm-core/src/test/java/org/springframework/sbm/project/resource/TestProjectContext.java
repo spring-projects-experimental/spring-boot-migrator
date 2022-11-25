@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
@@ -551,7 +552,7 @@ public class TestProjectContext {
                     new ResourceParser.ResourceFilter(),
                     eventPublisher);
 
-            RewriteMavenParser mavenParser =  new RewriteMavenParser();
+            RewriteMavenParser mavenParser =  new RewriteMavenParser(new MavenSettingsInitializer());
 
             MavenArtifactDownloader artifactDownloader = new RewriteMavenArtifactDownloader();
 
