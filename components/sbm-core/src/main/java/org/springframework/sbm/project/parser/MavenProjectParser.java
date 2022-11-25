@@ -53,7 +53,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-// FIXME: #7 rename to ProjectParser
 public class MavenProjectParser {
 
     private final ResourceParser resourceParser;
