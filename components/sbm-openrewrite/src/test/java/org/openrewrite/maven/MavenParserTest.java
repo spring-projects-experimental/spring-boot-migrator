@@ -18,11 +18,16 @@ package org.openrewrite.maven;
 import org.assertj.core.api.Assertions;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.internal.RecipeRunException;
+import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.ResolvedDependency;
+import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.Problem;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -63,7 +68,7 @@ public class MavenParserTest {
                              !Files.exists(Path.of("moduleA/pom.xml"))
                 );
         List<Xml.Document> newMavenFiles = mavenParser.parseInputs(List.of(parserInput), null, new InMemoryExecutionContext((t) -> t.printStackTrace()));
-        System.out.println(newMavenFiles.get(0).printAll());
+//        System.out.println(newMavenFiles.get(0).printAll());
     }
 
     @Test
@@ -149,4 +154,65 @@ public class MavenParserTest {
         ).get(0);
         assertThat(sut).isNotNull();
     }
+
+
+    @Problem(description = "java.io.UncheckedIOException: Failed to parse pom", since = "7.18.2", fixedIn = "7.23.0")
+    void testParsingPomWithEmptyDependenciesSection() {
+        String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                "    <modelVersion>4.0.0</modelVersion>\n" +
+                "    <groupId>com.example</groupId>\n" +
+                "    <artifactId>foo-bar</artifactId>\n" +
+                "    <version>0.1.0-SNAPSHOT</version>\n" +
+                "    <dependencies></dependencies>\n" +
+                "</project>";
+
+        List<Xml.Document> parse = MavenParser.builder().build().parse(pomXml);
+        assertThat(parse).isNotEmpty();
+    }
+
+    @Test
+    void test(@TempDir Path tempDir) {
+        String pomXml =
+                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
+                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                        "    xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                        "    <modelVersion>4.0.0</modelVersion>\n" +
+                        "    <groupId>foo</groupId>\n" +
+                        "    <artifactId>bar</artifactId>\n" +
+                        "    <version>0.0.1-SNAPSHOT</version>\n" +
+                        "    <name>foobat</name>\n" +
+                        "    <repositories>\n" +
+                        "        <repository>\n" +
+                        "            <id>jcenter</id>\n" +
+                        "            <name>jcenter</name>\n" +
+                        "            <url>https://jcenter.bintray.com</url>\n" +
+                        "        </repository>\n" +
+                        "        <repository>\n" +
+                        "            <id>mavencentral</id>\n" +
+                        "            <name>mavencentral</name>\n" +
+                        "            <url>https://repo.maven.apache.org/maven2</url>\n" +
+                        "        </repository>\n" +
+                        "    </repositories>" +
+                        "    <dependencies>\n" +
+                        "        <dependency>\n" +
+                        "            <groupId>org.apache.tomee</groupId>\n" +
+                        "            <artifactId>openejb-core-hibernate</artifactId>\n" +
+                        "            <version>8.0.5</version>\n" +
+                        "            <type>pom</type>\n" +
+                        "        </dependency>\n" +
+                        "    </dependencies>\n" +
+                        "</project>";
+
+        Xml.Document document = MavenParser.builder().build().parse(pomXml).get(0);
+        MavenResolutionResult r = document.getMarkers().findFirst(MavenResolutionResult.class).get();
+
+        InMemoryExecutionContext executionContext = new InMemoryExecutionContext((t) -> System.out.println(t.getMessage()));
+        MavenExecutionContextView ctx = MavenExecutionContextView.view(executionContext);
+        ctx.setPomCache(new InMemoryMavenPomCache());
+        List<ResolvedDependency> resolvedDependencies = r.getDependencies().get(Scope.Provided);
+        assertThat(r.getDependencies()).hasSize(4);
+        assertThat(resolvedDependencies).hasSize(81); // FIXME: #7 was 81 before ?!
+    }
+
 }
