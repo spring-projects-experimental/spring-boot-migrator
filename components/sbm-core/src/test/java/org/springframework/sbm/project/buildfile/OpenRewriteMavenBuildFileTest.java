@@ -552,7 +552,7 @@ public class OpenRewriteMavenBuildFileTest {
         buildFile.addDependency(Dependency.builder()
                                 .groupId("javax.validation")
                                 .artifactId("validation-api")
-                                .version("2.0.0.Final")
+                                .version("2.0.1.Final")
                                 .build());
 
         Class<DependenciesChangedEvent> event = DependenciesChangedEvent.class;
@@ -560,7 +560,7 @@ public class OpenRewriteMavenBuildFileTest {
         assertEventPublished(eventPublisher, argumentCaptor, event, 1);
 
 //        verify(eventPublisher).publishEvent(argumentCaptor);
-        assertThat(argumentCaptor.getValue().getResolvedDependencies().get(0).toString()).endsWith("javax/validation/validation-api/2.0.0.Final/validation-api-2.0.0.Final.jar");
+        assertThat(argumentCaptor.getValue().getResolvedDependencies().get(0).toString()).endsWith("javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar");
 
         DependenciesChangedEvent fireEvent = argumentCaptor.getValue();
         ProjectContextHolder projectContextHolder = new ProjectContextHolder();
