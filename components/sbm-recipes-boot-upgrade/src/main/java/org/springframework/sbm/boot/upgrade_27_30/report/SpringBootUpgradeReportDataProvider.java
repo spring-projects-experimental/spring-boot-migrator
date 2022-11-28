@@ -53,6 +53,7 @@ public class SpringBootUpgradeReportDataProvider implements SpringBootUpgradeRep
             data.put("projectName", context.getBuildFile().getName().get());
         }
 
+        // FIXME: results in all conditons for all sections being evaluated twice
         data.put("numberOfChanges", sections.stream().filter(s -> s.shouldRender(context)).count());
 
         // FIXME: Retrieve Boot version from Finder
