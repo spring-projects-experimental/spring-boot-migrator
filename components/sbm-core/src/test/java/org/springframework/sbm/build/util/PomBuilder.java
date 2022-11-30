@@ -16,21 +16,25 @@
 
 package org.springframework.sbm.build.util;
 
-import org.openrewrite.maven.tree.Scope;
 import org.springframework.sbm.project.parser.DependencyHelper;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.openrewrite.maven.tree.Dependency;
+import org.openrewrite.maven.tree.Scope;
 
 public class PomBuilder {
-    private String coordinate;
-    private List<String> modules;
-    private String type;
-    private String parent;
-    private String artifactId;
-    private List<String> unscopedDependencies;
-    private List<String> testScopeDependencies;
-    private Map<String, String> properties = new HashMap<>();
-    private Map<Scope, org.openrewrite.maven.tree.Dependency> dependencies = new LinkedHashMap<Scope, org.openrewrite.maven.tree.Dependency>();
+        private String coordinate;
+        private List<String> modules;
+		private String packaging;
+        private String parent;
+        private String artifactId;
+		private Map<String, String> properties = new HashMap<>();
+		private Map<Scope, org.openrewrite.maven.tree.Dependency> dependencies = new LinkedHashMap<Scope, Dependency>();
 
     private DependencyHelper dependencyHelper = new DependencyHelper();
     private String parentPom;
@@ -116,18 +120,18 @@ public class PomBuilder {
             sb.append("    <version>").append(coord[2]).append("</version>").append("\n");
         }
 
-        if(!properties.isEmpty()) {
-            sb.append("    <properties>").append("\n");
-            properties.entrySet().forEach(e ->
-                sb.append("        <").append(e.getKey()).append(">").append(e.getValue()).append("</").append(e.getKey()).append(">").append("\n")
-            );
-            sb.append("    </properties>").append("\n");
-        }
 
+		if(packaging != null ){
+			sb.append("    <packaging>").append(packaging).append("</packaging>").append("\n");
+		}
 
-        if (type != null) {
-            sb.append("    <type>").append(type).append("</type>").append("\n");
-        }
+		if(!properties.isEmpty()) {
+			sb.append("    <properties>").append("\n");
+			properties.entrySet().forEach(e ->
+					sb.append("        <").append(e.getKey()).append(">").append(e.getValue()).append("</").append(e.getKey()).append(">").append("\n")
+			);
+			sb.append("    </properties>").append("\n");
+		}
 
         if (modules != null && !modules.isEmpty()) {
             sb.append("    <modules>").append("\n");
@@ -205,10 +209,10 @@ public class PomBuilder {
                 .append("\n");
     }
 
-    public PomBuilder type(String type) {
-        this.type = type;
-        return this;
-    }
+	public PomBuilder packaging(String type) {
+		this.packaging = type;
+		return this;
+	}
 
     public PomBuilder unscopedDependencies(String... coordinates) {
         dependencyHelper.mapCoordinatesToDependencies(Arrays.asList(coordinates))
@@ -235,4 +239,12 @@ public class PomBuilder {
         this.properties = properties;
         return this;
     }
+
+	public PomBuilder property(String property, String value){
+		if (this.properties == null){
+			this.properties = new LinkedHashMap<>();
+		}
+		this.properties.put(property,value);
+		return this;
+	}
 }
