@@ -129,7 +129,7 @@ public class AddMavenPlugin extends Recipe {
 			try {
 				String configurationXml = MavenXmlMapper.writeMapper().writerWithDefaultPrettyPrinter()
 						.writeValueAsString(plugin.getConfiguration());
-				return configurationXml.replaceFirst("<HashMap>", "").replace("</HashMap>", "")
+				return configurationXml.replaceFirst("<LinkedHashMap>", "").replace("</LinkedHashMap>", "")
 						.trim();
 			}
 			catch (JsonProcessingException e) {

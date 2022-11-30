@@ -767,56 +767,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public List<Plugin> getPlugins() {
-
-        List<Plugin> plugins = new ArrayList<>();
-
-        MavenVisitor mavenVisitor = new MavenVisitor<ExecutionContext>() {
-
-            @Override
-            public Xml.Document visitDocument(Xml.Document maven, ExecutionContext ctx) {
-                Xml.Tag mavenRoot = maven.getRoot();
-                Optional<Xml.Tag> build = mavenRoot.getChild("build");
-                if (build.isPresent()) {
-                    Xml.Tag buildTag = build.get();
-                    Optional<Xml.Tag> pluginTags = buildTag.getChild("plugins");
-                    if (pluginTags.isPresent()) {
-                        List<Xml.Tag> plugin = pluginTags.get().getChildren("plugin");
-                        List<Plugin> pluginList = plugin.stream()
-                                .map(this::mapToPlugin)
-                                .collect(Collectors.toList());
-                        plugins.addAll(pluginList);
-                    }
-                }
-                return null;
-            }
-
-            private Plugin mapToPlugin(Xml.Tag tag) {
-                String groupId = tag.getChild("groupId").get().getValue().get();
-                String artifactId = tag.getChild("artifactId").get().getValue().get();
-                Optional<Xml.Tag> versionTag = tag.getChild("version");
-                String version = null;
-                if (versionTag.isPresent()) {
-                    version = versionTag.get().getValue().get();
-                }
-				Optional<Xml.Tag> configurationTag = tag.getChild("configuration");
-				HashMap<String, Object> configuration = new HashMap<>();
-				if (configurationTag.isPresent() && configurationTag.get().getChildren().size() > 0){
-					try {
-						String configurationXml = configurationTag.get().print(new XmlPrinter<>());
-						configuration = MavenXmlMapper.readMapper().readValue(configurationXml, new TypeReference<>() {});
-					}
-					catch (JsonProcessingException e) {
-						throw new RuntimeException(e);
-					}
-
-				}
-				return new Plugin(groupId, artifactId, version, List.of(), configuration, "");
-            }
-        };
-
-        mavenVisitor.visitDocument(getSourceFile(), executionContext);
-
-        return plugins;
+		return getPom().getPom().getRequested().getPlugins().stream()
+				.map(Plugin::new)
+				.collect(Collectors.toList());
     }
 
     /**
@@ -877,8 +830,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 			try {
 				String configurationXml = MavenXmlMapper.writeMapper().writerWithDefaultPrettyPrinter()
 						.writeValueAsString(configurationMap);
-				@Language("xml")
-				String configurationXmlWithoutRoot = configurationXml.replaceFirst("<HashMap>", "").replace("</HashMap>", "")
+				String configurationXmlWithoutRoot = configurationXml.replaceFirst("<LinkedHashMap>", "").replace("</LinkedHashMap>", "")
 						.trim();
 
 				apply(new ChangePluginConfiguration(groupId, artifactId, configurationXmlWithoutRoot));

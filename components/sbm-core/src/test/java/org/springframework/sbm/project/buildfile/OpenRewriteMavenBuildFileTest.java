@@ -2070,7 +2070,12 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(plugins.get(1).getArtifactId()).isEqualTo("munit-maven-plugin");
         assertThat(plugins.get(1).getVersion()).isEqualTo("${munit.version}");
         assertThat(plugins.get(1).getConfiguration()).isNotEmpty();
-        assertThat(plugins.get(1).getExecutions()).isEmpty();
+        assertThat(plugins.get(1).getExecutions()).isNotEmpty();
+        assertThat(plugins.get(1).getExecutions().get(0).getId()).isEqualTo("test");
+        assertThat(plugins.get(1).getExecutions().get(0).getPhase()).isEqualTo("test");
+        assertThat(plugins.get(1).getExecutions().get(0).getGoals()).hasSize(2);
+        assertThat(plugins.get(1).getExecutions().get(0).getGoals().get(0)).isEqualTo("test");
+        assertThat(plugins.get(1).getExecutions().get(0).getGoals().get(1)).isEqualTo("coverage-report");
     }
 
 	@Test
