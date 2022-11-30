@@ -43,7 +43,7 @@ public class ChangesToDataPropertiesReportSectionTest {
                 .shouldRenderAs(
                         """
                         === Changes to Data Properties
-                        Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/441[#441], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
+                        Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/441[#441^, role="ext-link"], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
                                                               
                         ==== What Changed
                         The data prefix has been reserved for Spring Data and any properties under the `spring.data` prefix imply that Spring

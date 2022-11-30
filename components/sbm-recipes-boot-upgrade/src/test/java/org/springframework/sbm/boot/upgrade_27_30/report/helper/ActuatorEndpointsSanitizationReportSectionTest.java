@@ -59,8 +59,7 @@ public class ActuatorEndpointsSanitizationReportSectionTest {
                 .fromProjectContext(context)
                 .shouldRenderAs("""
                                         === Actuator Endpoints Sanitization
-                                                                      
-                                        Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
+                                        Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/445[#445^, role="ext-link"], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
                                                                       
                                         ==== What Changed
                                         Since, the `/env` and `/configprops` endpoints can contains sensitive values, all values are always masked by default.

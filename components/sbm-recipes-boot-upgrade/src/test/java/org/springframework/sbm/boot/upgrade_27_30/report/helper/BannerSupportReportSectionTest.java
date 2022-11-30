@@ -38,7 +38,7 @@ public class BannerSupportReportSectionTest {
                 .shouldRenderAs(
                         """
                                 === Banner support
-                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/150[#150], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"], https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
+                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/150[#150^, role="ext-link"], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"], https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
                                                                 
                                 ==== What Changed
                                 Support for image-based application banners has been removed. banner.gif, banner.jpg, and banner.png
