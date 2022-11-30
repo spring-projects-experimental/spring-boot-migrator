@@ -1,5 +1,5 @@
 - name: boot-2.7-3.0-dependency-version-update
-  description: Bump spring-boot-starter-parent from 2.7.x to 3.0.0-M3
+  description: Bump spring-boot-starter-parent from 2.7.x to 3.0.0
   condition:
     type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
     versionPattern: "2\\.7\\..*|3\\.0\\..*"
@@ -9,27 +9,6 @@
       description: "Check if the application adheres to preconditions."
       condition:
         type: org.springframework.sbm.common.migration.conditions.TrueCondition
-
-      # TODO: upgrades for 2.7
-    - type: org.springframework.sbm.build.migration.actions.AddRepositoryAction
-      description: Add Spring Boot milestone repository.
-      id: "spring-milestone"
-      url: "https://repo.spring.io/milestone"
-      snapshotsEnabled: false
-      condition:
-        type: org.springframework.sbm.build.migration.conditions.NoRepositoryExistsCondition
-        id: "spring-milestone"
-        url: "https://repo.spring.io/milestone"
-
-    - type: org.springframework.sbm.build.migration.actions.AddPluginRepositoryAction
-      description: Add Spring Boot milestone plugin repository.
-      id: "spring-milestone"
-      url: "https://repo.spring.io/milestone"
-      snapshotsEnabled: false
-      condition:
-        type: org.springframework.sbm.build.migration.conditions.NoPluginRepositoryExistsCondition
-        id: "spring-milestone"
-        url: "https://repo.spring.io/milestone"
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
@@ -61,7 +40,7 @@
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
         versionPattern: "2\\.7\\..*|3\\.0\\..*"
-      description: Add Spring Milestone Repository and bump SpringBoot to 3.0.0-M3
+      description: Add Spring Milestone Repository and bump SpringBoot to 3.0.0
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
         name: org.openrewrite.java.spring.boot3.data.UpgradeSpringData30
@@ -70,7 +49,7 @@
         recipeList:
           - org.openrewrite.maven.spring.UpgradeUnmanagedSpringProject:
               versionPattern: "2\\.7\\..*"
-              newVersion: 3.0.0-M3
+              newVersion: 3.0.0
           - org.openrewrite.maven.ChangeDependencyClassifier:
               groupId: org.ehcache
               artifactId: ehcache
@@ -81,11 +60,11 @@
           - org.openrewrite.maven.UpgradeParentVersion:
               groupId: org.springframework.boot
               artifactId: spring-boot-starter-parent
-              newVersion: 3.0.0-M3
+              newVersion: 3.0.0
           - org.openrewrite.maven.UpgradeDependencyVersion:
               groupId: org.springframework.boot
               artifactId: spring-boot-dependencies
-              newVersion: 3.0.0-M3
+              newVersion: 3.0.0
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
