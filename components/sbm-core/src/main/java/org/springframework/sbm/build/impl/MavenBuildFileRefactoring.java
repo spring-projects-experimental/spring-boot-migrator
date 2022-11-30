@@ -23,14 +23,13 @@ import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
-import org.springframework.util.ReflectionUtils;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-class Refactoring<P> {
+class MavenBuildFileRefactoring<P> {
 
     private final RewriteSourceFileHolder<Xml.Document> pom;
 
@@ -57,7 +56,9 @@ class Refactoring<P> {
 
     private void processResults(List<Result> results) {
         if (!results.isEmpty()) {
-            results.forEach(c -> processResult(c));
+			// FIXME: Works only on a single POM and does not apply to all other resources
+			pom.replaceWith((Xml.Document) results.get(0).getAfter());
+           // results.forEach(c -> processResult(c));
         }
     }
 

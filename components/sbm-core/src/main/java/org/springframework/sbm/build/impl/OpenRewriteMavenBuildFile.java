@@ -80,6 +80,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     private final ApplicationEventPublisher eventPublisher;
     private final PluginRepositoryHandler pluginRepositoryHandler = new PluginRepositoryHandler();
+	private final MavenBuildFileRefactoring<Xml.Document> refactoring ;
 
     // TODO: #7 clarify if RefreshPomModel is still required?
     // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
@@ -152,21 +153,22 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         super(absoluteProjectPath, sourceFile);
         this.eventPublisher = eventPublisher;
         this.executionContext = executionContext;
+		this.refactoring = new MavenBuildFileRefactoring<>(this.getResource());
     }
 
     public void apply(Recipe recipe) {
         // FIXME: #7 Make ExecutionContext a Spring Bean and caching configurable, also if the project root is used as workdir it must be added to .gitignore
-        // FIXME: #7 this made it veeery slow
         //executionContext.putMessage("org.openrewrite.maven.pomCache", new RocksdbMavenPomCache(this.getAbsoluteProjectDir()));
-        List<Result> result = recipe.run(List.of(getSourceFile()), executionContext).getResults();
-        if (!result.isEmpty()) {
-            replaceWith((Xml.Document) result.get(0).getAfter());
-        }
+		refactoring.execute(recipe);
     }
 
     public MavenResolutionResult getPom() {
         return MavenBuildFileUtil.findMavenResolution(getSourceFile()).get();
     }
+
+	public RewriteSourceFileHolder<Xml.Document> getResource() {
+		return this;
+	}
 
     @Override
     public void addDependency(Dependency dependency) {

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.openrewrite.maven.tree.Dependency;
 import org.openrewrite.maven.tree.Scope;
@@ -125,13 +126,9 @@ public class PomBuilder {
 			sb.append("    <packaging>").append(packaging).append("</packaging>").append("\n");
 		}
 
-		if(!properties.isEmpty()) {
-			sb.append("    <properties>").append("\n");
-			properties.entrySet().forEach(e ->
-					sb.append("        <").append(e.getKey()).append(">").append(e.getValue()).append("</").append(e.getKey()).append(">").append("\n")
-			);
-			sb.append("    </properties>").append("\n");
-		}
+			if(!properties.isEmpty()){
+				sb.append(buildProperties(properties));
+			}
 
         if (modules != null && !modules.isEmpty()) {
             sb.append("    <modules>").append("\n");
@@ -147,6 +144,16 @@ public class PomBuilder {
         sb.append("</project>");
         return sb.toString();
     }
+
+	String buildProperties(Map<String, String> properties) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("    ").append("<properties>").append("\n");
+		String props = properties.entrySet().stream().map(entry -> "    " + "    " + "<" + entry.getKey() + ">"
+				+ entry.getValue() + "</" + entry.getKey() + ">").collect(Collectors.joining("\n"));
+		builder.append(props).append("\n");
+		builder.append("    ").append("</properties>").append("\n");
+		return builder.toString();
+	}
 
     String renderDependencies(Map<Scope, org.openrewrite.maven.tree.Dependency> dependencies) {
         StringBuilder dependenciesSection = new StringBuilder();
