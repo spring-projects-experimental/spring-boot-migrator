@@ -55,7 +55,7 @@ public class CommonsMultipartResolverHelperTest {
                 .shouldRenderAs(
                         """
                          === Commons Multipart Upload
-                         Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/541[#541], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
+                         Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/541[#541^, role="ext-link"], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
                                                          
                          ==== What Changed
                          Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
@@ -121,7 +121,7 @@ public class CommonsMultipartResolverHelperTest {
                 .shouldRenderAs(
                         """
                          === Commons Multipart Upload
-                         Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/541[#541], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
+                         Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/541[#541^, role="ext-link"], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
                                                          
                          ==== What Changed
                          Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
