@@ -58,7 +58,7 @@ public class PagingAndSortingHelperTest {
                 .shouldRenderAs(
                         """
                                 === Paging and sorting repository
-                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/518[#518], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
+                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/518[#518^, role="ext-link"], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
 
                                 ==== What Changed
                                 Sorting repositories no longer extend their respective CRUD repository.
@@ -119,7 +119,7 @@ public class PagingAndSortingHelperTest {
                 .shouldRenderAs(
                         """
                                 === Paging and sorting repository
-                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/518[#518], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
+                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/518[#518^, role="ext-link"], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
                                                                 
                                 ==== What Changed
                                 Sorting repositories no longer extend their respective CRUD repository.
@@ -180,7 +180,7 @@ public class PagingAndSortingHelperTest {
                 .shouldRenderAs(
                         """
                                 === Paging and sorting repository
-                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/518[#518], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
+                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/518[#518^, role="ext-link"], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
 
                                 ==== What Changed
                                 Sorting repositories no longer extend their respective CRUD repository.
@@ -268,7 +268,7 @@ public class PagingAndSortingHelperTest {
                 .shouldRenderAs(
                         """
                                 === Paging and sorting repository
-                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/518[#518], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
+                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/518[#518^, role="ext-link"], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
                                                                 
                                 ==== What Changed
                                 Sorting repositories no longer extend their respective CRUD repository.

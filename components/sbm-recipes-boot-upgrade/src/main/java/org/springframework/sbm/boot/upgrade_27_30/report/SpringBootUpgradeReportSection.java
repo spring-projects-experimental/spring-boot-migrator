@@ -209,7 +209,7 @@ public class SpringBootUpgradeReportSection {
 
     private void renderGitHubInfo(StringBuilder sb) {
         if(gitHubIssue != null) {
-            sb.append("Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/").append(gitHubIssue).append("[#").append(gitHubIssue).append("]");
+            sb.append("Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/").append(gitHubIssue).append("[#").append(gitHubIssue).append("^, role=\"ext-link\"]");
         }
         if(contributors != null && gitHubIssue != null) {
             sb.append(", ");
