@@ -221,7 +221,7 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
         String groupId = parentTag.getChildValue("groupId").get();
         String artifactId = parentTag.getChildValue("artifactId").get();
 
-        assertThat(version).isEqualTo("3.0.0-M3");
+        assertThat(version).isEqualTo("3.0.0");
         assertThat(groupId).isEqualTo("org.springframework.boot");
         assertThat(artifactId).isEqualTo("spring-boot-starter-parent");
     }
