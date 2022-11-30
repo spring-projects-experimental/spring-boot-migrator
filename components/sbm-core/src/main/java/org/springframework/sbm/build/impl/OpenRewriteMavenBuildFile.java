@@ -16,9 +16,7 @@
 package org.springframework.sbm.build.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
-import org.intellij.lang.annotations.Language;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.Recipe;
@@ -34,7 +32,6 @@ import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.ResolvedManagedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.ChangeTagValueVisitor;
-import org.openrewrite.xml.internal.XmlPrinter;
 import org.openrewrite.xml.tree.Xml;
 import org.openrewrite.xml.tree.Xml.Tag;
 
@@ -43,7 +40,6 @@ import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.ParentDeclaration;
-import org.springframework.sbm.build.api.Plugin;
 import org.springframework.sbm.build.api.RepositoryDefinition;
 import org.springframework.sbm.build.api.RewriteMavenParentDeclaration;
 import org.springframework.sbm.build.impl.inner.PluginRepositoryHandler;
@@ -63,7 +59,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -565,7 +560,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     @Override
-    public boolean hasPlugin(Plugin plugin) {
+    public boolean hasPlugin(OpenRewriteMavenPlugin plugin) {
         // TODO: [FK] discuss how to handle conditions. This code is exactly the same as in #AddMavenPluginVisitor.pluginDefinitionExists(Maven.Pom pom) which is private and the test would repeat the test for AddMavenPluginVisitor
         Xml.Document sourceFile = getSourceFile();
         Optional<Xml.Tag> pluginDefinition = sourceFile.getRoot().getChildren("build").stream()
@@ -585,7 +580,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     @Override
-    public void addPlugin(Plugin plugin) {
+    public void addPlugin(OpenRewriteMavenPlugin plugin) {
         apply(new AddMavenPlugin(plugin));
     }
 
@@ -759,16 +754,16 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         return pluginRepositoryHandler.getRepositoryDefinitions(getSourceFile());
     }
 
-    private boolean anyRegexMatchesCoordinate(Plugin p, String... regex) {
+    private boolean anyRegexMatchesCoordinate(OpenRewriteMavenPlugin p, String... regex) {
         String coordinate = p.getGroupId() + ":" + p.getArtifactId();
         return Stream.of(regex).anyMatch(r -> coordinate.matches(r));
     }
 
 
     @Override
-    public List<Plugin> getPlugins() {
+    public List<OpenRewriteMavenPlugin> getPlugins() {
 		return getPom().getPom().getRequested().getPlugins().stream()
-				.map(Plugin::new)
+				.map(OpenRewriteMavenPlugin::new)
 				.collect(Collectors.toList());
     }
 
@@ -810,7 +805,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 	@Override
 	public Map<String, Object> getPluginConfiguration(String groupId, String artifactId){
 
-		Optional<Plugin> maybeCompilerPlugin = getPlugins()
+		Optional<OpenRewriteMavenPlugin> maybeCompilerPlugin = getPlugins()
 				.stream()
 				.filter(plugin -> plugin.getGroupId().equals(groupId) &&
 						plugin.getArtifactId().equals(artifactId))
@@ -820,7 +815,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 			return null;
 		}
 
-		return maybeCompilerPlugin.get().getConfiguration();
+		return maybeCompilerPlugin.get().getConfiguration().getConfiguration();
 	}
 
 	@Override

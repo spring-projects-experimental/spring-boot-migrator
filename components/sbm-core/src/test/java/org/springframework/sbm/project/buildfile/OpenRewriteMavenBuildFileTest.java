@@ -15,9 +15,13 @@
  */
 package org.springframework.sbm.project.buildfile;
 
-import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.*;
+import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,6 +30,7 @@ import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.Plugin;
 import org.springframework.sbm.build.util.PomBuilder;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.Member;
@@ -1457,7 +1462,7 @@ public class OpenRewriteMavenBuildFileTest {
                 "    </build>\n" +
                 "</project>";
 
-        Plugin plugin = new Plugin();
+        OpenRewriteMavenPlugin plugin = new OpenRewriteMavenPlugin();
         plugin.setGroupId("group.id");
         plugin.setArtifactId("some.artifact");
 
@@ -1500,7 +1505,7 @@ public class OpenRewriteMavenBuildFileTest {
                 "    </build>\n" +
                 "</project>";
 
-        Plugin plugin = new Plugin();
+        OpenRewriteMavenPlugin plugin = new OpenRewriteMavenPlugin();
         plugin.setGroupId("group.id");
         plugin.setArtifactId("some.artifact");
 
@@ -1547,7 +1552,7 @@ public class OpenRewriteMavenBuildFileTest {
                 "    </build>\n" +
                 "</project>";
 
-        Plugin plugin = new Plugin();
+        OpenRewriteMavenPlugin plugin = new OpenRewriteMavenPlugin();
         plugin.setGroupId("group.id");
         plugin.setArtifactId("some.artifact");
 
@@ -1598,7 +1603,7 @@ public class OpenRewriteMavenBuildFileTest {
                 "    </build>\n" +
                 "</project>";
 
-        Plugin plugin = new Plugin();
+        OpenRewriteMavenPlugin plugin = new OpenRewriteMavenPlugin();
         plugin.setGroupId("group.id");
         plugin.setArtifactId("some.artifact");
 
@@ -1947,7 +1952,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .build()
                 .getBuildFile();
 
-        Plugin plugin = Plugin.builder()
+        OpenRewriteMavenPlugin plugin = OpenRewriteMavenPlugin.builder()
                 .groupId("com.example")
                 .artifactId("the-example")
                 .build();
@@ -2058,18 +2063,18 @@ public class OpenRewriteMavenBuildFileTest {
 
         BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
 
-        List<Plugin> plugins = openRewriteMavenBuildFile.getPlugins();
+        List<OpenRewriteMavenPlugin> plugins = openRewriteMavenBuildFile.getPlugins();
 
         assertThat(plugins).hasSize(2);
         assertThat(plugins.get(0).getGroupId()).isEqualTo("org.mule.tools.maven");
         assertThat(plugins.get(0).getArtifactId()).isEqualTo("mule-maven-plugin");
         assertThat(plugins.get(0).getVersion()).isEqualTo("${mule.maven.plugin.version}");
-        assertThat(plugins.get(0).getConfiguration()).isNotEmpty();
+        assertThat(plugins.get(0).getConfiguration().getConfiguration()).isNotEmpty();
 
 		assertThat(plugins.get(1).getGroupId()).isEqualTo("com.mulesoft.munit.tools");
         assertThat(plugins.get(1).getArtifactId()).isEqualTo("munit-maven-plugin");
         assertThat(plugins.get(1).getVersion()).isEqualTo("${munit.version}");
-        assertThat(plugins.get(1).getConfiguration()).isNotEmpty();
+        assertThat(plugins.get(1).getConfiguration().getConfiguration()).isNotEmpty();
         assertThat(plugins.get(1).getExecutions()).isNotEmpty();
         assertThat(plugins.get(1).getExecutions().get(0).getId()).isEqualTo("test");
         assertThat(plugins.get(1).getExecutions().get(0).getPhase()).isEqualTo("test");
@@ -2118,13 +2123,13 @@ public class OpenRewriteMavenBuildFileTest {
 
 		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
 
-		Plugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
+		OpenRewriteMavenPlugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
 				.stream()
 				.filter(plugin -> plugin.getGroupId().equals("org.apache.maven.plugins") &&
 						plugin.getArtifactId().equals("maven-compiler-plugin"))
 				.findAny().orElseThrow();
 
-		Map<String, Object> configurationMap = compilerPlugin.getConfiguration();
+		Map<String, Object> configurationMap = compilerPlugin.getConfiguration().getConfiguration();
 
 		assertThat(configurationMap.get("source")).isEqualTo("${source}");
 		assertThat(configurationMap.get("target")).isEqualTo("17");
@@ -2180,13 +2185,13 @@ public class OpenRewriteMavenBuildFileTest {
 
 		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
 
-		Plugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
+		OpenRewriteMavenPlugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
 				.stream()
 				.filter(plugin -> plugin.getGroupId().equals("org.apache.maven.plugins") &&
 						plugin.getArtifactId().equals("maven-compiler-plugin"))
 				.findAny().orElseThrow();
 
-		Map<String, Object> configurationMap = compilerPlugin.getConfiguration();
+		Map<String, Object> configurationMap = compilerPlugin.getConfiguration().getConfiguration();
 
 		configurationMap.put("source", 17);
 		configurationMap.put("target", 17);

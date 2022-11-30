@@ -28,7 +28,8 @@ import org.openrewrite.xml.ChangeTagValueVisitor;
 import org.openrewrite.xml.XPathMatcher;
 import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.sbm.build.api.Plugin;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin.OpenRewriteMavenPluginExecution;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class AddMavenPlugin extends Recipe {
 
 	private static final XPathMatcher BUILD_MATCHER = new XPathMatcher("/project/build");
 
-	private final Plugin plugin;
+	private final OpenRewriteMavenPlugin plugin;
 
 	@Override
 	protected TreeVisitor<?, ExecutionContext> getVisitor() {
@@ -147,27 +148,27 @@ public class AddMavenPlugin extends Recipe {
 		return "<executions>\n" + executions + "\n</executions>\n";
 	}
 
-	private String renderExecution(Plugin.Execution execution) {
+	private String renderExecution(OpenRewriteMavenPluginExecution execution) {
 		return "<execution>\n" + renderId(execution) + renderGoals(execution) + renderPhase(execution)
 				+ renderExecutionConfiguration(execution) + "</execution>";
 	}
 
-	private String renderExecutionConfiguration(Plugin.Execution execution) {
+	private String renderExecutionConfiguration(OpenRewriteMavenPluginExecution execution) {
 		return execution.getConfiguration() == null ? "" : execution.getConfiguration().trim();
 	}
 
-	private String renderId(Plugin.Execution execution) {
+	private String renderId(OpenRewriteMavenPluginExecution execution) {
 		return execution.getId() != null && !execution.getId().isBlank() ? "<id>" + execution.getId() + "</id>\n" : "";
 	}
 
-	private String renderGoals(Plugin.Execution execution) {
+	private String renderGoals(OpenRewriteMavenPluginExecution execution) {
 		if (execution.getGoals() == null || execution.getGoals().isEmpty())
 			return "";
 		String goals = execution.getGoals().stream().map(this::renderGoal).collect(Collectors.joining("\n"));
 		return "<goals>\n" + goals + "\n</goals>\n";
 	}
 
-	private String renderPhase(Plugin.Execution execution) {
+	private String renderPhase(OpenRewriteMavenPluginExecution execution) {
 		return execution.getPhase() == null ? "" : "<phase>" + execution.getPhase() + "</phase>";
 	}
 

@@ -15,10 +15,8 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
-import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.springframework.sbm.build.api.Plugin;
-import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
 import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,7 +31,7 @@ public class AddMavenPlugin extends MultiModuleAwareAction {
 
     @Setter
     @Valid
-    private Plugin plugin;
+    private OpenRewriteMavenPlugin plugin;
 
     public AddMavenPlugin() {
         super(builder());

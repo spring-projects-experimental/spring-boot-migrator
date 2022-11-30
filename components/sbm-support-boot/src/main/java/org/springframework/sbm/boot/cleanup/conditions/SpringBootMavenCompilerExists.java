@@ -1,7 +1,7 @@
 package org.springframework.sbm.boot.cleanup.conditions;
 
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
-import org.springframework.sbm.build.api.Plugin;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
 import org.springframework.sbm.build.migration.conditions.MavenPluginDoesNotExist;
 import org.springframework.sbm.common.migration.conditions.FileMatchingPatternExist;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -24,7 +24,7 @@ public class SpringBootMavenCompilerExists implements Condition {
 		isSpringBootProject.setVersionPattern(".*");
 
 		MavenPluginDoesNotExist mavenPluginDoesNotExist = new MavenPluginDoesNotExist();
-		Plugin plugin = Plugin.builder().groupId("org.apache.maven.plugins").artifactId("maven-compiler-plugin")
+		OpenRewriteMavenPlugin plugin = OpenRewriteMavenPlugin.builder().groupId("org.apache.maven.plugins").artifactId("maven-compiler-plugin")
 				.build();
 		mavenPluginDoesNotExist.setPlugin(plugin);
 
