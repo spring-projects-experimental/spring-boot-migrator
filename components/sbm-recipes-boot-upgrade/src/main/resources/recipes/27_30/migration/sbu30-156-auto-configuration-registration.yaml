@@ -1,4 +1,4 @@
-- name: boot-autoconfiguration-update
+- name: sbu30-156-auto-configuration-registration
   description: Create org.springframework.boot.autoconfigure.AutoConfiguration.imports file for new spring 2.7
   condition:
     type: org.springframework.sbm.common.migration.conditions.TrueCondition
