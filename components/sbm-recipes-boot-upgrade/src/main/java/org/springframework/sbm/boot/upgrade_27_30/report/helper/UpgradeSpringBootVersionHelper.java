@@ -27,6 +27,8 @@ import java.util.Map;
  * @author Fabian Krüger
  */
 public class UpgradeSpringBootVersionHelper implements SpringBootUpgradeReportSection.Helper<String> {
+
+    public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
     @Override
     public String getDescription() {
         return "";
@@ -35,13 +37,13 @@ public class UpgradeSpringBootVersionHelper implements SpringBootUpgradeReportSe
     @Override
     public boolean evaluate(ProjectContext context) {
         IsSpringBootProject isSpringBootProject = new IsSpringBootProject();
-        isSpringBootProject.setVersionPattern("2\\.7\\..*");
+        isSpringBootProject.setVersionPattern(VERSION_PATTERN);
         return isSpringBootProject.evaluate(context);
     }
 
     @Override
     public Map<String, String> getData() {
         // FIXME: Provide correct boot version, see https://github.com/spring-projects-experimental/spring-boot-migrator/issues/560
-        return Map.of("bootVersion", "2.7.3");
+        return Map.of("bootVersion", "2.7.x");
     }
 }

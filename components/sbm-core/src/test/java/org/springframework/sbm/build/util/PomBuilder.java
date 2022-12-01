@@ -62,6 +62,16 @@ public class PomBuilder {
     }
 
     /**
+     * Create a root {@code pom.xml} with a parent, e.g. spring-boot-starter-parent
+     */
+    public static PomBuilder buildRootWithParent(String parentCoordinate, String pomCoordinate) {
+        PomBuilder pomBuilder = new PomBuilder();
+        pomBuilder.parentPom = parentCoordinate;
+        pomBuilder.coordinate = pomCoordinate;
+        return pomBuilder;
+    }
+
+    /**
      * Add modules to a pom.
      *
      * @param moduleArtifactNames one or more module artifactIds

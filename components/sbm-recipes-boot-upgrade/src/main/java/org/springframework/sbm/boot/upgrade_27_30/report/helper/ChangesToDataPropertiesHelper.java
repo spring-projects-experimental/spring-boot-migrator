@@ -17,6 +17,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
@@ -35,6 +36,8 @@ import java.util.stream.Collectors;
  */
 public class ChangesToDataPropertiesHelper implements SpringBootUpgradeReportSection.Helper<List<ChangesToDataPropertiesHelper.Match>> {
 
+    public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
+
     private Map<String, List<Match>> data = new HashMap<>();
 
     @Override
@@ -44,6 +47,14 @@ public class ChangesToDataPropertiesHelper implements SpringBootUpgradeReportSec
 
     @Override
     public boolean evaluate(ProjectContext context) {
+        IsSpringBootProject isSpringBootProjectCondition = new IsSpringBootProject();
+        isSpringBootProjectCondition.setVersionPattern(VERSION_PATTERN);
+        boolean isSpringBoot3Application = isSpringBootProjectCondition.evaluate(context);
+        if(! isSpringBoot3Application) {
+            return false;
+        }
+
+
         boolean noDepExists = new NoDependencyExistMatchingRegex(List.of("org\\.springframework\\.data\\:.*")).evaluate(
                 context);
         List<SpringBootApplicationProperties> search = context
