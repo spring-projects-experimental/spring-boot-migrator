@@ -75,8 +75,7 @@ public class RewriteMavenParser implements Parser<Xml.Document> {
     @Override
     public List<Xml.Document> parse(ExecutionContext ctx, String... sources) {
         mavenSettingsInitializer.initializeMavenSettings(ctx);
-        parser.parse(ctx, sources);
-        return Parser.super.parse(ctx, sources);
+        return parser.parse(ctx, sources);
     }
 
     /**
