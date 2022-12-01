@@ -120,6 +120,8 @@ public interface BuildFile extends ProjectResource {
 
     String getProperty(String key);
 
+	void deleteProperty(String key);
+
     String print();
 
     /**

@@ -2203,6 +2203,64 @@ public class OpenRewriteMavenBuildFileTest {
 	}
 
 	@Test
+	void deleteProperty() {
+
+		String pomXml =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+						"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
+						"\n" +
+						"    <modelVersion>4.0.0</modelVersion>\n" +
+						"    <groupId>org.springframework.boot</groupId>\n" +
+						"    <artifactId>spring-boot-starter-parent</artifactId>\n" +
+						"    <version>2.7.3</version>\n" +
+						"    <packaging>jar</packaging>\n" +
+						"    <name>hello-world</name>" +
+						" <properties>\n" +
+						"       <java.version>17</java.version>\n" +
+						"       <maven.compiler.source>17</maven.compiler.source>\n" +
+						" </properties>\n" +
+						" <build>\n" +
+						"        <plugins>\n" +
+						"            <plugin>\n" +
+						"                <groupId>org.apache.maven.plugins</groupId>\n" +
+						"                <artifactId>maven-compiler-plugin</artifactId>\n" +
+						"            </plugin>\n" +
+						"        </plugins>\n" +
+						"    </build>\n" +
+						"</project>";
+
+		String expected =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+						"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
+						"\n" +
+						"    <modelVersion>4.0.0</modelVersion>\n" +
+						"    <groupId>org.springframework.boot</groupId>\n" +
+						"    <artifactId>spring-boot-starter-parent</artifactId>\n" +
+						"    <version>2.7.3</version>\n" +
+						"    <packaging>jar</packaging>\n" +
+						"    <name>hello-world</name>" +
+						" <properties>\n" +
+						"       <maven.compiler.source>17</maven.compiler.source>\n" +
+						" </properties>\n" +
+						" <build>\n" +
+						"        <plugins>\n" +
+						"            <plugin>\n" +
+						"                <groupId>org.apache.maven.plugins</groupId>\n" +
+						"                <artifactId>maven-compiler-plugin</artifactId>\n" +
+						"            </plugin>\n" +
+						"        </plugins>\n" +
+						"    </build>\n" +
+						"</project>";
+
+		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+
+		openRewriteMavenBuildFile.deleteProperty("java.version");
+
+		assertThat(openRewriteMavenBuildFile.print()).isEqualTo(expected);
+
+	}
+
+	@Test
 	void removeAndReplaceAllOccurrences() {
 
 		String pomXml =

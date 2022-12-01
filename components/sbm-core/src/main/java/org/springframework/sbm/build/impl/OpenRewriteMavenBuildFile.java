@@ -616,14 +616,16 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         return getPom().getPom().getProperties().get(key);
     }
 
+	@Override
+	final public void deleteProperty(String key){
+		apply(new RemoveProperty(key));
+		apply(new RefreshPomModel());
+	}
+
     final public void setProperty(String key, String value) {
-        if (value == null) {
-            apply(new RemoveProperty(key));
-        } else {
-            String current = getProperty(key);
-            apply(current == null ? new AddProperty(key, value) : new ChangePropertyValue(key, value, false));
-        }
-        apply(new RefreshPomModel());
+		String current = getProperty(key);
+		apply(current == null ? new AddProperty(key, value) : new ChangePropertyValue(key, value, false));
+		apply(new RefreshPomModel());
     }
 
     @Override
