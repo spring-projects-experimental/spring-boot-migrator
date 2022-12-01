@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PagingAndSortingHelper implements SpringBootUpgradeReportSection.Helper<List<String>> {
+
+    public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
     private List<String> pagingAndSortingRepo;
     private List<String> reactivePagingAndSortingRepo;
     private List<String> rxJavaSortingRepo;
@@ -44,7 +46,7 @@ public class PagingAndSortingHelper implements SpringBootUpgradeReportSection.He
     @Override
     public boolean evaluate(ProjectContext context) {
         IsSpringBootProject isSpringBootProject = new IsSpringBootProject();
-        isSpringBootProject.setVersionPattern("2\\.7\\..*|3\\.0\\..*");
+        isSpringBootProject.setVersionPattern(VERSION_PATTERN);
         boolean isSpringBootApplication = isSpringBootProject.evaluate(context);
         if(!isSpringBootApplication) {
             return false;

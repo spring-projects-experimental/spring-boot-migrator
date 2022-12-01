@@ -37,6 +37,7 @@ public class LoggingDateFormatHelperTest {
     void isApplicableWithExistingPropertiesFile() {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
+                .withSpringBootParentOf("2.7.5")
                 .addRegistrar(
                         new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
                 .addProjectResource("src/main/resources/application-myprofile.properties", "not.logging.pattern.dateformat=value")
@@ -55,6 +56,7 @@ public class LoggingDateFormatHelperTest {
     void isApplicableWithoutExistingPropertiesFile() {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
+                .withSpringBootParentOf("2.7.5")
                 .build();
 
         LoggingDateFormatHelper sut = new LoggingDateFormatHelper();
