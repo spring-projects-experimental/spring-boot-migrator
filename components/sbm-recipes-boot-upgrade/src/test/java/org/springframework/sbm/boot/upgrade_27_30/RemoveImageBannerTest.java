@@ -43,7 +43,7 @@ public class RemoveImageBannerTest {
     @Test
     void applyRemoveImageBannerRecipeShouldRemoveAllImageBannerAtDefaultLocation() {
         String parentPom = PomBuilder
-                .buildPom("com.example:parent:1.0")
+                .buildRootWithParent("org.springframework.boot:spring-boot-starter-parent:2.7.5", "com.example:parent:1.0")
                 .withModules("moduleA", "moduleB", "moduleC")
                 .build();
         String moduleA = PomBuilder.buildPom("com.example:parent:1.0", "moduleA").build();

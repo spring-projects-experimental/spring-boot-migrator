@@ -22,6 +22,7 @@ import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.search.UsesType;
 import org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation;
 import org.openrewrite.java.tree.J;
+import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.OpenRewriteSourceFilesFinder;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 
 public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.Helper<List<String>> {
 
+    public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
     private List<String> constructorBindingFiles;
 
     @Override
@@ -44,6 +46,12 @@ public class ConstructorBindingHelper implements SpringBootUpgradeReportSection.
 
     @Override
     public boolean evaluate(ProjectContext context) {
+        IsSpringBootProject isSpringBootProjectCondition = new IsSpringBootProject();
+        isSpringBootProjectCondition.setVersionPattern(VERSION_PATTERN);
+        boolean isSpringBoot3Application = isSpringBootProjectCondition.evaluate(context);
+        if(! isSpringBoot3Application) {
+            return false;
+        }
 
         GenericOpenRewriteRecipe<TreeVisitor<?, ExecutionContext>> recipe =
                 new GenericOpenRewriteRecipe<>(() -> new UsesType("org.springframework.boot.context.properties.ConstructorBinding"));

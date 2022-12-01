@@ -16,6 +16,7 @@
 
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
+import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -27,6 +28,8 @@ import java.util.stream.Collectors;
 
 public class BannerSupportHelper implements SpringBootUpgradeReportSection.Helper<List<String>> {
 
+    public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
+
     private List<Path> foundBanners;
 
     @Override
@@ -36,6 +39,13 @@ public class BannerSupportHelper implements SpringBootUpgradeReportSection.Helpe
 
     @Override
     public boolean evaluate(ProjectContext context) {
+        IsSpringBootProject isSpringBootProjectCondition = new IsSpringBootProject();
+        isSpringBootProjectCondition.setVersionPattern(VERSION_PATTERN);
+        boolean isSpringBoot3Application = isSpringBootProjectCondition.evaluate(context);
+        if(! isSpringBoot3Application) {
+            return false;
+        }
+
         foundBanners = context
                 .getProjectResources()
                 .stream()

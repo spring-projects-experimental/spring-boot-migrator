@@ -31,6 +31,7 @@ public class LoggingDateFormatReportSectionTest {
     void shouldRenderSectionWhenNoPropertiesExist() {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
+                .withSpringBootParentOf("2.7.5")
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
                 .addProjectResource("src/main/resources/application-myprofile.properties", "not.logging.pattern.dateformat=some-format")
                 .build();
@@ -65,6 +66,7 @@ public class LoggingDateFormatReportSectionTest {
     void shouldRenderSectionWhenPropertyNotDefined() {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
+                .withSpringBootParentOf("2.7.5")
                 .build();
 
         SpringBootUpgradeReportTestSupport
