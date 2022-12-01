@@ -25,7 +25,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Fabian Krüger
@@ -72,12 +71,20 @@ class MavenSettingsInitializerTest {
         MavenRepository localRepository = mavenExecutionContextView.getLocalRepository();
         assertThat(localRepository.isSnapshots()).isTrue();
 
-//        assertThat(localRepository.getUri()).isEqualTo("file:" + fakedUserHome + "/.m2/repository/");
-        assertThat(localRepository.getUri()).isEqualTo(MavenRepository.MAVEN_LOCAL_DEFAULT.getUri());
+        String tmpDir = removeTrailingSlash(System.getProperty("java.io.tmpdir"));
+        String customLocalRepository = new URI("file://" + tmpDir).toString();
+        assertThat(removeTrailingSlash(localRepository.getUri())).isEqualTo(customLocalRepository);
         assertThat(localRepository.isSnapshots()).isTrue();
         assertThat(localRepository.isKnownToExist()).isTrue();
         assertThat(localRepository.getUsername()).isNull();
         assertThat(localRepository.getPassword()).isNull();
+    }
+
+    String removeTrailingSlash(String string) {
+        if(string.endsWith("/")){
+            return string.substring(0, string.length()-1);
+        }
+        return string;
     }
 
     @AfterEach
