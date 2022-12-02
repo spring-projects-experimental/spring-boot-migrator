@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.springframework.sbm</groupId>
         <artifactId>spring-boot-migrator</artifactId>
-        <version>0.12.1-SNAPSHOT</version>
+        <version>0.13.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
