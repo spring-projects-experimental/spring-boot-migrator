@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.springframework.sbm</groupId>
         <artifactId>spring-boot-migrator</artifactId>
-        <version>0.12.1-SNAPSHOT</version>
+        <version>0.13.0</version>
         <relativePath>../..</relativePath>
     </parent>
 
@@ -37,12 +37,12 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-support-boot</artifactId>
-            <version>0.12.1-SNAPSHOT</version>
+            <version>0.13.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-support-jee</artifactId>
-            <version>0.12.1-SNAPSHOT</version>
+            <version>0.13.0</version>
         </dependency>
         
         <!-- Override Jackson coming from spring boot -->
@@ -124,7 +124,7 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-core</artifactId>
-            <version>0.12.1-SNAPSHOT</version>
+            <version>0.13.0</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
