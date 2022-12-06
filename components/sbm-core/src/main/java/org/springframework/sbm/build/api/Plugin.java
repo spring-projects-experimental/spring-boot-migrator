@@ -1,6 +1,7 @@
 package org.springframework.sbm.build.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface Plugin {
@@ -24,6 +25,8 @@ public interface Plugin {
 		String getResolvedStringValue(String property);
 
 		void setDeclaredStringValue(String property, String value);
+
+		Map<String,Object> getConfiguration();
 
 	}
 

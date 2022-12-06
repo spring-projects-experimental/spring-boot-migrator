@@ -17,7 +17,6 @@ package org.springframework.sbm.build.api;
 
 import org.openrewrite.maven.tree.Scope;
 
-import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
 import org.springframework.sbm.project.resource.ProjectResource;
 
 import java.nio.file.Path;
@@ -98,9 +97,9 @@ public interface BuildFile extends ProjectResource {
 
     List<Path> getResolvedDependenciesPaths();
 
-    boolean hasPlugin(OpenRewriteMavenPlugin plugin);
+    boolean hasPlugin(Plugin plugin);
 
-    void addPlugin(OpenRewriteMavenPlugin plugin);
+    void addPlugin(Plugin plugin);
 
     List<Path> getClasspath();
 
@@ -133,7 +132,7 @@ public interface BuildFile extends ProjectResource {
 
     boolean isRootBuildFile();
 
-    List<OpenRewriteMavenPlugin> getPlugins();
+    List<Plugin> getPlugins();
 
     void removePluginsMatchingRegex(String... regex);
 
@@ -170,6 +169,8 @@ public interface BuildFile extends ProjectResource {
     List<RepositoryDefinition> getPluginRepositories();
 
     List<String> getDeclaredModules();
+
+	Optional<Plugin> findPlugin(String groupId, String artifactId);
 
 	Map<String, Object> getPluginConfiguration(String groupId, String artifactId);
 

@@ -2063,7 +2063,7 @@ public class OpenRewriteMavenBuildFileTest {
 
         BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
 
-        List<OpenRewriteMavenPlugin> plugins = openRewriteMavenBuildFile.getPlugins();
+        List<Plugin> plugins = openRewriteMavenBuildFile.getPlugins();
 
         assertThat(plugins).hasSize(2);
         assertThat(plugins.get(0).getGroupId()).isEqualTo("org.mule.tools.maven");
@@ -2123,7 +2123,7 @@ public class OpenRewriteMavenBuildFileTest {
 
 		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
 
-		OpenRewriteMavenPlugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
+		Plugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
 				.stream()
 				.filter(plugin -> plugin.getGroupId().equals("org.apache.maven.plugins") &&
 						plugin.getArtifactId().equals("maven-compiler-plugin"))
@@ -2185,7 +2185,7 @@ public class OpenRewriteMavenBuildFileTest {
 
 		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
 
-		OpenRewriteMavenPlugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
+		Plugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
 				.stream()
 				.filter(plugin -> plugin.getGroupId().equals("org.apache.maven.plugins") &&
 						plugin.getArtifactId().equals("maven-compiler-plugin"))
