@@ -766,7 +766,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     @Override
     public List<Plugin> getPlugins() {
 		return getPom().getPom().getRequested().getPlugins().stream()
-				.map(OpenRewriteMavenPlugin::new)
+				.map(p -> new OpenRewriteMavenPlugin(p, getResource(), refactoring))
 				.collect(Collectors.toList());
     }
 
@@ -804,76 +804,6 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             replaceWith((Xml.Document) run.get(0).getAfter());
         }
     }
-
-	@Override
-	public Map<String, Object> getPluginConfiguration(String groupId, String artifactId){
-
-		Optional<Plugin> maybeCompilerPlugin = getPlugins()
-				.stream()
-				.filter(plugin -> plugin.getGroupId().equals(groupId) &&
-						plugin.getArtifactId().equals(artifactId))
-				.findAny();
-
-		if (maybeCompilerPlugin.isEmpty()) {
-			return null;
-		}
-
-		return maybeCompilerPlugin.get().getConfiguration().getConfiguration();
-	}
-
-	@Override
-	public void changeMavenPluginConfiguration(String groupId, String artifactId,
-			Map<String, Object> configurationMap) {
-		if (configurationMap != null && !configurationMap.isEmpty()) {
-			try {
-				String configurationXml = MavenXmlMapper.writeMapper().writerWithDefaultPrettyPrinter()
-						.writeValueAsString(configurationMap);
-				String configurationXmlWithoutRoot = configurationXml.replaceFirst("<LinkedHashMap>", "").replace("</LinkedHashMap>", "")
-						.trim();
-
-				apply(new ChangePluginConfiguration(groupId, artifactId, configurationXmlWithoutRoot));
-
-			}
-			catch (JsonProcessingException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-	}
-
-	@Override
-	public void removePropertyAndReplaceAllOccurrences(String propertyKey, String newValue){
-		MavenIsoVisitor mavenVisitor = new MavenIsoVisitor<ExecutionContext>() {
-			@Override
-			public Xml.Document visitDocument(Xml.Document maven, ExecutionContext ctx) {
-				new MavenIsoVisitor<ExecutionContext>() {
-
-					String propertyName = propertyKey.startsWith("${") ?
-							propertyKey.replace("${", "").replace("}", "") : propertyKey;
-
-					@Override
-					public Tag visitTag(Tag tag, ExecutionContext context) {
-						if (isPropertyTag() && propertyName.equals(tag.getName())) {
-							apply(new RemoveProperty(propertyName));
-						}
-						Optional<String> value = tag.getValue();
-						if (tag.getContent() != null && value.isPresent() && value.get().contains("${")) {
-							if (propertyKey.equals(value.get())) {
-								apply(new GenericOpenRewriteRecipe<>(()-> new ChangeTagValueVisitor<>(tag, newValue)));
-
-							}
-						}
-						return super.visitTag(tag, context);
-					}
-				}.visit(maven, executionContext);
-
-				return super.visitDocument(maven, executionContext);
-			}
-		};
-		mavenVisitor.visitDocument(getSourceFile(), executionContext);
-
-	}
-
 
 	@Override
 	public Optional<Plugin> findPlugin(String groupId, String artifactId){

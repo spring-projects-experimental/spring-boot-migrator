@@ -20,16 +20,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,9 +41,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Singular;
+import org.openrewrite.maven.ChangePluginConfiguration;
 import org.openrewrite.maven.internal.MavenXmlMapper;
+import org.openrewrite.xml.tree.Xml;
+import org.openrewrite.xml.tree.Xml.Document;
 
 import org.springframework.sbm.build.api.Plugin;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 
 @Getter
 @Setter
@@ -63,15 +71,23 @@ public class OpenRewriteMavenPlugin implements Plugin {
 
 	private OpenRewriteMavenPluginConfiguration configuration;
 
+	@JsonIgnore
+	RewriteSourceFileHolder<Document> resourceWrapper;
+
+	@JsonIgnore
+	MavenBuildFileRefactoring<Xml.Document> refactoring;
+
 	private String dependencies;
 
-	public OpenRewriteMavenPlugin(org.openrewrite.maven.tree.Plugin openRewritePlugin) {
+	public OpenRewriteMavenPlugin(org.openrewrite.maven.tree.Plugin openRewritePlugin,RewriteSourceFileHolder<Document> resource, MavenBuildFileRefactoring<Xml.Document> refactoring) {
 		this.groupId = openRewritePlugin.getGroupId();
 		this.artifactId = openRewritePlugin.getArtifactId();
 		this.version = openRewritePlugin.getVersion();
 		this.configuration = mapConfiguration(openRewritePlugin.getConfiguration());
 		this.executions = mapExecutions(openRewritePlugin.getExecutions());
 		this.dependencies = null;
+		this.resourceWrapper = resource;
+		this.refactoring = refactoring;
 	}
 
 	private List<OpenRewriteMavenPluginExecution> mapExecutions(
@@ -119,12 +135,10 @@ public class OpenRewriteMavenPlugin implements Plugin {
 			String propertyValue = value
 					.orElseThrow((() -> new IllegalStateException("Found no value for property " + property)));
 			if (propertyValue.startsWith("${")) {
-				return "";
-				// String propertyWithoutBraces = propertyValue.replace("${",
-				// "").replace("}", "");
-				// return MavenBuildFileUtil
-				// .findMavenResolution(OpenRewriteMavenPlugin.this.resourceWrapper.getSourceFile()).get().getPom()
-				// .getProperties().get(propertyWithoutBraces);
+				String propertyWithoutBraces = propertyValue.replace("${", "").replace("}", "");
+				return MavenBuildFileUtil
+						.findMavenResolution(OpenRewriteMavenPlugin.this.resourceWrapper.getSourceFile()).get().getPom()
+						.getProperties().get(propertyWithoutBraces);
 			}
 			else {
 				return propertyValue;
@@ -134,6 +148,26 @@ public class OpenRewriteMavenPlugin implements Plugin {
 		@Override
 		public void setDeclaredStringValue(String property, String value) {
 			configuration.put(property, value);
+			changeConfiguration();
+		}
+
+		@Override
+		@JsonIgnore
+		public Set<String> getPropertyKeys() {
+			return configuration.keySet();
+		}
+
+		private void changeConfiguration() {
+			try {
+				String configurationXml = MavenXmlMapper.writeMapper().writerWithDefaultPrettyPrinter()
+						.writeValueAsString(configuration).replaceFirst("<LinkedHashMap>", "")
+						.replace("</LinkedHashMap>", "").replace("<LinkedHashMap/>", "").trim();
+				OpenRewriteMavenPlugin.this.refactoring.execute(new ChangePluginConfiguration(
+						OpenRewriteMavenPlugin.this.groupId, OpenRewriteMavenPlugin.this.artifactId, configurationXml));
+			}
+			catch (JsonProcessingException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
 	}

@@ -1,10 +1,8 @@
 package org.springframework.sbm.boot.cleanup.actions;
 
-import java.util.Map;
+import java.util.Optional;
 
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 
@@ -14,53 +12,54 @@ public class RemoveRedundantMavenCompilerPluginProperties extends AbstractAction
 
 	private static final String ARTIFACT_ID = "maven-compiler-plugin";
 
-	private static final String JAVA_VERSION = "java.version";
+	private static final String JAVA_VERSION_PROPERTY = "java.version";
 
-	private static final String MAVEN_COMPILER_SOURCE = "${maven.compiler.source}";
+	private static final String JAVA_VERSION_PLACEHOLDER = "${java.version}";
 
-	private static final String MAVEN_COMPILER_TARGET = "${maven.compiler.target}";
+	private static final String MAVEN_COMPILER_SOURCE_PROPERTY = "maven.compiler.source";
+
+	private static final String MAVEN_COMPILER_TARGET_PROPERTY = "maven.compiler.target";
 
 	@Override
 	public void apply(ProjectContext context) {
 
-		Map<String, Object> configurationMap = context.getBuildFile()
-				.getPluginConfiguration(GROUP_ID, ARTIFACT_ID);
+		context.getApplicationModules().stream().map(Module::getBuildFile).forEach(buildFile -> {
+			buildFile.findPlugin(GROUP_ID, ARTIFACT_ID).ifPresent(plugin -> {
 
-		if (configurationMap == null) {
-			return;
-		}
+				Optional<String> source = plugin.getConfiguration().getDeclaredStringValue("source");
+				Optional<String> target = plugin.getConfiguration().getDeclaredStringValue("target");
 
-		String sourceValue = (String) configurationMap.get("source");
-		String targetValue = (String) configurationMap.get("target");
+				if (source.isPresent() && target.isPresent()) {
 
-		if (sourceValue != null && targetValue != null) {
+					String sourceLookupValue = plugin.getConfiguration().getResolvedStringValue("source");
+					String targetLookupValue = plugin.getConfiguration().getResolvedStringValue("target");
 
-			String sourceLookupValue = sourceValue.startsWith("${") ?
-					context.getBuildFile().getProperty(
-							sourceValue.replace("${", "").replace("}", "")
-					) : sourceValue;
+					if (sourceLookupValue.equals(targetLookupValue)) {
+						buildFile.setProperty(JAVA_VERSION_PROPERTY, sourceLookupValue);
+						plugin.getConfiguration().setDeclaredStringValue("source", JAVA_VERSION_PLACEHOLDER);
+						plugin.getConfiguration().setDeclaredStringValue("target", JAVA_VERSION_PLACEHOLDER);
+						if(source.get().startsWith("${")){
+							buildFile.deleteProperty(source.get().replace("${", "").replace("}", ""));
+						}
+						if(target.get().startsWith("${")){
+							buildFile.deleteProperty(target.get().replace("${", "").replace("}", ""));
+						}
+					}
 
-			String targetLookupValue = targetValue.startsWith("${") ?
-					context.getBuildFile().getProperty(
-							targetValue.replace("${", "").replace("}", "")
-					) : targetValue;
-
-			if (sourceLookupValue != null && sourceLookupValue.equals(targetLookupValue)) {
-				context.getBuildFile().setProperty(JAVA_VERSION, sourceLookupValue);
-				configurationMap.put("source", MAVEN_COMPILER_SOURCE);
-				configurationMap.put("target", MAVEN_COMPILER_TARGET);
-				if(sourceValue.startsWith("${")){
-					context.getBuildFile()
-							.removePropertyAndReplaceAllOccurrences(sourceValue, JAVA_VERSION);
 				}
-				if (targetValue.startsWith("${")){
-					context.getBuildFile()
-							.removePropertyAndReplaceAllOccurrences(targetValue, JAVA_VERSION);
-				}
-				context.getBuildFile().changeMavenPluginConfiguration(GROUP_ID, ARTIFACT_ID, configurationMap);
-			}
-		}
 
+			}); //Plugin exits
+
+			String sourcePropertyValue = buildFile.getProperty(MAVEN_COMPILER_SOURCE_PROPERTY);
+			String targetPropertyValue = buildFile.getProperty(MAVEN_COMPILER_TARGET_PROPERTY);
+
+			if (sourcePropertyValue != null && sourcePropertyValue.equals(targetPropertyValue)){
+				buildFile.setProperty(JAVA_VERSION_PROPERTY, sourcePropertyValue);
+				buildFile.deleteProperty(MAVEN_COMPILER_SOURCE_PROPERTY);
+				buildFile.deleteProperty(MAVEN_COMPILER_TARGET_PROPERTY);
+			} // If only maven property exists
+
+		});
 	}
 
 }

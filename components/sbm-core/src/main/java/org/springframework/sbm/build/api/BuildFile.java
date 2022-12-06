@@ -171,10 +171,4 @@ public interface BuildFile extends ProjectResource {
     List<String> getDeclaredModules();
 
 	Optional<Plugin> findPlugin(String groupId, String artifactId);
-
-	Map<String, Object> getPluginConfiguration(String groupId, String artifactId);
-
-	void changeMavenPluginConfiguration(String groupId, String artifactId, Map<String,Object> configurationMap);
-
-	void removePropertyAndReplaceAllOccurrences(String propertyKey, String newValue);
 }
