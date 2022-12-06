@@ -1,6 +1,6 @@
 package org.springframework.sbm.boot.cleanup.conditions;
 
-import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
+import org.springframework.sbm.boot.common.conditions.HasDecalredSpringBootStarterParent;
 import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
 import org.springframework.sbm.build.migration.conditions.MavenPluginDoesNotExist;
 import org.springframework.sbm.common.migration.conditions.FileMatchingPatternExist;
@@ -20,8 +20,8 @@ public class SpringBootMavenCompilerExists implements Condition {
 		FileMatchingPatternExist fileMatchingPatternExist = new FileMatchingPatternExist();
 		fileMatchingPatternExist.setPattern("/**/pom.xml");
 
-		IsSpringBootProject isSpringBootProject = new IsSpringBootProject();
-		isSpringBootProject.setVersionPattern(".*");
+		HasDecalredSpringBootStarterParent hasDecalredSpringBootStarterParent = new HasDecalredSpringBootStarterParent();
+		hasDecalredSpringBootStarterParent.setVersionPattern(".*");
 
 		MavenPluginDoesNotExist mavenPluginDoesNotExist = new MavenPluginDoesNotExist();
 		OpenRewriteMavenPlugin plugin = OpenRewriteMavenPlugin.builder().groupId("org.apache.maven.plugins").artifactId("maven-compiler-plugin")
@@ -29,7 +29,7 @@ public class SpringBootMavenCompilerExists implements Condition {
 		mavenPluginDoesNotExist.setPlugin(plugin);
 
 		return fileMatchingPatternExist.evaluate(context) && !mavenPluginDoesNotExist.evaluate(context)
-				&& isSpringBootProject.evaluate(context);
+				&& hasDecalredSpringBootStarterParent.evaluate(context);
 	}
 
 }
