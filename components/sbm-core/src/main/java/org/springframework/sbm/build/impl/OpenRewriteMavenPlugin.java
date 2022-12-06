@@ -20,14 +20,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,30 +46,32 @@ import org.springframework.sbm.build.api.Plugin;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JacksonXmlRootElement(localName = "plugin")
+@JsonInclude(Include.NON_NULL)
 public class OpenRewriteMavenPlugin implements Plugin {
 
-    @NotNull
-    private String groupId;
+	@NotNull
+	private String groupId;
 
-    @NotNull
-    private String artifactId;
+	@NotNull
+	private String artifactId;
 
-    private String version;
+	private String version;
 
-    @Singular("execution")
-    private List<OpenRewriteMavenPluginExecution> executions;
+	@Singular("execution")
+	private List<OpenRewriteMavenPluginExecution> executions;
 
-    OpenRewriteMavenPluginConfiguration configuration;
+	private OpenRewriteMavenPluginConfiguration configuration;
 
-    private String dependencies;
+	private String dependencies;
 
-	public OpenRewriteMavenPlugin(org.openrewrite.maven.tree.Plugin openRewritePlugin){
+	public OpenRewriteMavenPlugin(org.openrewrite.maven.tree.Plugin openRewritePlugin) {
 		this.groupId = openRewritePlugin.getGroupId();
 		this.artifactId = openRewritePlugin.getArtifactId();
 		this.version = openRewritePlugin.getVersion();
 		this.configuration = mapConfiguration(openRewritePlugin.getConfiguration());
 		this.executions = mapExecutions(openRewritePlugin.getExecutions());
-		this.dependencies = "";
+		this.dependencies = null;
 	}
 
 	private List<OpenRewriteMavenPluginExecution> mapExecutions(
@@ -74,8 +79,9 @@ public class OpenRewriteMavenPlugin implements Plugin {
 		if (openRewritePluginExecutions == null || openRewritePluginExecutions.isEmpty()) {
 			return new ArrayList<>();
 		}
-		return openRewritePluginExecutions.stream().map(
-				orExecution -> new OpenRewriteMavenPluginExecution(orExecution.getId(), orExecution.getGoals(), orExecution.getPhase(), null))
+		return openRewritePluginExecutions.stream()
+				.map(orExecution -> new OpenRewriteMavenPluginExecution(orExecution.getId(), orExecution.getGoals(),
+						orExecution.getPhase(), null))
 				.collect(Collectors.toList());
 
 	}
@@ -84,16 +90,23 @@ public class OpenRewriteMavenPlugin implements Plugin {
 		if (openRewritePluginConfiguration == null || openRewritePluginConfiguration.isEmpty()) {
 			return new OpenRewriteMavenPluginConfiguration(new LinkedHashMap<>());
 		}
-		return new OpenRewriteMavenPluginConfiguration(MavenXmlMapper.readMapper().convertValue(openRewritePluginConfiguration,
-				new TypeReference<>() {
+		return new OpenRewriteMavenPluginConfiguration(
+				MavenXmlMapper.readMapper().convertValue(openRewritePluginConfiguration, new TypeReference<>() {
 				}));
 	}
 
 	@AllArgsConstructor
 	@NoArgsConstructor
 	@Getter
-	public static class OpenRewriteMavenPluginConfiguration implements Configuration {
+	@Setter
+	public class OpenRewriteMavenPluginConfiguration implements Configuration {
+
 		private Map<String, Object> configuration;
+
+		@JsonAnyGetter
+		public Map<String, Object> getConfiguration() {
+			return configuration;
+		}
 
 		@Override
 		public Optional<String> getDeclaredStringValue(String property) {
@@ -107,10 +120,11 @@ public class OpenRewriteMavenPlugin implements Plugin {
 					.orElseThrow((() -> new IllegalStateException("Found no value for property " + property)));
 			if (propertyValue.startsWith("${")) {
 				return "";
-//				String propertyWithoutBraces = propertyValue.replace("${", "").replace("}", "");
-//				return MavenBuildFileUtil
-//						.findMavenResolution(OpenRewriteMavenPlugin.this.resourceWrapper.getSourceFile()).get().getPom()
-//						.getProperties().get(propertyWithoutBraces);
+				// String propertyWithoutBraces = propertyValue.replace("${",
+				// "").replace("}", "");
+				// return MavenBuildFileUtil
+				// .findMavenResolution(OpenRewriteMavenPlugin.this.resourceWrapper.getSourceFile()).get().getPom()
+				// .getProperties().get(propertyWithoutBraces);
 			}
 			else {
 				return propertyValue;
@@ -122,25 +136,29 @@ public class OpenRewriteMavenPlugin implements Plugin {
 			configuration.put(property, value);
 		}
 
-		@Override
-		public Set<String> getPropertyKeys() {
-			return configuration.keySet();
-		}
 	}
 
-    @Builder
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Setter
-    public static class OpenRewriteMavenPluginExecution implements Execution {
-        @Null
-        private String id;
-        @Singular("goal")
-        private List<String> goals;
-        @Null
-        private String phase;
-        @Null
-        private String configuration;
-    }
+	@Builder
+	@Getter
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@Setter
+	@JsonInclude(Include.NON_NULL)
+	@JacksonXmlRootElement(localName = "execution")
+	public static class OpenRewriteMavenPluginExecution implements Execution {
+
+		@Null
+		private String id;
+
+		@Singular("goal")
+		private List<String> goals;
+
+		@Null
+		private String phase;
+
+		@Null
+		private String configuration;
+
+	}
+
 }

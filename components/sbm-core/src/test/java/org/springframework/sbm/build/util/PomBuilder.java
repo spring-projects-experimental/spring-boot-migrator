@@ -25,6 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.openrewrite.maven.internal.MavenXmlMapper;
+
+import org.springframework.sbm.build.api.Plugin;
+import org.springframework.sbm.project.parser.DependencyHelper;
+
 import org.openrewrite.maven.tree.Dependency;
 import org.openrewrite.maven.tree.Scope;
 
@@ -36,15 +42,16 @@ public class PomBuilder {
         private String artifactId;
 		private Map<String, String> properties = new HashMap<>();
 		private Map<Scope, org.openrewrite.maven.tree.Dependency> dependencies = new LinkedHashMap<Scope, Dependency>();
+		private List<Plugin> plugins;
 
-    private DependencyHelper dependencyHelper = new DependencyHelper();
-    private String parentPom;
+    	private DependencyHelper dependencyHelper = new DependencyHelper();
+    	private String parentPom;
 
-    public static PomBuilder buildPom(String coordinate) {
-        PomBuilder pomBuilder = new PomBuilder();
-        pomBuilder.coordinate = coordinate;
-        return pomBuilder;
-    }
+		public static PomBuilder buildPom(String coordinate) {
+			PomBuilder pomBuilder = new PomBuilder();
+			pomBuilder.coordinate = coordinate;
+			return pomBuilder;
+		}
 
     public static PomBuilder buildPom(String parentCoordinate, String artifactId) {
         PomBuilder pomBuilder = new PomBuilder();
@@ -126,9 +133,9 @@ public class PomBuilder {
 			sb.append("    <packaging>").append(packaging).append("</packaging>").append("\n");
 		}
 
-			if(!properties.isEmpty()){
-				sb.append(buildProperties(properties));
-			}
+		if(!properties.isEmpty()){
+			sb.append(buildProperties(properties));
+		}
 
         if (modules != null && !modules.isEmpty()) {
             sb.append("    <modules>").append("\n");
@@ -141,7 +148,7 @@ public class PomBuilder {
             sb.append(dependenciesRendered);
         }
 
-        sb.append("</project>");
+        sb.append("</project>\n");
         return sb.toString();
     }
 
@@ -216,6 +223,24 @@ public class PomBuilder {
                 .append("\n");
     }
 
+	String buildPlugins(List<Plugin> plugins){
+		StringBuilder pluginSection = new StringBuilder();
+		if (!plugins.isEmpty()) {
+			pluginSection.append("    ").append("<build>").append("\n");
+			pluginSection.append("    ").append("    ").append("<plugins>").append("\n");
+			try {
+				String plugin = MavenXmlMapper.writeMapper().writerWithDefaultPrettyPrinter().writeValueAsString(plugins.get(0));
+				pluginSection.append(plugin.replaceAll("  ", "    ").replaceAll("(?m)^", " ".repeat(12)));
+			}
+			catch (JsonProcessingException e) {
+				throw new RuntimeException(e);
+			}
+			pluginSection.append("    ").append("    ").append("</plugins>").append("\n");
+			pluginSection.append("    ").append("</build>").append("\n");
+		}
+		return pluginSection.toString();
+	}
+
 	public PomBuilder packaging(String type) {
 		this.packaging = type;
 		return this;
@@ -248,10 +273,12 @@ public class PomBuilder {
     }
 
 	public PomBuilder property(String property, String value){
-		if (this.properties == null){
-			this.properties = new LinkedHashMap<>();
-		}
 		this.properties.put(property,value);
+		return this;
+	}
+
+	public PomBuilder plugins(Plugin... p) {
+		this.plugins = Arrays.asList(p);
 		return this;
 	}
 }

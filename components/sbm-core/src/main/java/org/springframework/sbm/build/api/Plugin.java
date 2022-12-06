@@ -2,7 +2,6 @@ package org.springframework.sbm.build.api;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface Plugin {
 
@@ -26,7 +25,6 @@ public interface Plugin {
 
 		void setDeclaredStringValue(String property, String value);
 
-		Set<String> getPropertyKeys();
 	}
 
 	interface Execution {
