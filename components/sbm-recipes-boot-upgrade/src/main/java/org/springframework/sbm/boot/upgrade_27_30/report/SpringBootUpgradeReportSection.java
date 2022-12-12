@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 public class SpringBootUpgradeReportSection {
 
     private static final String ls = System.lineSeparator();
+    private List<String> projects;
 
     /**
      * Helper acting as {@link Condition} and data provide for a {@link SpringBootUpgradeReportSection}.
@@ -208,20 +209,27 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderGitHubInfo(StringBuilder sb) {
+        sb.append("****").append(ls);
+        sb.append("[%hardbreaks]").append(ls);
         if(gitHubIssue != null) {
-            sb.append("Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/").append(gitHubIssue).append("[#").append(gitHubIssue).append("^, role=\"ext-link\"]");
+            sb.append("**Issue:** https://github.com/spring-projects-experimental/spring-boot-migrator/issues/").append(gitHubIssue).append("[#").append(gitHubIssue).append("^, role=\"ext-link\"] ").append(ls);
         }
-        if(contributors != null && gitHubIssue != null) {
-            sb.append(", ");
-        } else {
-            sb.append(ls);
-        }
+//        if(contributors != null && gitHubIssue != null) {
+//            sb.append(", ");
+//        } else {
+//            sb.append(ls);
+//        }
         if(contributors != null) {
             List<Author> authors = getAuthors();
-            sb.append("Contributors: ");
+            sb.append("**Contributors:** ");
             String authorsString = authors.stream().map(a -> "https://github.com/" + a.getHandle() + "[@" + a.getHandle() + "^, role=\"ext-link\"]").collect(Collectors.joining(", "));
             sb.append(authorsString).append(ls);
         }
+        if(projects != null){
+            String projectsList = projects.stream().collect(Collectors.joining(", "));
+            sb.append("**Projects:** ").append(projectsList).append(ls);
+        }
+        sb.append("****").append(ls);
     }
 
     private void renderSectionTitle(StringBuilder sb) {
@@ -229,6 +237,10 @@ public class SpringBootUpgradeReportSection {
     }
 
     public List<Author> getAuthors() {
+        if(contributors == null) {
+            return List.of();
+        }
+
         return contributors.stream()
                 .map(c -> {
                     Matcher matcher = Pattern.compile("(.*)\\[(.*)\\]").matcher(c);

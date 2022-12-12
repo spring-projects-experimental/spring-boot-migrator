@@ -17,6 +17,8 @@ package org.springframework.sbm.boot.upgrade_27_30.report;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.sbm.boot.upgrade_27_30.report.yaml.SpringBootUpgradeReportActionDeserializer;
+import org.springframework.sbm.boot.upgrade_27_30.report.yaml.SpringBootUpgradeReportYamlDeserializationConfiguration;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.recipe.Recipe;
@@ -25,7 +27,6 @@ import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.test.RecipeTestSupport;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.stringtemplate.v4.ST;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -184,10 +185,24 @@ public class SpringBootUpgradeReportTestSupport {
                     action.apply(builderData.getContext());
                     String renderedSection = sectionUnderTest.render(builderData.getContext());
                     String renderedSectionWithoutButtonCode = replaceRecipeButtonCodeFromExpectedOutput(sectionUnderTest, renderedSection);
-
-                    assertion.accept(renderedSectionWithoutButtonCode);
+                    String renderedSectionWithGitHubInfo = removeGitHubInfoFromExpectedOutput(sectionUnderTest, renderedSectionWithoutButtonCode);
+                    assertion.accept(renderedSectionWithGitHubInfo);
                 });
             }
+        }
+
+        /**
+         * Adds the GitHub metadata section at the top of every section.
+         */
+        private String removeGitHubInfoFromExpectedOutput(SpringBootUpgradeReportSection sectionUnderTest, String renderedSectionWithoutButtonCode) {
+            // if GitHub info is not given
+            StringBuilder sb = new StringBuilder();
+            sectionUnderTest.renderGitHubInfo(sb);
+            if( ! renderedSectionWithoutButtonCode.startsWith("=== " + sectionUnderTest.getTitle() +"\n" + sb.toString())) {
+                fail("Missing GitHub info: " + sb.toString() + " rendered section was: \n " + renderedSectionWithoutButtonCode);
+            }
+            String asciidocTitle = "=== " + sectionUnderTest.getTitle() + "\n";
+            return renderedSectionWithoutButtonCode.replace(asciidocTitle + sb.toString(), asciidocTitle);
         }
 
         /**
@@ -242,7 +257,8 @@ public class SpringBootUpgradeReportTestSupport {
                     SpringBootUpgradeReportActionDeserializer.class,
                     SpringBootUpgradeReportFreemarkerSupport.class,
                     SpringBootUpgradeReportFileSystemRenderer.class,
-                    SpringBootUpgradeReportDataProvider.class
+                    SpringBootUpgradeReportDataProvider.class,
+                    SpringBootUpgradeReportYamlDeserializationConfiguration.class
             );
         }
 
