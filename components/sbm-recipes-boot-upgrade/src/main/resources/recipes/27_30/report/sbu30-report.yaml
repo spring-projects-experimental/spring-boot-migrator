@@ -27,8 +27,8 @@
         :idprefix:
         :idseparator: -
         :toc: left
-        :sectnumlevels: 3
-        :toclevels: 3
+        :sectnumlevels: 2
+        :toclevels: 2
         :tabsize: 4
         :numbered:
         :sectanchors:
@@ -181,6 +181,7 @@
 #                recipe: sbu30-225-actuator-endpoint-sanitization
           projects:
             - spring-boot
+            - actuator
           gitHubIssue: 445
           contributors:
             - "Fabian Krüger[@fabapp2]"
