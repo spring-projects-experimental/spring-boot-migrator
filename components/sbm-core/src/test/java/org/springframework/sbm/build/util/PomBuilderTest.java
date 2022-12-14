@@ -22,7 +22,7 @@ class PomBuilderTest {
 		mavenPlugin.setConfiguration(mavenPlugin.new OpenRewriteMavenPluginConfiguration(configMap));
 
 		String pom = PomBuilder.buildPom("com.example:parent:1.0").packaging("pom").property("java.version", "17")
-				.dependencies("org.openrewrite:rewrite-maven:7.33.0", "org.projectlombok:lombok:1.18.24")
+				.unscopedDependencies("org.openrewrite:rewrite-maven:7.33.0", "org.projectlombok:lombok:1.18.24")
 				.plugins(mavenPlugin).build();
 
 		String pomXml = """
