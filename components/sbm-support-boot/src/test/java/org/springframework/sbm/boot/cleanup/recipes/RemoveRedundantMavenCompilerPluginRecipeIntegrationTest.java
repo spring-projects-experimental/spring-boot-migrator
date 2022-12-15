@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build.migration.actions;
+package org.springframework.sbm.boot.cleanup.recipes;
 
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import org.junit.jupiter.api.Test;
 
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.test.RecipeIntegrationTestSupport;
 
-@Setter
-@SuperBuilder
-@NoArgsConstructor
-public class SetProperty extends AbstractAction {
+public class RemoveRedundantMavenCompilerPluginRecipeIntegrationTest {
 
-    private String propertyName;
-    private String propertyValue;
 
-    @Override
-    public void apply(ProjectContext context) {
-        context.getBuildFile().setProperty(propertyName, propertyValue);
-    }
+	@Test
+	void removeRedundantMavenCompilerPlugin() {
+		String applicationDir = "simple-boot";
+		RecipeIntegrationTestSupport.initializeProject(applicationDir)
+				.andApplyRecipeComparingWithExpected("remove-redundant-maven-compiler-plugin");
+	}
 }

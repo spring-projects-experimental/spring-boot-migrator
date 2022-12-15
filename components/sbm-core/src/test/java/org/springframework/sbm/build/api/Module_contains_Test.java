@@ -31,7 +31,7 @@ class Module_contains_Test {
     void singleModuleProject() {
         String rootPom = PomBuilder
                 .buildPom("com.example:parent:1.0")
-                .type("jar")
+                .packaging("jar")
                 .withModules("module1", "module2")
                 .build();
 
@@ -67,7 +67,7 @@ class Module_contains_Test {
     void multiModuleProject() {
         String rootPom = PomBuilder
                 .buildPom("com.example:parent:1.0")
-                .type("pom")
+                .packaging("pom")
                 .withModules("module1", "module2")
                 .build();
 

@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
@@ -24,12 +25,16 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.*;
+import org.openrewrite.maven.internal.MavenXmlMapper;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.Parent;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.ResolvedManagedDependency;
 import org.openrewrite.maven.tree.Scope;
+import org.openrewrite.xml.ChangeTagValueVisitor;
 import org.openrewrite.xml.tree.Xml;
+import org.openrewrite.xml.tree.Xml.Tag;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
@@ -70,7 +75,8 @@ import static java.util.function.Predicate.not;
 public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Document> implements BuildFile {
 
     private final ApplicationEventPublisher eventPublisher;
-    private PluginRepositoryHandler pluginRepositoryHandler = new PluginRepositoryHandler();
+    private final PluginRepositoryHandler pluginRepositoryHandler = new PluginRepositoryHandler();
+	private final MavenBuildFileRefactoring<Xml.Document> refactoring ;
 
     // TODO: #7 clarify if RefreshPomModel is still required?
     // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
@@ -105,7 +111,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 for (int i = 0; i < newMavenFiles.size(); i++) {
                     Optional<MavenResolutionResult> mavenModels = MavenBuildFileUtil.findMavenResolution(mavenFiles.get(i));
                     Optional<MavenResolutionResult> newMavenModels = MavenBuildFileUtil.findMavenResolution(newMavenFiles.get(i));
-                    mavenFiles.get(i).withMarkers(Markers.build(Arrays.asList(newMavenModels.get())));
+                    mavenFiles.get(i).withMarkers(Markers.build(List.of(newMavenModels.get())));
                     // FIXME: 497 verify correctness
                     mavenFiles.set(i, newMavenFiles.get(i));
                 }
@@ -143,21 +149,22 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         super(absoluteProjectPath, sourceFile);
         this.eventPublisher = eventPublisher;
         this.executionContext = executionContext;
+		this.refactoring = new MavenBuildFileRefactoring<>(this.getResource());
     }
 
     public void apply(Recipe recipe) {
         // FIXME: #7 Make ExecutionContext a Spring Bean and caching configurable, also if the project root is used as workdir it must be added to .gitignore
-        // FIXME: #7 this made it veeery slow
         //executionContext.putMessage("org.openrewrite.maven.pomCache", new RocksdbMavenPomCache(this.getAbsoluteProjectDir()));
-        List<Result> result = recipe.run(List.of(getSourceFile()), executionContext).getResults();
-        if (!result.isEmpty()) {
-            replaceWith((Xml.Document) result.get(0).getAfter());
-        }
+		refactoring.execute(recipe);
     }
 
     public MavenResolutionResult getPom() {
         return MavenBuildFileUtil.findMavenResolution(getSourceFile()).get();
     }
+
+	public RewriteSourceFileHolder<Xml.Document> getResource() {
+		return this;
+	}
 
     @Override
     public void addDependency(Dependency dependency) {
@@ -263,7 +270,6 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     @Override
     public List<Dependency> getRequestedDependencies() {
         List<org.openrewrite.maven.tree.Dependency> requestedDependencies = getPom().getPom().getRequestedDependencies();
-
         // FIXME: #7 use getPom().getDependencies() instead ?
         List<Dependency> declaredDependenciesWithEffectiveVersions = requestedDependencies.stream()
                 .map(d -> mapDependency(d))
@@ -312,6 +318,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     /**
      * {@inheritDoc}
+     *
+     * TODO: #497 Test with declared and transitive dependencies
      */
     @Override
     public Set<Dependency> getEffectiveDependencies(Scope scope) {
@@ -574,22 +582,22 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public void addPlugin(Plugin plugin) {
-        apply(new AddMavenPlugin(plugin));
+        apply(new AddMavenPlugin((OpenRewriteMavenPlugin) plugin));
     }
 
     @Override
     public List<Path> getSourceFolders() {
-        return Arrays.asList(getAbsolutePath().getParent().resolve(JAVA_SOURCE_FOLDER));
+        return List.of(getAbsolutePath().getParent().resolve(JAVA_SOURCE_FOLDER));
     }
 
     @Override
     public List<Path> getResourceFolders() {
-        return Arrays.asList(getAbsolutePath().getParent().resolve(RESOURCE_FOLDER));
+        return List.of(getAbsolutePath().getParent().resolve(RESOURCE_FOLDER));
     }
 
     @Override
     public List<Path> getTestResourceFolders() {
-        return Arrays.asList(getAbsolutePath().getParent().resolve(RESOURCE_TEST_FOLDER));
+        return List.of(getAbsolutePath().getParent().resolve(RESOURCE_TEST_FOLDER));
     }
 
     @Override
@@ -602,21 +610,23 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public List<Path> getTestSourceFolders() {
-        return Arrays.asList(getAbsolutePath().getParent().resolve(JAVA_TEST_SOURCE_FOLDER));
+        return List.of(getAbsolutePath().getParent().resolve(JAVA_TEST_SOURCE_FOLDER));
     }
 
     final public String getProperty(String key) {
-        return getPom().getPom().getProperties().get(key);
+        return getPom().getPom().getRequested().getProperties().get(key);
     }
 
+	@Override
+	final public void deleteProperty(String key){
+		apply(new RemoveProperty(key));
+		apply(new RefreshPomModel());
+	}
+
     final public void setProperty(String key, String value) {
-        if (value == null) {
-            apply(new RemoveProperty(key));
-        } else {
-            String current = getProperty(key);
-            apply(current == null ? new AddProperty(key, value) : new ChangePropertyValue(key, value, false));
-        }
-        apply(new RefreshPomModel());
+		String current = getProperty(key);
+		apply(current == null ? new ChangePropertyValue(key, value, true) : new ChangePropertyValue(key, value, false));
+		apply(new RefreshPomModel());
     }
 
     @Override
@@ -654,6 +664,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public String getVersion() {
         return resolve(getPom().getPom().getVersion());
     }
+
     @Override
     public String getCoordinates() {
         return getGroupId() + ":" + getArtifactId() + ":" + getVersion();
@@ -754,45 +765,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public List<Plugin> getPlugins() {
-
-        List<Plugin> plugins = new ArrayList<>();
-
-        MavenVisitor mavenVisitor = new MavenVisitor<ExecutionContext>() {
-
-            @Override
-            public Xml.Document visitDocument(Xml.Document maven, ExecutionContext ctx) {
-                Xml.Tag mavenRoot = maven.getRoot();
-                Optional<Xml.Tag> build = mavenRoot.getChild("build");
-                if (build.isPresent()) {
-                    Xml.Tag buildTag = build.get();
-                    Optional<Xml.Tag> pluginTags = buildTag.getChild("plugins");
-                    if (pluginTags.isPresent()) {
-                        List<Xml.Tag> plugin = pluginTags.get().getChildren("plugin");
-                        List<Plugin> pluginList = plugin.stream()
-                                .map(this::mapToPlugin)
-                                .collect(Collectors.toList());
-                        plugins.addAll(pluginList);
-                    }
-                }
-                return null;
-            }
-
-            private Plugin mapToPlugin(Xml.Tag tag) {
-                String groupId = tag.getChild("groupId").get().getValue().get();
-                String artifactId = tag.getChild("artifactId").get().getValue().get();
-                Optional<Xml.Tag> versionTag = tag.getChild("version");
-                String version = null;
-                if (versionTag.isPresent()) {
-                    version = versionTag.get().getValue().get();
-                }
-                Plugin plugin = new Plugin(groupId, artifactId, version, List.of(), "", "");
-                return plugin;
-            }
-        };
-
-        mavenVisitor.visitDocument(getSourceFile(), executionContext);
-
-        return plugins;
+		return getPom().getPom().getRequested().getPlugins().stream()
+				.map(p -> new OpenRewriteMavenPlugin(p, getResource(), refactoring))
+				.collect(Collectors.toList());
     }
 
     /**
@@ -830,6 +805,14 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         }
     }
 
+	@Override
+	public Optional<Plugin> findPlugin(String groupId, String artifactId){
+		return getPlugins()
+				.stream()
+				.filter(plugin -> plugin.getGroupId().equals(groupId) &&
+						plugin.getArtifactId().equals(artifactId))
+				.findAny();
+	}
 
     private String resolve(String expression) {
         return getPom().getPom().getValue(expression);
