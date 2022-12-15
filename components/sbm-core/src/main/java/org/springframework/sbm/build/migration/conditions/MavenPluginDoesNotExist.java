@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.build.migration.conditions;
 
-import org.springframework.sbm.build.api.Plugin;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
 import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.Setter;
@@ -25,7 +25,7 @@ import javax.validation.Valid;
 public class MavenPluginDoesNotExist implements Condition {
     @Setter
     @Valid
-    private Plugin plugin;
+    private OpenRewriteMavenPlugin plugin;
 
     @Override
     public String getDescription() {

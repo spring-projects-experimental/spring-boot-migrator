@@ -18,7 +18,8 @@ package org.springframework.sbm.build.migration.actions;
 import org.junit.jupiter.api.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.sbm.build.api.BuildFile;
-import org.springframework.sbm.build.api.Plugin;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin.OpenRewriteMavenPluginExecution;
 import org.springframework.sbm.engine.context.ProjectContext;
 
 import static org.mockito.Mockito.*;
@@ -28,7 +29,7 @@ class AddMavenPluginTest {
     @Test
     void testApply() {
         AddMavenPlugin addMavenPlugin = new AddMavenPlugin();
-        Plugin plugin = new Plugin();
+        OpenRewriteMavenPlugin plugin = new OpenRewriteMavenPlugin();
         addMavenPlugin.setPlugin(plugin);
 
         BuildFile buildFile = mock(BuildFile.class);
@@ -44,7 +45,7 @@ class AddMavenPluginTest {
     @Test
     void addMavenPluginMinimalFields() {
         AddMavenPlugin sut = new AddMavenPlugin();
-        Plugin plugin = Plugin.builder()
+        OpenRewriteMavenPlugin plugin = OpenRewriteMavenPlugin.builder()
                 .groupId("org.joinfaces")
                 .artifactId("joinfaces-maven-plugin")
                 .build();
@@ -84,19 +85,19 @@ class AddMavenPluginTest {
     @Test
     void addMavenPluginAllFields() {
         AddMavenPlugin sut = new AddMavenPlugin();
-        Plugin plugin = Plugin.builder()
+        OpenRewriteMavenPlugin plugin = OpenRewriteMavenPlugin.builder()
                 .groupId("org.joinfaces")
                 .artifactId("joinfaces-maven-plugin")
                 .version("2.4.2")
                 .execution(
-                        Plugin.Execution.builder()
+                        OpenRewriteMavenPluginExecution.builder()
                                 .id("some-id")
                                 .goal("classpath-scan")
                                 .goal("another-goal")
                                 .build()
                 )
                 .execution(
-                        Plugin.Execution.builder()
+                        OpenRewriteMavenPluginExecution.builder()
                                 .goal("and-another")
                                 .build()
                 )
@@ -291,12 +292,12 @@ class AddMavenPluginTest {
                         "</project>";
 
         AddMavenPlugin addMavenPlugin = new AddMavenPlugin();
-        Plugin plugin = Plugin.builder()
+        OpenRewriteMavenPlugin plugin = OpenRewriteMavenPlugin.builder()
                         .
                 groupId("org.joinfaces")
                 .artifactId("joinfaces-maven-plugin")
                 .execution(
-                        Plugin.Execution.builder()
+                        OpenRewriteMavenPluginExecution.builder()
                                 .goals(Sets.newSet("classpath-scan"))
                                 .build()
                 )

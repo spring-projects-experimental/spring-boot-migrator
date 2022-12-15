@@ -17,7 +17,8 @@ package org.springframework.sbm.jee.jaxws;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.sbm.build.api.Module;
-import org.springframework.sbm.build.api.Plugin;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin.OpenRewriteMavenPluginExecution;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.recipe.UserInteractions;
 import org.springframework.sbm.java.api.*;
@@ -98,7 +99,7 @@ public class GenerateWebServices extends AbstractAction {
     private void addMavenPluginForJavaSourceGeneration(Module module, List<WebServiceDescriptor> descriptors) {
         module.getBuildFile().setProperty(PROPERTY_KEY_JAVA_GEN_FOLDER, PROPERTY_VALUE_JAVA_GEN_FOLDER);
 
-        List<Plugin.Execution> generateExecs = descriptors.stream().map(d -> Plugin.Execution.builder()
+        List<OpenRewriteMavenPluginExecution> generateExecs = descriptors.stream().map(d -> OpenRewriteMavenPluginExecution.builder()
                 .goal("generate")
                 .configuration("\n<configuration>\n" +
                         "<schemaDirectory>${project.basedir}/src/main/resources</schemaDirectory>\n" +
@@ -110,7 +111,7 @@ public class GenerateWebServices extends AbstractAction {
         ).collect(Collectors.toList());
 
         module.getBuildFile().addPlugin(
-                Plugin.builder()
+                OpenRewriteMavenPlugin.builder()
                         .groupId("org.jvnet.jaxb2.maven2")
                         .artifactId("maven-jaxb2-plugin")
                         .version("0.14.0")
@@ -119,10 +120,10 @@ public class GenerateWebServices extends AbstractAction {
         );
 
         module.getBuildFile().addPlugin(
-                Plugin.builder()
+                OpenRewriteMavenPlugin.builder()
                         .groupId("org.codehaus.mojo")
                         .artifactId("build-helper-maven-plugin")
-                        .execution(Plugin.Execution.builder()
+                        .execution(OpenRewriteMavenPluginExecution.builder()
                                 .goal("add-source")
                                 .phase("generate-sources")
                                 .configuration("\n<configuration>\n" +
