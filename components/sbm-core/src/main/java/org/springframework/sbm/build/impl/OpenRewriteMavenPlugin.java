@@ -27,6 +27,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -72,10 +73,10 @@ public class OpenRewriteMavenPlugin implements Plugin {
 	private OpenRewriteMavenPluginConfiguration configuration;
 
 	@JsonIgnore
-	RewriteSourceFileHolder<Document> resourceWrapper;
+	private RewriteSourceFileHolder<Document> resourceWrapper;
 
 	@JsonIgnore
-	MavenBuildFileRefactoring<Xml.Document> refactoring;
+	private MavenBuildFileRefactoring<Xml.Document> refactoring;
 
 	private String dependencies;
 
@@ -113,16 +114,10 @@ public class OpenRewriteMavenPlugin implements Plugin {
 
 	@AllArgsConstructor
 	@NoArgsConstructor
-	@Getter
-	@Setter
 	public class OpenRewriteMavenPluginConfiguration implements Configuration {
 
-		private Map<String, Object> configuration;
-
 		@JsonAnyGetter
-		public Map<String, Object> getConfiguration() {
-			return configuration;
-		}
+		private Map<String, Object> configuration;
 
 		@Override
 		public Optional<String> getDeclaredStringValue(String property) {

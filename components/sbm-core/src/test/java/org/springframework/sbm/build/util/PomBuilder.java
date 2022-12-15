@@ -18,6 +18,7 @@ package org.springframework.sbm.build.util;
 
 import org.springframework.sbm.project.parser.DependencyHelper;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -29,7 +30,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.openrewrite.maven.internal.MavenXmlMapper;
 
 import org.springframework.sbm.build.api.Plugin;
-import org.springframework.sbm.project.parser.DependencyHelper;
 
 import org.openrewrite.maven.tree.Dependency;
 import org.openrewrite.maven.tree.Scope;
@@ -42,7 +42,7 @@ public class PomBuilder {
         private String artifactId;
 		private Map<String, String> properties = new HashMap<>();
 		private Map<Scope, org.openrewrite.maven.tree.Dependency> dependencies = new LinkedHashMap<Scope, Dependency>();
-		private List<Plugin> plugins;
+		private List<Plugin> plugins = new ArrayList<>();
 
     	private DependencyHelper dependencyHelper = new DependencyHelper();
     	private String parentPom;
@@ -128,7 +128,6 @@ public class PomBuilder {
             sb.append("    <version>").append(coord[2]).append("</version>").append("\n");
         }
 
-
 		if(packaging != null ){
 			sb.append("    <packaging>").append(packaging).append("</packaging>").append("\n");
 		}
@@ -147,6 +146,10 @@ public class PomBuilder {
             String dependenciesRendered = renderDependencies(dependencies);
             sb.append(dependenciesRendered);
         }
+
+		if(!plugins.isEmpty()){
+			sb.append(renderPlugins());
+		}
 
         sb.append("</project>\n");
         return sb.toString();
@@ -223,7 +226,7 @@ public class PomBuilder {
                 .append("\n");
     }
 
-	String buildPlugins(List<Plugin> plugins){
+	private String renderPlugins(){
 		StringBuilder pluginSection = new StringBuilder();
 		if (!plugins.isEmpty()) {
 			pluginSection.append("    ").append("<build>").append("\n");

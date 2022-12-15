@@ -16,6 +16,7 @@
 package org.springframework.sbm.build.impl;
 
 import org.junit.jupiter.api.Test;
+import org.openrewrite.maven.internal.MavenXmlMapper;
 
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Plugin;
