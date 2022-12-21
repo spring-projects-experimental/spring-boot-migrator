@@ -7,6 +7,7 @@ import org.springframework.sbm.engine.recipe.AbstractAction;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,7 +28,7 @@ public class RemoveManagedDependencies extends AbstractAction {
                 .filter(this::isSpringFrameworkDependency)
                 .collect(Collectors.partitioningBy(d -> "org.springframework.boot".equals(d.getGroupId())));
 
-        List<String> springManagedDependencies = Stream.concat(listMap.get(true)
+        List<Dependency> springManagedDependencies = Stream.concat(listMap.get(true)
                         .stream()
                         .map(i -> SpringManagedDependencies.byBootArtifact(i.getArtifactId(), i.getVersion())),
                 listMap.get(false)
@@ -35,15 +36,17 @@ public class RemoveManagedDependencies extends AbstractAction {
                         .map(i -> SpringManagedDependencies.byArtifact(i.getArtifactId(), i.getVersion()))
         ).flatMap(SpringManagedDependencies::stream)
         .distinct()
-        .map(Dependency::getCoordinates)
         .collect(Collectors.toList());
 
-        //FIXME Also include the dependencies with lesser version. How to do the version comparison? String comparison
-        // will not work for 3.2 < 13.2?
+        Predicate<Dependency> isAlreadyManagedBySpring = d -> springManagedDependencies
+                                                                    .stream()
+                                                                    .filter(d::equals)
+                                                                    .anyMatch(s -> s.isRecentThen(d));
+
         final List<Dependency> dependenciesToBeRemoved = context.getBuildFile()
                                                              .getDeclaredDependencies(Compile)
                                                              .stream()
-                                                             .filter(d -> springManagedDependencies.contains(d.getCoordinates()))
+                                                             .filter(isAlreadyManagedBySpring)
                                                              .collect(Collectors.toList());
 
         RemoveDependencies removeDependenciesAction = new RemoveDependencies();
