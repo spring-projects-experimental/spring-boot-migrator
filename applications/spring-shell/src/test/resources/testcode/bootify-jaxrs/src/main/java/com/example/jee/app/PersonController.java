@@ -20,7 +20,7 @@ public class PersonController {
     @Path("/json")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public String getAllPersons(@QueryParam("q") String searchBy) throws Exception {
+    public String getAllPersons(@QueryParam("q") String searchBy, @DefaultValue("0") @QueryParam("page") int page) throws Exception {
         return "{\"message\":\"No person here...\"";
     }
 

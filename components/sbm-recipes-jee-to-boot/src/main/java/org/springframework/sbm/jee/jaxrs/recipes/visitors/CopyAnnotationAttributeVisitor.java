@@ -23,6 +23,7 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.AddOrUpdateAnnotationAttribute;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
 import org.springframework.sbm.jee.utils.AnnotationUtils;
 
@@ -56,7 +57,9 @@ public class CopyAnnotationAttributeVisitor extends JavaIsoVisitor<ExecutionCont
 
         J.Literal sourceAnnotationAttributeValue = optionalSourceAnnotationAttributeValue.get();
         if (sourceAnnotationAttributeValue.getValue() != null) {
-            JavaIsoVisitor<ExecutionContext> addOrUpdateAnnotationAttributeVisitor = new AddOrUpdateAnnotationAttribute(targetAnnotationType, targetAttributeName, sourceAnnotationAttributeValue.getValue().toString(), false)
+            // If the annotation type is a shallow class then JavaType.getMethods is empty and AddOrUpdateAnnotationAttribute can't determine if the datatype of the attribute is String or not
+            String targetAttributeValue = annotation.getType() instanceof JavaType.ShallowClass ? sourceAnnotationAttributeValue.getValueSource() : sourceAnnotationAttributeValue.getValue().toString();
+            JavaIsoVisitor<ExecutionContext> addOrUpdateAnnotationAttributeVisitor = new AddOrUpdateAnnotationAttribute(targetAnnotationType, targetAttributeName, targetAttributeValue, false)
                     .getVisitor();
             if (targetAnnotationOnlyHasOneLiteralArgument(a)) {
                 a = (J.Annotation) addOrUpdateAnnotationAttributeVisitor.visit(a, ctx, getCursor());

@@ -53,6 +53,33 @@ class CopyAnnotationAttributeTest {
     }
 
     @Test
+    void givenBothAnnotationsArePresentOnMethodParameterWithTypeInt_thenTheAttributeIsCopied() {
+        String sourceCode = """                
+                import org.springframework.web.bind.annotation.RequestParam;
+                import javax.ws.rs.DefaultValue;
+                                
+                class ControllerClass {
+                    public String test(@DefaultValue("0") @RequestParam(value = "page") int page) {
+                        return "Hello";
+                    }
+                }
+                """;
+
+        String expected = """
+                import org.springframework.web.bind.annotation.RequestParam;
+                import javax.ws.rs.DefaultValue;
+                                
+                class ControllerClass {
+                    public String test(@DefaultValue("0") @RequestParam(defaultValue = "0", value = "page") int page) {
+                        return "Hello";
+                    }
+                }
+                """;
+
+        testCopyAnnotationAttribute(sourceCode, expected);
+    }
+
+    @Test
     void givenTheTargetAnnotationIsPositionedBeforeTheSourceAnnotation_thenTheAttributeIsCopied() {
         String sourceCode = """                
                 import org.springframework.web.bind.annotation.RequestParam;

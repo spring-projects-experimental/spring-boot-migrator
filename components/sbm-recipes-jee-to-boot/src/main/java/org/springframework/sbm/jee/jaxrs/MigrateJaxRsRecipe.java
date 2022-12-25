@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.jee.jaxrs;
 
-import lombok.RequiredArgsConstructor;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.JavaParser;
 import org.springframework.context.annotation.Bean;
@@ -35,10 +34,10 @@ import org.springframework.sbm.java.migration.conditions.HasImportStartingWith;
 import org.springframework.sbm.java.migration.conditions.HasTypeAnnotation;
 import org.springframework.sbm.jee.jaxrs.actions.ConvertJaxRsAnnotations;
 import org.springframework.sbm.jee.jaxrs.recipes.ReplaceMediaType;
+import org.springframework.sbm.jee.jaxrs.recipes.ReplaceRequestParameterProperties;
 import org.springframework.sbm.jee.jaxrs.recipes.SwapCacheControl;
 import org.springframework.sbm.jee.jaxrs.recipes.SwapHttHeaders;
 import org.springframework.sbm.jee.jaxrs.recipes.SwapResponseWithResponseEntity;
-import org.springframework.sbm.support.openrewrite.java.AddOrReplaceAnnotationAttribute;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -126,6 +125,12 @@ public class MigrateJaxRsRecipe {
                                         .condition(HasImportStartingWith.builder().value("javax.ws.rs.core.Response").build())
                                         .description("Replace JaxRs Response and ResponseBuilder with it's Spring equivalent.")
                                         .recipe(new SwapResponseWithResponseEntity(javaParserSupplier))
+                                        .build(),
+
+                                JavaRecipeAction.builder()
+                                        .condition(HasAnnotation.builder().annotation("org.springframework.web.bind.annotation.RequestParam").build())
+                                        .description("Replace the JAX-RS properties of a request parameter (like default value) with it's Spring equivalent.")
+                                        .recipe(new ReplaceRequestParameterProperties())
                                         .build(),
 
                                 OpenRewriteDeclarativeRecipeAdapter.builder()
