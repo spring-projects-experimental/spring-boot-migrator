@@ -1420,7 +1420,8 @@
               **Please consider contributing to issue https://github.com/spring-projects-experimental/spring-boot-migrator/issues/670[#670^, role="ext-link"]**
               ====
           projects:
-            - spring-boot
+            - spring-data
+            - spring-data-jpa
           gitHubIssue: 670
         #  contributors:
         #    - Your Name[@your-gh-handle]
