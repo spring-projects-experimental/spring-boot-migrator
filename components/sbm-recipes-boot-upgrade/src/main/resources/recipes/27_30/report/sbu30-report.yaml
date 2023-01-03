@@ -306,37 +306,38 @@
           change: |-
             As of Spring Framework 6.0, the trailing slash matching configuration option has been deprecated and its default value set to `false`.
             This means that previously, the following controller would match both "GET /some/greeting" and "GET /some/greeting/":
-
-            ```
+            
+            [source, java]
+            ----
             @RestController
             public class MyController {
-
+            
               @GetMapping("/some/greeting")
               public String greeting {
                 return "Hello";
-              }
-
+              } 
+            
             }
-            ```
-
-            As of https://github.com/spring-projects/spring-framework/issues/28552[this Spring Framework change], "GET /some/greeting/" doesn't
-            match anymore by default.
-
+            ----
+            
+            As of https://github.com/spring-projects/spring-framework/issues/28552[this Spring Framework change], "GET /some/greeting/" doesn't match anymore by default.
+            
             Developers should instead configure explicit redirects/rewrites through a proxy, a Servlet/web filter, or even declare the additional route explicitly on the controller handler (like `@GetMapping("/some/greeting", "/some/greeting/")` for more targeted cases.
-
+            
             Until your application fully adapts to this change, you can change the default with the following global configuration:
-
-            ```
+            
+            [source, java]
+            ----
             @Configuration
             public class WebConfiguration implements WebMvcConfigurer {
-
+            
                 @Override
                 public void configurePathMatch(PathMatchConfigurer configurer) {
                   configurer.setUseTrailingSlashMatch(true);
                 }
-
+              
             }
-            ```
+            ----
           sources:
             - https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0.0-M4-Release-Notes#spring-mvc-and-webflux-url-matching-changes[Spring Boot Release Notes]
             - https://github.com/spring-projects/spring-framework/issues/28552[SpringFramework Issue 28552]
@@ -1525,6 +1526,39 @@
           projects:
             - spring-observability
           gitHubIssue: 676
+        #  contributors:
+        #    - Your Name[@your-gh-handle]
+
+
+        #
+        # Generated from https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#json-b
+        #
+        - title: "JSON-B"
+          helper:
+            type: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConditionOnlyHelper
+            condition:
+              type: org.springframework.sbm.build.migration.conditions.AnyEffectiveDependencyExistMatchingRegex
+              dependencies:
+                - 'org\.springframework\.boot\:spring-boot-starter\:.*'
+
+          change: |-
+            Dependency management for Apache Johnzon has been removed in favor of Eclipse Yasson.
+            A Jakarta EE 10-compatible version of Apache Johnzon can be used with Spring Boot 3, but you will now have to specify a version in your dependency declaration.
+
+          affected: |-
+            Actually, we don't know if the scanned application is really affected by this change.
+            But we found a dependency matching regex `org\.springframework\.boot\:spring-boot-starter\:.*`.
+            This indicates that the scanned application might be affected.
+          remediation:
+            description: |-
+              [IMPORTANT]
+              ====
+              This section has been automatically generated from the https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#json-b[Spring Boot 3.0 Migration Guide^, role="ext-link"]. +
+              **Please consider contributing to issue https://github.com/spring-projects-experimental/spring-boot-migrator/issues/678[#678^, role="ext-link"]**
+              ====
+          projects:
+            - spring-boot
+          gitHubIssue: 678
         #  contributors:
         #    - Your Name[@your-gh-handle]
 
