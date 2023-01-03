@@ -32,8 +32,7 @@
     </properties>
 
     <scm>
-        <developerConnection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git
-        </developerConnection>
+        <developerConnection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</developerConnection>
         <connection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator</connection>
         <url>https://github.com/spring-projects-experimental/spring-boot-migrator</url>
         <tag>0.13.0</tag>
@@ -370,11 +369,10 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>3.0.0-M7</version>
                 <configuration>
-                    <connectionUrl>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git
-                    </connectionUrl>
+                    <connectionUrl>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</connectionUrl>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>@{project.version}</tagNameFormat>
-                    <releaseProfiles>release</releaseProfiles>
+<!--                    <releaseProfiles>release</releaseProfiles>-->
                 </configuration>
             </plugin>
 

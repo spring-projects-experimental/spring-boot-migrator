@@ -42,7 +42,6 @@ public class LoggingDateFormatReportSectionTest {
                 .shouldRenderAs(
                         """
                         === Logging Date Format
-                        Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/489[#489^, role="ext-link"], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
                         
                         ==== What Changed
                         The default format for the date and time component of log messages for Logback and Log4j2 has changed to
@@ -75,7 +74,6 @@ public class LoggingDateFormatReportSectionTest {
                 .shouldRenderAs(
                         """
                         === Logging Date Format
-                        Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/489[#489^, role="ext-link"], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
                         
                         ==== What Changed
                         The default format for the date and time component of log messages for Logback and Log4j2 has changed to

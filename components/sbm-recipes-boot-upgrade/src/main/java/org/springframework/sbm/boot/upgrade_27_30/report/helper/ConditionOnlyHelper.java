@@ -13,21 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
+import lombok.Setter;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
-import org.springframework.sbm.build.migration.conditions.NoPluginRepositoryExistsCondition;
-import org.springframework.sbm.build.migration.conditions.NoRepositoryExistsCondition;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.Condition;
 
 import java.util.Map;
 
-public class AddSpringBootRepositoriesHelper extends SpringBootUpgradeReportSectionHelper<String> {
+/**
+ * Helper for {@link org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection} that takes a {@link Condition} and returns empty map as data.
+ *
+ * Meant to be used to reuse existing {@link Condition}s for {@link SpringBootUpgradeReportSectionHelper}.
+ *
+ * @author Fabian Krüger
+ */
+public class ConditionOnlyHelper extends SpringBootUpgradeReportSectionHelper<String> {
+
+    @Setter
+    private Condition condition;
+
     @Override
     public boolean evaluate(ProjectContext context) {
-        return new NoRepositoryExistsCondition().evaluate(context) && new NoPluginRepositoryExistsCondition().evaluate(context);
+        return condition.evaluate(context);
     }
 
     @Override
