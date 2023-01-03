@@ -56,11 +56,11 @@ public interface BuildFile extends ProjectResource {
     boolean hasDeclaredDependencyMatchingRegex(String... dependencyPatterns);
 
     /**
-     * Check if any dependency (declared or transitive) matches any of the given regex.
+     * Check if any dependency declared or transitive in any scope in this build file matches any of the given regex.
      *
      * @param dependencyPatterns the patterns matching against Maven coordinates 'groupId:artifactId:version'
      */
-//    boolean hasDependencyMatchingRegex(String... dependencyPatterns);
+    boolean hasEffectiveDependencyMatchingRegex(String... dependencyPatterns);
 
     boolean hasExactDeclaredDependency(Dependency dependency);
 

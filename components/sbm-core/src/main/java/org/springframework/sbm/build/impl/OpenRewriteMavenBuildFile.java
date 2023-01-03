@@ -207,6 +207,16 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .anyMatch(dc -> Arrays.stream(dependencyPatterns).anyMatch(r -> dc.matches(r)));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasEffectiveDependencyMatchingRegex(String... dependencyPatterns) {
+        return getEffectiveDependencies().stream()
+                .map(d -> d.getCoordinates())
+                .anyMatch(dc -> Arrays.stream(dependencyPatterns).anyMatch(r -> dc.matches(r)));
+    }
+
     @Override
     public boolean hasExactDeclaredDependency(Dependency dependency) {
         return getDeclaredDependencies().stream()
