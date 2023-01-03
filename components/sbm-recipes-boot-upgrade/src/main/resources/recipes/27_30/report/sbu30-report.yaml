@@ -1391,6 +1391,41 @@
         #    - Your Name[@your-gh-handle]
 
 
+        #
+        # Generated from https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#hazelcast-hibernate-removed
+        #
+        - title: "Hazelcast Hibernate Removed"
+          helper:
+            type: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConditionOnlyHelper
+            condition:
+              type: org.springframework.sbm.build.migration.conditions.AnyEffectiveDependencyExistMatchingRegex
+              dependencies:
+                - 'com\.hazelcast\:hazelcast-hibernate\:.*'
+
+          change: |-
+            Spring Boot does not depend on Hazelcast Hibernate so it need not have an opinion about its version.
+            As such, dependency management for Hazelcast Hibernate has been removed.
+            If you wish to continue using Hazelcast Hibernate, specify a version that meets your needs.
+            Alternatively, consider using `org.hibernate.orm:hibernate-jcache` instead.
+
+          affected: |-
+            Actually, we don't know if the scanned application is really affected by this change.
+            But we found a dependency matching regex `com\.hazelcast\:hazelcast-hibernate\:.*`.
+            This indicates that the scanned application might be affected.
+          remediation:
+            description: |-
+              [IMPORTANT]
+              ====
+              This section has been automatically generated from the https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#hazelcast-hibernate-removed[Spring Boot 3.0 Migration Guide^, role="ext-link"]. +
+              **Please consider contributing to issue https://github.com/spring-projects-experimental/spring-boot-migrator/issues/670[#670^, role="ext-link"]**
+              ====
+          projects:
+            - spring-boot
+          gitHubIssue: 670
+        #  contributors:
+        #    - Your Name[@your-gh-handle]
+
+
       footer: |-
             We want to say thank you to all Contributors:
             
