@@ -1154,6 +1154,40 @@
         #    - Your Name[@your-gh-handle]
 
 
+        #
+        # Generated from https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#@enablebatchprocessing-no-longer-required
+        #
+        - title: "@EnableBatchProcessing No Longer Required"
+          helper:
+            type: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConditionOnlyHelper
+            condition:
+              type: org.springframework.sbm.build.migration.conditions.AnyEffectiveDependencyExistMatchingRegex
+              dependencies:
+                - 'org\.springframework.batch\:spring-batch-core\:.*'
+
+          change: |-
+            Previously, `@EnableBatchProcessing` could be used to enable Spring Boot's auto-configuration of Spring Batch.
+            It is no longer required and should be removed from applications that want to use Boot's auto-configuration.
+            A bean that is annotated with `@EnableBatchProcessing` or that extends Batch's `DefaultBatchConfiguration` can now be defined to tell the auto-configuration to back off, allowing the application to take complete control of how Batch is configured.
+
+          affected: |-
+            Actually, we don't know if the scanned application is really affected by this change.
+            But we found a dependency matching regex `org\.springframework\..*`.
+            This indicates that the scanned application might be affected.
+          remediation:
+            description: |-
+              [IMPORTANT]
+              ====
+              This section has been automatically generated from the https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#@enablebatchprocessing-no-longer-required[Spring Boot 3.0 Migration Guide^, role="ext-link"]. +
+              **Please consider contributing to issue https://github.com/spring-projects-experimental/spring-boot-migrator/issues/662[#662^, role="ext-link"]**
+              ====
+          projects:
+            - spring-batch
+          gitHubIssue: 662
+        #  contributors:
+        #    - Your Name[@your-gh-handle]
+
+
       footer: |-
             We want to say thank you to all Contributors:
             
