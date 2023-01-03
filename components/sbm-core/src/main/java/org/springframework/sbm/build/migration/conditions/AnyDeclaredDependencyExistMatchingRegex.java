@@ -24,11 +24,14 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Check if any explicitly declared dependency exists in any build file found in {@link ProjectContext}.
+ */
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnyDependencyExistMatchingRegex implements Condition {
+public class AnyDeclaredDependencyExistMatchingRegex implements Condition {
 
     private List<String> dependencies;
 

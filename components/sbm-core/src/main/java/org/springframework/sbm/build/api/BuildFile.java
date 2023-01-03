@@ -49,7 +49,7 @@ public interface BuildFile extends ProjectResource {
     Set<Dependency> getEffectiveDependencies();
 
     /**
-     * Check if any declared dependency matches any of the given regex.
+     * Check if any dependency declared in this build file matches any of the given regex.
      *
      * @param dependencyPatterns the patterns matching against Maven coordinates 'groupId:artifactId:version'
      */
@@ -171,4 +171,5 @@ public interface BuildFile extends ProjectResource {
     List<String> getDeclaredModules();
 
 	Optional<Plugin> findPlugin(String groupId, String artifactId);
+
 }
