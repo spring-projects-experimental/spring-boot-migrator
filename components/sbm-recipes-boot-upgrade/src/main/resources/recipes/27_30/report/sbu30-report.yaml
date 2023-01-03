@@ -1427,6 +1427,39 @@
         #    - Your Name[@your-gh-handle]
 
 
+        #
+        # Generated from https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#saml2-relying-party-configuration
+        #
+        - title: "SAML2 Relying Party Configuration"
+          helper:
+            type: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConditionOnlyHelper
+            condition:
+              type: org.springframework.sbm.build.migration.conditions.AnyEffectiveDependencyExistMatchingRegex
+              dependencies:
+                - 'org\.springframework\.security\:spring-security-core\:.*'
+
+          change: |-
+            Support for properties under `spring.security.saml2.relyingparty.registration.{id}.identity-provider` have been removed.
+            Use the new properties under `spring.security.saml2.relyingparty.registration.{id}.asserting-party` as a replacement.
+
+          affected: |-
+            Actually, we don't know if the scanned application is really affected by this change.
+            But we found a dependency matching regex `org\.springframework\.security\:spring-security-core\:.*`.
+            This indicates that the scanned application might be affected.
+          remediation:
+            description: |-
+              [IMPORTANT]
+              ====
+              This section has been automatically generated from the https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#saml2-relying-party-configuration[Spring Boot 3.0 Migration Guide^, role="ext-link"]. +
+              **Please consider contributing to issue https://github.com/spring-projects-experimental/spring-boot-migrator/issues/672[#672^, role="ext-link"]**
+              ====
+          projects:
+            - spring-security
+          gitHubIssue: 672
+        #  contributors:
+        #    - Your Name[@your-gh-handle]
+
+
       footer: |-
             We want to say thank you to all Contributors:
             
