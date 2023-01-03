@@ -1636,6 +1636,45 @@
         #    - Your Name[@your-gh-handle]
 
 
+        #
+        # Generated from https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#elasticsearch-clients-and-templates
+        #
+        - title: "Elasticsearch Clients and Templates"
+          helper:
+            type: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConditionOnlyHelper
+            condition:
+              type: org.springframework.sbm.build.migration.conditions.AnyEffectiveDependencyExistMatchingRegex
+              dependencies:
+                - 'org\.springframework\.data\:spring-data-elasticsearch\:.*'
+
+          change: |-
+            Support for Elasticsearch's high-level REST client has been removed.
+            In its place, auto-configuration for Elasticsearch's new Java client has been introduced.
+            Similarly, support for the Spring Data Elasticsearch templates that built on top of the high-level REST client has been removed.
+            In its place, auto-configuration for the new templates that build upon the new Java client has been introduced.
+            See https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html/#elasticsearch.clients[the Elasticsearch section of the reference documentation] for further details.
+            
+            `ReactiveElasticsearchRestClientAutoConfiguration` has been renamed to `ReactiveElasticsearchClientAutoConfiguration` and has moved from `org.springframework.boot.autoconfigure.data.elasticsearch` to `org.springframework.boot.autoconfigure.elasticsearch`.
+            Any auto-configuration exclusions or ordering should be updated accordingly.
+
+          affected: |-
+            Actually, we don't know if the scanned application is really affected by this change.
+            But we found a dependency matching regex `org\.springframework\.data\:spring-data-elasticsearch\:.*`.
+            This indicates that the scanned application might be affected.
+          remediation:
+            description: |-
+              [IMPORTANT]
+              ====
+              This section has been automatically generated from the https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#elasticsearch-clients-and-templates[Spring Boot 3.0 Migration Guide^, role="ext-link"]. +
+              **Please consider contributing to issue https://github.com/spring-projects-experimental/spring-boot-migrator/issues/688[#688^, role="ext-link"]**
+              ====
+          projects:
+            - spring-data
+          gitHubIssue: 688
+        #  contributors:
+        #    - Your Name[@your-gh-handle]
+
+
       footer: |-
             We want to say thank you to all Contributors:
             
