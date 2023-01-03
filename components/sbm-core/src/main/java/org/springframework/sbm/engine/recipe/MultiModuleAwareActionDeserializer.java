@@ -25,8 +25,13 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+/***
+ *
+ * @deprecated Use "One Action implementation per use case" instead, see https://github.com/spring-projects-experimental/spring-boot-migrator/discussions/345
+ */
 @Component
 @RequiredArgsConstructor
+@Deprecated(forRemoval = true)
 public class MultiModuleAwareActionDeserializer implements ActionDeserializer {
 
     protected final ObjectMapper yamlObjectMapper;

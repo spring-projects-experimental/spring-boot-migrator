@@ -36,7 +36,7 @@ public class IsSpringBootProject implements Condition {
 
     @Override
     public String getDescription() {
-        return null;
+        return "Checks if scanned project is Spring Boot project";
     }
 
     @Override

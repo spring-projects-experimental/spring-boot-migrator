@@ -16,6 +16,7 @@
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
+import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * @author Fabian Krüger
  */
-public class ActuatorEndpointsSanitizationHelper extends SpringBootUpgradeReportSection.AbstractHelper<List<BuildFile>> {
+public class ActuatorEndpointsSanitizationHelper extends SpringBootUpgradeReportSectionHelper<List<BuildFile>> {
 
     private static final String ACTUATOR_GROUP_ID = "org.springframework.boot";
     private static final String ACTUATOR_ARTIFACT_ID = "spring-boot-actuator";

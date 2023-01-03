@@ -21,6 +21,7 @@ import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
+import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.build.migration.conditions.NoDependencyExistMatchingRegex;
 import org.springframework.sbm.engine.context.ProjectContext;
 
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * @author Fabian Krüger
  */
-public class ChangesToDataPropertiesHelper implements SpringBootUpgradeReportSection.Helper<List<ChangesToDataPropertiesHelper.Match>> {
+public class ChangesToDataPropertiesHelper extends SpringBootUpgradeReportSectionHelper<List<ChangesToDataPropertiesHelper.Match>> {
 
     public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
 

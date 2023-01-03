@@ -67,7 +67,6 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
         String expectedOutput =
                 """
                 === Spring MVC and WebFlux URL matching changes
-                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/522[#522^, role="ext-link"], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
                                                  
                 ==== What Changed
                 As of Spring Framework 6.0, the trailing slash matching configuration option has been deprecated and its default value set to `false`.
