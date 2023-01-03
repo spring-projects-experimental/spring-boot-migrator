@@ -701,6 +701,47 @@
         #  contributors:
         #    - Your Name[@your-gh-handle]
 
+
+        #
+        # Generated from https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#-httptrace--endpoint-renamed-to--httpexchanges-
+        #
+        - title: "'httptrace' Endpoint Renamed to 'httpexchanges'"
+          helper:
+            type: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConditionOnlyHelper
+            condition:
+              type: org.springframework.sbm.build.migration.conditions.AnyEffectiveDependencyExistMatchingRegex
+              dependencies:
+                - 'org\.springframework\.boot\:spring-boot-actuator\:.*'
+
+          change: |-
+            The `httptrace` endpoint and related infrastructure records and provides access to information about recent HTTP request-response exchanges.
+            Following the introduction of support for https://micrometer.io/docs/tracing[Micrometer Tracing], the name `httptrace` may cause confusion.
+            To reduce this possible confusion the endpoint has been renamed to `httpexchanges`.
+            The contents of the endpoint's response has also been affected by this renaming.
+            Please refer to the {actuator-api}/#httpexchanges[Actuator API documentation] for further details.
+            
+            Related infrastructure classes have also been renamed.
+            For example, `HttpTraceRepository` is now named `HttpExchangeRepository` and can be found in the `org.springframework.boot.actuate.web.exchanges` package.
+
+          affected: |-
+            Actually, we don't know if the scanned application is really affected by this change.
+            But we found a dependency matching regex `org\.springframework\.boot\:spring-boot-actuator\:.*`.
+            This indicates that the scanned application might be affected.
+          remediation:
+            description: |-
+              [IMPORTANT]
+              ====
+              This section has been automatically generated from the https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#-httptrace--endpoint-renamed-to--httpexchanges-[Spring Boot 3.0 Migration Guide^, role="ext-link"]. +
+              **Please consider contributing to issue https://github.com/spring-projects-experimental/spring-boot-migrator/issues/632[#632^, role="ext-link"]**
+              ====
+          projects:
+            - spring-boot
+            - actuator
+          gitHubIssue: 632
+        #  contributors:
+        #    - Your Name[@your-gh-handle]
+
+
       footer: |-
         We want to say thank you to all Contributors:
         
