@@ -17,6 +17,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
+import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
 
@@ -26,7 +27,7 @@ import java.util.Map;
 /**
  * @author Fabian Krüger
  */
-public class UpgradeSpringBootVersionHelper implements SpringBootUpgradeReportSection.Helper<String> {
+public class UpgradeSpringBootVersionHelper extends SpringBootUpgradeReportSectionHelper<String> {
 
     public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
     @Override

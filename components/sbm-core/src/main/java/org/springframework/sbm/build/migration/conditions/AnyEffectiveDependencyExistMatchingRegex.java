@@ -15,20 +15,23 @@
  */
 package org.springframework.sbm.build.migration.conditions;
 
-import org.springframework.sbm.engine.recipe.Condition;
-import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.Condition;
 
 import java.util.List;
 
+/**
+ * Check if any effective (declared or transitive) dependency exists in any build file found in {@link ProjectContext}.
+ */
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnyDependencyExistMatchingRegex implements Condition {
+public class AnyEffectiveDependencyExistMatchingRegex implements Condition {
 
     private List<String> dependencies;
 
@@ -41,7 +44,7 @@ public class AnyDependencyExistMatchingRegex implements Condition {
     @Override
     public boolean evaluate(ProjectContext context) {
         return dependencies.stream().anyMatch(d ->
-                context.getBuildFile().hasDeclaredDependencyMatchingRegex(d)
+                context.getBuildFile().hasEffectiveDependencyMatchingRegex(d)
         );
     }
 }
