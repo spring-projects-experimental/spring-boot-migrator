@@ -72,7 +72,6 @@ public class ConstructorBindingReportSectionTest {
                 .shouldRenderAs(
                    """
                     === Constructor Binding
-                    Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166^, role="ext-link"], Contributors: https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
                                                     
                     ==== What Changed
                     When using constructor bound @ConfigurationProperties the @ConstructorBinding annotation

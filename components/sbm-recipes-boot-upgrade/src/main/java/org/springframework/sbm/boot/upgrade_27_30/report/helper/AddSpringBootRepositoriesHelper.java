@@ -17,18 +17,14 @@
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
+import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.build.migration.conditions.NoPluginRepositoryExistsCondition;
 import org.springframework.sbm.build.migration.conditions.NoRepositoryExistsCondition;
 import org.springframework.sbm.engine.context.ProjectContext;
 
 import java.util.Map;
 
-public class AddSpringBootRepositoriesHelper implements SpringBootUpgradeReportSection.Helper<String>{
-    @Override
-    public String getDescription() {
-        return null;
-    }
-
+public class AddSpringBootRepositoriesHelper extends SpringBootUpgradeReportSectionHelper<String> {
     @Override
     public boolean evaluate(ProjectContext context) {
         return new NoRepositoryExistsCondition().evaluate(context) && new NoPluginRepositoryExistsCondition().evaluate(context);

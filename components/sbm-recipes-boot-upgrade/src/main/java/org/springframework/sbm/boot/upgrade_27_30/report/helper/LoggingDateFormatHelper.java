@@ -18,6 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.upgrade_27_30.filter.LoggingDateFormatPropertyFinder;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
+import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.properties.api.PropertiesSource;
 
@@ -27,7 +28,7 @@ import java.util.Map;
 /**
  * @author Fabian Krüger
  */
-public class LoggingDateFormatHelper implements SpringBootUpgradeReportSection.Helper<List<? extends PropertiesSource>> {
+public class LoggingDateFormatHelper extends SpringBootUpgradeReportSectionHelper<List<? extends PropertiesSource>> {
 
     public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
     private List<? extends PropertiesSource> propertiesSources;

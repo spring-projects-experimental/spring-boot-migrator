@@ -19,7 +19,7 @@ import org.openrewrite.maven.AddPluginDependency;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex;
+import org.springframework.sbm.build.migration.conditions.AnyDeclaredDependencyExistMatchingRegex;
 import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Condition;
@@ -71,7 +71,7 @@ public class OrRecipesConfig {
         r.doNext(new AddPluginDependency("ro.isdc.wro4j", "wro4j-maven-plugin", "org.mockito", "mockito-core", "${mockito.version}"));
         r.doNext(new OpenRewriteMavenBuildFile.RefreshPomModel());
 
-        AnyDependencyExistMatchingRegex condition = new AnyDependencyExistMatchingRegex();
+        AnyDeclaredDependencyExistMatchingRegex condition = new AnyDeclaredDependencyExistMatchingRegex();
         condition.setDependencies(List.of("org\\.springframework\\.boot:.*:1\\..*"));
 
         return createRecipe("upgrade-boot-1x-to-2x", r, condition);

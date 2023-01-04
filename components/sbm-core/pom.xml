@@ -154,7 +154,13 @@
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			<version>2.14.1</version>
+		</dependency>
+
+	</dependencies>
     <build>
         <plugins>
             <plugin>

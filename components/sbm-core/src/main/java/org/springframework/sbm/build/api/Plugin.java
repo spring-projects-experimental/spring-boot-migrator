@@ -15,47 +15,46 @@
  */
 package org.springframework.sbm.build.api;
 
-import lombok.*;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Plugin {
+public interface Plugin {
 
-    @NotNull
-    private String groupId;
+	String getGroupId();
 
-    @NotNull
-    private String artifactId;
+	String getArtifactId();
 
-    private String version;
+	String getVersion();
 
-    @Singular("execution")
-    private List<Execution> executions;
+	String getDependencies();
 
-    private String configuration;
+	List<? extends Execution> getExecutions();
 
-    private String dependencies;
+	Configuration getConfiguration();
 
-    @Builder
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Setter
-    public static class Execution {
-        @Null
-        private String id;
-        @Singular("goal")
-        private List<String> goals;
-        @Null
-        private String phase;
-        @Null
-        private String configuration;
-    }
+	interface Configuration {
+
+		Optional<String> getDeclaredStringValue(String property);
+
+		String getResolvedStringValue(String property);
+
+		void setDeclaredStringValue(String property, String value);
+
+		Set<String> getPropertyKeys();
+
+	}
+
+	interface Execution {
+
+		String getId();
+
+		List<String> getGoals();
+
+		String getPhase();
+
+		String getConfiguration();
+
+	}
+
 }

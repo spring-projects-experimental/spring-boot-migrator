@@ -47,36 +47,16 @@ import java.util.stream.Collectors;
 @Setter
 public class SpringBootUpgradeReportSection {
 
-    private static final String ls = System.lineSeparator();
-
-    /**
-     * Helper acting as {@link Condition} and data provide for a {@link SpringBootUpgradeReportSection}.
-     * @deprecated Use {@link AbstractHelper} instead
-     */
-    @Deprecated(forRemoval = true)
-    public interface Helper<T> extends Condition {
-        /**
-         * @return {@code Map<String, T>} the model data for the template.
-         */
-        Map<String, T> getData();
-    }
-
-    public static abstract class AbstractHelper<T> implements Helper<T> {
-
-        @Override
-        public String getDescription() {
-            return "";
-        }
-    }
-
     public static final String CHANGE_HEADER = "What Changed";
     public static final String AFFECTED = "Why is the application affected";
     public static final String REMEDIATION = "Remediation";
-
-    public boolean shouldRender(ProjectContext context) {
-        return helper.evaluate(context);
-    }
-
+    private static final String ls = System.lineSeparator();
+    /**
+     * The spring project(s)/modules this change comes from.
+     *
+     * e.g. {@code spring-boot} and {@code actuator}
+     */
+    private List<String> projects;
     /**
      * Section title
      */
@@ -108,15 +88,22 @@ public class SpringBootUpgradeReportSection {
     @NotNull
     private Set<String> contributors;
 
-    @JsonIgnore
-    private Helper<Object> helper;
+    @NotNull
+    private SpringBootUpgradeReportSectionHelper<?> helper;
+
     @JsonIgnore
     @Autowired
     private SpringBootUpgradeReportFreemarkerSupport freemarkerSupport;
 
+    public boolean shouldRender(ProjectContext context) {
+        return helper.evaluate(context);
+    }
+
+
+
     public String render(ProjectContext context) {
         if (getHelper().evaluate(context)) {
-            Map<String, Object> params = getHelper().getData();
+            Map<String, ?> params = getHelper().getData();
 
             try (StringWriter writer = new StringWriter()) {
                 String templateContent = buildTemplate();
@@ -137,7 +124,7 @@ public class SpringBootUpgradeReportSection {
         throw new IllegalArgumentException("Could not render Section '"+ getTitle()+"', evaluating the context returned false");
     }
 
-    private void renderTemplate(Map<String, Object> params, StringWriter writer, String templateContent) throws IOException, TemplateException {
+    private void renderTemplate(Map<String, ?> params, StringWriter writer, String templateContent) throws IOException, TemplateException {
         String templateName = getTitle().replace(" ", "") + UUID.randomUUID();
         freemarkerSupport.getStringLoader().putTemplate(templateName, templateContent);
         Template t = freemarkerSupport.getConfiguration().getTemplate(templateName);
@@ -207,20 +194,19 @@ public class SpringBootUpgradeReportSection {
         sb.append(ls);
     }
 
-    private void renderGitHubInfo(StringBuilder sb) {
+    void renderGitHubInfo(StringBuilder sb) {
         if(gitHubIssue != null) {
-            sb.append("Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/").append(gitHubIssue).append("[#").append(gitHubIssue).append("^, role=\"ext-link\"]");
-        }
-        if(contributors != null && gitHubIssue != null) {
-            sb.append(", ");
-        } else {
-            sb.append(ls);
+            sb.append("**Issue:** https://github.com/spring-projects-experimental/spring-boot-migrator/issues/").append(gitHubIssue).append("[#").append(gitHubIssue).append("^, role=\"ext-link\"] ").append(" + ").append(ls);
         }
         if(contributors != null) {
             List<Author> authors = getAuthors();
-            sb.append("Contributors: ");
+            sb.append("**Contributors:** ");
             String authorsString = authors.stream().map(a -> "https://github.com/" + a.getHandle() + "[@" + a.getHandle() + "^, role=\"ext-link\"]").collect(Collectors.joining(", "));
-            sb.append(authorsString).append(ls);
+            sb.append(authorsString).append(" + ").append(ls);
+        }
+        if(projects != null){
+            String projectsList = projects.stream().collect(Collectors.joining(", "));
+            sb.append("**Projects:** ").append(projectsList).append(ls);
         }
     }
 
@@ -229,6 +215,10 @@ public class SpringBootUpgradeReportSection {
     }
 
     public List<Author> getAuthors() {
+        if(contributors == null) {
+            return List.of();
+        }
+
         return contributors.stream()
                 .map(c -> {
                     Matcher matcher = Pattern.compile("(.*)\\[(.*)\\]").matcher(c);
