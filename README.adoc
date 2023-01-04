@@ -24,8 +24,17 @@ ____
 
 
 == Spring Boot 3.0 Upgrades
-
 We are working on automated upgrade from Spring Boot 2.7 to Spring Boot 3.0.
+
+Click the image to watch a demo video [2:26]
+
+ifdef::env-github[]
+image:https://img.youtube.com/vi/RKXblzn8lFg/maxresdefault.jpg[link=https://www.youtube.com/embed/RKXblzn8lFg^]
+endif::[]
+
+=== Try the Spring Boot Upgrade tool
+. Download the https://github.com/spring-projects-experimental/spring-boot-migrator/releases/download/latest/spring-boot-upgrade.jar[spring-boot-upgrade.jar]
+. Run `java -jar --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED spring-boot-upgrade.jar <path-to-application>`
 
 If any of your applications is on 2.7 and uses Maven (Gradle is currently not supported), we'd be happy if you
 could give SBM a try and provide feedback of how it worked out.
@@ -33,22 +42,36 @@ It is very hard to come up with all the possible setups found in the wild and th
 
 Thank you!
 
-Download the https://github.com/spring-projects-experimental/spring-boot-migrator/releases[latest release]
-
-- Start SBM: `java -jar spring-boot-migrator.jar`
-- Scan your application: `scan <path to application>`
-- generate a report first: `apply boot-2.7-3.0-upgrade-report`
-- Run the migration: `apply boot-2.7-3.0-dependency-version-update`
-
 === Contributing
-
 Any contribution is appreciated!
-If you want to get involved, please have a look at https://github.com/spring-projects-experimental/spring-boot-migrator/discussions/446[this discussion] where we provide additional information related to the Spring Boot 3 Upgrade.
+If you want to get involved, please have a look at https://github.com/spring-projects-experimental/spring-boot-migrator/wiki/Spring-Boot-3-Upgrade-Report-Contribution-Guideline[Spring Boot 3 Upgrade Report Contribution Guideline] where we provide information related to contributing to the Spring Boot 3 Upgrade.
 Please don't hesitate to ask questions and provide feedback.
+
+Find the list of Spring Boot 3 Upgrade related issues labeled as `good first issue` https://github.com/spring-projects-experimental/spring-boot-migrator/issues?q=is%3Aissue+is%3Aopen+label%3A3.0.0+label%3A%22good+first+issue%22+[here]
 
 If you decided you want to work on an issue, leave a comment letting us know that you want to work on it and we go from there.
 
 Thank you!
+
+== JEE to Spring Boot Migration
+Spring Boot Migrator offers recipes to migrate JEE applications to Spring Boot.
+
+These specifications are covered (to some extend and varying completeness)
+
+* Servlet
+* JAX-RS
+* SOAP
+* JMS
+* EJB
+* JPA
+* ejb-jar.xml
+* weblogic-ejb-jar.xml
+
+Click the image to watch a demo video [16:57]
+
+ifdef::env-github[]
+image:https://img.youtube.com/vi/PnvsLafekWE/maxresdefault.jpg[link=https://www.youtube.com/embed/PnvsLafekWE^]
+endif::[]
 
 == How SBM works
 
@@ -74,7 +97,7 @@ image::images/apply.png[]
 
 == Getting started
 
-* Download the latest release from here: https://github.com/spring-projects-experimental/spring-boot-migrator/releases[Spring Boot Migrator Releases]
+* Download the latest release from here: https://github.com/spring-projects-experimental/spring-boot-migrator/releases/latest[Spring Boot Migrator Releases]
 * Start the application: `java -jar spring-boot-migrator.jar`
 * In the CLI start by scanning the application `scan <path-to-application>`
 * From the list of applicable recipes select the one you want to apply, +
