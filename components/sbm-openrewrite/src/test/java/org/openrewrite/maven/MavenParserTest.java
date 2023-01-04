@@ -126,7 +126,7 @@ public class MavenParserTest {
         Xml.Document parentPom = mavenParser.parse(parentPomXml).get(0);
         Optional<MavenResolutionResult> mavenResolutionResult = parentPom.getMarkers().findFirst(MavenResolutionResult.class);
         assertThat(mavenResolutionResult).isPresent();
-        assertThatExceptionOfType(RecipeRunException.class)
+        assertThatExceptionOfType(UncheckedMavenDownloadingException.class)
                 .isThrownBy(() -> mavenParser.parse(parentPomXml, module1PomXml))
                 .describedAs("Maven visitors should not be visiting XML documents without a Maven marker");
     }
