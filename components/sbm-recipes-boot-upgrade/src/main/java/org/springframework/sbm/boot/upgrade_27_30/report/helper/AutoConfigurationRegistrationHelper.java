@@ -18,7 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
+import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.ProjectResource;
@@ -33,8 +33,7 @@ import java.util.Properties;
 /**
  * @author Fabian Krüger
  */
-}
-public class AutoConfigurationRegistrationHelper extends SpringBootUpgradeReportSection.AbstractHelper<List<Pair<Properties, ProjectResource>>> {
+public class AutoConfigurationRegistrationHelper extends SpringBootUpgradeReportSectionHelper<List<Pair<Properties, ProjectResource>>> {
 
     public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
 
@@ -57,7 +56,7 @@ public class AutoConfigurationRegistrationHelper extends SpringBootUpgradeReport
             return false;
         }
 
-        this.matchingSpringFactoriesFiles = props.get();
+        this.matchingSpringFactoriesFiles = Map.of("matchingSpringFactoriesFiles", List.of(props.get()));
         return true;
     }
 
