@@ -315,7 +315,7 @@
               @GetMapping("/some/greeting")
               public String greeting {
                 return "Hello";
-              } 
+              }
             
             }
             ----
@@ -335,7 +335,7 @@
                 public void configurePathMatch(PathMatchConfigurer configurer) {
                   configurer.setUseTrailingSlashMatch(true);
                 }
-              
+            
             }
             ----
           sources:
@@ -362,7 +362,7 @@
                 existing request mapping.
                 
                 [source, java]
-                ....
+                ----
                 @RequestMapping(value = {"/current/path", "current/path/"})
                 
                 @RequestMapping(path = {"/current/path", "current/path/"})
@@ -371,7 +371,7 @@
                 
                 @GetMapping(path = {"/current/path", "current/path/"})
                 ...
-                ....
+                ----
               resources:
                 - https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/GetMapping.html[@GetMapping API]
                 - https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/RequestMapping.html[@RequestMapping API]
@@ -381,7 +381,7 @@
                 If all rest controllers must serve requests with trailing `/`, a `PathMatchConfigurer` should be configured like so:
                 
                 [source, java]
-                ....
+                ----
                 @Configuration
                 public class WebConfiguration implements WebMvcConfigurer {
                 
@@ -391,7 +391,7 @@
                   }
               
                 }
-                ....
+                ----
 
               recipe: sbu30-248-add-PathMatchConfigurer
           gitHubIssue: 522
