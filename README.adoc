@@ -56,7 +56,7 @@ Thank you!
 == JEE to Spring Boot Migration
 Spring Boot Migrator offers recipes to migrate JEE applications to Spring Boot.
 
-These specifications are covered (to some extend and varying completeness)
+These specifications are covered (to some extent and varying completeness)
 
 * Servlet
 * JAX-RS
