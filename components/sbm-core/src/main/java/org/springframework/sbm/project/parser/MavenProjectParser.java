@@ -73,16 +73,11 @@ public class MavenProjectParser {
         GitProvenance gitProvenance = GitProvenance.fromProjectDirectory(projectDirectory, buildEnvironment);
 
         List<Resource> filteredMavenPoms = filterMavenPoms(resources);
-        List<Parser.Input> inputs = filteredMavenPoms.stream()
-                .map(r -> new Parser.Input(getPath(r),
-                                () -> {
-                                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(getPath(r)));
-                                    InputStream is = getInputStream(r);
-                                    return is;
-                                }
-                        )
-                )
-                .collect(Collectors.toList());
+        List<Parser.Input> inputs = filteredMavenPoms.stream().map(r -> new Parser.Input(getPath(r), () -> {
+            eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(getPath(r)));
+            InputStream is = getInputStream(r);
+            return is;
+        })).collect(Collectors.toList());
 
         eventPublisher.publishEvent(new StartedScanningProjectResourceSetEvent("Maven", inputs.size()));
         List<Xml.Document> mavens = mavenParser.parseInputs(inputs, projectDirectory, ctx);
@@ -90,7 +85,7 @@ public class MavenProjectParser {
 
         mavens = sort(mavens);
 
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             for (Xml.Document maven : mavens) {
                 MavenResolutionResult mavenResolution = MavenBuildFileUtil.getMavenResolution(maven);
                 log.debug("  {}:{}", mavenResolution.getPom().getGroupId(), mavenResolution.getPom().getArtifactId());
@@ -100,7 +95,9 @@ public class MavenProjectParser {
         List<SourceFile> sourceFiles = new ArrayList<>();
         for (Xml.Document pomXml : mavens) {
             // Create markers for pom
-            List<Marker> javaProvenanceMarkers = javaProvenanceMarkerFactory.createJavaProvenanceMarkers(pomXml, projectDirectory, ctx);
+            List<Marker> javaProvenanceMarkers = javaProvenanceMarkerFactory.createJavaProvenanceMarkers(pomXml,
+                                                                                                         projectDirectory,
+                                                                                                         ctx);
             // Add markers to pom
             Xml.Document mavenWithMarkers = addMarkers(pomXml, javaProvenanceMarkers);
             // Add pom to sources
@@ -109,13 +106,16 @@ public class MavenProjectParser {
             // download pom dependencies, provided scope contains compile scope
             Path relativeModuleDir = mavenWithMarkers.getSourcePath().getParent();
             Path mavenProjectDirectory = projectDirectory;
-            if(relativeModuleDir != null) {
+            if (relativeModuleDir != null) {
                 mavenProjectDirectory = projectDirectory.resolve(relativeModuleDir);
             }
 
             // --------
             // Main Java sources
-            List<J.CompilationUnit> mainJavaSources = parseMainJavaSources(projectDirectory, resources, ctx, javaParser, pomXml, mavenWithMarkers, mavenProjectDirectory, javaProvenanceMarkers);
+            List<J.CompilationUnit> mainJavaSources = parseMainJavaSources(projectDirectory, resources, ctx, javaParser,
+                                                                           pomXml, mavenWithMarkers,
+                                                                           mavenProjectDirectory,
+                                                                           javaProvenanceMarkers);
             JavaSourceSet mainSourceSet = javaParser.getSourceSet(ctx);
             sourceFiles.addAll(mainJavaSources);
             // FIxME: cus already have sourceSetMarker, only provenance need to be added
@@ -127,14 +127,12 @@ public class MavenProjectParser {
 
             // --------
             // Main resources
-            Set<Path> mainResourcePaths = Set.of(
-                    Path.of("src/main/resources"),
-                    Path.of("src/main/webapp"),
-                    Path.of("src/main/mule")
-            );
+            Set<Path> mainResourcePaths = Set.of(Path.of("src/main/resources"), Path.of("src/main/webapp"),
+                                                 Path.of("src/main/mule"));
 
             // FIXME: mainSourceSetMarker and provenance marker must be added to all resources
-            List<Resource> resourceList = resourceParser.filter(projectDirectory, mainResourcePaths, resources, relativeModuleDir);
+            List<Resource> resourceList = resourceParser.filter(projectDirectory, mainResourcePaths, resources,
+                                                                relativeModuleDir);
 
             List<Marker> resourceMarker = new ArrayList(javaProvenanceMarkers);
             resourceMarker.add(mainSourceSet);
@@ -146,26 +144,27 @@ public class MavenProjectParser {
             // Test Java sources
             ArrayList<Marker> markers = new ArrayList<>(javaProvenanceMarkers);
             markers.add(mainSourceSet);
-            List<J.CompilationUnit> testJavaSources = parseTestJavaSources(projectDirectory, resources, ctx, javaParser, pomXml, mavenWithMarkers, mavenProjectDirectory, markers);
+            List<J.CompilationUnit> testJavaSources = parseTestJavaSources(projectDirectory, resources, ctx, javaParser,
+                                                                           pomXml, mavenWithMarkers,
+                                                                           mavenProjectDirectory, markers);
             JavaSourceSet testSourceSet = javaParser.getSourceSet(ctx);
             sourceFiles.addAll(testJavaSources);
 
             // --------
             // Test resources
-            Set<Path> testResourcePaths = Set.of(
-                    Path.of("src/test/resources"),
-                    Path.of("src/test/webapp"),
-                    Path.of("src/test/mule")
-            );
+            Set<Path> testResourcePaths = Set.of(Path.of("src/test/resources"), Path.of("src/test/webapp"),
+                                                 Path.of("src/test/mule"));
 
-            List<Resource> filteredResources = resourceParser.filter(projectDirectory, testResourcePaths, resources, relativeModuleDir);
+            List<Resource> filteredResources = resourceParser.filter(projectDirectory, testResourcePaths, resources,
+                                                                     relativeModuleDir);
             List<Marker> testResourceMarker = new ArrayList(javaProvenanceMarkers);
             testResourceMarker.add(testSourceSet);
             testResourceMarker.add(gitProvenance);
-            List<SourceFile> testResources = resourceParser.parse(projectDirectory, filteredResources, testResourceMarker);
+            List<SourceFile> testResources = resourceParser.parse(projectDirectory, filteredResources,
+                                                                  testResourceMarker);
             sourceFiles.addAll(testResources);
         }
-        if(gitProvenance != null) {
+        if (gitProvenance != null) {
             sourceFiles = ListUtils.map(sourceFiles, s -> s.withMarkers(s.getMarkers().addIfAbsent(gitProvenance)));
         }
         return sourceFiles;
@@ -190,7 +189,8 @@ public class MavenProjectParser {
                 return content;
             });
         }).collect(Collectors.toList());
-        List<J.CompilationUnit> testCompilationUnits = javaParser.parseInputs(testJavaSourcesInput, projectDirectory, ctx);
+        List<J.CompilationUnit> testCompilationUnits = javaParser.parseInputs(testJavaSourcesInput, projectDirectory,
+                                                                              ctx);
         // FIXME: #7 JavaParser and adding markers is required when adding java sources and should go into dedicated component
         testCompilationUnits.forEach(cu -> cu.getMarkers().getMarkers().addAll(javaProvenanceMarkers));
         return testCompilationUnits;
@@ -214,34 +214,34 @@ public class MavenProjectParser {
                 return content;
             });
         }).collect(Collectors.toList());
-        List<J.CompilationUnit> mainCompilationUnits = javaParser.parseInputs(mainJavaSourcesInput, projectDirectory, ctx);
+        List<J.CompilationUnit> mainCompilationUnits = javaParser.parseInputs(mainJavaSourcesInput, projectDirectory,
+                                                                              ctx);
         // FIXME: #7 JavaParser and adding markers is required when adding java sources and should go into dedicated component
-        mainCompilationUnits.stream()
-                .forEach(cu -> cu.getMarkers().getMarkers().addAll(javaProvenanceMarkers));
+        mainCompilationUnits.stream().forEach(cu -> cu.getMarkers().getMarkers().addAll(javaProvenanceMarkers));
         return mainCompilationUnits;
     }
 
 
-
-
     public static List<Resource> filterMavenPoms(List<Resource> resources) {
-        return resources.stream()
-                .filter(p -> getPath(p).getFileName().toString().equals("pom.xml") &&
-                        !p.toString().contains("/src/"))
+        return resources
+                .stream()
+                .filter(p -> getPath(p).getFileName().toString().equals("pom.xml") && !p.toString().contains("/src/"))
                 .collect(Collectors.toList());
     }
 
     public List<Resource> getJavaSources(Path projectDir, List<Resource> resources, Xml.Document maven) {
 
         Path inPath = projectDir.resolve(maven.getSourcePath()).getParent().resolve(Paths.get("src", "main", "java"));
-        return resources.stream()
+        return resources
+                .stream()
                 .filter(r -> getPath(r).startsWith(inPath) && getPath(r).toString().endsWith(".java"))
                 .collect(Collectors.toList());
     }
 
     public List<Resource> getTestJavaSources(Path projectDir, List<Resource> resources, Xml.Document maven) {
         Path inPath = projectDir.resolve(maven.getSourcePath()).getParent().resolve(Paths.get("src", "test", "java"));
-        return resources.stream()
+        return resources
+                .stream()
                 .filter(r -> getPath(r).startsWith(inPath) && getPath(r).toString().endsWith(".java"))
                 .collect(Collectors.toList());
     }
@@ -259,7 +259,8 @@ public class MavenProjectParser {
         eventPublisher.publishEvent(new StartDownloadingDependenciesEvent(dependencies.size()));
 
 
-        List<Path> paths = dependencies.stream()
+        List<Path> paths = dependencies
+                .stream()
                 .filter(d -> d.getRepository() != null)
                 .peek(d -> eventPublisher.publishEvent(new StartDownloadingDependencyEvent(d.getRequested())))
 //                .parallel()
@@ -280,7 +281,10 @@ public class MavenProjectParser {
             MavenResolutionResult mavenResolution = MavenBuildFileUtil.findMavenResolution(maven).get();
             byDependedOn.computeIfAbsent(maven, m -> new HashSet<>());
 
-            Set<Dependency> dependencies = mavenResolution.getDependencies().values().stream()
+            Set<Dependency> dependencies = mavenResolution
+                    .getDependencies()
+                    .values()
+                    .stream()
                     .flatMap(d -> d.stream())
                     .map(d -> d.getRequested())
                     .collect(Collectors.toSet());
@@ -288,8 +292,10 @@ public class MavenProjectParser {
             for (Dependency dependency : dependencies) {
                 for (Xml.Document test : mavens) {
                     MavenResolutionResult testMavenResolution = MavenBuildFileUtil.findMavenResolution(test).get();
-                    if (testMavenResolution.getPom().getGroupId().equals(dependency.getGroupId()) &&
-                            testMavenResolution.getPom().getArtifactId().equals(dependency.getArtifactId())) {
+                    if (testMavenResolution.getPom().getGroupId().equals(dependency.getGroupId()) && testMavenResolution
+                            .getPom()
+                            .getArtifactId()
+                            .equals(dependency.getArtifactId())) {
                         byDependedOn.computeIfAbsent(maven, m -> new HashSet<>()).add(test);
                     }
                 }
