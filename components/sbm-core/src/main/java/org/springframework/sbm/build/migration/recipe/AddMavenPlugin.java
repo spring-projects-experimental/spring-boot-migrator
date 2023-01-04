@@ -15,18 +15,21 @@
  */
 package org.springframework.sbm.build.migration.recipe;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.maven.MavenVisitor;
+import org.openrewrite.maven.internal.MavenXmlMapper;
 import org.openrewrite.xml.AddToTagVisitor;
 import org.openrewrite.xml.ChangeTagValueVisitor;
 import org.openrewrite.xml.XPathMatcher;
 import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.sbm.build.api.Plugin;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
+import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin.OpenRewriteMavenPluginExecution;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +41,7 @@ public class AddMavenPlugin extends Recipe {
 
 	private static final XPathMatcher BUILD_MATCHER = new XPathMatcher("/project/build");
 
-	private final Plugin plugin;
+	private final OpenRewriteMavenPlugin plugin;
 
 	@Override
 	protected TreeVisitor<?, ExecutionContext> getVisitor() {
@@ -108,7 +111,7 @@ public class AddMavenPlugin extends Recipe {
 		sb.append("</artifactId>\n");
 		sb.append(renderVersion());
 		sb.append(renderExecutions());
-		sb.append(plugin.getConfiguration() != null ? plugin.getConfiguration().trim() + "\n" : "");
+		sb.append(renderConfiguration());
 		sb.append(plugin.getDependencies() != null ? plugin.getDependencies().trim() + "\n" : "");
 		sb.append("</plugin>\n");
 		return sb.toString();
@@ -122,6 +125,20 @@ public class AddMavenPlugin extends Recipe {
 		return plugin.getVersion() != null ? "<version>" + plugin.getVersion() + "</version>\n" : "";
 	}
 
+	private String renderConfiguration(){
+		if (plugin.getConfiguration() != null) {
+			try {
+				String configurationXml = MavenXmlMapper.writeMapper().writerWithDefaultPrettyPrinter()
+						.writeValueAsString(plugin.getConfiguration());
+				return configurationXml;
+			}
+			catch (JsonProcessingException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return "";
+	}
+
 	private String renderExecutions() {
 		if (plugin.getExecutions() == null || plugin.getExecutions().isEmpty())
 			return "";
@@ -130,27 +147,27 @@ public class AddMavenPlugin extends Recipe {
 		return "<executions>\n" + executions + "\n</executions>\n";
 	}
 
-	private String renderExecution(Plugin.Execution execution) {
+	private String renderExecution(OpenRewriteMavenPluginExecution execution) {
 		return "<execution>\n" + renderId(execution) + renderGoals(execution) + renderPhase(execution)
-				+ renderConfiguration(execution) + "</execution>";
+				+ renderExecutionConfiguration(execution) + "</execution>";
 	}
 
-	private String renderConfiguration(Plugin.Execution execution) {
+	private String renderExecutionConfiguration(OpenRewriteMavenPluginExecution execution) {
 		return execution.getConfiguration() == null ? "" : execution.getConfiguration().trim();
 	}
 
-	private String renderId(Plugin.Execution execution) {
+	private String renderId(OpenRewriteMavenPluginExecution execution) {
 		return execution.getId() != null && !execution.getId().isBlank() ? "<id>" + execution.getId() + "</id>\n" : "";
 	}
 
-	private String renderGoals(Plugin.Execution execution) {
+	private String renderGoals(OpenRewriteMavenPluginExecution execution) {
 		if (execution.getGoals() == null || execution.getGoals().isEmpty())
 			return "";
 		String goals = execution.getGoals().stream().map(this::renderGoal).collect(Collectors.joining("\n"));
 		return "<goals>\n" + goals + "\n</goals>\n";
 	}
 
-	private String renderPhase(Plugin.Execution execution) {
+	private String renderPhase(OpenRewriteMavenPluginExecution execution) {
 		return execution.getPhase() == null ? "" : "<phase>" + execution.getPhase() + "</phase>";
 	}
 

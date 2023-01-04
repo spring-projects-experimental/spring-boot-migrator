@@ -59,6 +59,7 @@ class SpringMVCAndWebFluxUrlMatchingChangesHelperTest {
 
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
+                .withSpringBootParentOf("2.7.5")
                 .withBuildFileHavingDependencies("org.springframework:spring-web:5.3.23")
                 .addJavaSource("src/main/java", restController1)
                 .addJavaSource("src/main/java", restController2)

@@ -78,7 +78,7 @@
 
     - type: org.springframework.sbm.jee.jpa.actions.MigrateEclipseLinkToSpringBoot
       condition:
-        type: org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex
+        type: org.springframework.sbm.build.migration.conditions.AnyDeclaredDependencyExistMatchingRegex
         dependencies:
           - 'org\.eclipse\.persistence\:eclipselink\:.*'
       description: Adds configuration for eclipselink, migrates properties from persistence.xml and ignores hibernate dependencies.

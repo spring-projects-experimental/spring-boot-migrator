@@ -19,7 +19,7 @@
     <parent>
         <artifactId>spring-boot-migrator</artifactId>
         <groupId>org.springframework.sbm</groupId>
-        <version>0.12.1-SNAPSHOT</version>
+        <version>0.13.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-openrewrite</artifactId>
-            <version>0.12.1-SNAPSHOT</version>
+            <version>0.13.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -101,7 +101,7 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>6.3.0.202209071007-r</version>
+            <version>6.4.0.202211300538-r</version>
         </dependency>
         <!-- hibernate validator -->
         <dependency>
@@ -150,11 +150,17 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-openrewrite</artifactId>
-            <version>0.12.1-SNAPSHOT</version>
+            <version>0.13.1-SNAPSHOT</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			<version>2.14.0</version>
+		</dependency>
+
+	</dependencies>
     <build>
         <plugins>
             <plugin>

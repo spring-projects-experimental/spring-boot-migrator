@@ -16,11 +16,9 @@
 package org.springframework.sbm.boot.upgrade_27_30;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportActionDeserializer;
-import org.springframework.sbm.build.impl.MavenBuildFileUtil;
+import org.springframework.sbm.boot.upgrade_27_30.report.yaml.SpringBootUpgradeReportActionDeserializer;
 import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapterTest;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.test.RecipeTestSupport;
@@ -45,12 +43,12 @@ public class RemoveImageBannerTest {
     @Test
     void applyRemoveImageBannerRecipeShouldRemoveAllImageBannerAtDefaultLocation() {
         String parentPom = PomBuilder
-                .buiildPom("com.example:parent:1.0")
+                .buildRootWithParent("org.springframework.boot:spring-boot-starter-parent:2.7.5", "com.example:parent:1.0")
                 .withModules("moduleA", "moduleB", "moduleC")
                 .build();
-        String moduleA = PomBuilder.buiildPom("com.example:parent:1.0", "moduleA").build();
-        String moduleB = PomBuilder.buiildPom("com.example:parent:1.0", "moduleB").build();
-        String moduleC = PomBuilder.buiildPom("com.example:parent:1.0", "moduleC").build();
+        String moduleA = PomBuilder.buildPom("com.example:parent:1.0", "moduleA").build();
+        String moduleB = PomBuilder.buildPom("com.example:parent:1.0", "moduleB").build();
+        String moduleC = PomBuilder.buildPom("com.example:parent:1.0", "moduleC").build();
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenBuildFileSource("pom.xml", parentPom)

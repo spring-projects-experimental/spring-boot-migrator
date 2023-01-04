@@ -66,7 +66,7 @@
 
     - type: org.springframework.sbm.build.migration.actions.AddDependencies
       condition:
-        type: org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex
+        type: org.springframework.sbm.build.migration.conditions.AnyDeclaredDependencyExistMatchingRegex
         dependencies:
           - org\.springframework\:spring-jdbc:.*
       dependencies:
@@ -76,7 +76,7 @@
 
     - type: org.springframework.sbm.build.migration.actions.RemoveDependenciesMatchingRegex
       condition:
-        type: org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex
+        type: org.springframework.sbm.build.migration.conditions.AnyDeclaredDependencyExistMatchingRegex
         dependencies:
           - org\.springframework\:spring-jdbc\:.*
           - org\.apache\.tomcat\:tomcat-jdbc\:.*

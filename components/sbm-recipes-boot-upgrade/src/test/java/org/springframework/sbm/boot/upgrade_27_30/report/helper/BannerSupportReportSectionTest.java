@@ -27,6 +27,7 @@ public class BannerSupportReportSectionTest {
     @Test
     public void rendersBannerSupportInformation() {
         ProjectContext context = TestProjectContext.buildProjectContext()
+                .withSpringBootParentOf("2.7.5")
                 .addProjectResource("src/main/resources/banner.gif", "gif-banner")
                 .addProjectResource("src/main/resources/banner.jpg", "jpg-banner")
                 .addProjectResource("src/main/com/test/banner.java","class banner {}")
@@ -38,8 +39,7 @@ public class BannerSupportReportSectionTest {
                 .shouldRenderAs(
                         """
                                 === Banner support
-                                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/150[#150], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"], https://github.com/sanagaraj-pivotal[@sanagaraj-pivotal^, role="ext-link"]
-                                                                
+                                
                                 ==== What Changed
                                 Support for image-based application banners has been removed. banner.gif, banner.jpg, and banner.png
                                 files are now ignored and should be replaced with a text-based banner.txt file.

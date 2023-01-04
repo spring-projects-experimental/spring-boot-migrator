@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.springframework.sbm</groupId>
     <artifactId>spring-boot-migrator</artifactId>
-    <version>0.12.1-SNAPSHOT</version>
+    <version>0.13.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -33,11 +32,10 @@
     </properties>
 
     <scm>
-        <developerConnection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git
-        </developerConnection>
+        <developerConnection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</developerConnection>
         <connection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator</connection>
         <url>https://github.com/spring-projects-experimental/spring-boot-migrator</url>
-        <tag>0.11.0</tag>
+        <tag>0.13.0</tag>
     </scm>
 
     <!--	<scm>-->
@@ -306,7 +304,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>2.0.4</version>
+            <version>2.0.5</version>
         </dependency>
     </dependencies>
     <modules>
@@ -371,11 +369,10 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>3.0.0-M7</version>
                 <configuration>
-                    <connectionUrl>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git
-                    </connectionUrl>
+                    <connectionUrl>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</connectionUrl>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>@{project.version}</tagNameFormat>
-                    <releaseProfiles>release</releaseProfiles>
+<!--                    <releaseProfiles>release</releaseProfiles>-->
                 </configuration>
             </plugin>
 
@@ -428,7 +425,7 @@
                 <configuration>
                     <properties>
                         <owner>the original author or authors.</owner>
-                        <email></email>
+                        <email />
                         <year>2022</year>
                     </properties>
                     <licenseSets>

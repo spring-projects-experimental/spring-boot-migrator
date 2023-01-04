@@ -15,11 +15,16 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 
 @Setter
+@SuperBuilder
+@NoArgsConstructor
 public class SetProperty extends AbstractAction {
 
     private String propertyName;

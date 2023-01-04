@@ -1,9 +1,13 @@
 = Spring Boot Migrator (SBM)
 
+
 image:https://img.shields.io/github/license/spring-projects-experimental/spring-boot-migrator[GitHub]
 image:https://img.shields.io/github/v/release/spring-projects-experimental/spring-boot-migrator[GitHub release (latest by date)]
-image:https://img.shields.io/github/downloads/spring-projects-experimental/spring-boot-migrator/0.12.0/total[GitHub release (latest by date)]
-image:https://badges.gitter.im/spring-boot-migrator/community.svg[link="https://gitter.im/spring-boot-migrator/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
+image:https://img.shields.io/github/downloads/spring-projects-experimental/spring-boot-migrator/0.13.0/total[GitHub release (latest by date)]
+
+image:https://img.shields.io/badge/Join-Slack-green?logo=slack&color=007EC6&style=for-the-badge[link="https://join.slack.com/t/springbootmigrator/shared_invite/zt-1k6yxfi3b-MEQ_MM67qXufWtc~Tw6y9w"]
+image:https://img.shields.io/github/discussions/spring-projects-experimental/spring-boot-migrator?label=GitHub%20discussions&logo=GitHUb&style=for-the-badge[GitHub Discussions]
+image:https://img.shields.io/gitter/room/spring-boot-migrator/community?color=007EC6&logo=gitter&style=for-the-badge[link="https://gitter.im/spring-boot-migrator/community"]
 
 [quote]
 ____
@@ -16,6 +20,7 @@ ____
 ✅ Maven
 ❌ Kotlin
 ❌ Gradle
+
 
 
 == Spring Boot 3.0 Upgrades

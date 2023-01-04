@@ -18,6 +18,7 @@ package org.springframework.sbm.openrewrite;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.java.JavaParsingException;
 import org.openrewrite.maven.internal.MavenDownloadingException;
 import org.openrewrite.maven.internal.MavenParsingException;
 import org.springframework.context.ApplicationEventPublisher;
@@ -52,6 +53,10 @@ public class RewriteExecutionContext extends InMemoryExecutionContext {
                 log.warn(t.getMessage());
             } else if(t instanceof MavenDownloadingException) {
                 log.warn(t.getMessage());
+            } else if(t instanceof JavaParsingException) {
+                if(t.getMessage().equals("Failed symbol entering or attribution")) {
+                    throw new RuntimeException("This could be a broken jar. Activate logging on WARN level for 'org.openrewrite' might reveal more information.", t);
+                }
             } else {
                 log.error("Exception occured!", t);
             }

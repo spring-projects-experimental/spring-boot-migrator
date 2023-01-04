@@ -43,6 +43,10 @@ public class AddMinimalPomXml extends AbstractAction {
     @Setter
     private Configuration configuration;
 
+    @Autowired
+    @JsonIgnore
+    private RewriteMavenParser rewriteMavenParser;
+
     @Override
     public void apply(ProjectContext context) {
         String projectDir = context.getProjectRootDirectory().toString();
@@ -61,9 +65,9 @@ public class AddMinimalPomXml extends AbstractAction {
         }
 
         String src = writer.toString();
-        RewriteMavenParser rewriteMavenParser = new RewriteMavenParser();
         Parser.Input input = new Parser.Input(Path.of("pom.xml"), () -> new ByteArrayInputStream(src.getBytes(StandardCharsets.UTF_8)));
-        Xml.Document maven = rewriteMavenParser.parseInputs(List.of(input), null, new RewriteExecutionContext(getEventPublisher())).get(0);
+        Xml.Document maven = rewriteMavenParser
+                .parseInputs(List.of(input), null, new RewriteExecutionContext(getEventPublisher())).get(0);
         OpenRewriteMavenBuildFile rewriteMavenBuildFile = new OpenRewriteMavenBuildFile(
                 context.getProjectRootDirectory(),
                 maven, getEventPublisher(), new RewriteExecutionContext(getEventPublisher())

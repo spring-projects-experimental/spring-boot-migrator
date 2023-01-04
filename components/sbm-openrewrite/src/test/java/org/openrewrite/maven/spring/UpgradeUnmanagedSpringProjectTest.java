@@ -37,7 +37,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     void shouldUpdateDependencyVersionTo30() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0", "2\\.7\\..*");
 
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
             throw new RuntimeException("Error due UpgradeUnmanagedSpringProject recipe: " + ex.getMessage(), ex);
@@ -135,17 +135,17 @@ public class UpgradeUnmanagedSpringProjectTest {
                                 <dependency>
                                     <groupId>org.springframework.boot</groupId>
                                     <artifactId>spring-boot-starter-web</artifactId>
-                                    <version>3.0.0-M3</version>
+                                    <version>3.0.0</version>
                                 </dependency>
                                 <dependency>
                                     <groupId>io.dropwizard.metrics</groupId>
                                     <artifactId>metrics-annotation</artifactId>
-                                    <version>4.2.9</version>
+                                    <version>4.2.13</version>
                                 </dependency>
                                 <dependency>
                                     <groupId>org.springframework.boot</groupId>
                                     <artifactId>spring-boot-starter-test</artifactId>
-                                    <version>3.0.0-M3</version>
+                                    <version>3.0.0</version>
                                     <scope>test</scope>
                                 </dependency>
                             </dependencies>
@@ -164,7 +164,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     void shouldNotUpdateSinceTheProjectIsNotSpring() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0", "2\\.7\\..*");
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
             throw new RuntimeException("Error due UpgradeUnmanagedSpringProject recipe: " + ex.getMessage(), ex);
         });
@@ -211,7 +211,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     void shouldNotUpdateBomForOldVersion() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0", "2\\.7\\..*");
 
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
             throw new RuntimeException("Error due UpgradeUnmanagedSpringProject recipe: " + ex.getMessage(), ex);
@@ -275,7 +275,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     void shouldNotUpdateIfSpringParent() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0", "2\\.7\\..*");
 
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
             throw new RuntimeException("Error due UpgradeUnmanagedSpringProject recipe: " + ex.getMessage(), ex);
@@ -344,7 +344,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     void shouldUpdateIfSpringParentAndExplicitDependency() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0", "2\\.7\\..*");
 
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
             throw new RuntimeException("Error due UpgradeUnmanagedSpringProject recipe: " + ex.getMessage(), ex);
@@ -434,7 +434,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                         <java.version>17</java.version>
                         <maven.compiler.source>17</maven.compiler.source>
                         <maven.compiler.target>17</maven.compiler.target>
-                        <springboot.version>3.0.0-M3</springboot.version>
+                        <springboot.version>3.0.0</springboot.version>
                     </properties>
 
                     <repositories>
@@ -474,7 +474,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     public void shouldNotUpdateIfSpringDependencyManagement() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0", "2\\.7\\..*");
 
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
             throw new RuntimeException("Error due UpgradeUnmanagedSpringProject recipe: " + ex.getMessage(), ex);
@@ -547,7 +547,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     public void shouldUpdateIfSpringDependencyManagementAndExplicitVersion() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0", "2\\.7\\..*");
 
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
             throw new RuntimeException("Error due UpgradeUnmanagedSpringProject recipe: " + ex.getMessage(), ex);
@@ -569,16 +569,6 @@ public class UpgradeUnmanagedSpringProjectTest {
                         <maven.compiler.source>17</maven.compiler.source>
                         <maven.compiler.target>17</maven.compiler.target>
                     </properties>
-
-                    <repositories>
-                        <repository>
-                            <id>spring-milestone</id>
-                            <url>https://repo.spring.io/milestone</url>
-                            <snapshots>
-                                <enabled>false</enabled>
-                            </snapshots>
-                        </repository>
-                    </repositories>
 
                     <dependencyManagement>
                          <dependencies>
@@ -635,16 +625,6 @@ public class UpgradeUnmanagedSpringProjectTest {
                         <maven.compiler.target>17</maven.compiler.target>
                     </properties>
 
-                    <repositories>
-                        <repository>
-                            <id>spring-milestone</id>
-                            <url>https://repo.spring.io/milestone</url>
-                            <snapshots>
-                                <enabled>false</enabled>
-                            </snapshots>
-                        </repository>
-                    </repositories>
-
                     <dependencyManagement>
                          <dependencies>
                             <dependency>
@@ -664,7 +644,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                         <dependency>
                             <groupId>io.dropwizard.metrics</groupId>
                             <artifactId>metrics-annotation</artifactId>
-                            <version>4.2.9</version>
+                            <version>4.2.13</version>
                         </dependency>
                     </dependencies>
 
@@ -682,7 +662,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     void shouldUpdateBomVersionTo30ForDependencyManaged() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0", "2\\.7\\..*");
 
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
             throw new RuntimeException("Error due UpgradeUnmanagedSpringProject recipe: " + ex.getMessage(), ex);
@@ -704,16 +684,6 @@ public class UpgradeUnmanagedSpringProjectTest {
                         <maven.compiler.source>17</maven.compiler.source>
                         <maven.compiler.target>17</maven.compiler.target>
                     </properties>
-
-                    <repositories>
-                        <repository>
-                            <id>spring-milestone</id>
-                            <url>https://repo.spring.io/milestone</url>
-                            <snapshots>
-                                <enabled>false</enabled>
-                            </snapshots>
-                        </repository>
-                    </repositories>
 
                     <dependencyManagement>
                         <dependencies>
@@ -765,33 +735,23 @@ public class UpgradeUnmanagedSpringProjectTest {
                                 <maven.compiler.source>17</maven.compiler.source>
                                 <maven.compiler.target>17</maven.compiler.target>
                             </properties>
-
-                            <repositories>
-                                <repository>
-                                    <id>spring-milestone</id>
-                                    <url>https://repo.spring.io/milestone</url>
-                                    <snapshots>
-                                        <enabled>false</enabled>
-                                    </snapshots>
-                                </repository>
-                            </repositories>
-                                                
+                            
                             <dependencyManagement>
                                 <dependencies>
                                     <dependency>
                                         <groupId>org.springframework.boot</groupId>
                                         <artifactId>spring-boot-starter-web</artifactId>
-                                        <version>3.0.0-M3</version>
+                                        <version>3.0.0</version>
                                     </dependency>
                                     <dependency>
                                         <groupId>io.dropwizard.metrics</groupId>
                                         <artifactId>metrics-annotation</artifactId>
-                                        <version>4.2.9</version>
+                                        <version>4.2.13</version>
                                     </dependency>
                                     <dependency>
                                         <groupId>org.springframework.boot</groupId>
                                         <artifactId>spring-boot-starter-test</artifactId>
-                                        <version>3.0.0-M3</version>
+                                        <version>3.0.0</version>
                                         <scope>test</scope>
                                     </dependency>
                                   </dependencies>
@@ -811,7 +771,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     void shouldUpdateVersionsWithPropertyVariable() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0", "2\\.7\\..*");
 
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
             throw new RuntimeException("Error due UpgradeUnmanagedSpringProject recipe: " + ex.getMessage(), ex);
@@ -834,16 +794,6 @@ public class UpgradeUnmanagedSpringProjectTest {
                         <maven.compiler.target>17</maven.compiler.target>
                         <springboot.version>2.7.3</springboot.version>
                     </properties>
-
-                    <repositories>
-                        <repository>
-                            <id>spring-milestone</id>
-                            <url>https://repo.spring.io/milestone</url>
-                            <snapshots>
-                                <enabled>false</enabled>
-                            </snapshots>
-                        </repository>
-                    </repositories>
 
                     <dependencies>
                         <dependency>
@@ -894,19 +844,9 @@ public class UpgradeUnmanagedSpringProjectTest {
                                 <java.version>17</java.version>
                                 <maven.compiler.source>17</maven.compiler.source>
                                 <maven.compiler.target>17</maven.compiler.target>
-                                <springboot.version>3.0.0-M3</springboot.version>
+                                <springboot.version>3.0.0</springboot.version>
                             </properties>
                             
-                            <repositories>
-                                <repository>
-                                    <id>spring-milestone</id>
-                                    <url>https://repo.spring.io/milestone</url>
-                                    <snapshots>
-                                        <enabled>false</enabled>
-                                    </snapshots>
-                                </repository>
-                            </repositories>
-   
                             <dependencies>
                                 <dependency>
                                     <groupId>org.springframework.boot</groupId>
@@ -916,7 +856,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                                 <dependency>
                                     <groupId>io.dropwizard.metrics</groupId>
                                     <artifactId>metrics-annotation</artifactId>
-                                    <version>4.2.9</version>
+                                    <version>4.2.13</version>
                                 </dependency>
                                 <dependency>
                                     <groupId>org.springframework.boot</groupId>
@@ -940,7 +880,7 @@ public class UpgradeUnmanagedSpringProjectTest {
 
     @Test
     void shouldNotTouchNewerVersions() {
-        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0-M3", "2\\.7\\..*|3\\.0\\..*");
+        Recipe recipe = new UpgradeUnmanagedSpringProject("3.0.0", "2\\.7\\..*|3\\.0\\..*");
 
         InMemoryExecutionContext ctx = new InMemoryExecutionContext((ex) -> {
             throw new RuntimeException("Error due UpgradeUnmanagedSpringProject recipe: " + ex.getMessage(), ex);
@@ -989,7 +929,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                         <dependency>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-starter-test</artifactId>
-                            <version>3.0.0-M3</version>
+                            <version>3.0.0</version>
                             <scope>test</scope>
                         </dependency>
                     </dependencies>
@@ -1024,8 +964,8 @@ public class UpgradeUnmanagedSpringProjectTest {
                         <java.version>17</java.version>
                         <maven.compiler.source>17</maven.compiler.source>
                         <maven.compiler.target>17</maven.compiler.target>
-                        <springboot.version>3.0.0-M3</springboot.version>
-                        <metrix.annotation.version>4.2.12</metrix.annotation.version>
+                        <springboot.version>3.0.0</springboot.version>
+                        <metrix.annotation.version>4.2.13</metrix.annotation.version>
                     </properties>
                     
                     <repositories>
@@ -1052,7 +992,7 @@ public class UpgradeUnmanagedSpringProjectTest {
                         <dependency>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-starter-test</artifactId>
-                            <version>3.0.0-M3</version>
+                            <version>3.0.0</version>
                             <scope>test</scope>
                         </dependency>
                     </dependencies>
@@ -1072,7 +1012,7 @@ public class UpgradeUnmanagedSpringProjectTest {
     @Test
     void shouldBuildCorrectPomModelAfterUpdateTo30() {
         Recipe recipe = new UpgradeUnmanagedSpringProject(
-                "3.0.0-M3",
+                "3.0.0",
                 "2\\.7\\..*");
 
         List<Throwable> errors = new ArrayList<>();
@@ -1141,18 +1081,18 @@ public class UpgradeUnmanagedSpringProjectTest {
         assertThat(resolvedDependencies).isNotEmpty();
 
         Condition<ResolvedDependency> cSpringStarterWeb = new Condition<>(
-                rd -> rd.getArtifactId().equals("spring-boot-starter-web") && rd.getVersion().equals("3.0.0-M3"),
-                "spring-boot-starter-web in version 3.0.0-M3");
+                rd -> rd.getArtifactId().equals("spring-boot-starter-web") && rd.getVersion().equals("3.0.0"),
+                "spring-boot-starter-web in version 3.0.0");
         assertThat(resolvedDependencies).haveExactly(1, cSpringStarterWeb);
 
         Condition<ResolvedDependency> cMetrics = new Condition<>(
-                rd -> rd.getArtifactId().equals("metrics-annotation") && rd.getVersion().equals("4.2.9"),
-                "metrics-annotation in version 4.2.9");
+                rd -> rd.getArtifactId().equals("metrics-annotation") && rd.getVersion().equals("4.2.13"),
+                "metrics-annotation in version 4.2.13");
         assertThat(resolvedDependencies).haveExactly(1, cMetrics);
 
         Condition<ResolvedDependency> cSpringStarterTest = new Condition<>(
-                rd -> rd.getArtifactId().equals("spring-boot-starter-test") && rd.getVersion().equals("3.0.0-M3"),
-                "spring-boot-starter-test in version 3.0.0-M3");
+                rd -> rd.getArtifactId().equals("spring-boot-starter-test") && rd.getVersion().equals("3.0.0"),
+                "spring-boot-starter-test in version 3.0.0");
         assertThat(resolvedTestDependencies).haveExactly(1, cSpringStarterTest);
     }
 }
