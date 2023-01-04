@@ -29,7 +29,7 @@ We are working on automated upgrade from Spring Boot 2.7 to Spring Boot 3.0.
 Click the image to watch a demo video [2:26]
 
 ifdef::env-github[]
-image:https://img.youtube.com/vi/RKXblzn8lFg/maxresdefault.jpg[link=https://www.youtube.com/embed/RKXblzn8lFg^]
+image:https://img.youtube.com/vi/RKXblzn8lFg/maxresdefault.jpg[link=https://www.youtube.com/embed/RKXblzn8lFg]
 endif::[]
 
 === Try the Spring Boot Upgrade tool
@@ -70,7 +70,7 @@ These specifications are covered (to some extend and varying completeness)
 Click the image to watch a demo video [16:57]
 
 ifdef::env-github[]
-image:https://img.youtube.com/vi/PnvsLafekWE/maxresdefault.jpg[link=https://www.youtube.com/embed/PnvsLafekWE^]
+image:https://img.youtube.com/vi/PnvsLafekWE/maxresdefault.jpg[link=https://www.youtube.com/embed/PnvsLafekWE]
 endif::[]
 
 == How SBM works
