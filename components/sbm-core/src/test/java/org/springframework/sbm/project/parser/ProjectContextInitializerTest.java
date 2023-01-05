@@ -51,6 +51,7 @@ import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.util.FileSystemUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -285,6 +286,8 @@ class ProjectContextInitializerTest {
 
         //assertThat(projectDirectory.toAbsolutePath().resolve(".git")).doesNotExist();
 
+        final String defaultBranchName = GitSupport.getBranchName(new File("./testcode/path-scanner")).get();
+
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
         RewriteExecutionContext executionContext = new RewriteExecutionContext(eventPublisher);
         List<Resource> resources = scanCommand.scanProjectRoot(projectDirectory.toString());
@@ -310,7 +313,7 @@ class ProjectContextInitializerTest {
                         buildToolMarker("Maven", "3.6"), // TODO: does this work in all env (taken from .mvn)?
                         javaVersionMarker(VERSION_PATTERN, "17", "11"),
                         javaProjectMarker(null, "com.example:example-project-parent:1.0.0-SNAPSHOT"),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -330,7 +333,7 @@ class ProjectContextInitializerTest {
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -341,7 +344,7 @@ class ProjectContextInitializerTest {
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -352,7 +355,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                  .isContainedIn(projectResources);
 
@@ -363,7 +366,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -374,7 +377,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -385,7 +388,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -396,7 +399,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -407,7 +410,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -417,7 +420,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -428,7 +431,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -439,7 +442,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -450,7 +453,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -460,7 +463,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -471,7 +474,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -521,7 +524,7 @@ class ProjectContextInitializerTest {
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -533,7 +536,7 @@ class ProjectContextInitializerTest {
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", "java.awt.dnd.DragGestureRecognizer, java.nio.channels.ClosedByInterruptException, java.lang.management.ThreadMXBean"),
                         javaSourceSetMarker("test", "java.awt.dnd.DragGestureRecognizer, java.nio.channels.ClosedByInterruptException, java.lang.management.ThreadMXBean"),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
 
@@ -544,7 +547,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("test", ""),
-                        gitProvenanceMarker("main")
+                        gitProvenanceMarker(defaultBranchName)
                 )
                 .isContainedIn(projectResources);
     }
