@@ -638,7 +638,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     final public void setProperty(String key, String value) {
 		String current = getProperty(key);
-		apply(current == null ? new ChangePropertyValue(key, value, true, true) : new ChangePropertyValue(key, value, false, true));
+		apply(current == null ? new AddProperty(key, value, false, false) : new ChangePropertyValue(key, value, false, false));
 		apply(new RefreshPomModel());
     }
 
