@@ -2434,7 +2434,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .withModules("moduleA")
                 .withProperties(Map.of("some-property", "value1"))
                 .build();
-        String moduleA = PomBuilder.buiildPom("com.example:parent:0.1", "moduleA").build();
+        String moduleA = PomBuilder.buildPom("com.example:parent:0.1", "moduleA").build();
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
                 .withMavenRootBuildFileSource(parentPom)
