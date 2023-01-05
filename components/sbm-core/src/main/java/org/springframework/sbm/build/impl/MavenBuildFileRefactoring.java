@@ -18,6 +18,7 @@ package org.springframework.sbm.build.impl;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
+import org.openrewrite.SourceFile;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.xml.tree.Xml;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-class MavenBuildFileRefactoring {
+class MavenBuildFileRefactoring<T extends SourceFile> {
 
     private final RewriteSourceFileHolder<Xml.Document> pom;
 
@@ -58,6 +59,9 @@ class MavenBuildFileRefactoring {
     private void processResults(List<Result> results) {
         if (!results.isEmpty()) {
 			// FIXME: Works only on a single POM and does not apply to all other resources
+            if(!(results.get(0).getAfter() instanceof Xml.Document)) {
+                throw new RuntimeException("Return type of refactoring result is not Xml.Document but " + results.get(0).getAfter().getClass() + " with content: \n" + results.get(0).getAfter().printAll());
+            }
 			pom.replaceWith((Xml.Document) results.get(0).getAfter());
            // results.forEach(c -> processResult(c));
         }
