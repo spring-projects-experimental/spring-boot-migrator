@@ -311,7 +311,7 @@ public class MavenProjectParser {
                 }
             }
         }
-
+        Collections.reverse(sorted);
         return sorted;
     }
 

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-class MavenBuildFileRefactoring<P> {
+class MavenBuildFileRefactoring {
 
     private final RewriteSourceFileHolder<Xml.Document> pom;
 
