@@ -28,8 +28,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.xml.tree.Xml;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.sbm.build.util.PomBuilder;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Fabian Krüger
@@ -37,63 +45,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class MavenProjectParserTest {
 
     @Test
-    void sort() {
-        @Language("xml")
-        final String parentPom =
-                """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>com.example</groupId>
-                    <artifactId>parent</artifactId>
-                    <version>1.0</version>
-                    <packaging>pom</packaging>
-                    <properties>
-                        <maven.compiler.target>17</maven.compiler.target>
-                        <maven.compiler.source>17</maven.compiler.source>
-                    </properties>
-                    <modules>
-                        <module>module1</module>
-                    </modules>
-                    <build>
-                        <plugins>
-                            <plugin>
-                                <groupId>org.apache.maven.plugins</groupId>
-                                <artifactId>maven-compiler-plugin</artifactId>
-                                <configuration>
-                                    <target>${maven.compiler.target}</target>
-                                    <source>${maven.compiler.source}</source>
-                                </configuration>
-                            </plugin>
-                        </plugins>
-                    </build>
-                </project>
-                """;
-
-        @Language("xml")
-        final String module1 =
-                """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.example</groupId>
-                        <artifactId>parent</artifactId>
-                        <version>1.0</version>
-                    </parent>
-                    <artifactId>module1</artifactId>
-                    <packaging>jar</packaging>
-                    <properties>
-                        <maven.compiler.target>17</maven.compiler.target>
-                        <maven.compiler.source>17</maven.compiler.source>
-                    </properties>
-                </project>
-                """;
-
-        List<Parser.Input> parserInputs = List.of(
-                new Parser.Input(Path.of("pom.xml"), null, () -> new ByteArrayInputStream(parentPom.getBytes(StandardCharsets.UTF_8)), true),
-                new Parser.Input(Path.of("module1/pom.xml"), null, () -> new ByteArrayInputStream(module1.getBytes(StandardCharsets.UTF_8)), true)
-        );
+    void testSort() {
+        String parentPom = PomBuilder.buildPom("com.example:parent:0.1")
+                .packaging("pom")
+                .withModules("moduleA")
+                .withProperties(Map.of("some-property", "value1"))
+                .build();
+        String moduleA = PomBuilder.buildPom("com.example:parent:0.1", "moduleA").build();
+        List<Xml.Document> poms = MavenParser.builder().build().parse(parentPom, moduleA);
+        List<Xml.Document> sortedPoms = MavenProjectParser.sort(poms);
+        assertThat(sortedPoms.get(0).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getArtifactId()).isEqualTo("parent");
+        assertThat(sortedPoms.get(1).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getArtifactId()).isEqualTo("moduleA");
+    }
 
 
         List<Xml.Document> parsed = MavenParser.builder().build().parseInputs(parserInputs, null, new RewriteExecutionContext());

@@ -72,16 +72,11 @@ public class MavenProjectParser {
         GitProvenance gitProvenance = GitProvenance.fromProjectDirectory(projectDirectory, buildEnvironment);
 
         List<Resource> filteredMavenPoms = filterMavenPoms(resources);
-        List<Parser.Input> inputs = filteredMavenPoms.stream()
-                .map(r -> new Parser.Input(getPath(r),
-                                () -> {
-                                    eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(getPath(r)));
-                                    InputStream is = getInputStream(r);
-                                    return is;
-                                }
-                        )
-                )
-                .collect(Collectors.toList());
+        List<Parser.Input> inputs = filteredMavenPoms.stream().map(r -> new Parser.Input(getPath(r), () -> {
+            eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(getPath(r)));
+            InputStream is = getInputStream(r);
+            return is;
+        })).collect(Collectors.toList());
 
         eventPublisher.publishEvent(new StartedScanningProjectResourceSetEvent("Maven", inputs.size()));
 
@@ -226,26 +221,26 @@ public class MavenProjectParser {
     }
 
 
-
-
     public static List<Resource> filterMavenPoms(List<Resource> resources) {
-        return resources.stream()
-                .filter(p -> getPath(p).getFileName().toString().equals("pom.xml") &&
-                        !p.toString().contains("/src/"))
+        return resources
+                .stream()
+                .filter(p -> getPath(p).getFileName().toString().equals("pom.xml") && !p.toString().contains("/src/"))
                 .collect(Collectors.toList());
     }
 
     public List<Resource> getJavaSources(Path projectDir, List<Resource> resources, Xml.Document maven) {
 
         Path inPath = projectDir.resolve(maven.getSourcePath()).getParent().resolve(Paths.get("src", "main", "java"));
-        return resources.stream()
+        return resources
+                .stream()
                 .filter(r -> getPath(r).startsWith(inPath) && getPath(r).toString().endsWith(".java"))
                 .collect(Collectors.toList());
     }
 
     public List<Resource> getTestJavaSources(Path projectDir, List<Resource> resources, Xml.Document maven) {
         Path inPath = projectDir.resolve(maven.getSourcePath()).getParent().resolve(Paths.get("src", "test", "java"));
-        return resources.stream()
+        return resources
+                .stream()
                 .filter(r -> getPath(r).startsWith(inPath) && getPath(r).toString().endsWith(".java"))
                 .collect(Collectors.toList());
     }
@@ -263,7 +258,8 @@ public class MavenProjectParser {
         eventPublisher.publishEvent(new StartDownloadingDependenciesEvent(dependencies.size()));
 
 
-        List<Path> paths = dependencies.stream()
+        List<Path> paths = dependencies
+                .stream()
                 .filter(d -> d.getRepository() != null)
                 .peek(d -> eventPublisher.publishEvent(new StartDownloadingDependencyEvent(d.getRequested())))
 //                .parallel()
@@ -284,7 +280,10 @@ public class MavenProjectParser {
             MavenResolutionResult mavenResolution = MavenBuildFileUtil.findMavenResolution(maven).get();
             byDependedOn.computeIfAbsent(maven, m -> new HashSet<>());
 
-            Set<Dependency> dependencies = mavenResolution.getDependencies().values().stream()
+            Set<Dependency> dependencies = mavenResolution
+                    .getDependencies()
+                    .values()
+                    .stream()
                     .flatMap(d -> d.stream())
                     .map(d -> d.getRequested())
                     .collect(Collectors.toSet());
@@ -292,8 +291,10 @@ public class MavenProjectParser {
             for (Dependency dependency : dependencies) {
                 for (Xml.Document test : mavens) {
                     MavenResolutionResult testMavenResolution = MavenBuildFileUtil.findMavenResolution(test).get();
-                    if (testMavenResolution.getPom().getGroupId().equals(dependency.getGroupId()) &&
-                            testMavenResolution.getPom().getArtifactId().equals(dependency.getArtifactId())) {
+                    if (testMavenResolution.getPom().getGroupId().equals(dependency.getGroupId()) && testMavenResolution
+                            .getPom()
+                            .getArtifactId()
+                            .equals(dependency.getArtifactId())) {
                         byDependedOn.computeIfAbsent(maven, m -> new HashSet<>()).add(test);
                     }
                 }
@@ -316,8 +317,10 @@ public class MavenProjectParser {
             }
         }
         sorted.sort((d, e) -> d.getSourcePath().toString().compareTo(e.getSourcePath().toString()));
-        String collect = sorted.stream().map(Xml.Document::getSourcePath).map(Object::toString).collect(Collectors.joining(", "));
-        log.debug("Sorted Maven files: \"%s\"".formatted(collect));
+        if(log.isDebugEnabled()) {
+            String collect = sorted.stream().map(Xml.Document::getSourcePath).map(Object::toString).collect(Collectors.joining(", "));
+            log.debug("Sorted Maven files: \"%s\"".formatted(collect));
+        }
         return sorted;
     }
 
