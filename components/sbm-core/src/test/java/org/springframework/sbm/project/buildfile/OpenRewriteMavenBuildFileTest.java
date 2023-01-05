@@ -2429,8 +2429,8 @@ public class OpenRewriteMavenBuildFileTest {
 
     @Test
     void setProperty() {
-        String parentPom = PomBuilder.buiildPom("com.example:parent:0.1")
-                .withPackaging("pom")
+        String parentPom = PomBuilder.buildPom("com.example:parent:0.1")
+                .packaging("pom")
                 .withModules("moduleA")
                 .withProperties(Map.of("some-property", "value1"))
                 .build();
