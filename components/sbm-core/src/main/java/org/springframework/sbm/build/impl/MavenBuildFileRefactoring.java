@@ -21,6 +21,7 @@ import org.openrewrite.Result;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
@@ -50,7 +51,7 @@ class MavenBuildFileRefactoring {
     }
 
     private List<Result> executeRecipe(Recipe recipe) {
-        List<Result> results = recipe.run(List.of(pom.getSourceFile())).getResults();
+        List<Result> results = recipe.run(List.of(pom.getSourceFile()), new RewriteExecutionContext()).getResults();
         return results;
     }
 
