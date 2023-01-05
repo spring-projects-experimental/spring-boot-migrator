@@ -19,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.properties.tree.Properties;
 import org.openrewrite.text.PlainText;
@@ -44,7 +46,6 @@ import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
-import org.springframework.sbm.project.parser.*;
 import org.springframework.sbm.project.resource.*;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
@@ -88,9 +89,9 @@ import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.
         ProjectResourceSetHolder.class,
         JavaRefactoringFactoryImpl.class,
         ProjectResourceWrapperRegistry.class,
-        RewriteSourceFileWrapper.class
+        RewriteSourceFileWrapper.class,
+        MavenConfigHandler.class
 }, properties = {"sbm.gitSupportEnabled=false"})
-@Disabled
 class ProjectContextInitializerTest {
 
     public static final int VERSION_PATTERN = 17;
@@ -114,9 +115,172 @@ class ProjectContextInitializerTest {
         FileSystemUtils.deleteRecursively(projectDirectory.toAbsolutePath().resolve(".git"));
     }
 
+    // TODO: Proof of incorrect MavenResolutionResult for
+    @Test
+    void mavenParserAddsMavenResolutionResultMarkerWithDuplicateDependencies() {
+        final String parentPom = """
+                        <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <artifactId>example-project-parent</artifactId>
+                            <groupId>com.example</groupId>
+                            <version>1.0.0-SNAPSHOT</version>
+                            <modelVersion>4.0.0</modelVersion>
+                            <packaging>pom</packaging>
+                        
+                            <properties>
+                                <maven.compiler.source>17</maven.compiler.source>
+                                <maven.compiler.target>11</maven.compiler.target>
+                            </properties>
+                        
+                            <modules>
+                                <module>module1</module>
+                                <module>module2</module>
+                            </modules>
+                        
+                            <repositories>
+                                <repository>
+                                    <id>jcenter</id>
+                                    <name>jcenter</name>
+                                    <url>https://jcenter.bintray.com</url>
+                                </repository>
+                                <repository>
+                                    <id>mavencentral</id>
+                                    <name>mavencentral</name>
+                                    <url>https://repo.maven.apache.org/maven2</url>
+                                </repository>
+                            </repositories>
+                        
+                        </project>                        
+                        """;
+
+        final String module1Pom = """
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <parent>
+                        <artifactId>example-project-parent</artifactId>
+                        <groupId>com.example</groupId>
+                        <version>1.0.0-SNAPSHOT</version>
+                    </parent>
+                    <artifactId>module1</artifactId>
+                    <modelVersion>4.0.0</modelVersion>
+                
+                    <properties>
+                        <maven.compiler.source>11</maven.compiler.source>
+                        <maven.compiler.target>11</maven.compiler.target>
+                    </properties>
+                
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.jetbrains</groupId>
+                            <artifactId>annotations</artifactId>
+                            <version>23.0.0</version>
+                            <scope>test</scope>
+                        </dependency>
+                    </dependencies>
+                
+                </project>                
+                """;
+
+        final String module2Pom = """
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <parent>
+                        <artifactId>example-project-parent</artifactId>
+                        <groupId>com.example</groupId>
+                        <version>1.0.0-SNAPSHOT</version>
+                    </parent>
+                    <artifactId>module2</artifactId>
+                    <modelVersion>4.0.0</modelVersion>
+                
+                    <properties>
+                        <maven.compiler.source>11</maven.compiler.source>
+                        <maven.compiler.target>11</maven.compiler.target>
+                    </properties>
+                
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.openjfx</groupId>
+                            <artifactId>javafx-swing</artifactId>
+                            <version>11.0.2</version>
+                        </dependency>
+                    </dependencies>
+                
+                </project>
+                """;
+
+        MavenParser mavenParser = MavenParser.builder().build();
+        List<Xml.Document> parsedPomFiles = mavenParser.parse(parentPom, module1Pom, module2Pom);
+        MavenResolutionResult parentPomMarker = parsedPomFiles.get(0).getMarkers().findFirst(MavenResolutionResult.class).get();
+        assertThat(parentPomMarker.getDependencies().get(Scope.Provided)).isEmpty();
+        assertThat(parentPomMarker.getDependencies().get(Scope.Runtime)).isEmpty();
+        assertThat(parentPomMarker.getDependencies().get(Scope.Compile)).isEmpty();
+        assertThat(parentPomMarker.getDependencies().get(Scope.Test)).isEmpty();
+
+        MavenResolutionResult module1PomMarker = parsedPomFiles.get(1).getMarkers().findFirst(MavenResolutionResult.class).get();
+        assertThat(module1PomMarker.getDependencies().get(Scope.Provided)).isEmpty();
+        assertThat(module1PomMarker.getDependencies().get(Scope.Runtime)).isEmpty();
+        assertThat(module1PomMarker.getDependencies().get(Scope.Compile)).isEmpty();
+        assertThat(module1PomMarker.getDependencies().get(Scope.Test)).isNotEmpty();
+        assertThat(module1PomMarker.getDependencies().get(Scope.Test).get(0).getGav().toString()).isEqualTo("org.jetbrains:annotations:23.0.0");
+
+        MavenResolutionResult module2PomMarker = parsedPomFiles.get(2).getMarkers().findFirst(MavenResolutionResult.class).get();
+        // expected
+//        assertThat(module2PomMarker.getDependencies().get(Scope.Provided)).hasSize(2);
+//        assertThat(module2PomMarker.getDependencies().get(Scope.Runtime)).hasSize(2);
+//        assertThat(module2PomMarker.getDependencies().get(Scope.Compile)).hasSize(2);
+//        assertThat(module2PomMarker.getDependencies().get(Scope.Test)).hasSize(2);
+
+        // actual
+        assertThat(module2PomMarker.getDependencies().get(Scope.Provided)).hasSize(6);
+        assertThat(module2PomMarker.getDependencies().get(Scope.Provided).get(0).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        assertThat(module2PomMarker.getDependencies().get(Scope.Provided).get(0).getDependencies()).hasSize(2);
+        // "org.openjfx:javafx-swing:11.0.2" depends on "org.openjfx:javafx-swing:11.0.2" ?
+        assertThat(module2PomMarker.getDependencies().get(Scope.Provided).get(0).getDependencies().get(0).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        assertThat(module2PomMarker.getDependencies().get(Scope.Provided).get(0).getDependencies().get(1).getGav().toString()).isEqualTo("org.openjfx:javafx-graphics:11.0.2");
+        // "org.openjfx:javafx-swing:11.0.2" twice
+        assertThat(module2PomMarker.getDependencies().get(Scope.Provided).get(1).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        // also without dependencies ?
+        assertThat(module2PomMarker.getDependencies().get(Scope.Provided).get(1).getDependencies()).isEmpty();
+
+        assertThat(module2PomMarker.getDependencies().get(Scope.Runtime)).hasSize(6);
+        assertThat(module2PomMarker.getDependencies().get(Scope.Runtime).get(0).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        assertThat(module2PomMarker.getDependencies().get(Scope.Runtime).get(0).getDependencies()).hasSize(2);
+        // "org.openjfx:javafx-swing:11.0.2" depends on "org.openjfx:javafx-swing:11.0.2" ?
+        assertThat(module2PomMarker.getDependencies().get(Scope.Runtime).get(0).getDependencies().get(0).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        assertThat(module2PomMarker.getDependencies().get(Scope.Runtime).get(0).getDependencies().get(1).getGav().toString()).isEqualTo("org.openjfx:javafx-graphics:11.0.2");
+        // "org.openjfx:javafx-swing:11.0.2" twice
+        assertThat(module2PomMarker.getDependencies().get(Scope.Runtime).get(1).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        // also without dependencies ?
+        assertThat(module2PomMarker.getDependencies().get(Scope.Runtime).get(1).getDependencies()).isEmpty();
+
+        assertThat(module2PomMarker.getDependencies().get(Scope.Compile)).hasSize(6);
+        assertThat(module2PomMarker.getDependencies().get(Scope.Compile).get(0).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        assertThat(module2PomMarker.getDependencies().get(Scope.Compile).get(0).getDependencies()).hasSize(2);
+        // "org.openjfx:javafx-swing:11.0.2" depends on "org.openjfx:javafx-swing:11.0.2" ?
+        assertThat(module2PomMarker.getDependencies().get(Scope.Compile).get(0).getDependencies().get(0).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        assertThat(module2PomMarker.getDependencies().get(Scope.Compile).get(0).getDependencies().get(1).getGav().toString()).isEqualTo("org.openjfx:javafx-graphics:11.0.2");
+        // "org.openjfx:javafx-swing:11.0.2" twice
+        assertThat(module2PomMarker.getDependencies().get(Scope.Compile).get(1).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        // also without dependencies ?
+        assertThat(module2PomMarker.getDependencies().get(Scope.Compile).get(1).getDependencies()).isEmpty();
+
+        assertThat(module2PomMarker.getDependencies().get(Scope.Test)).hasSize(6);
+        assertThat(module2PomMarker.getDependencies().get(Scope.Test).get(0).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        assertThat(module2PomMarker.getDependencies().get(Scope.Test).get(0).getDependencies()).hasSize(2);
+        // "org.openjfx:javafx-swing:11.0.2" depends on "org.openjfx:javafx-swing:11.0.2" ?
+        assertThat(module2PomMarker.getDependencies().get(Scope.Test).get(0).getDependencies().get(0).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        assertThat(module2PomMarker.getDependencies().get(Scope.Test).get(0).getDependencies().get(1).getGav().toString()).isEqualTo("org.openjfx:javafx-graphics:11.0.2");
+        // "org.openjfx:javafx-swing:11.0.2" twice
+        assertThat(module2PomMarker.getDependencies().get(Scope.Test).get(1).getGav().toString()).isEqualTo("org.openjfx:javafx-swing:11.0.2");
+        // also without dependencies ?
+        assertThat(module2PomMarker.getDependencies().get(Scope.Test).get(1).getDependencies()).isEmpty();
+    }
+
     @Test
     @Tag("integration")
-    @Disabled
     void test() {
 
         //assertThat(projectDirectory.toAbsolutePath().resolve(".git")).doesNotExist();
@@ -146,7 +310,7 @@ class ProjectContextInitializerTest {
                         buildToolMarker("Maven", "3.6"), // TODO: does this work in all env (taken from .mvn)?
                         javaVersionMarker(VERSION_PATTERN, "17", "11"),
                         javaProjectMarker(null, "com.example:example-project-parent:1.0.0-SNAPSHOT"),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -166,7 +330,7 @@ class ProjectContextInitializerTest {
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -177,7 +341,7 @@ class ProjectContextInitializerTest {
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -188,7 +352,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                  .isContainedIn(projectResources);
 
@@ -199,7 +363,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -210,7 +374,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -221,7 +385,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -232,7 +396,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -243,7 +407,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -253,7 +417,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -264,7 +428,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -275,7 +439,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -286,7 +450,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -296,7 +460,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -307,7 +471,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module1:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", 1919),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -320,16 +484,44 @@ class ProjectContextInitializerTest {
                                 "com.example:module2:1.0.0-SNAPSHOT",
                                 List.of(),
                                 Map.of(
-                                        Scope.Provided, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2"),
-                                        Scope.Compile, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2"),
-                                        Scope.Runtime, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2"),
-                                        Scope.Test, List.of("org.openjfx:javafx-swing:11.0.2", "org.openjfx:javafx-graphics:11.0.2", "org.openjfx:javafx-base:11.0.2")
+                                        Scope.Provided, List.of(
+                                                "org.openjfx:javafx-swing:11.0.2",
+                                                "org.openjfx:javafx-swing:11.0.2",
+                                                "org.openjfx:javafx-graphics:11.0.2",
+                                                "org.openjfx:javafx-graphics:11.0.2",
+                                                "org.openjfx:javafx-base:11.0.2",
+                                                "org.openjfx:javafx-base:11.0.2"
+                                        ),
+                                        Scope.Compile, List.of(
+                                                "org.openjfx:javafx-swing:11.0.2",
+                                                "org.openjfx:javafx-swing:11.0.2",
+                                                "org.openjfx:javafx-graphics:11.0.2",
+                                                "org.openjfx:javafx-graphics:11.0.2",
+                                                "org.openjfx:javafx-base:11.0.2",
+                                                "org.openjfx:javafx-base:11.0.2"
+                                        ),
+                                        Scope.Runtime, List.of(
+                                                "org.openjfx:javafx-swing:11.0.2",
+                                                "org.openjfx:javafx-swing:11.0.2",
+                                                "org.openjfx:javafx-graphics:11.0.2",
+                                                "org.openjfx:javafx-graphics:11.0.2",
+                                                "org.openjfx:javafx-base:11.0.2",
+                                                "org.openjfx:javafx-base:11.0.2"
+                                        ),
+                                        Scope.Test, List.of(
+                                                "org.openjfx:javafx-swing:11.0.2",
+                                                "org.openjfx:javafx-swing:11.0.2",
+                                                "org.openjfx:javafx-graphics:11.0.2",
+                                                "org.openjfx:javafx-graphics:11.0.2",
+                                                "org.openjfx:javafx-base:11.0.2",
+                                                "org.openjfx:javafx-base:11.0.2"
+                                        )
                                 )
                         ),
                         buildToolMarker("Maven", "3.6"),
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -341,7 +533,7 @@ class ProjectContextInitializerTest {
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("main", "java.awt.dnd.DragGestureRecognizer, java.nio.channels.ClosedByInterruptException, java.lang.management.ThreadMXBean"),
                         javaSourceSetMarker("test", "java.awt.dnd.DragGestureRecognizer, java.nio.channels.ClosedByInterruptException, java.lang.management.ThreadMXBean"),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
 
@@ -352,7 +544,7 @@ class ProjectContextInitializerTest {
                         javaVersionMarker(VERSION_PATTERN, "11", "11"),
                         javaProjectMarker(null, "com.example:module2:1.0.0-SNAPSHOT"),
                         javaSourceSetMarker("test", ""),
-                        gitProvenanceMarker("master")
+                        gitProvenanceMarker("main")
                 )
                 .isContainedIn(projectResources);
     }
