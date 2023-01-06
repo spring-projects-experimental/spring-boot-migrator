@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.build.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
@@ -25,15 +24,12 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.*;
-import org.openrewrite.maven.internal.MavenXmlMapper;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.Parent;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.ResolvedManagedDependency;
 import org.openrewrite.maven.tree.Scope;
-import org.openrewrite.xml.ChangeTagValueVisitor;
 import org.openrewrite.xml.tree.Xml;
-import org.openrewrite.xml.tree.Xml.Tag;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFile;
@@ -47,7 +43,6 @@ import org.springframework.sbm.build.impl.inner.PluginRepositoryHandler;
 import org.springframework.sbm.build.migration.recipe.AddMavenPlugin;
 import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyManagement;
-import org.springframework.sbm.build.migration.visitor.AddProperty;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -109,7 +104,6 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx);
 
                 for (int i = 0; i < newMavenFiles.size(); i++) {
-                    Optional<MavenResolutionResult> mavenModels = MavenBuildFileUtil.findMavenResolution(mavenFiles.get(i));
                     Optional<MavenResolutionResult> newMavenModels = MavenBuildFileUtil.findMavenResolution(newMavenFiles.get(i));
                     mavenFiles.get(i).withMarkers(Markers.build(List.of(newMavenModels.get())));
                     // FIXME: 497 verify correctness
@@ -145,11 +139,12 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public OpenRewriteMavenBuildFile(Path absoluteProjectPath,
                                      Xml.Document sourceFile,
                                      ApplicationEventPublisher eventPublisher,
-                                     RewriteExecutionContext executionContext) {
+                                     RewriteExecutionContext executionContext,
+                                     MavenBuildFileRefactoring refactoring) {
         super(absoluteProjectPath, sourceFile);
         this.eventPublisher = eventPublisher;
         this.executionContext = executionContext;
-		this.refactoring = new MavenBuildFileRefactoring<>(this.getResource());
+		this.refactoring = refactoring;
     }
 
     public void apply(Recipe recipe) {
