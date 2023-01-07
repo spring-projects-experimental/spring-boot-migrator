@@ -46,7 +46,7 @@
 #    - type: org.springframework.sbm.actions.DisplayDescription
 #      condition:
 #        description: 'Dependency to spring-cloud-starter-config exists.'
-#        type: org.springframework.sbm.conditions.AnyDependencyExistMatchingRegex
+#        type: org.springframework.sbm.conditions.AnyDeclaredDependencyExistMatchingRegex
 #        dependencies:
 #          - 'org\.springframework\.cloud\:spring-cloud-starter-config.*'
 #      description: |-

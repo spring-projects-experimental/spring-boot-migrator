@@ -16,10 +16,12 @@
 package org.springframework.sbm.build.api;
 
 import org.openrewrite.maven.tree.Scope;
+
 import org.springframework.sbm.project.resource.ProjectResource;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -47,18 +49,18 @@ public interface BuildFile extends ProjectResource {
     Set<Dependency> getEffectiveDependencies();
 
     /**
-     * Check if any declared dependency matches any of the given regex.
+     * Check if any dependency declared in this build file matches any of the given regex.
      *
      * @param dependencyPatterns the patterns matching against Maven coordinates 'groupId:artifactId:version'
      */
     boolean hasDeclaredDependencyMatchingRegex(String... dependencyPatterns);
 
     /**
-     * Check if any dependency (declared or transitive) matches any of the given regex.
+     * Check if any dependency declared or transitive in any scope in this build file matches any of the given regex.
      *
      * @param dependencyPatterns the patterns matching against Maven coordinates 'groupId:artifactId:version'
      */
-//    boolean hasDependencyMatchingRegex(String... dependencyPatterns);
+    boolean hasEffectiveDependencyMatchingRegex(String... dependencyPatterns);
 
     boolean hasExactDeclaredDependency(Dependency dependency);
 
@@ -117,6 +119,8 @@ public interface BuildFile extends ProjectResource {
 
     String getProperty(String key);
 
+	void deleteProperty(String key);
+
     String print();
 
     /**
@@ -165,4 +169,7 @@ public interface BuildFile extends ProjectResource {
     List<RepositoryDefinition> getPluginRepositories();
 
     List<String> getDeclaredModules();
+
+	Optional<Plugin> findPlugin(String groupId, String artifactId);
+
 }

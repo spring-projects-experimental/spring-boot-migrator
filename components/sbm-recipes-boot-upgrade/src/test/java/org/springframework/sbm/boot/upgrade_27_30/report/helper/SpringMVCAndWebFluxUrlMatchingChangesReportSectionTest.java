@@ -56,6 +56,7 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
 
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
+                .withSpringBootParentOf("2.7.5")
                 .withBuildFileHavingDependencies("org.springframework:spring-web:5.3.23")
                 .addJavaSource("src/main/java", restController1)
                 .addJavaSource("src/main/java", restController2)
@@ -66,13 +67,13 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
         String expectedOutput =
                 """
                 === Spring MVC and WebFlux URL matching changes
-                Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/522[#522], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
                                                  
                 ==== What Changed
                 As of Spring Framework 6.0, the trailing slash matching configuration option has been deprecated and its default value set to `false`.
                 This means that previously, the following controller would match both "GET /some/greeting" and "GET /some/greeting/":
 
-                ```
+                [source, java]
+                ----
                 @RestController
                 public class MyController {
 
@@ -82,16 +83,16 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                   }
 
                 }
-                ```
+                ----
 
-                As of https://github.com/spring-projects/spring-framework/issues/28552[this Spring Framework change], "GET /some/greeting/" doesn't
-                match anymore by default.
+                As of https://github.com/spring-projects/spring-framework/issues/28552[this Spring Framework change], "GET /some/greeting/" doesn't match anymore by default.
 
                 Developers should instead configure explicit redirects/rewrites through a proxy, a Servlet/web filter, or even declare the additional route explicitly on the controller handler (like `@GetMapping("/some/greeting", "/some/greeting/")` for more targeted cases.
 
                 Until your application fully adapts to this change, you can change the default with the following global configuration:
 
-                ```
+                [source, java]
+                ----
                 @Configuration
                 public class WebConfiguration implements WebMvcConfigurer {
 
@@ -101,7 +102,7 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                     }
                                                  
                 }
-                ```
+                ----
                                                  
                 ==== Why is the application affected
                 The scan found classes annotated with `@RestController` which could be affected by this change.
@@ -122,7 +123,7 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                 existing request mapping.
                                                 
                 [source, java]
-                ....
+                ----
                 @RequestMapping(value = {"/current/path", "current/path/"})
                                                 
                 @RequestMapping(path = {"/current/path", "current/path/"})
@@ -131,7 +132,7 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                                                  
                 @GetMapping(path = {"/current/path", "current/path/"})
                 ...
-                ....
+                ----
                                                  
                 * https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/GetMapping.html[@GetMapping API]
                 * https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/annotation/RequestMapping.html[@RequestMapping API]
@@ -140,7 +141,7 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                 If all rest controllers must serve requests with trailing `/`, a `PathMatchConfigurer` should be configured like so:
                                                
                 [source, java]
-                ....
+                ----
                 @Configuration
                 public class WebConfiguration implements WebMvcConfigurer {
                                                
@@ -150,7 +151,7 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                   }
                                                
                 }
-                ....
+                ----
                 
                 
                 """;

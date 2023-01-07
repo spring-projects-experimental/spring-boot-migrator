@@ -28,27 +28,34 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Class to parse Maven build files.
+ *
+ * It reads {@code .mvn/maven.config when a project root dir is provided.
+ * Maven's {@code settings.xml} is read when it exits. The result is stored in {@code ExecutionContext}.
+ * When an {@code ExecutionContext} is provided the MavenSettings are initilized again to guarantee that
+ * all settings from {@code settings.xml} are respected.
+ */
 @Component
 public class RewriteMavenParser implements Parser<Xml.Document> {
 
-    private final MavenParser parser;
+    private MavenParser parser;
+    private final MavenSettingsInitializer mavenSettingsInitializer;
 
-    // FIXME: #7 This does not work for singleton Spring bean, also profiles and cache cannot be changed
-    public RewriteMavenParser(Path projectRoot) {
-        this.parser = initMavenParser(new RewriteExecutionContext(), Optional.ofNullable(projectRoot));
-    }
-
-    public RewriteMavenParser() {
-        this.parser = initMavenParser(new RewriteExecutionContext(), Optional.empty());
+    public RewriteMavenParser(MavenSettingsInitializer mavenSettingsInitializer) {
+        this.mavenSettingsInitializer = mavenSettingsInitializer;
+        initMavenParser(new RewriteExecutionContext(), null);
     }
 
     @NotNull
-    private MavenParser initMavenParser(RewriteExecutionContext executionContext, Optional<Path> projectRoot) {
+    private void initMavenParser(ExecutionContext executionContext, Path projectRoot) {
+        mavenSettingsInitializer.initializeMavenSettings(executionContext);
+
         MavenParser.Builder builder = MavenParser.builder();
-        if(projectRoot.isPresent()) {
-            builder.mavenConfig(projectRoot.get().resolve(".mvn/maven.config"));
+        if (projectRoot != null && projectRoot.resolve(".mvn/maven.config").toFile().exists()) {
+            builder.mavenConfig(projectRoot.resolve(".mvn/maven.config"));
         }
-        builder.build();
+        this.parser = builder.build();
 //        if(executionContext.getMavenProfiles().length > 0) {
 //            builder.activeProfiles(executionContext.getMavenProfiles());
 //        }
@@ -58,7 +65,6 @@ public class RewriteMavenParser implements Parser<Xml.Document> {
 //        if(executionContext.getMavenPomCache() != null) {
 //            builder.cache(executionContext.getMavenPomCache());
 //        }
-        return builder.build();
     }
 
     @Override
@@ -67,7 +73,23 @@ public class RewriteMavenParser implements Parser<Xml.Document> {
     }
 
     @Override
+    public List<Xml.Document> parse(ExecutionContext ctx, String... sources) {
+        mavenSettingsInitializer.initializeMavenSettings(ctx);
+        return parser.parse(ctx, sources);
+    }
+
+    /**
+     * @param sources    the sources to parse
+     * @param relativeTo the project root, if null is given .mvn/maven.config will not be read
+     * @param ctx        the ExecutionContext,
+     */
+    @Override
     public List<Xml.Document> parseInputs(Iterable<Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
+        if (relativeTo != null) {
+            initMavenParser(ctx, relativeTo);
+        } else {
+            mavenSettingsInitializer.initializeMavenSettings(ctx);
+        }
         return parser.parseInputs(sources, relativeTo, ctx);
     }
 

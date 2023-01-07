@@ -29,12 +29,12 @@ Every section is declared in YAML
 ==== The Helper
 
 The `Helper` is condition and data provider for the template.
-It must implement `ìsApplicable` and `getData` from `SpringBootUpgradeReportSection.Helper`.
+It must implement `ìsApplicable` and `getData` from `SpringBootUpgradeReportSectionHelper`.
 All variables used in the template must be provided by `getData`.
 
 [source,java]
 ....
-    public interface Helper<T> extends Condition {
+    public abstract class SpringBootUpgradeReportSectionHelper<T> extends Condition {
         Map<String, T> getData(ProjectContext context);
     }
 ....

@@ -15,8 +15,10 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
+import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportAction;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
+import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
 
@@ -26,7 +28,9 @@ import java.util.Map;
 /**
  * @author Fabian Krüger
  */
-public class UpgradeDependenciesHelper implements SpringBootUpgradeReportSection.Helper<List<String>> {
+public class UpgradeDependenciesHelper extends SpringBootUpgradeReportSectionHelper<List<String>> {
+
+    public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
     @Override
     public String getDescription() {
         return "";
@@ -34,6 +38,13 @@ public class UpgradeDependenciesHelper implements SpringBootUpgradeReportSection
 
     @Override
     public boolean evaluate(ProjectContext context) {
+        IsSpringBootProject isSpringBootProject = new IsSpringBootProject();
+        isSpringBootProject.setVersionPattern(VERSION_PATTERN);
+        boolean isSpringBootApplication = isSpringBootProject.evaluate(context);
+        if(!isSpringBootApplication) {
+            return false;
+        }
+
         // FIXME: dummy
         return true;
     }

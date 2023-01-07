@@ -22,6 +22,7 @@ import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 
 import java.util.List;
@@ -101,7 +102,7 @@ public class ClasspathRegistryTest {
         assertThat(sut.getCurrentDependencies()).isEmpty();
         assertThat(sut.getInitialDependencies()).isEmpty();
 
-        List<Xml.Document> poms = new RewriteMavenParser().parse(parentPom, pom1, pom2);
+        List<Xml.Document> poms = new RewriteMavenParser(new MavenSettingsInitializer()).parse(parentPom, pom1, pom2);
 
         Set<ResolvedDependency> resolvedDependencies = poms
                 .get(2)

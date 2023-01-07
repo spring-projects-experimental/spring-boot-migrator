@@ -33,6 +33,7 @@ public class ChangesToDataPropertiesReportSectionTest {
     @DisplayName("Changes to Data Properties should render")
     void changesToDataPropertiesSection_renders() {
         ProjectContext context = TestProjectContext.buildProjectContext()
+                .withSpringBootParentOf("2.7.5")
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
                 .addProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
                 .addProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
@@ -43,7 +44,6 @@ public class ChangesToDataPropertiesReportSectionTest {
                 .shouldRenderAs(
                         """
                         === Changes to Data Properties
-                        Issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/441[#441], Contributors: https://github.com/fabapp2[@fabapp2^, role="ext-link"]
                                                               
                         ==== What Changed
                         The data prefix has been reserved for Spring Data and any properties under the `spring.data` prefix imply that Spring
@@ -68,6 +68,7 @@ public class ChangesToDataPropertiesReportSectionTest {
     @DisplayName("Changes to Data Properties shouldn't render")
     void changesToDataPropertiesSection_notRendered() {
         ProjectContext context = TestProjectContext.buildProjectContext()
+                .withSpringBootParentOf("2.7.5")
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
                 .addProjectResource("src/main/resources/application.properties", "data.foo=bar")
                 .addProjectResource("src/main/resources/application-another.properties", "data.here=there")

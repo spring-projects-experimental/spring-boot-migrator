@@ -18,7 +18,9 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.search.UsesType;
 import org.openrewrite.java.tree.J;
+import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
+import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
@@ -31,8 +33,9 @@ import java.util.stream.Collectors;
 /**
  * @author Fabian Krüger
  */
-public class SpringMVCAndWebFluxUrlMatchingChangesHelper implements SpringBootUpgradeReportSection.Helper<List<JavaSource>> {
+public class SpringMVCAndWebFluxUrlMatchingChangesHelper extends SpringBootUpgradeReportSectionHelper<List<JavaSource>> {
 
+    public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
     private static final String SPRING_REST_CONTROLLER_FQN = "org.springframework.web.bind.annotation.RestController";
     private List<JavaSource> matches = new ArrayList<>();
 
@@ -43,6 +46,13 @@ public class SpringMVCAndWebFluxUrlMatchingChangesHelper implements SpringBootUp
 
     @Override
     public boolean evaluate(ProjectContext context) {
+        IsSpringBootProject isSpringBootProject = new IsSpringBootProject();
+        isSpringBootProject.setVersionPattern(VERSION_PATTERN);
+        boolean isSpringBootApplication = isSpringBootProject.evaluate(context);
+        if(!isSpringBootApplication) {
+            return false;
+        }
+
         GenericOpenRewriteRecipe<UsesType<ExecutionContext>> usesTypeRecipe = new GenericOpenRewriteRecipe<>(() -> new UsesType<>(SPRING_REST_CONTROLLER_FQN));
 
         matches = context.getProjectJavaSources().find(usesTypeRecipe).stream()

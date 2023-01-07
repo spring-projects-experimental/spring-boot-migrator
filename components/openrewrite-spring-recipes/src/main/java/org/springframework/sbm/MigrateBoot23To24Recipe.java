@@ -16,7 +16,7 @@
 package org.springframework.sbm;
 
 import org.springframework.sbm.engine.recipe.UserInteractions;
-import org.springframework.sbm.build.migration.conditions.AnyDependencyExistMatchingRegex;
+import org.springframework.sbm.build.migration.conditions.AnyDeclaredDependencyExistMatchingRegex;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.spring.migration.actions.InitDataSourceAfterJpaInitAction;
@@ -40,7 +40,7 @@ public class MigrateBoot23To24Recipe {
         return Recipe.builder()
                 .name("migrate-boot-" + fromVersion + "-" + toVersion)
                 .description("Migrate from Spring Boot " + fromVersion + " to " + toVersion)
-                .condition(AnyDependencyExistMatchingRegex.builder()
+                .condition(AnyDeclaredDependencyExistMatchingRegex.builder()
                         .dependencies(List.of("org\\.springframework\\.boot:.*:" + fromVersion.replace(".", "\\.") + ".*"))
                         .build()
                 )
