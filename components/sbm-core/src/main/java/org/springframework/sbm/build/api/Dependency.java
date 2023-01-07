@@ -69,7 +69,7 @@ public class Dependency {
     }
 
     public boolean isRecentThen(Dependency that){
-        return this.equals(that) && comparator().compare(this, that) > 0;
+        return this.equals(that) && comparator().compare(this, that) >= 0;
     }
 
     private Comparator<Dependency> comparator(){
