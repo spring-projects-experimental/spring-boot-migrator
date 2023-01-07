@@ -1,6 +1,7 @@
 package org.springframework.sbm.build.migration.actions;
 
 import org.junit.jupiter.api.Test;
+import org.openrewrite.semver.LatestRelease;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -11,6 +12,10 @@ public class RemoveManagedDependenciesTest {
 
     @Test
     public void givenProjectWithManagedDependency_removeSpringManagedDependencies_expectHibernateDependencyRemoved(){
+
+        LatestRelease latestRelease = new LatestRelease(null);
+        System.out.println(latestRelease.compare(null, "5.6.11.Final", "5.6.11.Final"));
+
         final String hibernateCoordinates = "org.hibernate:hibernate-core:5.6.11.Final";
         final String springBootDataJpaCoordinates = "org.springframework.boot:spring-boot-starter-data-jpa:2.7.4";
 

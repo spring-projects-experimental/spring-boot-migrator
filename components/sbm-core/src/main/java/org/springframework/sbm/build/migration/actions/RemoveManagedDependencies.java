@@ -6,10 +6,8 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.openrewrite.maven.tree.Scope.Compile;
 
@@ -22,21 +20,14 @@ public class RemoveManagedDependencies extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
-        final Map<Boolean, List<Dependency>> listMap = context.getBuildFile()
+        final List<Dependency> springManagedDependencies = context.getBuildFile()
                 .getDeclaredDependencies(Compile)
                 .stream()
                 .filter(this::isSpringFrameworkDependency)
-                .collect(Collectors.partitioningBy(d -> "org.springframework.boot".equals(d.getGroupId())));
-
-        List<Dependency> springManagedDependencies = Stream.concat(listMap.get(true)
-                        .stream()
-                        .map(i -> SpringManagedDependencies.byBootArtifact(i.getArtifactId(), i.getVersion())),
-                listMap.get(false)
-                        .stream()
-                        .map(i -> SpringManagedDependencies.byArtifact(i.getArtifactId(), i.getVersion()))
-        ).flatMap(SpringManagedDependencies::stream)
-        .distinct()
-        .collect(Collectors.toList());
+                .map(d -> SpringManagedDependencies.by(d.getGroupId(),d.getArtifactId(),d.getVersion()))
+                .flatMap(SpringManagedDependencies::stream)
+                .distinct()
+                .collect(Collectors.toList());
 
         Predicate<Dependency> isAlreadyManagedBySpring = d -> springManagedDependencies
                                                                     .stream()
@@ -55,7 +46,6 @@ public class RemoveManagedDependencies extends AbstractAction {
     }
 
     private boolean isSpringFrameworkDependency(Dependency dependency){
-        return "org.springframework.boot".equals(dependency.getGroupId())
-                || "org.springframework".equals(dependency.getGroupId());
+        return dependency.getGroupId().startsWith("org.springframework");
     }
 }

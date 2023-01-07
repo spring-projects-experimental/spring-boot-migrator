@@ -9,7 +9,7 @@ public class SpringManagedDependenciesTest {
     public void pullBootStarter274Dependencies_expectJakartaAnnotationDependency(){
         String jakartaCoordinates = "jakarta.annotation:jakarta.annotation-api:1.3.5";
 
-        assertThat( SpringManagedDependencies.byBootArtifact("spring-boot-starter", "2.7.4")
+        assertThat( SpringManagedDependencies.by("org.springframework.boot", "spring-boot-starter", "2.7.4")
                                      .stream()
                                      .map(Dependency::getCoordinates)
                                      .anyMatch(jakartaCoordinates::equals)
