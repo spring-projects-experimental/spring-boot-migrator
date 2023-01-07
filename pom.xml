@@ -16,7 +16,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java.version>17</java.version>
-        <spring-shell.version>2.1.2</spring-shell.version>
+        <spring-shell.version>2.1.4</spring-shell.version>
         <openrewrite.version>7.29.0</openrewrite.version>
         <openrewrite.spring.version>4.26.0</openrewrite.spring.version>
         <rewrite-migrate-java.version>1.13.0</rewrite-migrate-java.version>
@@ -304,7 +304,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>2.0.5</version>
+            <version>2.0.6</version>
         </dependency>
     </dependencies>
     <modules>
