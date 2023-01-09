@@ -20,6 +20,7 @@ public class RemoveManagedDependencies extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
+        //FIXME handle multi-module projects
         final List<Dependency> springManagedDependencies = context.getBuildFile()
                 .getDeclaredDependencies(Compile)
                 .stream()
