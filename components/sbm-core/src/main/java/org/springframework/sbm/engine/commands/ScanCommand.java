@@ -54,7 +54,7 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
 
         List<Resource> resources = pathScanner.scan(projectRoot);
 
-        return projectContextInitializer.initProjectContext(projectRoot, resources, new RewriteExecutionContext(eventPublisher));
+        return projectContextInitializer.initProjectContext(projectRoot, resources);
     }
 
     public List<Resource> scanProjectRoot(String projectRoot) {

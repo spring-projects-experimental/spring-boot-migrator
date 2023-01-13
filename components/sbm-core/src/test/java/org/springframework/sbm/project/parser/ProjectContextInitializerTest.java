@@ -291,7 +291,7 @@ class ProjectContextInitializerTest {
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
         RewriteExecutionContext executionContext = new RewriteExecutionContext(eventPublisher);
         List<Resource> resources = scanCommand.scanProjectRoot(projectDirectory.toString());
-        ProjectContext projectContext = sut.initProjectContext(projectDirectory, resources, executionContext);
+        ProjectContext projectContext = sut.initProjectContext(projectDirectory, resources);
         List<RewriteSourceFileHolder<? extends SourceFile>> projectResources = projectContext.getProjectResources().list();
 
         //assertThat(projectDirectory.toAbsolutePath().resolve(".git")).exists();

@@ -509,7 +509,7 @@ public class TestProjectContext {
             ProjectContextInitializer projectContextInitializer = createProjectContextInitializer(projectContextFactory);
 
             // create ProjectContext
-            ProjectContext projectContext = projectContextInitializer.initProjectContext(projectRoot, scannedResources, new RewriteExecutionContext(eventPublisher));
+            ProjectContext projectContext = projectContextInitializer.initProjectContext(projectRoot, scannedResources);
 
             // replace with mocks
             if (mockedBuildFile != null) {
