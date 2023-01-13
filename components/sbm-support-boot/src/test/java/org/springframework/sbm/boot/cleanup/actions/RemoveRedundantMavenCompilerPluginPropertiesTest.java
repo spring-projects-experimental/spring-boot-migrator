@@ -49,12 +49,12 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 				        <plugins>
 				            <plugin>
 				                <groupId>org.springframework.boot</groupId>
-				                                  <artifactId>spring-boot-maven-plugin</artifactId>
+                                <artifactId>spring-boot-maven-plugin</artifactId>
 				            </plugin>
 				        </plugins>
 				    </build>
 				</project>
-				                """;
+				""";
 
 		String expected = """
 				<?xml version="1.0" encoding="UTF-8"?>
@@ -70,7 +70,7 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 				        <plugins>
 				            <plugin>
 				                <groupId>org.springframework.boot</groupId>
-				                                  <artifactId>spring-boot-maven-plugin</artifactId>
+                                <artifactId>spring-boot-maven-plugin</artifactId>
 				            </plugin>
 				        </plugins>
 				    </build>
@@ -107,7 +107,7 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 				        </plugins>
 				    </build>
 				</project>
-				                """;
+				""";
 
 		String expected = """
 				<?xml version="1.0" encoding="UTF-8"?>
@@ -132,7 +132,7 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 				        </plugins>
 				    </build>
 				</project>
-				                """;
+				""";
 
 		RemoveRedundantMavenCompilerPluginProperties sut = new RemoveRedundantMavenCompilerPluginProperties();
 		OpenRewriteMavenBuildFileTestSupport.verifyRefactoring(pomXml, expected, sut);
@@ -440,13 +440,19 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 				.groupId("org.apache.maven.plugins")
 				.artifactId("maven-compiler-plugin")
 				.build();
-		Map<String, Object> configMap = new LinkedHashMap<>();
-		configMap.put("source", "${maven.compiler.source}");
-		configMap.put("target", "${maven.compiler.target}");
-		mavenPlugin.setConfiguration(mavenPlugin.new OpenRewriteMavenPluginConfiguration(configMap));
+		mavenPlugin.setConfiguration(mavenPlugin.new OpenRewriteMavenPluginConfiguration(Map.of("source", "${maven.compiler.source}",
+																								"target", "${maven.compiler.target}")));
 
-		String rootPom = PomBuilder.buildPom("com.example:parent:1.0").packaging("pom").plugins(mavenPlugin)
-				.property("maven.compiler.source", "17").property("maven.compiler.target", "17").withModules("module1")
+		String rootPom = PomBuilder.buildPom("com.example:parent:1.0")
+				.packaging("pom")
+				.plugins(mavenPlugin)
+				.property("maven.compiler.source", "17")
+				.property("maven.compiler.target", "17")
+				.withModules("module1")
+				.build();
+
+		String module1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module1")
+				.packaging("jar")
 				.build();
 
 		String module1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module1").packaging("jar").build();
