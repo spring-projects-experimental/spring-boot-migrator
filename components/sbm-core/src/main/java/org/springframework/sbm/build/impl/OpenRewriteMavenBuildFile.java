@@ -60,60 +60,140 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     private final PluginRepositoryHandler pluginRepositoryHandler = new PluginRepositoryHandler();
 	private final MavenBuildFileRefactoring<Xml.Document> refactoring ;
 
-    // TODO: #7 clarify if RefreshPomModel is still required?
-    // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
-    public static class RefreshPomModel extends Recipe {
-
-        private List<SourceFile> sourceFiles;
-
-        @Deprecated(forRemoval = true)
-        protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
-            if (sourceFiles == null) {
-                List<SourceFile> nonMavenFiles = new ArrayList<>(before.size());
-                List<Xml.Document> mavenFiles = new ArrayList<>();
-                for (SourceFile f : before) {
-                    if (f instanceof Xml.Document) {
-                        mavenFiles.add((Xml.Document) f);
-                    } else {
-                        nonMavenFiles.add(f);
-                    }
-                }
-                MavenParser mavenParser = MavenParser.builder().build();
-                List<Parser.Input> parserInput = mavenFiles.stream()
-                        .map(m -> new Parser.Input(
-                                        m.getSourcePath(),
-                                        null,
-                                        () -> new ByteArrayInputStream(m.printAll().getBytes(StandardCharsets.UTF_8)),
-                                        !Files.exists(m.getSourcePath())
-                                )
-                        )
-                        .collect(Collectors.toList());
-                List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx);
-
-                for (int i = 0; i < newMavenFiles.size(); i++) {
-                    Optional<MavenResolutionResult> newMavenModels = MavenBuildFileUtil.findMavenResolution(newMavenFiles.get(i));
-                    mavenFiles.get(i).withMarkers(Markers.build(List.of(newMavenModels.get())));
-                    // FIXME: 497 verify correctness
-                    mavenFiles.set(i, newMavenFiles.get(i));
-                }
-
-                sourceFiles = nonMavenFiles;
-                sourceFiles.addAll(mavenFiles);
-            }
-            return sourceFiles;
-        }
-
-        @Override
-        public String toString() {
-            return "REFRESH_POM_MODEL_RECIPE";
-        }
-
-        @Override
-        public String getDisplayName() {
-            return "Refresh POM model";
-        }
-
-    }
+//    // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
+//    /**
+//     * Kept for changes in BuildFile plugin configuration as {@link UpdateMavenModel} does not update the model
+//     * See https://github.com/openrewrite/rewrite/issues/2624
+//     *
+//     * @deprecated use {@link UpdateMavenModel} instead. Potentially provided through {@link GenericOpenRewriteRecipe}.
+//     */
+//    @Deprecated
+//    public static class RefreshPomModel extends Recipe {
+//
+//        private boolean visited = false;
+//
+////        @Override
+////        protected TreeVisitor<?, ExecutionContext> getVisitor() {
+////            return new MavenIsoVisitor<>() {
+////                @Override
+////                public Xml.Document visitDocument(Xml.Document document, ExecutionContext executionContext) {
+////                    return super.visitDocument(document, executionContext);
+////                }
+////            }
+////        }
+//
+//        @Override
+//        protected List<SourceFile> visit(List<SourceFile> sfiles, ExecutionContext ctx) {
+//            List<SourceFile> sourceFiles = super.visit(sfiles, ctx);
+//            if (! this.visited) {
+//                List<BuildFileWithIndex> buildFilesWithIndex = new ArrayList<>();
+//                for(SourceFile sf : sourceFiles) {
+//                    if(isMavenBuildFile(sf)) {
+//                        int index = sourceFiles.indexOf(sf);
+//                        Xml.Document xmlDoc = getBuildFile(sf);
+//                        buildFilesWithIndex.add(new BuildFileWithIndex(index, xmlDoc));
+//                    }
+//                }
+//                updateBuildFilesInSourceFiles(sourceFiles, buildFilesWithIndex, ctx);
+//                visited = true;
+//                return new ArrayList<>(sourceFiles);
+////
+////
+////                List<SourceFile> nonMavenFiles = new ArrayList<>(sourceFiles.size());
+////                List<Xml.Document> mavenFiles = new ArrayList<>();
+////                for (SourceFile f : sourceFiles) {
+////                    if (f instanceof Xml.Document) {
+////                        mavenFiles.add((Xml.Document) f);
+////                    } else {
+////                        nonMavenFiles.add(f);
+////                    }
+////                }
+////                MavenParser mavenParser = MavenParser.builder().build();
+////                List<Parser.Input> parserInput = mavenFiles.stream()
+////                        .map(m -> new Parser.Input(
+////                                        m.getSourcePath(),
+////                                        null,
+////                                        () -> new ByteArrayInputStream(m.printAll().getBytes(StandardCharsets.UTF_8)),
+////                                        !Files.exists(m.getSourcePath())
+////                                )
+////                        )
+////                        .collect(Collectors.toList());
+////                List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx);
+////
+////                for (int i = 0; i < newMavenFiles.size(); i++) {
+////                    Optional<MavenResolutionResult> newMavenModels = MavenBuildFileUtil.findMavenResolution(newMavenFiles.get(i));
+////                    mavenFiles.get(i).withMarkers(Markers.build(List.of(newMavenModels.get())));
+////                    // FIXME: 497 verify correctness
+////                    mavenFiles.set(i, newMavenFiles.get(i));
+////                }
+////
+////                this.sourceFiles = nonMavenFiles;
+////                this.sourceFiles.addAll(mavenFiles);
+//            }
+//            return sourceFiles;
+//        }
+//
+//        private void updateBuildFilesInSourceFiles(List<SourceFile> sourceFiles, List<BuildFileWithIndex> buildFilesWithIndex, ExecutionContext ctx) {
+//            List<Parser.Input> parserInputs = buildFilesWithIndex
+//                    .stream()
+//                    .map(BuildFileWithIndex::getXmlDoc)
+//                    .map(m -> new Parser.Input(m.getSourcePath(), null, () -> new ByteArrayInputStream(
+//                            m.printAll().getBytes(StandardCharsets.UTF_8)), !Files.exists(m.getSourcePath())))
+//                    .collect(Collectors.toList());
+//
+//            // FIXME: This breaks ~/.m2/settings.xnl
+//            MavenParser mavenParser = MavenParser.builder().build();
+//
+//            List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInputs, null, ctx);
+//
+//            newMavenFiles.stream()
+//                    .forEach(mf -> {
+//                        replaceModelInBuildFile(sourceFiles, buildFilesWithIndex, newMavenFiles, mf);
+//                    });
+//        }
+//
+//        private void replaceModelInBuildFile(List<SourceFile> sourceFiles, List<BuildFileWithIndex> buildFilesWithIndex, List<Xml.Document> newMavenFiles, Xml.Document mf) {
+//            int indexInNewMavenFiles = newMavenFiles.indexOf(mf);
+//            Xml.Document originalPom = buildFilesWithIndex.get(indexInNewMavenFiles).getXmlDoc();
+//            int indexInSourceFiles = sourceFiles.indexOf(originalPom);
+//            Markers markers = originalPom.getMarkers().removeByType(MavenResolutionResult.class);
+//            MavenResolutionResult updatedModel = mf.getMarkers().findFirst(MavenResolutionResult.class).get();
+//            markers = markers.addIfAbsent(updatedModel);
+//            markers = markers.addIfAbsent(new SearchResult(UUID.randomUUID(), toString()));
+//            SourceFile refreshedPom = originalPom.withMarkers(markers);
+//            sourceFiles.set(indexInSourceFiles, refreshedPom);
+//        }
+//
+//        private Xml.Document getBuildFile(SourceFile sf) {
+//            return (Xml.Document) sf;
+//        }
+//
+//        private boolean isMavenBuildFile(SourceFile sf) {
+//            return Xml.Document.class.isInstance(sf);
+//        }
+//
+//        @Override
+//        public String toString() {
+//            return "REFRESH_POM_MODEL_RECIPE";
+//        }
+//
+//        @Override
+//        public String getDisplayName() {
+//            return "Refresh POM model";
+//        }
+//
+//        @Getter
+//        private class BuildFileWithIndex {
+//            private final int index;
+//            private final Xml.Document xmlDoc;
+//
+//            public BuildFileWithIndex(int index, Xml.Document xmlDoc) {
+//
+//                this.index = index;
+//                this.xmlDoc = xmlDoc;
+//            }
+//        }
+//    }
 
     public static final Path JAVA_SOURCE_FOLDER = Path.of("src/main/java");
     public static final Path JAVA_TEST_SOURCE_FOLDER = Path.of("src/test/java");
@@ -430,8 +510,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         if (!dependencies.isEmpty()) {
             Recipe r = getAddDependencyRecipe(dependencies.get(0));
             dependencies.stream().skip(1).forEach(d -> r.doNext(getAddDependencyRecipe(d)));
-            apply(r);
-            apply(new RefreshPomModel());
+            apply(r, getResource());
+            refreshPomModel();
             List<Dependency> exclusions = dependencies.stream()
                     .filter(not(d -> d.getExclusions().isEmpty()))
                     .flatMap(d -> d.getExclusions().stream())
@@ -492,7 +572,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 r.doNext(getDeleteDependencyVisitor(d));
             });
             apply(r);
-            apply(new RefreshPomModel()); // TODO: Should be obsolete with 7.23.0, see https://github.com/openrewrite/rewrite/issues/1754
+            refreshPomModel();
         }
     }
 
@@ -539,9 +619,12 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     @Override
     public void addToDependencyManagementInner(Dependency dependency) {
         AddOrUpdateDependencyManagement addOrUpdateDependencyManagement = new AddOrUpdateDependencyManagement(dependency);
-        apply(new GenericOpenRewriteRecipe<>(() -> addOrUpdateDependencyManagement));
-        // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
-        apply(new RefreshPomModel());
+        apply(new GenericOpenRewriteRecipe<>(() -> addOrUpdateDependencyManagement), getResource());
+        refreshPomModel();
+    }
+
+    private <V extends TreeVisitor<?, ExecutionContext>> void apply(Recipe recipe, RewriteSourceFileHolder<Xml.Document> resource) {
+        refactoring.execute(resource, recipe);
     }
     // FIXME: #7 rework dependencies/classpath registry
     // collect declared dependencies (jar/pom)
@@ -614,14 +697,15 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
 	@Override
 	final public void deleteProperty(String key){
-		apply(new RemoveProperty(key));
-		apply(new RefreshPomModel());
-	}
+		apply(new RemoveProperty(key), getResource());
+        refreshPomModel();
+    }
 
     final public void setProperty(String key, String value) {
 		String current = getProperty(key);
-		apply(current == null ? new AddProperty(key, value, false, false) : new ChangePropertyValue(key, value, false, false));
-		apply(new RefreshPomModel());
+        Recipe recipe = current == null ? new AddProperty(key, value, false, false) : new ChangePropertyValue(key, value, false, false);
+        apply(recipe, getResource());
+        refreshPomModel();
     }
 
     @Override
