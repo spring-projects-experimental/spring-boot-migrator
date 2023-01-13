@@ -335,6 +335,8 @@
                     <excludedGroups>integration</excludedGroups>
                     <parallel>methods</parallel>
                     <threadCount>10</threadCount>
+                    <reuseForks>false</reuseForks>
+                    <forkCount>1C</forkCount>
                 </configuration>
             </plugin>
             <plugin>
