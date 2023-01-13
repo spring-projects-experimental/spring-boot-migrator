@@ -15,14 +15,16 @@
  */
 package org.springframework.sbm.build.impl;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.openrewrite.Recipe;
-import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
-import org.openrewrite.maven.MavenParser;
+import org.jetbrains.annotations.NotNull;
+import org.openrewrite.*;
+import org.openrewrite.marker.Markers;
+import org.openrewrite.marker.SearchResult;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
@@ -30,11 +32,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This class provides a facade to apply OpenRewrite {@code Recipe}s and {@code Visitor}s to the project Maven build files.
+ *
+ * @author Fabian Krüger
+ */
 @RequiredArgsConstructor
 class MavenBuildFileRefactoring<T extends SourceFile> {
+    private final ProjectResourceSet projectResourceSet;
+    private final RewriteMavenParser mavenParser;
 
-    private final RewriteSourceFileHolder<Xml.Document> pom;
-
+    /**
+     * Applies the provided {@code Visitor}s to all Maven build files in the {@code ProjectContext}.
+     *
+     * The changes are immediately reflected in the wrapping {@code BuildFile}s.
+     */
     public void execute(MavenVisitor... visitors) {
         List<Result> results = Arrays.stream(visitors)
                 .map(v -> new GenericOpenRewriteRecipe(() -> v))
@@ -44,16 +56,115 @@ class MavenBuildFileRefactoring<T extends SourceFile> {
         processResults(results);
     }
 
-    public void execute(Recipe... visitors) {
-        for (Recipe recipe : visitors) {
+    /**
+     * Applies the provided {@code Recipe}s to all Maven build files in the {@code ProjectContext}.
+     *
+     * The changes are immediately reflected in the wrapping {@code BuildFile}s.
+     */
+    public void execute(Recipe... recipes) {
+        for (Recipe recipe : recipes) {
             List<Result> results = executeRecipe(recipe);
             processResults(results);
+        }
+    }
+
+    /**
+     * Applies the provided {@code Recipe}s to the provided Maven build file.
+     *
+     * The changes are immediately reflected in the wrapping {@code BuildFile}.
+     * A caller must decide if refreshing the Pom files in {@code ProjectContext} is required after this method.
+     */
+    public <V extends TreeVisitor<?, ExecutionContext>> void execute(RewriteSourceFileHolder<Xml.Document> resource, Recipe... recipes) {
+        for (Recipe recipe : recipes) {
+            List<Result> results = executeRecipe(recipe, resource);
+            processResults(results);
+        }
+    }
+
+    public void refreshPomModels() {
+        // store buildfiles and their index in project resource list
+        List<BuildFileWithIndex> buildFilesWithIndex = new ArrayList<>();
+        List<RewriteSourceFileHolder<? extends SourceFile>> projectResources = projectResourceSet.list();
+        for(RewriteSourceFileHolder<? extends SourceFile> sf : projectResources) {
+            if(isMavenBuildFile(sf)) {
+                int index = projectResources.indexOf(sf);
+                Xml.Document xmlDoc = (Xml.Document) sf.getSourceFile();
+                buildFilesWithIndex.add(new BuildFileWithIndex(index, (RewriteSourceFileHolder<Xml.Document>) sf));
+            }
+        }
+
+        // create parser inputs from buildfiles content
+        List<Parser.Input> parserInputs = buildFilesWithIndex
+                .stream()
+                .map(BuildFileWithIndex::getXmlDoc)
+                .map(m -> new Parser.Input(m.getSourcePath(), null, () -> new ByteArrayInputStream(
+                        m.print().getBytes(StandardCharsets.UTF_8)), !Files.exists(m.getSourcePath())))
+                .collect(Collectors.toList());
+
+        // parse buildfiles
+        List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInputs, null, new RewriteExecutionContext());
+
+        // replace new model in build files
+        newMavenFiles.stream()
+                .forEach(mf -> {
+                    replaceModelInBuildFile(projectResources, buildFilesWithIndex, newMavenFiles, mf);
+                });
+    }
+
+    private void replaceModelInBuildFile(
+            List<RewriteSourceFileHolder<? extends SourceFile>> projectResources,
+            List<BuildFileWithIndex> buildFilesWithIndex,
+            List<Xml.Document> newMavenFiles,
+            Xml.Document mf
+    ) {
+        // get index in list of build files
+        int indexInNewMavenFiles = newMavenFiles.indexOf(mf);
+        RewriteSourceFileHolder<Xml.Document> originalPom = buildFilesWithIndex.get(indexInNewMavenFiles).getXmlDoc();
+        int indexInProjectResources = projectResources.indexOf(originalPom);
+        // replace marker
+        Markers markers = originalPom.getSourceFile().getMarkers().removeByType(MavenResolutionResult.class);
+        MavenResolutionResult updatedModel = mf.getMarkers().findFirst(MavenResolutionResult.class).get();
+        markers = markers.addIfAbsent(updatedModel);
+        Xml.Document refreshedPom = originalPom.getSourceFile().withMarkers(markers);
+        RewriteSourceFileHolder<Xml.Document> rewriteSourceFileHolder = (RewriteSourceFileHolder<Xml.Document>) projectResources.get(indexInProjectResources);
+        rewriteSourceFileHolder.replaceWith(refreshedPom);
+    }
+
+    private boolean isMavenBuildFile(RewriteSourceFileHolder<? extends SourceFile> sf) {
+        return Xml.Document.class.isInstance(sf.getSourceFile()) && Xml.Document.class.cast(sf.getSourceFile()).getMarkers().findFirst(MavenResolutionResult.class).isPresent();
+    }
+
+    @Getter
+    class BuildFileWithIndex {
+        private final int index;
+        private final RewriteSourceFileHolder<Xml.Document> xmlDoc;
+
+        public BuildFileWithIndex(int index, RewriteSourceFileHolder<Xml.Document> xmlDoc) {
+
+            this.index = index;
+            this.xmlDoc = xmlDoc;
         }
     }
 
     private List<Result> executeRecipe(Recipe recipe) {
         List<Result> results = recipe.run(List.of(pom.getSourceFile()), new RewriteExecutionContext()).getResults();
         return results;
+    }
+
+    private List<Xml.Document> getDocumentsWrappedInOpenRewriteMavenBuildFile() {
+        return getOpenRewriteMavenBuildFiles()
+                .stream()
+                .map(bf -> bf.getSourceFile())
+                .collect(Collectors.toList());
+    }
+
+    @NotNull
+    private List<OpenRewriteMavenBuildFile> getOpenRewriteMavenBuildFiles() {
+        return this.projectResourceSet
+                .stream()
+                .filter(r -> OpenRewriteMavenBuildFile.class.isInstance(r))
+                .map(OpenRewriteMavenBuildFile.class::cast)
+                .collect(Collectors.toList());
     }
 
     private void processResults(List<Result> results) {
@@ -67,12 +178,4 @@ class MavenBuildFileRefactoring<T extends SourceFile> {
         }
     }
 
-    private void processResult(Result result) {
-        MavenParser parser = MavenParser
-                .builder()
-                .build();
-        Xml.Document wrappedMavenFile = parser.parse(result.getAfter().printAll()).get(0);
-        wrappedMavenFile = (Xml.Document) wrappedMavenFile.withSourcePath(pom.getSourceFile().getSourcePath());
-        pom.replaceWith(wrappedMavenFile);
-    }
 }
