@@ -17,10 +17,12 @@ package org.springframework.sbm.boot.cleanup.actions;
 
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 
+@Slf4j
 public class RemoveRedundantMavenCompilerPluginProperties extends AbstractAction {
 
 	private static final String GROUP_ID = "org.apache.maven.plugins";
@@ -51,8 +53,8 @@ public class RemoveRedundantMavenCompilerPluginProperties extends AbstractAction
 
 					if (sourceLookupValue.equals(targetLookupValue)) {
 						buildFile.setProperty(JAVA_VERSION_PROPERTY, sourceLookupValue);
-						plugin.getConfiguration().setDeclaredStringValue("source", JAVA_VERSION_PLACEHOLDER);
-						plugin.getConfiguration().setDeclaredStringValue("target", JAVA_VERSION_PLACEHOLDER);
+						buildFile.findPlugin(GROUP_ID, ARTIFACT_ID).get().getConfiguration().setDeclaredStringValue("source", JAVA_VERSION_PLACEHOLDER);
+						buildFile.findPlugin(GROUP_ID, ARTIFACT_ID).get().getConfiguration().setDeclaredStringValue("target", JAVA_VERSION_PLACEHOLDER);
 						if(source.get().startsWith("${")){
 							buildFile.deleteProperty(source.get().replace("${", "").replace("}", ""));
 						}
@@ -63,12 +65,14 @@ public class RemoveRedundantMavenCompilerPluginProperties extends AbstractAction
 
 				}
 
-			}); //Plugin exits
+			}); //Plugin exists
 
 			String sourcePropertyValue = buildFile.getProperty(MAVEN_COMPILER_SOURCE_PROPERTY);
 			String targetPropertyValue = buildFile.getProperty(MAVEN_COMPILER_TARGET_PROPERTY);
-
+			log.debug("BuildFile: '%s'\n%s".formatted(buildFile.getSourcePath().toString(), buildFile.print()));
+			log.debug("%s: %s  %s: %s".formatted(MAVEN_COMPILER_SOURCE_PROPERTY, sourcePropertyValue, MAVEN_COMPILER_TARGET_PROPERTY, targetPropertyValue));
 			if (sourcePropertyValue != null && sourcePropertyValue.equals(targetPropertyValue)){
+
 				buildFile.setProperty(JAVA_VERSION_PROPERTY, sourcePropertyValue);
 				buildFile.deleteProperty(MAVEN_COMPILER_SOURCE_PROPERTY);
 				buildFile.deleteProperty(MAVEN_COMPILER_TARGET_PROPERTY);
