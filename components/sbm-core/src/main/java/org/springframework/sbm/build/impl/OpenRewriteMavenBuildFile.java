@@ -519,6 +519,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         }
     }
 
+    private void refreshPomModel() {
+//        apply(new GenericOpenRewriteRecipe<>(() -> new UpdateMavenModel<>()));
+        refactoring.refreshPomModels();
+    }
+
     /**
      * Does not updateClasspathRegistry
      */
@@ -528,7 +533,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             ExcludeDependency excludeDependency = new ExcludeDependency(excludedDependency.getGroupId(), excludedDependency.getArtifactId(), excludedDependency.getScope());
             exclusions.stream().skip(1).forEach(d -> excludeDependency.doNext(new ExcludeDependency(d.getGroupId(), d.getArtifactId(), d.getScope())));
             apply(excludeDependency);
-            apply(new RefreshPomModel()); // TODO: 482: check if required
+            refreshPomModel();
         }
     }
 
@@ -815,10 +820,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public void addRepository(RepositoryDefinition repository) {
-        Recipe recipe = new AddMavenRepository(repository)
-                .doNext(new RefreshPomModel());
-
+        Recipe recipe = new AddMavenRepository(repository);
         apply(recipe);
+        refreshPomModel();
     }
 
     @Override

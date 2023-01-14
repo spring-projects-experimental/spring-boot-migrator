@@ -250,6 +250,7 @@ public class TestProjectContext {
         private Optional<String> springVersion = Optional.empty();
 
         private JavaParser javaParser;
+        private RewriteMavenParser mavenParser = new RewriteMavenParser(new MavenSettingsInitializer());;
 
         public Builder(Path projectRoot) {
             this.projectRoot = projectRoot;
@@ -548,8 +549,6 @@ public class TestProjectContext {
                     new RewritePlainTextParser(),
                     new ResourceParser.ResourceFilter(),
                     eventPublisher);
-
-            RewriteMavenParser mavenParser =  new RewriteMavenParser(new MavenSettingsInitializer());
 
             MavenArtifactDownloader artifactDownloader = new RewriteMavenArtifactDownloader();
 
