@@ -681,7 +681,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public void addPlugin(Plugin plugin) {
-        apply(new AddMavenPlugin((OpenRewriteMavenPlugin) plugin));
+        apply(new AddMavenPlugin((OpenRewriteMavenPlugin) plugin), getResource());
     }
 
     @Override
