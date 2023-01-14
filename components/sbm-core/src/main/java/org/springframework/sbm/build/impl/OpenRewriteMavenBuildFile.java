@@ -579,12 +579,24 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     @Override
-    public List<Dependency> getDependencyManagement() {
+    public List<Dependency> getEffectiveDependencyManagement() {
         MavenResolutionResult pom = getPom();
         if (pom.getPom().getDependencyManagement() == null) {
             return Collections.emptyList();
         }
         return pom.getPom().getDependencyManagement().stream()
+                .map(this::getDependency)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Dependency> getRequestedDependencyManagement() {
+        MavenResolutionResult pom = getPom();
+        if (pom.getPom().getRequested().getDependencyManagement() == null) {
+            return Collections.emptyList();
+        }
+        return pom.getPom().getRequested().getDependencyManagement().stream()
                 .map(this::getDependency)
                 .distinct()
                 .collect(Collectors.toList());
@@ -609,6 +621,14 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .artifactId(d.getArtifactId())
                 .version(d.getVersion())
                 .scope(scopeString(d.getScope()))
+                .build();
+    }
+
+    private Dependency getDependency(ManagedDependency d) {
+        return Dependency.builder()
+                .groupId(d.getGroupId())
+                .artifactId(d.getArtifactId())
+                .version(d.getVersion())
                 .build();
     }
 
