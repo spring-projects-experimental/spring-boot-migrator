@@ -152,7 +152,12 @@ class MavenBuildFileRefactoring<T extends SourceFile> {
     }
 
     private List<Result> executeRecipe(Recipe recipe) {
-        List<Result> results = recipe.run(List.of(pom.getSourceFile()), new RewriteExecutionContext()).getResults();
+        List<Result> results = recipe.run(getDocumentsWrappedInOpenRewriteMavenBuildFile(), new RewriteExecutionContext()).getResults();
+        return results;
+    }
+
+    private List<Result> executeRecipe(Recipe recipe, RewriteSourceFileHolder<Xml.Document> resource) {
+        List<Result> results = recipe.run(List.of(resource.getSourceFile()), new RewriteExecutionContext()).getResults();
         return results;
     }
 
