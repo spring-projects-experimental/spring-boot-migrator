@@ -477,7 +477,6 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 	}
 
 	@Test
-	@Disabled("To be handled ")
 	void multiModuleWithPluginDefinedInParentModuleAndPropertiesInChildModule() {
 		OpenRewriteMavenPlugin mavenPlugin = OpenRewriteMavenPlugin.builder()
 				.groupId("org.apache.maven.plugins")
