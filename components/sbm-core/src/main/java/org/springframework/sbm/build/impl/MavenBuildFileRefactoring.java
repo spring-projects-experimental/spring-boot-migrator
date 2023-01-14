@@ -169,12 +169,17 @@ class MavenBuildFileRefactoring<T extends SourceFile> {
 
     private void processResults(List<Result> results) {
         if (!results.isEmpty()) {
-			// FIXME: Works only on a single POM and does not apply to all other resources
-            if(!(results.get(0).getAfter() instanceof Xml.Document)) {
-                throw new RuntimeException("Return type of refactoring result is not Xml.Document but " + results.get(0).getAfter().getClass() + " with content: \n" + results.get(0).getAfter().printAll());
-            }
-			pom.replaceWith((Xml.Document) results.get(0).getAfter());
-           // results.forEach(c -> processResult(c));
+            results.forEach(r -> {
+                if(!(r.getAfter() instanceof Xml.Document)) {
+                    throw new RuntimeException("Return type of refactoring result is not Xml.Document but " + r.getAfter().getClass() + " with content: \n" + r.getAfter().printAll());
+                }
+                OpenRewriteMavenBuildFile openRewriteMavenBuildFile = getOpenRewriteMavenBuildFiles()
+                        .stream()
+                        .filter(bf -> bf.getSourceFile().getId().equals(r.getAfter().getId()))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("Could not find a BuildFile that wraps Xml.Document with id '%s' in the Result.".formatted(r.getAfter().getId())));
+                openRewriteMavenBuildFile.replaceWith((Xml.Document) r.getAfter());
+            });
         }
     }
 
