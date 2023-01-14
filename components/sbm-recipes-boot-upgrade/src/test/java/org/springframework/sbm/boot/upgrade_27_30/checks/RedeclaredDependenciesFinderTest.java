@@ -297,8 +297,8 @@ class RedeclaredDependenciesFinderTest {
                             </dependency>
                             <dependency>
                                 <groupId>javax.validation</groupId>
-                                <artifactId>javax.validation-api</artifactId>
-                                <version>2.0.0.Final</version>
+                                <artifactId>validation-api</artifactId>
+                                <version>2.0.1.Final</version>
                             </dependency>
                         </dependencies>
                     </dependencyManagement>
@@ -332,7 +332,7 @@ class RedeclaredDependenciesFinderTest {
                     <dependencies>
                         <dependency>
                             <groupId>javax.validation</groupId>
-                            <artifactId>javax.validation-api</artifactId>
+                            <artifactId>validation-api</artifactId>
                             <version>1.1.0.Final</version>
                         </dependency>
                         <dependency>
@@ -344,7 +344,7 @@ class RedeclaredDependenciesFinderTest {
                             <groupId>javax.transaction</groupId>
                             <artifactId>javax.transaction-api</artifactId>
                             <version>1.2</version>
-                        </dependency>             
+                        </dependency>            
                     </dependencies>
                 </project>
                 """;
@@ -363,7 +363,7 @@ class RedeclaredDependenciesFinderTest {
                 Dependency.builder()
                         .groupId("javax.validation")
                         .artifactId("validation-api")
-                        .version("1.1.0.Final").build(), "2.0.0.Final"));
+                        .version("1.1.0.Final").build(), "2.0.1.Final"));
         assertThat(matches).contains(new RedeclaredDependency(
                 Dependency.builder()
                         .groupId("javax.el")
@@ -391,17 +391,20 @@ class RedeclaredDependenciesFinderTest {
                     <dependencyManagement>
                         <dependencies>
                             <dependency>
-                                <groupId>com.dependency.group</groupId>
-                                <artifactId>artifact1</artifactId>
-                                <version>3.0.0</version>
+                                <groupId>javax.validation</groupId>
+                                <artifactId>validation-api</artifactId>
+                                <version>2.0.1.Final</version>
                             </dependency>
                             <dependency>
-                                <groupId>com.dependency.group</groupId>
-                                <artifactId>artifact2</artifactId>
-                                <version>3.0.0</version>
+                                <groupId>javax.annotation</groupId>
+                                <artifactId>javax.annotation-api</artifactId>
+                                <version>1.3.2</version>
                             </dependency>
                         </dependencies>
                     </dependencyManagement>
+                    <modules>
+                        <module>module1</module>
+                    </modules>
                 </project>
                 """;
 
@@ -420,14 +423,14 @@ class RedeclaredDependenciesFinderTest {
                     <packaging>jar</packaging>
                     <dependencies>
                         <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact1</artifactId>
-                            <version>2.0.0</version>
+                            <groupId>javax.validation</groupId>
+                            <artifactId>validation-api</artifactId>
+                            <version>1.1.0.Final</version>
                         </dependency>
                         <dependency>
-                            <groupId>com.dependency.group</groupId>
-                            <artifactId>artifact2</artifactId>
-                            <version>2.0.0</version>
+                            <groupId>javax.annotation</groupId>
+                            <artifactId>javax.annotation-api</artifactId>
+                            <version>1.3</version>
                         </dependency>
                     </dependencies>
                 </project>
@@ -438,14 +441,14 @@ class RedeclaredDependenciesFinderTest {
                 .withMavenBuildFileSource("module1", module1PomXml)
                 .build();
 
-        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of("com.dependency.group:artifact1"));
+        RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of("javax.validation:validation-api"));
         Set<RedeclaredDependency> matches = finder.findMatches(context);
         assertThat(context.getApplicationModules().list()).hasSize(2);
         assertThat(matches).hasSize(1);
         RedeclaredDependency explicitDependency = matches.iterator().next();
-        String explicitVersionDependencyCoordinates = "com.dependency.group:artifact1:2.0.0";
+        String explicitVersionDependencyCoordinates = "javax.validation:validation-api:1.1.0.Final";
         assertThat(explicitDependency.getRedeclaredDependency().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
-        assertThat(explicitDependency.getOriginalVersion()).isEqualTo("3.0.0");
+        assertThat(explicitDependency.getOriginalVersion()).isEqualTo("2.0.1.Final");
     }
 
 }
