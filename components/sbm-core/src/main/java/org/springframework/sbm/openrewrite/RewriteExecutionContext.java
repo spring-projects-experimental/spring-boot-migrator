@@ -30,8 +30,10 @@ import java.util.function.Consumer;
 @Slf4j
 public class RewriteExecutionContext extends InMemoryExecutionContext {
 
+    @Deprecated(forRemoval = true)
     private Optional<ApplicationEventPublisher> appEventPublisher;
 
+    @Deprecated(forRemoval = true)
     public RewriteExecutionContext(ApplicationEventPublisher appEventPublisher) {
         super(createErrorHandler());
         this.appEventPublisher = Optional.of(appEventPublisher);
