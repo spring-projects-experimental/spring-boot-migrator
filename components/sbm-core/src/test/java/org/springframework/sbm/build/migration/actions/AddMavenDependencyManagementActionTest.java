@@ -145,6 +145,7 @@ class AddMavenDependencyManagementActionTest {
                 </project>
                 """;
         assertThat(context.getApplicationModules().getRootModule().getBuildFile().print()).isEqualToIgnoringNewLines(expectedParentPom);
+        assertThat(context.getApplicationModules().getRootModule().getBuildFile().getRequestedDependencyManagement()).hasSize(1);
         assertThat(context.getApplicationModules().findModule("org.example:module1:1.0-SNAPSHOT").get().getBuildFile().print()).isEqualToIgnoringNewLines(APPLICATION_POM);
         assertThat(context.getApplicationModules().findModule("org.example:module2:1.0-SNAPSHOT").get().getBuildFile().print()).isEqualToIgnoringNewLines(COMPONENT_POM);
     }
