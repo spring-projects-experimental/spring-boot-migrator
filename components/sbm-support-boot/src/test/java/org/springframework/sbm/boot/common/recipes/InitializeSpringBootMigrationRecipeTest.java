@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.common.actions.AddSpringBootContextTestClassAction;
 import org.springframework.sbm.boot.common.actions.AddSpringBootMainClassAction;
 import org.springframework.sbm.boot.properties.actions.AddSpringBootApplicationPropertiesAction;
+import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
 import org.springframework.sbm.build.migration.actions.AddDependencies;
 import org.springframework.sbm.build.migration.actions.AddMavenDependencyManagementAction;
 import org.springframework.sbm.build.migration.actions.AddMavenPlugin;
