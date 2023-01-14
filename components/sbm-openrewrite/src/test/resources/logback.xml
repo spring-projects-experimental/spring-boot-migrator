@@ -24,7 +24,11 @@
         </layout>
     </appender>
 
-    <logger name="org" level="warn" additivity="false">
+    <logger name="org.openrewrite" level="warn" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <logger name="org.springframework.sbm" level="warn" additivity="false">
         <appender-ref ref="CONSOLE"/>
     </logger>
 
