@@ -2198,7 +2198,7 @@ public class OpenRewriteMavenBuildFileTest {
 	}
 
 	@Test
-	void deleteProperty() {
+	void deleteProperty_withSingleModule() {
 
 		String pomXml =
 				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
@@ -2254,6 +2254,137 @@ public class OpenRewriteMavenBuildFileTest {
 		assertThat(openRewriteMavenBuildFile.print()).isEqualTo(expected);
 
 	}
+
+    @Test
+    void deletePropertyCalledOnRootModule_withMultiModules() {
+        String rootPom = PomBuilder.buildPom("com.example:parent:1.0")
+                .packaging("pom")
+                .property("maven.compiler.source", "17")
+                .property("maven.compiler.target", "17")
+                .withModules("module1")
+                .build();
+
+        String module1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module1")
+                .packaging("jar")
+                .property("maven.compiler.source", "17")
+                .property("maven.compiler.target", "17")
+                .build();
+
+        ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                .withMavenBuildFileSource("pom.xml", rootPom)
+                .withMavenBuildFileSource("module1/pom.xml", module1Pom)
+                .build();
+
+        BuildFile rootModule = projectContext.getApplicationModules().getRootModule().getBuildFile();
+
+        rootModule.deleteProperty("maven.compiler.source");
+
+        assertThat(rootModule.getProperty("maven.compiler.source")).isNull();
+        assertThat(rootModule.getProperty("maven.compiler.target")).isEqualTo("17");
+        assertThat(rootModule.print()).isEqualTo(  """
+                                                                                          <?xml version="1.0" encoding="UTF-8"?>
+                                                                                          <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                                                                              <modelVersion>4.0.0</modelVersion>
+                                                                                              <groupId>com.example</groupId>
+                                                                                              <artifactId>parent</artifactId>
+                                                                                              <version>1.0</version>
+                                                                                              <packaging>pom</packaging>
+                                                                                              <properties>
+                                                                                                  <maven.compiler.target>17</maven.compiler.target>
+                                                                                              </properties>
+                                                                                              <modules>
+                                                                                                  <module>module1</module>
+                                                                                              </modules>
+                                                                                          </project>
+                                                                                          """);
+
+        BuildFile module1 = projectContext.getApplicationModules().getModule("module1").getBuildFile();
+        assertThat(module1.getProperty("maven.compiler.source")).isEqualTo("17");
+        assertThat(module1.getProperty("maven.compiler.target")).isEqualTo("17");
+        assertThat(module1.print()).isEqualTo("""
+                                                                                          <?xml version="1.0" encoding="UTF-8"?>
+                                                                                          <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                                                                              <modelVersion>4.0.0</modelVersion>
+                                                                                              <parent>
+                                                                                                  <groupId>com.example</groupId>
+                                                                                                  <artifactId>parent</artifactId>
+                                                                                                  <version>1.0</version>
+                                                                                              </parent>
+                                                                                              <artifactId>module1</artifactId>
+                                                                                              <packaging>jar</packaging>
+                                                                                              <properties>
+                                                                                                  <maven.compiler.target>17</maven.compiler.target>
+                                                                                                  <maven.compiler.source>17</maven.compiler.source>
+                                                                                              </properties>
+                                                                                          </project>
+                                                                                          """);
+    }
+
+    @Test
+    void deletePropertyCalledOnChildModule_withMultiModules() {
+        String rootPom = PomBuilder.buildPom("com.example:parent:1.0")
+                .packaging("pom")
+                .property("maven.compiler.source", "17")
+                .property("maven.compiler.target", "17")
+                .withModules("module1")
+                .build();
+
+        String module1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module1")
+                .packaging("jar")
+                .property("maven.compiler.source", "17")
+                .property("maven.compiler.target", "17")
+                .build();
+
+        ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                .withMavenBuildFileSource("pom.xml", rootPom)
+                .withMavenBuildFileSource("module1/pom.xml", module1Pom)
+                .build();
+
+        BuildFile rootModule = projectContext.getApplicationModules().getRootModule().getBuildFile();
+        BuildFile module1 = projectContext.getApplicationModules().getModule("module1").getBuildFile();
+
+        module1.deleteProperty("maven.compiler.source");
+
+        assertThat(rootModule.getProperty("maven.compiler.source")).isEqualTo("17");
+        assertThat(rootModule.getProperty("maven.compiler.target")).isEqualTo("17");
+        assertThat(rootModule.print()).isEqualTo("""
+                                                  <?xml version="1.0" encoding="UTF-8"?>
+                                                  <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                                      <modelVersion>4.0.0</modelVersion>
+                                                      <groupId>com.example</groupId>
+                                                      <artifactId>parent</artifactId>
+                                                      <version>1.0</version>
+                                                      <packaging>pom</packaging>
+                                                      <properties>
+                                                          <maven.compiler.target>17</maven.compiler.target>
+                                                          <maven.compiler.source>17</maven.compiler.source>
+                                                      </properties>
+                                                      <modules>
+                                                          <module>module1</module>
+                                                      </modules>
+                                                  </project>
+                                                  """);
+
+
+        assertThat(module1.getProperty("maven.compiler.source")).isNull();
+        assertThat(module1.getProperty("maven.compiler.target")).isEqualTo("17");
+        assertThat(module1.print()).isEqualTo("""
+                                              <?xml version="1.0" encoding="UTF-8"?>
+                                              <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                                  <modelVersion>4.0.0</modelVersion>
+                                                  <parent>
+                                                      <groupId>com.example</groupId>
+                                                      <artifactId>parent</artifactId>
+                                                      <version>1.0</version>
+                                                  </parent>
+                                                  <artifactId>module1</artifactId>
+                                                  <packaging>jar</packaging>
+                                                  <properties>
+                                                      <maven.compiler.target>17</maven.compiler.target>
+                                                  </properties>
+                                              </project>
+                                              """);
+    }
 
 	@Test
     void removePluginsMatchingRegex() {
@@ -2428,7 +2559,6 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
-    @Disabled
     // FIXME: To make this setProperty work with multi-module projects the MavenBuildFileRefactoring as well as the ResourceWrapper logic must be refactored.
     void setProperty() {
         String parentPom = PomBuilder.buildPom("com.example:parent:0.1")
@@ -2444,8 +2574,8 @@ public class OpenRewriteMavenBuildFileTest {
                 .build();
         BuildFile moduleABuildFile = context.getApplicationModules().getTopmostApplicationModules().get(0).getBuildFile();
          moduleABuildFile.setProperty("some-property", "different-value");
-         // FIXME: #507 set property recipes used require access to all build files
-//        assertThat(moduleABuildFile.getProperty("some-property")).isEqualTo("different-value");
+
+        assertThat(moduleABuildFile.getProperty("some-property")).isEqualTo("different-value");
         assertThat(context.getApplicationModules().getRootModule().getBuildFile().getProperty("some-property")).isEqualTo("value1");
     }
 
