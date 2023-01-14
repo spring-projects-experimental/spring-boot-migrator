@@ -434,7 +434,7 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 	}
 
 	@Test
-	void multiModuleWithPluginAndPropertiesDefinedInParentModule() throws JsonProcessingException {
+	void multiModuleWithPluginAndPropertiesDefinedInParentModule() {
 
 		OpenRewriteMavenPlugin mavenPlugin = OpenRewriteMavenPlugin.builder()
 				.groupId("org.apache.maven.plugins")
