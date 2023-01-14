@@ -311,7 +311,9 @@ public class MavenProjectParser {
                 }
             }
         }
-        Collections.reverse(sorted);
+        sorted.sort((d, e) -> d.getSourcePath().toString().compareTo(e.getSourcePath().toString()));
+        String collect = sorted.stream().map(Xml.Document::getSourcePath).map(Object::toString).collect(Collectors.joining(", "));
+        log.debug("Sorted Maven files: \"%s\"".formatted(collect));
         return sorted;
     }
 
