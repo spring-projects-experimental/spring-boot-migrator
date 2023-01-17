@@ -20,11 +20,15 @@ import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
 
+/**
+ * Calculates and returns the base package when given a list of JavaSource
+ *
+ * @author Soumya Prakash Behera
+ */
 @Component
 @RequiredArgsConstructor
 public class BasePackageCalculator {
@@ -32,34 +36,36 @@ public class BasePackageCalculator {
     private final SbmApplicationProperties sbmApplicationProperties;
 
     public String calculateBasePackage(List<JavaSource> javaSources) {
-       if(javaSources.isEmpty()) return sbmApplicationProperties.getDefaultBasePackage();
-
-        List<JavaSource> sortableJavaSources = new ArrayList<>();
-        sortableJavaSources.addAll(javaSources);
-        javaSources = sortableJavaSources;
-        javaSources.sort(Comparator.comparing(js -> js.getPackageName().split("\\.").length));
-        JavaSource javaSourceInBasePackage = javaSources.get(0);
-        if(javaSources.size() > 1) {
-            JavaSource shortestPackage = javaSourceInBasePackage;
-            String shortestPackageName = shortestPackage.getPackageName();
-
-            Optional<JavaSource> javaSourceInDifferentBasePackage = javaSources.stream()
-                    .filter(js -> !js.getPackageName().startsWith(shortestPackageName))
-                    .findFirst();
-
-            if(javaSourceInDifferentBasePackage.isPresent()) {
-                return sbmApplicationProperties.getDefaultBasePackage();
-                /*
-                throw new RuntimeException(String.format("Could not calculate base package. Found at least two conflicting candidates: [%s] and [%s] found in these resources [%s] and [%s]",
-                        javaSources.get(0).getPackageName(),
-                        javaSourceInDifferentBasePackage.get().getPackageName(),
-                        javaSources.get(0).getAbsolutePath(),
-                        javaSourceInDifferentBasePackage.get().getAbsolutePath()));
-                 */
-            }
+        if(javaSources.isEmpty()) {
+            return sbmApplicationProperties.getDefaultBasePackage();
         }
 
-        return javaSourceInBasePackage.getPackageName();
+        if(javaSources.size() == 1) {
+           return javaSources.get(0).getPackageName();
+        }
+
+        List<String[]> javaSourcesAsStringArray = new ArrayList<>();
+
+        for(JavaSource javaSource : javaSources) {
+            javaSourcesAsStringArray.add(javaSource.getPackageName().split("\\."));
+        }
+
+        javaSourcesAsStringArray.sort(Comparator.comparingInt(str -> str.length));
+
+        String[] shortestPackage = javaSourcesAsStringArray.get(0);
+
+        StringBuilder sb = new StringBuilder();
+
+        for(int i = 0; i < shortestPackage.length; i++) {
+            for (String[] strArray : javaSourcesAsStringArray) {
+                if(!strArray[i].equals(shortestPackage[i])) {
+                    return sb.isEmpty() ? "" : sb.substring(1);
+                }
+            }
+            sb.append(".").append(shortestPackage[i]);
+        }
+
+        return String.join(".", shortestPackage);
     }
 
 }

@@ -78,7 +78,7 @@ class JavaSourceSetImplTest {
                 .getMainJavaSourceSet();
 
         JavaSourceLocation location = sut.getJavaSourceLocation();
-        assertThat(location.getPackageName()).isEqualTo(sbmApplicationProperties.getDefaultBasePackage());
+        assertThat(location.getPackageName()).isEqualTo("org.springframework.sbm");
         assertThat(location.getSourceFolder()).isEqualTo(TestProjectContext.getDefaultProjectRoot().resolve("src/main/java"));
     }
 
@@ -104,7 +104,7 @@ class JavaSourceSetImplTest {
                 .getMainJavaSourceSet();
 
         JavaSourceLocation location = sut.getJavaSourceLocation();
-        assertThat(location.getPackageName()).isEqualTo(sbmApplicationProperties.getDefaultBasePackage());
+        assertThat(location.getPackageName()).isEqualTo("org.springframework");
     }
 
     @Test

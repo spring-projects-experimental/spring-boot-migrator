@@ -62,7 +62,7 @@ class BasePackageCalculatorTest {
 
         List<JavaSource> javaSources = getJavaSources(package1, package2, package3);
 
-        assertThat(sut.calculateBasePackage(javaSources)).isEqualTo(DEFAULT_PACKAGENAME);
+        assertThat(sut.calculateBasePackage(javaSources)).isEqualTo("");
     }
 
     @Test
@@ -83,10 +83,29 @@ class BasePackageCalculatorTest {
         String package1 = "com.example.foo";
         String package2 = "com.example.foo";
         String package3 = "com.example.bar";
-
         List<JavaSource> javaSources = getJavaSources(package1, package2, package3);
 
-        assertThat(sut.calculateBasePackage(javaSources)).isEqualTo(DEFAULT_PACKAGENAME);
+        assertThat(sut.calculateBasePackage(javaSources)).isEqualTo("com.example");
+    }
+
+    @Test
+    void calculateBasePackageWithOneBasePackage3() {
+        String package1 = "com.acme.some.A.C";
+        String package2 = "com.acme.other.B";
+
+        List<JavaSource> javaSources = getJavaSources(package1, package2);
+
+        assertThat(sut.calculateBasePackage(javaSources)).isEqualTo("com.acme");
+    }
+
+    @Test
+    void calculateBasePackageWithSameBasePackages() {
+        String package1 = "com.acme.some.B";
+        String package2 = "com.acme.some.B";
+
+        List<JavaSource> javaSources = getJavaSources(package1, package2);
+
+        assertThat(sut.calculateBasePackage(javaSources)).isEqualTo("com.acme.some.B");
     }
 
     @Test
@@ -104,7 +123,7 @@ class BasePackageCalculatorTest {
         List<JavaSource> javaSources = getJavaSources(package1, package2, package3);
 
         Path curDir = Path.of(".").toAbsolutePath().normalize();
-        assertThat(sut.calculateBasePackage(javaSources)).isEqualTo(DEFAULT_PACKAGENAME);
+        assertThat(sut.calculateBasePackage(javaSources)).isEqualTo("com.example");
     }
 
     @NotNull
