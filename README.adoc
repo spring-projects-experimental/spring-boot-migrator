@@ -33,7 +33,9 @@ ifdef::env-github[]
 image:https://img.youtube.com/vi/RKXblzn8lFg/maxresdefault.jpg[link=https://www.youtube.com/embed/RKXblzn8lFg]
 endif::[]
 
-=== Try the Spring Boot Upgrade tool
+=== Try the Spring Boot Upgrade Tool
+NOTE: **Use JDK 17**
+
 . Download the https://github.com/spring-projects-experimental/spring-boot-migrator/releases/download/latest/spring-boot-upgrade.jar[spring-boot-upgrade.jar]
 . Run `java -jar --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED spring-boot-upgrade.jar <path-to-application>`
 
