@@ -18,6 +18,9 @@ package org.springframework.sbm.jee.jaxrs.recipes;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.Recipe;
 
+/**
+ * @author Vincent Botteman
+ */
 public class ReplaceRequestParameterProperties extends Recipe {
     public ReplaceRequestParameterProperties() {
         doNext(new CopyAnnotationAttribute(

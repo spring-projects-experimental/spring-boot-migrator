@@ -25,6 +25,9 @@ import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.search.UsesType;
 import org.springframework.sbm.jee.jaxrs.recipes.visitors.RemoveAnnotationIfAccompaniedVisitor;
 
+/**
+ * @author Vincent Botteman
+ */
 @EqualsAndHashCode(callSuper = true)
 @Value
 public class RemoveAnnotationIfAccompanied extends Recipe {

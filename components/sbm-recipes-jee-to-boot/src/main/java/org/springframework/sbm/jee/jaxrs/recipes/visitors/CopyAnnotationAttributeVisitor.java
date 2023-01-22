@@ -29,6 +29,9 @@ import org.springframework.sbm.jee.utils.AnnotationUtils;
 
 import java.util.Optional;
 
+/**
+ * @author Vincent Botteman
+ */
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class CopyAnnotationAttributeVisitor extends JavaIsoVisitor<ExecutionContext> {

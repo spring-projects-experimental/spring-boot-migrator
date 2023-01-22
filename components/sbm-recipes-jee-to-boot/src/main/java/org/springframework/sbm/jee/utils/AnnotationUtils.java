@@ -21,6 +21,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Optional;
 
+/**
+ * @author Vincent Botteman
+ */
 public final class AnnotationUtils {
     public static final String VALUE_ATTRIBUTE_NAME = "value";
 

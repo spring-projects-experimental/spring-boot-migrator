@@ -25,6 +25,9 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
 
+/**
+ * @author Vincent Botteman
+ */
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class RemoveAnnotationIfAccompaniedVisitor extends JavaIsoVisitor<ExecutionContext> {

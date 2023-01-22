@@ -26,6 +26,9 @@ import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.search.UsesType;
 import org.springframework.sbm.jee.jaxrs.recipes.visitors.CopyAnnotationAttributeVisitor;
 
+/**
+ * @author Vincent Botteman
+ */
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class CopyAnnotationAttribute extends Recipe {
