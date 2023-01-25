@@ -17,9 +17,11 @@ package org.springframework.sbm.build.api;
 
 import io.micrometer.core.lang.Nullable;
 import lombok.*;
+import org.openrewrite.semver.LatestRelease;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Getter
@@ -64,6 +66,15 @@ public class Dependency {
                 tagString("classifier", classifier) +
                 exclusionString() +
                 "</dependency>";
+    }
+
+    public boolean isRecentThen(Dependency that){
+        return this.equals(that) && comparator().compare(this, that) >= 0;
+    }
+
+    private Comparator<Dependency> comparator(){
+        LatestRelease latestRelease = new LatestRelease(null);
+        return Comparator.comparing(Dependency::getVersion, latestRelease::compare);
     }
 
     private String exclusionString() {
