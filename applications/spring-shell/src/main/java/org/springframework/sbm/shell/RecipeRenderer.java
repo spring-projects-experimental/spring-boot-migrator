@@ -25,6 +25,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * @author Modified by Mahendra Rao(bsmahi)
+ */
 @Component
 public class RecipeRenderer {
 
