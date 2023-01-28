@@ -23,23 +23,23 @@ package org.springframework.sbm.shell;
  */
 public class ExceptionUtil {
 
-	public static Throwable getDeepestCause(Throwable e) {
-		Throwable cause = e;
-		Throwable parent = e.getCause();
-		while (parent != null && parent != e) {
-			cause = parent;
-			parent = cause.getCause();
-		}
-		return cause;
-	}
+    public static Throwable getDeepestCause(Throwable e) {
+        Throwable cause = e;
+        Throwable parent = e.getCause();
+        while (parent != null && parent != e) {
+            cause = parent;
+            parent = cause.getCause();
+        }
+        return cause;
+    }
 
-	public static String getMessage(Throwable e) {
-		// The message of nested exception is usually more interesting than the
-		// one on top.
-		Throwable cause = getDeepestCause(e);
-		String errorType = cause.getClass().getSimpleName();
-		String msg = cause.getMessage();
-		return errorType + ": " + msg;
-	}
-	
+    public static String getMessage(Throwable e) {
+        // The message of nested exception is usually more interesting than the
+        // one on top.
+        Throwable cause = getDeepestCause(e);
+        String errorType = cause.getClass().getSimpleName();
+        String msg = cause.getMessage();
+        return errorType + ": " + msg;
+    }
+
 }

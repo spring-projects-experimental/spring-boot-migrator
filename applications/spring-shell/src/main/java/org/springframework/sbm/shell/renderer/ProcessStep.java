@@ -80,7 +80,7 @@ public class ProcessStep implements ProgressStep {
         return isPaused;
     }
 
-    private class Loader {
+    private static class Loader {
         private static final int LENGTH = 4;
         private int cnt = 0;
         private String renderLoader() {

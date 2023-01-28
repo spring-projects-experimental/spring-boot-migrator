@@ -25,14 +25,14 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Renders progress for Actions executed by a Recipe to stdout.
- *
+ * <p>
  * A stack can either contain a Log message or a Process.
  * Log messages are shown once and processes have a start and an end and are rendered as running in between using a
  * very simple loader.
  * The element on top of the stack is the displayed to the user.
  * the render() method should be called by a scheduled thread to trigger the rewriting for a process in the stack.
  * This will render a loader and signalize a running process to the user.
- *
+ * <p>
  * Messages send to console by Logback (info, warn and error level) are rerouted to methods in this class.
  * The rerouting is started with the first started process and stopped when all processes finished or failed.
  *
@@ -58,9 +58,9 @@ public class RecipeProgressRenderer {
         final ProgressRendererLogbackLogAdapter errorLogAdapter;
         errorLogAdapter = new ProgressRendererLogbackLogAdapter(Map.of(
                 // route logback logs of certain level to their render methods
-                Level.ERROR, (message) -> this.logError(message),
-                Level.INFO, (message) -> this.logMessage(message),
-                Level.WARN, (message) -> this.logWarning(message)
+                Level.ERROR, this::logError,
+                Level.INFO, this::logMessage,
+                Level.WARN, this::logWarning
         ));
         return errorLogAdapter;
     }
@@ -95,7 +95,7 @@ public class RecipeProgressRenderer {
         if (!stepsDeque.isEmpty()) {
             finish();
         }
-        if(stepsDeque.isEmpty()) {
+        if (stepsDeque.isEmpty()) {
 //            errorLogAdapter.stop();
         }
     }
