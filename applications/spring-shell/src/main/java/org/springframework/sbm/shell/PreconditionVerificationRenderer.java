@@ -23,6 +23,9 @@ import org.springframework.sbm.engine.precondition.PreconditionCheckResult;
 import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author Modified by Mahendra Rao(bsmahi)
+ */
 @Component
 public class PreconditionVerificationRenderer {
 
@@ -31,9 +34,7 @@ public class PreconditionVerificationRenderer {
         stringBuilder.style(stringBuilder.style().DEFAULT.bold().foreground(Colors.rgbColor("black")));
         stringBuilder.append("\n\n").append(String.format("Checked preconditions for '%s'", result.getProjectRoot())).append("\n");
 
-        result.getResults().forEach(r -> {
-            stringBuilder.append(renderCheckResult(r));
-        });
+        result.getResults().forEach(r -> stringBuilder.append(renderCheckResult(r)));
         stringBuilder.append("\n");
         return stringBuilder.toAnsi();
     }
