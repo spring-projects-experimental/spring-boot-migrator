@@ -138,7 +138,9 @@ public class MavenProjectParser {
 
             List<Marker> resourceMarker = new ArrayList(javaProvenanceMarkers);
             resourceMarker.add(mainSourceSet);
-            resourceMarker.add(gitProvenance);
+            if(gitProvenance != null) {
+                resourceMarker.add(gitProvenance);
+            }
             List<SourceFile> mainResources = resourceParser.parse(projectDirectory, resourceList, resourceMarker);
             sourceFiles.addAll(mainResources);
 
@@ -161,7 +163,9 @@ public class MavenProjectParser {
             List<Resource> filteredResources = resourceParser.filter(projectDirectory, testResourcePaths, resources, relativeModuleDir);
             List<Marker> testResourceMarker = new ArrayList(javaProvenanceMarkers);
             testResourceMarker.add(testSourceSet);
-            testResourceMarker.add(gitProvenance);
+            if(gitProvenance != null) {
+                testResourceMarker.add(gitProvenance);
+            }
             List<SourceFile> testResources = resourceParser.parse(projectDirectory, filteredResources, testResourceMarker);
             sourceFiles.addAll(testResources);
         }
