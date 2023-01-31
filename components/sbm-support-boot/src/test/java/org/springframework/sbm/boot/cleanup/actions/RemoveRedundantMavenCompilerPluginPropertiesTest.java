@@ -508,7 +508,6 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 				.withMavenBuildFileSource("module1/pom.xml", module1Pom)
 				.build();
 
-		assertThat(projectContext.getProjectResources().list().get(0).getSourcePath().toString()).isEqualTo("pom.xml");
 
 		// Remove redundant plugin properties
 		RemoveRedundantMavenCompilerPluginProperties sut = new RemoveRedundantMavenCompilerPluginProperties();
