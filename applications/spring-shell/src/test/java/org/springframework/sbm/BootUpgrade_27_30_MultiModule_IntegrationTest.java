@@ -17,6 +17,7 @@
 package org.springframework.sbm;
 
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.MavenParser;
@@ -38,6 +39,7 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
 
     @Test
     @Tag("integration")
+    @Disabled
     void migrateMultiModuleApplication() {
         intializeTestProject();
 

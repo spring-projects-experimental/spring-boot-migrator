@@ -50,13 +50,18 @@
           - org.openrewrite.maven.spring.UpgradeUnmanagedSpringProject:
               versionPattern: "2\\.7\\..*"
               newVersion: 3.0.0
+          - org.openrewrite.maven.UpgradeDependencyVersion:
+              groupId: org.ehcache
+              artifactId: "*"
+              newVersion: 3.10.x
           - org.openrewrite.maven.ChangeDependencyClassifier:
               groupId: org.ehcache
               artifactId: ehcache
               newClassifier: jakarta
-          - org.openrewrite.maven.ChangeDependencyVersion:
-              dependencyPattern: org.ehcache:ehcache
-              newVersion: 3.10.0
+          - org.openrewrite.maven.ChangeDependencyClassifier:
+              groupId: org.ehcache
+              artifactId: ehcache-transactions
+              newClassifier: jakarta
           - org.openrewrite.maven.UpgradeParentVersion:
               groupId: org.springframework.boot
               artifactId: spring-boot-starter-parent
