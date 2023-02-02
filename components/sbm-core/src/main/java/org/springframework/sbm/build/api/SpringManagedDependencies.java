@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.api;
 
+import org.openrewrite.maven.MavenDownloadingException;
 import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.GroupArtifactVersion;
 import org.openrewrite.maven.tree.MavenRepository;
@@ -47,9 +48,13 @@ public class SpringManagedDependencies {
     }
 
     private SpringManagedDependencies(GroupArtifactVersion groupArtifactVersion){
-        dependencies = new MavenPomDownloader(Collections.emptyMap(), new RewriteExecutionContext())
-                .download(groupArtifactVersion, null, null, SPRING_REPOSITORIES)
-                .getDependencies();
+        try {
+            dependencies = new MavenPomDownloader(Collections.emptyMap(), new RewriteExecutionContext())
+                    .download(groupArtifactVersion, null, null, SPRING_REPOSITORIES)
+                    .getDependencies();
+        } catch (MavenDownloadingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Stream<Dependency> stream(){
