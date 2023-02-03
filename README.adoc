@@ -24,7 +24,7 @@ ____
 
 
 
-== Spring Boot 3.0 Upgrades
+== Spring Boot 3.0 Upgrade - Interactive Web UI
 We are working on automated upgrade from Spring Boot 2.7 to Spring Boot 3.0.
 
 Click the image to watch a demo video [2:26]
@@ -98,7 +98,7 @@ The recipes either apply automated migrations or guide users on their migration 
 image::images/apply.png[]
 
 
-== Getting started
+== Spring Boot 3.0 Migrator - Java CLI
 
 * Download the latest release from here: https://github.com/spring-projects-experimental/spring-boot-migrator/releases/latest[Spring Boot Migrator Releases]
 * Start the application: `java -jar spring-boot-migrator.jar`
