@@ -160,12 +160,6 @@
         description: Remove redundant @ConstructorBinding annotations when applicable
         recipeList:
           - org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation
-    - type: org.springframework.sbm.engine.recipe.OpenRewriteNamedRecipeAdapter
-      condition:
-        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-        versionPattern: "3\\.0\\..*"
-      description: Replace javax with new jakarta packages
-      openRewriteRecipeName: org.openrewrite.java.migrate.JavaxMigrationToJakarta
 
     - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
       condition:

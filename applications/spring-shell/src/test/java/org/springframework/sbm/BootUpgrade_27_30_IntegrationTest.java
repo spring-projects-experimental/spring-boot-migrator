@@ -30,7 +30,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-@Disabled("Falky at CI hence disabling it")
 public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass {
 
     @Override
@@ -46,6 +45,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         scanProject();
 
         applyRecipe("boot-2.7-3.0-dependency-version-update");
+        applyRecipe("sbu30-migrate-to-jakarta-packages");
 
         buildProject();
         verifyParentPomVersion();
@@ -56,9 +56,32 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         verifyAutoConfigurationIsRefactored();
         verifyEhCacheVersionIsUpgraded();
         verifyJohnzonCoreDependencyIsUpgraded();
-        verifyWireMockDependency();
+        verifyJavaxMigrationToJakarta();
+// TODO: Verify if wiremock recipe is required for 3.0.0 migration
+//        verifyWireMockDependency();
         verifySpringCloudDependency();
-}
+    }
+
+    private void verifyJavaxMigrationToJakarta() {
+
+        String studentClass = loadJavaFile(
+                "org.springboot.example.upgrade",
+                "Student");
+
+        assertThat(studentClass).isEqualTo("""
+                package org.springboot.example.upgrade;
+                                
+                import jakarta.persistence.Entity;
+                import jakarta.persistence.Id;
+                                
+                @Entity
+                public class Student {
+                    @Id
+                    private long id;
+                    private String name;
+                }
+                """);
+    }
 
     private void verifyWireMockDependency() {
         Optional<Dependency> wireMock =
@@ -168,7 +191,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                 }
                 """);
 
-        String studentRepoRx= loadJavaFile("org.springboot.example.upgrade", "StudentRepoRxJava3Sorting");
+        String studentRepoRx = loadJavaFile("org.springboot.example.upgrade", "StudentRepoRxJava3Sorting");
 
         assertThat(studentRepoRx).isEqualTo("""
                 package org.springboot.example.upgrade;
@@ -201,57 +224,57 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
     private void verifyYamlConfigurationUpdate() {
         String micrometerClass = loadFile(Path.of("src/main/resources/application.yaml"));
         assertThat(micrometerClass).isEqualTo(
-                        "spring:\n" +
-                                "  datasource:\n" +
-                                "    url: jdbc:h2:mem:testdb\n" +
-                                "    driverClassName: org.h2.Driver\n" +
-                                "  jpa:\n" +
-                                "    database-platform: org.hibernate.dialect.H2Dialect\n" +
-                                "  elasticsearch:\n" +
-                                "    connection-timeout: '1'\n" +
-                                "    password: testpassword\n" +
-                                "    socket-timeout: '2'\n" +
-                                "    restclient.sniffer.delay-after-failure: '3'\n" +
-                                "    restclient.sniffer.interval: '4'\n" +
-                                "    username: username\n" +
-                                "  security:\n" +
-                                "    saml2:\n" +
-                                "      relyingparty:\n" +
-                                "        registration:\n" +
-                                "          idpone:\n" +
-                                "            assertingparty:\n" +
-                                "              verification:\n" +
-                                "                credentials:\n" +
-                                "                  certificate-location: classpath:saml/idpone.crt\n" +
-                                "              entity-id: https://idpone.com\n" +
-                                "              sso-url: https://idpone.com\n" +
-                                "  cassandra:\n" +
-                                "    keyspaceName: testKeySpace\n" +
-                                "    contactPoints: localhost\n" +
-                                "    port: 9042\n" +
-                                "    username: testusername\n" +
-                                "    schemaAction: NONE\n" +
-                                "    request:\n" +
-                                "      timeout: 10s\n" +
-                                "    connection:\n" +
-                                "      connectTimeout: 10s\n" +
-                                "      initQueryTimeout: 10s\n" +
-                                "  elasticsearch.connection-timeout: '1000'\n" +
-                                "  elasticsearch.webclient.max-in-memory-size: '122'\n" +
-                                "  elasticsearch.password: abc\n" +
-                                "  elasticsearch.socket-timeout: '100'\n" +
-                                "  elasticsearch.username: testUser\n" +
-                                "  sql.init.data-locations: testdata\n" +
-                                "  sql.init.password: password\n" +
-                                "  sql.init.username: sa\n" +
-                                "  sql.init.mode: mode1\n" +
-                                "  sql.init.platform: pls\n" +
-                                "  sql.init.schema-locations: table1\n" +
-                                "  sql.init.password: password\n" +
-                                "  sql.init.username: sa\n" +
-                                "  sql.init.separator: k\n" +
-                                "  sql.init.encoding: UTF-8\n" +
-                                "server.reactive.session.cookie.same-site: 'true'\n");
+                "spring:\n" +
+                        "  datasource:\n" +
+                        "    url: jdbc:h2:mem:testdb\n" +
+                        "    driverClassName: org.h2.Driver\n" +
+                        "  jpa:\n" +
+                        "    database-platform: org.hibernate.dialect.H2Dialect\n" +
+                        "  elasticsearch:\n" +
+                        "    connection-timeout: '1'\n" +
+                        "    password: testpassword\n" +
+                        "    socket-timeout: '2'\n" +
+                        "    restclient.sniffer.delay-after-failure: '3'\n" +
+                        "    restclient.sniffer.interval: '4'\n" +
+                        "    username: username\n" +
+                        "  security:\n" +
+                        "    saml2:\n" +
+                        "      relyingparty:\n" +
+                        "        registration:\n" +
+                        "          idpone:\n" +
+                        "            assertingparty:\n" +
+                        "              verification:\n" +
+                        "                credentials:\n" +
+                        "                  certificate-location: classpath:saml/idpone.crt\n" +
+                        "              entity-id: https://idpone.com\n" +
+                        "              sso-url: https://idpone.com\n" +
+                        "  cassandra:\n" +
+                        "    keyspaceName: testKeySpace\n" +
+                        "    contactPoints: localhost\n" +
+                        "    port: 9042\n" +
+                        "    username: testusername\n" +
+                        "    schemaAction: NONE\n" +
+                        "    request:\n" +
+                        "      timeout: 10s\n" +
+                        "    connection:\n" +
+                        "      connectTimeout: 10s\n" +
+                        "      initQueryTimeout: 10s\n" +
+                        "  elasticsearch.connection-timeout: '1000'\n" +
+                        "  elasticsearch.webclient.max-in-memory-size: '122'\n" +
+                        "  elasticsearch.password: abc\n" +
+                        "  elasticsearch.socket-timeout: '100'\n" +
+                        "  elasticsearch.username: testUser\n" +
+                        "  sql.init.data-locations: testdata\n" +
+                        "  sql.init.password: password\n" +
+                        "  sql.init.username: sa\n" +
+                        "  sql.init.mode: mode1\n" +
+                        "  sql.init.platform: pls\n" +
+                        "  sql.init.schema-locations: table1\n" +
+                        "  sql.init.password: password\n" +
+                        "  sql.init.username: sa\n" +
+                        "  sql.init.separator: k\n" +
+                        "  sql.init.encoding: UTF-8\n" +
+                        "server.reactive.session.cookie.same-site: 'true'\n");
     }
 
 
@@ -259,56 +282,58 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         String applicationProperties = loadFile(Path.of("src/main/resources/application.properties"));
         assertThat(applicationProperties).isEqualTo(
-                        "spring.elasticsearch.connection-timeout=1000\n" +
-                                "spring.elasticsearch.webclient.max-in-memory-size=122\n" +
-                                "spring.elasticsearch.password=abc\n" +
-                                "spring.elasticsearch.socket-timeout=100\n" +
-                                "spring.elasticsearch.username=testUser\n" +
-                                "\n" +
-                                "spring.sql.init.data-locations=testdata\n" +
-                                "spring.sql.init.password=password\n" +
-                                "spring.sql.init.username=username\n" +
-                                "spring.sql.init.mode=mode1\n" +
-                                "spring.sql.init.platform=pls\n" +
-                                "spring.sql.init.schema-locations=table1\n" +
-                                "spring.sql.init.password=password2\n" +
-                                "spring.sql.init.username=username2\n" +
-                                "spring.sql.init.separator=k\n" +
-                                "spring.sql.init.encoding=UTF-8\n" +
-                                "\n" +
-                                "spring.elasticsearch.connection-timeout=1\n" +
-                                "spring.elasticsearch.password=testpassword\n" +
-                                "spring.elasticsearch.socket-timeout=2\n" +
-                                "spring.elasticsearch.restclient.sniffer.delay-after-failure=3\n" +
-                                "spring.elasticsearch.restclient.sniffer.interval=4\n" +
-                                "spring.elasticsearch.username=username\n" +
-                                "\n" +
-                                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.entity-id=https://idpone.com\n" +
-                                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.sso-url=https://idpone.com\n" +
-                                "spring.security.saml2.relyingparty.registration.idpone.assertingparty.verification.credentials.certificate-location=classpath:saml/idpone.crt\n" +
-                                "\n" +
-                                "server.reactive.session.cookie.same-site=true\n" +
-                                "\n" +
-                                "spring.datasource.url=jdbc:h2:mem:testdb\n" +
-                                "spring.datasource.driverClassName=org.h2.Driver\n" +
-                                "spring.datasource.username=sa\n" +
-                                "spring.datasource.password=password\n" +
-                                "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect\n" +
-                                "\n" +
-                                "spring.cassandra.keyspace-name=testKeySpace\n" +
-                                "spring.cassandra.port=9042\n" +
-                                "spring.cassandra.contact-points=localhost\n" +
-                                "spring.cassandra.username=testusername\n" +
-                                "spring.cassandra.schema-action=NONE\n" +
-                                "spring.cassandra.request.timeout=10s\n" +
-                                "spring.cassandra.connection.connect-timeout=10s\n" +
-                                "spring.cassandra.connection.init-query-timeout=10s\n");
+                "spring.elasticsearch.connection-timeout=1000\n" +
+                        "spring.elasticsearch.webclient.max-in-memory-size=122\n" +
+                        "spring.elasticsearch.password=abc\n" +
+                        "spring.elasticsearch.socket-timeout=100\n" +
+                        "spring.elasticsearch.username=testUser\n" +
+                        "\n" +
+                        "spring.sql.init.data-locations=testdata\n" +
+                        "spring.sql.init.password=password\n" +
+                        "spring.sql.init.username=username\n" +
+                        "spring.sql.init.mode=mode1\n" +
+                        "spring.sql.init.platform=pls\n" +
+                        "spring.sql.init.schema-locations=table1\n" +
+                        "spring.sql.init.password=password2\n" +
+                        "spring.sql.init.username=username2\n" +
+                        "spring.sql.init.separator=k\n" +
+                        "spring.sql.init.encoding=UTF-8\n" +
+                        "\n" +
+                        "spring.elasticsearch.connection-timeout=1\n" +
+                        "spring.elasticsearch.password=testpassword\n" +
+                        "spring.elasticsearch.socket-timeout=2\n" +
+                        "spring.elasticsearch.restclient.sniffer.delay-after-failure=3\n" +
+                        "spring.elasticsearch.restclient.sniffer.interval=4\n" +
+                        "spring.elasticsearch.username=username\n" +
+                        "\n" +
+                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.entity-id=https://idpone.com\n" +
+                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.sso-url=https://idpone.com\n" +
+                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.verification.credentials.certificate-location=classpath:saml/idpone.crt\n" +
+                        "\n" +
+                        "server.reactive.session.cookie.same-site=true\n" +
+                        "\n" +
+                        "spring.datasource.url=jdbc:h2:mem:testdb\n" +
+                        "spring.datasource.driverClassName=org.h2.Driver\n" +
+                        "spring.datasource.username=sa\n" +
+                        "spring.datasource.password=password\n" +
+                        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect\n" +
+                        "\n" +
+                        "spring.cassandra.keyspace-name=testKeySpace\n" +
+                        "spring.cassandra.port=9042\n" +
+                        "spring.cassandra.contact-points=localhost\n" +
+                        "spring.cassandra.username=testusername\n" +
+                        "spring.cassandra.schema-action=NONE\n" +
+                        "spring.cassandra.request.timeout=10s\n" +
+                        "spring.cassandra.connection.connect-timeout=10s\n" +
+                        "spring.cassandra.connection.init-query-timeout=10s\n" +
+                        "logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS\n" +
+                        "management.endpoints.jmx.exposure.include=*\n");
     }
 
     private void verifyParentPomVersion() {
         Xml.Document mavenAsXMLDocument = getRootBuildFile();
 
-        Xml.Tag parentTag =mavenAsXMLDocument
+        Xml.Tag parentTag = mavenAsXMLDocument
                 .getRoot()
                 .getChildren("parent").get(0);
 
@@ -317,7 +342,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         String groupId = parentTag.getChildValue("groupId").get();
         String artifactId = parentTag.getChildValue("artifactId").get();
 
-        assertThat(version).isEqualTo("3.0.0-M3");
+        assertThat(version).isEqualTo("3.0.0");
         assertThat(groupId).isEqualTo("org.springframework.boot");
         assertThat(artifactId).isEqualTo("spring-boot-starter-parent");
     }
