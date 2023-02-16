@@ -30,13 +30,17 @@ class OpenRewriteSearchAndCommentTest {
     void markMatches() {
 
         String javaSource1 =
-                "public class SomeTest {" +
-                        "   @Deprecated public void test() {}" +
-                        "}";
+                """
+                public class SomeTest {
+                    @Deprecated public void test() {}
+                }
+                """;
         String javaSource2 =
-                "public class SomeTest2 {" +
-                        "   public void test2() {}" +
-                        "}";
+                """
+                public class SomeTest2 {
+                    public void test2() {}
+                }
+                """;
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withJavaSources(javaSource1, javaSource2)
@@ -52,9 +56,15 @@ class OpenRewriteSearchAndCommentTest {
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(2);
         assertThat(projectContext.getProjectJavaSources().list().get(1).print()).isEqualTo(javaSource2);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print()).isEqualTo(
-                "public class SomeTest {   \n" +
-                        "/*\n" +
-                        markerText +
-                        "\n*/\n@Deprecated public void test() {}}");
+                """
+                public class SomeTest {
+                   \s
+                /*
+                marker text
+                */
+                /*~~>*/@Deprecated public void test() {}
+                }
+                """
+        );
     }
 }
