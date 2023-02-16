@@ -18,10 +18,9 @@ package org.springframework.sbm.boot.cleanup.actions;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
 import org.springframework.sbm.build.migration.actions.OpenRewriteMavenBuildFileTestSupport;
@@ -49,12 +48,12 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 				        <plugins>
 				            <plugin>
 				                <groupId>org.springframework.boot</groupId>
-				                                  <artifactId>spring-boot-maven-plugin</artifactId>
+                                <artifactId>spring-boot-maven-plugin</artifactId>
 				            </plugin>
 				        </plugins>
 				    </build>
 				</project>
-				                """;
+				""";
 
 		String expected = """
 				<?xml version="1.0" encoding="UTF-8"?>
@@ -70,7 +69,7 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 				        <plugins>
 				            <plugin>
 				                <groupId>org.springframework.boot</groupId>
-				                                  <artifactId>spring-boot-maven-plugin</artifactId>
+                                <artifactId>spring-boot-maven-plugin</artifactId>
 				            </plugin>
 				        </plugins>
 				    </build>
@@ -107,7 +106,7 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 				        </plugins>
 				    </build>
 				</project>
-				                """;
+				""";
 
 		String expected = """
 				<?xml version="1.0" encoding="UTF-8"?>
@@ -132,7 +131,7 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 				        </plugins>
 				    </build>
 				</project>
-				                """;
+				""";
 
 		RemoveRedundantMavenCompilerPluginProperties sut = new RemoveRedundantMavenCompilerPluginProperties();
 		OpenRewriteMavenBuildFileTestSupport.verifyRefactoring(pomXml, expected, sut);
@@ -434,22 +433,24 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 	}
 
 	@Test
-	void multiModuleWithPluginAndPropertiesDefinedInParentModule() throws JsonProcessingException {
+	void multiModuleWithPluginAndPropertiesDefinedInParentModule() {
 
 		OpenRewriteMavenPlugin mavenPlugin = OpenRewriteMavenPlugin.builder()
 				.groupId("org.apache.maven.plugins")
 				.artifactId("maven-compiler-plugin")
 				.build();
-		Map<String, Object> configMap = new LinkedHashMap<>();
-		configMap.put("source", "${maven.compiler.source}");
-		configMap.put("target", "${maven.compiler.target}");
-		mavenPlugin.setConfiguration(mavenPlugin.new OpenRewriteMavenPluginConfiguration(configMap));
+		mavenPlugin.setConfiguration(mavenPlugin.new OpenRewriteMavenPluginConfiguration(Map.of("source", "${maven.compiler.source}",
+																								"target", "${maven.compiler.target}")));
 
-		String rootPom = PomBuilder.buildPom("com.example:parent:1.0").packaging("pom").plugins(mavenPlugin)
-				.property("maven.compiler.source", "17").property("maven.compiler.target", "17").withModules("module1")
+		String rootPom = PomBuilder.buildPom("com.example:parent:1.0")
+				.packaging("pom")
+				.plugins(mavenPlugin)
+				.property("maven.compiler.source", "17")
+				.property("maven.compiler.target", "17")
+				.withModules("module1")
 				.build();
 
-		String module1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module1").packaging("jar").build();
+		String module1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module1").build();
 
 		ProjectContext projectContext = TestProjectContext.buildProjectContext()
 				.withMavenBuildFileSource("pom.xml", rootPom).withMavenBuildFileSource("module1/pom.xml", module1Pom)
@@ -471,50 +472,58 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 	}
 
 	@Test
-	@Disabled("To be handled ")
 	void multiModuleWithPluginDefinedInParentModuleAndPropertiesInChildModule() {
 		OpenRewriteMavenPlugin mavenPlugin = OpenRewriteMavenPlugin.builder()
 				.groupId("org.apache.maven.plugins")
 				.artifactId("maven-compiler-plugin")
 				.build();
-		Map<String, Object> configMap = new LinkedHashMap<>();
-		configMap.put("source", "${maven.compiler.source}");
-		configMap.put("target", "${maven.compiler.target}");
-		mavenPlugin.setConfiguration(mavenPlugin.new OpenRewriteMavenPluginConfiguration(configMap));
+		mavenPlugin.setConfiguration(mavenPlugin.new OpenRewriteMavenPluginConfiguration(
+				Map.of(
+						"source", "${maven.compiler.source}",
+						"target", "${maven.compiler.target}"
+				)
+		));
 
-		String rootPom = PomBuilder.buildPom("com.example:parent:1.0").packaging("pom").plugins(mavenPlugin)
-				.property("maven.compiler.source", "17").property("maven.compiler.target", "17").withModules("module1")
+		String rootPom = PomBuilder.buildPom("com.example:parent:1.0")
+				.packaging("pom")
+				.property("maven.compiler.source", "17")
+				.property("maven.compiler.target", "17")
+				.withModules("module1")
+				.plugins(mavenPlugin)
 				.build();
 
-		String module1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module1").packaging("jar")
-				.property("maven.compiler.source", "17").property("maven.compiler.target", "17").build();
+		String module1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module1")
+				.packaging("jar")
+				.property("maven.compiler.source", "17")
+				.property("maven.compiler.target", "17")
+				.build();
 
 		ProjectContext projectContext = TestProjectContext.buildProjectContext()
-				.withMavenBuildFileSource("pom.xml", rootPom).withMavenBuildFileSource("module1/pom.xml", module1Pom)
+				.withMavenBuildFileSource("pom.xml", rootPom)
+				.withMavenBuildFileSource("module1/pom.xml", module1Pom)
 				.build();
 
+
+		// Remove redundant plugin properties
 		RemoveRedundantMavenCompilerPluginProperties sut = new RemoveRedundantMavenCompilerPluginProperties();
 		sut.apply(projectContext);
 
-		Module rootModule = projectContext.getApplicationModules().getRootModule();
-		assertThat(rootModule.getBuildFile().getProperty("maven.compiler.source")).isNull();
-		assertThat(rootModule.getBuildFile().getProperty("maven.compiler.target")).isNull();
-		assertThat(rootModule.getBuildFile().getProperty("java.version")).isEqualTo("17");
-		assertThat(
-				rootModule.getBuildFile().getPlugins().get(0).getConfiguration().getDeclaredStringValue("source").get())
-				.isEqualTo("${java.version}");
-		assertThat(
-				rootModule.getBuildFile().getPlugins().get(0).getConfiguration().getDeclaredStringValue("target").get())
-				.isEqualTo("${java.version}");
+		// verify root module
+		BuildFile rootModule = projectContext.getApplicationModules().getRootModule().getBuildFile();
+		assertThat(rootModule.getProperty("maven.compiler.source")).isNull();
+		assertThat(rootModule.getProperty("maven.compiler.target")).isNull();
+		assertThat(rootModule.getProperty("java.version")).isEqualTo("17");
+		assertThat(rootModule.getPlugins().get(0).getConfiguration().getDeclaredStringValue("target").get()).isEqualTo("${java.version}");
+		assertThat(rootModule.getPlugins().get(0).getConfiguration().getDeclaredStringValue("source").get()).isEqualTo("${java.version}");
 
-		Module childModule = projectContext.getApplicationModules().getModule("module1");
-		assertThat(childModule.getBuildFile().getProperty("java.version")).isEqualTo("17");
-		assertThat(childModule.getBuildFile().getProperty("maven.compiler.source")).isNull();
-		assertThat(childModule.getBuildFile().getProperty("maven.compiler.target")).isNull();
+
+		BuildFile childModule = projectContext.getApplicationModules().getModule("module1").getBuildFile();
+		assertThat(childModule.getProperty("java.version")).isEqualTo("17");
+		assertThat(childModule.getProperty("maven.compiler.source")).isNull();
+		assertThat(childModule.getProperty("maven.compiler.target")).isNull();
 	}
 
 	@Test
-	@Disabled("Need to implement multi module pom updates")
 	void multiModuleWithPluginAndPropertiesDefinedInChildModule() {
 
 		OpenRewriteMavenPlugin mavenPlugin = OpenRewriteMavenPlugin.builder()
