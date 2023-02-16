@@ -17,7 +17,6 @@ package org.springframework.sbm.project.buildfile;
 
 import org.jetbrains.annotations.NotNull;
 import org.intellij.lang.annotations.Language;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
@@ -375,7 +374,6 @@ public class OpenRewriteMavenBuildFileTest {
     */
     @Test
     @Tag("integration")
-    @Disabled("Fails in CI with 'java.io.FileNotFoundException: /root/.m2/repository/org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar '")
     void testResolvedDependenciesWithPomTypeDependency() {
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
@@ -460,7 +458,6 @@ public class OpenRewriteMavenBuildFileTest {
 				"org/apache/xbean/xbean-finder-shaded/4.14/xbean-finder-shaded-4.14.jar",
 
                 "commons-net/commons-net/3.6/commons-net-3.6.jar",
-                // FIXME: #7 with OR 7.23.0 these dependencies are not there anymore
                  "org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.1.1/geronimo-jms_1.1_spec-1.1.1.jar",
                  "org/apache/geronimo/specs/geronimo-j2ee-management_1.1_spec/1.0.1/geronimo-j2ee-management_1.1_spec-1.0.1.jar",
                  "stax/stax-api/1.0.1/stax-api-1.0.1.jar",
@@ -502,7 +499,7 @@ public class OpenRewriteMavenBuildFileTest {
 				"org/hibernate/hibernate-validator/5.1.3.Final/hibernate-validator-5.1.3.Final.jar",
 				"com/fasterxml/classmate/1.0.0/classmate-1.0.0.jar",
 				"org/hibernate/hibernate-ehcache/5.4.10.Final/hibernate-ehcache-5.4.10.Final.jar",
-				"org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar",
+				//"org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar",
 				"net/sf/ehcache/ehcache/2.10.3/ehcache-2.10.3.jar",
 				"org/slf4j/slf4j-jdk14/1.7.21/slf4j-jdk14-1.7.21.jar"
         );
