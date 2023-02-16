@@ -132,6 +132,22 @@
           contributors:
             - "Fabian Krüger[@fabapp2]"
 
+        - title: Upgrade to Jakarta EE 10
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeSpringBootVersionHelper
+          change: |-
+            Jakarta EE Upgrade, usage of dependency coordinate changes from `javax.*` to `jakarta.*`
+          affected: |-
+            Upgrade application to support Jakarta EE upgrade
+          remediation:
+            description: |-
+              Whenever Spring Boot depends on a Jakarta EE specification, Spring Boot 3.0 has upgraded to the version that is included in Jakarta EE 10. For example, Spring Boot 3.0 uses the Servlet 6.0 and JPA 3.1 specifications.
+              If you are managing your own dependencies, and aren’t relying on our starter POMs, you should ensure that you have updated your Maven or Gradle file appropriately. You need to be especially careful that older Java EE dependencies are no longer directly or transitively used in your build. For example, if you should always be using jakarta.servlet:jakarta.servlet-api and not javax.servlet:javax.servlet-api.
+              As well as dependency coordinate changes, Jakarta EE now uses jakarta packages rather than javax. Once you’ve update your dependencies you may find that import statements in your project need to be updated.
+            recipe: sbu30-migrate-to-jakarta-packages
+          githubIssue: 723
+          contributors:
+            - "Fabian Krüger[@fabapp2]"
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
 
         - title: Actuator Endpoints Sanitization
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.ActuatorEndpointsSanitizationHelper

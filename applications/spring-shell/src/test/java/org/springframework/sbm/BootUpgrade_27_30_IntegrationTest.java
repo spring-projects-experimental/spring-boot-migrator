@@ -45,7 +45,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
         scanProject();
 
         applyRecipe("boot-2.7-3.0-dependency-version-update");
-        applyRecipe("sbu30-migrate-javax-to-jakarta");
+        applyRecipe("sbu30-migrate-to-jakarta-packages");
 
         buildProject();
         verifyParentPomVersion();
