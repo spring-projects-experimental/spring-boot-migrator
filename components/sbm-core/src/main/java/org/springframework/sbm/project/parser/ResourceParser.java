@@ -17,6 +17,7 @@ package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.hcl.HclParser;
@@ -28,7 +29,6 @@ import org.openrewrite.protobuf.ProtoParser;
 import org.openrewrite.text.PlainTextParser;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.XmlParser;
-import org.openrewrite.xml.tree.Xml;
 import org.openrewrite.yaml.YamlParser;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
@@ -40,6 +40,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -115,11 +117,22 @@ public class ResourceParser {
         ctx.setParsingListener((input, sourceFile) -> eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(sourceFile.getSourcePath())));
 
         return parserAndParserInputMappings.entrySet().stream()
-                .map(e -> e.getKey().parseInputs(e.getValue(), baseDir, ctx))
+                .filter(ifNoInput())
+                .map(parseEntry(baseDir, ctx))
                 .flatMap(List::stream)
                 .map(e -> addMarkers(e, markers))
                 .collect(Collectors.toList());
 
+    }
+
+    @NotNull
+    private Function<Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>>, ? extends List<? extends SourceFile>> parseEntry(Path baseDir, ParsingExecutionContextView ctx) {
+        return e -> e.getKey().parseInputs(e.getValue(), baseDir, ctx);
+    }
+
+    @NotNull
+    private Predicate<Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>>> ifNoInput() {
+        return e -> !e.getValue().isEmpty();
     }
 
     private SourceFile addMarkers(SourceFile e, List<Marker> markers) {
