@@ -157,8 +157,15 @@ public class OpenRewriteMavenPlugin implements Plugin {
 				String configurationXml = MavenXmlMapper.writeMapper().writerWithDefaultPrettyPrinter()
 						.writeValueAsString(configuration).replaceFirst("<LinkedHashMap>", "")
 						.replace("</LinkedHashMap>", "").replace("<LinkedHashMap/>", "").trim();
-				OpenRewriteMavenPlugin.this.refactoring.execute(new ChangePluginConfiguration(
-						OpenRewriteMavenPlugin.this.groupId, OpenRewriteMavenPlugin.this.artifactId, configurationXml));
+				OpenRewriteMavenPlugin.this.refactoring.execute(
+						OpenRewriteMavenPlugin.this.getResourceWrapper(),
+						new ChangePluginConfiguration(
+							OpenRewriteMavenPlugin.this.groupId,
+							OpenRewriteMavenPlugin.this.artifactId,
+							configurationXml
+						)
+				);
+				OpenRewriteMavenPlugin.this.refactoring.refreshPomModels();
 			}
 			catch (JsonProcessingException e) {
 				throw new RuntimeException(e);

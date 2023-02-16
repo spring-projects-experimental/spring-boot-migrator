@@ -17,7 +17,6 @@ package org.springframework.sbm.build.resource;
 
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.SourceFile;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
@@ -46,7 +45,7 @@ public class BuildFileResourceWrapper implements ProjectResourceWrapper<OpenRewr
     @Override
     public OpenRewriteMavenBuildFile wrapRewriteSourceFileHolder(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
         Xml.Document maven = (Xml.Document) rewriteSourceFileHolder.getSourceFile();
-
+        MavenBuildFileRefactoring refactoring = mavenBuildFileRefactoringFactory.createRefactoring();
         return new OpenRewriteMavenBuildFile(
                 rewriteSourceFileHolder.getAbsoluteProjectDir(),
                 maven,

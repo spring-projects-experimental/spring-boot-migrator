@@ -43,7 +43,9 @@ import java.util.stream.Collectors;
  * @author Fabian Krüger
  */
 @RequiredArgsConstructor
-class MavenBuildFileRefactoring<P> {
+public class MavenBuildFileRefactoring<T extends SourceFile> {
+    private final ProjectResourceSet projectResourceSet;
+    private final RewriteMavenParser mavenParser;
 
     /**
      * Applies the provided {@code Visitor}s to all Maven build files in the {@code ProjectContext}.

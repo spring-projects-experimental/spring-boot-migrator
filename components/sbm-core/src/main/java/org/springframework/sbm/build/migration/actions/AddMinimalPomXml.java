@@ -22,6 +22,7 @@ import lombok.Setter;
 import org.openrewrite.Parser;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.context.ProjectContext;
