@@ -21,7 +21,6 @@ import org.springframework.sbm.project.resource.ProjectResource;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -87,7 +86,9 @@ public interface BuildFile extends ProjectResource {
 
     void removeDependenciesInner(List<Dependency> dependencies);
 
-    List<Dependency> getDependencyManagement();
+    List<Dependency> getEffectiveDependencyManagement();
+
+    List<Dependency> getRequestedDependencyManagement();
 
     List<Dependency> getRequestedManagedDependencies();
 

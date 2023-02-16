@@ -636,7 +636,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .version("1.2") // FIXME: using 1.2.1 results in 1.2-b03 ?! Is this the dependency in the pm.xml or the resolved from bom
                 .build());
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(1);
 
         Dependency addedDependency = sut.getDeclaredDependencies().get(0);
@@ -678,7 +678,7 @@ public class OpenRewriteMavenBuildFileTest {
 
         sut.addDependency(dependency);
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(1);
         assertThat(sut.getDeclaredDependencies()).contains(dependency);
         ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(DependenciesChangedEvent.class);
@@ -771,7 +771,7 @@ public class OpenRewriteMavenBuildFileTest {
                         + "</project>\n",
                 sut.print());
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(2);
 
         Dependency addedDependency = sut.getDeclaredDependencies().get(0);
@@ -828,7 +828,7 @@ public class OpenRewriteMavenBuildFileTest {
                         .build())
         );
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(0);
     }
 
@@ -1272,7 +1272,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
                 .getBuildFile();
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(2);
 
         sut.removeDependencies(List.of(
@@ -1283,7 +1283,7 @@ public class OpenRewriteMavenBuildFileTest {
                         .build())
         );
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(1);
         assertThat(sut.print()).isEqualTo("<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
                 "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -1337,7 +1337,7 @@ public class OpenRewriteMavenBuildFileTest {
                         .build())
         );
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(0);
 
         assertThat(sut.print()).isEqualTo(

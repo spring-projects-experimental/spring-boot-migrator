@@ -45,7 +45,7 @@ class OpenRewriteSearchAndCommentTest {
         String markerText = "marker text";
 
         JavaParser javaParser = new RewriteJavaParser(new SbmApplicationProperties());
-        OpenRewriteRecipeJavaSearch sut = new OpenRewriteRecipeJavaSearch(compilationUnits -> new FindAnnotations("@java.lang.Deprecated").run(compilationUnits).getResults(), javaParser);
+        OpenRewriteRecipeJavaSearch sut = new OpenRewriteRecipeJavaSearch(compilationUnits -> new FindAnnotations("@java.lang.Deprecated", false).run(compilationUnits).getResults(), javaParser);
 
         sut.commentFindings(projectContext.getProjectJavaSources().list(), markerText);
 

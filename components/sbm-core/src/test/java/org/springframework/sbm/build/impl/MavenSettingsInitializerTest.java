@@ -65,16 +65,16 @@ class MavenSettingsInitializerTest {
 
         assertThat(mavenRepository.getId()).isEqualTo("central");
         assertThat(mavenRepository.getUri()).isEqualTo("https://jcenter.bintray.com");
-        assertThat(mavenRepository.isReleases()).isTrue();
-        assertThat(mavenRepository.isSnapshots()).isFalse();
+        assertThat(mavenRepository.getReleases()).isNull();
+        assertThat(mavenRepository.getSnapshots()).isEqualToIgnoringCase("false");
 
         MavenRepository localRepository = mavenExecutionContextView.getLocalRepository();
-        assertThat(localRepository.isSnapshots()).isTrue();
+        assertThat(localRepository.getSnapshots()).isNull();
 
         String tmpDir = removeTrailingSlash(System.getProperty("java.io.tmpdir"));
         String customLocalRepository = new URI("file://" + tmpDir).toString();
         assertThat(removeTrailingSlash(localRepository.getUri())).isEqualTo(customLocalRepository);
-        assertThat(localRepository.isSnapshots()).isTrue();
+        assertThat(localRepository.getSnapshots()).isNull();
         assertThat(localRepository.isKnownToExist()).isTrue();
         assertThat(localRepository.getUsername()).isNull();
         assertThat(localRepository.getPassword()).isNull();

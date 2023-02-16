@@ -23,10 +23,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.build.impl.MavenSettingsInitializer;
-import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
-import org.springframework.sbm.build.impl.RewriteMavenParser;
+import org.springframework.sbm.build.impl.*;
 import org.springframework.sbm.build.resource.BuildFileResourceWrapper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
@@ -254,6 +251,7 @@ public class TestProjectContext {
         private Optional<String> springVersion = Optional.empty();
 
         private JavaParser javaParser;
+        private RewriteMavenParser mavenParser = new RewriteMavenParser(new MavenSettingsInitializer());;
 
         public Builder(Path projectRoot) {
             this.projectRoot = projectRoot;
@@ -464,16 +462,18 @@ public class TestProjectContext {
             verifyValidBuildFileSetup();
 
             if(!containsAnyPomXml()) {
-                String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "{{springParentPom}}" +
-                        "    <groupId>com.example</groupId>\n" +
-                        "    <artifactId>dummy-root</artifactId>\n" +
-                        "    <version>0.1.0-SNAPSHOT</version>\n" +
-                        "    <packaging>jar</packaging>\n" +
-                        "{{dependencies}}" +
-                        "</project>\n";
+                String xml = """
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                        {{springParentPom}}
+                            <groupId>com.example</groupId>
+                            <artifactId>dummy-root</artifactId>
+                            <version>0.1.0-SNAPSHOT</version>
+                            <packaging>jar</packaging>
+                        {{dependencies}}
+                        </project>
+                        """;
 
                 xml = xml
                         .replace("{{dependencies}}", getDependenciesSection())
@@ -499,8 +499,9 @@ public class TestProjectContext {
             JavaRefactoringFactory javaRefactoringFactory = new JavaRefactoringFactoryImpl(projectResourceSetHolder);
 
             // create ProjectResourceWrapperRegistry and register Java and Maven resource wrapper
-            BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(
-                    eventPublisher);
+            MavenBuildFileRefactoringFactory mavenBuildFileRefactoringFactory = new MavenBuildFileRefactoringFactory(projectResourceSetHolder, mavenParser);
+            BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(eventPublisher,
+                                                                                             mavenBuildFileRefactoringFactory);
             resourceWrapperList.add(buildFileResourceWrapper);
             JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(javaRefactoringFactory, javaParser);
             resourceWrapperList.add(javaSourceProjectResourceWrapper);
@@ -512,7 +513,7 @@ public class TestProjectContext {
             ProjectContextInitializer projectContextInitializer = createProjectContextInitializer(projectContextFactory);
 
             // create ProjectContext
-            ProjectContext projectContext = projectContextInitializer.initProjectContext(projectRoot, scannedResources, new RewriteExecutionContext(eventPublisher));
+            ProjectContext projectContext = projectContextInitializer.initProjectContext(projectRoot, scannedResources);
 
             // replace with mocks
             if (mockedBuildFile != null) {
@@ -551,8 +552,6 @@ public class TestProjectContext {
                     new RewritePlainTextParser(),
                     new ResourceParser.ResourceFilter(),
                     eventPublisher);
-
-            RewriteMavenParser mavenParser =  new RewriteMavenParser(new MavenSettingsInitializer());
 
             MavenArtifactDownloader artifactDownloader = new RewriteMavenArtifactDownloader();
 

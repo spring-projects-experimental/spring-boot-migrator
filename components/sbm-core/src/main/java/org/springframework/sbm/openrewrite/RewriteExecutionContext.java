@@ -19,7 +19,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.JavaParsingException;
-import org.openrewrite.maven.internal.MavenDownloadingException;
+import org.openrewrite.maven.MavenDownloadingException;
 import org.openrewrite.maven.internal.MavenParsingException;
 import org.springframework.context.ApplicationEventPublisher;
 
