@@ -16,6 +16,7 @@
 package org.springframework.sbm.build.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.*;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
@@ -45,6 +46,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -576,8 +578,14 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public List<Path> getResolvedDependenciesPaths() {
         RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader = new RewriteMavenArtifactDownloader();
         return getPom().getDependencies().get(Scope.Provided).stream()
-                .map(rewriteMavenArtifactDownloader::downloadArtifact)
+                .filter(this::filterProjectDependencies)
+                .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
                 .collect(Collectors.toList());
+    }
+
+    @NotNull
+    private boolean filterProjectDependencies(ResolvedDependency rd) {
+        return rd.getRepository() != null;
     }
 
     @Override
