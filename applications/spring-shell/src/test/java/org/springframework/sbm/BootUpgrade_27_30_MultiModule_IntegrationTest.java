@@ -44,6 +44,7 @@ public class BootUpgrade_27_30_MultiModule_IntegrationTest  extends IntegrationT
         scanProject();
 
         applyRecipe("boot-2.7-3.0-dependency-version-update");
+        applyRecipe("sbu30-migrate-to-jakarta-packages");
 
         buildProject();
 
