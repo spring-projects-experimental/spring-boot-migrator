@@ -30,7 +30,6 @@ import java.util.function.Consumer;
 
 /**
  * @author Fabian Krüger
- * @author Modified by Mahendra Rao(bsmahi)
  */
 public class ProgressRendererLogbackLogAdapter {
     private final Appender<ILoggingEvent> logAppender;

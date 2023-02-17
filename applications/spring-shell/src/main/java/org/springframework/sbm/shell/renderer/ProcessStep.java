@@ -22,7 +22,6 @@ import org.jline.utils.Colors;
 
 /**
  * @author Fabian Krüger
- * @author Modified by Mahendra Rao(bsmahi)
  */
 @RequiredArgsConstructor
 public class ProcessStep implements ProgressStep {

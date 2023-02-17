@@ -102,6 +102,7 @@ class ApplyRecipeValueProvider implements ValueProvider {
     public List<CompletionProposal> complete(CompletionContext completionContext) {
         ProjectContext projectContext = projectContextHolder.getProjectContext();
         List<Recipe> applicableRecipes = applicableRecipeListCommand.execute(projectContext);
+
         return applicableRecipes.stream()
                 .map(Recipe::getName)
                 .map(CompletionProposal::new)

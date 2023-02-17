@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Fabian Krüger
- * @author Modified by Mahendra Rao(bsmahi)
  */
 @Component
 public class Printer {

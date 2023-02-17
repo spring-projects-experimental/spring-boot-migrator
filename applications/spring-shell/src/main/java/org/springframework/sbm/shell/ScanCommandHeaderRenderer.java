@@ -20,9 +20,6 @@ import org.jline.utils.AttributedStyle;
 import org.jline.utils.Colors;
 import org.springframework.stereotype.Component;
 
-/**
- * @author Modified by Mahendra Rao(bsmahi)
- */
 @Component
 public class ScanCommandHeaderRenderer {
     public String renderHeader(String projectRoot) {

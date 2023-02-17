@@ -30,6 +30,7 @@ public class ExceptionUtil {
             cause = parent;
             parent = cause.getCause();
         }
+
         return cause;
     }
 
@@ -39,6 +40,7 @@ public class ExceptionUtil {
         Throwable cause = getDeepestCause(e);
         String errorType = cause.getClass().getSimpleName();
         String msg = cause.getMessage();
+
         return errorType + ": " + msg;
     }
 

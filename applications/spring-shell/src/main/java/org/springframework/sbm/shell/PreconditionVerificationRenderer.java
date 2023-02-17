@@ -23,9 +23,6 @@ import org.springframework.sbm.engine.precondition.PreconditionCheckResult;
 import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
 import org.springframework.stereotype.Component;
 
-/**
- * @author Modified by Mahendra Rao(bsmahi)
- */
 @Component
 public class PreconditionVerificationRenderer {
 
@@ -36,6 +33,7 @@ public class PreconditionVerificationRenderer {
 
         result.getResults().forEach(r -> stringBuilder.append(renderCheckResult(r)));
         stringBuilder.append("\n");
+
         return stringBuilder.toAnsi();
     }
 
@@ -43,19 +41,19 @@ public class PreconditionVerificationRenderer {
         AttributedStringBuilder builder = new AttributedStringBuilder();
 
         // TODO: move rendering of status into central place
-        if(r.getState().equals(PreconditionCheck.ResultState.FAILED)) {
+        if (r.getState().equals(PreconditionCheck.ResultState.FAILED)) {
             builder.style(builder.style().DEFAULT.bold().foreground(Colors.rgbColor("red")));
             builder.append(" [X]");
             builder.style(builder.style().DEFAULT);
         }
 
-        if(r.getState().equals(PreconditionCheck.ResultState.PASSED)) {
+        if (r.getState().equals(PreconditionCheck.ResultState.PASSED)) {
             builder.style(AttributedStyle.DEFAULT.bold().foreground(Colors.rgbColor("green")));
             builder.append("[ok]");
             builder.style(AttributedStyle.DEFAULT);
         }
 
-        if(r.getState().equals(PreconditionCheck.ResultState.WARN)) {
+        if (r.getState().equals(PreconditionCheck.ResultState.WARN)) {
             builder.style(AttributedStyle.DEFAULT.bold().foreground(Colors.rgbColor("yellow")));
             builder.append(" [!]");
             builder.style(AttributedStyle.DEFAULT);

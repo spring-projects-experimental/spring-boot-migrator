@@ -25,6 +25,7 @@ public class DescribeCommandRenderer {
     public AttributedString render(Recipe recipe) {
         AttributedStringBuilder builder = new AttributedStringBuilder();
         builder.append(recipe.getDetails());
+
         return builder.toAttributedString();
     }
 }
