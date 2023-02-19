@@ -86,23 +86,24 @@ import static org.mockito.Mockito.when;
  * TestProjectContext.buildProjectContext()
  *                      .addJavaSources("class Foo{}", "class Bar{}")
  *                      .build();
- *
  * .....
  *
- */
- /* To
- *
- * <p>
  * == Examples
- * <p>
+ *
  * === ProjectContext with a JavaSource
- * <p>
+ *
  * [source, java]
  * ....
  * ProjectContext context = TestProjectContext.buildProjectContext()
  * .withJavaSources("public class Foo{}")
  * .build();
  * ....
+ *
+ *
+ */
+ /* To
+ *
+
  * <p>
  * <p>
  * === ProjectContext with a JavaSource and classpath
