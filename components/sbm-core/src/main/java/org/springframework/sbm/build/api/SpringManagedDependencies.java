@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 public class SpringManagedDependencies {
 
     private static List<MavenRepository> SPRING_REPOSITORIES = List.of(
-        new MavenRepository("spring-release", "https://repo.spring.io/release", null, null, true, null, null, null)
+        new MavenRepository("spring-release", "https://repo.spring.io/release", "true", "false", true, null, null, null)
     );
 
     private List<org.openrewrite.maven.tree.Dependency> dependencies;
