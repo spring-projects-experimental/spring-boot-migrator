@@ -198,8 +198,6 @@ public class TestProjectContext {
     /**
      * Build {@code ProjectContext} with default project root of absolute path of './dummy-test-path'
      * <p>
-     * Be aware that @EventListener annotations are not called, {@code eventPublisher} can be provided to verify calls.
-     *
      * @param eventPublisher the eventPublisher to use
      */
     public static Builder buildProjectContext(ApplicationEventPublisher eventPublisher) {
