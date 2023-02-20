@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public class DependenciesChangedEventHandler {
     private final ProjectContextHolder projectContextHolder;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private JavaParser javaParser;
+    private final JavaParser javaParser;
 
     @EventListener
     public void onDependenciesChanged(DependenciesChangedEvent event) {
