@@ -501,7 +501,7 @@ public class OpenRewriteMavenBuildFileTest {
 				"org/hibernate/hibernate-validator/5.1.3.Final/hibernate-validator-5.1.3.Final.jar",
 				"com/fasterxml/classmate/1.0.0/classmate-1.0.0.jar",
 				"org/hibernate/hibernate-ehcache/5.4.10.Final/hibernate-ehcache-5.4.10.Final.jar",
-				//"org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar",
+				"org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar",
 				"net/sf/ehcache/ehcache/2.10.3/ehcache-2.10.3.jar",
 				"org/slf4j/slf4j-jdk14/1.7.21/slf4j-jdk14-1.7.21.jar"
         );
