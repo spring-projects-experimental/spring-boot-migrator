@@ -34,6 +34,8 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
@@ -506,43 +508,43 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
-    void addDependencyWithNoTransitiveDependencies() {
-        String pomXml =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                        "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
-                        "  <modelVersion>4.0.0</modelVersion>\n" +
-                        "  <groupId>org.springframework.sbm</groupId>\n" +
-                        "  <artifactId>dummy-test-artifact</artifactId>\n" +
-                        "  <version>1.0.0</version>\n" +
-                        "</project>\n";
-
-        String javaSource = "import javax.validation.constraints.Email;\n" +
-                            "public class Cat {\n" +
-                            "    @Email\n" +
-                            "    private String email;\n" +
-                            "}";
-
-        // precondition: jar does not exist
-        // precondition: types from jar not resolvable
-
-        // verify jar was downloaded
-        // verify types from jar can be resolved
-
+    void addDependencyShouldPublishEvent() {
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+
         ProjectContext context = TestProjectContext.buildProjectContext(eventPublisher)
-                .withMavenRootBuildFileSource(pomXml)
-                .addJavaSource("src/main/java", javaSource)
+                .withMavenRootBuildFileSource(
+                        """
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+                            xmlns="http://maven.apache.org/POM/4.0.0"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                          <modelVersion>4.0.0</modelVersion>
+                          <groupId>org.springframework.sbm</groupId>
+                          <artifactId>dummy-test-artifact</artifactId>
+                          <version>1.0.0</version>
+                        </project>
+                        """
+                )
+                .addJavaSource("src/main/java",
+                       """
+                        import javax.validation.constraints.Email;
+                        public class Cat {
+                            @Email
+                            private String email;
+                        }
+                        """
+                )
                 .build();
 
         BuildFile buildFile = context.getBuildFile();
 
         Member member = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);
 
+        // The Email annotation cannot be resolved
         boolean b = member.hasAnnotation("javax.validation.constraints.Email");
         assertThat(b).isFalse();
 
+        // adding the validation-api brings the Email annotation
         buildFile.addDependency(Dependency.builder()
                                 .groupId("javax.validation")
                                 .artifactId("validation-api")
@@ -550,18 +552,18 @@ public class OpenRewriteMavenBuildFileTest {
                                 .build());
 
 
-
         Class<DependenciesChangedEvent> event = DependenciesChangedEvent.class;
         ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(event);
         assertEventPublished(eventPublisher, argumentCaptor, event, 1);
 
-//        verify(eventPublisher).publishEvent(argumentCaptor);
-        assertThat(argumentCaptor.getValue().getResolvedDependencies().get(0).toString()).endsWith("javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar");
-
         DependenciesChangedEvent fireEvent = argumentCaptor.getValue();
+        assertThat(fireEvent.getResolvedDependencies().get(0).toString()).endsWith("javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar");
+
+        // call DependenciesChangedEventHandler to trigger recompile
+        RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(new SbmApplicationProperties());
         ProjectContextHolder projectContextHolder = new ProjectContextHolder();
         projectContextHolder.setProjectContext(context);
-        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, eventPublisher);
+        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, eventPublisher, rewriteJavaParser);
         handler.onDependenciesChanged(fireEvent);
 
         Member member2 = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);
