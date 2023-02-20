@@ -205,6 +205,15 @@ public class TestProjectContext {
     }
 
     /**
+     * Build {@code ProjectContext} with default project root of absolute path of './dummy-test-path'
+     * <p>
+     * @param eventPublisher the eventPublisher to use
+     */
+    public static Builder buildProjectContext(ApplicationEventPublisher eventPublisher, RewriteJavaParser rewriteJavaParser) {
+        return new Builder(DEFAULT_PROJECT_ROOT, eventPublisher, rewriteJavaParser);
+    }
+
+    /**
      * @return the default project root dir
      */
     public static Path getDefaultProjectRoot() {
@@ -262,6 +271,11 @@ public class TestProjectContext {
         public Builder(Path projectRoot, ApplicationEventPublisher eventPublisher) {
             this(projectRoot);
             this.eventPublisher = eventPublisher;
+        }
+
+        public Builder(Path defaultProjectRoot, ApplicationEventPublisher eventPublisher, RewriteJavaParser rewriteJavaParser) {
+            this(defaultProjectRoot, eventPublisher);
+            this.javaParser = rewriteJavaParser;
         }
 
         public Builder withProjectRoot(Path projectRoot) {
