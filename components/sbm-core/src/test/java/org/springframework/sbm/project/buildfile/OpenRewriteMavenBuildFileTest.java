@@ -17,7 +17,6 @@ package org.springframework.sbm.project.buildfile;
 
 import org.jetbrains.annotations.NotNull;
 import org.intellij.lang.annotations.Language;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
@@ -35,6 +34,8 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
@@ -375,7 +376,6 @@ public class OpenRewriteMavenBuildFileTest {
     */
     @Test
     @Tag("integration")
-    @Disabled("Fails in CI with 'java.io.FileNotFoundException: /root/.m2/repository/org/jboss/logging/jboss-logging/3.3.2.Final/jboss-logging-3.3.2.Final.jar '")
     void testResolvedDependenciesWithPomTypeDependency() {
         String pomXml =
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
@@ -460,7 +460,6 @@ public class OpenRewriteMavenBuildFileTest {
 				"org/apache/xbean/xbean-finder-shaded/4.14/xbean-finder-shaded-4.14.jar",
 
                 "commons-net/commons-net/3.6/commons-net-3.6.jar",
-                // FIXME: #7 with OR 7.23.0 these dependencies are not there anymore
                  "org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.1.1/geronimo-jms_1.1_spec-1.1.1.jar",
                  "org/apache/geronimo/specs/geronimo-j2ee-management_1.1_spec/1.0.1/geronimo-j2ee-management_1.1_spec-1.0.1.jar",
                  "stax/stax-api/1.0.1/stax-api-1.0.1.jar",
@@ -509,43 +508,43 @@ public class OpenRewriteMavenBuildFileTest {
     }
 
     @Test
-    void addDependencyWithNoTransitiveDependencies() {
-        String pomXml =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                        "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
-                        "  <modelVersion>4.0.0</modelVersion>\n" +
-                        "  <groupId>org.springframework.sbm</groupId>\n" +
-                        "  <artifactId>dummy-test-artifact</artifactId>\n" +
-                        "  <version>1.0.0</version>\n" +
-                        "</project>\n";
-
-        String javaSource = "import javax.validation.constraints.Email;\n" +
-                            "public class Cat {\n" +
-                            "    @Email\n" +
-                            "    private String email;\n" +
-                            "}";
-
-        // precondition: jar does not exist
-        // precondition: types from jar not resolvable
-
-        // verify jar was downloaded
-        // verify types from jar can be resolved
-
+    void addDependencyShouldPublishEvent() {
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+
         ProjectContext context = TestProjectContext.buildProjectContext(eventPublisher)
-                .withMavenRootBuildFileSource(pomXml)
-                .addJavaSource("src/main/java", javaSource)
+                .withMavenRootBuildFileSource(
+                        """
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+                            xmlns="http://maven.apache.org/POM/4.0.0"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                          <modelVersion>4.0.0</modelVersion>
+                          <groupId>org.springframework.sbm</groupId>
+                          <artifactId>dummy-test-artifact</artifactId>
+                          <version>1.0.0</version>
+                        </project>
+                        """
+                )
+                .addJavaSource("src/main/java",
+                       """
+                        import javax.validation.constraints.Email;
+                        public class Cat {
+                            @Email
+                            private String email;
+                        }
+                        """
+                )
                 .build();
 
         BuildFile buildFile = context.getBuildFile();
 
         Member member = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);
 
+        // The Email annotation cannot be resolved
         boolean b = member.hasAnnotation("javax.validation.constraints.Email");
         assertThat(b).isFalse();
 
+        // adding the validation-api brings the Email annotation
         buildFile.addDependency(Dependency.builder()
                                 .groupId("javax.validation")
                                 .artifactId("validation-api")
@@ -553,18 +552,18 @@ public class OpenRewriteMavenBuildFileTest {
                                 .build());
 
 
-
         Class<DependenciesChangedEvent> event = DependenciesChangedEvent.class;
         ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(event);
         assertEventPublished(eventPublisher, argumentCaptor, event, 1);
 
-//        verify(eventPublisher).publishEvent(argumentCaptor);
-        assertThat(argumentCaptor.getValue().getResolvedDependencies().get(0).toString()).endsWith("javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar");
-
         DependenciesChangedEvent fireEvent = argumentCaptor.getValue();
+        assertThat(fireEvent.getResolvedDependencies().get(0).toString()).endsWith("javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar");
+
+        // call DependenciesChangedEventHandler to trigger recompile
+        RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(new SbmApplicationProperties());
         ProjectContextHolder projectContextHolder = new ProjectContextHolder();
         projectContextHolder.setProjectContext(context);
-        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, eventPublisher);
+        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, eventPublisher, rewriteJavaParser);
         handler.onDependenciesChanged(fireEvent);
 
         Member member2 = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);
@@ -636,7 +635,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .version("1.2") // FIXME: using 1.2.1 results in 1.2-b03 ?! Is this the dependency in the pm.xml or the resolved from bom
                 .build());
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(1);
 
         Dependency addedDependency = sut.getDeclaredDependencies().get(0);
@@ -678,7 +677,7 @@ public class OpenRewriteMavenBuildFileTest {
 
         sut.addDependency(dependency);
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(1);
         assertThat(sut.getDeclaredDependencies()).contains(dependency);
         ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(DependenciesChangedEvent.class);
@@ -771,7 +770,7 @@ public class OpenRewriteMavenBuildFileTest {
                         + "</project>\n",
                 sut.print());
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(2);
 
         Dependency addedDependency = sut.getDeclaredDependencies().get(0);
@@ -828,7 +827,7 @@ public class OpenRewriteMavenBuildFileTest {
                         .build())
         );
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(0);
     }
 
@@ -1272,7 +1271,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
                 .getBuildFile();
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(2);
 
         sut.removeDependencies(List.of(
@@ -1283,7 +1282,7 @@ public class OpenRewriteMavenBuildFileTest {
                         .build())
         );
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(1);
         assertThat(sut.print()).isEqualTo("<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
                 "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -1337,7 +1336,7 @@ public class OpenRewriteMavenBuildFileTest {
                         .build())
         );
 
-        assertThat(sut.getDependencyManagement()).hasSize(0);
+        assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(0);
 
         assertThat(sut.print()).isEqualTo(
@@ -2197,7 +2196,7 @@ public class OpenRewriteMavenBuildFileTest {
 	}
 
 	@Test
-	void deleteProperty() {
+	void deleteProperty_withSingleModule() {
 
 		String pomXml =
 				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
@@ -2253,6 +2252,137 @@ public class OpenRewriteMavenBuildFileTest {
 		assertThat(openRewriteMavenBuildFile.print()).isEqualTo(expected);
 
 	}
+
+    @Test
+    void deletePropertyCalledOnRootModule_withMultiModules() {
+        String rootPom = PomBuilder.buildPom("com.example:parent:1.0")
+                .packaging("pom")
+                .property("maven.compiler.source", "17")
+                .property("maven.compiler.target", "17")
+                .withModules("module1")
+                .build();
+
+        String module1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module1")
+                .packaging("jar")
+                .property("maven.compiler.source", "17")
+                .property("maven.compiler.target", "17")
+                .build();
+
+        ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                .withMavenBuildFileSource("pom.xml", rootPom)
+                .withMavenBuildFileSource("module1/pom.xml", module1Pom)
+                .build();
+
+        BuildFile rootModule = projectContext.getApplicationModules().getRootModule().getBuildFile();
+
+        rootModule.deleteProperty("maven.compiler.source");
+
+        assertThat(rootModule.getProperty("maven.compiler.source")).isNull();
+        assertThat(rootModule.getProperty("maven.compiler.target")).isEqualTo("17");
+        assertThat(rootModule.print()).isEqualTo(  """
+                                                                                          <?xml version="1.0" encoding="UTF-8"?>
+                                                                                          <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                                                                              <modelVersion>4.0.0</modelVersion>
+                                                                                              <groupId>com.example</groupId>
+                                                                                              <artifactId>parent</artifactId>
+                                                                                              <version>1.0</version>
+                                                                                              <packaging>pom</packaging>
+                                                                                              <properties>
+                                                                                                  <maven.compiler.target>17</maven.compiler.target>
+                                                                                              </properties>
+                                                                                              <modules>
+                                                                                                  <module>module1</module>
+                                                                                              </modules>
+                                                                                          </project>
+                                                                                          """);
+
+        BuildFile module1 = projectContext.getApplicationModules().getModule("module1").getBuildFile();
+        assertThat(module1.getProperty("maven.compiler.source")).isEqualTo("17");
+        assertThat(module1.getProperty("maven.compiler.target")).isEqualTo("17");
+        assertThat(module1.print()).isEqualTo("""
+                                                                                          <?xml version="1.0" encoding="UTF-8"?>
+                                                                                          <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                                                                              <modelVersion>4.0.0</modelVersion>
+                                                                                              <parent>
+                                                                                                  <groupId>com.example</groupId>
+                                                                                                  <artifactId>parent</artifactId>
+                                                                                                  <version>1.0</version>
+                                                                                              </parent>
+                                                                                              <artifactId>module1</artifactId>
+                                                                                              <packaging>jar</packaging>
+                                                                                              <properties>
+                                                                                                  <maven.compiler.target>17</maven.compiler.target>
+                                                                                                  <maven.compiler.source>17</maven.compiler.source>
+                                                                                              </properties>
+                                                                                          </project>
+                                                                                          """);
+    }
+
+    @Test
+    void deletePropertyCalledOnChildModule_withMultiModules() {
+        String rootPom = PomBuilder.buildPom("com.example:parent:1.0")
+                .packaging("pom")
+                .property("maven.compiler.source", "17")
+                .property("maven.compiler.target", "17")
+                .withModules("module1")
+                .build();
+
+        String module1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module1")
+                .packaging("jar")
+                .property("maven.compiler.source", "17")
+                .property("maven.compiler.target", "17")
+                .build();
+
+        ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                .withMavenBuildFileSource("pom.xml", rootPom)
+                .withMavenBuildFileSource("module1/pom.xml", module1Pom)
+                .build();
+
+        BuildFile rootModule = projectContext.getApplicationModules().getRootModule().getBuildFile();
+        BuildFile module1 = projectContext.getApplicationModules().getModule("module1").getBuildFile();
+
+        module1.deleteProperty("maven.compiler.source");
+
+        assertThat(rootModule.getProperty("maven.compiler.source")).isEqualTo("17");
+        assertThat(rootModule.getProperty("maven.compiler.target")).isEqualTo("17");
+        assertThat(rootModule.print()).isEqualTo("""
+                                                  <?xml version="1.0" encoding="UTF-8"?>
+                                                  <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                                      <modelVersion>4.0.0</modelVersion>
+                                                      <groupId>com.example</groupId>
+                                                      <artifactId>parent</artifactId>
+                                                      <version>1.0</version>
+                                                      <packaging>pom</packaging>
+                                                      <properties>
+                                                          <maven.compiler.target>17</maven.compiler.target>
+                                                          <maven.compiler.source>17</maven.compiler.source>
+                                                      </properties>
+                                                      <modules>
+                                                          <module>module1</module>
+                                                      </modules>
+                                                  </project>
+                                                  """);
+
+
+        assertThat(module1.getProperty("maven.compiler.source")).isNull();
+        assertThat(module1.getProperty("maven.compiler.target")).isEqualTo("17");
+        assertThat(module1.print()).isEqualTo("""
+                                              <?xml version="1.0" encoding="UTF-8"?>
+                                              <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                                  <modelVersion>4.0.0</modelVersion>
+                                                  <parent>
+                                                      <groupId>com.example</groupId>
+                                                      <artifactId>parent</artifactId>
+                                                      <version>1.0</version>
+                                                  </parent>
+                                                  <artifactId>module1</artifactId>
+                                                  <packaging>jar</packaging>
+                                                  <properties>
+                                                      <maven.compiler.target>17</maven.compiler.target>
+                                                  </properties>
+                                              </project>
+                                              """);
+    }
 
 	@Test
     void removePluginsMatchingRegex() {
@@ -2424,6 +2554,27 @@ public class OpenRewriteMavenBuildFileTest {
 
 
         assertThat(openRewriteMavenBuildFile.print()).isEqualTo(expected);
+    }
+
+    @Test
+    // FIXME: To make this setProperty work with multi-module projects the MavenBuildFileRefactoring as well as the ResourceWrapper logic must be refactored.
+    void setProperty() {
+        String parentPom = PomBuilder.buildPom("com.example:parent:0.1")
+                .packaging("pom")
+                .withModules("moduleA")
+                .withProperties(Map.of("some-property", "value1"))
+                .build();
+        String moduleA = PomBuilder.buildPom("com.example:parent:0.1", "moduleA").build();
+        ProjectContext context = TestProjectContext
+                .buildProjectContext()
+                .withMavenRootBuildFileSource(parentPom)
+                .withMavenBuildFileSource("moduleA", moduleA)
+                .build();
+        BuildFile moduleABuildFile = context.getApplicationModules().getTopmostApplicationModules().get(0).getBuildFile();
+         moduleABuildFile.setProperty("some-property", "different-value");
+
+        assertThat(moduleABuildFile.getProperty("some-property")).isEqualTo("different-value");
+        assertThat(context.getApplicationModules().getRootModule().getBuildFile().getProperty("some-property")).isEqualTo("value1");
     }
 
     @Test

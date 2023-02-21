@@ -39,28 +39,25 @@ import java.util.stream.Collectors;
 public class DependenciesChangedEventHandler {
     private final ProjectContextHolder projectContextHolder;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private JavaParser javaParser;
+    private final JavaParser javaParser;
 
     @EventListener
     public void onDependenciesChanged(DependenciesChangedEvent event) {
         if (projectContextHolder.getProjectContext() != null) {
-            Set<Parser.Input> compilationUnitsSet = projectContextHolder.getProjectContext().getProjectJavaSources().asStream()
+            Set<Parser.Input> compilationUnitsSet = projectContextHolder.getProjectContext().getProjectJavaSources().stream()
                     .map(js -> js.getResource().getSourceFile())
                     .map(js -> new Parser.Input(js.getSourcePath(), () -> new ByteArrayInputStream(js.printAll().getBytes(StandardCharsets.UTF_8))))
                     .collect(Collectors.toSet());
             List<Parser.Input> compilationUnits = new ArrayList<>(compilationUnitsSet);
 
             Path projectRootDirectory = projectContextHolder.getProjectContext().getProjectRootDirectory();
-            // FIXME: #7 only affected modules and source sets must be parsed
-            javaParser = JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
-            //javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
-            // FIXME: #7 handle "test"
-            // FIXME: #7 Provide a unified interface that calculates source set names by path
             javaParser.setSourceSet("main");
+            javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
+
             List<J.CompilationUnit> parsedCompilationUnits = javaParser.parseInputs(compilationUnits, null, new RewriteExecutionContext(applicationEventPublisher));
             // ((J.VariableDeclarations)parsedCompilationUnits.get(0).getClasses().get(0).getBody().getStatements().get(0)).getLeadingAnnotations().get(0).getType()
             parsedCompilationUnits.forEach(cu -> {
-                projectContextHolder.getProjectContext().getProjectJavaSources().asStream()
+                projectContextHolder.getProjectContext().getProjectJavaSources().stream()
                         .filter(js -> js.getResource().getAbsolutePath().equals(projectRootDirectory.resolve(cu.getSourcePath()).normalize()))
                         .forEach(js -> js.getResource().replaceWith(cu));
             });

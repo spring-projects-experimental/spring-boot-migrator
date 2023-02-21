@@ -58,6 +58,7 @@ public class UpgradeDepenenciesMigrationTest {
                             <version>2.7.5</version>
                             <relativePath/>
                         </parent>
+                        
                         <groupId>com.example</groupId>
                         <artifactId>dummy-root</artifactId>
                         <version>0.1.0-SNAPSHOT</version>
@@ -70,6 +71,7 @@ public class UpgradeDepenenciesMigrationTest {
                                 <classifier>jakarta</classifier>
                             </dependency>
                         </dependencies>
+                        
                     </project>
                     """
             );

@@ -27,7 +27,7 @@ public class AddDependenciesToApplicationModules implements MultiModuleHandler<A
     @Override
     public void handle(ProjectContext context) {
         if(!context.getApplicationModules().isSingleModuleApplication()) {
-            context.getApplicationModules().getTopmostApplicationModules().forEach(m -> action.getDependencies().forEach(d -> m.getBuildFile().addDependency(d)));
+            context.getApplicationModules().getTopmostApplicationModules().forEach(m -> m.getBuildFile().addDependencies(action.getDependencies()));
         }
     }
 

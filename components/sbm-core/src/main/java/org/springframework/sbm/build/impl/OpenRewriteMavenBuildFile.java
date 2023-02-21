@@ -15,25 +15,14 @@
  */
 package org.springframework.sbm.build.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.Parser;
-import org.openrewrite.Recipe;
-import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
+import org.jetbrains.annotations.NotNull;
+import org.openrewrite.*;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.*;
-import org.openrewrite.maven.internal.MavenXmlMapper;
-import org.openrewrite.maven.tree.MavenResolutionResult;
-import org.openrewrite.maven.tree.Parent;
-import org.openrewrite.maven.tree.ResolvedDependency;
-import org.openrewrite.maven.tree.ResolvedManagedDependency;
-import org.openrewrite.maven.tree.Scope;
-import org.openrewrite.xml.ChangeTagValueVisitor;
+import org.openrewrite.maven.tree.*;
 import org.openrewrite.xml.tree.Xml;
-import org.openrewrite.xml.tree.Xml.Tag;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.build.api.BuildFile;
@@ -47,7 +36,6 @@ import org.springframework.sbm.build.impl.inner.PluginRepositoryHandler;
 import org.springframework.sbm.build.migration.recipe.AddMavenPlugin;
 import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyManagement;
-import org.springframework.sbm.build.migration.visitor.AddProperty;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -57,15 +45,8 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -76,9 +57,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     private final ApplicationEventPublisher eventPublisher;
     private final PluginRepositoryHandler pluginRepositoryHandler = new PluginRepositoryHandler();
-	private final MavenBuildFileRefactoring<Xml.Document> refactoring ;
+	private final MavenBuildFileRefactoring<Xml.Document> refactoring;
 
-    // TODO: #7 clarify if RefreshPomModel is still required?
     // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
     public static class RefreshPomModel extends Recipe {
 
@@ -145,11 +125,12 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public OpenRewriteMavenBuildFile(Path absoluteProjectPath,
                                      Xml.Document sourceFile,
                                      ApplicationEventPublisher eventPublisher,
-                                     RewriteExecutionContext executionContext) {
+                                     RewriteExecutionContext executionContext,
+                                     MavenBuildFileRefactoring refactoring) {
         super(absoluteProjectPath, sourceFile);
         this.eventPublisher = eventPublisher;
         this.executionContext = executionContext;
-		this.refactoring = new MavenBuildFileRefactoring<>(this.getResource());
+        this.refactoring = refactoring;
     }
 
     public void apply(Recipe recipe) {
@@ -448,8 +429,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         if (!dependencies.isEmpty()) {
             Recipe r = getAddDependencyRecipe(dependencies.get(0));
             dependencies.stream().skip(1).forEach(d -> r.doNext(getAddDependencyRecipe(d)));
-            apply(r);
-            apply(new RefreshPomModel());
+            apply(r, getResource());
+            refreshPomModel();
             List<Dependency> exclusions = dependencies.stream()
                     .filter(not(d -> d.getExclusions().isEmpty()))
                     .flatMap(d -> d.getExclusions().stream())
@@ -461,6 +442,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         }
     }
 
+    private void refreshPomModel() {
+//        apply(new GenericOpenRewriteRecipe<>(() -> new UpdateMavenModel<>()));
+        refactoring.refreshPomModels();
+    }
+
     /**
      * Does not updateClasspathRegistry
      */
@@ -470,7 +456,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             ExcludeDependency excludeDependency = new ExcludeDependency(excludedDependency.getGroupId(), excludedDependency.getArtifactId(), excludedDependency.getScope());
             exclusions.stream().skip(1).forEach(d -> excludeDependency.doNext(new ExcludeDependency(d.getGroupId(), d.getArtifactId(), d.getScope())));
             apply(excludeDependency);
-            apply(new RefreshPomModel()); // TODO: 482: check if required
+            refreshPomModel();
         }
     }
 
@@ -510,7 +496,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 r.doNext(getDeleteDependencyVisitor(d));
             });
             apply(r);
-            apply(new RefreshPomModel()); // TODO: Should be obsolete with 7.23.0, see https://github.com/openrewrite/rewrite/issues/1754
+            refreshPomModel();
         }
     }
 
@@ -521,12 +507,24 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     @Override
-    public List<Dependency> getDependencyManagement() {
+    public List<Dependency> getEffectiveDependencyManagement() {
         MavenResolutionResult pom = getPom();
         if (pom.getPom().getDependencyManagement() == null) {
             return Collections.emptyList();
         }
         return pom.getPom().getDependencyManagement().stream()
+                .map(this::getDependency)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Dependency> getRequestedDependencyManagement() {
+        MavenResolutionResult pom = getPom();
+        if (pom.getPom().getRequested().getDependencyManagement() == null) {
+            return Collections.emptyList();
+        }
+        return pom.getPom().getRequested().getDependencyManagement().stream()
                 .map(this::getDependency)
                 .distinct()
                 .collect(Collectors.toList());
@@ -554,12 +552,23 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .build();
     }
 
+    private Dependency getDependency(ManagedDependency d) {
+        return Dependency.builder()
+                .groupId(d.getGroupId())
+                .artifactId(d.getArtifactId())
+                .version(d.getVersion())
+                .build();
+    }
+
     @Override
     public void addToDependencyManagementInner(Dependency dependency) {
         AddOrUpdateDependencyManagement addOrUpdateDependencyManagement = new AddOrUpdateDependencyManagement(dependency);
-        apply(new GenericOpenRewriteRecipe<>(() -> addOrUpdateDependencyManagement));
-        // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
-        apply(new RefreshPomModel());
+        apply(new GenericOpenRewriteRecipe<>(() -> addOrUpdateDependencyManagement), getResource());
+        refreshPomModel();
+    }
+
+    private <V extends TreeVisitor<?, ExecutionContext>> void apply(Recipe recipe, RewriteSourceFileHolder<Xml.Document> resource) {
+        refactoring.execute(resource, recipe);
     }
     // FIXME: #7 rework dependencies/classpath registry
     // collect declared dependencies (jar/pom)
@@ -569,8 +578,14 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public List<Path> getResolvedDependenciesPaths() {
         RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader = new RewriteMavenArtifactDownloader();
         return getPom().getDependencies().get(Scope.Provided).stream()
-                .map(rewriteMavenArtifactDownloader::downloadArtifact)
+                .filter(this::filterProjectDependencies)
+                .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
                 .collect(Collectors.toList());
+    }
+
+    @NotNull
+    private boolean filterProjectDependencies(ResolvedDependency rd) {
+        return rd.getRepository() != null;
     }
 
     @Override
@@ -595,7 +610,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public void addPlugin(Plugin plugin) {
-        apply(new AddMavenPlugin((OpenRewriteMavenPlugin) plugin));
+        apply(new AddMavenPlugin((OpenRewriteMavenPlugin) plugin), getResource());
     }
 
     @Override
@@ -632,14 +647,15 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
 	@Override
 	final public void deleteProperty(String key){
-		apply(new RemoveProperty(key));
-		apply(new RefreshPomModel());
-	}
+		apply(new RemoveProperty(key), getResource());
+        refreshPomModel();
+    }
 
     final public void setProperty(String key, String value) {
 		String current = getProperty(key);
-		apply(current == null ? new ChangePropertyValue(key, value, true) : new ChangePropertyValue(key, value, false));
-		apply(new RefreshPomModel());
+        Recipe recipe = current == null ? new AddProperty(key, value, false, false) : new ChangePropertyValue(key, value, false, false);
+        apply(recipe, getResource());
+        refreshPomModel();
     }
 
     @Override
@@ -733,10 +749,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public void addRepository(RepositoryDefinition repository) {
-        Recipe recipe = new AddMavenRepository(repository)
-                .doNext(new RefreshPomModel());
-
+        Recipe recipe = new AddMavenRepository(repository);
         apply(recipe);
+        refreshPomModel();
     }
 
     @Override
@@ -751,8 +766,8 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .map(r -> RepositoryDefinition.builder()
                         .id(r.getId())
                         .url(r.getUri())
-                        .releasesEnabled(r.isReleases())
-                        .snapshotsEnabled(r.isSnapshots())
+                        .releasesEnabled("true".equalsIgnoreCase(r.getReleases()))
+                        .snapshotsEnabled("true".equalsIgnoreCase(r.getSnapshots()))
                         .build()
                 ).collect(Collectors.toList());
     }

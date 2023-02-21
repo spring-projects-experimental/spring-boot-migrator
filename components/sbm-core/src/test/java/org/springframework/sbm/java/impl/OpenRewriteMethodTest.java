@@ -245,17 +245,18 @@ public class OpenRewriteMethodTest {
 
     @Test
     void testOtherVisibilityMethod() {
-        String sourceCode =
-                "public class Foo {                     \n" +
-                        "   public void foo1() {                        \n" +
-                        "   }                                   \n" +
-                        "   protected void foo2() {                        \n" +
-                        "   }                                   \n" +
-                        "   private void foo3() {                        \n" +
-                        "   }                                   \n" +
-                        "   default void foo4() {                        \n" +
-                        "   }                                   \n" +
-                        "}";
+        String sourceCode = """
+                public class Foo {                    \s
+                   public void foo1() {
+                   }
+                   protected void foo2() {
+                   }
+                   private void foo3() {
+                   }
+                   void foo4() {
+                   }
+                }
+                """;
 
         JavaSource javaSource = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0")

@@ -141,9 +141,9 @@ public class VisitorUtils {
         }
 
         @Override
-        public <T extends Tree> T withId(final UUID id) {
+        public <M extends Marker> M withId(UUID id) {
             MarkReturnType commentJavaSearchResult = this.id == id ? this : new MarkReturnType(id, null, searchResult.getDescription(), expression, imports);
-            return (T) commentJavaSearchResult;
+            return (M) commentJavaSearchResult;
         }
 
     }

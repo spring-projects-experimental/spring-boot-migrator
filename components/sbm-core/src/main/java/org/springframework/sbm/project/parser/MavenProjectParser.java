@@ -53,7 +53,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-// FIXME: #7 rename to ProjectParser
 public class MavenProjectParser {
 
     private final ResourceParser resourceParser;
@@ -80,12 +79,13 @@ public class MavenProjectParser {
         })).collect(Collectors.toList());
 
         eventPublisher.publishEvent(new StartedScanningProjectResourceSetEvent("Maven", inputs.size()));
+
         List<Xml.Document> mavens = mavenParser.parseInputs(inputs, projectDirectory, ctx);
         eventPublisher.publishEvent(new FinishedScanningProjectResourceSetEvent());
 
         mavens = sort(mavens);
 
-        if (log.isDebugEnabled()) {
+        if(log.isDebugEnabled()) {
             for (Xml.Document maven : mavens) {
                 MavenResolutionResult mavenResolution = MavenBuildFileUtil.getMavenResolution(maven);
                 log.debug("  {}:{}", mavenResolution.getPom().getGroupId(), mavenResolution.getPom().getArtifactId());
@@ -127,16 +127,20 @@ public class MavenProjectParser {
 
             // --------
             // Main resources
-            Set<Path> mainResourcePaths = Set.of(Path.of("src/main/resources"), Path.of("src/main/webapp"),
-                                                 Path.of("src/main/mule"));
+            Set<Path> mainResourcePaths = Set.of(
+                    Path.of("src/main/resources"),
+                    Path.of("src/main/webapp"),
+                    Path.of("src/main/mule")
+            );
 
             // FIXME: mainSourceSetMarker and provenance marker must be added to all resources
-            List<Resource> resourceList = resourceParser.filter(projectDirectory, mainResourcePaths, resources,
-                                                                relativeModuleDir);
+            List<Resource> resourceList = resourceParser.filter(projectDirectory, mainResourcePaths, resources, relativeModuleDir);
 
             List<Marker> resourceMarker = new ArrayList(javaProvenanceMarkers);
             resourceMarker.add(mainSourceSet);
-            resourceMarker.add(gitProvenance);
+            if(gitProvenance != null) {
+                resourceMarker.add(gitProvenance);
+            }
             List<SourceFile> mainResources = resourceParser.parse(projectDirectory, resourceList, resourceMarker);
             sourceFiles.addAll(mainResources);
 
@@ -144,27 +148,28 @@ public class MavenProjectParser {
             // Test Java sources
             ArrayList<Marker> markers = new ArrayList<>(javaProvenanceMarkers);
             markers.add(mainSourceSet);
-            List<J.CompilationUnit> testJavaSources = parseTestJavaSources(projectDirectory, resources, ctx, javaParser,
-                                                                           pomXml, mavenWithMarkers,
-                                                                           mavenProjectDirectory, markers);
+            List<J.CompilationUnit> testJavaSources = parseTestJavaSources(projectDirectory, resources, ctx, javaParser, pomXml, mavenWithMarkers, mavenProjectDirectory, markers);
             JavaSourceSet testSourceSet = javaParser.getSourceSet(ctx);
             sourceFiles.addAll(testJavaSources);
 
             // --------
             // Test resources
-            Set<Path> testResourcePaths = Set.of(Path.of("src/test/resources"), Path.of("src/test/webapp"),
-                                                 Path.of("src/test/mule"));
+            Set<Path> testResourcePaths = Set.of(
+                    Path.of("src/test/resources"),
+                    Path.of("src/test/webapp"),
+                    Path.of("src/test/mule")
+            );
 
-            List<Resource> filteredResources = resourceParser.filter(projectDirectory, testResourcePaths, resources,
-                                                                     relativeModuleDir);
+            List<Resource> filteredResources = resourceParser.filter(projectDirectory, testResourcePaths, resources, relativeModuleDir);
             List<Marker> testResourceMarker = new ArrayList(javaProvenanceMarkers);
             testResourceMarker.add(testSourceSet);
-            testResourceMarker.add(gitProvenance);
-            List<SourceFile> testResources = resourceParser.parse(projectDirectory, filteredResources,
-                                                                  testResourceMarker);
+            if(gitProvenance != null) {
+                testResourceMarker.add(gitProvenance);
+            }
+            List<SourceFile> testResources = resourceParser.parse(projectDirectory, filteredResources, testResourceMarker);
             sourceFiles.addAll(testResources);
         }
-        if (gitProvenance != null) {
+        if(gitProvenance != null) {
             sourceFiles = ListUtils.map(sourceFiles, s -> s.withMarkers(s.getMarkers().addIfAbsent(gitProvenance)));
         }
         return sourceFiles;
@@ -214,8 +219,7 @@ public class MavenProjectParser {
                 return content;
             });
         }).collect(Collectors.toList());
-        List<J.CompilationUnit> mainCompilationUnits = javaParser.parseInputs(mainJavaSourcesInput, projectDirectory,
-                                                                              ctx);
+        List<J.CompilationUnit> mainCompilationUnits = javaParser.parseInputs(mainJavaSourcesInput, projectDirectory, ctx);
         // FIXME: #7 JavaParser and adding markers is required when adding java sources and should go into dedicated component
         mainCompilationUnits.stream().forEach(cu -> cu.getMarkers().getMarkers().addAll(javaProvenanceMarkers));
         return mainCompilationUnits;
@@ -317,7 +321,11 @@ public class MavenProjectParser {
                 }
             }
         }
-
+        sorted.sort((d, e) -> d.getSourcePath().toString().compareTo(e.getSourcePath().toString()));
+        if(log.isDebugEnabled()) {
+            String collect = sorted.stream().map(Xml.Document::getSourcePath).map(Object::toString).collect(Collectors.joining(", "));
+            log.debug("Sorted Maven files: \"%s\"".formatted(collect));
+        }
         return sorted;
     }
 

@@ -115,7 +115,7 @@ public class SpringBoot23To24MigrationTest {
 
     List<Resource> resources = List.of();
 
-        ProjectContext projectContext = contextInitializer.initProjectContext(Path.of("./testcode/boot-23-app/given"), resources, new RewriteExecutionContext());
+        ProjectContext projectContext = contextInitializer.initProjectContext(Path.of("./testcode/boot-23-app/given"), resources);
         projectContext.getApplicationModules().getRootModule().getMainResourceSet().addStringResource("src/main/resources/data.sql", "# Empty file");
 
 

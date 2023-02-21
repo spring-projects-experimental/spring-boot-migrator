@@ -22,6 +22,7 @@ import lombok.Setter;
 import org.openrewrite.Parser;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -47,6 +48,10 @@ public class AddMinimalPomXml extends AbstractAction {
     @JsonIgnore
     private RewriteMavenParser rewriteMavenParser;
 
+    @Autowired
+    @JsonIgnore
+    private MavenBuildFileRefactoringFactory mavenBuildFileRefactoringFactory;
+
     @Override
     public void apply(ProjectContext context) {
         String projectDir = context.getProjectRootDirectory().toString();
@@ -70,8 +75,8 @@ public class AddMinimalPomXml extends AbstractAction {
                 .parseInputs(List.of(input), null, new RewriteExecutionContext(getEventPublisher())).get(0);
         OpenRewriteMavenBuildFile rewriteMavenBuildFile = new OpenRewriteMavenBuildFile(
                 context.getProjectRootDirectory(),
-                maven, getEventPublisher(), new RewriteExecutionContext(getEventPublisher())
-        );
+                maven, getEventPublisher(), new RewriteExecutionContext(getEventPublisher()),
+                mavenBuildFileRefactoringFactory.createRefactoring());
         context.getProjectResources().add(rewriteMavenBuildFile);
     }
 }
