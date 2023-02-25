@@ -151,6 +151,9 @@ public class UpgradeDependencyVersionTest {
 
     @Test
     void testUpgradeDependency_latestReleaseVersion() {
+
+        String springBootVersion = getLatestBootReleaseVersion();
+
         @Language("xml")
         String expectedPomXml =
                         """
@@ -176,11 +179,11 @@ public class UpgradeDependencyVersionTest {
                                     <groupId>org.springframework.boot</groupId>
                                     <artifactId>spring-boot-starter-test</artifactId>
                                     <scope>test</scope>
-                                    <version>3.0.2</version>
+                                    <version>%s</version>
                                 </dependency>
                             </dependencies>
                         </project>
-                        """;
+                        """.formatted(springBootVersion);
 
         String groupId = "org.springframework.boot";
         String artifactId = "spring-boot-starter-test";
@@ -190,6 +193,10 @@ public class UpgradeDependencyVersionTest {
         RecipeRun results = sut.run(mavens);
 
         assertThat(results.getResults().get(0).getAfter().printAll()).isEqualTo(expectedPomXml);
+    }
+
+    private String getLatestBootReleaseVersion() {
+        return "3.0.3";
     }
 
     @Test
