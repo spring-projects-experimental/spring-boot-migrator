@@ -65,7 +65,7 @@ public class ProjectContextFileSystemTestSupport {
                     ProjectContextInitializer projectContextBuilder = ctx.getBean(ProjectContextInitializer.class);
                     ScanCommand scanCommand = ctx.getBean(ScanCommand.class);
                     List<Resource> resources = scanCommand.scanProjectRoot(to.toString());
-                    ProjectContext projectContext = projectContextBuilder.initProjectContext(projectRoot, resources, new RewriteExecutionContext());
+                    ProjectContext projectContext = projectContextBuilder.initProjectContext(projectRoot, resources);
                     projectContextHolder.setContext(projectContext);
                 },
                 beanClasses.toArray(new Class[]{})

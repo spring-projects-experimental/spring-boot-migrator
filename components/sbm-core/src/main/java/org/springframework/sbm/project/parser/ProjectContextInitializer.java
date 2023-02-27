@@ -45,7 +45,7 @@ public class ProjectContextInitializer {
 
     private final RewriteSourceFileWrapper rewriteSourceFileWrapper;
 
-    public ProjectContext initProjectContext(Path projectDir, List<Resource> resources, RewriteExecutionContext rewriteExecutionContext) {
+    public ProjectContext initProjectContext(Path projectDir, List<Resource> resources) {
         final Path absoluteProjectDir = projectDir.toAbsolutePath().normalize();
         // TODO: remove git initialization, handled by precondition check
         initializeGitRepoIfNoneExists(absoluteProjectDir);

@@ -15,6 +15,8 @@
  */
 package org.springframework.sbm.boot.common.recipes;
 
+import org.assertj.core.api.Assertions;
+import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.test.RecipeIntegrationTestSupport;
 import org.junit.jupiter.api.Test;
 

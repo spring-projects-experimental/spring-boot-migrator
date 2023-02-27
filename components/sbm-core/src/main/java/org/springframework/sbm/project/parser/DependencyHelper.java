@@ -81,22 +81,11 @@ public class DependencyHelper {
                 version = parts[2];
             }
 
-
-            MavenRepository mavenRepository = new MavenRepository(
-                    "jcenter",
-                    "https://jcenter.bintray.com",
-                    true,
-                    true,
-                    true,
-                    null,
-                    null
-            );
-
             @Nullable String classifier = null;
             @Nullable String type = null;
             String scope = Scope.Compile.name();
             List<GroupArtifact> exclusions = new ArrayList<>();
-            boolean optional = false;
+            String optional = null;
 
             Dependency dependency = new Dependency(
                     new GroupArtifactVersion(groupId, artifactId, version),

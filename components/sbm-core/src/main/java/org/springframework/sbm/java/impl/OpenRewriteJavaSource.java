@@ -135,13 +135,14 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
 
     /**
      * Searches in the source file for the usage of the given annotation.
+     * Meta annotations are found.
      */
     @Override
     public boolean hasAnnotation(String annotation) {
         if (!annotation.startsWith("@")) {
             annotation = "@" + annotation;
         }
-        FindAnnotations findAnnotation = new FindAnnotations(annotation);
+        FindAnnotations findAnnotation = new FindAnnotations(annotation, true);
         List<Result> results = findAnnotation.run(List.of(getCompilationUnit())).getResults();
         return !results.isEmpty();
     }
