@@ -19,5 +19,5 @@ out/
 .factorypath
 pom.xml.versionsBackup
 **/src/generated/java/META-INF
-/.java-version
+**.java-version
 .rewrite-cache
