@@ -26,6 +26,7 @@ import org.springframework.sbm.mule.actions.javadsl.translators.amqp.AmqpOutboun
 import org.springframework.sbm.mule.actions.javadsl.translators.common.ExpressionLanguageTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.core.*;
 import org.springframework.sbm.mule.actions.javadsl.translators.db.InsertTranslator;
+import org.springframework.sbm.mule.actions.javadsl.translators.db.MysqlConfigAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.db.OracleConfigAdapter;
 import org.springframework.sbm.mule.actions.javadsl.translators.db.SelectTranslator;
 import org.springframework.sbm.mule.actions.javadsl.translators.dwl.DwlTransformTranslator;
@@ -98,7 +99,8 @@ public class JavaDSLActionBaseTest {
                         new HttpListenerConfigTypeAdapter(),
                         new WmqConnectorTypeAdapter(),
                         new RequestConfigTypeAdapter(),
-                        new OracleConfigAdapter()
+                        new OracleConfigAdapter(),
+                        new MysqlConfigAdapter()
                 )
         );
         MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
