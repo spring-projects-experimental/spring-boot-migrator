@@ -62,7 +62,7 @@ class HttpListenerTranslatorTest {
                 .build();
 
         DslSnippet snippet = apply(projectContext);
-        assertThat(snippet.getRenderedSnippet()).isEqualTo("return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)");
+        assertThat(snippet.getRenderedSnippet()).isEqualTo("return IntegrationFlows.from(Http.inboundGateway(\"/test\")).handle((p, h) -> p)");
     }
 
 
