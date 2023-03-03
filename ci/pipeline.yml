@@ -211,6 +211,7 @@ jobs:
 #          <<: *docker-hub-mirror-vars
       - task: maven-release
         image: ci-image
+        privileged: true
         file: git-repo/ci/tasks/maven-release.yml
 
       - put: github-release
