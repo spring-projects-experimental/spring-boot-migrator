@@ -3,7 +3,7 @@ anchors:
   git-repo-resource-source: &git-repo-resource-source
     uri: ((github-repo-uri)) # https://github.com/spring-projects-experimental/spring-boot-migrator
     username: ((github-repo-user)) # fabapp2
- #   password: ((github-ci-release-token))
+    password: ((github-ci-release-token))
     branch: ((branch))
   registry-image-resource-source: &registry-image-resource-source
     username: ((docker-hub-username))

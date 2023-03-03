@@ -45,7 +45,7 @@ public class LoggingDateFormatReportSectionTest {
                         
                         ==== What Changed
                         The default format for the date and time component of log messages for Logback and Log4j2 has changed to
-                        align with the ISO-8601 standard. The new default format `yyyy-MM-dd’T’HH:mm:ss.SSSXXX` uses a `T` to
+                        align with the ISO-8601 standard. The new default format `yyyy-MM-dd'T'HH:mm:ss.SSSXXX` uses a `T` to
                         separate the date and time instead of a space character and adds the timezone offset to the end.
                         The `LOG_DATEFORMAT_PATTERN` environment variable or `logging.pattern.dateformat` property can be used to
                         restore the previous default value of `yyyy-MM-dd HH:mm:ss.SSS`.
@@ -77,7 +77,7 @@ public class LoggingDateFormatReportSectionTest {
                         
                         ==== What Changed
                         The default format for the date and time component of log messages for Logback and Log4j2 has changed to
-                        align with the ISO-8601 standard. The new default format `yyyy-MM-dd’T’HH:mm:ss.SSSXXX` uses a `T` to
+                        align with the ISO-8601 standard. The new default format `yyyy-MM-dd'T'HH:mm:ss.SSSXXX` uses a `T` to
                         separate the date and time instead of a space character and adds the timezone offset to the end.
                         The `LOG_DATEFORMAT_PATTERN` environment variable or `logging.pattern.dateformat` property can be used to
                         restore the previous default value of `yyyy-MM-dd HH:mm:ss.SSS`.

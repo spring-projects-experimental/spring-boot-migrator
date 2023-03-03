@@ -455,6 +455,7 @@ limitations under the License.
                                 <!-- @formatter:on -->
                             </inlineHeader>
                             <excludes>
+                                <exclude>**/demo/**</exclude>
                                 <exclude>**/.sdkmanrc</exclude>
                                 <exclude>**/*.adoc</exclude>
                                 <exclude>**/*.puml</exclude>
