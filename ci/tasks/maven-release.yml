@@ -1,0 +1,9 @@
+---
+platform: linux
+
+inputs:
+  - name: git-repo
+outputs:
+  - name: git-repo
+run:
+  path: git-repo/ci/scripts/maven-release.sh
