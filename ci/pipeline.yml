@@ -210,6 +210,7 @@ jobs:
 #        vars:
 #          <<: *docker-hub-mirror-vars
       - task: maven-release
+        image: ci-image
         file: git-repo/ci/tasks/maven-release.yml
 
       - put: github-release
