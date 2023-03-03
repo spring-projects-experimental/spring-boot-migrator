@@ -5,5 +5,16 @@ inputs:
   - name: git-repo
 outputs:
   - name: git-repo
+params:
+  BRANCH:
+  CI: true
+  SKIP_PRIVILEGED: false
+  DOCKER_HUB_MIRROR:
 run:
-  path: git-repo/ci/scripts/maven-release.sh
+  path: bash
+  args:
+    - -ec
+    - |
+      source /docker-lib.sh
+      start_docker $DOCKER_HUB_MIRROR
+      ${PWD}/git-repo/ci/scripts/maven-release.sh
