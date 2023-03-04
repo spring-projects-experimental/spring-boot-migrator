@@ -196,7 +196,7 @@ public class UpgradeDependencyVersionTest {
     }
 
     private String getLatestBootReleaseVersion() {
-        return "3.0.3";
+        return "3.0.4";
     }
 
     @Test
