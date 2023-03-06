@@ -237,17 +237,6 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                         "    restclient.sniffer.delay-after-failure: '3'\n" +
                         "    restclient.sniffer.interval: '4'\n" +
                         "    username: username\n" +
-                        "  security:\n" +
-                        "    saml2:\n" +
-                        "      relyingparty:\n" +
-                        "        registration:\n" +
-                        "          idpone:\n" +
-                        "            assertingparty:\n" +
-                        "              verification:\n" +
-                        "                credentials:\n" +
-                        "                  certificate-location: classpath:saml/idpone.crt\n" +
-                        "              entity-id: https://idpone.com\n" +
-                        "              sso-url: https://idpone.com\n" +
                         "  cassandra:\n" +
                         "    keyspaceName: testKeySpace\n" +
                         "    contactPoints: localhost\n" +
@@ -305,10 +294,6 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                         "spring.elasticsearch.restclient.sniffer.delay-after-failure=3\n" +
                         "spring.elasticsearch.restclient.sniffer.interval=4\n" +
                         "spring.elasticsearch.username=username\n" +
-                        "\n" +
-                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.entity-id=https://idpone.com\n" +
-                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.sso-url=https://idpone.com\n" +
-                        "spring.security.saml2.relyingparty.registration.idpone.assertingparty.verification.credentials.certificate-location=classpath:saml/idpone.crt\n" +
                         "\n" +
                         "server.reactive.session.cookie.same-site=true\n" +
                         "\n" +
