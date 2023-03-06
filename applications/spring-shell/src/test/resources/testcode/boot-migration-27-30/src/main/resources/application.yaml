@@ -137,17 +137,6 @@ spring:
     type: type1
   config:
     use-legacy-processing: 'false'
-  security:
-    saml2:
-      relyingparty:
-        registration:
-          idpone:
-            identityprovider:
-              verification:
-                credentials:
-                  certificate-location: classpath:saml/idpone.crt
-              entity-id: https://idpone.com
-              sso-url: https://idpone.com
   webflux:
     session:
       cookie:

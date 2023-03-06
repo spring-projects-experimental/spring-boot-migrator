@@ -103,32 +103,6 @@
       condition:
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
         versionPattern: "3\\.0\\..*"
-      description: Migrate SAML configuration to Spring Boot 3.0 in yaml format
-      openRewriteRecipe: |-
-        type: specs.openrewrite.org/v1beta/recipe
-        name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
-        displayName: Migrate SAML configuration to Spring Boot 3.0 in yaml format
-        description: Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty.
-        recipeList:
-          - org.openrewrite.yaml.ChangeKey:
-              oldKeyPath: $.spring.security.saml2.relyingparty.registration.*[?(@.identityprovider)]
-              newKey: assertingparty
-    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
-      condition:
-        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-        versionPattern: "3\\.0\\..*"
-      description: Migrate SAML configuration to Spring Boot 3.0 in properties format
-      openRewriteRecipe: |-
-        type: specs.openrewrite.org/v1beta/recipe
-        name: org.openrewrite.java.spring.boot2.SpringBootPropertiesManual_2_7
-        displayName: Migrate SAML properties to Spring Boot 3.0 in properties
-        description: Renames spring.security.saml2.relyingparty.registration.(any).identityprovider to spring.security.saml2.relyingparty.registration.(any).assertingparty.
-        recipeList:
-          - org.springframework.sbm.boot.upgrade_27_30.SamlRelyingPartyPropertyApplicationPropertiesMove
-    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
-      condition:
-        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
-        versionPattern: "3\\.0\\..*"
       description: Migrate Cassandra configuration to Spring Boot 3.0 in yaml format
       openRewriteRecipe: |-
         type: specs.openrewrite.org/v1beta/recipe
