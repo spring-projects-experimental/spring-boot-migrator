@@ -2,7 +2,7 @@
 set -e
 
 CONFIG_DIR=git-repo/ci/config
-version=0.13.0
+version=0.14.0
 #$( cat artifactory-repo/build-info.json | jq -r '.buildInfo.modules[0].id' | sed 's/.*:.*:\(.*\)/\1/' )
 
 java -jar /github-changelog-generator.jar \
