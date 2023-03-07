@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
-// does this trigger a build?
+
 public class UpgradeDependencyVersionTest {
 
     @Language("xml")
@@ -196,7 +196,7 @@ public class UpgradeDependencyVersionTest {
     }
 
     private String getLatestBootReleaseVersion() {
-        return "3.0.3";
+        return "3.0.4";
     }
 
     @Test

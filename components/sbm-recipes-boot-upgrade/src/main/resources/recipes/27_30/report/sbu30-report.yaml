@@ -140,8 +140,8 @@
           remediation:
             description: |-
               Whenever Spring Boot depends on a Jakarta EE specification, Spring Boot 3.0 has upgraded to the version that is included in Jakarta EE 10. For example, Spring Boot 3.0 uses the Servlet 6.0 and JPA 3.1 specifications.
-              If you are managing your own dependencies, and aren’t relying on our starter POMs, you should ensure that you have updated your Maven or Gradle file appropriately. You need to be especially careful that older Java EE dependencies are no longer directly or transitively used in your build. For example, if you should always be using jakarta.servlet:jakarta.servlet-api and not javax.servlet:javax.servlet-api.
-              As well as dependency coordinate changes, Jakarta EE now uses jakarta packages rather than javax. Once you’ve update your dependencies you may find that import statements in your project need to be updated.
+              If you are managing your own dependencies, and aren't relying on our starter POMs, you should ensure that you have updated your Maven or Gradle file appropriately. You need to be especially careful that older Java EE dependencies are no longer directly or transitively used in your build. For example, if you should always be using jakarta.servlet:jakarta.servlet-api and not javax.servlet:javax.servlet-api.
+              As well as dependency coordinate changes, Jakarta EE now uses jakarta packages rather than javax. Once you've update your dependencies you may find that import statements in your project need to be updated.
             recipe: sbu30-migrate-to-jakarta-packages
           githubIssue: 723
           contributors:
@@ -229,7 +229,7 @@
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.LoggingDateFormatHelper
           change: |-
             The default format for the date and time component of log messages for Logback and Log4j2 has changed to
-            align with the ISO-8601 standard. The new default format `yyyy-MM-dd’T’HH:mm:ss.SSSXXX` uses a `T` to
+            align with the ISO-8601 standard. The new default format `yyyy-MM-dd'T'HH:mm:ss.SSSXXX` uses a `T` to
             separate the date and time instead of a space character and adds the timezone offset to the end.
             The `LOG_DATEFORMAT_PATTERN` environment variable or `logging.pattern.dateformat` property can be used to
             restore the previous default value of `yyyy-MM-dd HH:mm:ss.SSS`.
@@ -308,12 +308,12 @@
           change: |-
             When using constructor bound @ConfigurationProperties the @ConstructorBinding annotation
             is no longer required if the class has a single parameterized constructor.
-            If you have more than one constructor, you’ll still need to use `@ConstructorBinding`
+            If you have more than one constructor, you'll still need to use `@ConstructorBinding`
             to tell Spring Boot which one to use.
 
             For most users, this updated logic will allow for simpler `@ConfigurationProperties`
             classes. If, however, you have a `@ConfigurationProperties` and you want to inject
-            beans into the constructor rather than binding it, you’ll now need to add an
+            beans into the constructor rather than binding it, you'll now need to add an
             `@Autowired` annotation.
           sources:
             - https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0.0-M2-Release-Notes#constructingbinding-no-longer-needed-at-the-type-level[Spring Boot Release Notes]
@@ -486,7 +486,7 @@
         - title: Commons Multipart Upload
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.CommonsMultipartResolverHelper
           change: |-
-            Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
+            Support for Spring Framework's `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
           affected: |-
             We found usage of `CommonsMultipartResolver` in following files:
             
