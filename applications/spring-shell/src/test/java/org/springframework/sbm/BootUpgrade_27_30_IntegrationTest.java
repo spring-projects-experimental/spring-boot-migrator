@@ -16,7 +16,6 @@
 package org.springframework.sbm;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.MavenParser;
@@ -44,8 +43,17 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         scanProject();
 
-        applyRecipe("boot-2.7-3.0-dependency-version-update");
+        applyRecipe("sbu30-set-java-version");
+        applyRecipe("sbu30-upgrade-dependencies");
+        applyRecipe("sbu30-johnzon-dependency-update");
+        applyRecipe("sbu30-upgrade-spring-cloud-dependency");
+        applyRecipe("sbu30-upgrade-boot-version");
         applyRecipe("sbu30-migrate-to-jakarta-packages");
+        applyRecipe("sbu30-remove-construtor-binding");
+        applyRecipe("sbu30-auto-configuration");
+        applyRecipe("sbu30-225-logging-date-format");
+        applyRecipe("sbu30-migrate-spring-data-properties");
+        applyRecipe("sbu30-paging-and-sorting-repository");
 
         buildProject();
         verifyParentPomVersion();
@@ -237,17 +245,6 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                         "    restclient.sniffer.delay-after-failure: '3'\n" +
                         "    restclient.sniffer.interval: '4'\n" +
                         "    username: username\n" +
-                        "  cassandra:\n" +
-                        "    keyspaceName: testKeySpace\n" +
-                        "    contactPoints: localhost\n" +
-                        "    port: 9042\n" +
-                        "    username: testusername\n" +
-                        "    schemaAction: NONE\n" +
-                        "    request:\n" +
-                        "      timeout: 10s\n" +
-                        "    connection:\n" +
-                        "      connectTimeout: 10s\n" +
-                        "      initQueryTimeout: 10s\n" +
                         "  elasticsearch.connection-timeout: '1000'\n" +
                         "  elasticsearch.webclient.max-in-memory-size: '122'\n" +
                         "  elasticsearch.password: abc\n" +
@@ -263,6 +260,17 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                         "  sql.init.username: sa\n" +
                         "  sql.init.separator: k\n" +
                         "  sql.init.encoding: UTF-8\n" +
+                        "  cassandra:\n" +
+                        "    keyspaceName: testKeySpace\n" +
+                        "    contactPoints: localhost\n" +
+                        "    port: 9042\n" +
+                        "    username: testusername\n" +
+                        "    schemaAction: NONE\n" +
+                        "    request:\n" +
+                        "      timeout: 10s\n" +
+                        "    connection:\n" +
+                        "      connectTimeout: 10s\n" +
+                        "      initQueryTimeout: 10s\n" +
                         "server.reactive.session.cookie.same-site: 'true'\n");
     }
 
@@ -303,16 +311,16 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
                         "spring.datasource.password=password\n" +
                         "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect\n" +
                         "\n" +
-                        "spring.cassandra.keyspace-name=testKeySpace\n" +
-                        "spring.cassandra.port=9042\n" +
-                        "spring.cassandra.contact-points=localhost\n" +
-                        "spring.cassandra.username=testusername\n" +
-                        "spring.cassandra.schema-action=NONE\n" +
-                        "spring.cassandra.request.timeout=10s\n" +
-                        "spring.cassandra.connection.connect-timeout=10s\n" +
-                        "spring.cassandra.connection.init-query-timeout=10s\n" +
-                        "logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS\n" +
-                        "management.endpoints.jmx.exposure.include=*\n");
+                        "spring.data.cassandra.keyspace-name=testKeySpace\n" +
+                        "spring.data.cassandra.port=9042\n" +
+                        "spring.data.cassandra.contact-points=localhost\n" +
+                        "spring.data.cassandra.username=testusername\n" +
+                        "spring.data.cassandra.schema-action=NONE\n" +
+                        "spring.data.cassandra.request.timeout=10s\n" +
+                        "spring.data.cassandra.connection.connect-timeout=10s\n" +
+                        "spring.data.cassandra.connection.init-query-timeout=10s\n" +
+                        "logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS\n"
+        );
     }
 
     private void verifyParentPomVersion() {
