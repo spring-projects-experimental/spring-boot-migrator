@@ -50,8 +50,7 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
                         "import org.springframework.context.annotation.Bean;\n" +
                         "import org.springframework.context.annotation.Configuration;\n" +
                         "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integr" +
-                        "ation.dsl.IntegrationFlows;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
                         "import org.springframework.integration.handler.LoggingHandler;\n" +
                         "import org.springframework.integration.http.dsl.Http;\n" +
                         "\n" +
@@ -59,7 +58,7 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow foreach() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/foreach\")).handle((p, h) -> p)\n" +
+                        "        return IntegrationFlows.from(Http.inboundGateway(\"/foreach\")).handle((p, h) -> p)\n" +
                         "                //TODO: translate expression #[['apple', 'banana', 'orange']] which must produces an array\n" +
                         "                // to iterate over\n" +
                         "                .split()\n" +
@@ -124,7 +123,7 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow foreach() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/foreach\")).handle((p, h) -> p)\n" +
+                        "        return IntegrationFlows.from(Http.inboundGateway(\"/foreach\")).handle((p, h) -> p)\n" +
                         "                //TODO: translate expression #[[1, 2, 3, 4]] which must produces an array\n" +
                         "                // to iterate over\n" +
                         "                .split()\n" +
@@ -196,48 +195,48 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
 
         assertThat(getGeneratedJavaFile()).isEqualTo(
                 "package com.example.javadsl;\n" +
-                "import org.springframework.context.annotation.Bean;\n" +
-                "import org.springframework.context.annotation.Configuration;\n" +
-                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                "import org.springframework.integration.handler.LoggingHandler;\n" +
-                "import org.springframework.integration.http.dsl.Http;\n" +
-                "import org.springframework.util.LinkedMultiValueMap;\n" +
-                "\n" +
-                "@Configuration\n" +
-                "public class FlowConfigurations {\n" +
-                "    @Bean\n" +
-                "    IntegrationFlow foreach(org.springframework.integration.dsl.IntegrationFlow logOneInKannada) {\n" +
-                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/foreach\")).handle((p, h) -> p)\n" +
-                "                //TODO: translate expression #[[1, 2, 3, 4]] which must produces an array\n" +
-                "                // to iterate over\n" +
-                "                .split()\n" +
-                "                /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
-                "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
-                "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
-                "                        m -> m\n" +
-                "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 1]*/,\n" +
-                "                                        sf -> sf.gateway(logOneInKannada)\n" +
-                "                                )\n" +
-                "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 2]*/,\n" +
-                "                                        sf -> sf.log(LoggingHandler.Level.INFO, \"Eradu\")\n" +
-                "                                )\n" +
-                "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 3]*/,\n" +
-                "                                        sf -> sf.log(LoggingHandler.Level.INFO, \"Mooru\")\n" +
-                "                                )\n" +
-                "                                .resolutionRequired(false)\n" +
-                "                                .defaultSubFlowMapping(sf -> sf.log(LoggingHandler.Level.INFO, \"Moorina mele\"))\n" +
-                "                )\n" +
-                "                .aggregate()\n" +
-                "                .log(LoggingHandler.Level.INFO, \"Done with for looping\")\n" +
-                "                .get();\n" +
-                "    }\n" +
-                "\n" +
-                "    @Bean\n" +
-                "    IntegrationFlow logOneInKannada() {\n" +
-                "        return flow -> flow\n" +
-                "                .log(LoggingHandler.Level.INFO, \"Ondu\");\n" +
-                "    }\n" +
-                "}");
+                        "import org.springframework.context.annotation.Bean;\n" +
+                        "import org.springframework.context.annotation.Configuration;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
+                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
+                        "import org.springframework.integration.handler.LoggingHandler;\n" +
+                        "import org.springframework.integration.http.dsl.Http;\n" +
+                        "import org.springframework.util.LinkedMultiValueMap;\n" +
+                        "\n" +
+                        "@Configuration\n" +
+                        "public class FlowConfigurations {\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow foreach(org.springframework.integration.dsl.IntegrationFlow logOneInKannada) {\n" +
+                        "        return IntegrationFlows.from(Http.inboundGateway(\"/foreach\")).handle((p, h) -> p)\n" +
+                        "                //TODO: translate expression #[[1, 2, 3, 4]] which must produces an array\n" +
+                        "                // to iterate over\n" +
+                        "                .split()\n" +
+                        "                /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
+                        "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
+                        "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
+                        "                        m -> m\n" +
+                        "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 1]*/,\n" +
+                        "                                        sf -> sf.gateway(logOneInKannada)\n" +
+                        "                                )\n" +
+                        "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 2]*/,\n" +
+                        "                                        sf -> sf.log(LoggingHandler.Level.INFO, \"Eradu\")\n" +
+                        "                                )\n" +
+                        "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 3]*/,\n" +
+                        "                                        sf -> sf.log(LoggingHandler.Level.INFO, \"Mooru\")\n" +
+                        "                                )\n" +
+                        "                                .resolutionRequired(false)\n" +
+                        "                                .defaultSubFlowMapping(sf -> sf.log(LoggingHandler.Level.INFO, \"Moorina mele\"))\n" +
+                        "                )\n" +
+                        "                .aggregate()\n" +
+                        "                .log(LoggingHandler.Level.INFO, \"Done with for looping\")\n" +
+                        "                .get();\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    @Bean\n" +
+                        "    IntegrationFlow logOneInKannada() {\n" +
+                        "        return flow -> flow\n" +
+                        "                .log(LoggingHandler.Level.INFO, \"Ondu\");\n" +
+                        "    }\n" +
+                        "}");
     }
 }

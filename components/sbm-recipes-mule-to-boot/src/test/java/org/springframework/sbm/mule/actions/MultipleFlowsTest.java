@@ -58,7 +58,7 @@ public class MultipleFlowsTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow main_flow(org.springframework.integration.dsl.IntegrationFlow logging) {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/subflows\")).handle((p, h) -> p)\n" +
+                        "        return IntegrationFlows.from(Http.inboundGateway(\"/subflows\")).handle((p, h) -> p)\n" +
                         "                .gateway(logging)\n" +
                         "                .get();\n" +
                         "    }\n" +

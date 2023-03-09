@@ -87,7 +87,7 @@ public class SpringBootUpgradeReportDeserializationTest {
                       sections:
                                 
                         - title: Upgrade Dependencies
-                          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeDependenciesHelper
+                          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.IsSpring27Or30ProjectHelper
                           change: |-
                             Spring Boot 3.0 upgraded many used dependencies.\s
                             Also, dependencies previously in the `javax` packages use the new `jakarta` packages now.
