@@ -60,7 +60,7 @@ public class MuleToJavaDSLTransactionalTest extends JavaDSLActionBaseTest {
                 "public class FlowConfigurations {\n" +
                 "    @Bean\n" +
                 "    IntegrationFlow example(org.springframework.integration.dsl.IntegrationFlow exampleTransactional_1) {\n" +
-                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/transactional\")).handle((p, h) -> p)\n" +
+                "        return IntegrationFlows.from(Http.inboundGateway(\"/transactional\")).handle((p, h) -> p)\n" +
                 "                .gateway(exampleTransactional_1, e -> e.transactional(true))\n" +
                 "                .get();\n" +
                 "    }\n" +

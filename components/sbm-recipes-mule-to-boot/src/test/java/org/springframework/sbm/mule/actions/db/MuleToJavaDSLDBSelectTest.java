@@ -74,7 +74,7 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "public class FlowConfigurations {\n" +
                                 "    @Bean\n" +
                                 "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
-                                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
+                                "        return IntegrationFlows.from(Http.inboundGateway(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "// TODO: substitute expression language with appropriate java code \n" +
                                 "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
@@ -123,7 +123,7 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "public class FlowConfigurations {\n" +
                                 "    @Bean\n" +
                                 "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
-                                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/\")).handle((p, h) -> p)\n" +
+                                "        return IntegrationFlows.from(Http.inboundGateway(\"/\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "// TODO: substitute expression language with appropriate java code \n" +
                                 "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
@@ -174,7 +174,7 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
                                 "public class FlowConfigurations {\n" +
                                 "    @Bean\n" +
                                 "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
-                                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/db\")).handle((p, h) -> p)\n" +
+                                "        return IntegrationFlows.from(Http.inboundGateway(\"/db\")).handle((p, h) -> p)\n" +
                                 "                .log(LoggingHandler.Level.INFO)\n" +
                                 "// TODO: substitute expression language with appropriate java code \n" +
                                 "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +

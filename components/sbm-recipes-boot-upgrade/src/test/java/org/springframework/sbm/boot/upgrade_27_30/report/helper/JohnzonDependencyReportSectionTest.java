@@ -22,7 +22,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 
-public class JohnzonDependencyHelperSectionTest {
+public class JohnzonDependencyReportSectionTest {
 
     @Test
     public void shouldNotShowJsonBSection() {
@@ -55,16 +55,11 @@ public class JohnzonDependencyHelperSectionTest {
                                 A Jakarta EE 10-compatible version of Apache Johnzon can be used with Spring Boot 3, but you will now have to specify a version in your dependency declaration.
                                                                 
                                 ==== Why is the application affected
-                                Actually, we don't know if the scanned application is really affected by this change.
-                                But we found a dependency matching regex `org\\.springframework\\.boot\\:spring-boot-starter\\:.*`.
-                                This indicates that the scanned application might be affected.
+                                This application uses johnzon-core from org.apache.johnzon. Spring Boot 3.0 does not provide dependency support for this library,
+                                so an explicit version number must now be provided in the POM for this dependency.
                                                                 
                                 ==== Remediation
-                                [IMPORTANT]
-                                ====
-                                This section has been automatically generated from the https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#json-b[Spring Boot 3.0 Migration Guide^, role="ext-link"]. +
-                                **Please consider contributing to issue https://github.com/spring-projects-experimental/spring-boot-migrator/issues/678[#678^, role="ext-link"]**
-                                ====
+                                This recipe will add an explicit version number to the org.apache.johnzon:johnzon-core dependency in the POM.
                                                                 
                                                                 
                                 """);
