@@ -190,4 +190,32 @@ class SpringBeanMethodDeclarationFinderTest {
         }
     }
 
+    @Nested
+    class WithUnresolvedSymbols {
+        @Test
+        void shouldIgnoreClassesWhenSymbolsCantBeResolved() {
+
+            SpringBeanMethodDeclarationFinder sut
+                    = new SpringBeanMethodDeclarationFinder("a.b.c.HelloWorld");
+            builder.addJavaSource("src/main/java",
+                            """
+                            import org.springframework.context.annotation.Configuration;
+                            import org.springframework.context.annotation.Bean;
+                            import a.b.c.HelloWorld;
+                            @Configuration
+                            public class MyConfiguration {
+                              @Bean
+                              HelloWorld someBean() {
+                                  return null;
+                              }
+                            }
+                            """
+                    )
+                    .withBuildFileHavingDependencies("org.springframework:spring-context:5.3.22");
+
+
+            List<MatchingMethod> output = builder.build().search(sut);
+            assertThat(output).hasSize(0);
+        }
+    }
 }
