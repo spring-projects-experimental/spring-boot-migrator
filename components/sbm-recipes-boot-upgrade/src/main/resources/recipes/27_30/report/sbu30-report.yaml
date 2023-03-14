@@ -102,17 +102,17 @@
 #          contributors:
 #            - "Fabian Krüger[@fabapp2]"
 
-        - title: Upgrade Dependencies
-          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeDependenciesHelper
+        - title: Prepare for Spring 3.0 dependency
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.IsSpring27Or30ProjectHelper
+
           change: |-
-            Spring Boot 3.0 upgraded many used dependencies. 
-            Also, dependencies previously in the `javax` packages use the new `jakarta` packages now.
-            WARNING: THis is a dummy and needs to be replaced with the matching changes from the release notes!
+            Some of the dependencies artifacts are removed/deprecated/moved to new co ordinates, this automated recipe helps prepare SBM to migrate
           affected: |-
-            List the found dependencies here?
+            *
           remediation:
             description: |-
-              A comprehensive list of affected dependencies and their new replacements
+              * adds ehcache classifier
+              * auto corrects right co ordinates of wiremock if used
             recipe: sbu30-upgrade-dependencies
           contributors:
             - "Fabian Krüger[@fabapp2]"
@@ -131,6 +131,28 @@
           githubIssue: TODO
           contributors:
             - "Fabian Krüger[@fabapp2]"
+
+        #
+        # Generated from https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#json-b
+        #
+        - title: JSON-B
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.JohnzonDependencyHelper
+          change: |-
+            Dependency management for Apache Johnzon has been removed in favor of Eclipse Yasson.
+            A Jakarta EE 10-compatible version of Apache Johnzon can be used with Spring Boot 3, but you will now have to specify a version in your dependency declaration.
+
+          affected: |-
+            This application uses johnzon-core from org.apache.johnzon. Spring Boot 3.0 does not provide dependency support for this library,
+            so an explicit version number must now be provided in the POM for this dependency.
+          remediation:
+            description: |-
+              This recipe will add an explicit version number to the org.apache.johnzon:johnzon-core dependency in the POM.
+            recipe: sbu30-johnzon-dependency-update
+
+          projects:
+            - spring-boot
+
+          gitHubIssue: 678
 
         - title: Upgrade to Jakarta EE 10
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeSpringBootVersionHelper
@@ -244,6 +266,28 @@
           contributors:
             - "Fabian Krüger[@fabapp2]"
 
+        - title: Deprecation of Spring.factories
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.SpringFactoriesHelper
+          change: |-
+            In Spring 2.7 custom auto configurations defined in spring.factories file has been moved to `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+          affected: |-
+            The scan found spring.factories file:
+
+            <#list files as file>
+            * `${file}`
+            </#list>
+          remediation:
+            description: ""
+            possibilities:
+              - title: Move spring.factories properties
+                description: |-
+                  Move the contents of spring.factories file into `org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+                resources:
+                  - https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.7-Release-Notes#auto-configuration-registration[Auto Configuration Registration Docs]
+                recipe: sbu30-auto-configuration
+          gitHubIssue: 150
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
         - title: Banner support
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.BannerSupportHelper
           change: |-
@@ -1545,36 +1589,6 @@
         #  contributors:
         #    - Your Name[@your-gh-handle]
 
-
-        #
-        # Generated from https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#json-b
-        #
-        - title: "JSON-B"
-          helper:
-            type: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConditionOnlyHelper
-            condition:
-              type: org.springframework.sbm.build.migration.conditions.AnyEffectiveDependencyExistMatchingRegex
-              dependencies:
-                - 'org\.springframework\.boot\:spring-boot-starter\:.*'
-
-          change: |-
-            Dependency management for Apache Johnzon has been removed in favor of Eclipse Yasson.
-            A Jakarta EE 10-compatible version of Apache Johnzon can be used with Spring Boot 3, but you will now have to specify a version in your dependency declaration.
-
-          affected: |-
-            Actually, we don't know if the scanned application is really affected by this change.
-            But we found a dependency matching regex `org\.springframework\.boot\:spring-boot-starter\:.*`.
-            This indicates that the scanned application might be affected.
-          remediation:
-            description: |-
-              [IMPORTANT]
-              ====
-              This section has been automatically generated from the https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#json-b[Spring Boot 3.0 Migration Guide^, role="ext-link"]. +
-              **Please consider contributing to issue https://github.com/spring-projects-experimental/spring-boot-migrator/issues/678[#678^, role="ext-link"]**
-              ====
-          projects:
-            - spring-boot
-          gitHubIssue: 678
         #  contributors:
         #    - Your Name[@your-gh-handle]
 

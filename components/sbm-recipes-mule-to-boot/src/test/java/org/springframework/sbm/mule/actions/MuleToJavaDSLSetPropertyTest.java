@@ -52,7 +52,7 @@ public class MuleToJavaDSLSetPropertyTest extends JavaDSLActionBaseTest {
                                 "public class FlowConfigurations {\n" +
                                 "    @Bean\n" +
                                 "    IntegrationFlow http_routeFlow() {\n" +
-                                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
+                                "        return IntegrationFlows.from(Http.inboundGateway(\"/test\")).handle((p, h) -> p)\n" +
                                 "                .enrichHeaders(h -> h.header(\"TestProperty\", \"TestPropertyValue\"))\n" +
                                 "                .get();\n" +
                                 "    }\n" +
