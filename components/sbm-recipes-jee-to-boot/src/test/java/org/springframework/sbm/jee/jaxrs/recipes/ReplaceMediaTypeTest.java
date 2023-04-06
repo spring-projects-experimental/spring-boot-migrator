@@ -519,21 +519,15 @@ class ReplaceMediaTypeTest {
         String sourceCode =
                 """
                         import javax.ws.rs.Path;
-                        import javax.ws.rs.Consumes;
-                        import javax.ws.rs.POST;
-                        import javax.ws.rs.PUT;
                         import javax.ws.rs.PathParam;
-                        import javax.ws.rs.Produces;
                         import javax.ws.rs.core.MediaType;
-
+                        import org.springframework.web.bind.annotation.RequestMapping;
+                        import org.springframework.web.bind.annotation.RequestMethod;
 
                         @Path("/hello")
                         class ControllerClass {
-                            @POST
-                            @PUT
                             @Path("/json/{name}")
-                            @Produces({"image/jpeg", "image/gif", "image/png", MediaType.APPLICATION_XML})
-                            @Consumes("application/json")
+                            @RequestMapping(value = "/json/{name}", produces = {"image/jpeg", "image/gif", "image/png", MediaType.APPLICATION_XML}, consumes = "application/json", method = RequestMethod.POST)"
                             public String getHelloWorldJSON(@PathParam("name") String name) {
                                 return "Hello";
                             }
@@ -542,23 +536,16 @@ class ReplaceMediaTypeTest {
         String expected =
                 """
                         import javax.ws.rs.Path;
-
-                        import javax.ws.rs.Consumes;
-
-                        import org.springframework.http.MediaType;
-                        import javax.ws.rs.POST;
-                        import javax.ws.rs.PUT;
                         import javax.ws.rs.PathParam;
-                        import javax.ws.rs.Produces;
-
+                        
+                        import org.springframework.http.MediaType;
+                        import org.springframework.web.bind.annotation.RequestMapping;
+                        import org.springframework.web.bind.annotation.RequestMethod;
 
                         @Path("/hello")
                         class ControllerClass {
-                            @POST
-                            @PUT
                             @Path("/json/{name}")
-                            @Produces({"image/jpeg", "image/gif", "image/png", MediaType.APPLICATION_XML_VALUE})
-                            @Consumes("application/json")
+                            @RequestMapping(value = "/json/{name}", produces = {"image/jpeg", "image/gif", "image/png", MediaType.APPLICATION_XML_VALUE}, consumes = "application/json", method = RequestMethod.POST)"
                             public String getHelloWorldJSON(@PathParam("name") String name) {
                                 return "Hello";
                             }
