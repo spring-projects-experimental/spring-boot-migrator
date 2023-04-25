@@ -1,5 +1,5 @@
 = Developer Documentation
-Fabian Krüger
+Fabian Krueger
 2022-02-28
 :appversion: 0.9.1
 :toc: left
