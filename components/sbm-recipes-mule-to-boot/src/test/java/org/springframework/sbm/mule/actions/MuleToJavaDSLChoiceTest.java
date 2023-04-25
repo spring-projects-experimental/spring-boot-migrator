@@ -68,7 +68,7 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow choiceFlow() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/choice\")).handle((p, h) -> p)\n" +
+                        "        return IntegrationFlows.from(Http.inboundGateway(\"/choice\")).handle((p, h) -> p)\n" +
                         "                //FIXME: element is not supported for conversion: <expression-filter/>\n" +
                         "                //FIXME: element is not supported for conversion: <set-variable/>\n" +
                         "                /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
@@ -143,7 +143,7 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow choiceFlow(org.springframework.integration.dsl.IntegrationFlow spanishHello) {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/choice\")).handle((p, h) -> p)\n" +
+                        "        return IntegrationFlows.from(Http.inboundGateway(\"/choice\")).handle((p, h) -> p)\n" +
                         "                //FIXME: element is not supported for conversion: <expression-filter/>\n" +
                         "                //FIXME: element is not supported for conversion: <set-variable/>\n" +
                         "                /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
@@ -223,7 +223,7 @@ public class MuleToJavaDSLChoiceTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow choiceFlow(org.springframework.integration.dsl.IntegrationFlow spanishHello) {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/choice\")).handle((p, h) -> p)\n" +
+                        "        return IntegrationFlows.from(Http.inboundGateway(\"/choice\")).handle((p, h) -> p)\n" +
                         "                //FIXME: element is not supported for conversion: <expression-filter/>\n" +
                         "                //FIXME: element is not supported for conversion: <set-variable/>\n" +
                         "                /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +

@@ -65,8 +65,8 @@ public class RecipeRenderer {
         builder.style(AttributedStyle.DEFAULT.italicDefault().boldDefault().foreground(Colors.rgbColor("yellow")));
         builder.append(recipe.getName());
         builder.style(AttributedStyle.DEFAULT);
-        builder.append(" [" + getAutomationEmoji(recipe.getAutomationInfo()) + "]");
-        builder.append("\n     -> " + recipe.getDescription());
+        builder.append(" [").append(getAutomationEmoji(recipe.getAutomationInfo())).append("]");
+        builder.append("\n     -> ").append(recipe.getDescription());
         builder.append("\n");
         return builder;
     }
@@ -81,13 +81,10 @@ public class RecipeRenderer {
     }
 
     private String getAutomationEmoji(RecipeAutomation recipeAutomation) {
-        switch (recipeAutomation) {
-            case AUTOMATED:
-                return AUTOMATED_EMOJI;
-            case PARTIALLY_AUTOMATED:
-                return MANUAL_EMOJI + " " + AUTOMATED_EMOJI;
-            default:
-                return MANUAL_EMOJI;
-        }
+        return switch (recipeAutomation) {
+            case AUTOMATED -> AUTOMATED_EMOJI;
+            case PARTIALLY_AUTOMATED -> MANUAL_EMOJI + " " + AUTOMATED_EMOJI;
+            default -> MANUAL_EMOJI;
+        };
     }
 }

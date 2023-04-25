@@ -39,6 +39,7 @@ public class LogStep implements ProgressStep {
         AttributedStringBuilder builder = new AttributedStringBuilder();
         builder.style(AttributedStyle.DEFAULT.bold().foreground(Colors.rgbColor("green")));
         builder.append("[ok]");
+
         return " ".repeat(indent.get()) + "    " + builder.toAttributedString().toAnsi() + " " + logMessage;
     }
 
@@ -51,6 +52,7 @@ public class LogStep implements ProgressStep {
                 .style(AttributedStyle.DEFAULT)
                 .append(" ")
                 .append(logMessage);
+
         return builder.toAttributedString().toAnsi();
     }
 
@@ -63,6 +65,7 @@ public class LogStep implements ProgressStep {
                 .style(AttributedStyle.DEFAULT)
                 .append(" ")
                 .append(logMessage);
+
         return builder.toAttributedString().toAnsi();
     }
 }

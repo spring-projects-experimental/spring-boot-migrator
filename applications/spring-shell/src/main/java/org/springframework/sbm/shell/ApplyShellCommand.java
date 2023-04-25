@@ -64,9 +64,11 @@ public class ApplyShellCommand {
         List<Recipe> applicableRecipes = applicableRecipeListCommand.execute(projectContext);
         AttributedString applicableRecipesOutput = applicableRecipeListRenderer.render(applicableRecipes);
 
-        AttributedString output = new AttributedStringBuilder().append(applyCommandOutput).append(System.lineSeparator()).append(applicableRecipesOutput).toAttributedString();
-
-        return output;
+        return new AttributedStringBuilder()
+                .append(applyCommandOutput)
+                .append(System.lineSeparator())
+                .append(applicableRecipesOutput)
+                .toAttributedString();
     }
 
     @NotNull
@@ -74,12 +76,14 @@ public class ApplyShellCommand {
         AttributedStringBuilder builder = new AttributedStringBuilder();
         builder.append("Applying recipe ");
         builder.style(AttributedStyle.DEFAULT.italicDefault().boldDefault().foreground(Colors.rgbColor("yellow")));
-        builder.append("'" + recipeName + "'");
+        builder.append("'")
+                .append(recipeName)
+                .append("'");
         return builder;
     }
 
     public Availability availabilityCheck() {
-        if(projectContextHolder.getProjectContext() != null) {
+        if (projectContextHolder.getProjectContext() != null) {
             return Availability.available();
         } else {
             return Availability.unavailable("You need to scan first");
@@ -89,7 +93,7 @@ public class ApplyShellCommand {
 
 @Component
 @RequiredArgsConstructor
-class ApplyRecipeValueProvider implements ValueProvider{
+class ApplyRecipeValueProvider implements ValueProvider {
 
     private final ProjectContextHolder projectContextHolder;
     private final ApplicableRecipeListCommand applicableRecipeListCommand;
@@ -98,7 +102,11 @@ class ApplyRecipeValueProvider implements ValueProvider{
     public List<CompletionProposal> complete(CompletionContext completionContext) {
         ProjectContext projectContext = projectContextHolder.getProjectContext();
         List<Recipe> applicableRecipes = applicableRecipeListCommand.execute(projectContext);
-        return applicableRecipes.stream().map(Recipe::getName).map(CompletionProposal::new).toList();
+
+        return applicableRecipes.stream()
+                .map(Recipe::getName)
+                .map(CompletionProposal::new)
+                .toList();
     }
 
 }

@@ -22,7 +22,6 @@ import org.jline.utils.AttributedStyle;
 import org.springframework.context.event.EventListener;
 import org.springframework.sbm.engine.events.*;
 import org.springframework.sbm.engine.recipe.Action;
-import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.shell.renderer.Printer;
 import org.springframework.sbm.shell.renderer.RecipeProgressRenderer;
 import org.springframework.stereotype.Component;
@@ -36,11 +35,11 @@ import java.util.stream.Collectors;
 
 /**
  * Renders progress information during the runtime of a recipe.
- *
+ * <p>
  * {@code RecipeProgressRenderer} handles the rendering of action progress.
  * A {@code ScheduledExecutorService} is used to periodically call the {@link RecipeProgressRenderer#render()} method
  * which renders a process as loading to provide visual feedback to users during a potentially long-running Action.
- *
+ * <p>
  * Logging to console will be disabled and log messages to info, warn and error level are redirected to the matching
  * {@link RecipeProgressRenderer#logError(String)},
  * {@link RecipeProgressRenderer#logWarning(String)} or
@@ -79,12 +78,12 @@ public class ApplyCommandRenderer {
     }
 
     private String getDescriptionWithIndent(Action a) {
-        if(a == null || a.getDescription() == null) return "";
+        if (a == null || a.getDescription() == null) return "";
 
         String[] lines = a.getDescription().split("\\r?\\n");
         List<String> strings = Arrays.asList(lines);
         String collect = "";
-        if(lines.length > 1) {
+        if (lines.length > 1) {
             collect = strings.subList(1, strings.size()).stream()
                     .map(l -> String.format("        %s", l))
                     .collect(Collectors.joining("\n"));
@@ -94,11 +93,11 @@ public class ApplyCommandRenderer {
 
     @EventListener
     public void onActionStarted(ActionStartedEvent e) {
-        if(scheduledExecutorService != null && ! scheduledExecutorService.isTerminated()) {
+        if (scheduledExecutorService != null && !scheduledExecutorService.isTerminated()) {
             scheduledExecutorService.shutdown();
         }
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-        scheduledExecutorService.scheduleWithFixedDelay(() -> recipeProgressRenderer.render(), initialDelay, delay, TimeUnit.MILLISECONDS);
+        scheduledExecutorService.scheduleWithFixedDelay(recipeProgressRenderer::render, initialDelay, delay, TimeUnit.MILLISECONDS);
         recipeProgressRenderer.startProcess(e.getDescription());
     }
 
