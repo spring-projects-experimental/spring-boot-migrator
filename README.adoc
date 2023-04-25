@@ -23,6 +23,11 @@ ____
 ❌ Gradle
 
 
+== Documentation
+
+- https://spring-projects-experimental.github.io/spring-boot-migrator/user-documentation.html[User documentation,window=_blank]
+- https://spring-projects-experimental.github.io/spring-boot-migrator/developer-documentation.html[Developer documentation,window=_blank]
+
 
 == Spring Boot 3.0 Upgrade - Interactive Web UI
 We are working on automated upgrade from Spring Boot 2.7 to Spring Boot 3.0.
@@ -121,11 +126,6 @@ NOTE: **SBM requires a JDK 17.**
 
 WARNING: **Some integration tests use Docker so you'll need Docker to run them. +
 You can pass the `-DskipTests` flag to the `mvn` command to ignore tests.**
-
-== Documentation
-
-- https://spring-projects-experimental.github.io/spring-boot-migrator/user-documentation.html[User documentation,window=_blank]
-- https://spring-projects-experimental.github.io/spring-boot-migrator/developer-documentation.html[Developer documentation,window=_blank]
 
 
 == Contributing
