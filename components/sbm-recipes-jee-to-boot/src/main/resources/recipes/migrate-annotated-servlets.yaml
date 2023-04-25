@@ -3,8 +3,8 @@
   order: 70
   condition:
     description: Any class has import starting with javax.servlet
-    type: org.springframework.sbm.java.migration.conditions.HasImportStartingWith
-    value: javax.servlet
+    type: org.springframework.sbm.java.migration.conditions.HasTypeAnnotation
+    annotation: javax.servlet.annotation.WebServlet
   actions:
     - type: org.springframework.sbm.build.migration.actions.AddDependencies
       condition:
