@@ -24,6 +24,8 @@ import org.openrewrite.maven.UpgradeDependencyVersion;
 import org.openrewrite.xml.tree.Xml;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -200,18 +202,16 @@ public class UpgradeDependencyVersionTest {
     }
 
     @Test
-    void testUpgradeDependency_nullVersion() {
+    void testUpgradeDependency_nullVersion() throws InterruptedException {
         String groupId = "org.springframework.boot";
         String artifactId = "spring-boot-starter-test";
         String version = null;
         UpgradeDependencyVersion sut = new UpgradeDependencyVersion(groupId, artifactId, version, null, false, List.of());
 
-        AtomicBoolean exceptionThrown = new AtomicBoolean(false);
-        RecipeRun results = sut.run(mavens, new InMemoryExecutionContext((e) -> {
-            e.printStackTrace();
-            exceptionThrown.set(true);
+        CountDownLatch thrown = new CountDownLatch(1);
+        sut.run(mavens, new InMemoryExecutionContext((e) -> {
+            thrown.countDown();
         }));
-//        assertThat(exceptionThrown).isTrue();
-
+        assertThat(thrown.await(50, TimeUnit.MILLISECONDS)).isTrue();
     }
 }
