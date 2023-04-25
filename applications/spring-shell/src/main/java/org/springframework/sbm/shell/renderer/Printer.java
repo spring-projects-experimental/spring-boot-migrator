@@ -31,7 +31,7 @@ public class Printer {
     }
 
     synchronized public void print(String text) {
-        if(previousLine != null && previousLine.get() != null && !previousLine.get().isEmpty()) {
+        if(previousLine.get() != null && !previousLine.get().isEmpty()) {
             clearPreviousLine();
         }
         previousLine.set(text);

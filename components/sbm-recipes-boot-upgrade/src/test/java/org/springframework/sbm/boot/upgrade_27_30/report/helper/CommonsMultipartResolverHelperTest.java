@@ -57,7 +57,7 @@ public class CommonsMultipartResolverHelperTest {
                          === Commons Multipart Upload
                                                          
                          ==== What Changed
-                         Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
+                         Support for Spring Framework's `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
                                                          
                          ==== Why is the application affected
                          We found usage of `CommonsMultipartResolver` in following files:
@@ -122,7 +122,7 @@ public class CommonsMultipartResolverHelperTest {
                          === Commons Multipart Upload
                                                          
                          ==== What Changed
-                         Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
+                         Support for Spring Framework's `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
                                                          
                          ==== Why is the application affected
                          We found usage of `CommonsMultipartResolver` in following files:

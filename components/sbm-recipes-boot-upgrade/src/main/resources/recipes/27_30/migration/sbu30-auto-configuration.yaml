@@ -1,0 +1,9 @@
+- name: sbu30-auto-configuration
+  description: Move EnableAutoConfiguration Property from spring.factories to AutoConfiguration.imports
+  condition:
+    type: org.springframework.sbm.common.migration.conditions.TrueCondition
+  actions:
+    - type: org.springframework.sbm.boot.upgrade.common.actions.CreateAutoconfigurationAction
+      condition:
+        type: org.springframework.sbm.boot.upgrade_27_30.report.helper.SpringFactoriesHelper
+      description: Move EnableAutoConfiguration Property from spring.factories to AutoConfiguration.imports

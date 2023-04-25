@@ -62,7 +62,7 @@ public class MuleToJavaDSLTransformerTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow http_flow() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
+                        "        return IntegrationFlows.from(Http.inboundGateway(\"/test\")).handle((p, h) -> p)\n" +
                         "                .transform(new ObjectToStringTransformer())\n" +
                         "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
                         "                .transform(s -> ((String) s).getBytes(StandardCharsets.UTF_8))\n" +

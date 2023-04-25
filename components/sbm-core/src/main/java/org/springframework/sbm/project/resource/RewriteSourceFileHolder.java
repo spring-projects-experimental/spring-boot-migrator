@@ -40,7 +40,11 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
     }
 
     public String print() {
-        return sourceFile.printAll();
+        try {
+            return sourceFile.printAll();
+        } catch (Exception e) {
+            throw new RuntimeException("Exception while printing '%s'".formatted(sourceFile.getSourcePath()), e);
+        }
     }
 
     @Override

@@ -47,7 +47,7 @@ public class ApplicableRecipeListRenderer {
             // reset progressbar
             pb = null;
             long numJavaSources = e.getSize();
-            if(numJavaSources != 0) {
+            if (numJavaSources != 0) {
                 String message = e.getMessage();
                 message = message.length() > MAX_LENGTH ? message.substring(0, MAX_LENGTH) : message + " ".repeat(MAX_LENGTH - message.length());
                 pb = createProgressBar(message, numJavaSources);
@@ -60,7 +60,7 @@ public class ApplicableRecipeListRenderer {
 
         @EventListener
         public void listenForFinishedScanningProjectResourceSetEvent(FinishedScanningProjectResourceSetEvent e) {
-            if(pb != null) {
+            if (pb != null) {
 //                pb.stepTo(pb.getMax());
                 pb.close();
             }
@@ -69,7 +69,7 @@ public class ApplicableRecipeListRenderer {
         @EventListener
         // TODO: listen for finish instead of start here
         public void listenForStartedScanningEvent(StartedScanningProjectResourceEvent e) {
-            if(pb != null) {
+            if (pb != null) {
                 pb.stepBy(1);
             }
         }

@@ -1,4 +1,4 @@
-- name: sbu30-migrate-javax-to-jakarta
+- name: sbu30-migrate-to-jakarta-packages
   description: Spring boot 3.0 Upgrade - Migrate javax packages to new jakarta packages
   condition:
     type: org.springframework.sbm.common.migration.conditions.TrueCondition
@@ -9,4 +9,4 @@
         type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
         versionPattern: "3\\.0\\..*"
       description: Replace javax with new jakarta packages
-      openRewriteRecipeName: org.openrewrite.java.migrate.JavaxMigrationToJakarta
+      openRewriteRecipeName: org.openrewrite.java.migrate.jakarta.JavaxMigrationToJakarta

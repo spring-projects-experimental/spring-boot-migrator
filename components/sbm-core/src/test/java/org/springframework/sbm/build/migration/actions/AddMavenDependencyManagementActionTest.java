@@ -160,7 +160,7 @@ class AddMavenDependencyManagementActionTest {
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.springframework.sbm.examples</groupId>\n" +
                         "    <artifactId>artifact-id</artifactId>\n" +
-                        "    <packaging>jar</packaging>\n" +
+                        "    <packaging>pom</packaging>\n" +
                         "    <version>0.0.1-SNAPSHOT</version>\n" +
                         "</project>\n";
 
@@ -171,7 +171,7 @@ class AddMavenDependencyManagementActionTest {
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <groupId>org.springframework.sbm.examples</groupId>\n" +
                         "    <artifactId>artifact-id</artifactId>\n" +
-                        "    <packaging>jar</packaging>\n" +
+                        "    <packaging>pom</packaging>\n" +
                         "    <version>0.0.1-SNAPSHOT</version>\n" +
                         "    <dependencyManagement>\n" +
                         "        <dependencies>\n" +

@@ -41,6 +41,15 @@ public class AddProperty extends Recipe {
             example = "false")
     String value;
 
+    /*
+    @Option(displayName = "Optional delimiter",
+            description = "Property entries support different delimiters (`=`, `:`, or whitespace). The default value is `=` unless provided the delimiter of the new property entry.",
+            required = false,
+            example = ":")
+    @Nullable
+    String delimiter;
+    */
+
     @Override
     public String getDisplayName() {
         return "Add property with key and value";
@@ -71,7 +80,15 @@ public class AddProperty extends Recipe {
             if (!contents.isEmpty()) {
                 prefix = "\n";
             }
-            contents.add(new Entry(Tree.randomId(), prefix, Markers.EMPTY, key, "", new Value(Tree.randomId(), "", Markers.EMPTY, value)));
+            contents.add(
+                    new Entry(
+                            Tree.randomId(),
+                            prefix,
+                            Markers.EMPTY,
+                            key,
+                            "",
+                            Entry.Delimiter.EQUALS,
+                            new Value(Tree.randomId(), "", Markers.EMPTY, value)));
             return file.withContent(Collections.unmodifiableList(contents));
         }
 

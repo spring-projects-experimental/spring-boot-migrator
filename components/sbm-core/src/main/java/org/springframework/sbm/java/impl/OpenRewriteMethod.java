@@ -164,7 +164,12 @@ public class OpenRewriteMethod implements Method {
             return Optional.empty();
         }
 
-        return Optional.of(TypeUtils.asFullyQualified(returnTypeExpression.getType()).getFullyQualifiedName());
+        JavaType.FullyQualified jfq = TypeUtils.asFullyQualified(returnTypeExpression.getType());
+        if (jfq == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(jfq.getFullyQualifiedName());
+        }
     }
 
     // FIXME: renaming method should not require a methodPattern in this context

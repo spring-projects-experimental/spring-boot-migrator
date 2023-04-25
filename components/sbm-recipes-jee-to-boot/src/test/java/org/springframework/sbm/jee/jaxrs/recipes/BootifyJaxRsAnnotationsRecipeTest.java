@@ -48,6 +48,7 @@ public class BootifyJaxRsAnnotationsRecipeTest {
                 JavaRecipeAction.class,
                 JavaRecipeAction.class,
                 JavaRecipeAction.class,
+                JavaRecipeAction.class,
                 OpenRewriteDeclarativeRecipeAdapter.class);
     }
 }

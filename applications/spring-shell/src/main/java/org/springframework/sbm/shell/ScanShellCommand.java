@@ -36,11 +36,8 @@ import java.util.List;
 public class ScanShellCommand {
 
     private final ScanCommand scanCommand;
-
     private final ApplicableRecipeListRenderer applicableRecipeListRenderer;
-
     private final ApplicableRecipeListCommand applicableRecipeListCommand;
-
     private final ProjectContextHolder contextHolder;
     private final PreconditionVerificationRenderer preconditionVerificationRenderer;
     private final ScanCommandHeaderRenderer scanCommandHeaderRenderer;

@@ -15,9 +15,9 @@
  */
 package org.springframework.sbm.support.openrewrite.api;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.maven.MavenDownloadingException;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.cache.RocksdbMavenPomCache;
@@ -32,16 +32,16 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class MavenDependencyDownloadTest {
 
     @Problem(
-//            description = "Some dependencies cannot be downloaded because the resolved resource path is wrong",
-//            version = "7.16.3"
             description = "Fails with containingPom being null",
-            since = "7.18.2"
+            since = "7.18.2",
+            fixedIn = "7.35.0"
     )
-    @Disabled
-    void downloadDependencies(@TempDir Path tempDir) {
+    void downloadDependencies(@TempDir Path tempDir) throws MavenDownloadingException {
         InMemoryExecutionContext executionContext = new InMemoryExecutionContext((t) -> System.out.println(t.getMessage()));
         MavenExecutionContextView ctx = MavenExecutionContextView.view(executionContext);
         ctx.setPomCache(new RocksdbMavenPomCache(tempDir.resolve("rewrite-cache")));
@@ -52,23 +52,8 @@ public class MavenDependencyDownloadTest {
         String relativePath = "";
         ResolvedPom containingPom = null;
         Pom download = mavenPomDownloader.download(gav, relativePath, containingPom, List.of());
-//        assertThat(download).isNull();
+        assertThat(download).isNotNull();
+        assertThat(download.getSourcePath().toString()).isEqualTo("com.h2database/h2/1.4.200");
     }
 
-    @Disabled
-    void downloadDependencies2(@TempDir Path tempDir) {
-        InMemoryExecutionContext executionContext = new InMemoryExecutionContext((t) -> System.out.println(t.getMessage()));
-        MavenExecutionContextView ctx = MavenExecutionContextView.view(executionContext);
-        ctx.setPomCache(new RocksdbMavenPomCache(tempDir.resolve("rewrite-cache")));
-
-        HashMap<Path, Pom> projectPoms = new HashMap<>();
-        MavenPomDownloader mavenPomDownloader = new MavenPomDownloader(projectPoms, ctx);
-        GroupArtifactVersion gav = new GroupArtifactVersion("com.h2database", "h2", "1.4.200");
-        String relativePath = "";
-        ResolvedPom containingPom = null;
-        Xml.Document document = MavenParser.builder().build().parse("<pom/>").get(0);
-
-        Pom download = mavenPomDownloader.download(gav, relativePath, containingPom, List.of());
-//        assertThat(download).isNull();
-    }
 }

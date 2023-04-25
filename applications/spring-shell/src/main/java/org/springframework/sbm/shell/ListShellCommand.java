@@ -34,6 +34,7 @@ public class ListShellCommand {
     @ShellMethod(key = {"list", "l"}, value = "List all existing (applicable and non-applicable) recipes.")
     public AttributedString list() {
         final List<Recipe> recipes = listCommand.execute();
+
         return recipeListRenderer.render(recipes);
     }
 }
