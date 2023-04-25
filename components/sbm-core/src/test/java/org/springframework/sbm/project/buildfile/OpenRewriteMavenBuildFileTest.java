@@ -21,6 +21,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
@@ -2682,5 +2683,26 @@ public class OpenRewriteMavenBuildFileTest {
 
         assertThat(openRewriteMavenBuildFile.getParentPomDeclaration()).isNotEmpty();
         assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().get().getVersion()).isEqualTo("2.5.6");
+    }
+
+    @GitHubIssue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/55")
+    @Test
+    void parsingPomWithEmptyPropertiesSectionShouldSucceed() {
+        String pomXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-parent</artifactId>
+                    <version>2.4.12</version>
+                    <properties>
+                    
+                    </properties>
+                </project>
+                """;
+
+        ProjectContext projectContext = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build();
+        assertThat(projectContext.getApplicationModules().getRootModule().getBuildFile()).isNotNull();
     }
 }
