@@ -40,6 +40,7 @@ public class ShellUserInteractions implements UserInteractions {
         while (!YES_RESPONSE.equalsIgnoreCase(input) && !NO_RESPONSE.equalsIgnoreCase(input)) {
             input = lineReader.get().readLine("\n" + question + " > ").trim();
         }
+
         return YES_RESPONSE.equalsIgnoreCase(input);
     }
 

@@ -26,6 +26,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ShellPromptProvider implements PromptProvider {
 
+	private static final String MIGRATOR_CONSTANT = "migrator";
+
 	@Autowired
 	ProjectContextHolder holder;
 	
@@ -35,12 +37,9 @@ public class ShellPromptProvider implements PromptProvider {
 	}
 
 	private String promptString() {
-		ProjectContext pc = holder.getProjectContext();
-		if (pc==null) {
-			return "migrator";
-		} else {
-			return pc.getProjectRootDirectory().getFileName().toString();
-		}
+		ProjectContext projectContext = holder.getProjectContext();
+
+		return projectContext == null ? MIGRATOR_CONSTANT : projectContext.getProjectRootDirectory().getFileName().toString();
 	}
 
 }

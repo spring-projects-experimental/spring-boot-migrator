@@ -80,7 +80,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 public class FlowConfigurations {
                                     @Bean
                                     IntegrationFlow dwlFlow() {
-                                        return IntegrationFlows.from(Http.inboundChannelAdapter("/dwl")).handle((p, h) -> p)
+                                        return IntegrationFlows.from(Http.inboundGateway("/dwl")).handle((p, h) -> p)
                                                 .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
                                                 .transform(DwlFlowTransform_2::transform)
                                                 .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
@@ -120,37 +120,37 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(3);
         assertThat(getGeneratedJavaFile())
                 .isEqualTo("""
-                                   package com.example.javadsl;
-                                   import org.springframework.context.annotation.Bean;
-                                   import org.springframework.context.annotation.Configuration;
-                                   import org.springframework.integration.dsl.IntegrationFlow;
-                                   import org.springframework.integration.dsl.IntegrationFlows;
-                                   import org.springframework.integration.handler.LoggingHandler;
-                                   import org.springframework.integration.http.dsl.Http;
-                                                                      
-                                   @Configuration
-                                   public class FlowConfigurations {
-                                       @Bean
-                                       IntegrationFlow dwlFlow() {
-                                           return IntegrationFlows.from(Http.inboundChannelAdapter("/dwl")).handle((p, h) -> p)
-                                                   .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
-                                                   .handle((p, h) -> {
-                                                       TmDwPayload dwPayload = new TmDwPayload();
-                                                       String contentType = "application/json";
-                                                       if (h.get("contentType") != null) {
-                                                           contentType = h.get("contentType").toString();
-                                                       }
-                                                       dwPayload.setId(h.getId().toString());
-                                                       dwPayload.setSourceType(contentType);
-                                                       dwPayload.setSource(h.get("http_requestUrl").toString());
-                                                       dwPayload.setPayload(p.toString());
-                                                       return dwPayload;
-                                                   })
-                                                   .transform(DwlFlowTransformTM_2::transform)
-                                                   .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
-                                                   .get();
-                                       }
-                                   }""");
+                        package com.example.javadsl;
+                        import org.springframework.context.annotation.Bean;
+                        import org.springframework.context.annotation.Configuration;
+                        import org.springframework.integration.dsl.IntegrationFlow;
+                        import org.springframework.integration.dsl.IntegrationFlows;
+                        import org.springframework.integration.handler.LoggingHandler;
+                        import org.springframework.integration.http.dsl.Http;
+                                                          
+                        @Configuration
+                        public class FlowConfigurations {
+                            @Bean
+                            IntegrationFlow dwlFlow() {
+                                return IntegrationFlows.from(Http.inboundGateway("/dwl")).handle((p, h) -> p)
+                                        .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
+                                        .handle((p, h) -> {
+                                            TmDwPayload dwPayload = new TmDwPayload();
+                                            String contentType = "application/json";
+                                            if (h.get("contentType") != null) {
+                                                contentType = h.get("contentType").toString();
+                                            }
+                                            dwPayload.setId(h.getId().toString());
+                                            dwPayload.setSourceType(contentType);
+                                            dwPayload.setSource(h.get("http_requestUrl").toString());
+                                            dwPayload.setPayload(p.toString());
+                                            return dwPayload;
+                                        })
+                                        .transform(DwlFlowTransformTM_2::transform)
+                                        .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
+                                        .get();
+                            }
+                        }""");
         assertThat(projectContext.getProjectJavaSources().list().get(1).print())
                 .isEqualTo("""
                                    package com.example.javadsl;
@@ -274,25 +274,25 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
         assertThat(getGeneratedJavaFile())
                 .isEqualTo("""
-                                   package com.example.javadsl;
-                                   import org.springframework.context.annotation.Bean;
-                                   import org.springframework.context.annotation.Configuration;
-                                   import org.springframework.integration.dsl.IntegrationFlow;
-                                   import org.springframework.integration.dsl.IntegrationFlows;
-                                   import org.springframework.integration.handler.LoggingHandler;
-                                   import org.springframework.integration.http.dsl.Http;
-                                                                      
-                                   @Configuration
-                                   public class FlowConfigurations {
-                                       @Bean
-                                       IntegrationFlow dwlFlow() {
-                                           return IntegrationFlows.from(Http.inboundChannelAdapter("/dwl")).handle((p, h) -> p)
-                                                   .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
-                                                   .transform(MapClientRiskRatingResponseTransform::transform)
-                                                   .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
-                                                   .get();
-                                       }
-                                   }""");
+                        package com.example.javadsl;
+                        import org.springframework.context.annotation.Bean;
+                        import org.springframework.context.annotation.Configuration;
+                        import org.springframework.integration.dsl.IntegrationFlow;
+                        import org.springframework.integration.dsl.IntegrationFlows;
+                        import org.springframework.integration.handler.LoggingHandler;
+                        import org.springframework.integration.http.dsl.Http;
+                                                
+                        @Configuration
+                        public class FlowConfigurations {
+                            @Bean
+                            IntegrationFlow dwlFlow() {
+                                return IntegrationFlows.from(Http.inboundGateway("/dwl")).handle((p, h) -> p)
+                                        .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
+                                        .transform(MapClientRiskRatingResponseTransform::transform)
+                                        .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
+                                        .get();
+                            }
+                        }""");
         assertThat(projectContext.getProjectJavaSources().list().get(1).print())
                 .isEqualTo("""
                                    package com.example.javadsl;
@@ -346,24 +346,24 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
         assertThat(getGeneratedJavaFile())
                 .isEqualTo("""
-                                   package com.example.javadsl;
-                                   import org.springframework.context.annotation.Bean;
-                                   import org.springframework.context.annotation.Configuration;
-                                   import org.springframework.integration.dsl.IntegrationFlow;
-                                   import org.springframework.integration.dsl.IntegrationFlows;
-                                   import org.springframework.integration.handler.LoggingHandler;
-                                   import org.springframework.integration.http.dsl.Http;
-                                                                      
-                                   @Configuration
-                                   public class FlowConfigurations {
-                                       @Bean
-                                       IntegrationFlow dwlFlow() {
-                                           return IntegrationFlows.from(Http.inboundChannelAdapter("/dwl")).handle((p, h) -> p)
-                                                   // FIXME: No support for following DW transformation: <dw:set-property/> <dw:set-session-variable /> <dw:set-variable />
-                                                   .log(LoggingHandler.Level.INFO, "Hello World:  ${flowVars.temp}")
-                                                   .get();
-                                       }
-                                   }""");
+                        package com.example.javadsl;
+                        import org.springframework.context.annotation.Bean;
+                        import org.springframework.context.annotation.Configuration;
+                        import org.springframework.integration.dsl.IntegrationFlow;
+                        import org.springframework.integration.dsl.IntegrationFlows;
+                        import org.springframework.integration.handler.LoggingHandler;
+                        import org.springframework.integration.http.dsl.Http;
+                                                
+                        @Configuration
+                        public class FlowConfigurations {
+                            @Bean
+                            IntegrationFlow dwlFlow() {
+                                return IntegrationFlows.from(Http.inboundGateway("/dwl")).handle((p, h) -> p)
+                                        // FIXME: No support for following DW transformation: <dw:set-property/> <dw:set-session-variable /> <dw:set-variable />
+                                        .log(LoggingHandler.Level.INFO, "Hello World:  ${flowVars.temp}")
+                                        .get();
+                            }
+                        }""");
     }
 
     @Test
@@ -402,25 +402,25 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
         assertThat(getGeneratedJavaFile())
                 .isEqualTo("""
-                                   package com.example.javadsl;
-                                   import org.springframework.context.annotation.Bean;
-                                   import org.springframework.context.annotation.Configuration;
-                                   import org.springframework.integration.dsl.IntegrationFlow;
-                                   import org.springframework.integration.dsl.IntegrationFlows;
-                                   import org.springframework.integration.handler.LoggingHandler;
-                                   import org.springframework.integration.http.dsl.Http;
-                                                                      
-                                   @Configuration
-                                   public class FlowConfigurations {
-                                       @Bean
-                                       IntegrationFlow dwlFlow() {
-                                           return IntegrationFlows.from(Http.inboundChannelAdapter("/dwl")).handle((p, h) -> p)
-                                                   .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
-                                                   .transform(MapclientriskratingresponseTransform::transform)
-                                                   .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
-                                                   .get();
-                                       }
-                                   }""");
+                        package com.example.javadsl;
+                        import org.springframework.context.annotation.Bean;
+                        import org.springframework.context.annotation.Configuration;
+                        import org.springframework.integration.dsl.IntegrationFlow;
+                        import org.springframework.integration.dsl.IntegrationFlows;
+                        import org.springframework.integration.handler.LoggingHandler;
+                        import org.springframework.integration.http.dsl.Http;
+                                                
+                        @Configuration
+                        public class FlowConfigurations {
+                            @Bean
+                            IntegrationFlow dwlFlow() {
+                                return IntegrationFlows.from(Http.inboundGateway("/dwl")).handle((p, h) -> p)
+                                        .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
+                                        .transform(MapclientriskratingresponseTransform::transform)
+                                        .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
+                                        .get();
+                            }
+                        }""");
         assertThat(projectContext.getProjectJavaSources().list().get(1).print())
                 .isEqualTo("""
                                    package com.example.javadsl;

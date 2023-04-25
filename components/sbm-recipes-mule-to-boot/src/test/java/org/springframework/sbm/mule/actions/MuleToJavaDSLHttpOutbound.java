@@ -56,7 +56,7 @@ public class MuleToJavaDSLHttpOutbound extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow httpFlow() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/gimme-a-cat-fact\")).handle((p, h) -> p)\n" +
+                        "        return IntegrationFlows.from(Http.inboundGateway(\"/gimme-a-cat-fact\")).handle((p, h) -> p)\n" +
                         "                .headerFilter(\"accept-encoding\", false)\n" +
                         "                .handle(\n" +
                         "                        Http.outboundGateway(\"https://catfact.ninja:443/fact\")\n" +

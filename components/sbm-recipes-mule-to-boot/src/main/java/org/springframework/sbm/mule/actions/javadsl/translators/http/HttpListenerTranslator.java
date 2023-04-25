@@ -37,7 +37,7 @@ import java.util.Set;
 public class HttpListenerTranslator implements MuleComponentToSpringIntegrationDslTranslator<ListenerType> {
 
     private final static String javaDslHttpListenerTemplate =
-            "return IntegrationFlows.from(Http.inboundChannelAdapter(\"${path}\")).handle((p, h) -> p)";
+            "return IntegrationFlows.from(Http.inboundGateway(\"${path}\")).handle((p, h) -> p)";
 
     @Override
     public Class<ListenerType> getSupportedMuleType() {
