@@ -475,3 +475,6 @@
             propertyKey: spring.jta.log-dir
         - org.openrewrite.properties.DeleteProperty:
             propertyKey: spring.jta.log-dir
+        - org.openrewrite.yaml.ChangePropertyKey:
+            oldPropertyKey: spring.data.cassandra
+            newPropertyKey: spring.cassandra

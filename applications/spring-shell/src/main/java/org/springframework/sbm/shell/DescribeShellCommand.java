@@ -33,6 +33,7 @@ public class DescribeShellCommand {
     @ShellMethod(key = {"describe", "d"}, value = "Describe a given recipe.")
     public AttributedString describe(@ShellOption(help = "The name of the recipe.") String recipe) {
         final Recipe recipeResult = describeCommand.execute(recipe);
+
         return describeCommandRenderer.render(recipeResult);
     }
 }

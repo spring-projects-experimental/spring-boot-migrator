@@ -56,7 +56,7 @@ public class MuleToJavaDSLHttpTest extends JavaDSLActionBaseTest {
                         "public class FlowConfigurations {\n" +
                         "    @Bean\n" +
                         "    IntegrationFlow http_routeFlow() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
+                        "        return IntegrationFlows.from(Http.inboundGateway(\"/test\")).handle((p, h) -> p)\n" +
                         "                .log(LoggingHandler.Level.INFO)\n" +
                         "                .get();\n" +
                         "    }\n" +
