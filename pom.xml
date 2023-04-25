@@ -30,6 +30,7 @@
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
         <snakeyaml.version>1.33</snakeyaml.version>
+        <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
     </properties>
 
     <scm>
@@ -485,6 +486,42 @@ limitations under the License.
                         </licenseSet>
                     </licenseSets>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>2.2.2</version>
+                <executions>
+                    <execution>
+                        <id>generate-html-documentation</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <backend>spring-html</backend>
+                    <sourceDirectory>docs/reference</sourceDirectory>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>io.spring.asciidoctor.backends</groupId>
+                        <artifactId>spring-asciidoctor-backends</artifactId>
+                        <version>0.0.5</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.asciidoctor</groupId>
+                                <artifactId>asciidoctorj</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>2.5.7</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
