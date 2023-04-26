@@ -17,9 +17,9 @@
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java.version>17</java.version>
         <spring-shell.version>2.1.4</spring-shell.version>
-        <openrewrite.version>7.35.0</openrewrite.version>
-        <openrewrite.spring.version>4.32.0</openrewrite.spring.version>
-        <rewrite-migrate-java.version>1.16.0</rewrite-migrate-java.version>
+        <rewrite.version>7.40.2</rewrite.version>
+        <rewrite-spring.version>4.36.0</rewrite-spring.version>
+        <rewrite-migrate-java.version>1.21.1</rewrite-migrate-java.version>
         <spring-boot.version>2.7.5</spring-boot.version>
         <progressbar.version>0.9.5</progressbar.version>
         <testcontainers.version>1.17.6</testcontainers.version>
@@ -162,62 +162,62 @@
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-core</artifactId>
-                <version>${openrewrite.version}</version>
+                <version>${rewrite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-java</artifactId>
-                <version>${openrewrite.version}</version>
+                <version>${rewrite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-java-11</artifactId>
-                <version>${openrewrite.version}</version>
+                <version>${rewrite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-java-17</artifactId>
-                <version>${openrewrite.version}</version>
+                <version>${rewrite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-maven</artifactId>
-                <version>${openrewrite.version}</version>
+                <version>${rewrite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-xml</artifactId>
-                <version>${openrewrite.version}</version>
+                <version>${rewrite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-yaml</artifactId>
-                <version>${openrewrite.version}</version>
+                <version>${rewrite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-json</artifactId>
-                <version>${openrewrite.version}</version>
+                <version>${rewrite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-protobuf</artifactId>
-                <version>${openrewrite.version}</version>
+                <version>${rewrite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-hcl</artifactId>
-                <version>${openrewrite.version}</version>
+                <version>${rewrite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-properties</artifactId>
-                <version>${openrewrite.version}</version>
+                <version>${rewrite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite.recipe</groupId>
                 <artifactId>rewrite-spring</artifactId>
-                <version>${openrewrite.spring.version}</version>
+                <version>${rewrite-spring.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite.recipe</groupId>
