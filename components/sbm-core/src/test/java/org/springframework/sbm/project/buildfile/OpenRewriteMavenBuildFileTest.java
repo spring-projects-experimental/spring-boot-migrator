@@ -21,6 +21,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
@@ -2655,26 +2656,27 @@ public class OpenRewriteMavenBuildFileTest {
 
     @Test
     void upgradeParentVersion() {
-        String pomXml =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "    <parent>\n" +
-                        "        <groupId>org.springframework.boot</groupId>\n" +
-                        "        <artifactId>spring-boot-starter-parent</artifactId>\n" +
-                        "        <version>2.4.12</version>\n" +
-                        "        <relativePath/> <!-- lookup parent from repository -->\n" +
-                        "    </parent>\n" +
-                        "    <groupId>com.example</groupId>\n" +
-                        "    <artifactId>spring-boot-24-to-25-example</artifactId>\n" +
-                        "    <version>0.0.1-SNAPSHOT</version>\n" +
-                        "    <name>spring-boot-2.4-to-2.5-example</name>\n" +
-                        "    <description>spring-boot-2.4-to-2.5-example</description>\n" +
-                        "    <properties>\n" +
-                        "        <java.version>11</java.version>\n" +
-                        "    </properties>\n" +
-                        "</project>\n";
+        String pomXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <parent>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-parent</artifactId>
+                        <version>2.4.12</version>
+                        <relativePath/> <!-- lookup parent from repository -->
+                    </parent>
+                    <groupId>com.example</groupId>
+                    <artifactId>spring-boot-24-to-25-example</artifactId>
+                    <version>0.0.1-SNAPSHOT</version>
+                    <name>spring-boot-2.4-to-2.5-example</name>
+                    <description>spring-boot-2.4-to-2.5-example</description>
+                    <properties>
+                        <java.version>11</java.version>
+                    </properties>
+                </project>
+                """;
 
         BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
 
@@ -2682,5 +2684,26 @@ public class OpenRewriteMavenBuildFileTest {
 
         assertThat(openRewriteMavenBuildFile.getParentPomDeclaration()).isNotEmpty();
         assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().get().getVersion()).isEqualTo("2.5.6");
+    }
+
+    @GitHubIssue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/55")
+    @Test
+    void parsingPomWithEmptyPropertiesSectionShouldSucceed() {
+        String pomXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-parent</artifactId>
+                    <version>2.4.12</version>
+                    <properties>
+                    
+                    </properties>
+                </project>
+                """;
+
+        ProjectContext projectContext = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build();
+        assertThat(projectContext.getApplicationModules().getRootModule().getBuildFile()).isNotNull();
     }
 }

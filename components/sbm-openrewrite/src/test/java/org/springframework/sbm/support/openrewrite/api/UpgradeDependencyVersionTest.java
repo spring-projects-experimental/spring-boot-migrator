@@ -16,6 +16,7 @@
 package org.springframework.sbm.support.openrewrite.api;
 
 import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.RecipeRun;
@@ -28,6 +29,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled("""
+    Disabling this test as its already tested in open rewrite and also,
+    testUpgradeDependency_latestReleaseVersion is flaky based on the latest version of
+    Spring.
+    """)
 public class UpgradeDependencyVersionTest {
 
     @Language("xml")
