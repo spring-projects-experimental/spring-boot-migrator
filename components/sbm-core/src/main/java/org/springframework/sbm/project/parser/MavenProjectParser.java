@@ -223,7 +223,9 @@ public class MavenProjectParser {
         }).collect(Collectors.toList());
         List<J.CompilationUnit> mainCompilationUnits = javaParser.parseInputs(mainJavaSourcesInput, projectDirectory, ctx);
         // FIXME: #7 JavaParser and adding markers is required when adding java sources and should go into dedicated component
-        mainCompilationUnits.stream().forEach(cu -> cu.getMarkers().getMarkers().addAll(javaProvenanceMarkers));
+        mainCompilationUnits.stream().forEach(cu -> {
+            javaProvenanceMarkers.forEach(m -> cu.getMarkers().add(m));
+        });
         return mainCompilationUnits;
     }
 
