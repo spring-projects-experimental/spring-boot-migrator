@@ -16,7 +16,6 @@
 package org.springframework.sbm.java.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.exception.ExceptionContext;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeType;
@@ -27,6 +26,7 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
 import org.springframework.sbm.java.api.*;
+import org.springframework.sbm.java.exceptions.UnresolvedTypeException;
 import org.springframework.sbm.java.filter.JavaSourceListFilter;
 import org.springframework.sbm.java.refactoring.JavaGlobalRefactoring;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
@@ -143,28 +143,29 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
     }
 
     private boolean hasTypeImplementing(J.ClassDeclaration c, String type) {
-        try {
-            return c.getImplements() != null &&
-                    c.getImplements()
-                            .stream()
-                            .anyMatch(intaface -> {
-                                        JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(
-                                                intaface.getType()
-                                        );
-                                        if(fullyQualified == null && J.Identifier.class.isInstance(intaface)) {
-                                            log.error(String.format("Could not calculate if class '%s' implements an interface compatible to '%s'. Type of interface '%s' could not be resolved and was '%s'", c, type, intaface, intaface.getType().toString()));
-                                            return false;
-                                        }
-                                        return fullyQualified
-                                                .getFullyQualifiedName()
-                                                .equals(type);
-                                    }
-                                );
+        return c.getImplements() != null &&
+                c.getImplements()
+                        .stream()
+                        .anyMatch(intaface -> {
+                                    JavaType.FullyQualified fullyQualified = TypeUtils.asFullyQualified(
+                                            intaface.getType()
+                                    );
+                                    if (fullyQualified == null) {
 
-        } catch(Exception e) {
-            log.error("", e);
-            return false;
-        }
+                                        throw new UnresolvedTypeException(
+                                                String.format("Could not calculate if class '%s' implements an " +
+                                                        "interface compatible to '%s'. Type of interface '%s' could not" +
+                                                        " be resolved and was '%s'", c.getType(), type, intaface,
+                                                        intaface.getType().toString())
+                                        );
+
+                                    }
+                                    return fullyQualified
+                                            .getFullyQualifiedName()
+                                            .equals(type);
+                                }
+                        );
+
     }
 
     private Type getTypeForClassDecl(J.ClassDeclaration c) {
