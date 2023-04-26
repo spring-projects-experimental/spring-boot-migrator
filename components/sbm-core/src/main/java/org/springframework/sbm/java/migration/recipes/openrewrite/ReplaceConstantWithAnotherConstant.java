@@ -49,7 +49,7 @@ public class ReplaceConstantWithAnotherConstant extends Recipe {
 
     @Override
     protected TreeVisitor<?, ExecutionContext> getSingleSourceApplicableTest() {
-        return new UsesType<>(existingFullyQualifiedConstantName.substring(0,existingFullyQualifiedConstantName.lastIndexOf('.')));
+        return new UsesType<>(existingFullyQualifiedConstantName.substring(0,existingFullyQualifiedConstantName.lastIndexOf('.')), false);
     }
 
     @Override

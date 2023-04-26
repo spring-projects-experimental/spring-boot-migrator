@@ -132,7 +132,7 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
 
     @Override
     public List<? extends JavaSource> findClassesUsingType(String fqName) {
-        UsesType<ExecutionContext> usesType = new UsesType<>(fqName);
+        UsesType<ExecutionContext> usesType = new UsesType<>(fqName, false);
         GenericOpenRewriteRecipe<UsesType<ExecutionContext>> recipe = new GenericOpenRewriteRecipe<>(() -> usesType);
         return find(recipe).stream()
                 .filter(RewriteSourceFileHolder.class::isInstance)

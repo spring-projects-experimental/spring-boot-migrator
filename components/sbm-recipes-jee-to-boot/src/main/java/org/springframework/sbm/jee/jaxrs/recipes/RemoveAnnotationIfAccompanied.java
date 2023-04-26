@@ -53,7 +53,7 @@ public class RemoveAnnotationIfAccompanied extends Recipe {
 
     @Override
     protected TreeVisitor<?, ExecutionContext> getSingleSourceApplicableTest() {
-        return new UsesType<>(annotationTypeToRemove);
+        return new UsesType<>(annotationTypeToRemove, false);
     }
 
     @Override

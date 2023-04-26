@@ -54,7 +54,7 @@ public class CopyAnnotationAttribute extends Recipe {
 
     @Override
     protected TreeVisitor<?, ExecutionContext> getSingleSourceApplicableTest() {
-        return new UsesType<>(sourceAnnotationType);
+        return new UsesType<>(sourceAnnotationType, false);
     }
 
     @Override
