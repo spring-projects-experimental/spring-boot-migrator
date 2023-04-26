@@ -19,6 +19,7 @@ import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.ParseExceptionResult;
 import org.openrewrite.Parser;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
@@ -331,9 +332,18 @@ public class MavenParserTest {
         Xml.Document parentPom = mavenParser.parse(parentPomXml).get(0);
         Optional<MavenResolutionResult> mavenResolutionResult = parentPom.getMarkers().findFirst(MavenResolutionResult.class);
         assertThat(mavenResolutionResult).isPresent();
-        assertThatExceptionOfType(UncheckedMavenDownloadingException.class)
-                .isThrownBy(() -> mavenParser.parse(parentPomXml, module1PomXml))
-                .describedAs("Maven visitors should not be visiting XML documents without a Maven marker");
+        List<Xml.Document> poms = mavenParser.parse(parentPomXml, module1PomXml);
+        // parent pom can be parsed
+        assertThat(poms.get(0).getMarkers().findFirst(MavenResolutionResult.class)).isPresent();
+        // child module has parsing error
+        assertThat(poms.get(1).getMarkers().findFirst(ParseExceptionResult.class)).isPresent();
+        assertThat(
+                poms.get(1).getMarkers().findFirst(ParseExceptionResult.class).get().getMessage()
+        )
+        .isEqualTo( """
+                    org.openrewrite.maven.MavenDownloadingExceptions: null
+                      org.openrewrite.maven.MavenDownloadingExceptions.append(MavenDownloadingExceptions.java:47)
+                      org.openrewrite.maven.tree.MavenResolutionResult.resolveDependencies(MavenResolutionResult.java:184)""");
     }
 
     @Test
