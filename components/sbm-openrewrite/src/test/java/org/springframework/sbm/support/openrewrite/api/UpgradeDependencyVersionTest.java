@@ -105,7 +105,7 @@ public class UpgradeDependencyVersionTest {
         String groupId = "org.springframework.boot";
         String artifactId = "spring-boot-starter-test";
         String version = "2.5.3";
-        UpgradeDependencyVersion sut = new UpgradeDependencyVersion(groupId, artifactId, version, null, false);
+        UpgradeDependencyVersion sut = new UpgradeDependencyVersion(groupId, artifactId, version, null, false, List.of());
 
         RecipeRun recipeRun = sut.run(mavens);
 
