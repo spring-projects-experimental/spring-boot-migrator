@@ -57,7 +57,7 @@ public class UpgradeDependencyVersionTest {
                 .parse(pomXml)
                 .get(0);
 
-        RecipeRun recipeRun = new UpgradeParentVersion("org.springframework.boot", "spring-boot-starter-parent", "2.5.6", null).run(List.of(maven));
+        RecipeRun recipeRun = new UpgradeParentVersion("org.springframework.boot", "spring-boot-starter-parent", "2.5.6", null, List.of()).run(List.of(maven));
 
         assertThat(recipeRun.getResults().get(0).getAfter().printAll()).isEqualTo(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

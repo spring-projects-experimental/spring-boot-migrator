@@ -50,8 +50,8 @@ public class MigrateBoot23To24Recipe {
     }
     
     private List<Action> upgradeDependencyVersion(String toVersion) {
-        UpgradeDependencyVersion upgradeDependencyVersion = new UpgradeDependencyVersion("org.springframework.boot", null, toVersion + ".x", null, false);
-        UpgradeParentVersion upgradeParentVersion = new UpgradeParentVersion("org.springframework.boot", "spring-boot-starter-parent", toVersion + ".x", null);
+        UpgradeDependencyVersion upgradeDependencyVersion = new UpgradeDependencyVersion("org.springframework.boot", null, toVersion + ".x", null, false, List.of());
+        UpgradeParentVersion upgradeParentVersion = new UpgradeParentVersion("org.springframework.boot", "spring-boot-starter-parent", toVersion + ".x", null, List.of());
         return List.of(
                 OrRecipesConfig.createAction(upgradeDependencyVersion),
                 OrRecipesConfig.createAction(upgradeParentVersion)

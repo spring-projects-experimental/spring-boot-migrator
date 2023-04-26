@@ -710,7 +710,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         if (hasParent()) {
             @Nullable Parent parent = getPom().getPom().getRequested().getParent();
             apply(
-                    new UpgradeParentVersion(parent.getGroupId(), parent.getArtifactId(), version, null)
+                    new UpgradeParentVersion(parent.getGroupId(), parent.getArtifactId(), version, null, List.of())
             );
         }
     }
