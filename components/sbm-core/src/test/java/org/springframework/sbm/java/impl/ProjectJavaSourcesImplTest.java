@@ -15,14 +15,18 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSourceAndType;
+import org.springframework.sbm.java.api.ProjectJavaSources;
+import org.springframework.sbm.java.exceptions.UnresolvedTypeException;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Fabian Krüger
@@ -94,5 +98,24 @@ class ProjectJavaSourcesImplTest {
         assertThat(typesImplementingInterface.get(0).getType().getFullyQualifiedName()).isEqualTo("com.example.TheClass");
     }
 
+    @Test
+    void whenClassInheritsParameterizedInterfaceButNoResolvedType() {
+        @Language("java") String sourceCode =
+                """
+                package a.b.c;
+                import a.b.c.K;
+                
+                interface SomeClass extends K<String, String> {         
+                }
+                """;
 
+        ProjectJavaSources javaSource = TestProjectContext.buildProjectContext()
+                .withJavaSources(sourceCode)
+                .build()
+                .getProjectJavaSources();
+
+        assertThrows(UnresolvedTypeException.class, () ->
+                javaSource.findTypesImplementing("a.b.c.K"));
+
+    }
 }
