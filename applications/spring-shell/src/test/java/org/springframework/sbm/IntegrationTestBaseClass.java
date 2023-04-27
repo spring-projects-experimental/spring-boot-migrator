@@ -178,23 +178,23 @@ public abstract class IntegrationTestBaseClass {
      * @param applicableRecipes
      */
     protected void assertApplicableRecipesContain(String... applicableRecipes) {
-        List<String> recipeNames = getRecipeNames();
+        List<String> recipeNames = getApplicableRecipeNames();
         assertThat(recipeNames).contains(applicableRecipes);
     }
 
     @NotNull
-    private List<String> getRecipeNames() {
+    protected List<String> getApplicableRecipeNames() {
         return applicableRecipeListCommand.execute(projectContextHolder.getProjectContext()).stream()
                 .map(r -> r.getName()).collect(Collectors.toList());
     }
 
     protected void assertRecipeApplicable(String recipeName) {
-        List<String> recipeNames = getRecipeNames();
+        List<String> recipeNames = getApplicableRecipeNames();
         assertThat(recipeNames).contains(recipeName);
     }
 
     protected void assertRecipeNotApplicable(String recipeName) {
-        List<String> recipeNames = getRecipeNames();
+        List<String> recipeNames = getApplicableRecipeNames();
         assertThat(recipeNames).doesNotContain(recipeName);
     }
 
