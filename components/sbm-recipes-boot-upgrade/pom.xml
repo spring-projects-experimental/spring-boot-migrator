@@ -31,7 +31,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <spring-asciidoctor-backends.version>0.0.3</spring-asciidoctor-backends.version>
+        <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
     </properties>
 
     <dependencies>
