@@ -1,0 +1,34 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.soebes.itf.maven.plugin.its</groupId>
+    <artifactId>install_should_not_fail</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <name>ITF Maven Plugin - BasicIT#install_should_not_fail</name>
+    <description>Should not fail based on execution definition.</description>
+
+    <build>
+        <plugins>
+<!--            <plugin>-->
+<!--                <groupId>com.soebes.itf.jupiter.extension</groupId>-->
+<!--                <artifactId>itf-maven-plugin</artifactId>-->
+<!--                <version>@project.version@</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>installing</id>-->
+<!--                        <goals>-->
+<!--                            <goal>install</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+            <plugin>
+                <groupId>org.openrewrite.maven</groupId>
+                <artifactId>rewrite-maven-plugin</artifactId>
+                <version>4.44.0</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
