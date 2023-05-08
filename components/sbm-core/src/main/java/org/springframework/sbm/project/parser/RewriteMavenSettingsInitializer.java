@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build.impl;
+package org.springframework.sbm.project.parser;
 
+import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.Parser;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
+import org.springframework.core.io.Resource;
+import org.springframework.sbm.project.parser.MavenPasswordDecrypter;
+import org.springframework.sbm.testhelper.ResourceUtil;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
@@ -27,7 +32,15 @@ import java.nio.file.Path;
  * @author Fabian Krüger
  */
 @Component
-public class MavenSettingsInitializer {
+@RequiredArgsConstructor
+public class RewriteMavenSettingsInitializer {
+
+    private final MavenPasswordDecrypter mavenPasswordDecrypter;
+
+    /**
+     * @deprecated initialization in ExecutionoContext is done in ProjectParser
+     */
+    @Deprecated(forRemoval = true)
     public void initializeMavenSettings(ExecutionContext executionContext) {
         // Read .m2/settings.xml
         // TODO: Add support for global Maven settings (${maven.home}/conf/settings.xml).
@@ -38,4 +51,13 @@ public class MavenSettingsInitializer {
             mavenExecutionContextView.setMavenSettings(mavenSettings);
         }
     }
+
+    public MavenSettings initializeMavenSettings(ExecutionContext executionContext, Resource mavenSettingsFile, Path securitySettingsFilePath) {
+        Parser.Input input = new Parser.Input(ResourceUtil.getPath(mavenSettingsFile), () -> ResourceUtil.getInputStream(mavenSettingsFile));
+        MavenSettings mavenSettings = MavenSettings.parse(input, executionContext);
+        mavenPasswordDecrypter.decryptMavenServerPasswords(mavenSettings, securitySettingsFilePath);
+        MavenExecutionContextView.view(executionContext).setMavenSettings(mavenSettings);
+        return mavenSettings;
+    }
+
 }
