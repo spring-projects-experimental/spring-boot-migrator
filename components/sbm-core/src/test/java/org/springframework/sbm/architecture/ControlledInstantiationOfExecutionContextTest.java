@@ -37,3 +37,4 @@ public class ControlledInstantiationOfExecutionContextTest {
                             .notBe(classWithPermissionToCreateExecutionContext)
             ;
 }
+
