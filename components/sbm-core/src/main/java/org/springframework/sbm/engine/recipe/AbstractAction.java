@@ -56,6 +56,7 @@ public abstract class AbstractAction implements Action {
     @Override
     public void applyInternal(ProjectContext context) {
         apply(context);
+
     }
 
     @Override

@@ -22,6 +22,9 @@ import org.openrewrite.java.JavaParsingException;
 import org.openrewrite.maven.MavenDownloadingException;
 import org.openrewrite.maven.internal.MavenParsingException;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Scope;
+import org.springframework.sbm.scopeplayground.RecipeScope;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -30,8 +33,10 @@ import java.util.function.Consumer;
 @Slf4j
 public class RewriteExecutionContext extends InMemoryExecutionContext {
 
+    @Deprecated
     private Optional<ApplicationEventPublisher> appEventPublisher;
 
+    @Deprecated
     public RewriteExecutionContext(ApplicationEventPublisher appEventPublisher) {
         super(createErrorHandler());
         this.appEventPublisher = Optional.of(appEventPublisher);
