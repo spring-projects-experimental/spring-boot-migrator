@@ -19,6 +19,8 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 @AnalyzeClasses(packages = "org.springframework.sbm", importOptions = ImportOption.DoNotIncludeTests.class)
 public class ControlledInstantiationOfExecutionContextTest {
 
+    private static final Class<?> classWithPermissionToCreateExecutionContext = RewriteExecutionContext.class;
+
     @ArchTest
     public static final ArchRule noClassInstantiatesExecutionContextWillyNilly =
             noClasses()
@@ -31,5 +33,7 @@ public class ControlledInstantiationOfExecutionContextTest {
                                             ))
                             )
                     )
+                    .andShould()
+                            .notBe(classWithPermissionToCreateExecutionContext)
             ;
 }
