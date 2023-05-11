@@ -15,12 +15,14 @@
  */
 package org.springframework.sbm.engine.commands;
 
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
+import org.springframework.sbm.scopeplayground.ScanRuntimeScope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,11 +35,17 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
     private final RecipesBuilder recipesBuilder;
     private final ProjectContextInitializer projectContextBuilder;
 
-    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder) {
+    private final ConfigurableListableBeanFactory beanFactory;
+
+    private final ScanRuntimeScope scope;
+
+    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder, ConfigurableListableBeanFactory beanFactory, ScanRuntimeScope scope) {
         super(COMMAND_NAME);
         this.projectRootPathResolver = projectRootPathResolver;
         this.recipesBuilder = recipesBuilder;
         this.projectContextBuilder = projectContextBuilder;
+        this.beanFactory = beanFactory;
+        this.scope = scope;
     }
 
     @Override
@@ -57,6 +65,7 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
     }
 
     public List<Recipe> execute(ProjectContext projectContext) {
+        scope.clear(beanFactory);
         return getApplicableRecipes(projectContext);
     }
 }

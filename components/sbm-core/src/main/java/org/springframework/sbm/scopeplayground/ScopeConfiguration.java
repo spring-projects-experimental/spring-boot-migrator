@@ -15,16 +15,9 @@
  */
 package org.springframework.sbm.scopeplayground;
 
-import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 /**
  * @author Fabian Krüger
@@ -44,11 +37,13 @@ public class ScopeConfiguration {
     }*/
 
     /**
-     * Register recipeScope
+     * Register scanScope
+     *
+     * See https://github.com/spring-projects/spring-batch/blob/c4ad90b9b191b94cb4d21f90e5759bda9857e341/spring-batch-core/src/main/java/org/springframework/batch/core/scope/BatchScopeSupport.java#L104}
      */
     @Bean
-    public static BeanFactoryPostProcessor beanFactoryPostProcessor(RecipeRuntimeScope recipeRuntimeScope) {
-        return beanFactory -> beanFactory.registerScope(RecipeRuntimeScope.SCOPE_NAME, recipeRuntimeScope);
+    public static BeanFactoryPostProcessor beanFactoryPostProcessor(ScanRuntimeScope scanRuntimeScope) {
+        return beanFactory -> beanFactory.registerScope(ScanRuntimeScope.SCOPE_NAME, scanRuntimeScope);
     }
 
 }

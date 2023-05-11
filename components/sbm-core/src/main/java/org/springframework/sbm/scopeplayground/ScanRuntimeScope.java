@@ -15,7 +15,9 @@
  */
 package org.springframework.sbm.scopeplayground;
 
-import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.support.SimpleThreadScope;
 import org.springframework.stereotype.Component;
 
@@ -23,12 +25,20 @@ import org.springframework.stereotype.Component;
  * @author Fabian Krüger
  */
 @Component
-public class RecipeRuntimeScope extends SimpleThreadScope {
+public class ScanRuntimeScope extends SimpleThreadScope {
 
-    public final static String SCOPE_NAME = "recipeScope";
+    public final static String SCOPE_NAME = "executionScope";
+    private final static String TARGET_NAME_PREFIX = SCOPE_NAME + ".";
 
-    @Override
-    public Object get(String name, ObjectFactory<?> objectFactory) {
-        return super.get(name, objectFactory);
+    public void clear(ConfigurableListableBeanFactory beanFactory) {
+        for(String beanName : beanFactory.getBeanDefinitionNames()) {
+            if(beanName.startsWith(getTargetNamePrefix())) {
+                beanFactory.destroyScopedBean(beanName);
+            }
+        }
+    }
+
+    public String getTargetNamePrefix() {
+        return TARGET_NAME_PREFIX;
     }
 }

@@ -15,15 +15,19 @@
  */
 package org.springframework.sbm.engine.commands;
 
+import org.openrewrite.ExecutionContext;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
 import org.springframework.sbm.engine.precondition.PreconditionVerifier;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.parser.PathScanner;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
+import org.springframework.sbm.scopeplayground.ScanRuntimeScope;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -38,23 +42,51 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
     private final ApplicationEventPublisher eventPublisher;
     private final PathScanner pathScanner;
     private final PreconditionVerifier preconditionVerifier;
+    private final ConfigurableListableBeanFactory beanFactory;
 
     @Deprecated
-    public ScanCommand(ProjectRootPathResolver projectRootPathResolver, ProjectContextInitializer projectContextInitializer, ApplicationEventPublisher eventPublisher, PathScanner pathScanner, PreconditionVerifier preconditionVerifier) {
+    public ScanCommand(ProjectRootPathResolver projectRootPathResolver, ProjectContextInitializer projectContextInitializer, ApplicationEventPublisher eventPublisher, PathScanner pathScanner, PreconditionVerifier preconditionVerifier, ConfigurableListableBeanFactory beanFactory) {
         super(COMMAND_NAME);
         this.projectRootPathResolver = projectRootPathResolver;
         this.projectContextInitializer = projectContextInitializer;
         this.eventPublisher = eventPublisher;
         this.pathScanner = pathScanner;
         this.preconditionVerifier = preconditionVerifier;
+        this.beanFactory = beanFactory;
     }
 
+
+    @Autowired
+    private ScanRuntimeScope scanRuntimeScope;
+
     public ProjectContext execute(String... arguments) {
-        Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
+        try {
+            // initialize the(!) ExecutionContext
+            // It will be available through DI in all objects involved while this method runs (scoped to recipe run)
+            scanRuntimeScope.clear(beanFactory);
+//            beanFactory.destroyScopedBean("scopedTarget.executionContext");
+            ExecutionContext execution = beanFactory.getBean(ExecutionContext.class);
 
-        List<Resource> resources = pathScanner.scan(projectRoot);
+            Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
 
-        return projectContextInitializer.initProjectContext(projectRoot, resources);
+            List<Resource> resources = pathScanner.scan(projectRoot);
+
+            return projectContextInitializer.initProjectContext(projectRoot, resources);
+        } finally {
+//            beanFactory.getRegisteredScope("recipeScope").remove("executionContext");
+
+            beanFactory.destroyScopedBean("scopedTarget.executionContext");
+//            beanFactory.destroyScopedBean("executionContext");
+
+//            System.out.println(beanFactory.getRegisteredScope("recipeScope"));
+//            RecipeRuntimeScope recipeScope = (RecipeRuntimeScope) beanFactory.getRegisteredScope("recipeScope");
+//            Field threadScope = ReflectionUtils.findField(RecipeRuntimeScope.class, "threadScope", ThreadLocal.class);
+//            ReflectionUtils.makeAccessible(threadScope);
+//            Object threadScope2 = ReflectionUtils.getField(threadScope, "threadScope");
+//            HashMap threadScope1 = (HashMap) ((NamedThreadLocal) threadScope2).get();
+
+//            ((ExecutionContext)((Map)((NamedThreadLocal)recipeScope.threadScope).get()).get("scopedTarget.executionContext")).getMessage("id");
+        }
     }
 
     public List<Resource> scanProjectRoot(String projectRoot) {
@@ -63,7 +95,7 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
     }
 
     public List<Resource> scanProjectRoot(Path projectRootPath) {
-       // Path projectRootPath = pro//projectRootPathResolver.getProjectRootOrDefault(projectRoot);
+        // Path projectRootPath = pro//projectRootPathResolver.getProjectRootOrDefault(projectRoot);
         return pathScanner.scan(projectRootPath);
     }
 

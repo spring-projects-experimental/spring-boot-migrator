@@ -18,16 +18,19 @@ package org.springframework.sbm.openrewrite;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.Recipe;
 import org.openrewrite.java.JavaParsingException;
 import org.openrewrite.maven.MavenDownloadingException;
 import org.openrewrite.maven.internal.MavenParsingException;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Scope;
-import org.springframework.sbm.scopeplayground.RecipeScope;
-import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+
 
 @Getter
 @Slf4j
@@ -45,6 +48,28 @@ public class RewriteExecutionContext extends InMemoryExecutionContext {
     public RewriteExecutionContext() {
         super(createErrorHandler());
         this.appEventPublisher = Optional.empty();
+    }
+
+    @Override
+    public <V, C extends Collection<V>> C putMessageInCollection(String key, V value, Supplier<C> newCollection) {
+        // track
+        return super.putMessageInCollection(key, value, newCollection);
+    }
+
+    @Override
+    public <T> Set<T> putMessageInSet(String key, T value) {
+
+        return super.putMessageInSet(key, value);
+    }
+
+    @Override
+    public <T> T pollMessage(String key, T defaultValue) {
+        return super.pollMessage(key, defaultValue);
+    }
+
+    @Override
+    public void putCurrentRecipe(Recipe recipe) {
+        super.putCurrentRecipe(recipe);
     }
 
     @Deprecated
