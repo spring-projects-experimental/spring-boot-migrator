@@ -15,6 +15,6 @@ import java.lang.annotation.Target;
 @Qualifier
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Scope(scopeName = "scanScope", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Scope(scopeName = ExecutionRuntimeScope.SCOPE_NAME, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public @interface ExecutionScope {
 }

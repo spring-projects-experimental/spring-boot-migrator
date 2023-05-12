@@ -37,6 +37,7 @@ import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.events.*;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.RewriteExecutionContextFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -63,11 +64,14 @@ public class MavenProjectParser {
     private final JavaParser javaParser;
     private final MavenConfigHandler mavenConfigHandler;
 
+    private final RewriteExecutionContextFactory executionContextFactory;
+
     public List<SourceFile> parse(Path projectDirectory, List<Resource> resources) {
+        ExecutionContext ctx = executionContextFactory.createExecutionContext();
+
 
         mavenConfigHandler.injectMavenConfigIntoSystemProperties(resources);
 
-        ExecutionContext ctx = new RewriteExecutionContext();
         @Nullable BuildEnvironment buildEnvironment = null;
         GitProvenance gitProvenance = GitProvenance.fromProjectDirectory(projectDirectory, buildEnvironment);
 

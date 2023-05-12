@@ -36,6 +36,7 @@ import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.project.RewriteExecutionContextFactory;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.project.parser.*;
@@ -576,7 +577,8 @@ public class TestProjectContext {
                     eventPublisher,
                     javaProvenanceMarkerFactory,
                     javaParser,
-                    new MavenConfigHandler());
+                    new MavenConfigHandler(),
+                    new RewriteExecutionContextFactory());
 
             GitSupport gitSupport = mock(GitSupport.class);
             when(gitSupport.repoExists(projectRoot.toFile())).thenReturn(true);

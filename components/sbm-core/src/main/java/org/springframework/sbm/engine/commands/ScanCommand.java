@@ -60,33 +60,17 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
     private ScanRuntimeScope scanRuntimeScope;
 
     public ProjectContext execute(String... arguments) {
-        try {
-            // initialize the(!) ExecutionContext
-            // It will be available through DI in all objects involved while this method runs (scoped to recipe run)
-            scanRuntimeScope.clear(beanFactory);
+        // initialize the(!) ExecutionContext
+        // It will be available through DI in all objects involved while this method runs (scoped to recipe run)
+        scanRuntimeScope.clear(beanFactory);
 //            beanFactory.destroyScopedBean("scopedTarget.executionContext");
-            ExecutionContext execution = beanFactory.getBean(ExecutionContext.class);
+        ExecutionContext execution = beanFactory.getBean(ExecutionContext.class);
 
-            Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
+        Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
 
-            List<Resource> resources = pathScanner.scan(projectRoot);
+        List<Resource> resources = pathScanner.scan(projectRoot);
 
-            return projectContextInitializer.initProjectContext(projectRoot, resources);
-        } finally {
-//            beanFactory.getRegisteredScope("recipeScope").remove("executionContext");
-
-            beanFactory.destroyScopedBean("scopedTarget.executionContext");
-//            beanFactory.destroyScopedBean("executionContext");
-
-//            System.out.println(beanFactory.getRegisteredScope("recipeScope"));
-//            RecipeRuntimeScope recipeScope = (RecipeRuntimeScope) beanFactory.getRegisteredScope("recipeScope");
-//            Field threadScope = ReflectionUtils.findField(RecipeRuntimeScope.class, "threadScope", ThreadLocal.class);
-//            ReflectionUtils.makeAccessible(threadScope);
-//            Object threadScope2 = ReflectionUtils.getField(threadScope, "threadScope");
-//            HashMap threadScope1 = (HashMap) ((NamedThreadLocal) threadScope2).get();
-
-//            ((ExecutionContext)((Map)((NamedThreadLocal)recipeScope.threadScope).get()).get("scopedTarget.executionContext")).getMessage("id");
-        }
+        return projectContextInitializer.initProjectContext(projectRoot, resources);
     }
 
     public List<Resource> scanProjectRoot(String projectRoot) {

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2021 - 2022 the original author or authors.
  *
@@ -17,17 +18,13 @@ package org.springframework.sbm.scopeplayground;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.Scope;
 import org.springframework.context.support.SimpleThreadScope;
-import org.springframework.core.NamedThreadLocal;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,10 +32,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Fabian Krüger
  */
 @Component
-public class ScanRuntimeScope implements Scope/*extends SimpleThreadScope*/ {
+public class ExecutionRuntimeScope implements Scope /*extends SimpleThreadScope*/ {
 
-    public final static String SCOPE_NAME = "scanScope";
-    private final static String TARGET_NAME_PREFIX = "scopedTarget.";
+    public final static String SCOPE_NAME = "executionScope";
+    private final static String TARGET_NAME_PREFIX = SCOPE_NAME + ".";
 
     public void clear(ConfigurableListableBeanFactory beanFactory) {
         for(String beanName : beanFactory.getBeanDefinitionNames()) {
@@ -52,6 +49,7 @@ public class ScanRuntimeScope implements Scope/*extends SimpleThreadScope*/ {
     public String getTargetNamePrefix() {
         return TARGET_NAME_PREFIX;
     }
+
 
     private static final Log logger = LogFactory.getLog(SimpleThreadScope.class);
     private final Map<String, Object> threadScope = new ConcurrentHashMap<>();

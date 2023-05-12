@@ -1,47 +1,57 @@
 package org.springframework.sbm.archfitfun;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.sbm.build.util.PomBuilder;
-import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
-import org.springframework.sbm.engine.commands.ApplyCommand;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.core.NamedThreadLocal;
+import org.springframework.sbm.build.impl.MavenSettingsInitializer;
+import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.build.impl.RewriteMavenParser;
+import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.git.ProjectSyncVerifier;
-import org.springframework.sbm.engine.recipe.*;
+import org.springframework.sbm.engine.precondition.PreconditionVerifier;
+import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
+import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
+import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.parser.ProjectContextInitializer;
+import org.springframework.sbm.project.RewriteSourceFileWrapper;
+import org.springframework.sbm.project.parser.*;
+import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
+import org.springframework.sbm.project.resource.ProjectResourceWrapperRegistry;
 import org.springframework.sbm.project.resource.ResourceHelper;
-import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
+import org.springframework.sbm.properties.parser.RewritePropertiesParser;
+import org.springframework.sbm.scopeplayground.ExecutionRuntimeScope;
+import org.springframework.sbm.scopeplayground.ProjectMetadata;
 import org.springframework.sbm.scopeplayground.ScanRuntimeScope;
 import org.springframework.sbm.scopeplayground.ExecutionScope;
-import org.springframework.sbm.scopeplayground.ScopeConfiguration;
-import org.springframework.validation.beanvalidation.CustomValidatorBean;
+import org.springframework.sbm.xml.parser.RewriteXmlParser;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.ScopeCacheHelper.getCacheSnapshot;
 
 /**
  * Architectural Fitnesse Function for the concept of a `executionScope`.
@@ -59,7 +69,7 @@ import static org.mockito.Mockito.verify;
  * - The described behaviour works for all beans annotated with {@link ExecutionScope} without modifying production code.
  *
  * The 'executionScope' is a {@link org.springframework.context.support.SimpleThreadScope} and each thread accessing beans in this scope
- * should have its own {@link ExecutionContext} (or whatever bean is annotated with {@link ExecutionScope}) instance.
+ * should have its own {@link org.openrewrite.ExecutionContext} (or whatever bean is annotated with {@link ExecutionScope}) instance.
  * All objects in the same thread with such a bean injected will then use the exact same instance.
  *
  * The test verifies this behaviour by
@@ -71,15 +81,44 @@ import static org.mockito.Mockito.verify;
  * - The action puts a UUIDs under a key 'id' into their `ExecutionContext}
  * - A last action copies the messages into a test observer
  *
- * ## Special behaviour for {@link ExecutionContext}:
+ * ## Special behaviour for {@link org.openrewrite.ExecutionContext}:
  * - When creating an `ExecutionContext` access to data gathered during scan/parse is required.
  * - It is not an aspect of this test to test the correct creation of `ExecutionContext`.
- *
  *
  * @author Fabian Krüger
  */
 @Slf4j
-@SpringBootTest(classes = {ApplyCommand.class, RecipesBuilder.class, RecipeParser.class, SbmRecipeLoader.class, YAMLMapper.class, CustomValidator.class, ResourceHelper.class, CustomValidatorBean.class, ScanRuntimeScope.class, ScopeConfiguration.class, ApplicableRecipeListCommand.class, ProjectRootPathResolver.class, ProjectContextInitializer.class})
+//@SpringBootTest(classes = {ApplyCommand.class, RecipesBuilder.class, RecipeParser.class, SbmRecipeLoader.class, YAMLMapper.class, CustomValidator.class, ResourceHelper.class, CustomValidatorBean.class, ScanRuntimeScope.class, ScopeConfiguration.class, ApplicableRecipeListCommand.class, ProjectRootPathResolver.class, ProjectContextInitializer.class})
+@SpringBootTest(classes = {
+        TheSpringContext.class,
+        ScanRuntimeScope.class,
+        ExecutionRuntimeScope.class,
+        ScanCommand.class,
+        ProjectRootPathResolver.class,
+        PathScanner.class,
+        SbmApplicationProperties.class,
+        ResourceHelper.class,
+        PreconditionVerifier.class,
+        ProjectContextInitializer.class,
+        ProjectContextFactory.class,
+        ProjectResourceWrapperRegistry.class,
+        ProjectResourceSetHolder.class,
+        JavaRefactoringFactoryImpl.class,
+        BasePackageCalculator.class,
+        RewriteJavaParser.class,
+        MavenProjectParser.class,
+        ResourceParser.class,
+        RewriteJsonParser.class,
+        RewriteXmlParser.class,
+        RewriteYamlParser.class, RewritePropertiesParser.class,
+        RewritePlainTextParser.class, RewriteMavenParser.class,
+        MavenSettingsInitializer.class,
+        RewriteMavenArtifactDownloader.class,
+        JavaProvenanceMarkerFactory.class,
+        MavenConfigHandler.class,
+        RewriteSourceFileWrapper.class
+    }
+)
 class ExecutionScopeArchFitTest {
     public static final String RECIPE_NAME = "dummy-recipe";
 
@@ -92,8 +131,9 @@ class ExecutionScopeArchFitTest {
     @MockBean
     private ProjectSyncVerifier projectSyncVerifier;
 
-    @MockBean
-    private ProjectContextInitializer projectContextInitializer;
+
+    //@MockBean
+    //private ProjectContextInitializer projectContextInitializer;
 
 //    @Autowired
 //    TestHelper testHelper;
@@ -109,249 +149,233 @@ class ExecutionScopeArchFitTest {
     // test: verify ApplyCommand removes all beans from scope when it ends
     // test: verify two parallel scopes have dedicated instances
 
+    @Autowired
+    ScanCommand scanCommand;
 
     @Autowired
-    private ApplicableRecipeListCommand applicableRecipeListCommand;
+    ApplyRecipeCommand applyRecipeCommand;
+    @Autowired
+    EvaluateConditionsCommand evaluateConditionsCommand;
+    @Autowired
+    ScanProjectCommand scanProjectCommand;
+    @Autowired
+    ScanRuntimeScope scanRuntimeScope;
+    @Autowired
+    ExecutionRuntimeScope executionRuntimeScope;
+    @Autowired
+    private TestRecorder testRecorder;
 
     @MockBean
-    private ScanRuntimeScope runtimeScope;
-    @Autowired
-    private ConfigurableListableBeanFactory beanFactory;
+    PathScanner pathScanner;
+    @MockBean
+    private ProjectRootPathResolver projectRootPathResolver;
 
     @Test
-    void applicableRecipeListCommandRemovesBeansFromScopeWhenStarted() {
-        ProjectContext projectContext = TestProjectContext.buildProjectContext().build();
-        applicableRecipeListCommand.execute(projectContext);
-        verify(runtimeScope).clear(beanFactory);
-    }
-/*
-    @Test
-    void twoParallelRecipeRunsShouldHaveIndependentExecutionContexts() throws InterruptedException, ExecutionException {
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-        Future<String> r1 = executorService.submit(() -> {
-            ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                    .withMavenRootBuildFileSource(PomBuilder.buildPom("com.acme:a:1.0.0").build())
-                    .build();
+    void scanEvaluateConditionsApplyRecipe() {
+        // No beans in scan or execution scope
+        assertThat(getCacheSnapshot(scanRuntimeScope)).isEmpty();
+        assertThat(getCacheSnapshot(executionRuntimeScope)).isEmpty();
 
-            String s = testHelper.printId(projectContext, RECIPE_NAME);
-            return s;
-        });
-        Future<String> r2 = executorService.submit(() -> {
-            ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                    .withMavenRootBuildFileSource(PomBuilder.buildPom("com.acme:b:1.0.0").build())
-                    .build();
-            String s = testHelper.printId(projectContext, RECIPE_NAME);
-            return s;
-        });
+        // scan project
+        String s = "target/dummy-path";
+        Path projectRoot = Path.of(s);
+        when(projectRootPathResolver.getProjectRootOrDefault(s)).thenReturn(projectRoot);
+        when(pathScanner.scan(projectRoot)).thenReturn(List.of());
 
-        // wait for the threads to finish
-        Object uuid1 = r1.get();
-        Object uuid2 = r2.get();
+        scanCommand.execute(s);
 
-        assertThatFourExecutionContextsWereCreated(testObserver);
+        // ProjectMetadata was added to scan scope
+        assertThat(getCacheSnapshot(scanRuntimeScope)).containsKey("scopedTarget.projectMetadata");
+        ProjectMetadata projectMetadataAfterScan = ProjectMetadata.class.cast(getCacheSnapshot(scanRuntimeScope).get("scopedTarget.projectMetadata"));
+        // no beans in execution scope
+        assertThat(getCacheSnapshot(executionRuntimeScope)).isEmpty();
 
-        List<TestObserver.CallToApplyEvent> callsToApply = getCallsToApply(testObserver);
-        assertThatEveryThreadUsedIndependentExecutionCotext(callsToApply);
+        // evaluating conditions starts the executionScope
+        evaluateConditionsCommand.execute();
 
-        List<TestObserver.TestHelperBeforeApplyEvent> testHelperBeforeApplyEvents = testObserver
-                .getEvents()
-                .stream()
-                .filter(TestObserver.TestHelperBeforeApplyEvent.class::isInstance)
-                .map(TestObserver.TestHelperBeforeApplyEvent.class::cast)
-                .collect(Collectors.toList());
-        assertThatCodeOutsideRecipeRunUsesNewExecutionContext(testHelperBeforeApplyEvents, callsToApply);
-    }
+        // after scan the scna scope didn't change
+        assertThat(getCacheSnapshot(scanRuntimeScope)).hasSize(1);
+        assertThat(getCacheSnapshot(scanRuntimeScope)).containsKey("scopedTarget.projectMetadata");
+        ProjectMetadata projectMetadataAfterConditions = ProjectMetadata.class.cast(
+                getCacheSnapshot(scanRuntimeScope).get("scopedTarget.projectMetadata"));
 
-    private void assertThatCodeOutsideRecipeRunUsesNewExecutionContext(List<TestObserver.TestHelperBeforeApplyEvent> testHelperBeforeApplyEvents, List<TestObserver.CallToApplyEvent> callsToApply) {
-        assertThat(testHelperBeforeApplyEvents.get(0).contextId()).isNotEqualTo(testHelperBeforeApplyEvents.get(1).contextId());
-        assertThat(testHelperBeforeApplyEvents.get(0).contextId()).isNotEqualTo(callsToApply.get(0).contextId());
-        assertThat(testHelperBeforeApplyEvents.get(0).contextId()).isNotEqualTo(callsToApply.get(1).contextId());
-        assertThat(callsToApply.get(0).contextId()).isNotEqualTo(callsToApply.get(1).contextId());
-    }
+        // Execution scope now contains an ExecutionContext
+        assertThat(getCacheSnapshot(executionRuntimeScope)).hasSize(1);
+        assertThat(getCacheSnapshot(executionRuntimeScope)).containsKey("scopedTarget.executionContext");
+        String executionContextIdAfterConditions = ExecutionContext.class.cast(getCacheSnapshot(executionRuntimeScope).get("scopedTarget.executionContext")).getMessage("id");
 
-    private void assertThatEveryThreadUsedIndependentExecutionCotext(List<TestObserver.CallToApplyEvent> callsToApply) {
-        // get log about the ExecutionContext in execute()
-        assertThat(callsToApply).hasSize(2);
-        // The two ExecutionContext used in {@link ApplyCommand#execute(ProjectContext, String)} method
-        // have a message 'id'
-        assertThat(callsToApply).allMatch(e -> e.id() != null);
-        // and the id differs
-        assertThat(callsToApply.get(0).id()).isNotEqualTo(callsToApply.get(1).id());
-        // Different ProjectContext (buildfile's artifactId) were provided to execute
-        assertThat(callsToApply)
-                .anyMatch(e -> e.artifactId().equals("a"))
-                .anyMatch(e -> e.artifactId().equals("b"));
-        // The ExecutionContext instances differ
-        assertThat(callsToApply.get(0).contextId()).isNotEqualTo(callsToApply.get(1).contextId());
+        // apply recipe
+        applyRecipeCommand.execute();
+
+        // The ExecutionContext used in apply recipe was the same the in stance created in conditions
+        String executionContextInRecipe = ((ExecutionContext)testRecorder.getEventsOfType(TestRecorder.EnteringApplyRecipeSnapshot.class).get(0).executionScopeCache().get("scopedTarget.executionContext")).getMessage("applyRecipe.íd");
+        assertThat(executionContextInRecipe).isEqualTo(executionContextIdAfterConditions);
+        // Scan runtime scope unchanged
+        assertThat(getCacheSnapshot(scanRuntimeScope)).hasSize(1);
+        assertThat(getCacheSnapshot(scanRuntimeScope)).containsKey("scopedTarget.projectMetadata");
+        ProjectMetadata projectMetadataAfterRecipe = ProjectMetadata.class.cast(getCacheSnapshot(scanRuntimeScope).get("scopedTarget.projectMetadata"));
+        // Exdecution scope is empty after applying the recipe
+        assertThat(getCacheSnapshot(executionRuntimeScope)).isEmpty();
+        // The ProjectMetadata was unchanged
+        assertThat(projectMetadataAfterScan).isSameAs(projectMetadataAfterConditions).isSameAs(projectMetadataAfterRecipe);
     }
 
-    @NotNull
-    private List<TestObserver.CallToApplyEvent> getCallsToApply(TestObserver testObserver) {
-        return testObserver
-                .getEvents()
-                .stream()
-                .filter(TestObserver.CallToApplyEvent.class::isInstance)
-                .map(TestObserver.CallToApplyEvent.class::cast)
-                .collect(Collectors.toList());
-    }
-
-    private void assertThatFourExecutionContextsWereCreated(TestObserver testObserver) {
-        List<Object> executionContextCreationEvents = testObserver
-                .getEvents()
-                .stream()
-                .filter(TestObserver.ExecutionContextCreatedEvent.class::isInstance)
-                .collect(Collectors.toList());
-        // Two ExecutionContext were created during recipe execution, one per thread.
-        // Another two were created in {@link TestHelper#printId}.
-        assertThat(executionContextCreationEvents).hasSize(6);
-    }
-
-    @Getter
-    @RequiredArgsConstructor
-    static class TestHelper {
-
-        private final ApplyCommand applyCommand;
-        private final ExecutionContext executionContext;
-
-        private final TestObserver testObserver;
-
-        public String printId(ProjectContext projectContext, String recipeName) {
-//            System.out.println("Context in print: " + executionContext.getMessage("contextId"));
-            testObserver.testHelperBeforeApplyCommand(executionContext.getMessage("contextId"), projectContext.getBuildFile().getArtifactId(), recipeName);
-            applyCommand.execute(projectContext, recipeName);
-            testObserver.testHelperAfterApplyCommand(executionContext.getMessage("contextId"));
-            // executionContext has been removed from scope in execute(), the getMessage(..) will be null
-            String id = executionContext.getMessage("id");
-            // TODO: keep
-            System.out.println(executionContext.getMessage("contextId") + " ID was: " + id);
-            return id;
+    static class ScopeCacheHelper {
+        public static Map<String, Object> getCacheSnapshot(org.springframework.beans.factory.config.Scope scope) {
+            Map<String, Object> threadScope = ((Map<String, Object>)ReflectionTestUtils.getField(
+                    scope, "threadScope"));
+            return new HashMap(threadScope);
         }
     }
-*/
+
+
+    static class ScanProjectCommand {
+        @Autowired
+        private ProjectMetadata projectMetadata;
+        @Autowired
+        private TestRecorder testRecorder;
+        public void execute() {
+            testRecorder.enteringScanCommmand();
+            projectMetadata.setMetadata("the metadata");
+        }
+    }
+
+    static class EvaluateConditionsCommand {
+        @Autowired
+        private TestRecorder testRecorder;
+        @Autowired
+        private ExecutionContext executionContext;
+        public void execute() {
+            executionContext.putMessage("evaluateConditions.id", UUID.randomUUID().toString());
+            testRecorder.exitingEvaluateConditionCommandSnapshot();
+        }
+
+    }
+
+    static class ApplyRecipeCommand {
+
+        @Autowired
+        private ExecutionContext executionContext;
+
+        @Autowired
+        ExecutionRuntimeScope runtimeScope;
+
+        @Autowired
+        ConfigurableListableBeanFactory beanFactory;
+
+        @Autowired
+        private TestRecorder testRecorder;
+
+        void execute() {
+            testRecorder.enteringApplyRecipe();
+            executionContext.putMessage("applyRecipe.id", UUID.randomUUID().toString());
+            runtimeScope.clear(beanFactory);
+        }
+    }
+
+    static class TestRecorder {
+
+        @Autowired
+        private ExecutionRuntimeScope executionRuntimeScope;
+
+        @Autowired
+        private ScanRuntimeScope scanRuntimeScope;
+
+        @Getter
+        private List<String> scopedBeanCreations = new ArrayList<>();
+        private List<Object> events = new ArrayList<>();
+        private List<ProjectMetadata> metadataCreations = new ArrayList<>();
+
+        void executionContextCreated(String uuid) {
+            this.scopedBeanCreations.add(uuid);
+        }
+
+        private Map<String, Object> getExecutionScopeCache() {
+            return (Map<String, Object>) ScopeCacheHelper.getCacheSnapshot(executionRuntimeScope);
+        }
+
+        private Map<String, Object> getScanScopeCache() {
+            return (Map<String, Object>) ScopeCacheHelper.getCacheSnapshot(scanRuntimeScope);
+        }
+
+        public void exitingApplyCommand() {
+            this.events.add(new ExitingApplyCommandSnapshot(getScanScopeCache(), getExecutionScopeCache()));
+        }
+
+        public void exitingEvaluateConditionCommandSnapshot() {
+
+        }
+
+        public void enteringApplyRecipe() {
+            events.add(new EnteringApplyRecipeSnapshot(getScanScopeCache(), getExecutionScopeCache()));
+        }
+
+        public <T> List<T> getEventsOfType(Class<T> eventClass) {
+            return events.stream().filter(eventClass::isInstance).map(eventClass::cast).collect(Collectors.toList());
+        }
+
+        public void enteringScanCommmand() {
+            events.add(new EnteringScanCommand(getScanScopeCache(), getExecutionScopeCache()));
+        }
+
+        public void projectMetadataCreated(ProjectMetadata projectMetadata) {
+            metadataCreations.add(projectMetadata);
+        }
+
+        public record ExitingApplyCommandSnapshot(Map<String, Object> scanScopeCache,
+                                                  Map<String, Object> executionScopeCache) {
+        }
+
+        public record EnteringScanCommand(Map<String, Object> scanScopeCache,
+                                          Map<String, Object> executionScopeCache) {
+        }
+
+        private record EnteringApplyRecipeSnapshot(Map<String, Object> scanScopeCache,
+                                                   Map<String, Object> executionScopeCache) {
+        }
+    }
+
+
 
 }
 
+@TestConfiguration
+class TheSpringContext {
 
-//@TestConfiguration
-//class ApplyCommandITDummyRecipe {
-//
-//    private String threadName;
-//
-//    @Primary
-//    @Bean(name ="dummyBwean")
-//    @ExecutionScope
-//    public ExecutionContext executionContext(TestObserver testObserver) {
-//        String s = UUID.randomUUID().toString();
-//        RewriteExecutionContext executionContext = new RewriteExecutionContext();
-//        executionContext.putMessage("contextId", s);
-//        // track creation of ExecutionContexts
-//        testObserver.createdExecutionContext(executionContext.getMessage("contextId"));
-//        return executionContext;
-//    }
-//
-//    @Bean
-//    ExecutionScopeArchFitTest.TestHelper testHelper(ApplyCommand applyCommand, ExecutionContext executionContext, TestObserver testObserver) {
-//        return new ExecutionScopeArchFitTest.TestHelper(applyCommand, executionContext, testObserver);
-//    }
-//
-//    @Bean
-//    TestObserver testLog() {
-//        return new TestObserver();
-//    }
-//
-//    @Bean
-//    Action actionOne() {
-//        AbstractAction action = new AbstractAction() {
-//
-//            @Autowired
-//            ExecutionContextProvider executionContextProvider;
-//
-//            @Autowired
-//            private ExecutionContext executionContext;
-//
-//            @Autowired
-//            private TestObserver testLog;
-//
-//            @Override
-//            public void apply(ProjectContext context) {
-//
-//                String uuid = UUID.randomUUID().toString();
-//                testLog.applyBeforePutMessage(executionContext.getMessage("contextId"), executionContext.getMessage("id"));
-//                executionContext.putMessage("action1", uuid);
-//                testLog.applyCalled(executionContext.getMessage("contextId"), context.getBuildFile().getArtifactId(), executionContext.getMessage("contextId"));
-//            }
-//        };
-//        return action;
-//    }
-//
-//    @Bean
-//    Action actionTwo() {
-//        AbstractAction action = new AbstractAction() {
-//            @Autowired
-//            private ExecutionContext executionContext;
-//
-//            @Autowired
-//            private TestObserver testLog;
-//
-//            @Override
-//            public void apply(ProjectContext context) {
-//                testLog.firstActionFirstRecipeStarted(executionContext.);
-//
-//                String uuid = UUID.randomUUID().toString();
-//                testLog.applyBeforePutMessage(executionContext.getMessage("contextId"), executionContext.getMessage("id"));
-//                executionContext.putMessage("id", threadName);
-//                testLog.applyCalled(executionContext.getMessage("contextId"), context.getBuildFile().getArtifactId(), executionContext.getMessage("contextId"));
-//            }
-//        };
-//        return action;
-//    }
-//
-//    @Bean
-//    Recipe threadOneRecipe(Action actionOne) {
-//        return Recipe.builder().name("threadOneRecipe").action(actionOne).build();
-//    }
-//}
-//
-//class TestObserver {
-//    @Getter
-//    private List<Object> events = Collections.synchronizedList(new ArrayList<>());
-//    private Map<Object, Object> clonedMessages;
-//
-//    public void createdExecutionContext(String contextId) {
-//        events.add(new ExecutionContextCreatedEvent(contextId));
-//    }
-//
-//    public void firstActionFirstRecipeStarted(Map<Object, Object> messages) {
-//        clonedMessages = new HashMap<>(messages);
-//    }
-//
-//    public void applyCalled(String contextId, String artifactId, String id) {
-//        events.add(new CallToApplyEvent(contextId, artifactId, id));
-//    }
-//
-//    public static void contextId(String uuid, Object contextId) {
-//    }
-//
-//    public void testHelperBeforeApplyCommand(String contextId, String artifactId, String recipeName) {
-//        events.add(new TestHelperBeforeApplyEvent(contextId, artifactId, recipeName));
-//    }
-//
-//    public void testHelperAfterApplyCommand(String contextId) {
-//        events.add(new TestHelperAfterApplyEvent(contextId));
-//    }
-//
-//    public void applyBeforePutMessage(String contextId, String id) {
-//        events.add(new ApplyBeforePutMessageEvent(contextId, id));
-//    }
-//
-//    class LogEntry {
-//        private String contextId;
-//    }
-//
-//    record ExecutionContextCreatedEvent(String contextId) {}
-//    record CallToApplyEvent(String contextId, String artifactId, String id) {}
-//    record TestHelperBeforeApplyEvent(String contextId, String artifactId, String recipeName) {}
-//    record TestHelperAfterApplyEvent(String contextId) {}
-//    private record ApplyBeforePutMessageEvent(String contextId, String id) {}
-//}
-//*/
+    @Bean
+    ExecutionScopeArchFitTest.ApplyRecipeCommand applyRecipeCommand() {
+        return new ExecutionScopeArchFitTest.ApplyRecipeCommand();
+    }
+
+    @Bean
+    ExecutionScopeArchFitTest.ScanProjectCommand scanProjectCommand() {
+        return new ExecutionScopeArchFitTest.ScanProjectCommand();
+    }
+
+    @Bean
+    ExecutionScopeArchFitTest.EvaluateConditionsCommand evaluateConditionsCommand() {
+        return new ExecutionScopeArchFitTest.EvaluateConditionsCommand();
+    }
+
+    @Bean
+    @Scope(scopeName = ScanRuntimeScope.SCOPE_NAME, proxyMode = ScopedProxyMode.TARGET_CLASS)
+    ProjectMetadata projectMetadata() {
+        ProjectMetadata projectMetadata = new ProjectMetadata();
+        testObserver().projectMetadataCreated(projectMetadata);
+        return projectMetadata;
+    }
+
+    @Bean
+    @ExecutionScope
+    ExecutionContext executionContext(ProjectMetadata projectMetadata) {
+        RewriteExecutionContext rewriteExecutionContext = new RewriteExecutionContext();
+        rewriteExecutionContext.putMessage("executionContextId", UUID.randomUUID().toString());
+        return rewriteExecutionContext;
+    }
+
+    @Bean
+    ExecutionScopeArchFitTest.TestRecorder testObserver() {
+        return new ExecutionScopeArchFitTest.TestRecorder();
+    }
+
+}

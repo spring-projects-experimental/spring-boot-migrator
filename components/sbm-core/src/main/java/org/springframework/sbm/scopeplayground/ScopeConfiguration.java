@@ -42,8 +42,11 @@ public class ScopeConfiguration {
      * See https://github.com/spring-projects/spring-batch/blob/c4ad90b9b191b94cb4d21f90e5759bda9857e341/spring-batch-core/src/main/java/org/springframework/batch/core/scope/BatchScopeSupport.java#L104}
      */
     @Bean
-    public static BeanFactoryPostProcessor beanFactoryPostProcessor(ScanRuntimeScope scanRuntimeScope) {
-        return beanFactory -> beanFactory.registerScope(ScanRuntimeScope.SCOPE_NAME, scanRuntimeScope);
+    public static BeanFactoryPostProcessor beanFactoryPostProcessor(ExecutionRuntimeScope executionRuntimeScope, ScanRuntimeScope scanRuntimeScope) {
+        return beanFactory -> {
+            beanFactory.registerScope(ScanRuntimeScope.SCOPE_NAME, scanRuntimeScope);
+            beanFactory.registerScope(ExecutionRuntimeScope.SCOPE_NAME, executionRuntimeScope);
+        };
     }
 
 }
