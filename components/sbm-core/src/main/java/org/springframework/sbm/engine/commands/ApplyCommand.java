@@ -17,10 +17,8 @@ package org.springframework.sbm.engine.commands;
 
 import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.beans.factory.config.Scope;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanFactory;
-import org.springframework.context.support.SimpleThreadScope;
-import org.springframework.core.NamedThreadLocal;
 import org.springframework.sbm.common.filter.DeletedResourcePathStringFilter;
 import org.springframework.sbm.common.filter.ModifiedResourcePathStringFilter;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -30,13 +28,10 @@ import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
+import org.springframework.sbm.scopeplayground.ExecutionRuntimeScope;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class ApplyCommand extends AbstractCommand<Recipe> {
@@ -48,27 +43,28 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
     private final ProjectSyncVerifier projectSyncVerifier;
 
     private final GitSupport gitSupport;
-    private final ConfigurableBeanFactory beanFactory;
+    private final ConfigurableListableBeanFactory beanFactory;
+    private final ExecutionRuntimeScope executionRuntimeScope;
 
     public ApplyCommand(
             RecipesBuilder recipesBuilder,
             ProjectContextSerializer contextSerializer,
             ProjectSyncVerifier projectSyncVerifier,
             GitSupport gitSupport,
-            AbstractBeanFactory beanFactory) {
+            ConfigurableListableBeanFactory beanFactory, ExecutionRuntimeScope executionRuntimeScope) {
         super("apply");
         this.recipesBuilder = recipesBuilder;
         this.contextSerializer = contextSerializer;
         this.projectSyncVerifier = projectSyncVerifier;
         this.gitSupport = gitSupport;
         this.beanFactory = beanFactory;
+        this.executionRuntimeScope = executionRuntimeScope;
     }
 
     public List<Action> execute(ProjectContext projectContext, String recipeName) {
         try {
             // initialize the(!) ExecutionContext
             // It will be available through DI in all objects involved while this method runs (scoped to recipe run)
-            beanFactory.destroyScopedBean("scopedTarget.executionContext");
             ExecutionContext execution = beanFactory.getBean(ExecutionContext.class);
 //            System.out.println("Context in execute: " + execution.getMessage("contextId"));
             Recipe recipe = recipesBuilder.buildRecipes().getRecipeByName(recipeName)
@@ -92,19 +88,7 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
 
             return appliedActions;
         } finally {
-//            beanFactory.getRegisteredScope("recipeScope").remove("executionContext");
-
-            beanFactory.destroyScopedBean("scopedTarget.executionContext");
-//            beanFactory.destroyScopedBean("executionContext");
-
-//            System.out.println(beanFactory.getRegisteredScope("recipeScope"));
-//            RecipeRuntimeScope recipeScope = (RecipeRuntimeScope) beanFactory.getRegisteredScope("recipeScope");
-//            Field threadScope = ReflectionUtils.findField(RecipeRuntimeScope.class, "threadScope", ThreadLocal.class);
-//            ReflectionUtils.makeAccessible(threadScope);
-//            Object threadScope2 = ReflectionUtils.getField(threadScope, "threadScope");
-//            HashMap threadScope1 = (HashMap) ((NamedThreadLocal) threadScope2).get();
-
-//            ((ExecutionContext)((Map)((NamedThreadLocal)recipeScope.threadScope).get()).get("scopedTarget.executionContext")).getMessage("id");
+            executionRuntimeScope.clear(beanFactory);
         }
     }
 

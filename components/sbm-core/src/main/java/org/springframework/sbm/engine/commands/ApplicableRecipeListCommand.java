@@ -56,7 +56,6 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
 
     public List<Recipe> execute(ProjectContext projectContext) {
         executionRuntimeScope.clear(beanFactory);
-        ExecutionContext executionContext = rewriteExecutionContextFactory.createExecutionContext();
         return getApplicableRecipes(projectContext);
     }
 
