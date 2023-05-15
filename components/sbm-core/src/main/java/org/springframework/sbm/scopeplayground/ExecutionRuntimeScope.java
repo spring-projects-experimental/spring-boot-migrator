@@ -38,12 +38,7 @@ public class ExecutionRuntimeScope implements Scope /*extends SimpleThreadScope*
     private final static String TARGET_NAME_PREFIX = SCOPE_NAME + ".";
 
     public void clear(ConfigurableListableBeanFactory beanFactory) {
-        for(String beanName : beanFactory.getBeanDefinitionNames()) {
-            if(threadScope.keySet().contains(beanName)) {
-                beanFactory.destroyScopedBean(beanName);
-            }
-        }
-        threadScope.clear();
+        threadScope.keySet().stream().forEach(beanName -> beanFactory.destroyScopedBean(beanName));
     }
 
     public String getTargetNamePrefix() {
@@ -55,11 +50,10 @@ public class ExecutionRuntimeScope implements Scope /*extends SimpleThreadScope*
     private final Map<String, Object> threadScope = new ConcurrentHashMap<>();
 
     public Object get(String name, ObjectFactory<?> objectFactory) {
-        Map<String, Object> scope = this.threadScope;
-        Object scopedObject = scope.get(name);
+        Object scopedObject = this.threadScope.get(name);
         if (scopedObject == null) {
             scopedObject = objectFactory.getObject();
-            scope.put(name, scopedObject);
+            this.threadScope.put(name, scopedObject);
         }
         return scopedObject;
     }

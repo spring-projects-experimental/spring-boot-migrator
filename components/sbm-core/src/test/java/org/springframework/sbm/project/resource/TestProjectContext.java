@@ -16,9 +16,10 @@
 package org.springframework.sbm.project.resource;
 
 import org.jetbrains.annotations.NotNull;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.java.JavaParser;
-import org.openrewrite.maven.utilities.MavenArtifactDownloader;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -28,7 +29,6 @@ import org.springframework.sbm.build.resource.BuildFileResourceWrapper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;
-import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.java.JavaSourceProjectResourceWrapper;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
@@ -36,18 +36,16 @@ import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.RewriteExecutionContextFactory;
-import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.project.parser.*;
-import org.springframework.sbm.properties.parser.RewritePropertiesParser;
-import org.springframework.sbm.xml.parser.RewriteXmlParser;
+import org.springframework.sbm.test.SpringBeanProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
@@ -65,28 +63,28 @@ import static org.mockito.Mockito.when;
  *
  * // create default pom.xml with given content
  * TestProjectContext.buildProjectContext()
- *                      .withMaven()
- *                      .build();
+ * .withMaven()
+ * .build();
  *
  * // create pom.xml at given location with given content
  * TestProjectContext.buildProjectContext()
- *                      .addProjectResource("module1/pom.xml", "...pomSource...")
- *                      .build();
+ * .addProjectResource("module1/pom.xml", "...pomSource...")
+ * .build();
  *
  * // create application.properties at given location with given content
  * TestProjectContext.buildProjectContext()
- *                      .addProjectResource("module1/src/main/resources/application.properties", "prop=value")
- *                      .build();
+ * .addProjectResource("module1/src/main/resources/application.properties", "prop=value")
+ * .build();
  *
  * // use mock for Maven default build file
  * TestProjectContext.buildProjectContext()
- *                      .withMockedMaven(buildFileMock)
- *                      .build();
+ * .withMockedMaven(buildFileMock)
+ * .build();
  *
  * // adds a java files, file and package name are taken from source
  * TestProjectContext.buildProjectContext()
- *                      .addJavaSources("class Foo{}", "class Bar{}")
- *                      .build();
+ * .addJavaSources("class Foo{}", "class Bar{}")
+ * .build();
  * .....
  *
  * == Examples
@@ -99,10 +97,8 @@ import static org.mockito.Mockito.when;
  * .withJavaSources("public class Foo{}")
  * .build();
  * ....
- *
- *
  */
- /* To
+/* To
  *
 
  * <p>
@@ -183,7 +179,12 @@ import static org.mockito.Mockito.when;
  */
 public class TestProjectContext {
 
-    private static final Path DEFAULT_PROJECT_ROOT = Path.of(".").resolve("target").resolve("dummy-test-path").normalize().toAbsolutePath();
+    private static final Path DEFAULT_PROJECT_ROOT = Path
+            .of(".")
+            .resolve("target")
+            .resolve("dummy-test-path")
+            .normalize()
+            .toAbsolutePath();
 
     private static final String DEFAULT_PACKAGE_NAME = "not.found";
 
@@ -197,8 +198,16 @@ public class TestProjectContext {
     }
 
     /**
+     *
+     */
+    public static Builder buildProjectContext(ConfigurableListableBeanFactory beanFactory) {
+        return new Builder(DEFAULT_PROJECT_ROOT, beanFactory);
+    }
+
+    /**
      * Build {@code ProjectContext} with default project root of absolute path of './dummy-test-path'
      * <p>
+     *
      * @param eventPublisher the eventPublisher to use
      */
     public static Builder buildProjectContext(ApplicationEventPublisher eventPublisher) {
@@ -208,6 +217,7 @@ public class TestProjectContext {
     /**
      * Build {@code ProjectContext} with default project root of absolute path of './dummy-test-path'
      * <p>
+     *
      * @param eventPublisher the eventPublisher to use
      */
     public static Builder buildProjectContext(ApplicationEventPublisher eventPublisher, RewriteJavaParser rewriteJavaParser) {
@@ -221,7 +231,9 @@ public class TestProjectContext {
         return DEFAULT_PROJECT_ROOT;
     }
 
-    public static String getDefaultPackageName() { return DEFAULT_PACKAGE_NAME; }
+    public static String getDefaultPackageName() {
+        return DEFAULT_PACKAGE_NAME;
+    }
 
     public static ProjectContext buildFromDir(Path of) {
         final Path absoluteProjectRoot = of.toAbsolutePath().normalize();
@@ -247,6 +259,7 @@ public class TestProjectContext {
     }
 
     public static class Builder {
+        private final Optional<ConfigurableListableBeanFactory> beanFactory;
         private Path projectRoot;
         private List<ProjectResourceWrapper> resourceWrapperList = new ArrayList<>();
         private List<String> dependencies = new ArrayList<>();
@@ -256,27 +269,32 @@ public class TestProjectContext {
         private OpenRewriteMavenBuildFile mockedBuildFile;
         private DependencyHelper dependencyHelper = new DependencyHelper();
         private SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
-
+        private ExecutionContext executionContext = new RewriteExecutionContext();
         private Optional<String> springVersion = Optional.empty();
 
         private JavaParser javaParser;
-        private RewriteMavenParser mavenParser = new RewriteMavenParser(new MavenSettingsInitializer());;
+        private RewriteMavenParser mavenParser = new RewriteMavenParser(new MavenSettingsInitializer(), executionContext);
 
         public Builder(Path projectRoot) {
-            this.projectRoot = projectRoot;
-            sbmApplicationProperties.setDefaultBasePackage(DEFAULT_PACKAGE_NAME);
-            sbmApplicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
-            this.javaParser = new RewriteJavaParser(sbmApplicationProperties);
+            this(projectRoot, (ConfigurableListableBeanFactory) null);
         }
 
         public Builder(Path projectRoot, ApplicationEventPublisher eventPublisher) {
-            this(projectRoot);
+            this(projectRoot, (ConfigurableListableBeanFactory) null);
             this.eventPublisher = eventPublisher;
         }
 
         public Builder(Path defaultProjectRoot, ApplicationEventPublisher eventPublisher, RewriteJavaParser rewriteJavaParser) {
             this(defaultProjectRoot, eventPublisher);
             this.javaParser = rewriteJavaParser;
+        }
+
+        public Builder(Path defaultProjectRoot, ConfigurableListableBeanFactory beanFactory) {
+            this.projectRoot = projectRoot;
+            sbmApplicationProperties.setDefaultBasePackage(DEFAULT_PACKAGE_NAME);
+            sbmApplicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
+            this.javaParser = new RewriteJavaParser(sbmApplicationProperties);
+            this.beanFactory = Optional.of(beanFactory);
         }
 
         public Builder withProjectRoot(Path projectRoot) {
@@ -296,8 +314,8 @@ public class TestProjectContext {
          * @param content    of the resource
          */
         public Builder addProjectResource(Path sourcePath, String content) {
-            if (sourcePath.isAbsolute())
-                throw new IllegalArgumentException("Invalid sourcePath given, sourcePath must be given relative from project root.");
+            if (sourcePath.isAbsolute()) throw new IllegalArgumentException(
+                    "Invalid sourcePath given, sourcePath must be given relative from project root.");
             this.resourcesWithRelativePaths.put(sourcePath.normalize(), content);
             return this;
         }
@@ -422,7 +440,7 @@ public class TestProjectContext {
 
         public Builder withMavenBuildFileSource(String sourceDir, String pomSource) {
             Path sourcePath = Path.of(sourceDir);
-            if(!sourceDir.endsWith("pom.xml")) {
+            if (!sourceDir.endsWith("pom.xml")) {
                 sourcePath = sourcePath.resolve("pom.xml");
             }
             this.addProjectResource(sourcePath, pomSource);
@@ -442,14 +460,7 @@ public class TestProjectContext {
         public Builder withDummyRootBuildFile() {
             if (containsAnyPomXml() || !dependencies.isEmpty())
                 throw new IllegalArgumentException("ProjectContext already contains pom.xml files.");
-            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                    "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                    "    <modelVersion>4.0.0</modelVersion>\n" +
-                    "    <groupId>com.example</groupId>\n" +
-                    "    <artifactId>dummy-root</artifactId>\n" +
-                    "    <version>0.1.0-SNAPSHOT</version>\n" +
-                    "    <packaging>jar</packaging>\n" +
-                    "</project>\n";
+            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" + "    <modelVersion>4.0.0</modelVersion>\n" + "    <groupId>com.example</groupId>\n" + "    <artifactId>dummy-root</artifactId>\n" + "    <version>0.1.0-SNAPSHOT</version>\n" + "    <packaging>jar</packaging>\n" + "</project>\n";
             resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
             return this;
         }
@@ -462,9 +473,9 @@ public class TestProjectContext {
 
             ProjectContext projectContext = build();
 
-            ProjectContextSerializer serializer = new ProjectContextSerializer(new ProjectResourceSetSerializer(new ProjectResourceSerializer()));
-            projectContext.getProjectResources().stream()
-                    .forEach(r -> r.markChanged());
+            ProjectContextSerializer serializer = new ProjectContextSerializer(
+                    new ProjectResourceSetSerializer(new ProjectResourceSerializer()));
+            projectContext.getProjectResources().stream().forEach(r -> r.markChanged());
             serializer.writeChanges(projectContext);
             return projectContext;
         }
@@ -475,7 +486,7 @@ public class TestProjectContext {
         public ProjectContext build() {
             verifyValidBuildFileSetup();
 
-            if(!containsAnyPomXml()) {
+            if (!containsAnyPomXml()) {
                 String xml = """
                         <?xml version="1.0" encoding="UTF-8"?>
                         <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -499,11 +510,10 @@ public class TestProjectContext {
 
             // create resource map with fully qualified paths
             Map<Path, String> resourcesWithAbsolutePaths = new LinkedHashMap<>();
-            resourcesWithRelativePaths.entrySet().stream()
-                    .forEach(e -> {
-                        Path absolutePath = projectRoot.resolve(e.getKey()).normalize().toAbsolutePath();
-                        resourcesWithAbsolutePaths.put(absolutePath, e.getValue());
-                    });
+            resourcesWithRelativePaths.entrySet().stream().forEach(e -> {
+                Path absolutePath = projectRoot.resolve(e.getKey()).normalize().toAbsolutePath();
+                resourcesWithAbsolutePaths.put(absolutePath, e.getValue());
+            });
 
             // create list of dummy resources
             List<Resource> scannedResources = mapToResources(resourcesWithAbsolutePaths);
@@ -513,18 +523,26 @@ public class TestProjectContext {
             JavaRefactoringFactory javaRefactoringFactory = new JavaRefactoringFactoryImpl(projectResourceSetHolder);
 
             // create ProjectResourceWrapperRegistry and register Java and Maven resource wrapper
-            MavenBuildFileRefactoringFactory mavenBuildFileRefactoringFactory = new MavenBuildFileRefactoringFactory(projectResourceSetHolder, mavenParser);
+            MavenBuildFileRefactoringFactory mavenBuildFileRefactoringFactory = new MavenBuildFileRefactoringFactory(
+                    projectResourceSetHolder, mavenParser);
             BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(eventPublisher,
                                                                                              mavenBuildFileRefactoringFactory);
             resourceWrapperList.add(buildFileResourceWrapper);
-            JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(javaRefactoringFactory, javaParser);
+            JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(
+                    javaRefactoringFactory, javaParser);
             resourceWrapperList.add(javaSourceProjectResourceWrapper);
             orderByOrderAnnotationValue(resourceWrapperList);
             resourceWrapperRegistry = new ProjectResourceWrapperRegistry(resourceWrapperList);
 
             // create ProjectContextInitializer
-            ProjectContextFactory projectContextFactory = new ProjectContextFactory(resourceWrapperRegistry, projectResourceSetHolder, javaRefactoringFactory, new BasePackageCalculator(sbmApplicationProperties), javaParser);
-            ProjectContextInitializer projectContextInitializer = createProjectContextInitializer(projectContextFactory);
+            ProjectContextFactory projectContextFactory = new ProjectContextFactory(resourceWrapperRegistry,
+                                                                                    projectResourceSetHolder,
+                                                                                    javaRefactoringFactory,
+                                                                                    new BasePackageCalculator(
+                                                                                            sbmApplicationProperties),
+                                                                                    javaParser);
+            ProjectContextInitializer projectContextInitializer = createProjectContextInitializer(
+                    projectContextFactory);
 
             // create ProjectContext
             ProjectContext projectContext = projectContextInitializer.initProjectContext(projectRoot, scannedResources);
@@ -557,36 +575,46 @@ public class TestProjectContext {
             // FIXME: #7 remove
 //            RewriteMavenParserFactory rewriteMavenParserFactory = new RewriteMavenParserFactory(new MavenPomCacheProvider(), eventPublisher, new ResourceParser(eventPublisher));
 
+            AtomicReference<ProjectContextInitializer> projectContextInitializerRef = new AtomicReference<>();
+            if(beanFactory.isPresent()) {
+                ProjectContextInitializer bean = beanFactory.get().getBean(ProjectContextInitializer.class);
+                projectContextInitializerRef.set(bean);
+            } else {
 
-            ResourceParser resourceParser = new ResourceParser(
-                    new RewriteJsonParser(),
-                    new RewriteXmlParser(),
-                    new RewriteYamlParser(),
-                    new RewritePropertiesParser(),
-                    new RewritePlainTextParser(),
-                    new ResourceParser.ResourceFilter(),
-                    eventPublisher);
+            }
+
+            SpringBeanProvider.run(ctx -> {
+                projectContextInitializerRef.set(ctx.getBean(ProjectContextInitializer.class));
+            });
+
+            return projectContextInitializerRef.get();
+/*
+            ResourceParser resourceParser = new ResourceParser(new RewriteJsonParser(), new RewriteXmlParser(),
+                                                               new RewriteYamlParser(), new RewritePropertiesParser(),
+                                                               new RewritePlainTextParser(),
+                                                               new ResourceParser.ResourceFilter(), eventPublisher);
 
             MavenArtifactDownloader artifactDownloader = new RewriteMavenArtifactDownloader();
 
             JavaProvenanceMarkerFactory javaProvenanceMarkerFactory = new JavaProvenanceMarkerFactory();
-            MavenProjectParser mavenProjectParser = new MavenProjectParser(
-                    resourceParser,
-                    mavenParser,
-                    artifactDownloader,
-                    eventPublisher,
-                    javaProvenanceMarkerFactory,
-                    javaParser,
-                    new MavenConfigHandler(),
-                    new RewriteExecutionContextFactory());
-
+            MavenProjectParser mavenProjectParser = new MavenProjectParser(resourceParser, mavenParser,
+                                                                           artifactDownloader, eventPublisher,
+                                                                           javaProvenanceMarkerFactory, javaParser,
+                                                                           new MavenConfigHandler(),
+                                                                           new RewriteExecutionContextFactory());
+*/
+            /*
             GitSupport gitSupport = mock(GitSupport.class);
             when(gitSupport.repoExists(projectRoot.toFile())).thenReturn(true);
             when(gitSupport.getLatestCommit(projectRoot.toFile())).thenReturn(Optional.empty());
 
             RewriteSourceFileWrapper wrapper = new RewriteSourceFileWrapper();
-            ProjectContextInitializer projectContextInitializer = new ProjectContextInitializer(projectContextFactory, mavenProjectParser, gitSupport, wrapper);
-            return projectContextInitializer;
+            ProjectContextInitializer projectContextInitializerRef = new ProjectContextInitializer(projectContextFactory,
+                                                                                                mavenProjectParser,
+                                                                                                gitSupport, wrapper);
+            return projectContextInitializerRef;
+
+             */
         }
 
         private void verifyValidBuildFileSetup() {
@@ -596,16 +624,21 @@ public class TestProjectContext {
             boolean containsAnyPomXml = containsAnyPomXml();
 
             if (containsAnyPomXml && isClasspathGiven) {
-                throw new IllegalArgumentException("Found classpath entries and pom.xml in resources. When classpath is provided the root pom gets generated");
+                throw new IllegalArgumentException(
+                        "Found classpath entries and pom.xml in resources. When classpath is provided the root pom gets generated");
             } else if (containsAnyPomXml && hasSpringBootParent) {
-                throw new IllegalArgumentException("Found spring boot version for parent pom and root pom.xml in resources. When spring boot version is provided the root pom gets generated");
+                throw new IllegalArgumentException(
+                        "Found spring boot version for parent pom and root pom.xml in resources. When spring boot version is provided the root pom gets generated");
             } else if (containsAnyPomXml && isMockedBuildFileGiven) {
-                throw new IllegalArgumentException("Found mocked BuildFile and root pom.xml in resources. When mocked BuildFile is provided no other pom.xml must exist");
+                throw new IllegalArgumentException(
+                        "Found mocked BuildFile and root pom.xml in resources. When mocked BuildFile is provided no other pom.xml must exist");
             }
             if (mockedBuildFile != null && isClasspathGiven) {
-                throw new IllegalArgumentException("Found mocked BuildFile and classpath entries. When mocked BuildFile is provided no other pom.xml must exist");
-            } else if(mockedBuildFile != null && hasSpringBootParent) {
-                throw new IllegalArgumentException("Found mocked BuildFile and Spring Boot version. When mocked BuildFile is provided no other pom.xml, parent or dependencies must exist");
+                throw new IllegalArgumentException(
+                        "Found mocked BuildFile and classpath entries. When mocked BuildFile is provided no other pom.xml must exist");
+            } else if (mockedBuildFile != null && hasSpringBootParent) {
+                throw new IllegalArgumentException(
+                        "Found mocked BuildFile and Spring Boot version. When mocked BuildFile is provided no other pom.xml, parent or dependencies must exist");
             }
         }
 
@@ -614,26 +647,43 @@ public class TestProjectContext {
         }
 
         private List<Resource> mapToResources(Map<Path, String> resources) {
-            return resources.entrySet().stream()
+            return resources
+                    .entrySet()
+                    .stream()
                     .map(e -> new TestDummyResource(e.getKey(), e.getValue()))
                     .collect(Collectors.toList());
         }
 
         private Parser.Input createParserInput(Path path, String value) {
-            return new Parser.Input(path, null, () -> new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)), true);
+            return new Parser.Input(path, null, () -> new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)),
+                                    true);
         }
 
 
         @NotNull
         private String getDependenciesSection() {
             StringBuilder dependenciesSection = new StringBuilder();
-            if(!dependencies.isEmpty()) {
+            if (!dependencies.isEmpty()) {
                 dependenciesSection.append("    ").append("<dependencies>").append("\n");
                 dependencyHelper.mapCoordinatesToDependencies(dependencies).stream().forEach(dependency -> {
                     dependenciesSection.append("    ").append("    ").append("<dependency>").append("\n");
-                    dependenciesSection.append("    ").append("    ").append("    ").append("<groupId>").append(dependency.getGroupId()).append("</groupId>").append("\n");
-                    dependenciesSection.append("    ").append("    ").append("    ").append("<artifactId>").append(dependency.getArtifactId()).append("</artifactId>").append("\n");
-                    if(dependency.getVersion() != null) {
+                    dependenciesSection
+                            .append("    ")
+                            .append("    ")
+                            .append("    ")
+                            .append("<groupId>")
+                            .append(dependency.getGroupId())
+                            .append("</groupId>")
+                            .append("\n");
+                    dependenciesSection
+                            .append("    ")
+                            .append("    ")
+                            .append("    ")
+                            .append("<artifactId>")
+                            .append(dependency.getArtifactId())
+                            .append("</artifactId>")
+                            .append("\n");
+                    if (dependency.getVersion() != null) {
                         dependenciesSection
                                 .append("    ")
                                 .append("    ")

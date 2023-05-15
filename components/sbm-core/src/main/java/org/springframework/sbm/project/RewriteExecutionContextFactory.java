@@ -32,6 +32,6 @@ public class RewriteExecutionContextFactory {
     private final ConfigurableListableBeanFactory beanFactory;
 
     public ExecutionContext createExecutionContext() {
-        return beanFactory.getBean(RewriteExecutionContext.class);
+        return beanFactory.getBean(ExecutionContext.class);
     }
 }

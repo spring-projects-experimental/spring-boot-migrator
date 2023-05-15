@@ -23,6 +23,7 @@ import org.openrewrite.java.JavaParsingException;
 import org.openrewrite.maven.MavenDownloadingException;
 import org.openrewrite.maven.internal.MavenParsingException;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.sbm.scopeplayground.ExecutionScope;
 
 import java.util.Collection;
 import java.util.Optional;

@@ -1,12 +1,14 @@
 package org.springframework.sbm.scopeplayground;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.openrewrite.maven.MavenSettings;
 
 @Getter
+@Setter
 public class ProjectMetadata {
     private String metadata;
-
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
-    }
+    private MavenSettings mavenSettings;
 }

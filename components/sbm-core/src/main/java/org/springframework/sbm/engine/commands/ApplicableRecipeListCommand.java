@@ -15,14 +15,16 @@
  */
 package org.springframework.sbm.engine.commands;
 
+import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
+import org.springframework.sbm.project.RewriteExecutionContextFactory;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
-import org.springframework.sbm.scopeplayground.ScanRuntimeScope;
+import org.springframework.sbm.scopeplayground.ExecutionRuntimeScope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -37,15 +39,30 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
 
     private final ConfigurableListableBeanFactory beanFactory;
 
-    private final ScanRuntimeScope scope;
+    private final ExecutionRuntimeScope executionRuntimeScope;
 
-    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder, ConfigurableListableBeanFactory beanFactory, ScanRuntimeScope scope) {
+    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder, ConfigurableListableBeanFactory beanFactory, ExecutionRuntimeScope executionRuntimeScope,
+                                          RewriteExecutionContextFactory rewriteExecutionContextFactory) {
         super(COMMAND_NAME);
         this.projectRootPathResolver = projectRootPathResolver;
         this.recipesBuilder = recipesBuilder;
         this.projectContextBuilder = projectContextBuilder;
         this.beanFactory = beanFactory;
-        this.scope = scope;
+        this.executionRuntimeScope = executionRuntimeScope;
+        this.rewriteExecutionContextFactory = rewriteExecutionContextFactory;
+    }
+
+    private RewriteExecutionContextFactory rewriteExecutionContextFactory;
+
+    public List<Recipe> execute(ProjectContext projectContext) {
+        executionRuntimeScope.clear(beanFactory);
+        ExecutionContext executionContext = rewriteExecutionContextFactory.createExecutionContext();
+        return getApplicableRecipes(projectContext);
+    }
+
+    private List<Recipe> getApplicableRecipes(ProjectContext context) {
+        Recipes recipes = recipesBuilder.buildRecipes();
+        return recipes.getApplicable(context);
     }
 
     @Override
@@ -57,15 +74,5 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
 //        ProjectContext context = projectContextBuilder.initProjectContext(projectRoot, new RewriteExecutionContext());
 //        return getApplicableRecipes(context);
         return null;
-    }
-
-    private List<Recipe> getApplicableRecipes(ProjectContext context) {
-        Recipes recipes = recipesBuilder.buildRecipes();
-        return recipes.getApplicable(context);
-    }
-
-    public List<Recipe> execute(ProjectContext projectContext) {
-        scope.clear(beanFactory);
-        return getApplicableRecipes(projectContext);
     }
 }

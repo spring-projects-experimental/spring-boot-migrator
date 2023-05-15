@@ -111,6 +111,6 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
     @Override
     @Deprecated
     public Recipe execute(String... arguments) {
-        return null;
+        throw new UnsupportedOperationException("This method will be removed.");
     }
 }

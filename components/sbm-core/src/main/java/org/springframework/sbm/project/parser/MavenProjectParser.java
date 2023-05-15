@@ -28,6 +28,8 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.marker.GitProvenance;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.ci.BuildEnvironment;
+import org.openrewrite.maven.MavenExecutionContextView;
+import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.tree.*;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.xml.tree.Xml;
@@ -38,6 +40,7 @@ import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.events.*;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.RewriteExecutionContextFactory;
+import org.springframework.sbm.scopeplayground.ProjectMetadata;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -65,9 +68,15 @@ public class MavenProjectParser {
     private final MavenConfigHandler mavenConfigHandler;
 
     private final RewriteExecutionContextFactory executionContextFactory;
+    private final ProjectMetadata projectMetadata;
 
     public List<SourceFile> parse(Path projectDirectory, List<Resource> resources) {
+        projectMetadata.setMetadata("some metadata");
+        MavenSettings mavenSettings = new MavenSettings(null, null, null, null, null);
+        projectMetadata.setMavenSettings(mavenSettings);
         ExecutionContext ctx = executionContextFactory.createExecutionContext();
+        MavenExecutionContextView mavenExecutionContext = MavenExecutionContextView.view(ctx);
+        mavenExecutionContext.setMavenSettings(mavenSettings);
 
 
         mavenConfigHandler.injectMavenConfigIntoSystemProperties(resources);
