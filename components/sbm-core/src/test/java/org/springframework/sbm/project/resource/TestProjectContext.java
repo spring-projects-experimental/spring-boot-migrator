@@ -530,7 +530,7 @@ public class TestProjectContext {
                                                                                              executionContext);
             resourceWrapperList.add(buildFileResourceWrapper);
             JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(
-                    javaRefactoringFactory, javaParser);
+                    javaRefactoringFactory, javaParser, executionContext);
             resourceWrapperList.add(javaSourceProjectResourceWrapper);
             orderByOrderAnnotationValue(resourceWrapperList);
             resourceWrapperRegistry = new ProjectResourceWrapperRegistry(resourceWrapperList);
@@ -541,7 +541,8 @@ public class TestProjectContext {
                                                                                     javaRefactoringFactory,
                                                                                     new BasePackageCalculator(
                                                                                             sbmApplicationProperties),
-                                                                                    javaParser);
+                                                                                    javaParser,
+                                                                                    executionContext);
             ProjectContextInitializer projectContextInitializer = createProjectContextInitializer(
                     projectContextFactory);
 
