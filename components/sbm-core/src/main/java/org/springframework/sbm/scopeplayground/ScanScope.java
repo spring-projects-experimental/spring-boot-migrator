@@ -15,8 +15,16 @@
  */
 package org.springframework.sbm.scopeplayground;
 
+import org.springframework.stereotype.Component;
+
 /**
+ * Scope implementation for beans marked with {@link org.springframework.sbm.scopeplayground.annotations.ScanScope}.
+ *
  * @author Fabian Krüger
  */
-public class ProjectMetadataFactory {
+@Component
+public class ScanScope extends AbstractBaseScope {
+
+    public final static String SCOPE_NAME = "scanScope";
+
 }

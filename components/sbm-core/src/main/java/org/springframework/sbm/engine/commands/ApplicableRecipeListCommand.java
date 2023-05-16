@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.engine.commands;
 
-import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
@@ -24,7 +23,7 @@ import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
 import org.springframework.sbm.project.RewriteExecutionContextFactory;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
-import org.springframework.sbm.scopeplayground.ExecutionRuntimeScope;
+import org.springframework.sbm.scopeplayground.ExecutionScope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -39,23 +38,22 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
 
     private final ConfigurableListableBeanFactory beanFactory;
 
-    private final ExecutionRuntimeScope executionRuntimeScope;
+    private final ExecutionScope executionScope;
 
-    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder, ConfigurableListableBeanFactory beanFactory, ExecutionRuntimeScope executionRuntimeScope,
+    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder, ConfigurableListableBeanFactory beanFactory, ExecutionScope executionScope,
                                           RewriteExecutionContextFactory rewriteExecutionContextFactory) {
         super(COMMAND_NAME);
         this.projectRootPathResolver = projectRootPathResolver;
         this.recipesBuilder = recipesBuilder;
         this.projectContextBuilder = projectContextBuilder;
         this.beanFactory = beanFactory;
-        this.executionRuntimeScope = executionRuntimeScope;
+        this.executionScope = executionScope;
         this.rewriteExecutionContextFactory = rewriteExecutionContextFactory;
     }
 
     private RewriteExecutionContextFactory rewriteExecutionContextFactory;
 
     public List<Recipe> execute(ProjectContext projectContext) {
-        executionRuntimeScope.clear(beanFactory);
         return getApplicableRecipes(projectContext);
     }
 

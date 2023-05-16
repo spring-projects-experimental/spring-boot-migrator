@@ -24,28 +24,14 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ScopeConfiguration {
-/*
-    @Bean(name ="executionContext")
-//    @RecipeScope
-    @Scope(value = "recipeScope", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public ExecutionContext executionContext() {
-        String s = UUID.randomUUID().toString();
-        System.out.println("Create ExecutionContext: " + s);
-        RewriteExecutionContext executionContext = new RewriteExecutionContext();
-        executionContext.putMessage("contextId", s);
-        return executionContext;
-    }*/
-
     /**
-     * Register scanScope
-     *
-     * See https://github.com/spring-projects/spring-batch/blob/c4ad90b9b191b94cb4d21f90e5759bda9857e341/spring-batch-core/src/main/java/org/springframework/batch/core/scope/BatchScopeSupport.java#L104}
+     * Register {@link ScanScope} and {@link ExecutionScope}.
      */
     @Bean
-    public static BeanFactoryPostProcessor beanFactoryPostProcessor(ExecutionRuntimeScope executionRuntimeScope, ScanRuntimeScope scanRuntimeScope) {
+    public static BeanFactoryPostProcessor beanFactoryPostProcessor(ExecutionScope executionScope, ScanScope scanScope) {
         return beanFactory -> {
-            beanFactory.registerScope(ScanRuntimeScope.SCOPE_NAME, scanRuntimeScope);
-            beanFactory.registerScope(ExecutionRuntimeScope.SCOPE_NAME, executionRuntimeScope);
+            beanFactory.registerScope(ScanScope.SCOPE_NAME, scanScope);
+            beanFactory.registerScope(ExecutionScope.SCOPE_NAME, executionScope);
         };
     }
 

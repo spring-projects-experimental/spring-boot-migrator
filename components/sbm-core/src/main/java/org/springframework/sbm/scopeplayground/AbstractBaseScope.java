@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 - 2022 the original author or authors.
  *
@@ -16,14 +15,11 @@
  */
 package org.springframework.sbm.scopeplayground;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.Scope;
-import org.springframework.context.support.SimpleThreadScope;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,41 +27,31 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Fabian Krüger
  */
-@Component
-public class ExecutionRuntimeScope implements Scope /*extends SimpleThreadScope*/ {
-
-    public final static String SCOPE_NAME = "executionScope";
-    private final static String TARGET_NAME_PREFIX = SCOPE_NAME + ".";
+@Slf4j
+public class AbstractBaseScope implements Scope {
+    private final Map<String, Object> scopedBeans = new ConcurrentHashMap<>();
 
     public void clear(ConfigurableListableBeanFactory beanFactory) {
-        threadScope.keySet().stream().forEach(beanName -> beanFactory.destroyScopedBean(beanName));
+        scopedBeans.keySet().stream().forEach(beanName -> beanFactory.destroyScopedBean(beanName));
     }
-
-    public String getTargetNamePrefix() {
-        return TARGET_NAME_PREFIX;
-    }
-
-
-    private static final Log logger = LogFactory.getLog(SimpleThreadScope.class);
-    private final Map<String, Object> threadScope = new ConcurrentHashMap<>();
 
     public Object get(String name, ObjectFactory<?> objectFactory) {
-        Object scopedObject = this.threadScope.get(name);
+        Object scopedObject = this.scopedBeans.get(name);
         if (scopedObject == null) {
             scopedObject = objectFactory.getObject();
-            this.threadScope.put(name, scopedObject);
+            this.scopedBeans.put(name, scopedObject);
         }
         return scopedObject;
     }
 
     @Nullable
     public Object remove(String name) {
-        Map<String, Object> scope = this.threadScope;
+        Map<String, Object> scope = this.scopedBeans;
         return scope.remove(name);
     }
 
     public void registerDestructionCallback(String name, Runnable callback) {
-        logger.warn("SimpleThreadScope does not support destruction callbacks. Consider using RequestScope in a web environment.");
+        log.warn("%s does not support destruction callbacks.".formatted(this.getClass().getName()));
     }
 
     @Nullable
@@ -74,6 +60,6 @@ public class ExecutionRuntimeScope implements Scope /*extends SimpleThreadScope*
     }
 
     public String getConversationId() {
-        return Thread.currentThread().getName();
+        return null;
     }
 }

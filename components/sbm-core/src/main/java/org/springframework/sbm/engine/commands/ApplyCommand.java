@@ -16,9 +16,9 @@
 package org.springframework.sbm.engine.commands;
 
 import org.openrewrite.ExecutionContext;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.AbstractBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.sbm.common.filter.DeletedResourcePathStringFilter;
 import org.springframework.sbm.common.filter.ModifiedResourcePathStringFilter;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -28,7 +28,7 @@ import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
-import org.springframework.sbm.scopeplayground.ExecutionRuntimeScope;
+import org.springframework.sbm.scopeplayground.ExecutionScope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -44,21 +44,21 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
 
     private final GitSupport gitSupport;
     private final ConfigurableListableBeanFactory beanFactory;
-    private final ExecutionRuntimeScope executionRuntimeScope;
+    private final ExecutionScope executionScope;
 
     public ApplyCommand(
             RecipesBuilder recipesBuilder,
             ProjectContextSerializer contextSerializer,
             ProjectSyncVerifier projectSyncVerifier,
             GitSupport gitSupport,
-            ConfigurableListableBeanFactory beanFactory, ExecutionRuntimeScope executionRuntimeScope) {
+            ConfigurableListableBeanFactory beanFactory, ExecutionScope executionScope) {
         super("apply");
         this.recipesBuilder = recipesBuilder;
         this.contextSerializer = contextSerializer;
         this.projectSyncVerifier = projectSyncVerifier;
         this.gitSupport = gitSupport;
         this.beanFactory = beanFactory;
-        this.executionRuntimeScope = executionRuntimeScope;
+        this.executionScope = executionScope;
     }
 
     public List<Action> execute(ProjectContext projectContext, String recipeName) {
@@ -88,7 +88,7 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
 
             return appliedActions;
         } finally {
-            executionRuntimeScope.clear(beanFactory);
+            executionScope.clear(beanFactory);
         }
     }
 
