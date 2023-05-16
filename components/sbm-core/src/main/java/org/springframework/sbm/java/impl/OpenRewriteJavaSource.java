@@ -65,7 +65,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
     @Override
     public List<OpenRewriteType> getTypes() {
         return getCompilationUnit().getClasses().stream()
-                .map(cd -> new OpenRewriteType(cd, getResource(), refactoring, javaParser))
+                .map(cd -> new OpenRewriteType(cd, getResource(), refactoring, executionContext, javaParser))
                 .collect(Collectors.toList());
     }
 

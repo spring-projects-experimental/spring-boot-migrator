@@ -20,6 +20,7 @@ import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.openrewrite.ExecutionContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.build.api.BuildFile;
@@ -510,7 +511,9 @@ public class OpenRewriteMavenBuildFileTest {
     void addDependencyShouldPublishEvent() {
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 
+        ExecutionContext executionContext = new RewriteExecutionContext();
         ProjectContext context = TestProjectContext.buildProjectContext(eventPublisher)
+                .withExecutionContext(executionContext)
                 .withMavenRootBuildFileSource(
                         """
                         <?xml version="1.0" encoding="UTF-8"?>
@@ -559,10 +562,10 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(fireEvent.getResolvedDependencies().get(0).toString()).endsWith("javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar");
 
         // call DependenciesChangedEventHandler to trigger recompile
-        RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(new SbmApplicationProperties());
+        RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(new SbmApplicationProperties(), executionContext);
         ProjectContextHolder projectContextHolder = new ProjectContextHolder();
         projectContextHolder.setProjectContext(context);
-        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, rewriteJavaParser, new RewriteExecutionContext());
+        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, rewriteJavaParser, executionContext);
         handler.onDependenciesChanged(fireEvent);
 
         Member member2 = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);

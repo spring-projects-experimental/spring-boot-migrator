@@ -43,15 +43,17 @@ class OpenRewriteSearchAndCommentTest {
                 }
                 """;
 
+        RewriteExecutionContext executionContext = new RewriteExecutionContext();
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                .withExecutionContext(executionContext)
                 .withJavaSources(javaSource1, javaSource2)
                 .build();
 
         String markerText = "marker text";
 
-        JavaParser javaParser = new RewriteJavaParser(new SbmApplicationProperties());
+        JavaParser javaParser = new RewriteJavaParser(new SbmApplicationProperties(), executionContext);
         OpenRewriteRecipeJavaSearch sut = new OpenRewriteRecipeJavaSearch(compilationUnits -> new FindAnnotations("@java.lang.Deprecated", false).run(compilationUnits).getResults(), javaParser,
-                                                                          new RewriteExecutionContext());
+                                                                          executionContext);
 
         sut.commentFindings(projectContext.getProjectJavaSources().list(), markerText);
 

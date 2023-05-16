@@ -17,11 +17,13 @@ package org.springframework.sbm.java.impl;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.tree.J;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 
 import java.io.ByteArrayOutputStream;
@@ -43,9 +45,10 @@ public class RewriteJavaParserTest {
 
         SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
         sbmApplicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
-        RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(sbmApplicationProperties);
+        ExecutionContext executionContext = new RewriteExecutionContext((t) -> t.printStackTrace());
+        RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(sbmApplicationProperties, executionContext);
         sysOutBuffer.reset();
-        List<J.CompilationUnit> parsed = rewriteJavaParser.parse(new InMemoryExecutionContext((t) -> t.printStackTrace()), "public class Foo {a}");
+        List<J.CompilationUnit> parsed = rewriteJavaParser.parse(executionContext);
 
         String out = sysOutBuffer.toString();
         System.setOut(realSysOut);

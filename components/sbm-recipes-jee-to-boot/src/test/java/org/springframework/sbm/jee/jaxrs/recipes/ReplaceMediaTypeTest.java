@@ -33,7 +33,8 @@ class ReplaceMediaTypeTest {
 
     private final static String SPRING_VERSION = "5.3.13";
 
-    private final Supplier<JavaParser> javaParserSupplier = () -> new RewriteJavaParser(new SbmApplicationProperties());
+    private final Supplier<JavaParser> javaParserSupplier = () -> new RewriteJavaParser(new SbmApplicationProperties(),
+                                                                                        executionContext);
 
     final private AbstractAction action = new AbstractAction() {
         @Override

@@ -39,15 +39,13 @@ public class RewriteExecutionContext extends InMemoryExecutionContext {
     @Deprecated
     private Optional<ApplicationEventPublisher> appEventPublisher;
 
-    @Deprecated
-    public RewriteExecutionContext(ApplicationEventPublisher appEventPublisher) {
-        super(createErrorHandler());
-        this.appEventPublisher = Optional.of(appEventPublisher);
-    }
-
     public RewriteExecutionContext() {
         super(createErrorHandler());
         this.appEventPublisher = Optional.empty();
+    }
+
+    public RewriteExecutionContext(Consumer<Throwable> exceptionHandler) {
+        super(exceptionHandler);
     }
 
     @Override
@@ -70,11 +68,6 @@ public class RewriteExecutionContext extends InMemoryExecutionContext {
     @Override
     public void putCurrentRecipe(Recipe recipe) {
         super.putCurrentRecipe(recipe);
-    }
-
-    @Deprecated
-    public RewriteExecutionContext(Consumer<Throwable> exceptionHandler) {
-        super(exceptionHandler);
     }
 
     private static Consumer<Throwable> createErrorHandler() {

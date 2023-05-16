@@ -33,7 +33,8 @@ public class ResponseStatusTest {
             new AbstractAction() {
                 @Override
                 public void apply(ProjectContext context) {
-                    SwapStatusForHttpStatus r = new SwapStatusForHttpStatus(() -> new RewriteJavaParser(new SbmApplicationProperties()));
+                    SwapStatusForHttpStatus r = new SwapStatusForHttpStatus(() -> new RewriteJavaParser(new SbmApplicationProperties(),
+                                                                                                        executionContext));
                     context.getProjectJavaSources().apply(r);
                 }
             };

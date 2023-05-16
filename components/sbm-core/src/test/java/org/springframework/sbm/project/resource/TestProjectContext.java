@@ -293,8 +293,13 @@ public class TestProjectContext {
             this.projectRoot = projectRoot;
             sbmApplicationProperties.setDefaultBasePackage(DEFAULT_PACKAGE_NAME);
             sbmApplicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
-            this.javaParser = new RewriteJavaParser(sbmApplicationProperties);
+            this.javaParser = new RewriteJavaParser(sbmApplicationProperties, executionContext);
             this.beanFactory = Optional.of(beanFactory);
+        }
+
+        public Builder withExecutionContext(ExecutionContext executionContext) {
+            this.executionContext = executionContext;
+            return this;
         }
 
         public Builder withProjectRoot(Path projectRoot) {

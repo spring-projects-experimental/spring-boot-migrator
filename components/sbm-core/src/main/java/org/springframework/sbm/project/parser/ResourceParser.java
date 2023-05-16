@@ -18,6 +18,7 @@ package org.springframework.sbm.project.parser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.hcl.HclParser;
@@ -33,7 +34,6 @@ import org.openrewrite.yaml.YamlParser;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.events.StartedScanningProjectResourceEvent;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -56,6 +56,7 @@ public class ResourceParser {
     private final PlainTextParser plainTextParser;
     private final ResourceFilter resourceFilter;
     private final ApplicationEventPublisher eventPublisher;
+    private final ExecutionContext executionContext;
 
     List<Resource> filter(Path projectDirectory, Set<Path> resourcePaths, List<Resource> resources, Path relativeModuleDir) {
         Path comparingPath = relativeModuleDir != null ? projectDirectory.resolve(relativeModuleDir) : projectDirectory;
@@ -113,7 +114,7 @@ public class ResourceParser {
             parserAndParserInputMappings.get(parser).add(r);
         });
 
-        ParsingExecutionContextView ctx = ParsingExecutionContextView.view(new RewriteExecutionContext(eventPublisher));
+        ParsingExecutionContextView ctx = ParsingExecutionContextView.view(executionContext);
         ctx.setParsingListener((input, sourceFile) -> eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(sourceFile.getSourcePath())));
 
         return parserAndParserInputMappings.entrySet().stream()

@@ -374,7 +374,8 @@ public class ResponseBuilderTest {
         String actual = projectContext.getProjectJavaSources().list().get(0).print();
 
         // verify it compiles
-        List<J.CompilationUnit> parse = new RewriteJavaParser(new SbmApplicationProperties()).parse(actual);
+        List<J.CompilationUnit> parse = new RewriteJavaParser(new SbmApplicationProperties(),
+                                                              executionContext).parse(actual);
 
         assertThat(actual)
                 .as(TestDiff.of(actual, expected))

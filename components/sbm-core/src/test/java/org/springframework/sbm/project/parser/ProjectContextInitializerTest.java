@@ -289,7 +289,7 @@ class ProjectContextInitializerTest {
         final String defaultBranchName = GitSupport.getBranchName(new File("./testcode/path-scanner")).get();
 
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-        RewriteExecutionContext executionContext = new RewriteExecutionContext(eventPublisher);
+        RewriteExecutionContext executionContext = new RewriteExecutionContext();
         List<Resource> resources = scanCommand.scanProjectRoot(projectDirectory.toString());
         ProjectContext projectContext = sut.initProjectContext(projectDirectory, resources);
         List<RewriteSourceFileHolder<? extends SourceFile>> projectResources = projectContext.getProjectResources().list();
