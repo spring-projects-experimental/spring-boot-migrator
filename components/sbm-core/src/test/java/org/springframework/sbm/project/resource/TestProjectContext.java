@@ -525,7 +525,7 @@ public class TestProjectContext {
 
             // create beans
             ProjectResourceSetHolder projectResourceSetHolder = new ProjectResourceSetHolder();
-            JavaRefactoringFactory javaRefactoringFactory = new JavaRefactoringFactoryImpl(projectResourceSetHolder);
+            JavaRefactoringFactory javaRefactoringFactory = new JavaRefactoringFactoryImpl(projectResourceSetHolder, executionContext);
 
             // create ProjectResourceWrapperRegistry and register Java and Maven resource wrapper
             MavenBuildFileRefactoringFactory mavenBuildFileRefactoringFactory = new MavenBuildFileRefactoringFactory(
