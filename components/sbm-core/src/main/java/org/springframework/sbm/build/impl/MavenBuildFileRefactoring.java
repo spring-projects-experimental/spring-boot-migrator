@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.*;
 import org.openrewrite.marker.Markers;
-import org.openrewrite.marker.SearchResult;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.xml.tree.Xml;
@@ -46,6 +45,7 @@ import java.util.stream.Collectors;
 public class MavenBuildFileRefactoring<T extends SourceFile> {
     private final ProjectResourceSet projectResourceSet;
     private final RewriteMavenParser mavenParser;
+    private final ExecutionContext executionContext;
 
     /**
      * Applies the provided {@code Visitor}s to all Maven build files in the {@code ProjectContext}.
@@ -107,7 +107,7 @@ public class MavenBuildFileRefactoring<T extends SourceFile> {
                 .collect(Collectors.toList());
 
         // parse buildfiles
-        List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInputs, null, new RewriteExecutionContext());
+        List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInputs, null, executionContext);
 
         // replace new model in build files
         newMavenFiles.stream()
@@ -152,12 +152,12 @@ public class MavenBuildFileRefactoring<T extends SourceFile> {
     }
 
     private List<Result> executeRecipe(Recipe recipe) {
-        List<Result> results = recipe.run(getDocumentsWrappedInOpenRewriteMavenBuildFile(), new RewriteExecutionContext()).getResults();
+        List<Result> results = recipe.run(getDocumentsWrappedInOpenRewriteMavenBuildFile(), executionContext).getResults();
         return results;
     }
 
     private List<Result> executeRecipe(Recipe recipe, RewriteSourceFileHolder<Xml.Document> resource) {
-        List<Result> results = recipe.run(List.of(resource.getSourceFile()), new RewriteExecutionContext()).getResults();
+        List<Result> results = recipe.run(List.of(resource.getSourceFile()), executionContext).getResults();
         return results;
     }
 
