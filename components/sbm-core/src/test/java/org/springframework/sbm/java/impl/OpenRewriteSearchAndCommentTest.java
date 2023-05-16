@@ -17,6 +17,7 @@ package org.springframework.sbm.java.impl;
 
 import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,8 @@ class OpenRewriteSearchAndCommentTest {
         String markerText = "marker text";
 
         JavaParser javaParser = new RewriteJavaParser(new SbmApplicationProperties());
-        OpenRewriteRecipeJavaSearch sut = new OpenRewriteRecipeJavaSearch(compilationUnits -> new FindAnnotations("@java.lang.Deprecated", false).run(compilationUnits).getResults(), javaParser);
+        OpenRewriteRecipeJavaSearch sut = new OpenRewriteRecipeJavaSearch(compilationUnits -> new FindAnnotations("@java.lang.Deprecated", false).run(compilationUnits).getResults(), javaParser,
+                                                                          new RewriteExecutionContext());
 
         sut.commentFindings(projectContext.getProjectJavaSources().list(), markerText);
 
