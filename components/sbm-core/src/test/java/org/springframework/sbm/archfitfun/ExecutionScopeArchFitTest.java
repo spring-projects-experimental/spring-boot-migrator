@@ -271,8 +271,7 @@ class ExecutionScopeArchFitTest {
      */
     static class ScopeCacheHelper {
         public static Map<String, Object> getCacheSnapshot(AbstractBaseScope scope) {
-            Map<String, Object> threadScope = ((Map<String, Object>) ReflectionTestUtils.getField(scope,
-                                                                                                  "scopedBeans"));
+            Map<String, Object> threadScope = ((Map<String, Object>) ReflectionTestUtils.getField(scope, "scopedBeans"));
             return new HashMap(threadScope);
         }
     }
