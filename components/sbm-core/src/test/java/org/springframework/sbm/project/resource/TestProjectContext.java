@@ -526,7 +526,8 @@ public class TestProjectContext {
             MavenBuildFileRefactoringFactory mavenBuildFileRefactoringFactory = new MavenBuildFileRefactoringFactory(
                     projectResourceSetHolder, mavenParser);
             BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(eventPublisher,
-                                                                                             mavenBuildFileRefactoringFactory);
+                                                                                             mavenBuildFileRefactoringFactory,
+                                                                                             executionContext);
             resourceWrapperList.add(buildFileResourceWrapper);
             JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(
                     javaRefactoringFactory, javaParser);
