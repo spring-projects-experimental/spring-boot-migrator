@@ -53,7 +53,7 @@ public class ApplyRecipeFlow extends AbstractShellComponent {
         this.applyRecipeResultRenderer = applyRecipeResultRenderer;
         this.userInputScanner = userInputScanner;
         this.userInputRequester = userInputRequester;
-        this.sbmClient = sbmClientFactory.createSpringApplicationEventClient(
+        this.sbmClient = sbmClientFactory.createWebsocketClient(
                 (scanUpdate) -> this.handleScanProgressUpdate(scanUpdate),
                 (scanResult) -> this.handleScanCompletedEvent(scanResult),
                 (recipeProgress) -> this.handleRecipeExecutionProgressUpdate(recipeProgress),
