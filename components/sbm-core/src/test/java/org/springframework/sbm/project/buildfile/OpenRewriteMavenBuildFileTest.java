@@ -33,6 +33,7 @@ import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -561,7 +562,7 @@ public class OpenRewriteMavenBuildFileTest {
         RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(new SbmApplicationProperties());
         ProjectContextHolder projectContextHolder = new ProjectContextHolder();
         projectContextHolder.setProjectContext(context);
-        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, eventPublisher, rewriteJavaParser);
+        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, rewriteJavaParser, new RewriteExecutionContext());
         handler.onDependenciesChanged(fireEvent);
 
         Member member2 = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);
