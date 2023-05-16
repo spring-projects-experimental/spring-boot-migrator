@@ -116,12 +116,12 @@ public class Module {
 
     public ResourceSet getMainResourceSet() {
         Path mainResourceSet = buildFile.getMainResourceFolder();
-        return new ResourceSet(projectResourceSet, projectRootDir, modulePath, mainResourceSet);
+        return new ResourceSet(projectResourceSet, projectRootDir, modulePath, mainResourceSet, executionContext);
     }
 
     public ResourceSet getTestResourceSet() {
         Path testResourceSet = buildFile.getTestResourceFolder();
-        return new ResourceSet(projectResourceSet, projectRootDir, modulePath, testResourceSet);
+        return new ResourceSet(projectResourceSet, projectRootDir, modulePath, testResourceSet, executionContext);
     }
 
     public List<Module> getModules() {

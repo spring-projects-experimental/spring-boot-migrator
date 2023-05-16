@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.project.resource;
 
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.text.PlainText;
 import org.openrewrite.text.PlainTextParser;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -30,24 +30,27 @@ import java.util.List;
  */
 public class StringProjectResource extends RewriteSourceFileHolder<PlainText> {
 
+    private final ExecutionContext executionContext;
     private String content;
     private final ResourceHelper resourceHelper = new ResourceHelper(new DefaultResourceLoader());
 
     /**
      * Create a new instance with given {@code Path} and blank content.
      */
-    public StringProjectResource(Path absolutePath) {
+    public StringProjectResource(Path absolutePath, ExecutionContext executionContext) {
         //super(new RewriteSourceFileHolder<>(new PlainTextParser().parse(List.of(absolutePath), null, new RewriteExecutionContext()).get(0)));
-        super(absolutePath, new PlainTextParser().parse(List.of(absolutePath), null, new RewriteExecutionContext()).get(0));
+        super(absolutePath, new PlainTextParser().parse(List.of(absolutePath), null, executionContext).get(0));
+        this.executionContext = executionContext;
     }
 
     /**
      * Create a new instance with given {@code Path} and given {@code String} content and marks it as changed.
      */
-    public StringProjectResource(Path projectRoot, Path absolutePath, String content) {
+    public StringProjectResource(Path projectRoot, Path absolutePath, String content, ExecutionContext executionContext) {
         // FIXME: absolutePath, sourcePath, modulePath ?!
         super(projectRoot, new PlainTextParser().parse(content).get(0).withSourcePath(projectRoot.relativize(absolutePath)));
         this.content = content;
+        this.executionContext = executionContext;
         markAsChanged();
     }
 
