@@ -63,10 +63,6 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
 
     public List<Action> execute(ProjectContext projectContext, String recipeName) {
         try {
-            // initialize the(!) ExecutionContext
-            // It will be available through DI in all objects involved while this method runs (scoped to recipe run)
-            ExecutionContext execution = beanFactory.getBean(ExecutionContext.class);
-//            System.out.println("Context in execute: " + execution.getMessage("contextId"));
             Recipe recipe = recipesBuilder.buildRecipes().getRecipeByName(recipeName)
                     .orElseThrow(() -> new IllegalArgumentException("Recipe with name '" + recipeName + "' could not be found"));
 
