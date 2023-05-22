@@ -73,7 +73,7 @@ class JavaProvenanceMarkerFactoryTest {
         Marker javaVersionMarker = extractMarker(javaProvenanceMarkers, JavaVersion.class);
 
         String property = System.getProperty("java.version");
-        int javaVersion = Integer.valueOf(property.contains(".") ? property.substring(0, property.indexOf(".")) : property);
+        String javaVersion = property.contains(".") ? property.split("\\.")[0] : property;
         ResourceVerifierTestHelper.javaVersionMarker(javaVersion, "17", "11").assertMarker(maven, javaVersionMarker);
 
         Marker buildToolMarker = extractMarker(javaProvenanceMarkers, BuildTool.class);

@@ -44,7 +44,6 @@ import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.RewriteExecutionContextFactory;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.parser.*;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
@@ -125,7 +124,6 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
         JavaProvenanceMarkerFactory.class,
         MavenConfigHandler.class,
         RewriteSourceFileWrapper.class,
-        RewriteExecutionContextFactory.class,
         ApplyCommand.class,
         RecipesBuilder.class,
         RecipeParser.class,
@@ -134,8 +132,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
         CustomValidatorBean.class,
         ScopeConfiguration.class,
         ApplicableRecipeListCommand.class,
-        SbmRecipeLoader.class,
-        RewriteExecutionContextFactory.class
+        SbmRecipeLoader.class
 })
 class ExecutionScopeArchFitTest {
     public static final String TEST_RECIPE_NAME = "dummy-recipe";
