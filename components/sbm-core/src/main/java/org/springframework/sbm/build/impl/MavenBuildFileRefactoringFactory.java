@@ -30,7 +30,7 @@ public class MavenBuildFileRefactoringFactory {
     private final ProjectResourceSetHolder projectResourceSetHolder;
     private final RewriteMavenParser rewriteMavenParser;
 
-    private ExecutionContext executionContext;
+    private final ExecutionContext executionContext;
 
     public MavenBuildFileRefactoring createRefactoring() {
         return new MavenBuildFileRefactoring<Xml.Document>(projectResourceSetHolder.getProjectResourceSet(), rewriteMavenParser, executionContext);
