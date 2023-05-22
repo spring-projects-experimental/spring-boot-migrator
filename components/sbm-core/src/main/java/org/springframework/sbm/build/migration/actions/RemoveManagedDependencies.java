@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.build.api.Dependency;
@@ -37,6 +38,7 @@ import static org.openrewrite.maven.tree.Scope.Compile;
 public class RemoveManagedDependencies extends AbstractAction {
 
     @Autowired
+    @JsonIgnore
     private ExecutionContext executionContext;
 
     @Override
