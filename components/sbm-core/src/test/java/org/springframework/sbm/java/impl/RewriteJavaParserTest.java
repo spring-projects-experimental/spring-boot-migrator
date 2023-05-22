@@ -48,11 +48,11 @@ public class RewriteJavaParserTest {
         ExecutionContext executionContext = new RewriteExecutionContext((t) -> t.printStackTrace());
         RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(sbmApplicationProperties, executionContext);
         sysOutBuffer.reset();
-        List<J.CompilationUnit> parsed = rewriteJavaParser.parse(executionContext);
+        List<J.CompilationUnit> parsed = rewriteJavaParser.parse(executionContext, "public class Broken Class {}");
 
         String out = sysOutBuffer.toString();
         System.setOut(realSysOut);
-        assertThat(out).containsPattern(".*Foo.java:1: error: cannot find symbol.*");
+        assertThat(out).containsPattern(".*public class Broken Class \\{\\}.*");
     }
 
 }
