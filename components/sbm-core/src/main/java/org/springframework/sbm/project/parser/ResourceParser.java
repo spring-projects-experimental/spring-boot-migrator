@@ -43,6 +43,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -128,7 +129,33 @@ public class ResourceParser {
 
     @NotNull
     private Function<Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>>, ? extends List<? extends SourceFile>> parseEntry(Path baseDir, ParsingExecutionContextView ctx) {
-        return e -> e.getKey().parseInputs(e.getValue(), baseDir, ctx);
+        return e -> {
+            Stream<SourceFile> sourceFileStream = getSourceFileStream(baseDir, ctx, e);
+            return sourceFileStream.toList();
+        };
+    }
+
+    @NotNull
+    private Stream<SourceFile> getSourceFileStream(Path baseDir, ExecutionContext ctx, Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>> e) {
+        return e
+                .getValue()
+                .stream()
+                .map(resource -> (List<SourceFile>) parseSingleResource(baseDir, ctx, e, resource))
+                .flatMap(elem -> Stream.ofNullable(elem))
+                .flatMap(List::stream);
+    }
+
+    private List<? extends SourceFile> parseSingleResource(Path baseDir, ExecutionContext ctx, Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>> e, Parser.Input resource) {
+        try {
+            return e.getKey().parseInputs(List.of(resource), baseDir, ctx);
+        } catch(Exception ex) {
+            if(resource.getPath().toString().contains("src/test/resources")) {
+                log.error("Could not parse resource '%s' using parser %s. Exception was: %s".formatted(resource.getPath(), e.getKey().getClass().getName(), ex.getMessage()));
+                return null;
+            } else {
+                throw ex;
+            }
+        }
     }
 
     @NotNull

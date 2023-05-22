@@ -96,7 +96,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
  */
 @Slf4j
 @SpringBootTest(classes = {
-        TheSpringContext.class,
+        ExecutionScopeArchFitTest.TheSpringContext.class,
         ScanScope.class,
         ExecutionScope.class,
         ScanCommand.class,
@@ -319,88 +319,89 @@ class ExecutionScopeArchFitTest {
             this.executionContextIdInAction = executionContextId;
         }
     }
-}
-
-/**
- * Bean definitions required for the test
- */
-@TestConfiguration
-class TheSpringContext {
 
     /**
-     * Recipe for test.
-     * It contains a condition and an action which allows observing scope behaviour during conditon evaluation and running recipes.
+     * Bean definitions required for the test
      */
-    @Bean
-    Recipe testRecipe() {
-        return Recipe.builder()
-                .name(ExecutionScopeArchFitTest.TEST_RECIPE_NAME)
-                .condition(recipeCondition())
-                .action(recipeAction()).build();
-    }
+    @TestConfiguration
+    static class TheSpringContext {
 
-    /**
-     *
-     */
-    @Bean
-    Action recipeAction() {
-        return new AbstractAction() {
-            @Autowired
-            private ExecutionContext executionContext;
-            @Autowired
-            private ExecutionScopeArchFitTest.TestRecorder testRecorder;
-            @Override
-            public void apply(ProjectContext context) {
-                String executionContextId = (String) executionContext.getMessage("executionContextId");
-                testRecorder.executionContextInAction(executionContext);
-                testRecorder.executionContextIdInAction(executionContextId);
-            }
-        };
-    }
+        /**
+         * Recipe for test.
+         * It contains a condition and an action which allows observing scope behaviour during conditon evaluation and running recipes.
+         */
+        @Bean
+        Recipe testRecipe() {
+            return Recipe.builder()
+                    .name(ExecutionScopeArchFitTest.TEST_RECIPE_NAME)
+                    .condition(recipeCondition())
+                    .action(recipeAction()).build();
+        }
 
-    @Bean
-    Condition recipeCondition() {
-        return new Condition() {
-            @Autowired
-            private ExecutionContext executionContext;
-            @Autowired
-            private ExecutionScopeArchFitTest.TestRecorder testRecorder;
-            @Override
-            public String getDescription() {
-                return "Dummy test condition";
-            }
-            @Override
-            public boolean evaluate(ProjectContext context) {
-                String executionContextId = (String) executionContext.getMessage("executionContextId");
-                testRecorder.executionContextInCondition(executionContext);
-                testRecorder.executionContextIdInCondition(executionContextId);
-                return true;
-            }
-        };
-    }
+        /**
+         *
+         */
+        @Bean
+        Action recipeAction() {
+            return new AbstractAction() {
+                @Autowired
+                private ExecutionContext executionContext;
+                @Autowired
+                private ExecutionScopeArchFitTest.TestRecorder testRecorder;
+                @Override
+                public void apply(ProjectContext context) {
+                    String executionContextId = (String) executionContext.getMessage("executionContextId");
+                    testRecorder.executionContextInAction(executionContext);
+                    testRecorder.executionContextIdInAction(executionContextId);
+                }
+            };
+        }
 
-    @Bean
-    @org.springframework.sbm.scopeplayground.annotations.ScanScope
-    ProjectMetadata projectMetadata() {
-        ProjectMetadata projectMetadata = new ProjectMetadata();
-        testRecorder().projectMetadataCreated(projectMetadata);
-        return projectMetadata;
-    }
+        @Bean
+        Condition recipeCondition() {
+            return new Condition() {
+                @Autowired
+                private ExecutionContext executionContext;
+                @Autowired
+                private ExecutionScopeArchFitTest.TestRecorder testRecorder;
+                @Override
+                public String getDescription() {
+                    return "Dummy test condition";
+                }
+                @Override
+                public boolean evaluate(ProjectContext context) {
+                    String executionContextId = (String) executionContext.getMessage("executionContextId");
+                    testRecorder.executionContextInCondition(executionContext);
+                    testRecorder.executionContextIdInCondition(executionContextId);
+                    return true;
+                }
+            };
+        }
 
-    @Bean
-    @org.springframework.sbm.scopeplayground.annotations.ExecutionScope
-    ExecutionContext executionContext(ProjectMetadata projectMetadata) {
-        String id = UUID.randomUUID().toString();
-        RewriteExecutionContext rewriteExecutionContext = new RewriteExecutionContext();
-        rewriteExecutionContext.putMessage("executionContextId", id);
-        testRecorder().executionContextCreated(id);
-        rewriteExecutionContext.putMessage("org.openrewrite.maven.settings", projectMetadata.getMavenSettings());
-        return rewriteExecutionContext;
-    }
+        @Bean
+        @org.springframework.sbm.scopeplayground.annotations.ScanScope
+        ProjectMetadata projectMetadata() {
+            ProjectMetadata projectMetadata = new ProjectMetadata();
+            testRecorder().projectMetadataCreated(projectMetadata);
+            return projectMetadata;
+        }
 
-    @Bean
-    ExecutionScopeArchFitTest.TestRecorder testRecorder() {
-        return new ExecutionScopeArchFitTest.TestRecorder();
-    }
+        @Bean
+        @org.springframework.sbm.scopeplayground.annotations.ExecutionScope
+        ExecutionContext executionContext(ProjectMetadata projectMetadata) {
+            String id = UUID.randomUUID().toString();
+            RewriteExecutionContext rewriteExecutionContext = new RewriteExecutionContext();
+            rewriteExecutionContext.putMessage("executionContextId", id);
+            testRecorder().executionContextCreated(id);
+            rewriteExecutionContext.putMessage("org.openrewrite.maven.settings", projectMetadata.getMavenSettings());
+            return rewriteExecutionContext;
+        }
 
+        @Bean
+        ExecutionScopeArchFitTest.TestRecorder testRecorder() {
+            return new ExecutionScopeArchFitTest.TestRecorder();
+        }
+
+    }
 }
+

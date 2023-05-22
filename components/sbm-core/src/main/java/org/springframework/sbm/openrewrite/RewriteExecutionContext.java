@@ -17,16 +17,16 @@ package org.springframework.sbm.openrewrite;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
-import org.openrewrite.java.JavaParsingException;
-import org.openrewrite.maven.MavenDownloadingException;
-import org.openrewrite.maven.internal.MavenParsingException;
-import org.springframework.context.ApplicationEventPublisher;
+import org.openrewrite.internal.lang.Nullable;
+import org.springframework.sbm.scopeplayground.annotations.ExecutionScope;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -34,57 +34,70 @@ import java.util.function.Supplier;
 
 @Getter
 @Slf4j
-public class RewriteExecutionContext extends InMemoryExecutionContext {
+@Component("executionContext")
+@ExecutionScope
+public class RewriteExecutionContext implements ExecutionContext {
 
-    @Deprecated
-    private Optional<ApplicationEventPublisher> appEventPublisher;
 
-    public RewriteExecutionContext() {
-        super(createErrorHandler());
-        this.appEventPublisher = Optional.empty();
+    private ExecutionContext delegate;
+
+    public RewriteExecutionContext(Consumer<Throwable> onError) {
+        this(new InMemoryExecutionContext(onError));
     }
 
-    public RewriteExecutionContext(Consumer<Throwable> exceptionHandler) {
-        super(exceptionHandler);
+    public RewriteExecutionContext() {
+        this(new InMemoryExecutionContext(new RewriteExecutionContextErrorHandler(new RewriteExecutionContextErrorHandler.ThrowExceptionSwitch())));
+    }
+
+    public RewriteExecutionContext(ExecutionContext delegate) {
+        this.delegate = delegate;
+    }
+
+    @Override
+    public void putMessage(String key, @Nullable Object value) {
+        delegate.putMessage(key, value);
+    }
+
+    @Override
+    public <T> @Nullable T getMessage(String key) {
+        return delegate.getMessage(key);
     }
 
     @Override
     public <V, C extends Collection<V>> C putMessageInCollection(String key, V value, Supplier<C> newCollection) {
-        // track
-        return super.putMessageInCollection(key, value, newCollection);
+        return delegate.putMessageInCollection(key, value, newCollection);
     }
 
     @Override
     public <T> Set<T> putMessageInSet(String key, T value) {
+        return delegate.putMessageInSet(key, value);
+    }
 
-        return super.putMessageInSet(key, value);
+    @Override
+    public <T> @Nullable T pollMessage(String key) {
+        return delegate.pollMessage(key);
     }
 
     @Override
     public <T> T pollMessage(String key, T defaultValue) {
-        return super.pollMessage(key, defaultValue);
+        return delegate.pollMessage(key, defaultValue);
     }
 
     @Override
     public void putCurrentRecipe(Recipe recipe) {
-        super.putCurrentRecipe(recipe);
+        delegate.putCurrentRecipe(recipe);
     }
 
-    private static Consumer<Throwable> createErrorHandler() {
-        Consumer<Throwable> errorConsumer = (t) -> {
-            if (t instanceof MavenParsingException) {
-                log.warn(t.getMessage());
-            } else if(t instanceof MavenDownloadingException) {
-                log.warn(t.getMessage());
-            } else if(t instanceof JavaParsingException) {
-                if(t.getMessage().equals("Failed symbol entering or attribution")) {
-                    throw new RuntimeException("This could be a broken jar. Activate logging on WARN level for 'org.openrewrite' might reveal more information.", t);
-                }
-            } else {
-                log.error("Exception occured!", t);
-            }
-        };
-        return errorConsumer;
+    @Override
+    public Consumer<Throwable> getOnError() {
+        return delegate.getOnError();
+    }
+
+    @Override
+    public BiConsumer<Throwable, ExecutionContext> getOnTimeout() {
+        return delegate.getOnTimeout();
     }
 
 }
+
+

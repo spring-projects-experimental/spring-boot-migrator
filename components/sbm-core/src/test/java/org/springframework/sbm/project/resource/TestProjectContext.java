@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.java.JavaParser;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
@@ -27,18 +28,18 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.*;
 import org.springframework.sbm.build.resource.BuildFileResourceWrapper;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;
 import org.springframework.sbm.java.JavaSourceProjectResourceWrapper;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
-import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.project.parser.*;
 import org.springframework.sbm.test.SpringBeanProvider;
+import org.springframework.sbm.test.TestProjectContextInfo;
+import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -259,12 +260,12 @@ public class TestProjectContext {
     }
 
     public static class Builder {
-        private final Optional<ConfigurableListableBeanFactory> beanFactory;
+        private ConfigurableListableBeanFactory beanFactory;
         private Path projectRoot;
         private List<ProjectResourceWrapper> resourceWrapperList = new ArrayList<>();
         private List<String> dependencies = new ArrayList<>();
         private Map<Path, String> resourcesWithRelativePaths = new LinkedHashMap<>();
-        private ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+        private ApplicationEventPublisher eventPublisher;
         private ProjectResourceWrapperRegistry resourceWrapperRegistry;
         private OpenRewriteMavenBuildFile mockedBuildFile;
         private DependencyHelper dependencyHelper = new DependencyHelper();
@@ -290,11 +291,11 @@ public class TestProjectContext {
         }
 
         public Builder(Path defaultProjectRoot, ConfigurableListableBeanFactory beanFactory) {
-            this.projectRoot = projectRoot;
+            this.projectRoot = defaultProjectRoot;
             sbmApplicationProperties.setDefaultBasePackage(DEFAULT_PACKAGE_NAME);
             sbmApplicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
             this.javaParser = new RewriteJavaParser(sbmApplicationProperties, executionContext);
-            this.beanFactory = Optional.of(beanFactory);
+            this.beanFactory = beanFactory;
         }
 
         public Builder withExecutionContext(ExecutionContext executionContext) {
@@ -524,23 +525,23 @@ public class TestProjectContext {
             List<Resource> scannedResources = mapToResources(resourcesWithAbsolutePaths);
 
             // create beans
-            ProjectResourceSetHolder projectResourceSetHolder = new ProjectResourceSetHolder();
-            JavaRefactoringFactory javaRefactoringFactory = new JavaRefactoringFactoryImpl(projectResourceSetHolder, executionContext);
-
-            // create ProjectResourceWrapperRegistry and register Java and Maven resource wrapper
-            MavenBuildFileRefactoringFactory mavenBuildFileRefactoringFactory = new MavenBuildFileRefactoringFactory(
-                    projectResourceSetHolder, mavenParser);
-            BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(eventPublisher,
-                                                                                             mavenBuildFileRefactoringFactory,
-                                                                                             executionContext);
-            resourceWrapperList.add(buildFileResourceWrapper);
-            JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(
-                    javaRefactoringFactory, javaParser, executionContext);
-            resourceWrapperList.add(javaSourceProjectResourceWrapper);
-            orderByOrderAnnotationValue(resourceWrapperList);
-            resourceWrapperRegistry = new ProjectResourceWrapperRegistry(resourceWrapperList);
+//            ProjectResourceSetHolder projectResourceSetHolder = new ProjectResourceSetHolder();
+//            JavaRefactoringFactory javaRefactoringFactory = new JavaRefactoringFactoryImpl(projectResourceSetHolder, executionContext);
+//
+//            // create ProjectResourceWrapperRegistry and register Java and Maven resource wrapper
+//            MavenBuildFileRefactoringFactory mavenBuildFileRefactoringFactory = new MavenBuildFileRefactoringFactory(projectResourceSetHolder, mavenParser);
+//            BuildFileResourceWrapper buildFileResourceWrapper = new BuildFileResourceWrapper(eventPublisher,
+//                                                                                             mavenBuildFileRefactoringFactory,
+//                                                                                             executionContext);
+//            resourceWrapperList.add(buildFileResourceWrapper);
+//            JavaSourceProjectResourceWrapper javaSourceProjectResourceWrapper = new JavaSourceProjectResourceWrapper(
+//                    javaRefactoringFactory, javaParser, executionContext);
+//            resourceWrapperList.add(javaSourceProjectResourceWrapper);
+//            orderByOrderAnnotationValue(resourceWrapperList);
+//            resourceWrapperRegistry = new ProjectResourceWrapperRegistry(resourceWrapperList);
 
             // create ProjectContextInitializer
+            /*
             ProjectContextFactory projectContextFactory = new ProjectContextFactory(resourceWrapperRegistry,
                                                                                     projectResourceSetHolder,
                                                                                     javaRefactoringFactory,
@@ -548,8 +549,8 @@ public class TestProjectContext {
                                                                                             sbmApplicationProperties),
                                                                                     javaParser,
                                                                                     executionContext);
-            ProjectContextInitializer projectContextInitializer = createProjectContextInitializer(
-                    projectContextFactory);
+             */
+            ProjectContextInitializer projectContextInitializer = createProjectContextInitializer();
 
             // create ProjectContext
             ProjectContext projectContext = projectContextInitializer.initProjectContext(projectRoot, scannedResources);
@@ -578,50 +579,34 @@ public class TestProjectContext {
         }
 
         @NotNull
-        private ProjectContextInitializer createProjectContextInitializer(ProjectContextFactory projectContextFactory) {
-            // FIXME: #7 remove
-//            RewriteMavenParserFactory rewriteMavenParserFactory = new RewriteMavenParserFactory(new MavenPomCacheProvider(), eventPublisher, new ResourceParser(eventPublisher));
-
+        private ProjectContextInitializer createProjectContextInitializer() {
             AtomicReference<ProjectContextInitializer> projectContextInitializerRef = new AtomicReference<>();
-            if(beanFactory.isPresent()) {
-                ProjectContextInitializer bean = beanFactory.get().getBean(ProjectContextInitializer.class);
+            if(beanFactory != null) {
+                ProjectContextInitializer bean = beanFactory.getBean(ProjectContextInitializer.class);
                 projectContextInitializerRef.set(bean);
+                executionContext = beanFactory.getBean(ExecutionContext.class);
             } else {
+                Map<Class<?>, Object> replacedBean = new HashMap<>();
+                if(sbmApplicationProperties != null) {
+                    replacedBean.put(SbmApplicationProperties.class, sbmApplicationProperties);
+                }
 
+                if(eventPublisher != null) {
+                    replacedBean.put(ApplicationEventPublisher.class, eventPublisher);
+                }
+
+                SpringBeanProvider.run(
+                        ctx -> {
+                            beanFactory = ctx.getBeanFactory();
+                            projectContextInitializerRef.set(ctx.getBean(ProjectContextInitializer.class));
+                            executionContext = ctx.getBean(ExecutionContext.class);
+                        },
+                        replacedBean,
+                        SpringBeanProvider.ComponentScanConfiguration.class,
+                        CustomValidatorBean.class,
+                        RewriteExecutionContext.class);
             }
-
-            SpringBeanProvider.run(ctx -> {
-                projectContextInitializerRef.set(ctx.getBean(ProjectContextInitializer.class));
-            });
-
             return projectContextInitializerRef.get();
-/*
-            ResourceParser resourceParser = new ResourceParser(new RewriteJsonParser(), new RewriteXmlParser(),
-                                                               new RewriteYamlParser(), new RewritePropertiesParser(),
-                                                               new RewritePlainTextParser(),
-                                                               new ResourceParser.ResourceFilter(), eventPublisher);
-
-            MavenArtifactDownloader artifactDownloader = new RewriteMavenArtifactDownloader();
-
-            JavaProvenanceMarkerFactory javaProvenanceMarkerFactory = new JavaProvenanceMarkerFactory();
-            MavenProjectParser mavenProjectParser = new MavenProjectParser(resourceParser, mavenParser,
-                                                                           artifactDownloader, eventPublisher,
-                                                                           javaProvenanceMarkerFactory, javaParser,
-                                                                           new MavenConfigHandler(),
-                                                                           new RewriteExecutionContextFactory());
-*/
-            /*
-            GitSupport gitSupport = mock(GitSupport.class);
-            when(gitSupport.repoExists(projectRoot.toFile())).thenReturn(true);
-            when(gitSupport.getLatestCommit(projectRoot.toFile())).thenReturn(Optional.empty());
-
-            RewriteSourceFileWrapper wrapper = new RewriteSourceFileWrapper();
-            ProjectContextInitializer projectContextInitializerRef = new ProjectContextInitializer(projectContextFactory,
-                                                                                                mavenProjectParser,
-                                                                                                gitSupport, wrapper);
-            return projectContextInitializerRef;
-
-             */
         }
 
         private void verifyValidBuildFileSetup() {
@@ -729,6 +714,14 @@ public class TestProjectContext {
 
             this.springVersion = Optional.of(springVersion);
             return this;
+        }
+
+        public TestProjectContextInfo buildProjectContextInfo() {
+            ProjectContext build = this.build();
+            if(!AutowireCapableBeanFactory.class.isInstance(beanFactory)){
+                throw new IllegalStateException("Provided beanFactory must be of type %s".formatted(AutowireCapableBeanFactory.class.getName()));
+            }
+            return new TestProjectContextInfo(build, executionContext, (AutowireCapableBeanFactory)beanFactory);
         }
     }
 

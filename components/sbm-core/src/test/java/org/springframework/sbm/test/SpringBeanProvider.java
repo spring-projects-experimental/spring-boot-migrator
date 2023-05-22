@@ -15,12 +15,20 @@
  */
 package org.springframework.sbm.test;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.context.annotation.Configurations;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.ContextConsumer;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 
 public class SpringBeanProvider {
 
@@ -39,5 +47,37 @@ public class SpringBeanProvider {
             }
         }
         contextRunner.run(testcode);
+    }
+
+    public static <T> void run(ContextConsumer<AnnotationConfigApplicationContext> testcode, Map<Class<?>, Object> replacedBeans, Class<?>... springBeans) {
+
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        beanFactory.addBeanPostProcessor(new BeanPostProcessor() {
+            @Override
+            public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+                Class<?> beanClass = bean.getClass();
+                Optional<Object> newBean = findReplacementForBean(replacedBeans, beanClass);
+                if(newBean.isPresent()) {
+                    return newBean.get();
+                }
+                return BeanPostProcessor.super.postProcessBeforeInitialization(bean, beanName);
+            }
+
+            private Optional<Object> findReplacementForBean(Map<Class<?>, Object> replacedBeans, Class<?> beanClass) {
+                return replacedBeans.keySet().stream()
+                        .filter(replacedType -> beanClass.isAssignableFrom(replacedType))
+                        .map(replacedType -> replacedBeans.get(replacedType))
+                        .findFirst();
+            }
+        });
+        AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(beanFactory);
+        Arrays.stream(springBeans).forEach(beanDef -> annotationConfigApplicationContext.register(beanDef));
+        annotationConfigApplicationContext.scan("org.springframework.sbm");
+        annotationConfigApplicationContext.refresh();
+        try {
+            testcode.accept(annotationConfigApplicationContext);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 }
