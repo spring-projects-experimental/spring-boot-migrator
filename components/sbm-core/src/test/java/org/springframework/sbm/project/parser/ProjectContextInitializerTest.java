@@ -16,8 +16,10 @@
 package org.springframework.sbm.project.parser;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.*;
-import org.openrewrite.ExecutionContext;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.maven.MavenParser;
@@ -29,7 +31,6 @@ import org.openrewrite.xml.tree.Xml;
 import org.openrewrite.yaml.tree.Yaml;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.sbm.build.impl.MavenSettingsInitializer;
@@ -63,7 +64,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.*;
 
 @SpringBootTest(classes = {
