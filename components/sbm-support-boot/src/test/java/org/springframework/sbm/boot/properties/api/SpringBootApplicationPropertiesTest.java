@@ -19,6 +19,7 @@ package org.springframework.sbm.boot.properties.api;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.properties.PropertiesParser;
 import org.openrewrite.properties.tree.Properties;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -29,7 +30,7 @@ class SpringBootApplicationPropertiesTest {
 
     @Test
     void createNewProperties_Add_Print() {
-        SpringBootApplicationProperties sut = SpringBootApplicationProperties.newApplicationProperties(Path.of("./projectDir").toAbsolutePath(), Path.of("./fake2.properties"));
+        SpringBootApplicationProperties sut = SpringBootApplicationProperties.newApplicationProperties(Path.of("./projectDir").toAbsolutePath(), Path.of("./fake2.properties"), new RewriteExecutionContext());
         sut.setProperty("some", "property");
         sut.setProperty("another", "foo");
         assertThat(sut.print()).isEqualTo("some=property\n" +
@@ -41,7 +42,7 @@ class SpringBootApplicationPropertiesTest {
         List<Properties.File> parse = new PropertiesParser().parse(
                 "foo=bar\n" +
                         "bob=bill");
-        SpringBootApplicationProperties sut = new SpringBootApplicationProperties(Path.of("./projectDir").toAbsolutePath(), parse.get(0));
+        SpringBootApplicationProperties sut = new SpringBootApplicationProperties(Path.of("./projectDir").toAbsolutePath(), parse.get(0), new RewriteExecutionContext());
         assertThat(sut.getProperty("foo").get()).isEqualTo("bar");
         assertThat(sut.getProperty("bob").get()).isEqualTo("bill");
         assertThat(sut.getProperty("jane")).isEmpty();

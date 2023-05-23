@@ -15,11 +15,14 @@
  */
 package org.springframework.sbm.boot.properties.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.Tree;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.properties.tree.Properties.File;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.properties.api.PropertiesSource;
 
@@ -32,24 +35,18 @@ public class SpringBootApplicationProperties extends PropertiesSource {
 
     private SpringProfile springProfile = new SpringProfile("default");
 
-    public SpringBootApplicationProperties(Path absoluteProjectDir, File sourceFile, RewriteExecutionContext executionContext) {
+    public SpringBootApplicationProperties(Path absoluteProjectDir, File sourceFile, ExecutionContext executionContext) {
         super(absoluteProjectDir, executionContext, sourceFile);
     }
 
-
-    public SpringBootApplicationProperties(Path absoluteProjectDir, File sourceFile) {
-        // FIXME: why is context required here and how should it be retrieved ?
-        this(absoluteProjectDir, sourceFile, new RewriteExecutionContext());
-    }
-
-    public static SpringBootApplicationProperties newApplicationProperties(Path absoluteProjectDir, Path sourcePath) {
+    public static SpringBootApplicationProperties newApplicationProperties(Path absoluteProjectDir, Path sourcePath, ExecutionContext executionContext) {
 
         if(absoluteProjectDir.resolve(sourcePath).toFile().isDirectory()) {
             throw new IllegalArgumentException(String.format("Given sourcePath '%s' is a directory. An existing file with Spring Boot application properties must be passed.", sourcePath));
         }
 
         File file = new File(Tree.randomId(), "", Markers.EMPTY, sourcePath, List.of(), "", null, false, null, null);
-        SpringBootApplicationProperties springBootApplicationProperties = new SpringBootApplicationProperties(absoluteProjectDir, file);
+        SpringBootApplicationProperties springBootApplicationProperties = new SpringBootApplicationProperties(absoluteProjectDir, file, executionContext);
         springBootApplicationProperties.markChanged();
         return springBootApplicationProperties;
     }

@@ -71,7 +71,7 @@ public class SpringBeanProvider {
             }
         });
         Arrays.stream(springBeans).forEach(beanDef -> annotationConfigApplicationContext.register(beanDef));
-        annotationConfigApplicationContext.scan("org.springframework.sbm");
+        //annotationConfigApplicationContext.scan("org.springframework.sbm");
         annotationConfigApplicationContext.refresh();
         try {
             testcode.accept(annotationConfigApplicationContext);
