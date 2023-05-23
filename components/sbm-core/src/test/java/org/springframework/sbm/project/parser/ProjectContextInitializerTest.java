@@ -97,11 +97,9 @@ import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.
         ProjectResourceWrapperRegistry.class,
         RewriteSourceFileWrapper.class,
         MavenConfigHandler.class,
-        RewriteExecutionContext.class,
         ScopeConfiguration.class,
         ScanScope.class,
-        ExecutionScope.class,
-        ProjectMetadata.class
+        ExecutionScope.class
 }, properties = {"sbm.gitSupportEnabled=false"})
 class ProjectContextInitializerTest {
 
