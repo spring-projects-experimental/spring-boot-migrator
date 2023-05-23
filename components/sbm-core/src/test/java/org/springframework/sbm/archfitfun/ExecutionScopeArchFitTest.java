@@ -133,12 +133,13 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     CustomValidatorBean.class,
                     ScopeConfiguration.class,
                     ApplicableRecipeListCommand.class,
+                    SbmRecipeLoader.class,
 //                    SbmRecipeLoader.class,
-//                    ExecutionScopeArchFitTest.ExecutionScopeArchFitTestContext.class
+                    ExecutionScopeArchFitTestContext.class
             },
             properties = "spring.main.allow-bean-definition-overriding=true"
 )
-@Import(ExecutionScopeArchFitTestContext.class)
+//@Import(ExecutionScopeArchFitTestContext.class)
 public class ExecutionScopeArchFitTest {
     public static final String TEST_RECIPE_NAME = "dummy-recipe";
 
