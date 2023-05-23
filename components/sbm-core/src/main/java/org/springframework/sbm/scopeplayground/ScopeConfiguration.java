@@ -15,9 +15,12 @@
  */
 package org.springframework.sbm.scopeplayground;
 
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.maven.MavenExecutionContextView;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 
 /**
  * @author Fabian Krüger
@@ -33,6 +36,19 @@ public class ScopeConfiguration {
             beanFactory.registerScope(ScanScope.SCOPE_NAME, scanScope);
             beanFactory.registerScope(ExecutionScope.SCOPE_NAME, executionScope);
         };
+    }
+
+    @Bean
+    ProjectMetadata projectMetadata() {
+        return new ProjectMetadata();
+    }
+
+    @Bean
+    @org.springframework.sbm.scopeplayground.annotations.ExecutionScope
+    ExecutionContext executionContext(ProjectMetadata projectMetadata) {
+        RewriteExecutionContext rewriteExecutionContext = new RewriteExecutionContext();
+        MavenExecutionContextView.view(rewriteExecutionContext).setMavenSettings(projectMetadata.getMavenSettings());
+        return rewriteExecutionContext;
     }
 
 }

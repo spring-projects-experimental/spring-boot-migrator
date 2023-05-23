@@ -21,8 +21,6 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.internal.lang.Nullable;
-import org.springframework.sbm.scopeplayground.annotations.ExecutionScope;
-import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Set;
@@ -34,8 +32,6 @@ import java.util.function.Supplier;
 
 @Getter
 @Slf4j
-@Component("executionContext")
-@ExecutionScope
 public class RewriteExecutionContext implements ExecutionContext {
 
 
