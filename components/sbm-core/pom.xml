@@ -40,7 +40,7 @@
 
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
-            <artifactId>archunit-junit4</artifactId>
+            <artifactId>archunit-junit5</artifactId>
             <version>1.0.1</version>
             <scope>test</scope>
         </dependency>
