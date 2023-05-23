@@ -62,8 +62,6 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
         // initialize the(!) ExecutionContext
         // It will be available through DI in all objects involved while this method runs (scoped to recipe run)
         scanScope.clear(beanFactory);
-//            beanFactory.destroyScopedBean("scopedTarget.executionContext");
-        ExecutionContext execution = beanFactory.getBean(ExecutionContext.class);
 
         Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
 

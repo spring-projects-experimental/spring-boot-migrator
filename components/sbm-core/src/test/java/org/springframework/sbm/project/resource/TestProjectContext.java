@@ -260,6 +260,8 @@ public class TestProjectContext {
     }
 
     public static class Builder {
+        @Deprecated
+        private RewriteJavaParser javaParser;
         private ConfigurableListableBeanFactory beanFactory;
         private Path projectRoot;
         private List<ProjectResourceWrapper> resourceWrapperList = new ArrayList<>();
@@ -270,11 +272,8 @@ public class TestProjectContext {
         private OpenRewriteMavenBuildFile mockedBuildFile;
         private DependencyHelper dependencyHelper = new DependencyHelper();
         private SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
-        private ExecutionContext executionContext = new RewriteExecutionContext();
+        private ExecutionContext executionContext;
         private Optional<String> springVersion = Optional.empty();
-
-        private JavaParser javaParser;
-        private RewriteMavenParser mavenParser = new RewriteMavenParser(new MavenSettingsInitializer(), executionContext);
 
         public Builder(Path projectRoot) {
             this(projectRoot, (ConfigurableListableBeanFactory) null);
@@ -294,7 +293,6 @@ public class TestProjectContext {
             this.projectRoot = defaultProjectRoot;
             sbmApplicationProperties.setDefaultBasePackage(DEFAULT_PACKAGE_NAME);
             sbmApplicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
-            this.javaParser = new RewriteJavaParser(sbmApplicationProperties, executionContext);
             this.beanFactory = beanFactory;
         }
 
@@ -603,8 +601,7 @@ public class TestProjectContext {
                         },
                         replacedBean,
                         SpringBeanProvider.ComponentScanConfiguration.class,
-                        CustomValidatorBean.class,
-                        RewriteExecutionContext.class);
+                        CustomValidatorBean.class);
             }
             return projectContextInitializerRef.get();
         }
