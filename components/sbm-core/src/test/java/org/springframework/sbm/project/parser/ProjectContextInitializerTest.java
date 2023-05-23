@@ -100,7 +100,8 @@ import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.
         RewriteExecutionContext.class,
         ScopeConfiguration.class,
         ScanScope.class,
-        ExecutionScope.class, ProjectMetadata.class
+        ExecutionScope.class,
+        ProjectMetadata.class
 }, properties = {"sbm.gitSupportEnabled=false"})
 class ProjectContextInitializerTest {
 
