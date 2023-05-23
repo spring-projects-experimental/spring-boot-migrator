@@ -17,7 +17,7 @@ package org.springframework.sbm.test;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.annotation.Configurations;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -50,8 +50,8 @@ public class SpringBeanProvider {
     }
 
     public static <T> void run(ContextConsumer<AnnotationConfigApplicationContext> testcode, Map<Class<?>, Object> replacedBeans, Class<?>... springBeans) {
-
-        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext();
+        ConfigurableListableBeanFactory beanFactory = annotationConfigApplicationContext.getBeanFactory();
         beanFactory.addBeanPostProcessor(new BeanPostProcessor() {
             @Override
             public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -70,7 +70,6 @@ public class SpringBeanProvider {
                         .findFirst();
             }
         });
-        AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(beanFactory);
         Arrays.stream(springBeans).forEach(beanDef -> annotationConfigApplicationContext.register(beanDef));
         annotationConfigApplicationContext.scan("org.springframework.sbm");
         annotationConfigApplicationContext.refresh();
