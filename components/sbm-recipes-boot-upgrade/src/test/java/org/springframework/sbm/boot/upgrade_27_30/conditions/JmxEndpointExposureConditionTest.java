@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
@@ -37,7 +38,7 @@ public class JmxEndpointExposureConditionTest {
     @Test
     public void givenProjectWithJmxEndpointExposureCustomization_evaluateCondition_expectFalse() {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .addProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_JMX_ENDPOINT_EXPOSED)
                 .build();
 
@@ -48,7 +49,7 @@ public class JmxEndpointExposureConditionTest {
     @Test
     public void givenProjectWithJmxEndpointExposureCustomization_evaluateCondition_expectTrue() {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .addProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITHOUT_JMX_ENDPOINT_EXPOSED)
                 .build();
 

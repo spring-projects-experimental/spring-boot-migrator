@@ -18,6 +18,7 @@ package org.springframework.sbm.boot.upgrade_24_25.report;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,7 @@ class Boot_24_25_SqlScriptDataSourceInitializationTest {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withProjectRoot(rootDirectory)
                 .addProjectResource("src/main/resources/application.properties", applicationPropertiesLines)
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .build();
 
         return projectContext;
