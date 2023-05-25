@@ -77,7 +77,8 @@ public class SpringBeanProvider {
         });
 
         Arrays.stream(springBeans).forEach(beanDef -> annotationConfigApplicationContext.register(beanDef));
-        annotationConfigApplicationContext.scan("org.springframework.sbm", "org.springframework.freemarker");
+        annotationConfigApplicationContext.registerBean(ComponentScanConfiguration.class);
+//        annotationConfigApplicationContext.scan("org.springframework.sbm", "org.springframework.freemarker");
         annotationConfigApplicationContext.refresh();
         if (new File("./src/main/resources/templates").exists()) {
             freemarker.template.Configuration configuration = annotationConfigApplicationContext.getBean("configuration", freemarker.template.Configuration.class); // FIXME: two freemarker configurations exist
