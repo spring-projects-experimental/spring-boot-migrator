@@ -25,6 +25,7 @@ import org.openrewrite.properties.tree.Properties.File;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.properties.api.PropertiesSource;
+import org.springframework.util.Assert;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -37,10 +38,11 @@ public class SpringBootApplicationProperties extends PropertiesSource {
 
     public SpringBootApplicationProperties(Path absoluteProjectDir, File sourceFile, ExecutionContext executionContext) {
         super(absoluteProjectDir, executionContext, sourceFile);
+        Assert.notNull(executionContext, "ExecutionContext must not be null.");
     }
 
     public static SpringBootApplicationProperties newApplicationProperties(Path absoluteProjectDir, Path sourcePath, ExecutionContext executionContext) {
-
+        Assert.notNull(executionContext, "ExecutionContext must not be null.");
         if(absoluteProjectDir.resolve(sourcePath).toFile().isDirectory()) {
             throw new IllegalArgumentException(String.format("Given sourcePath '%s' is a directory. An existing file with Spring Boot application properties must be passed.", sourcePath));
         }
