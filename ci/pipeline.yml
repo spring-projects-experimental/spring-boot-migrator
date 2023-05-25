@@ -159,6 +159,7 @@ jobs:
 
 # Build every new PR
 
+
   - name: create-github-release
     serial: true
     plan:
@@ -194,10 +195,10 @@ jobs:
             - git-repo/applications/spring-boot-upgrade/target/spring-boot-upgrade.jar
             - git-repo/applications/spring-shell/target/spring-boot-migrator.jar
 groups:
+  - name: "builds"
+    jobs: ["build"]
   - name: "ci-images"
     jobs: ["build-ci-images"]
-  - name: "pull-requests"
-    jobs: ["build-pull-requests"]
   - name: "releases"
     jobs: ["create-github-release"]
 
