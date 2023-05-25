@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.project.resource;
 
+import freemarker.template.Configuration;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
@@ -601,6 +602,7 @@ public class TestProjectContext {
                         },
                         replacedBean,
                         SpringBeanProvider.ComponentScanConfiguration.class,
+                        Configuration.class,
                         CustomValidatorBean.class);
             }
             return projectContextInitializerRef.get();

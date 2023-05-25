@@ -28,6 +28,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.sbm.archfitfun.ExecutionScopeArchFitTestContext;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -72,9 +75,18 @@ public class SpringBeanProvider {
                         .findFirst();
             }
         });
+
         Arrays.stream(springBeans).forEach(beanDef -> annotationConfigApplicationContext.register(beanDef));
-        //annotationConfigApplicationContext.scan("org.springframework.sbm");
+        annotationConfigApplicationContext.scan("org.springframework.sbm", "org.springframework.freemarker");
         annotationConfigApplicationContext.refresh();
+        if (new File("./src/main/resources/templates").exists()) {
+            freemarker.template.Configuration configuration = annotationConfigApplicationContext.getBean("configuration", freemarker.template.Configuration.class); // FIXME: two freemarker configurations exist
+            try {
+                configuration.setDirectoryForTemplateLoading(new File("./src/main/resources/templates"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         try {
             testcode.accept(annotationConfigApplicationContext);
         } catch (Throwable e) {
