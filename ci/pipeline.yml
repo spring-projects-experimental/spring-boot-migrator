@@ -158,35 +158,6 @@ jobs:
 #        vars: {branch: ((.:branch.name))}
 
 # Build every new PR
-  - name: build-pull-requests
-    serial: true
-    public: true
-    plan:
-      - get: ci-image
-      - get: git-repo
-        resource: git-pull-request
-        trigger: true
-        version: every
-      - do:
-          - put: git-pull-request
-            params:
-              path: git-repo
-              status: pending
-          - task: build-project
-            privileged: true
-            image: ci-image
-            file: git-repo/ci/tasks/build-pr-project.yml
-#            timeout: 30m # ((task-timeout))
-        on_success:
-          put: git-pull-request
-          params:
-            path: git-repo
-            status: success
-        on_failure:
-          put: git-pull-request
-          params:
-            path: git-repo
-            status: failure
 
   - name: create-github-release
     serial: true
@@ -223,8 +194,6 @@ jobs:
             - git-repo/applications/spring-boot-upgrade/target/spring-boot-upgrade.jar
             - git-repo/applications/spring-shell/target/spring-boot-migrator.jar
 groups:
-  - name: "builds"
-    jobs: ["build"]
   - name: "ci-images"
     jobs: ["build-ci-images"]
   - name: "pull-requests"
