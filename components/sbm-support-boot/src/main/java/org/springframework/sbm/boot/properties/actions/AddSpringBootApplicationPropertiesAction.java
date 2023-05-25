@@ -43,6 +43,10 @@ public class AddSpringBootApplicationPropertiesAction extends AbstractAction {
     @JsonIgnore
     private ExecutionContext executionContext;
 
+    public AddSpringBootApplicationPropertiesAction(ExecutionContext executionContext) {
+        this.executionContext = executionContext;
+    }
+
     @Override
     public void apply(ProjectContext context) {
 		if(context.getApplicationModules().isSingleModuleApplication()) {
