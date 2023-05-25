@@ -19,12 +19,14 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.context.annotation.Configurations;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.ContextConsumer;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.sbm.archfitfun.ExecutionScopeArchFitTestContext;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -33,7 +35,7 @@ import java.util.Optional;
 public class SpringBeanProvider {
 
     @Configuration
-    @ComponentScan("org.springframework.sbm")
+    @ComponentScan(value = "org.springframework.sbm", excludeFilters = @ComponentScan.Filter(classes = TestConfiguration.class))
     public static class ComponentScanConfiguration { }
 
     public static void run(ContextConsumer<AssertableApplicationContext> testcode, Class<?>... springBeans) {
