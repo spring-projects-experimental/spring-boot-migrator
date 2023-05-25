@@ -28,6 +28,7 @@ import org.openrewrite.properties.search.FindProperties;
 import org.openrewrite.properties.tree.Properties;
 import org.openrewrite.properties.tree.Properties.Entry;
 import org.openrewrite.properties.tree.Properties.File;
+import org.springframework.util.Assert;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -46,6 +47,7 @@ public class PropertiesSource extends RewriteSourceFileHolder<Properties.File> {
 
     public PropertiesSource(Path absoluteProjectDir, ExecutionContext executionContext, File sourceFile) {
         super(absoluteProjectDir, sourceFile);
+        Assert.notNull(executionContext, "ExecutionContext must not be null.");
         this.executionContext = executionContext;
     }
 
