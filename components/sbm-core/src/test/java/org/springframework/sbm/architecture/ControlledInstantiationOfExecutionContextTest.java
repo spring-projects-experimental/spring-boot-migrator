@@ -26,18 +26,16 @@ import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.scopeplayground.ScopeConfiguration;
 
-import static com.tngtech.archunit.base.DescribedPredicate.not;
-import static com.tngtech.archunit.core.domain.JavaClass.Predicates.belongToAnyOf;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
-@AnalyzeClasses(packages = "org.springframework.sbm", importOptions = ImportOption.DoNotIncludeTests.class)
+@AnalyzeClasses(packages = {"org.springframework.sbm", "org.openrewrite"}, importOptions = {ImportOption.DoNotIncludeTests.class, ImportOption.DoNotIncludeJars.class})
 public class ControlledInstantiationOfExecutionContextTest {
+
+    private static final Class<?> classWithPermissionToCreateExecutionContext = ScopeConfiguration.class;
 
     @ArchTest
     public static final ArchRule noClassInstantiatesExecutionContextWillyNilly =
             noClasses()
-                    .that(not(belongToAnyOf(ScopeConfiguration.class, RewriteExecutionContext.class)))
                     .should()
                     .callCodeUnitWhere(
                             JavaCall.Predicates.target(
@@ -46,6 +44,11 @@ public class ControlledInstantiationOfExecutionContextTest {
                                                     JavaClass.Predicates.assignableTo(ExecutionContext.class)
                                             ))
                             )
-                    );
+                    )
+                    .andShould()
+                            .notBe(classWithPermissionToCreateExecutionContext)
+                    .andShould()
+                        .notBe(RewriteExecutionContext.class)
+            ;
 }
 

@@ -182,6 +182,12 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <!-- Would be picked up by component scan in other modules -->
+                        <exclude>**/org/springframework/sbm/archfitfun/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
