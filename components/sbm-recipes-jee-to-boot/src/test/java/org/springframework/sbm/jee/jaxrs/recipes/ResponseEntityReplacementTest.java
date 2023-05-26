@@ -19,6 +19,7 @@ import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
@@ -37,7 +38,8 @@ public class ResponseEntityReplacementTest {
             new AbstractAction() {
                 @Override
                 public void apply(ProjectContext context) {
-                    Supplier<JavaParser> javaParserSupplier = () -> new RewriteJavaParser(new SbmApplicationProperties());
+                    Supplier<JavaParser> javaParserSupplier = () -> new RewriteJavaParser(new SbmApplicationProperties(),
+                                                                                          new RewriteExecutionContext());
                     Recipe r = new SwapResponseWithResponseEntity(javaParserSupplier).doNext(new ReplaceMediaType(javaParserSupplier));
                     context.getProjectJavaSources().apply(r);
                 }

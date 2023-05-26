@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.Setter;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
@@ -52,6 +52,10 @@ public class AddMinimalPomXml extends AbstractAction {
     @JsonIgnore
     private MavenBuildFileRefactoringFactory mavenBuildFileRefactoringFactory;
 
+    @Autowired
+    @JsonIgnore
+    private ExecutionContext executionContext;
+
     @Override
     public void apply(ProjectContext context) {
         String projectDir = context.getProjectRootDirectory().toString();
@@ -72,10 +76,10 @@ public class AddMinimalPomXml extends AbstractAction {
         String src = writer.toString();
         Parser.Input input = new Parser.Input(Path.of("pom.xml"), () -> new ByteArrayInputStream(src.getBytes(StandardCharsets.UTF_8)));
         Xml.Document maven = rewriteMavenParser
-                .parseInputs(List.of(input), null, new RewriteExecutionContext(getEventPublisher())).get(0);
+                .parseInputs(List.of(input), null, executionContext).get(0);
         OpenRewriteMavenBuildFile rewriteMavenBuildFile = new OpenRewriteMavenBuildFile(
                 context.getProjectRootDirectory(),
-                maven, getEventPublisher(), new RewriteExecutionContext(getEventPublisher()),
+                maven, getEventPublisher(), executionContext,
                 mavenBuildFileRefactoringFactory.createRefactoring());
         context.getProjectResources().add(rewriteMavenBuildFile);
     }

@@ -24,56 +24,58 @@ public class MuleToJavaDSLDBInsertTest extends JavaDSLActionBaseTest {
 
     @Test
     public void dbInsert() {
-        String muleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "\n" +
-                "<mule xmlns:db=\"http://www.mulesoft.org/schema/mule/db\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-                "    xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
-                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "    xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\">\n" +
-                "    <flow name=\"dbFlow\">\n" +
-                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/\" doc:name=\"HTTP\"/>\n" +
-                "        <logger level=\"INFO\" doc:name=\"Logger\"/>\n" +
-                "        <db:insert config-ref=\"Oracle_Configuration\" doc:name=\"Database\">\n" +
-                "            <db:parameterized-query><![CDATA[INSERT INTO STUDENTS (NAME, AGE, CITY) VALUES (#[payload.name], #[payload.age], #[payload.city])]]></db:parameterized-query>\n" +
-                "        </db:insert>" +
-                "    </flow>\n" +
-                "</mule>\n";
+        String muleXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                                
+                <mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                    xmlns:spring="http://www.springframework.org/schema/beans"\s
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+                http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+                http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+                    <flow name="dbFlow">
+                        <http:listener config-ref="HTTP_Listener_Configuration" path="/" doc:name="HTTP"/>
+                        <logger level="INFO" doc:name="Logger"/>
+                        <db:insert config-ref="Oracle_Configuration" doc:name="Database">
+                            <db:parameterized-query><![CDATA[INSERT INTO STUDENTS (NAME, AGE, CITY) VALUES (#[payload.name], #[payload.age], #[payload.city])]]></db:parameterized-query>
+                        </db:insert>
+                    </flow>
+                </mule>
+                """;
 
         addXMLFileToResource(muleXml);
-        runAction();
-
-        assertThat(getGeneratedJavaFile()).isEqualTo(
-                "package com.example.javadsl;\n" +
-                        "import org.springframework.context.annotation.Bean;\n" +
-                        "import org.springframework.context.annotation.Configuration;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                        "import org.springframework.integration.handler.LoggingHandler;\n" +
-                        "import org.springframework.integration.http.dsl.Http;\n" +
-                        "import org.springframework.jdbc.core.JdbcTemplate;\n" +
-                        "import org.springframework.util.LinkedMultiValueMap;\n" +
-                        "\n" +
-                        "@Configuration\n" +
-                        "public class FlowConfigurations {\n" +
-                        "    @Bean\n" +
-                        "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
-                        "        return IntegrationFlows.from(Http.inboundGateway(\"/\")).handle((p, h) -> p)\n" +
-                        "                .log(LoggingHandler.Level.INFO)\n" +
-                        "                // TODO: payload type might not be always LinkedMultiValueMap please change it to appropriate type \n" +
-                        "                // TODO: mule expression language is not converted to java, do it manually. example: #[payload] etc \n" +
-                        "                .<LinkedMultiValueMap<String, String>>handle((p, h) -> {\n" +
-                        "                    jdbcTemplate.update(\"INSERT INTO STUDENTS (NAME, AGE, CITY) VALUES (?, ?, ?)\",\n" +
-                        "                            p.getFirst(\"payload.name\") /* TODO: Translate #[payload.name] to java expression*/,\n" +
-                        "                            p.getFirst(\"payload.age\") /* TODO: Translate #[payload.age] to java expression*/,\n" +
-                        "                            p.getFirst(\"payload.city\") /* TODO: Translate #[payload.city] to java expression*/\n" +
-                        "                    );\n" +
-                        "                    return p;\n" +
-                        "                })\n" +
-                        "                .get();\n" +
-                        "    }\n" +
-                        "}");
+        runAction(projectContext1 -> {
+            assertThat(getGeneratedJavaFile()).isEqualTo("""
+                             package com.example.javadsl;
+                             import org.springframework.context.annotation.Bean;
+                             import org.springframework.context.annotation.Configuration;
+                             import org.springframework.integration.dsl.IntegrationFlow;
+                             import org.springframework.integration.dsl.IntegrationFlows;
+                             import org.springframework.integration.handler.LoggingHandler;
+                             import org.springframework.integration.http.dsl.Http;
+                             import org.springframework.jdbc.core.JdbcTemplate;
+                             import org.springframework.util.LinkedMultiValueMap;
+                                                                                      
+                             @Configuration
+                             public class FlowConfigurations {
+                                 @Bean
+                                 IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
+                                     return IntegrationFlows.from(Http.inboundGateway("/")).handle((p, h) -> p)
+                                             .log(LoggingHandler.Level.INFO)
+                                             // TODO: payload type might not be always LinkedMultiValueMap please change it to appropriate type\s
+                                             // TODO: mule expression language is not converted to java, do it manually. example: #[payload] etc\s
+                                             .<LinkedMultiValueMap<String, String>>handle((p, h) -> {
+                                                 jdbcTemplate.update("INSERT INTO STUDENTS (NAME, AGE, CITY) VALUES (?, ?, ?)",
+                                                         p.getFirst("payload.name") /* TODO: Translate #[payload.name] to java expression*/,
+                                                         p.getFirst("payload.age") /* TODO: Translate #[payload.age] to java expression*/,
+                                                         p.getFirst("payload.city") /* TODO: Translate #[payload.city] to java expression*/
+                                                 );
+                                                 return p;
+                                             })
+                                             .get();
+                                 }
+                             }""");
+        });
     }
 }

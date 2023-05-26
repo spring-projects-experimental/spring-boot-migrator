@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.spring.migration.actions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openrewrite.ExecutionContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.recipe.UserInteractions;
 import org.springframework.sbm.common.migration.conditions.FileExist;
@@ -28,8 +31,11 @@ import java.util.List;
 public class InitDataSourceAfterJpaInitAction extends AbstractAction {
 
     public static final String QUESTION = "Would you rather run the SQL init scripts after JPA initialization?";
-
     private final UserInteractions ui;
+
+    @Autowired
+    @JsonIgnore
+    private ExecutionContext executionContext;
 
     public InitDataSourceAfterJpaInitAction(UserInteractions ui) {
         this.ui = ui;
@@ -44,7 +50,7 @@ public class InitDataSourceAfterJpaInitAction extends AbstractAction {
             SpringBootApplicationProperties applicationProperties;
             if (filteredResources.isEmpty()) {
                 Path path = context.getBuildFile().getResourceFolders().get(0).resolve("application.properties");
-				applicationProperties = SpringBootApplicationProperties.newApplicationProperties(context.getProjectRootDirectory(), path);
+				applicationProperties = SpringBootApplicationProperties.newApplicationProperties(context.getProjectRootDirectory(), path, executionContext);
                 context.getProjectResources().add(applicationProperties);
             } else {
                 applicationProperties = filteredResources.get(0);

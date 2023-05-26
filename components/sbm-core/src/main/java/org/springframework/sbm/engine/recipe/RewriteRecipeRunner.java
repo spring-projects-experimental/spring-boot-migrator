@@ -1,9 +1,8 @@
 package org.springframework.sbm.engine.recipe;
 
-import org.openrewrite.InMemoryExecutionContext;
+import lombok.RequiredArgsConstructor;
+import org.openrewrite.*;
 import org.openrewrite.Recipe;
-import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.context.ProjectContext;
 /*
@@ -27,17 +26,14 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class RewriteRecipeRunner {
-    @Autowired
-    private RewriteMigrationResultMerger resultMerger;
+    private final RewriteMigrationResultMerger resultMerger;
+    private final ExecutionContext executionContext;
 
     public void run(ProjectContext context, Recipe recipe) {
         List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles, new InMemoryExecutionContext(
-                (t) -> {
-                    throw new RuntimeException(t);
-                }
-        )).getResults();
+        List<Result> results = recipe.run(rewriteSourceFiles, executionContext).getResults();
         resultMerger.mergeResults(context, results);
     }
 

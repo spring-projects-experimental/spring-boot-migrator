@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.api;
 
+import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.StringProjectResource;
@@ -30,10 +31,11 @@ public class ResourceSet {
     private final Path projectRoot;
     private final Path modulePath;
     private final Path resourceSetPath;
+    private final ExecutionContext executionContext;
 
     public void addStringResource(String filePath, String content) {
         Path absFilePath = getAbsolutePath().resolve(filePath);
-        StringProjectResource resource = new StringProjectResource(projectRoot, absFilePath, content);
+        StringProjectResource resource = new StringProjectResource(projectRoot, absFilePath, content, executionContext);
         resource.markAsChanged();
         projectResourceSet.add(resource);
     }

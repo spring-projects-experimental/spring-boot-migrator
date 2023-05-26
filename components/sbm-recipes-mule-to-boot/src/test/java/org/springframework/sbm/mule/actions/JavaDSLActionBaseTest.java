@@ -45,11 +45,15 @@ import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationTypeAdapterFactory;
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.sbm.test.ActionTest;
+import org.springframework.sbm.test.TestProjectContextInfo;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -104,7 +108,7 @@ public class JavaDSLActionBaseTest {
                 )
         );
         MuleMigrationContextFactory muleMigrationContextFactory = new MuleMigrationContextFactory(new MuleConfigurationsExtractor(configurationTypeAdapterFactory));
-        myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories);
+        myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories, new RewriteExecutionContext());
         myAction.setEventPublisher(eventPublisher);
 
         registrar = new MuleXmlProjectResourceRegistrar();
@@ -128,9 +132,13 @@ public class JavaDSLActionBaseTest {
         ;
     }
 
-    protected void runAction() {
-        projectContext = projectContextBuilder.build();
+    protected void runAction(Consumer<ProjectContext> projectContextVerifier) {
+        TestProjectContextInfo testProjectContextInfo = projectContextBuilder.buildProjectContextInfo();
+        // requiring the ProjectContext as member in this base class prevents us from using ActionTest here
+        this.projectContext = testProjectContextInfo.projectContext();
+        testProjectContextInfo.beanFactory().autowireBean(myAction);
         myAction.apply(projectContext);
+        projectContextVerifier.accept(testProjectContextInfo.projectContext());
     }
 
     protected String getGeneratedJavaFile() {

@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.engine.context;
 
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.build.api.ApplicationModules;
 import org.springframework.sbm.build.api.Module;
@@ -44,13 +45,15 @@ public class ProjectContext {
     private final ProjectResourceSet projectResources;
     private String revision;
     private final JavaParser javaParser;
+    private final ExecutionContext executionContext;
 
-    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParser javaParser) {
+    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParser javaParser, ExecutionContext executionContext) {
         this.projectRootDirectory = projectRootDirectory.toAbsolutePath();
         this.projectResources = projectResources;
         this.javaRefactoringFactory = javaRefactoringFactory;
         this.basePackageCalculator = basePackageCalculator;
         this.javaParser = javaParser;
+        this.executionContext = executionContext;
     }
 
     public ProjectResourceSet getProjectResources() {
@@ -66,7 +69,7 @@ public class ProjectContext {
     private Module mapToModule(BuildFile buildFile) {
         String buildFileName = "";
         Path modulePath = projectRootDirectory.relativize(buildFile.getAbsolutePath().getParent());
-        return new Module(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator, javaParser);
+        return new Module(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator, javaParser, executionContext);
     }
 
     public BuildFile getBuildFile() {

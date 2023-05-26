@@ -16,6 +16,7 @@
 package org.springframework.sbm.build.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,9 @@ public class MavenBuildFileRefactoringFactory {
     private final ProjectResourceSetHolder projectResourceSetHolder;
     private final RewriteMavenParser rewriteMavenParser;
 
+    private final ExecutionContext executionContext;
+
     public MavenBuildFileRefactoring createRefactoring() {
-        return new MavenBuildFileRefactoring<Xml.Document>(projectResourceSetHolder.getProjectResourceSet(), rewriteMavenParser);
+        return new MavenBuildFileRefactoring<Xml.Document>(projectResourceSetHolder.getProjectResourceSet(), rewriteMavenParser, executionContext);
     }
 }
