@@ -15,7 +15,7 @@ See <<search-and-comment, Search and Comment>>
 
 
 == Installation
-Download the latest release from https://github.com/pivotal/spring-boot-migrator/releases[GitHub Releases]
+Download the latest release from https://github.com/spring-projects-experimental/spring-boot-migrator/releases[GitHub Releases]
 
 
 == Prerequisites
