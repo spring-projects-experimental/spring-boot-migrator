@@ -117,7 +117,7 @@ public class ComplexSubflowsTest extends JavaDSLActionBaseTest {
     public void shouldHaveMethodsForSubflows() {
         addXMLFileToResource(subflowWithRabbit);
         runAction(projectContext ->
-        assertThat(getGeneratedJavaFile())
+            assertThat(getGeneratedJavaFile())
                 .isEqualTo("""
                            package com.example.javadsl;
                            import org.springframework.context.annotation.Bean;
