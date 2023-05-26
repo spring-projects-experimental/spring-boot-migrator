@@ -50,9 +50,6 @@ public class RewriteMavenParser implements Parser<Xml.Document> {
 
     @NotNull
     private void initMavenParser(ExecutionContext executionContext, Path projectRoot) {
-        // FIXME: 786 this is done in ProjectParser in #771
-        // mavenSettingsInitializer.initializeMavenSettings(executionContext);
-
         MavenParser.Builder builder = MavenParser.builder();
         if (projectRoot != null && projectRoot.resolve(".mvn/maven.config").toFile().exists()) {
             builder.mavenConfig(projectRoot.resolve(".mvn/maven.config"));
