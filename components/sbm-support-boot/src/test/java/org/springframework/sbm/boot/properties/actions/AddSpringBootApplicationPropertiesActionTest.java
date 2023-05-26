@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.sbm.test.ActionTest;
 
 import java.nio.file.Path;
 
@@ -35,31 +36,34 @@ class AddSpringBootApplicationPropertiesActionTest {
 
     @InjectMocks
     private final AddSpringBootApplicationPropertiesAction sut = new AddSpringBootApplicationPropertiesAction();
-    private ProjectContext projectContext;
+    private TestProjectContext.Builder projectContextBuilder;
 
     @BeforeEach
     void beforeEach() {
-        projectContext = TestProjectContext.buildProjectContext()
-                .withProjectRoot(Path.of("."))
-                .build();
+        projectContextBuilder = TestProjectContext.buildProjectContext()
+                .withProjectRoot(Path.of("."));
     }
 
     @Test
     void apply() {
-        sut.apply(projectContext);
-        SpringBootApplicationProperties springBootApplicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
-        assertThat(springBootApplicationProperties).isNotNull();
-        assertThat(springBootApplicationProperties.hasChanges()).isTrue();
+        ActionTest.withProjectContext(projectContextBuilder)
+                .actionUnderTest(sut)
+                .verify(projectContext -> {
+                    SpringBootApplicationProperties springBootApplicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
+                    assertThat(springBootApplicationProperties).isNotNull();
+                    assertThat(springBootApplicationProperties.hasChanges()).isTrue();
+                });
     }
 
     @Test
     void isApplicableShouldReturnTrueWhenNoApplicationPropertiesFileExist() {
-        boolean isApplicable = sut.isApplicable(projectContext);
+        boolean isApplicable = sut.isApplicable(projectContextBuilder.build());
         assertThat(isApplicable).isTrue();
     }
 
     @Test
     void isApplicableShouldReturnFalseWhenApplicationPropertiesFileExist() {
+        ProjectContext projectContext = this.projectContextBuilder.build();
         projectContext.getProjectResources().add(SpringBootApplicationProperties.newApplicationProperties(projectContext.getProjectRootDirectory(), Path.of("./src/main/resources/application.properties"), new RewriteExecutionContext()));
         boolean isApplicable = sut.isApplicable(projectContext);
         assertThat(isApplicable).isFalse();
