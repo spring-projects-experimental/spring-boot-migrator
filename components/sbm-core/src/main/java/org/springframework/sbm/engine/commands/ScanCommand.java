@@ -26,7 +26,7 @@ import org.springframework.sbm.engine.precondition.PreconditionVerificationResul
 import org.springframework.sbm.engine.precondition.PreconditionVerifier;
 import org.springframework.sbm.project.parser.PathScanner;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
-import org.springframework.sbm.scopeplayground.ScanScope;
+import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
