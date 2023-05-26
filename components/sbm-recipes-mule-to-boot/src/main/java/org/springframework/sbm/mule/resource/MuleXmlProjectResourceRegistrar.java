@@ -47,6 +47,6 @@ public class MuleXmlProjectResourceRegistrar implements ProjectResourceWrapper<M
 
     private boolean isMuleXmlResource(RewriteSourceFileHolder<?> sourceFileHolder) {
         return sourceFileHolder.getAbsolutePath().toString().endsWith(".xml") &&
-                sourceFileHolder.print().contains("<mule ");
+                sourceFileHolder.print().contains("<mule");
     }
 }
