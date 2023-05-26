@@ -22,6 +22,7 @@ import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.SpringManagedDependencies;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.scopeplayground.ExecutionScope;
 
 import java.util.List;
 import java.util.function.Predicate;

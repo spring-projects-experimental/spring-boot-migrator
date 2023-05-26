@@ -24,6 +24,8 @@ import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.scopes.annotations.ScanScope;
+import org.springframework.sbm.engine.annotations.StatefulComponent;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
