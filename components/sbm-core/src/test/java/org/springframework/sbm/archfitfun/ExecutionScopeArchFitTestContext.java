@@ -19,14 +19,13 @@ import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.scopeplayground.ProjectMetadata;
+import org.springframework.sbm.scopes.ProjectMetadata;
 
 import java.util.UUID;
 
@@ -94,7 +93,7 @@ public class ExecutionScopeArchFitTestContext {
     }
 
     @Bean
-    @org.springframework.sbm.scopeplayground.annotations.ScanScope
+    @org.springframework.sbm.scopes.annotations.ScanScope
     ProjectMetadata projectMetadata() {
         ProjectMetadata projectMetadata = new ProjectMetadata();
         testRecorder().projectMetadataCreated(projectMetadata);
@@ -102,7 +101,7 @@ public class ExecutionScopeArchFitTestContext {
     }
 
     @Bean
-    @org.springframework.sbm.scopeplayground.annotations.ExecutionScope
+    @org.springframework.sbm.scopes.annotations.ExecutionScope
     ExecutionContext executionContext(ProjectMetadata projectMetadata) {
         String id = UUID.randomUUID().toString();
         RewriteExecutionContext rewriteExecutionContext = new RewriteExecutionContext();

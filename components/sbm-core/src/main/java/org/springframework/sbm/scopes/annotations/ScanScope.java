@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.scopeplayground.annotations;
+package org.springframework.sbm.scopes.annotations;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 /**
  *
  * ## scanScope
- * Beans annotated with {@link org.springframework.sbm.scopeplayground.annotations.ScanScope} will be created on first access during scan/parse and added to the scanScope.
+ * Beans annotated with {@link org.springframework.sbm.scopes.annotations.ScanScope} will be created on first access during scan/parse and added to the scanScope.
  * Subsequent usages will receive instances from the scanScope until the scope ends and all scoped beans get removed
  * from the scope.
  *
@@ -43,6 +43,6 @@ import java.lang.annotation.Target;
 @Qualifier
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Scope(scopeName = org.springframework.sbm.scopeplayground.ScanScope.SCOPE_NAME, proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Scope(scopeName = org.springframework.sbm.scopes.ScanScope.SCOPE_NAME, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public @interface ScanScope {
 }

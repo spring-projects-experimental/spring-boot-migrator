@@ -24,9 +24,9 @@ import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.springframework.sbm.scopeplayground.ExecutionScope;
-import org.springframework.sbm.scopeplayground.ScanScope;
-import org.springframework.sbm.scopeplayground.ScopeConfiguration;
+import org.springframework.sbm.scopes.ExecutionScope;
+import org.springframework.sbm.scopes.ScanScope;
+import org.springframework.sbm.scopes.ScopeConfiguration;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
 import java.io.IOException;

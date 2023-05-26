@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.scopeplayground.annotations;
+package org.springframework.sbm.scopes.annotations;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -41,6 +41,6 @@ import java.lang.annotation.Target;
 @Qualifier
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Scope(scopeName = org.springframework.sbm.scopeplayground.ExecutionScope.SCOPE_NAME, proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Scope(scopeName = org.springframework.sbm.scopes.ExecutionScope.SCOPE_NAME, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public @interface ExecutionScope {
 }

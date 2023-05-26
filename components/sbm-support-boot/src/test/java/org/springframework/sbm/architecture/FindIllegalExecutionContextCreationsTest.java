@@ -15,19 +15,10 @@
  */
 package org.springframework.sbm.architecture;
 
-import com.tngtech.archunit.core.domain.AccessTarget;
-import com.tngtech.archunit.core.domain.JavaCall;
-import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.junit.ArchTests;
-import com.tngtech.archunit.lang.ArchRule;
-import org.openrewrite.ExecutionContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.scopeplayground.ScopeConfiguration;
-
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 /**
  * @author Fabian Krüger

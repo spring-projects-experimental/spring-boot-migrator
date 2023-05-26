@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.engine.commands;
 
-import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,7 +25,7 @@ import org.springframework.sbm.engine.precondition.PreconditionVerificationResul
 import org.springframework.sbm.engine.precondition.PreconditionVerifier;
 import org.springframework.sbm.project.parser.PathScanner;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
-import org.springframework.sbm.scopeplayground.ScanScope;
+import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;

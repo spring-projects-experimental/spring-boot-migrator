@@ -24,7 +24,7 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.scopeplayground.ScopeConfiguration;
+import org.springframework.sbm.scopes.ScopeConfiguration;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 

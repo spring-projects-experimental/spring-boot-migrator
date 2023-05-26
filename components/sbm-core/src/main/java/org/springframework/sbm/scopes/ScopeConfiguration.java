@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.scopeplayground;
+package org.springframework.sbm.scopes;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.maven.MavenExecutionContextView;
@@ -44,7 +44,7 @@ public class ScopeConfiguration {
     }
 
     @Bean
-    @org.springframework.sbm.scopeplayground.annotations.ExecutionScope
+    @org.springframework.sbm.scopes.annotations.ExecutionScope
     ExecutionContext executionContext(ProjectMetadata projectMetadata) {
         RewriteExecutionContext rewriteExecutionContext = new RewriteExecutionContext();
         MavenExecutionContextView.view(rewriteExecutionContext).setMavenSettings(projectMetadata.getMavenSettings());

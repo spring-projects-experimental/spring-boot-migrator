@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.scopeplayground;
+package org.springframework.sbm.scopes;
 
 import org.springframework.stereotype.Component;
 
 /**
- * Scope implementation for beans marked with {@link org.springframework.sbm.scopeplayground.annotations.ExecutionScope}.
+ * Scope implementation for beans marked with {@link org.springframework.sbm.scopes.annotations.ExecutionScope}.
  *
  * @author Fabian Krüger
  */

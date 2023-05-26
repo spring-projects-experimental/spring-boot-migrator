@@ -15,10 +15,7 @@
  */
 package org.springframework.sbm.engine.commands;
 
-import org.openrewrite.ExecutionContext;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.sbm.common.filter.DeletedResourcePathStringFilter;
 import org.springframework.sbm.common.filter.ModifiedResourcePathStringFilter;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -28,7 +25,7 @@ import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
-import org.springframework.sbm.scopeplayground.ExecutionScope;
+import org.springframework.sbm.scopes.ExecutionScope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

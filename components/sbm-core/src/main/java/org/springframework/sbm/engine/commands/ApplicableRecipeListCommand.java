@@ -22,7 +22,7 @@ import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
-import org.springframework.sbm.scopeplayground.ExecutionScope;
+import org.springframework.sbm.scopes.ExecutionScope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
