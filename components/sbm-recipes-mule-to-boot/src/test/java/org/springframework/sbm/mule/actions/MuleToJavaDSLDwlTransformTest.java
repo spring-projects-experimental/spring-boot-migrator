@@ -45,7 +45,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
             <?xml version="1.0" encoding="UTF-8"?>
                         
             <mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-                xmlns:spring="http://www.springframework.org/schema/beans"\s
+                xmlns:spring="http://www.springframework.org/schema/beans"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
             http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
@@ -53,9 +53,9 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
             http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
                 <flow name="dwlFlow">
                     <http:listener config-ref="HTTP_Listener_Configuration" path="/dwl" doc:name="HTTP"/>
-               \s
+               
                     <logger message="payload to be sent: #[new String(payload)]" level="INFO" doc:name="Log the message content to be sent"/>
-                   \s
+                   
                     <dw:transform-message doc:name="action transform">
                         <dw:set-payload><![CDATA[%dw 1.0
             %output application/json
@@ -65,7 +65,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                 returnCode:  20
             }]]></dw:set-payload>
                     </dw:transform-message>
-                   \s
+                   
                      <logger message="payload to be sent: #[new String(payload)]" level="INFO" doc:name="Log the message content to be sent"/>
                 </flow>
             </mule>
@@ -329,7 +329,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                 <?xml version="1.0" encoding="UTF-8"?>
                                 
                 <mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-                    xmlns:spring="http://www.springframework.org/schema/beans"\s
+                    xmlns:spring="http://www.springframework.org/schema/beans"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
                 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
