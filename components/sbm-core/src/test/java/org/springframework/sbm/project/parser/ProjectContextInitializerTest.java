@@ -46,14 +46,12 @@ import org.springframework.sbm.engine.precondition.PreconditionVerifier;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.*;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
-import org.springframework.sbm.scopeplayground.ExecutionScope;
-import org.springframework.sbm.scopeplayground.ProjectMetadata;
-import org.springframework.sbm.scopeplayground.ScanScope;
-import org.springframework.sbm.scopeplayground.ScopeConfiguration;
+import org.springframework.sbm.scopes.ExecutionScope;
+import org.springframework.sbm.scopes.ScanScope;
+import org.springframework.sbm.scopes.ScopeConfiguration;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.util.FileSystemUtils;
 

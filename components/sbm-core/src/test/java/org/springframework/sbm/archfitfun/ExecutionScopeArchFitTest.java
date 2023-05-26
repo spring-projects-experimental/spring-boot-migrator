@@ -53,7 +53,7 @@ import org.springframework.sbm.project.resource.ProjectResourceWrapperRegistry;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
-import org.springframework.sbm.scopeplayground.*;
+import org.springframework.sbm.scopes.*;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
@@ -66,10 +66,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.ScopeCacheHelper.getCacheSnapshot;
 
 /**
- * Architectural Fitnesse Function for the concept of a `scanScope` ({@link org.springframework.sbm.scopeplayground.annotations.ScanScope}) and `executionScope` ({@link org.springframework.sbm.scopeplayground.annotations.ExecutionScope}).
+ * Architectural Fitnesse Function for the concept of a `scanScope` ({@link org.springframework.sbm.scopes.annotations.ScanScope}) and `executionScope` ({@link org.springframework.sbm.scopes.annotations.ExecutionScope}).
  *
  * ## executionScope
- * Beans annotated with {@link org.springframework.sbm.scopeplayground.annotations.ExecutionScope} will be created on first access and added to the executionScope.
+ * Beans annotated with {@link org.springframework.sbm.scopes.annotations.ExecutionScope} will be created on first access and added to the executionScope.
  * Subsequent usages will receive the executionScoped instance from the scope until the scope ends and all scoped beans
  * get removed from the scope.
  *
@@ -82,7 +82,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
  * - or when the application stops.
  *
  * ## scanScope
- * Beans annotated with {@link org.springframework.sbm.scopeplayground.annotations.ScanScope} will be created on first access during scan/parse and added to the scanScope.
+ * Beans annotated with {@link org.springframework.sbm.scopes.annotations.ScanScope} will be created on first access during scan/parse and added to the scanScope.
  * Subsequent usages will receive instances from the scanScope until the scope ends and all scoped beans get removed
  * from the scope.
  *

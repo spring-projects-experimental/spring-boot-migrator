@@ -29,7 +29,7 @@ import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
-import org.springframework.sbm.scopeplayground.ExecutionScope;
+import org.springframework.sbm.scopes.ExecutionScope;
 
 import java.util.List;
 import java.util.Optional;
