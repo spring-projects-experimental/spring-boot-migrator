@@ -28,6 +28,9 @@ import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
+import org.springframework.sbm.scopeplayground.ExecutionScope;
+import org.springframework.sbm.scopeplayground.ScanScope;
+import org.springframework.sbm.scopeplayground.ScopeConfiguration;
 import org.springframework.sbm.search.recipe.actions.OpenRewriteJavaSearchAction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -77,7 +80,10 @@ public class RecipeTestSupport {
             RewriteMavenParser.class,
             MavenSettingsInitializer.class,
             MavenBuildFileRefactoringFactory.class,
-            ProjectResourceSetHolder.class
+            ProjectResourceSetHolder.class,
+            ScopeConfiguration.class,
+            ExecutionScope.class,
+            ScanScope.class
     };
 
 

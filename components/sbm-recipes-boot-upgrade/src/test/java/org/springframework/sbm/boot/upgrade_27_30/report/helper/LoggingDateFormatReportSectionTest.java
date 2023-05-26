@@ -20,6 +20,7 @@ import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMa
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportTestSupport;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 /**
@@ -32,7 +33,7 @@ public class LoggingDateFormatReportSectionTest {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
                 .withSpringBootParentOf("2.7.5")
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .addProjectResource("src/main/resources/application-myprofile.properties", "not.logging.pattern.dateformat=some-format")
                 .build();
 
@@ -97,7 +98,7 @@ public class LoggingDateFormatReportSectionTest {
     void shouldNotRenderSectionWhenPropertyIsDefined() {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .addProjectResource("src/main/resources/application-myprofile.properties", "logging.pattern.dateformat=some-format")
                 .build();
 

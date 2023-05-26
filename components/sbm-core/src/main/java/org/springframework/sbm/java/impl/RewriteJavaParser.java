@@ -23,8 +23,9 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.engine.annotations.StatefulComponent;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
+import org.springframework.sbm.scopeplayground.annotations.ScanScope;
+import org.springframework.stereotype.Component;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -32,17 +33,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-@StatefulComponent
+@Component
+@ScanScope
 public class RewriteJavaParser implements JavaParser {
 
     private final SbmApplicationProperties sbmApplicationProperties;
     @Getter
     private final JavaParser javaParser;
+    private final ExecutionContext executionContext;
 
 
     // satisfies DI
-    public RewriteJavaParser(SbmApplicationProperties sbmApplicationProperties) {
+    public RewriteJavaParser(SbmApplicationProperties sbmApplicationProperties, ExecutionContext executionContext) {
         this.sbmApplicationProperties = sbmApplicationProperties;
+        this.executionContext = executionContext;
         javaParser = buildJavaParser(Collections.emptySet());
     }
 
@@ -94,7 +98,6 @@ public class RewriteJavaParser implements JavaParser {
 
     @Override
     public List<J.CompilationUnit> parse(String... sources) {
-        ExecutionContext ctx = new RewriteExecutionContext();
-        return this.parse(ctx, sources);
+        return this.parse(executionContext, sources);
     }
 }

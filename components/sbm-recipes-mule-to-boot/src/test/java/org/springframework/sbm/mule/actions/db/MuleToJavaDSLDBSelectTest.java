@@ -28,164 +28,151 @@ public class MuleToJavaDSLDBSelectTest extends JavaDSLActionBaseTest {
 
     @Test
     public void translateDbSelectDynamicQuery() {
-        String muleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "\n" +
-                "<mule xmlns:db=\"http://www.mulesoft.org/schema/mule/db\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-                "    xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
-                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "    xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\">\n" +
-                "    <db:mysql-config name=\"MySQL_Configuration\" host=\"localhost\" port=\"3036\" user=\"root\" password=\"root\" doc:name=\"MySQL Configuration\"/>\n" +
-                "    <flow name=\"dbFlow\">\n" +
-                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/\" doc:name=\"HTTP\"/>\n" +
-                "        <logger level=\"INFO\" doc:name=\"Logger\"/>\n" +
-                "        <db:select config-ref=\"MySQL_Configuration\" doc:name=\"Database\" fetchSize=\"500\" maxRows=\"500\">\n" +
-                "            <db:dynamic-query><![CDATA[SELECT * FROM STUDENTS]]></db:dynamic-query>\n" +
-                "        </db:select>" +
-                "    </flow>\n" +
-                "</mule>\n";
+        String muleXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                                
+                <mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                    xmlns:spring="http://www.springframework.org/schema/beans"\s
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+                http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+                http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+                    <db:mysql-config name="MySQL_Configuration" host="localhost" port="3036" user="root" password="root" doc:name="MySQL Configuration"/>
+                    <flow name="dbFlow">
+                        <http:listener config-ref="HTTP_Listener_Configuration" path="/" doc:name="HTTP"/>
+                        <logger level="INFO" doc:name="Logger"/>
+                        <db:select config-ref="MySQL_Configuration" doc:name="Database" fetchSize="500" maxRows="500">
+                            <db:dynamic-query><![CDATA[SELECT * FROM STUDENTS]]></db:dynamic-query>
+                        </db:select>
+                    </flow>
+                </mule>
+                """;
 
         addXMLFileToResource(muleXml);
-        runAction();
+        runAction(projectContext1 -> {
 
-        Set<String> listOfImportedArtifacts = projectContext
-                .getBuildFile()
-                .getDeclaredDependencies()
-                .stream()
-                .map(Dependency::getArtifactId)
-                .collect(Collectors.toSet());
+            Set<String> listOfImportedArtifacts = projectContext
+                    .getBuildFile()
+                    .getDeclaredDependencies()
+                    .stream()
+                    .map(Dependency::getArtifactId)
+                    .collect(Collectors.toSet());
 
-        assertThat(listOfImportedArtifacts).contains("spring-integration-jdbc");
-        assertThat(listOfImportedArtifacts).contains("spring-boot-starter-jdbc");
-        assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
-        assertThat(getGeneratedJavaFile())
-                .isEqualTo(
-                        "package com.example.javadsl;\n" +
-                                "import org.springframework.context.annotation.Bean;\n" +
-                                "import org.springframework.context.annotation.Configuration;\n" +
-                                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                                "import org.springframework.integration.handler.LoggingHandler;\n" +
-                                "import org.springframework.integration.http.dsl.Http;\n" +
-                                "\n" +
-                                "@Configuration\n" +
-                                "public class FlowConfigurations {\n" +
-                                "    @Bean\n" +
-                                "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
-                                "        return IntegrationFlows.from(Http.inboundGateway(\"/\")).handle((p, h) -> p)\n" +
-                                "                .log(LoggingHandler.Level.INFO)\n" +
-                                "// TODO: substitute expression language with appropriate java code \n" +
-                                "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
-                                "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
-                                "                        jdbcTemplate.queryForList(\n" +
-                                "                                \"SELECT * FROM STUDENTS\"))\n" +
-                                "                .get();\n" +
-                                "    }\n" +
-                                "}");
+            assertThat(listOfImportedArtifacts).contains("spring-integration-jdbc");
+            assertThat(listOfImportedArtifacts).contains("spring-boot-starter-jdbc");
+            assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
+            assertThat(getGeneratedJavaFile()).isEqualTo(
+                    "package com.example.javadsl;\n" + "import org.springframework.context.annotation.Bean;\n" + "import org.springframework.context.annotation.Configuration;\n" + "import org.springframework.integration.dsl.IntegrationFlow;\n" + "import org.springframework.integration.dsl.IntegrationFlows;\n" + "import org.springframework.integration.handler.LoggingHandler;\n" + "import org.springframework.integration.http.dsl.Http;\n" + "\n" + "@Configuration\n" + "public class FlowConfigurations {\n" + "    @Bean\n" + "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" + "        return IntegrationFlows.from(Http.inboundGateway(\"/\")).handle((p, h) -> p)\n" + "                .log(LoggingHandler.Level.INFO)\n" + "// TODO: substitute expression language with appropriate java code \n" + "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" + "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" + "                        jdbcTemplate.queryForList(\n" + "                                \"SELECT * FROM STUDENTS\"))\n" + "                .get();\n" + "    }\n" + "}");
+        });
     }
 
     @Test
     public void translateDbSelectParameterisedQuery() {
-        String muleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "\n" +
-                "<mule xmlns:db=\"http://www.mulesoft.org/schema/mule/db\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-                "    xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
-                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "    xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\">\n" +
-                "    <db:mysql-config name=\"MySQL_Configuration\" host=\"localhost\" port=\"3036\" user=\"root\" password=\"root\" doc:name=\"MySQL Configuration\"/>\n" +
-                "    <flow name=\"dbFlow\">\n" +
-                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/\" doc:name=\"HTTP\"/>\n" +
-                "        <logger level=\"INFO\" doc:name=\"Logger\"/>\n" +
-                "        <db:select config-ref=\"MySQL_Configuration\" doc:name=\"Database\" fetchSize=\"500\" maxRows=\"500\">\n" +
-                "            <db:parameterized-query><![CDATA[SELECT * FROM STUDENTS]]></db:parameterized-query>\n" +
-                "        </db:select>" +
-                "    </flow>\n" +
-                "</mule>\n";
+        String muleXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                                
+                <mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                    xmlns:spring="http://www.springframework.org/schema/beans"\s
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+                http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+                http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+                    <db:mysql-config name="MySQL_Configuration" host="localhost" port="3036" user="root" password="root" doc:name="MySQL Configuration"/>
+                    <flow name="dbFlow">
+                        <http:listener config-ref="HTTP_Listener_Configuration" path="/" doc:name="HTTP"/>
+                        <logger level="INFO" doc:name="Logger"/>
+                        <db:select config-ref="MySQL_Configuration" doc:name="Database" fetchSize="500" maxRows="500">
+                            <db:parameterized-query><![CDATA[SELECT * FROM STUDENTS]]></db:parameterized-query>
+                        </db:select>
+                    </flow>
+                </mule>
+                """;
 
         addXMLFileToResource(muleXml);
-        runAction();
-        assertThat(getGeneratedJavaFile())
-                .isEqualTo(
-                        "package com.example.javadsl;\n" +
-                                "import org.springframework.context.annotation.Bean;\n" +
-                                "import org.springframework.context.annotation.Configuration;\n" +
-                                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                                "import org.springframework.integration.handler.LoggingHandler;\n" +
-                                "import org.springframework.integration.http.dsl.Http;\n" +
-                                "\n" +
-                                "@Configuration\n" +
-                                "public class FlowConfigurations {\n" +
-                                "    @Bean\n" +
-                                "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
-                                "        return IntegrationFlows.from(Http.inboundGateway(\"/\")).handle((p, h) -> p)\n" +
-                                "                .log(LoggingHandler.Level.INFO)\n" +
-                                "// TODO: substitute expression language with appropriate java code \n" +
-                                "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
-                                "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
-                                "                        jdbcTemplate.queryForList(\n" +
-                                "                                \"SELECT * FROM STUDENTS\"))\n" +
-                                "                .get();\n" +
-                                "    }\n" +
-                                "}");
+        runAction(projectContext1 -> {
+            assertThat(getGeneratedJavaFile())
+                    .isEqualTo("""
+                               package com.example.javadsl;
+                               import org.springframework.context.annotation.Bean;
+                               import org.springframework.context.annotation.Configuration;
+                               import org.springframework.integration.dsl.IntegrationFlow;
+                               import org.springframework.integration.dsl.IntegrationFlows;
+                               import org.springframework.integration.handler.LoggingHandler;
+                               import org.springframework.integration.http.dsl.Http;
+                                                          
+                               @Configuration
+                               public class FlowConfigurations {
+                                   @Bean
+                                   IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
+                                       return IntegrationFlows.from(Http.inboundGateway("/")).handle((p, h) -> p)
+                                               .log(LoggingHandler.Level.INFO)
+                               // TODO: substitute expression language with appropriate java code\s
+                               // TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload
+                                               .<LinkedMultiValueMap<String, String>>handle((p, h) ->
+                                                       jdbcTemplate.queryForList(
+                                                               "SELECT * FROM STUDENTS"))
+                                               .get();
+                                   }
+                               }""");
+        });
     }
 
     @Test
     public void shouldPreventSQLInjectionAttack() {
-        String muleXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "\n" +
-                "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
-                "    xmlns:db=\"http://www.mulesoft.org/schema/mule/db\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-                "    xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
-                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "    xsi:schemaLocation=\"\n" +
-                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\">\n" +
-                "    <db:mysql-config name=\"MySQL_Configuration\" host=\"localhost\" port=\"3306\" user=\"root\" password=\"root\" doc:name=\"MySQL Configuration\" database=\"mulemigration\"/>\n" +
-                "    <flow name=\"dbFlow\">\n" +
-                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/db\" doc:name=\"HTTP\"/>\n" +
-                "        <logger level=\"INFO\" doc:name=\"Logger\"/>\n" +
-                "        <db:select config-ref=\"MySQL_Configuration\" doc:name=\"Database\">\n" +
-                "            <db:dynamic-query><![CDATA[select * from users where username='#[payload.username]' and password='#[payload.password]']]></db:dynamic-query>\n" +
-                "        </db:select>\n" +
-                "    </flow>\n" +
-                "</mule>";
+        String muleXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                                
+                <mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+                    xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                    xmlns:spring="http://www.springframework.org/schema/beans"\s
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="
+                http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+                http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+                http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+                    <db:mysql-config name="MySQL_Configuration" host="localhost" port="3306" user="root" password="root" doc:name="MySQL Configuration" database="mulemigration"/>
+                    <flow name="dbFlow">
+                        <http:listener config-ref="HTTP_Listener_Configuration" path="/db" doc:name="HTTP"/>
+                        <logger level="INFO" doc:name="Logger"/>
+                        <db:select config-ref="MySQL_Configuration" doc:name="Database">
+                            <db:dynamic-query><![CDATA[select * from users where username='#[payload.username]' and password='#[payload.password]']]></db:dynamic-query>
+                        </db:select>
+                    </flow>
+                </mule>
+                """;
 
         addXMLFileToResource(muleXml);
-        runAction();
-        assertThat(getGeneratedJavaFile())
-                .isEqualTo(
-                        "package com.example.javadsl;\n" +
-                                "import org.springframework.context.annotation.Bean;\n" +
-                                "import org.springframework.context.annotation.Configuration;\n" +
-                                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                                "import org.springframework.integration.handler.LoggingHandler;\n" +
-                                "import org.springframework.integration.http.dsl.Http;\n" +
-                                "\n" +
-                                "@Configuration\n" +
-                                "public class FlowConfigurations {\n" +
-                                "    @Bean\n" +
-                                "    IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {\n" +
-                                "        return IntegrationFlows.from(Http.inboundGateway(\"/db\")).handle((p, h) -> p)\n" +
-                                "                .log(LoggingHandler.Level.INFO)\n" +
-                                "// TODO: substitute expression language with appropriate java code \n" +
-                                "// TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload\n" +
-                                "                .<LinkedMultiValueMap<String, String>>handle((p, h) ->\n" +
-                                "                        jdbcTemplate.queryForList(\n" +
-                                "                                \"select * from users where username=? and password=?\",\n" +
-                                "                                p.getFirst(\"payload.username\") /* TODO: Translate #[payload.username] to java expression*/,\n" +
-                                "                                p.getFirst(\"payload.password\") /* TODO: Translate #[payload.password] to java expression*/\n" +
-                                "                        ))\n" +
-                                "                .get();\n" +
-                                "    }\n" +
-                                "}");
+        runAction(projectContext -> {
+            assertThat(getGeneratedJavaFile())
+                .isEqualTo("""
+                           package com.example.javadsl;
+                           import org.springframework.context.annotation.Bean;
+                           import org.springframework.context.annotation.Configuration;
+                           import org.springframework.integration.dsl.IntegrationFlow;
+                           import org.springframework.integration.dsl.IntegrationFlows;
+                           import org.springframework.integration.handler.LoggingHandler;
+                           import org.springframework.integration.http.dsl.Http;
+                                                      
+                           @Configuration
+                           public class FlowConfigurations {
+                               @Bean
+                               IntegrationFlow dbFlow(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
+                                   return IntegrationFlows.from(Http.inboundGateway("/db")).handle((p, h) -> p)
+                                           .log(LoggingHandler.Level.INFO)
+                           // TODO: substitute expression language with appropriate java code\s
+                           // TODO: The datatype might not be LinkedMultiValueMap please substitute the right type for payload
+                                           .<LinkedMultiValueMap<String, String>>handle((p, h) ->
+                                                   jdbcTemplate.queryForList(
+                                                           "select * from users where username=? and password=?",
+                                                           p.getFirst("payload.username") /* TODO: Translate #[payload.username] to java expression*/,
+                                                           p.getFirst("payload.password") /* TODO: Translate #[payload.password] to java expression*/
+                                                   ))
+                                           .get();
+                               }
+                           }""");
+        });
     }
 }

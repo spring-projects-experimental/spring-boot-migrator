@@ -24,6 +24,7 @@ import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.test.ActionTest;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -157,36 +158,35 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
 
     @Test
     void migrateJpaToSpringBoot() {
-        MigratePersistenceXmlToApplicationPropertiesAction sut = new MigratePersistenceXmlToApplicationPropertiesAction();
+        ActionTest.withProjectContext(
+                TestProjectContext.buildProjectContext()
+                        .addProjectResource(Path.of("src/main/resources/META-INF/persistence.xml"), """
+                                <persistence version="1.0"
+                                             xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+                                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+                                    <persistence-unit name="movie-unit">
+                                        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+                                        <jta-data-source>movieDatabase</jta-data-source>
+                                        <non-jta-data-source>movieDatabaseUnmanaged</non-jta-data-source>
+                                        <properties>
+                                            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+                                            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+                                        </properties>
+                                    </persistence-unit>
+                                </persistence>
+                                """)
+                        .addRegistrar(new PersistenceXmlProjectResourceRegistrar()))
+                .actionUnderTest(new MigratePersistenceXmlToApplicationPropertiesAction())
+                .verify(context -> {
+                    List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
+                    SpringBootApplicationProperties springBootApplicationProperties = applicationProperties.get(0);
+                    assertThat(springBootApplicationProperties.getProperty("spring.jpa.hibernate.ddl-auto").get()).isEqualTo("create-drop");
+                    assertThat(springBootApplicationProperties.getProperty("spring.jpa.database-platform").get()).isEqualTo("org.hibernate.dialect.HSQLDialect");
+                    assertThat(context.search(new PersistenceXmlResourceFilter())).isNotEmpty();
+                });
 
-        // unexpected element (uri:"http://java.sun.com/xml/ns/persistence", local:"persistence"). Expected elements are <{http://xmlns.jcp.org/xml/ns/persistence}persistence>
-        String persistenceXmlSource =
-                "<persistence version=\"1.0\"\n" +
-                        "             xmlns=\"http://xmlns.jcp.org/xml/ns/persistence\"\n" +
-                        "             xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "             xsi:schemaLocation=\"http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd\">\n" +
-                        "    <persistence-unit name=\"movie-unit\">\n" +
-                        "        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>\n" +
-                        "        <jta-data-source>movieDatabase</jta-data-source>\n" +
-                        "        <non-jta-data-source>movieDatabaseUnmanaged</non-jta-data-source>\n" +
-                        "        <properties>\n" +
-                        "            <property name=\"hibernate.hbm2ddl.auto\" value=\"create-drop\"/>\n" +
-                        "            <property name=\"hibernate.dialect\" value=\"org.hibernate.dialect.HSQLDialect\"/>\n" +
-                        "        </properties>\n" +
-                        "    </persistence-unit>\n" +
-                        "</persistence>";
 
-        ProjectContext context = TestProjectContext.buildProjectContext()
-                .addProjectResource(Path.of("src/main/resources/META-INF/persistence.xml"), persistenceXmlSource)
-                .addRegistrar(new PersistenceXmlProjectResourceRegistrar())
-                .build();
 
-        sut.apply(context);
-
-        List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
-        SpringBootApplicationProperties springBootApplicationProperties = applicationProperties.get(0);
-        assertThat(springBootApplicationProperties.getProperty("spring.jpa.hibernate.ddl-auto").get()).isEqualTo("create-drop");
-        assertThat(springBootApplicationProperties.getProperty("spring.jpa.database-platform").get()).isEqualTo("org.hibernate.dialect.HSQLDialect");
-        assertThat(context.search(new PersistenceXmlResourceFilter())).isNotEmpty();
     }
 }

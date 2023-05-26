@@ -119,13 +119,13 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     private static final Path RESOURCE_FOLDER = Path.of("src/main/resources");
     private static final Path RESOURCE_TEST_FOLDER = Path.of("src/test/resources");
 
-    private final RewriteExecutionContext executionContext;
+    private final ExecutionContext executionContext;
 
 
     public OpenRewriteMavenBuildFile(Path absoluteProjectPath,
                                      Xml.Document sourceFile,
                                      ApplicationEventPublisher eventPublisher,
-                                     RewriteExecutionContext executionContext,
+                                     ExecutionContext executionContext,
                                      MavenBuildFileRefactoring refactoring) {
         super(absoluteProjectPath, sourceFile);
         this.eventPublisher = eventPublisher;

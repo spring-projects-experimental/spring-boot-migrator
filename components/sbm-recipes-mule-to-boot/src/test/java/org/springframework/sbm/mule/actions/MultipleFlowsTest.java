@@ -43,31 +43,33 @@ public class MultipleFlowsTest extends JavaDSLActionBaseTest {
     @Test
     public void shouldTranslateSubflow() {
         addXMLFileToResource(muleMultiFlow);
-        runAction();
-        assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(getGeneratedJavaFile())
-                .isEqualTo("package com.example.javadsl;\n" +
-                        "import org.springframework.context.annotation.Bean;\n" +
-                        "import org.springframework.context.annotation.Configuration;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                        "import org.springframework.integration.handler.LoggingHandler;\n" +
-                        "import org.springframework.integration.http.dsl.Http;\n" +
-                        "\n" +
-                        "@Configuration\n" +
-                        "public class FlowConfigurations {\n" +
-                        "    @Bean\n" +
-                        "    IntegrationFlow main_flow(org.springframework.integration.dsl.IntegrationFlow logging) {\n" +
-                        "        return IntegrationFlows.from(Http.inboundGateway(\"/subflows\")).handle((p, h) -> p)\n" +
-                        "                .gateway(logging)\n" +
-                        "                .get();\n" +
-                        "    }\n" +
-                        "\n" +
-                        "    @Bean\n" +
-                        "    IntegrationFlow logging() {\n" +
-                        "        return flow -> flow\n" +
-                        "                .log(LoggingHandler.Level.INFO);\n" +
-                        "    }\n" +
-                        "}");
+        runAction(projectContext -> {
+            assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
+            assertThat(getGeneratedJavaFile())
+                    .isEqualTo("""
+                           package com.example.javadsl;
+                           import org.springframework.context.annotation.Bean;
+                           import org.springframework.context.annotation.Configuration;
+                           import org.springframework.integration.dsl.IntegrationFlow;
+                           import org.springframework.integration.dsl.IntegrationFlows;
+                           import org.springframework.integration.handler.LoggingHandler;
+                           import org.springframework.integration.http.dsl.Http;
+                                                      
+                           @Configuration
+                           public class FlowConfigurations {
+                               @Bean
+                               IntegrationFlow main_flow(org.springframework.integration.dsl.IntegrationFlow logging) {
+                                   return IntegrationFlows.from(Http.inboundGateway("/subflows")).handle((p, h) -> p)
+                                           .gateway(logging)
+                                           .get();
+                               }
+                                                      
+                               @Bean
+                               IntegrationFlow logging() {
+                                   return flow -> flow
+                                           .log(LoggingHandler.Level.INFO);
+                               }
+                           }""");
+        });
     }
 }

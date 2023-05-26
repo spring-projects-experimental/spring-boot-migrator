@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.properties.api;
 
+import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.properties.migration.recipes.AddProperty;
@@ -27,6 +28,7 @@ import org.openrewrite.properties.search.FindProperties;
 import org.openrewrite.properties.tree.Properties;
 import org.openrewrite.properties.tree.Properties.Entry;
 import org.openrewrite.properties.tree.Properties.File;
+import org.springframework.util.Assert;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -41,10 +43,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PropertiesSource extends RewriteSourceFileHolder<Properties.File> {
 
-    private final RewriteExecutionContext executionContext;
+    private final ExecutionContext executionContext;
 
-    public PropertiesSource(Path absoluteProjectDir, RewriteExecutionContext executionContext, File sourceFile) {
+    public PropertiesSource(Path absoluteProjectDir, ExecutionContext executionContext, File sourceFile) {
         super(absoluteProjectDir, sourceFile);
+        Assert.notNull(executionContext, "ExecutionContext must not be null.");
         this.executionContext = executionContext;
     }
 

@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.jee.jpa.actions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openrewrite.ExecutionContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.boot.properties.actions.AddSpringBootApplicationPropertiesAction;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
@@ -29,6 +32,10 @@ import java.util.List;
 
 public class MigratePersistenceXmlToApplicationPropertiesAction extends AbstractAction {
 
+    @Autowired
+    @JsonIgnore
+    private ExecutionContext executionContext;
+
     @Override
     public void apply(ProjectContext context) {
         Module module = context.getApplicationModules().stream()
@@ -39,7 +46,8 @@ public class MigratePersistenceXmlToApplicationPropertiesAction extends Abstract
         PersistenceXml persistenceXml = module.search(new PersistenceXmlResourceFilter()).get();
         List<SpringBootApplicationProperties> applicationProperties = module.search(new SpringBootApplicationPropertiesResourceListFilter());
         if (applicationProperties.isEmpty()) {
-            new AddSpringBootApplicationPropertiesAction().apply(module);
+            AddSpringBootApplicationPropertiesAction addSpringBootApplicationPropertiesAction = new AddSpringBootApplicationPropertiesAction(executionContext);
+            addSpringBootApplicationPropertiesAction.apply(module);
             applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
         }
         mapPersistenceXmlToApplicationProperties(applicationProperties.get(0), persistenceXml);

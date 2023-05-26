@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.properties.api.PropertiesSource;
 
@@ -61,7 +62,7 @@ public class JmxEndpointExposureFinderTest {
     @Test
     public void givenProjectWithJmxEndpointExposureCustomization_findResources_returnResource(){
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .addProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_JMX_ENDPOINT_EXPOSED)
                 .build();
 
@@ -78,7 +79,7 @@ public class JmxEndpointExposureFinderTest {
                 .withMavenRootBuildFileSource(MULTI_MODULE_POM_XML)
                 .addProjectResource(Path.of("module1","pom.xml"),SUB_MODULE_POM_XML.replace("{{module}}", "module1"))
                 .addProjectResource(Path.of("module2","pom.xml"),SUB_MODULE_POM_XML.replace("{{module}}", "module2"))
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .addProjectResource(Path.of("module1","src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_JMX_ENDPOINT_EXPOSED)
                 .addProjectResource(Path.of("module2","src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_JMX_ENDPOINT_EXPOSED)
                 .build();

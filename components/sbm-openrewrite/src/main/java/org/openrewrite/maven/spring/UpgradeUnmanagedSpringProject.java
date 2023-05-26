@@ -108,9 +108,9 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         return "Upgrade unmanaged spring project";
     }
 
-    public synchronized Map<String, String> getDependenciesMap() {
+    public synchronized Map<String, String> getDependenciesMap(ExecutionContext ctx) {
         if (springBootDependenciesMap == null) {
-            springBootDependenciesMap = buildDependencyMap();
+            springBootDependenciesMap = buildDependencyMap(ctx);
         }
         return springBootDependenciesMap;
     }
@@ -124,22 +124,22 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                     ResolvedManagedDependency managedDependency = findManagedDependency(resultTag);
                     if (managedDependency != null) {
                         String key = managedDependency.getGroupId() + ":" + managedDependency.getArtifactId();
-                        mayBeUpdateVersion(key, resultTag);
+                        mayBeUpdateVersion(key, resultTag, executionContext);
                     }
                 }
                 if (isDependencyTag()) {
                     ResolvedDependency dependency = findDependency(resultTag);
                     if (dependency != null) {
                         String key = dependency.getGroupId() + ":" + dependency.getArtifactId();
-                        mayBeUpdateVersion(key, resultTag);
+                        mayBeUpdateVersion(key, resultTag, executionContext);
                     }
                 }
                 return resultTag;
             }
 
-            private void mayBeUpdateVersion(String key, Xml.Tag tag) {
-                if (getDependenciesMap().containsKey(key)) {
-                    String dependencyVersion = getDependenciesMap().get(key);
+            private void mayBeUpdateVersion(String key, Xml.Tag tag, ExecutionContext ctx) {
+                if (getDependenciesMap(ctx).containsKey(key)) {
+                    String dependencyVersion = getDependenciesMap(ctx).get(key);
                     Optional<Xml.Tag> version = tag.getChild("version");
                     if (version.isEmpty() || version.get().getValue().isEmpty()) {
                         return;
@@ -174,9 +174,9 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         };
     }
 
-    private Map<String, String> buildDependencyMap() {
+    private Map<String, String> buildDependencyMap(ExecutionContext ctx) {
         Map<Path, Pom> poms = new HashMap<>();
-        MavenPomDownloader downloader = new MavenPomDownloader(poms, new InMemoryExecutionContext());
+        MavenPomDownloader downloader = new MavenPomDownloader(poms, ctx);
         GroupArtifactVersion gav = new GroupArtifactVersion(SPRINGBOOT_GROUP, SPRING_BOOT_DEPENDENCIES, newVersion);
         String relativePath = "";
         ResolvedPom containingPom = null;
@@ -189,7 +189,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         Map<String, String> dependencyMap = new HashMap<>();
         try {
             pom = downloader.download(gav, relativePath, containingPom, repositories);
-            resolvedPom = pom.resolve(List.of(), downloader, repositories, new InMemoryExecutionContext());
+            resolvedPom = pom.resolve(List.of(), downloader, repositories, ctx);
             List<ResolvedManagedDependency> dependencyManagement = resolvedPom.getDependencyManagement();
             dependencyManagement
                     .stream()
