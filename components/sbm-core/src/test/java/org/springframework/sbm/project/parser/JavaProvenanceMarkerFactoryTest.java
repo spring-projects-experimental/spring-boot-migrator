@@ -23,7 +23,6 @@ import org.openrewrite.java.marker.JavaVersion;
 import org.openrewrite.marker.BuildTool;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 
@@ -64,7 +63,7 @@ class JavaProvenanceMarkerFactoryTest {
                 "</project>";
 
         Path projectDirectory = Path.of("./faked-project-dir/pom.xml");
-        Xml.Document maven = new RewriteMavenParser(new MavenSettingsInitializer(), new RewriteExecutionContext()).parse(pomXmlSource).get(0).withSourcePath(Path.of("pom.xml"));
+        Xml.Document maven = new RewriteMavenParser(new RewriteExecutionContext()).parse(pomXmlSource).get(0).withSourcePath(Path.of("pom.xml"));
 
         List<Marker> javaProvenanceMarkers = sut.createJavaProvenanceMarkers(maven, projectDirectory, new RewriteExecutionContext());
 

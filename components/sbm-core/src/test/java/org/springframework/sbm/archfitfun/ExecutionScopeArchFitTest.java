@@ -28,7 +28,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
@@ -120,7 +119,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     RewritePropertiesParser.class,
                     RewritePlainTextParser.class,
                     RewriteMavenParser.class,
-                    MavenSettingsInitializer.class,
+                    RewriteMavenSettingsInitializer.class,
                     RewriteMavenArtifactDownloader.class,
                     JavaProvenanceMarkerFactory.class,
                     MavenConfigHandler.class,

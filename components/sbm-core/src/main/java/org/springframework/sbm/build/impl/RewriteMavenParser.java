@@ -15,12 +15,14 @@
  */
 package org.springframework.sbm.build.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.project.parser.RewriteMavenSettingsInitializer;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -35,18 +37,17 @@ import java.util.List;
  * all settings from {@code settings.xml} are respected.
  */
 @Component
+@RequiredArgsConstructor
 public class RewriteMavenParser implements Parser<Xml.Document> {
 
+    private final ExecutionContext executionContext;
     private MavenParser parser;
-    private final MavenSettingsInitializer mavenSettingsInitializer;
 
-    private ExecutionContext executionContext;
-
-    public RewriteMavenParser(MavenSettingsInitializer mavenSettingsInitializer, ExecutionContext executionContext) {
-        this.mavenSettingsInitializer = mavenSettingsInitializer;
-        this.executionContext = executionContext;
-        initMavenParser(this.executionContext, null);
-    }
+//    @Deprecated
+//    public RewriteMavenParser(RewriteMavenSettingsInitializer mavenSettingsInitializer, ExecutionContext executionContext) {
+//        this.executionContext = executionContext;
+//        initMavenParser(this.executionContext, null);
+//    }
 
     @NotNull
     private void initMavenParser(ExecutionContext executionContext, Path projectRoot) {
@@ -73,7 +74,6 @@ public class RewriteMavenParser implements Parser<Xml.Document> {
 
     @Override
     public List<Xml.Document> parse(ExecutionContext ctx, String... sources) {
-        mavenSettingsInitializer.initializeMavenSettings(ctx);
         return parser.parse(ctx, sources);
     }
 
@@ -86,8 +86,6 @@ public class RewriteMavenParser implements Parser<Xml.Document> {
     public List<Xml.Document> parseInputs(Iterable<Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
         if (relativeTo != null) {
             initMavenParser(ctx, relativeTo);
-        } else {
-            mavenSettingsInitializer.initializeMavenSettings(ctx);
         }
         return parser.parseInputs(sources, relativeTo, ctx);
     }

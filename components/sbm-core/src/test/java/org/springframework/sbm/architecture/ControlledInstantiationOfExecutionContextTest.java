@@ -31,12 +31,14 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 @AnalyzeClasses(packages = {"org.springframework.sbm", "org.openrewrite"}, importOptions = {ImportOption.DoNotIncludeTests.class, ImportOption.DoNotIncludeJars.class})
 public class ControlledInstantiationOfExecutionContextTest {
 
-    private static final Class<?> classWithPermissionToCreateExecutionContext = ScopeConfiguration.class;
-
     @ArchTest
     public static final ArchRule noClassInstantiatesExecutionContextWillyNilly =
             noClasses()
                     .should()
+                        .notBe(ScopeConfiguration.class)
+                    .andShould()
+                        .notBe(RewriteExecutionContext.class)
+                    .andShould()
                     .callCodeUnitWhere(
                             JavaCall.Predicates.target(
                                     AccessTarget.Predicates.constructor()
@@ -44,11 +46,6 @@ public class ControlledInstantiationOfExecutionContextTest {
                                                     JavaClass.Predicates.assignableTo(ExecutionContext.class)
                                             ))
                             )
-                    )
-                    .andShould()
-                            .notBe(classWithPermissionToCreateExecutionContext)
-                    .andShould()
-                        .notBe(RewriteExecutionContext.class)
-            ;
+                    );
 }
 

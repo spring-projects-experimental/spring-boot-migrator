@@ -16,7 +16,6 @@
 package org.springframework.sbm.test;
 
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
-import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.context.RewriteJavaSearchActionDeserializer;
@@ -24,6 +23,7 @@ import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
+import org.springframework.sbm.project.parser.RewriteMavenSettingsInitializer;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
@@ -76,7 +76,7 @@ public class RecipeTestSupport {
             BasePackageCalculator.class,
             ProjectContextHolder.class,
             RewriteMavenParser.class,
-            MavenSettingsInitializer.class,
+            RewriteMavenSettingsInitializer.class,
             MavenBuildFileRefactoringFactory.class,
             ProjectResourceSetHolder.class,
             ScopeConfiguration.class,

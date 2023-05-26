@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-<<<<<<<< HEAD:components/sbm-core/src/main/java/org/springframework/sbm/scopes/ProjectMetadata.java
 package org.springframework.sbm.scopes;
 
 import lombok.Getter;
@@ -26,20 +25,3 @@ public class ProjectMetadata {
     private String metadata;
     private MavenSettings mavenSettings;
 }
-========
-package org.springframework.sbm.scopeplayground;
-
-import org.springframework.stereotype.Component;
-
-/**
- * Scope implementation for beans marked with {@link org.springframework.sbm.scopeplayground.annotations.ScanScope}.
- *
- * @author Fabian Krüger
- */
-@Component
-public class ScanScope extends AbstractBaseScope {
-
-    public final static String SCOPE_NAME = "scanScope";
-
-}
->>>>>>>> a55974ea (Reusable Execution Context (#792)):components/sbm-core/src/main/java/org/springframework/sbm/scopeplayground/ScanScope.java

@@ -55,7 +55,9 @@ public class RewriteMavenSettingsInitializer {
     public MavenSettings initializeMavenSettings(ExecutionContext executionContext, Resource mavenSettingsFile, Path securitySettingsFilePath) {
         Parser.Input input = new Parser.Input(ResourceUtil.getPath(mavenSettingsFile), () -> ResourceUtil.getInputStream(mavenSettingsFile));
         MavenSettings mavenSettings = MavenSettings.parse(input, executionContext);
-        mavenPasswordDecrypter.decryptMavenServerPasswords(mavenSettings, securitySettingsFilePath);
+        if(securitySettingsFilePath != null && securitySettingsFilePath.toFile().exists()) {
+            mavenPasswordDecrypter.decryptMavenServerPasswords(mavenSettings, securitySettingsFilePath);
+        }
         MavenExecutionContextView.view(executionContext).setMavenSettings(mavenSettings);
         return mavenSettings;
     }
