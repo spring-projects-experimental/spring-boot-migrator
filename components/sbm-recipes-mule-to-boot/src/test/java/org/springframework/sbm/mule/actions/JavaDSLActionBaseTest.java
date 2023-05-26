@@ -111,7 +111,7 @@ public class JavaDSLActionBaseTest {
         myAction = new JavaDSLAction2(muleMigrationContextFactory, topLevelTypeFactories, new RewriteExecutionContext());
         myAction.setEventPublisher(eventPublisher);
 
-        registrar = new MuleXmlProjectResourceRegistrar();
+        registrar = new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext());
         sbmApplicationProperties = new SbmApplicationProperties();
         sbmApplicationProperties.setDefaultBasePackage("com.example.javadsl");
 

@@ -18,6 +18,7 @@ package org.springframework.sbm.jee.jaxws;
 import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -36,7 +37,7 @@ public class WebServiceDescriptorTest {
 
     @Test
     void wsdlParsing() throws Exception {
-        Xml.Document doc = GenerateWebServices.parseWsdl(Path.of("../../testcode/simple-webservice/calculator.wsdl"));
+        Xml.Document doc = GenerateWebServices.parseWsdl(Path.of("../../testcode/simple-webservice/calculator.wsdl"), new RewriteExecutionContext());
         WebServiceDescriptor d = new WebServiceDescriptor(null, null, doc, null);
         assertThat(d.getNsUri()).isEqualTo("http://superbiz.org/wsdl");
         assertThat(d.getPackageName()).isEqualTo("org.superbiz.wsdl");
@@ -135,7 +136,7 @@ public class WebServiceDescriptorTest {
 
         Type openRewriteType = projectContext.getProjectJavaSources().list().get(0).getTypes().get(0);
 
-        Xml.Document doc = GenerateWebServices.parseWsdl(wsdlPath);
+        Xml.Document doc = GenerateWebServices.parseWsdl(wsdlPath, new RewriteExecutionContext());
         WebServiceDescriptor d = new WebServiceDescriptor(openRewriteType, null, doc, null);
         assertThat(d.getNsUri()).isEqualTo("http://foo.com/jee/jaxws");
         assertThat(d.getPackageName()).isEqualTo("com.foo.jee.jaxws");

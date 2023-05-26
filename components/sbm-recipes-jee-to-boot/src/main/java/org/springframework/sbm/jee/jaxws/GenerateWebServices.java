@@ -16,6 +16,8 @@
 package org.springframework.sbm.jee.jaxws;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openrewrite.ExecutionContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
 import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin.OpenRewriteMavenPluginExecution;
@@ -55,6 +57,10 @@ public class GenerateWebServices extends AbstractAction {
 
     @JsonIgnore
     private final Configuration configuration;
+
+    @Autowired
+    @JsonIgnore
+    private ExecutionContext executionContext;
 
     public GenerateWebServices(UserInteractions ui, Configuration configuration) {
         this.ui = ui;
@@ -189,7 +195,7 @@ public class GenerateWebServices extends AbstractAction {
             }
             p = Path.of(input);
             try {
-                Xml.Document doc = parseWsdl(p);
+                Xml.Document doc = parseWsdl(p, executionContext);
                 if (doc.getRoot() == null) {
                     throw new Exception("Invalid WSDL file. It has either invalid or no XML content.");
                 }
@@ -205,7 +211,7 @@ public class GenerateWebServices extends AbstractAction {
         throw new RuntimeException(String.format("Could not create WSDL file from given input '%s'", input));
     }
 
-    public static Xml.Document parseWsdl(Path p) {
+    public static Xml.Document parseWsdl(Path p, ExecutionContext executionContext) {
         List<Xml.Document> docs = new XmlParser() {
             public boolean accept(Path path) {
                 return path.toString().endsWith(".wsdl");
@@ -216,7 +222,7 @@ public class GenerateWebServices extends AbstractAction {
             } catch (IOException e) {
                 return new ByteArrayInputStream(new byte[0]);
             }
-        })), null, new InMemoryExecutionContext());
+        })), null, executionContext);
         if (docs.isEmpty()) {
             throw new RuntimeException("Failed to parse XML file '" + p + "'");
         } else {

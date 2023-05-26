@@ -84,7 +84,7 @@ class MigrateMulesoftFileTest {
                 "    </int:chain>\n" +
                 "</beans>";
 
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
+        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext());
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addProjectResource("src/main/resources/mule.xml", muleXml)
