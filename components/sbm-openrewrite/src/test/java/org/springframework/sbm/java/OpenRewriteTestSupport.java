@@ -16,6 +16,8 @@
 package org.springframework.sbm.java;
 
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenStrategyStage;
+import org.junit.jupiter.api.Test;
 import org.openrewrite.*;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
@@ -226,6 +228,15 @@ public class OpenRewriteTestSupport {
         }
 
         return jp.build();
+    }
+
+    @Test
+    void name() {
+        File[] files = Maven
+                .resolver()
+                .resolve("org.springframework.boot:spring-boot-starter-web:2.4.2")
+                .withTransitivity()
+                .as(File.class);
     }
 
     /**

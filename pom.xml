@@ -30,6 +30,7 @@
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
         <snakeyaml.version>1.33</snakeyaml.version>
+        <shrinkwrap.resolvers.version>3.1.4</shrinkwrap.resolvers.version>
     </properties>
 
     <scm>
@@ -231,40 +232,47 @@
                 <version>${rewrite-migrate-java.version}</version>
             </dependency>
             <!-- shrinkwrap -->
+<!--            <dependency>-->
+<!--                <groupId>org.jboss.shrinkwrap.resolver</groupId>-->
+<!--                <artifactId>shrinkwrap-resolver-api</artifactId>-->
+<!--                <version>${shrinkwrap.resolvers.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.jboss.shrinkwrap.resolver</groupId>-->
+<!--                <artifactId>shrinkwrap-resolver-spi</artifactId>-->
+<!--                <version>${shrinkwrap.resolvers.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.jboss.shrinkwrap.resolver</groupId>-->
+<!--                <artifactId>shrinkwrap-resolver-api-maven</artifactId>-->
+<!--                <version>${shrinkwrap.resolvers.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.jboss.shrinkwrap.resolver</groupId>-->
+<!--                <artifactId>shrinkwrap-resolver-spi-maven</artifactId>-->
+<!--                <version>${shrinkwrap.resolvers.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.jboss.shrinkwrap.resolver</groupId>-->
+<!--                <artifactId>shrinkwrap-resolver-impl-maven</artifactId>-->
+<!--                <version>${shrinkwrap.resolvers.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.jboss.shrinkwrap.resolver</groupId>-->
+<!--                <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>-->
+<!--                <version>${shrinkwrap.resolvers.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.jboss.shrinkwrap.resolver</groupId>-->
+<!--                <artifactId>shrinkwrap-resolver-bom</artifactId>-->
+<!--                <version>${shrinkwrap.resolvers.version}</version>-->
+<!--                <type>pom</type>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-api</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-spi</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-api-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-spi-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-bom</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
+                <artifactId>shrinkwrap-resolver-depchain</artifactId>
+                <version>${version.shrinkwrap.resolvers}</version>
+                <scope>test</scope>
                 <type>pom</type>
             </dependency>
             <dependency>

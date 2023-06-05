@@ -42,23 +42,24 @@ import java.util.List;
 @RequiredArgsConstructor
 // TODO: should be package private
 public class MavenPasswordDecrypter {
-    private DefaultSecDispatcher securityDispatcher = new DefaultSecDispatcher();
+    private DefaultSecDispatcher securityDispatcher;
     private final SettingsDecrypter settingsDecrypter = new DefaultSettingsDecrypter(securityDispatcher);
 
     public void decryptMavenServerPasswords(MavenSettings mavenSettings, Path mavenSecuritySettingsFile) {
-        try {
+//        try {
             // DefaultSecDispatcher reads file with security settings
             // hack, the cipher is required but can't be set from outside
             Field cipher1 = ReflectionUtils.findField(DefaultSecDispatcher.class, "_cipher");
             //Field cipher = ReflectionUtils.getField(cipher1, securityDispatcher);
-            ReflectionUtils.makeAccessible(cipher1);
-            ReflectionUtils.setField(cipher1, securityDispatcher, new DefaultPlexusCipher());
+            securityDispatcher = new DefaultSecDispatcher(new DefaultPlexusCipher());
+//            ReflectionUtils.makeAccessible(cipher1);
+//            ReflectionUtils.setField(cipher1, securityDispatcher, new DefaultPlexusCipher());
             // The file location is retrieved from env, default is ~/${user.home}/.settings-security.xml
             System.setProperty("settings.security", mavenSecuritySettingsFile.toString());
             decryptMavenServerPasswords(mavenSettings);
-        } catch (PlexusCipherException e) {
-            throw new RuntimeException(e);
-        }
+//        } catch (PlexusCipherException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
 

@@ -25,23 +25,25 @@ class ReplaceStaticFieldAccessVisitorTest {
     @Test
     void replaceMediaTypeConstant() {
 
-        String given =
-                "import javax.ws.rs.core.MediaType;\n" +
-                        "\n" +
-                        "public class ControllerClass {\n" +
-                        "    public String getHelloWorldJSON(String name) {\n" +
-                        "        return MediaType.APPLICATION_XML;\n" +
-                        "    }\n" +
-                        "}\n";
+        String given = """
+                import javax.ws.rs.core.MediaType;
 
-        String expected =
-                "import org.springframework.http.MediaType;\n" +
-                        "\n" +
-                        "public class ControllerClass {\n" +
-                        "    public String getHelloWorldJSON(String name) {\n" +
-                        "        return MediaType.APPLICATION_XML_VALUE;\n" +
-                        "    }\n" +
-                        "}\n";
+                public class ControllerClass {
+                    public String getHelloWorldJSON(String name) {
+                        return MediaType.APPLICATION_XML;
+                    }
+                }
+                """;
+
+        String expected = """
+                import org.springframework.http.MediaType;
+
+                public class ControllerClass {
+                    public String getHelloWorldJSON(String name) {
+                        return MediaType.APPLICATION_XML_VALUE;
+                    }
+                }
+                """;
 
         StaticFieldAccessTransformer transform = foundConstant -> Optional.of(new StaticFieldAccessTransformer.StaticFieldRef("org.springframework.http.MediaType", "APPLICATION_XML_VALUE"));
         ReplaceStaticFieldAccessVisitor sut = new ReplaceStaticFieldAccessVisitor(transform);

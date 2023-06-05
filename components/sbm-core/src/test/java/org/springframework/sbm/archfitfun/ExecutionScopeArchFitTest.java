@@ -134,7 +134,8 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     ApplicableRecipeListCommand.class,
                     SbmRecipeLoader.class,
 //                    SbmRecipeLoader.class,
-                    ExecutionScopeArchFitTestContext.class
+                    ExecutionScopeArchFitTestContext.class,
+                    MavenPasswordDecrypter.class
             },
             properties = "spring.main.allow-bean-definition-overriding=true"
 )

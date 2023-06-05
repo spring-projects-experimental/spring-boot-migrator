@@ -290,9 +290,9 @@ class RewriteMavenSettingsInitialierTest {
     }
 
     private MavenMojoProjectParser createMavenMojoProjectParser() throws PlexusCipherException {
-        DefaultSecDispatcher securityDispatcher = new DefaultSecDispatcher();
+        DefaultSecDispatcher securityDispatcher = new DefaultSecDispatcher(new DefaultPlexusCipher());
         // hack, the cipher is required but can't be set from outside
-        ReflectionTestUtils.setField(securityDispatcher, "_cipher", new DefaultPlexusCipher());
+//        ReflectionTestUtils.setField(securityDispatcher, "_cipher", new DefaultPlexusCipher());
         settingsDecrypter = new DefaultSettingsDecrypter(securityDispatcher);
         // The file location is retrieved from env, default is ~/${user.home}/.settings-security.xml
         System.setProperty("settings.security", mavenSecurityFilePath.toString());
