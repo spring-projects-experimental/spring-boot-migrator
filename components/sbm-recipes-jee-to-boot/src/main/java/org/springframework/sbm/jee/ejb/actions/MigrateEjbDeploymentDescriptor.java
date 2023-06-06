@@ -22,7 +22,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.jee.ejb.api.DescriptionType;
 import org.springframework.sbm.jee.ejb.api.SessionBeanType;
 import org.springframework.sbm.jee.ejb.api.EjbJarXml;
-import org.springframework.sbm.jee.ejb.filter.EjbJarXmlResourceFilter;
+import org.springframework.sbm.jee.ejb.filter.EjbJarXmlResourceFinder;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -35,7 +35,7 @@ import java.util.Optional;
 public class MigrateEjbDeploymentDescriptor extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
-        Optional<EjbJarXml> ejbJarXml = context.search(new EjbJarXmlResourceFilter());
+        Optional<EjbJarXml> ejbJarXml = context.search(new EjbJarXmlResourceFinder());
         if (ejbJarXml.isPresent()) {
             migrateEjbDeploymentDescriptor(context, ejbJarXml.get());
         }
