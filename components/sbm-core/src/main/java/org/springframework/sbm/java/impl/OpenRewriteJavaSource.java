@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.CompilationUnit> implements JavaSource {
@@ -204,7 +205,24 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
             }
         };
 
-        PrintOutputCapture<Integer> outputCapture = new PrintOutputCapture(executionContext);
+
+        // Don't print markers here, now that markers are kept in the underlying SourceFiles
+        PrintOutputCapture<Integer> outputCapture = new PrintOutputCapture(executionContext, new PrintOutputCapture.MarkerPrinter() {
+            @Override
+            public String beforePrefix(Marker marker, Cursor cursor, UnaryOperator<String> commentWrapper) {
+                return "";
+            }
+
+            @Override
+            public String beforeSyntax(Marker marker, Cursor cursor, UnaryOperator<String> commentWrapper) {
+                return "";
+            }
+
+            @Override
+            public String afterSyntax(Marker marker, Cursor cursor, UnaryOperator<String> commentWrapper) {
+                return "";
+            }
+        });
         ((JavaPrinter) javaPrinter).visit(getSourceFile(), outputCapture);
 
         return outputCapture.out.toString();
