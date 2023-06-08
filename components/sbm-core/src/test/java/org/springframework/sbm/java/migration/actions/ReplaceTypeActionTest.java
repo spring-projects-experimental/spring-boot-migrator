@@ -41,8 +41,8 @@ class ReplaceTypeActionTest {
         String annotation = "annotationToBeReplaced";
         String withAnnotation = "annotationReplacing";
         ReplaceTypeAction sut = new ReplaceTypeAction();
-        sut.setAnnotation(annotation);
-        sut.setWithAnnotation(withAnnotation);
+        sut.setExistingType(annotation);
+        sut.setWithType(withAnnotation);
 
         Mockito.when(projectContext.getProjectJavaSources()).thenReturn(projectJavaSources);
 
@@ -75,8 +75,8 @@ class ReplaceTypeActionTest {
                 "}";
 
         ReplaceTypeAction sut = new ReplaceTypeAction();
-        sut.setAnnotation("javax.ws.rs.PathParam");
-        sut.setWithAnnotation("org.springframework.web.bind.annotation.PathVariable");
+        sut.setExistingType("javax.ws.rs.PathParam");
+        sut.setWithType("org.springframework.web.bind.annotation.PathVariable");
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withJavaSources(given)
