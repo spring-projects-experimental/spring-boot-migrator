@@ -105,7 +105,7 @@ public class OpenRewriteType implements Type {
     @Override
     public void addAnnotation(String fqName) {
         // FIXME: Hack, JavaParser should have latest classpath
-        Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
+        Supplier<JavaParser> javaParserSupplier = () -> javaParser;
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
         AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserSupplier, getClassDeclaration(), snippet, fqName);
         refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
