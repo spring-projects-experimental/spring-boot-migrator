@@ -7,11 +7,11 @@ Spring Boot Migrator aims to automatically migrate existing applications to Spri
 
 Spring Boot Migrator (SBM) scans and analyses a given codebase and offers a list of applicable recipes. +
 An engineer can now apply these recipes against the codebase and step-by-step migrate it to a Spring Boot application. +
-See <<available-recipes, Available Recipes>>
+// See <<available-recipes, Available Recipes>> TODO
 
 Nothing's perfect... there are situations where manual interaction is required or architectural decisions must be made. +
 Here SBM adds comments at relevant locations in code with further guidance for the engineer. +
-See <<search-and-comment, Search and Comment>>
+// See <<search-and-comment, Search and Comment>> TODO
 
 
 == Installation
