@@ -74,7 +74,7 @@ public class ProjectContext {
      * This function does not generalise for situations where application is under a multi-module maven structure
      * Use {@link #getApplicationModules()} instead of getBuildFile()
      * If one would want to retrieve the root build file use:
-     * getApplicationModules().getRootModule()
+     * {@link #getApplicationModules()} and then call to get root module using: {@link ApplicationModules#getRootModule()}
      * */
     @Deprecated(forRemoval = true)
     public BuildFile getBuildFile() {
