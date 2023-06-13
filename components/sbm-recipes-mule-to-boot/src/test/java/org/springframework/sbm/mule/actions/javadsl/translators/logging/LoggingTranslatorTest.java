@@ -26,6 +26,7 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.sbm.mule.resource.MuleXml;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import javax.xml.bind.JAXBElement;
@@ -278,7 +279,7 @@ class LoggingTranslatorTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addProjectResource("src/main/mule/mule.xml", muleXml)
-                .addRegistrar(new MuleXmlProjectResourceRegistrar())
+                .addRegistrar(new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext()))
                 .build();
 
         ExpressionLanguageTranslator expressionLanguageTranslator = mock(ExpressionLanguageTranslator.class);
@@ -299,7 +300,7 @@ class LoggingTranslatorTest {
     private DslSnippet applySut(String muleXml) {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addProjectResource("src/main/mule/mule.xml", muleXml)
-                .addRegistrar(new MuleXmlProjectResourceRegistrar())
+                .addRegistrar(new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext()))
                 .build();
 
         return apply(projectContext);

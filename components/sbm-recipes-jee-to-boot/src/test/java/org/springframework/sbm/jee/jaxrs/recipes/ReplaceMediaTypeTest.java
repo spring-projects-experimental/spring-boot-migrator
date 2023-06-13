@@ -20,6 +20,7 @@ import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
@@ -33,7 +34,8 @@ class ReplaceMediaTypeTest {
 
     private final static String SPRING_VERSION = "5.3.13";
 
-    private final Supplier<JavaParser> javaParserSupplier = () -> new RewriteJavaParser(new SbmApplicationProperties());
+    private final Supplier<JavaParser> javaParserSupplier = () -> new RewriteJavaParser(new SbmApplicationProperties(),
+                                                                                        new RewriteExecutionContext());
 
     final private AbstractAction action = new AbstractAction() {
         @Override

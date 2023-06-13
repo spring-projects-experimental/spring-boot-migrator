@@ -13,10 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build;
+package org.springframework.sbm.scopeplayground;
 
-/**
- * @author Fabian Krüger
- */
-public class Foo {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.openrewrite.maven.MavenSettings;
+
+@Getter
+@Setter
+public class ProjectMetadata {
+    private String metadata;
+    private MavenSettings mavenSettings;
 }

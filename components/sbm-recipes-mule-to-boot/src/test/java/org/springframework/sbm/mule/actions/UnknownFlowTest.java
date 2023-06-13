@@ -21,33 +21,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UnknownFlowTest extends JavaDSLActionBaseTest {
 
-    private final static String muleMultiFlow = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "\n" +
-            "<mule xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-            "xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
-            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-            "xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-            "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\">\n" +
-            "<catch-exception-strategy name=\"exceptionStrategy\"/>\n" +
-            "</mule>";
+    private final static String muleMultiFlow = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+            xmlns:spring="http://www.springframework.org/schema/beans"\s
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+            http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+            <catch-exception-strategy name="exceptionStrategy"/>
+            </mule>
+            """;
 
     @Test
     public void shouldTranslateUnknownFlow() {
 
         addXMLFileToResource(muleMultiFlow);
-        runAction();
+        runAction(projectContext -> {
+            assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
 
-        assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
+            assertThat(getGeneratedJavaFile())
+                    .isEqualTo("""
+                        package com.example.javadsl;
+                        import org.springframework.context.annotation.Configuration;
+                        @Configuration
+                        public class FlowConfigurations {
+                            void catch_exception_strategy() {
+                                //FIXME: element is not supported for conversion: <catch-exception-strategy/>
+                            }
+                        }"""
+                    );
+        });
 
-        assertThat(getGeneratedJavaFile())
-                .isEqualTo("package com.example.javadsl;\n" +
-                        "import org.springframework.context.annotation.Configuration;\n" +
-                        "@Configuration\n" +
-                        "public class FlowConfigurations {\n" +
-                        "    void catch_exception_strategy() {\n" +
-                        "        //FIXME: element is not supported for conversion: <catch-exception-strategy/>\n" +
-                        "    }\n" +
-                        "}"
-                );
     }
 }

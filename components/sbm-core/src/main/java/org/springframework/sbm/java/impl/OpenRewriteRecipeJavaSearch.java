@@ -18,7 +18,6 @@ package org.springframework.sbm.java.impl;
 import org.springframework.sbm.java.api.JavaSource;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.PrintOutputCapture;
 import org.openrewrite.Result;
 import org.openrewrite.java.JavaParser;
@@ -35,10 +34,12 @@ public class OpenRewriteRecipeJavaSearch {
 
     private final Function<List<J.CompilationUnit>, List<Result>> searchRecipe;
     private final JavaParser javaParser;
+    private final ExecutionContext executionContext;
 
-    public OpenRewriteRecipeJavaSearch(Function<List<J.CompilationUnit>, List<Result>> searchRecipe, JavaParser javaParser) {
+    public OpenRewriteRecipeJavaSearch(Function<List<J.CompilationUnit>, List<Result>> searchRecipe, JavaParser javaParser, ExecutionContext executionContext) {
         this.searchRecipe = searchRecipe;
         this.javaParser = javaParser;
+        this.executionContext = executionContext;
     }
 
     public void commentFindings(List<? extends JavaSource> javaSources, String commentText) {
@@ -64,7 +65,7 @@ public class OpenRewriteRecipeJavaSearch {
                         }
                     };
 
-                    PrintOutputCapture<Integer> outputCapture = new PrintOutputCapture(new InMemoryExecutionContext());
+                    PrintOutputCapture<Integer> outputCapture = new PrintOutputCapture(executionContext);
                     ((JavaPrinter) javaPrinter).visit((J.CompilationUnit) result.getAfter(), outputCapture);
                     J.CompilationUnit compilationUnit = javaParser.parse(outputCapture.out.toString()).get(0).withSourcePath(result.getBefore().getSourcePath());
                     affectedJavaSource.getResource().replaceWith(compilationUnit);

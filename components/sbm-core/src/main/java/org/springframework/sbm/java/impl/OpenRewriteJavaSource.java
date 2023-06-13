@@ -39,11 +39,13 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
 
     private final JavaRefactoring refactoring;
     private final JavaParser javaParser;
+    private ExecutionContext executionContext;
 
-    public OpenRewriteJavaSource(Path absoluteProjectPath, J.CompilationUnit compilationUnit, JavaRefactoring refactoring, JavaParser javaParser) {
+    public OpenRewriteJavaSource(Path absoluteProjectPath, J.CompilationUnit compilationUnit, JavaRefactoring refactoring, JavaParser javaParser, ExecutionContext executionContext) {
         super(absoluteProjectPath, compilationUnit);
         this.refactoring = refactoring;
         this.javaParser = javaParser;
+        this.executionContext = executionContext;
     }
 
     @Deprecated
@@ -63,7 +65,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
     @Override
     public List<OpenRewriteType> getTypes() {
         return getCompilationUnit().getClasses().stream()
-                .map(cd -> new OpenRewriteType(cd, getResource(), refactoring, javaParser))
+                .map(cd -> new OpenRewriteType(cd, getResource(), refactoring, executionContext, javaParser))
                 .collect(Collectors.toList());
     }
 
@@ -202,7 +204,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
             }
         };
 
-        PrintOutputCapture<Integer> outputCapture = new PrintOutputCapture(new InMemoryExecutionContext());
+        PrintOutputCapture<Integer> outputCapture = new PrintOutputCapture(executionContext);
         ((JavaPrinter) javaPrinter).visit(getSourceFile(), outputCapture);
 
         return outputCapture.out.toString();

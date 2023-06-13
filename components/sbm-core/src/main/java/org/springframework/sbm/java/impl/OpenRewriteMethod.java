@@ -16,6 +16,7 @@
 package org.springframework.sbm.java.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeMethodName;
 import org.openrewrite.java.JavaParser;
@@ -51,13 +52,15 @@ public class OpenRewriteMethod implements Method {
 
     private final JavaRefactoring refactoring;
     private final JavaParser javaParser;
+    private final ExecutionContext executionContext;
 
     public OpenRewriteMethod(
-            RewriteSourceFileHolder<J.CompilationUnit> sourceFile, J.MethodDeclaration methodDecl, JavaRefactoring refactoring, JavaParser javaParser) {
+            RewriteSourceFileHolder<J.CompilationUnit> sourceFile, J.MethodDeclaration methodDecl, JavaRefactoring refactoring, JavaParser javaParser, ExecutionContext executionContext) {
         this.sourceFile = sourceFile;
         methodDeclId = methodDecl.getId();
         this.refactoring = refactoring;
         this.javaParser = javaParser;
+        this.executionContext = executionContext;
     }
 
     @Override
@@ -67,7 +70,7 @@ public class OpenRewriteMethod implements Method {
             return List.of();
         }
         return typeParameters.stream()
-                .map(p -> new OpenRewriteMethodParam(sourceFile, p, refactoring, javaParser))
+                .map(p -> new OpenRewriteMethodParam(sourceFile, p, refactoring, javaParser, executionContext))
                 .collect(Collectors.toList());
     }
 

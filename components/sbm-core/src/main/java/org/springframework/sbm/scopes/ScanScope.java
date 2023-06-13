@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell;
+package org.springframework.sbm.scopes;
 
-import org.junit.jupiter.api.Test;
+import org.springframework.stereotype.Component;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * Scope implementation for beans marked with {@link org.springframework.sbm.scopes.annotations.ScanScope}.
+ *
+ * @author Fabian Krüger
+ */
+@Component
+public class ScanScope extends AbstractBaseScope {
 
-class ScanCommandHeaderRendererTest {
+    public final static String SCOPE_NAME = "scanScope";
 
-    @Test
-    void renderHeader() {
-		ScanCommandHeaderRenderer sut = new ScanCommandHeaderRenderer();
-		String s = sut.renderHeader("some/path");
-		assertThat(s).isEqualTo("\n\u001B[32mscanning 'some/path'\u001B[0m");
-	}
 }

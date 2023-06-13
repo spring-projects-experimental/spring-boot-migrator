@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.java.refactoring;
 
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
@@ -34,9 +33,11 @@ import java.util.stream.Collectors;
 
 public class JavaGlobalRefactoringImpl implements JavaGlobalRefactoring {
     private ProjectResourceSet projectResourceSet;
+    private ExecutionContext executionContext;
 
-    public JavaGlobalRefactoringImpl(ProjectResourceSet projectResourceSet) {
+    public JavaGlobalRefactoringImpl(ProjectResourceSet projectResourceSet, ExecutionContext executionContext) {
         this.projectResourceSet = projectResourceSet;
+        this.executionContext = executionContext;
     }
 
 
@@ -130,7 +131,7 @@ public class JavaGlobalRefactoringImpl implements JavaGlobalRefactoring {
 
     List<Result> executeRecipe(List<J.CompilationUnit> compilationUnits, Recipe recipe) {
         // FIXME #7 added RewriteExecutionContext here, remove again?
-        List<Result> results = recipe.run(compilationUnits, new RewriteExecutionContext()).getResults();
+        List<Result> results = recipe.run(compilationUnits, executionContext).getResults();
 //         List<Result> results = recipe.run(compilationUnits, new RewriteExecutionContext(), new ForkJoinScheduler(new ForkJoinPool(1)), 10, 1);
         return results;
     }

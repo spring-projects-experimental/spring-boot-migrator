@@ -16,6 +16,7 @@
 package org.springframework.sbm.mule.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.mule.conditions.MuleConfigFileExist;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
@@ -40,6 +41,9 @@ public class MigrateMulesoftFile extends AbstractAction {
     @Autowired
     @JsonIgnore
     private Configuration configuration;
+    @Autowired
+    @JsonIgnore
+    private ExecutionContext executionContext;
 
     @Override
     public void apply(ProjectContext context) {
@@ -55,7 +59,8 @@ public class MigrateMulesoftFile extends AbstractAction {
                 Template template = configuration.getTemplate("spring-integration-template.ftl");
                 template.process(params, writer);
                 String src = writer.toString();
-                StringProjectResource springIntegrationFile = new StringProjectResource(context.getProjectRootDirectory(), context.getProjectRootDirectory().resolve("src/main/resources/spring-integration-flow.xml"), src);
+                StringProjectResource springIntegrationFile = new StringProjectResource(context.getProjectRootDirectory(), context.getProjectRootDirectory().resolve("src/main/resources/spring-integration-flow.xml"), src,
+                                                                                        executionContext);
                 context.getProjectResources().add(springIntegrationFile);
             } catch (Exception e) {
                 throw new RuntimeException(e);
