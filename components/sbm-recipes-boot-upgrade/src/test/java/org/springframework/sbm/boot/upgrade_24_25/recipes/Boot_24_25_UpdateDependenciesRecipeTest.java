@@ -30,18 +30,21 @@ public class Boot_24_25_UpdateDependenciesRecipeTest {
         // TODO: Move to a more generic Action to be reused, e.g. 'UpgradeParentVersion'
         String applicationDir = "spring-boot-2.4-to-2.5-example";
         Path from = Path.of("./testcode").resolve(applicationDir).resolve("given");
-        RecipeIntegrationTestSupport.initializeProject(from, applicationDir)
+        RecipeIntegrationTestSupport
+                .initializeProject(from, applicationDir)
                 .andApplyRecipe("boot-2.4-2.5-dependency-version-update");
 
         Path resultDir = RecipeIntegrationTestSupport.getResultDir(applicationDir);
 
         assertThat(contentOf(resultDir.resolve("pom.xml").toFile())).contains(
-                "    <parent>\n" +
-                "        <groupId>org.springframework.boot</groupId>\n" +
-                "        <artifactId>spring-boot-starter-parent</artifactId>\n" +
-                "        <version>2.5.6</version>\n" +
-                "        <relativePath/> <!-- lookup parent from repository -->\n" +
-                "    </parent>"
+                """
+                    <parent>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-parent</artifactId>
+                        <version>2.5.6</version>
+                        <relativePath/> <!-- lookup parent from repository -->
+                    </parent>
+                """
         );
     }
 }
