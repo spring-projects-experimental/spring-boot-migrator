@@ -79,7 +79,7 @@ public class Module_searchMainJava_Test {
             ProjectContext context = TestProjectContext
                     .buildProjectContext()
                     .withMavenBuildFileSource("pom.xml", singlePom)
-                    .addJavaSource("src/main/java", "public class SomeClass{}")
+                    .withJavaSource("src/main/java", "public class SomeClass{}")
                     .build();
 
             verifySearchMain(context, projectResourceSet -> {
@@ -93,8 +93,8 @@ public class Module_searchMainJava_Test {
         @DisplayName("with classes in src/main/java and src/test/java provides ProjectResourceSet with classes from src/main/java")
         void withClassesInTestAndMain_providesClassesFromMain() {
             ProjectContext context = builder
-                    .addJavaSource("src/main/java", "public class SomeClass{}")
-                    .addJavaSource("src/test/java", "public class SomeClassTest{}")
+                    .withJavaSource("src/main/java", "public class SomeClass{}")
+                    .withJavaSource("src/test/java", "public class SomeClassTest{}")
                     .build();
 
             verifySearchMain(context, projectResourceSet -> {
@@ -109,7 +109,7 @@ public class Module_searchMainJava_Test {
         void withClassesInSrcTestJava_providesEmptyProjectResources() {
 
             ProjectContext context = builder
-                    .addProjectResource("src/test/java/SomeClass.java", "public class SomeClass{}")
+                    .withProjectResource("src/test/java/SomeClass.java", "public class SomeClass{}")
                     .build();
 
             verifySearchMain(context, projectResourceSet -> assertThat(projectResourceSet.list()).isEmpty(), "");
@@ -202,7 +202,7 @@ public class Module_searchMainJava_Test {
         void withClassesInOtherModules_providesEmptyProjectResources() {
 
             ProjectContext context = builder
-                    .addJavaSource("component/src/main/java", "public class SomeClass{}")
+                    .withJavaSource("component/src/main/java", "public class SomeClass{}")
                     .build();
 
             verifySearchMain(context, (projectResourceSet) -> assertThat(projectResourceSet.list()).isEmpty(),
@@ -214,8 +214,8 @@ public class Module_searchMainJava_Test {
         void withClassesInMainAndTest_providesClassesFromSrcMainJava() {
 
             ProjectContext context = builder
-                    .addJavaSource("application/src/main/java", "public class SomeClass{}")
-                    .addJavaSource("application/src/test/java", "public class SomeClassTest{}")
+                    .withJavaSource("application/src/main/java", "public class SomeClass{}")
+                    .withJavaSource("application/src/test/java", "public class SomeClassTest{}")
                     .build();
 
             verifySearchMain(context,
@@ -232,7 +232,7 @@ public class Module_searchMainJava_Test {
         void withClassesInMain_providesClassesFromSrcMainJava() {
 
             ProjectContext context = builder
-                    .addJavaSource("application/src/main/java", "public class SomeClass{}")
+                    .withJavaSource("application/src/main/java", "public class SomeClass{}")
                     .build();
 
             verifySearchMain(context,

@@ -19,8 +19,6 @@ package org.springframework.sbm.boot.web.api;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.springframework.sbm.boot.web.api.RestControllerBean;
-import org.springframework.sbm.boot.web.api.RestMethod;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Type;
@@ -56,7 +54,7 @@ class RestControllerBeanTest {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-web:2.7.3")
-                .addJavaSource("src/main/java", restController)
+                .withJavaSource("src/main/java", restController)
                 .build();
 
         JavaSource js = context.getProjectJavaSources().list().get(0);
@@ -103,7 +101,7 @@ class RestControllerBeanTest {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-web:2.7.3")
-                .addJavaSource("src/main/java", restController)
+                .withJavaSource("src/main/java", restController)
                 .build();
 
         JavaSource js = context.getProjectJavaSources().list().get(0);
@@ -200,7 +198,7 @@ class RestControllerBeanTest {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-web:2.7.3")
-                .addJavaSource("src/main/java", restControllerCode)
+                .withJavaSource("src/main/java", restControllerCode)
                 .build();
         JavaSource js = context.getProjectJavaSources().list().get(0);
         Type type = js.getTypes().get(0);

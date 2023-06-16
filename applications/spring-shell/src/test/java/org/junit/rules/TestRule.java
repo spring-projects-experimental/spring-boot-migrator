@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell;
+package org.junit.rules;
 
-import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-class ScanCommandHeaderRendererTest {
-
-    @Test
-    void renderHeader() {
-		ScanCommandHeaderRenderer sut = new ScanCommandHeaderRenderer();
-		String s = sut.renderHeader("some/path");
-		assertThat(s).isEqualTo("\n\u001B[32mscanning 'some/path'\u001B[0m");
-	}
+/**
+ * "Fake" class used as a replacement for Junit4-dependent classes.
+ * See more at: <a href="https://github.com/testcontainers/testcontainers-java/issues/970">
+ * GenericContainer run from Jupiter tests shouldn't require JUnit 4.x library on runtime classpath
+ * </a>.
+ */
+@SuppressWarnings("unused")
+public interface TestRule {
 }

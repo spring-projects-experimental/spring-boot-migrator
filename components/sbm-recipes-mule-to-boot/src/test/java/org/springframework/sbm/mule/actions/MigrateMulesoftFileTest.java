@@ -18,6 +18,7 @@ package org.springframework.sbm.mule.actions;
 import org.springframework.sbm.common.filter.AbsolutePathResourceFinder;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import freemarker.cache.FileTemplateLoader;
@@ -42,7 +43,7 @@ class MigrateMulesoftFileTest {
         Version version = new Version("2.3.0");
         configuration = new Configuration(version);
         configuration.setTemplateLoader(new FileTemplateLoader(new File("./src/main/resources/templates")));
-        sut = new MigrateMulesoftFile(configuration);
+        sut = new MigrateMulesoftFile(configuration, new RewriteExecutionContext());
     }
 
     @Test
@@ -83,10 +84,10 @@ class MigrateMulesoftFileTest {
                 "    </int:chain>\n" +
                 "</beans>";
 
-        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar();
+        MuleXmlProjectResourceRegistrar registrar = new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext());
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/resources/mule.xml", muleXml)
+                .withProjectResource("src/main/resources/mule.xml", muleXml)
                 .addRegistrar(registrar)
                 .build();
 

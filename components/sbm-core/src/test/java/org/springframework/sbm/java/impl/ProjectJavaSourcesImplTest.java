@@ -15,14 +15,18 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSourceAndType;
+import org.springframework.sbm.java.api.ProjectJavaSources;
+import org.springframework.sbm.java.exceptions.UnresolvedTypeException;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Fabian Krüger
@@ -31,11 +35,11 @@ class ProjectJavaSourcesImplTest {
 
     @Test
     void findTypesImplementing() {
-        ProjectContext context = TestProjectContext.buildProjectContext().addJavaSource("src/main/java", """
+        ProjectContext context = TestProjectContext.buildProjectContext().withJavaSource("src/main/java", """
                 package com.example;
                                         
                 public interface TheInterface {}
-                """).addJavaSource("src/main/java", """
+                """).withJavaSource("src/main/java", """
                 package com.example;
                                         
                 public class TheClass implements TheInterface {}
@@ -52,7 +56,7 @@ class ProjectJavaSourcesImplTest {
     @Test
     void findTypesImplementingInterfaceFromJdk() {
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", """
+                .withJavaSource("src/main/java", """
                 package com.example;
                 
                 import java.io.Serializable;
@@ -72,7 +76,7 @@ class ProjectJavaSourcesImplTest {
     void findTypesImplementingWithInterfaceFromJar() {
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("org.springframework:spring-context:5.3.23")
-                .addJavaSource("src/main/java", """
+                .withJavaSource("src/main/java", """
                         package com.example;
                         
                         import org.springframework.beans.BeansException;
@@ -94,5 +98,24 @@ class ProjectJavaSourcesImplTest {
         assertThat(typesImplementingInterface.get(0).getType().getFullyQualifiedName()).isEqualTo("com.example.TheClass");
     }
 
+    @Test
+    void whenClassInheritsParameterizedInterfaceButNoResolvedType() {
+        @Language("java") String sourceCode =
+                """
+                package a.b.c;
+                import a.b.c.K;
+                
+                interface SomeClass extends K<String, String> {         
+                }
+                """;
 
+        ProjectJavaSources javaSource = TestProjectContext.buildProjectContext()
+                .withJavaSources(sourceCode)
+                .build()
+                .getProjectJavaSources();
+
+        assertThrows(UnresolvedTypeException.class, () ->
+                javaSource.findTypesImplementing("a.b.c.K"));
+
+    }
 }

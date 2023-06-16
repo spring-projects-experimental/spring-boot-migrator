@@ -73,7 +73,7 @@ class ResourceVerifierTestHelper {
         return new ModulesMarkerVerifier(modules);
     }
 
-    public static MarkerVerifier javaVersionMarker(int versionPattern, String source, String target) {
+    public static MarkerVerifier javaVersionMarker(String versionPattern, String source, String target) {
         return new JavaVersionMarkerVerifier(versionPattern, source, target);
     }
 
@@ -176,10 +176,15 @@ class ResourceVerifierTestHelper {
         private final String source;
         private final String target;
 
-        public JavaVersionMarkerVerifier(int version, String source, String target) {
-            this.version = version;
+        public JavaVersionMarkerVerifier(String version, String source, String target) {
+            this.version = getBaseVersion(version);
             this.source = source;
             this.target = target;
+        }
+
+        private int getBaseVersion(String version) {
+            String baseVersion = version.contains(".") ? version.split("\\.")[0] : version;
+            return Integer.parseInt(baseVersion);
         }
 
         @Override

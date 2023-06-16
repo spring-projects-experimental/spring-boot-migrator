@@ -16,6 +16,7 @@
 package org.springframework.sbm.boot.properties;
 
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.junit.jupiter.api.Test;
@@ -27,12 +28,11 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(MockitoExtension.class)
 class SpringBootApplicationPropertiesRegistrarTest {
 
     private Path projectRoot = Path.of("./testdir").toAbsolutePath().normalize();
     private String content = "foo=bar\na=b";
-    private SpringBootApplicationPropertiesRegistrar sut = new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher());
+    private SpringBootApplicationPropertiesRegistrar sut = new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext());
 
     @Test
     void shouldHandleReturnsTrueForDefault() {

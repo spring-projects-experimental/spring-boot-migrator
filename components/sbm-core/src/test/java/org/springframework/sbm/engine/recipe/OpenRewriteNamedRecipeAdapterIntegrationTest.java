@@ -20,9 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.sbm.scopes.ExecutionScope;
+import org.springframework.sbm.scopes.ScanScope;
+import org.springframework.sbm.scopes.ScopeConfiguration;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
 import java.io.IOException;
@@ -41,7 +45,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         RewriteRecipeRunner.class,
         RewriteSourceFileWrapper.class,
         RewriteRecipeLoader.class,
-        CustomValidatorBean.class
+        CustomValidatorBean.class,
+        RewriteExecutionContext.class,
+        ScanScope.class,
+        ExecutionScope.class,
+        ScopeConfiguration.class
 })
 public class OpenRewriteNamedRecipeAdapterIntegrationTest {
 
@@ -71,7 +79,7 @@ public class OpenRewriteNamedRecipeAdapterIntegrationTest {
                 "}\n";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", javaSource)
+                .withJavaSource("src/main/java", javaSource)
                 .build();
         // and apply the adapter
         recipeAdapter.apply(context);
@@ -103,7 +111,7 @@ public class OpenRewriteNamedRecipeAdapterIntegrationTest {
                 "public class Foo {}";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", javaSource)
+                .withJavaSource("src/main/java", javaSource)
                 .build();
 
         RuntimeException thrown = assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));

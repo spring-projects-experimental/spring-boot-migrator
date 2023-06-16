@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.api;
 
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.springframework.sbm.build.impl.JavaSourceSetImpl;
@@ -55,6 +56,7 @@ public class Module {
     private final JavaRefactoringFactory javaRefactoringFactory;
     private final BasePackageCalculator basePackageCalculator;
     private final JavaParser javaParser;
+    private final ExecutionContext executionContext;
 
     public JavaSourceLocation getBaseJavaSourceLocation() {
         return getMainJavaSourceSet().getJavaSourceLocation();
@@ -67,7 +69,8 @@ public class Module {
     public JavaSourceSet getTestJavaSourceSet() {
         Path testJavaPath = Path.of("src/test/java");
         // FIXME: #7 JavaParser
-        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, testJavaPath, javaRefactoringFactory, basePackageCalculator, javaParser);
+        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, testJavaPath, javaRefactoringFactory, basePackageCalculator, javaParser,
+                                     executionContext);
     }
 
     public List<? extends JavaSource> getMainJavaSources() {
@@ -83,7 +86,8 @@ public class Module {
     public JavaSourceSet getMainJavaSourceSet() {
         Path mainJavaPath = Path.of("src/main/java");
 //        return new JavaSourceSetImpl(projectResourceSet, projectRootDir.resolve(modulePath).resolve(mainJavaPath), javaRefactoringFactory);
-        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, mainJavaPath, javaRefactoringFactory, basePackageCalculator, javaParser);
+        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, mainJavaPath, javaRefactoringFactory, basePackageCalculator, javaParser,
+                                     executionContext);
     }
 
     private List<JavaSource> cast(List<RewriteSourceFileHolder<? extends SourceFile>> filter) {
@@ -112,12 +116,12 @@ public class Module {
 
     public ResourceSet getMainResourceSet() {
         Path mainResourceSet = buildFile.getMainResourceFolder();
-        return new ResourceSet(projectResourceSet, projectRootDir, modulePath, mainResourceSet);
+        return new ResourceSet(projectResourceSet, projectRootDir, modulePath, mainResourceSet, executionContext);
     }
 
     public ResourceSet getTestResourceSet() {
         Path testResourceSet = buildFile.getTestResourceFolder();
-        return new ResourceSet(projectResourceSet, projectRootDir, modulePath, testResourceSet);
+        return new ResourceSet(projectResourceSet, projectRootDir, modulePath, testResourceSet, executionContext);
     }
 
     public List<Module> getModules() {
@@ -127,7 +131,7 @@ public class Module {
             return modulesMarker
                     .stream()
                     .map(m -> new Module(m.getPom().getGav().toString(), this.buildFile, projectRootDir, modulePath,
-                                         projectResourceSet, javaRefactoringFactory, basePackageCalculator, javaParser))
+                                         projectResourceSet, javaRefactoringFactory, basePackageCalculator, javaParser, executionContext))
                     .collect(Collectors.toList());
         } else {
             return new ArrayList<>();

@@ -38,7 +38,7 @@ class BootHasAutoconfigurationConditionTest {
     void conditionTests(String filePath, String fileContent, boolean expectation) {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addProjectResource(
+                .withProjectResource(
                         filePath,
                         fileContent
                 )
@@ -51,7 +51,7 @@ class BootHasAutoconfigurationConditionTest {
     @Test
     void itCanDoMultiLine() {
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addProjectResource(
+                .withProjectResource(
                         "src/main/resources/META-INF/spring.factories",
                         """
                                 org.springframework.boot.autoconfigure.EnableAutoConfiguration=XTZ\

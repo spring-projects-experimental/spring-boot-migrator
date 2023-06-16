@@ -33,14 +33,11 @@ import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.FindCompilationUnitContainingType;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,13 +51,15 @@ public class OpenRewriteType implements Type {
 
     private final JavaRefactoring refactoring;
     private final ClassDeclaration classDeclaration;
+    private final ExecutionContext executionContext;
     private JavaParser javaParser;
 
-    public OpenRewriteType(ClassDeclaration classDeclaration, RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring, JavaParser javaParser) {
+    public OpenRewriteType(ClassDeclaration classDeclaration, RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring, ExecutionContext executionContext, JavaParser javaParser) {
         this.classDeclId = classDeclaration.getId();
         this.classDeclaration = classDeclaration;
         this.rewriteSourceFileHolder = rewriteSourceFileHolder;
         this.refactoring = refactoring;
+        this.executionContext = executionContext;
         this.javaParser = javaParser;
     }
 
@@ -106,7 +105,7 @@ public class OpenRewriteType implements Type {
     @Override
     public void addAnnotation(String fqName) {
         // FIXME: Hack, JavaParser should have latest classpath
-        Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
+        Supplier<JavaParser> javaParserSupplier = () -> javaParser;
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
         AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserSupplier, getClassDeclaration(), snippet, fqName);
         refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
@@ -147,7 +146,7 @@ public class OpenRewriteType implements Type {
     @Override
     public List<Method> getMethods() {
         return Utils.getMethods(getClassDeclaration()).stream()
-                .map(m -> new OpenRewriteMethod(rewriteSourceFileHolder, m, refactoring, javaParser))
+                .map(m -> new OpenRewriteMethod(rewriteSourceFileHolder, m, refactoring, javaParser, executionContext))
                 .collect(Collectors.toList());
     }
 
@@ -157,7 +156,8 @@ public class OpenRewriteType implements Type {
             @Override
             public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
                 // FIXME: #7 hack, get JavaParser as SpringBean with access to classpath
-                javaParser = new RewriteJavaParser(new SbmApplicationProperties());
+                // TODO: 786
+                javaParser = new RewriteJavaParser(new SbmApplicationProperties(), executionContext);
                 javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
 
                 J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
@@ -260,7 +260,8 @@ public class OpenRewriteType implements Type {
                 .filter(c -> c.getType().getFullyQualifiedName().equals(jt.getFullyQualifiedName().trim()))
                 .findFirst()
                 .orElseThrow();
-        return Optional.of(new OpenRewriteType(classDeclaration, modifiableCompilationUnit, refactoring, javaParser));
+        return Optional.of(new OpenRewriteType(classDeclaration, modifiableCompilationUnit, refactoring,
+                                               executionContext, javaParser));
     }
 
     @Override

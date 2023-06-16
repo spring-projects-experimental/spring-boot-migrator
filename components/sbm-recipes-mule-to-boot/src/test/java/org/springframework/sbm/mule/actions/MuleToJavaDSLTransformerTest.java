@@ -15,62 +15,67 @@
  */
 package org.springframework.sbm.mule.actions;
 
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MuleToJavaDSLTransformerTest extends JavaDSLActionBaseTest {
-    private final static String muleXmlHttp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "\n" +
-            "<mule xmlns:amqp=\"http://www.mulesoft.org/schema/mule/amqp\" xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-            "xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
-            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-            "xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-            "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-            "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
-            "http://www.mulesoft.org/schema/mule/amqp http://www.mulesoft.org/schema/mule/amqp/current/mule-amqp.xsd\">\n" +
-            "<http:listener-config name=\"HTTP_Listener_Configuration\" host=\"0.0.0.0\" port=\"9082\" doc:name=\"HTTP Listener Configuration\"/>\n" +
-            "<flow name=\"http-flow\">\n" +
-            "<http:listener doc:name=\"Listener\"  config-ref=\"HTTP_Listener_Configuration\" path=\"/test\"/>\n" +
-            "<byte-array-to-string-transformer/>\n" +
-            "<logger message=\"payload to be sent: #[new String(payload)]\" level=\"INFO\" doc:name=\"Log the message content to be sent\"/>\n" +
-            "<string-to-byte-array-transformer/>\n" +
-            "<logger message=\"payload to be sent: #[new String(payload)]\" level=\"INFO\" doc:name=\"Log the message content to be sent\"/>\n" +
-            "<byte-array-to-string-transformer/>\n" +
-            "<logger message=\"payload to be sent: #[new String(payload)]\" level=\"INFO\" doc:name=\"Log the message content to be sent\"/>\n" +
-            "</flow>\n" +
-            "</mule>";
+    @Language("xml")
+    private final static String muleXmlHttp = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <mule xmlns:amqp="http://www.mulesoft.org/schema/mule/amqp" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+            xmlns:spring="http://www.springframework.org/schema/beans"\s
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+            http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+            http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+            http://www.mulesoft.org/schema/mule/amqp http://www.mulesoft.org/schema/mule/amqp/current/mule-amqp.xsd">
+            <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="9082" doc:name="HTTP Listener Configuration"/>
+            <flow name="http-flow">
+            <http:listener doc:name="Listener"  config-ref="HTTP_Listener_Configuration" path="/test"/>
+            <byte-array-to-string-transformer/>
+            <logger message="payload to be sent: #[new String(payload)]" level="INFO" doc:name="Log the message content to be sent"/>
+            <string-to-byte-array-transformer/>
+            <logger message="payload to be sent: #[new String(payload)]" level="INFO" doc:name="Log the message content to be sent"/>
+            <byte-array-to-string-transformer/>
+            <logger message="payload to be sent: #[new String(payload)]" level="INFO" doc:name="Log the message content to be sent"/>
+            </flow>
+            </mule>
+            """;
 
     @Test
     public void shouldGenerateJavaDSLForFlowHttpMuleTag() {
         addXMLFileToResource(muleXmlHttp);
-        runAction();
-        assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(getGeneratedJavaFile())
-                .isEqualTo("package com.example.javadsl;\n" +
-                        "import org.springframework.context.annotation.Bean;\n" +
-                        "import org.springframework.context.annotation.Configuration;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                        "import org.springframework.integration.handler.LoggingHandler;\n" +
-                        "import org.springframework.integration.http.dsl.Http;\n" +
-                        "import org.springframework.integration.transformer.ObjectToStringTransformer;\n" +
-                        "\n" +
-                        "import java.nio.charset.StandardCharsets;\n" +
-                        "\n" +
-                        "@Configuration\n" +
-                        "public class FlowConfigurations {\n" +
-                        "    @Bean\n" +
-                        "    IntegrationFlow http_flow() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundGateway(\"/test\")).handle((p, h) -> p)\n" +
-                        "                .transform(new ObjectToStringTransformer())\n" +
-                        "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
-                        "                .transform(s -> ((String) s).getBytes(StandardCharsets.UTF_8))\n" +
-                        "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
-                        "                .transform(new ObjectToStringTransformer())\n" +
-                        "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
-                        "                .get();\n" +
-                        "    }\n" +
-                        "}");
+        runAction(projectContext1 -> {
+            assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
+            assertThat(getGeneratedJavaFile())
+                    .isEqualTo("""
+                               package com.example.javadsl;
+                               import org.springframework.context.annotation.Bean;
+                               import org.springframework.context.annotation.Configuration;
+                               import org.springframework.integration.dsl.IntegrationFlow;
+                               import org.springframework.integration.dsl.IntegrationFlows;
+                               import org.springframework.integration.handler.LoggingHandler;
+                               import org.springframework.integration.http.dsl.Http;
+                               import org.springframework.integration.transformer.ObjectToStringTransformer;
+                                                              
+                               import java.nio.charset.StandardCharsets;
+                                                              
+                               @Configuration
+                               public class FlowConfigurations {
+                                   @Bean
+                                   IntegrationFlow http_flow() {
+                                       return IntegrationFlows.from(Http.inboundGateway("/test")).handle((p, h) -> p)
+                                               .transform(new ObjectToStringTransformer())
+                                               .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
+                                               .transform(s -> ((String) s).getBytes(StandardCharsets.UTF_8))
+                                               .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
+                                               .transform(new ObjectToStringTransformer())
+                                               .log(LoggingHandler.Level.INFO, "payload to be sent: #[new String(payload)]")
+                                               .get();
+                                   }
+                               }""");
+        });
     }
 }

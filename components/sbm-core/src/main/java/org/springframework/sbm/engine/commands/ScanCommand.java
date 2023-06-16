@@ -15,15 +15,18 @@
  */
 package org.springframework.sbm.engine.commands;
 
+import org.openrewrite.ExecutionContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
 import org.springframework.sbm.engine.precondition.PreconditionVerifier;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.parser.PathScanner;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
+import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -38,18 +41,28 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
     private final ApplicationEventPublisher eventPublisher;
     private final PathScanner pathScanner;
     private final PreconditionVerifier preconditionVerifier;
+    private final ConfigurableListableBeanFactory beanFactory;
 
     @Deprecated
-    public ScanCommand(ProjectRootPathResolver projectRootPathResolver, ProjectContextInitializer projectContextInitializer, ApplicationEventPublisher eventPublisher, PathScanner pathScanner, PreconditionVerifier preconditionVerifier) {
+    public ScanCommand(ProjectRootPathResolver projectRootPathResolver, ProjectContextInitializer projectContextInitializer, ApplicationEventPublisher eventPublisher, PathScanner pathScanner, PreconditionVerifier preconditionVerifier, ConfigurableListableBeanFactory beanFactory) {
         super(COMMAND_NAME);
         this.projectRootPathResolver = projectRootPathResolver;
         this.projectContextInitializer = projectContextInitializer;
         this.eventPublisher = eventPublisher;
         this.pathScanner = pathScanner;
         this.preconditionVerifier = preconditionVerifier;
+        this.beanFactory = beanFactory;
     }
 
+
+    @Autowired
+    private ScanScope scanScope;
+
     public ProjectContext execute(String... arguments) {
+        // initialize the(!) ExecutionContext
+        // It will be available through DI in all objects involved while this method runs (scoped to recipe run)
+        scanScope.clear(beanFactory);
+
         Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
 
         List<Resource> resources = pathScanner.scan(projectRoot);
@@ -63,7 +76,7 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
     }
 
     public List<Resource> scanProjectRoot(Path projectRootPath) {
-       // Path projectRootPath = pro//projectRootPathResolver.getProjectRootOrDefault(projectRoot);
+        // Path projectRootPath = pro//projectRootPathResolver.getProjectRootOrDefault(projectRoot);
         return pathScanner.scan(projectRootPath);
     }
 

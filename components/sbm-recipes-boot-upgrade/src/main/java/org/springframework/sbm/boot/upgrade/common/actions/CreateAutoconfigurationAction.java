@@ -15,8 +15,11 @@
  */
 package org.springframework.sbm.boot.upgrade.common.actions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.openrewrite.ExecutionContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -39,6 +42,9 @@ public class CreateAutoconfigurationAction extends AbstractAction {
     private static final String AUTO_CONFIGURATION_IMPORTS = "src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports";
     public static final String ENABLE_AUTO_CONFIGURATION_KEY = "org.springframework.boot.autoconfigure.EnableAutoConfiguration";
     public static final Pattern COMMENT_REGEX = Pattern.compile("^#.*(\r|\n)+");
+    @JsonIgnore
+    @Autowired
+    private ExecutionContext executionContext;
 
     @Override
     public void apply(ProjectContext context) {
@@ -73,8 +79,7 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                         new StringProjectResource(
                                 context.getProjectRootDirectory(),
                                 enclosingMavenProjectForResource.resolve(AUTO_CONFIGURATION_IMPORTS),
-                                autoConfigString
-                        );
+                                autoConfigString, executionContext);
                 context.getProjectResources().add(springAutoconfigurationFile);
 
                 removeAutoConfigKeyFromSpringFactories(springProps, context, enclosingMavenProjectForResource, springFactoriesResource);
@@ -96,8 +101,7 @@ public class CreateAutoconfigurationAction extends AbstractAction {
                     new StringProjectResource(
                             projectRootDirectory,
                             originalResource.getAbsolutePath(),
-                            propertiesWithoutComment
-                    );
+                            propertiesWithoutComment, executionContext);
             context.getProjectResources().replace(
                     originalResource.getAbsolutePath(),
                     springUpdatedSpringFactories);

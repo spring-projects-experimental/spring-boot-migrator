@@ -94,6 +94,7 @@ public class ConvertJaxRsAnnotationsest {
                 import com.example.jeerest.Movie;
                 import com.example.jeerest.MoviesBean;
                 import org.springframework.beans.factory.annotation.Autowired;
+                import org.springframework.web.bind.annotation.RestController;
                 
                 import javax.ws.rs.DELETE;
                 import javax.ws.rs.PUT;

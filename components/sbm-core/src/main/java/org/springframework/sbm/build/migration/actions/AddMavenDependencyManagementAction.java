@@ -15,12 +15,15 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
-import org.springframework.sbm.build.api.Module;
+import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.Setter;
+
+import java.util.Optional;
 
 @Setter
 public class AddMavenDependencyManagementAction extends AbstractAction {
@@ -33,6 +36,8 @@ public class AddMavenDependencyManagementAction extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
+        verifyNoConflictingManagedDependencyExists(context);
+
         Dependency dependency = Dependency.builder()
                 .groupId(groupId)
                 .artifactId(artifactId)
@@ -40,7 +45,49 @@ public class AddMavenDependencyManagementAction extends AbstractAction {
                 .scope(scope)
                 .type(dependencyType)
                 .build();
+        BuildFile rootBuildFile = context.getApplicationModules().getRootModule().getBuildFile();
+        rootBuildFile.addToDependencyManagement(dependency);
+    }
 
-        context.getApplicationModules().getRootModule().getBuildFile().addToDependencyManagement(dependency);
+    @NotNull
+    private void verifyNoConflictingManagedDependencyExists(ProjectContext context) {
+        BuildFile rootBuildFile = context.getApplicationModules().getRootModule().getBuildFile();
+        Optional<Dependency> managedSpringDep = rootBuildFile
+                .getRequestedDependencyManagement()
+                .stream()
+                .filter(this::matchingDependencyManagementSection)
+                .findFirst();
+
+        if(managedSpringDep.isPresent()) {
+            Dependency managedDep = managedSpringDep.get();
+            int comparisonResult = compareVersions(this.version, managedDep.getVersion());
+            if(managedDependencyHasSameVersion(comparisonResult) || managedDependencyHasHigherVersion(comparisonResult)) {
+                String message = String.format(
+                        "Failed to add a managed dependency %s with version %s. This managed dependency already exists in %s in version %s.",
+                        this.groupId + ":" + this.artifactId,
+                        this.version,
+                        rootBuildFile.getAbsolutePath(),
+                        managedDep.getVersion()
+                );
+                throw new IllegalStateException(message);
+            }
+        }
+    }
+
+    private boolean managedDependencyHasSameVersion(int comparisonResult) {
+        return comparisonResult == 0;
+    }
+
+    private boolean managedDependencyHasHigherVersion(int comparisonResult) {
+        return comparisonResult == -1;
+    }
+
+    private int compareVersions(String newVersion, String existingVersion) {
+        return new ComparableVersion(newVersion).compareTo(new ComparableVersion(existingVersion));
+    }
+
+    private boolean matchingDependencyManagementSection(Dependency dependency) {
+        return dependency.getGroupId().equals(groupId) &&
+                dependency.getArtifactId().equals(artifactId);
     }
 }

@@ -26,6 +26,7 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.sbm.mule.resource.MuleXml;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import javax.xml.bind.JAXBElement;
@@ -94,8 +95,8 @@ public class AmqpOutboundEndpointTranslatorTest {
 
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/mule/amqp-mule.xml", xml)
-                .addRegistrar(new MuleXmlProjectResourceRegistrar())
+                .withProjectResource("src/main/mule/amqp-mule.xml", xml)
+                .addRegistrar(new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext()))
                 .build();
 
         List<MuleXml> muleXmls = projectContext.search(new MuleXmlProjectResourceFilter());
@@ -113,8 +114,8 @@ public class AmqpOutboundEndpointTranslatorTest {
     void amqpOutBoundTranslatorTest() {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/mule/amqp-mule.xml", amqpXML)
-                .addRegistrar(new MuleXmlProjectResourceRegistrar())
+                .withProjectResource("src/main/mule/amqp-mule.xml", amqpXML)
+                .addRegistrar(new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext()))
                 .build();
 
 

@@ -51,7 +51,7 @@ class SpringBeanMethodDeclarationFinderTest {
 
         @BeforeEach
         void beforeEach() {
-            builder.addJavaSource("src/main/java",
+            builder.withJavaSource("src/main/java",
                                           """
                                           import org.springframework.context.annotation.Configuration;
                                           import org.springframework.context.annotation.Bean;
@@ -66,7 +66,7 @@ class SpringBeanMethodDeclarationFinderTest {
                                           }
                                           """
                     )
-                    .addJavaSource("src/main/java",
+                    .withJavaSource("src/main/java",
                                            """
                                            package a.b.c;
                                            public class SomeBean {}
@@ -91,7 +91,7 @@ class SpringBeanMethodDeclarationFinderTest {
 
         @BeforeEach
         void beforeEach() {
-            builder.addJavaSource("src/main/java",
+            builder.withJavaSource("src/main/java",
                                   """
                                   import org.springframework.context.annotation.Configuration;
                                   import org.springframework.context.annotation.Bean;
@@ -111,7 +111,7 @@ class SpringBeanMethodDeclarationFinderTest {
                                   }
                                   """
                     )
-                    .addJavaSource("src/main/java",
+                    .withJavaSource("src/main/java",
                                    """
                                    import org.springframework.context.annotation.Configuration;
                                    import org.springframework.context.annotation.Bean;
@@ -131,12 +131,12 @@ class SpringBeanMethodDeclarationFinderTest {
                                    }
                                    """
                     )
-                    .addJavaSource("src/main/java",
+                    .withJavaSource("src/main/java",
                                    """
                                    package a.b.c;
                                    public class SomeBean {}
                                    """)
-                    .addJavaSource("src/main/java",
+                    .withJavaSource("src/main/java",
                                    """
                                    package a.b.c;
                                    public class AnotherBean {}
@@ -169,7 +169,7 @@ class SpringBeanMethodDeclarationFinderTest {
         @Test
         void shouldReturnEmptyListWithVoidReturnTypeOnBean() {
 
-            builder.addJavaSource("src/main/java",
+            builder.withJavaSource("src/main/java",
                             """
                             import org.springframework.context.annotation.Configuration;
                             import org.springframework.context.annotation.Bean;
@@ -197,7 +197,7 @@ class SpringBeanMethodDeclarationFinderTest {
 
             SpringBeanMethodDeclarationFinder sut
                     = new SpringBeanMethodDeclarationFinder("a.b.c.HelloWorld");
-            builder.addJavaSource("src/main/java",
+            builder.withJavaSource("src/main/java",
                             """
                             import org.springframework.context.annotation.Configuration;
                             import org.springframework.context.annotation.Bean;

@@ -13,10 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build;
+package org.springframework.sbm.scopes;
+
+import org.springframework.stereotype.Component;
 
 /**
+ * Scope implementation for beans marked with {@link org.springframework.sbm.scopes.annotations.ScanScope}.
+ *
  * @author Fabian Krüger
  */
-public class Foo {
+@Component
+public class ScanScope extends AbstractBaseScope {
+
+    public final static String SCOPE_NAME = "scanScope";
+
 }

@@ -15,17 +15,11 @@
  */
 package org.springframework.sbm.project.parser;
 
-import org.springframework.sbm.build.migration.MavenPomCacheProvider;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import lombok.RequiredArgsConstructor;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
-import org.openrewrite.maven.cache.MavenPomCache;
 import org.openrewrite.maven.cache.ReadOnlyLocalMavenArtifactCache;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

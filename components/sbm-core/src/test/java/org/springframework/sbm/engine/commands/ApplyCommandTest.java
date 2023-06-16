@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;
 import org.springframework.sbm.engine.git.GitSupport;
@@ -28,6 +29,7 @@ import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
+import org.springframework.sbm.scopes.ExecutionScope;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +57,10 @@ public class ApplyCommandTest {
     Action action1;
     @Mock
     Action action2;
+    @Mock
+    ExecutionContext executionContext;
+    @Mock
+    ExecutionScope executionScope;
 
     @InjectMocks
     ApplyCommand applyCommand;

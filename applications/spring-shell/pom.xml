@@ -83,6 +83,12 @@
             <artifactId>testcontainers</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.rabbitmq</groupId>
@@ -117,6 +123,13 @@
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-recipes-boot-upgrade</artifactId>
             <version>0.13.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.sbm</groupId>
+            <artifactId>sbm-core</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

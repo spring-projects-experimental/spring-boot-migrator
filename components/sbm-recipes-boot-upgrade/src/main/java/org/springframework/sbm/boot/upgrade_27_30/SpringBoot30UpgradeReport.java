@@ -18,6 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import freemarker.template.Configuration;
+import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.upgrade.common.UpgradeReportUtil;
@@ -43,6 +44,10 @@ public class SpringBoot30UpgradeReport extends AbstractAction {
     @JsonIgnore
     private List<Sbu30_UpgradeSectionBuilder> upgradeSectionBuilders = new ArrayList<>();
 
+    @Autowired
+    @JsonIgnore
+    private ExecutionContext executionContext;
+
     @Override
     public void apply(ProjectContext projectContext) {
         final List<Section> sections = upgradeSectionBuilders.stream()
@@ -57,6 +62,7 @@ public class SpringBoot30UpgradeReport extends AbstractAction {
         String markdown = UpgradeReportUtil.renderMarkdown(params, configuration);
         String html = UpgradeReportUtil.renderHtml(markdown);
         Path htmlPath = projectContext.getProjectRootDirectory().resolve(Path.of("SPRING_BOOT_3_UPGRADE_REPORT.html"));
-        projectContext.getProjectResources().add(new StringProjectResource(projectContext.getProjectRootDirectory(), htmlPath, html));
+        projectContext.getProjectResources().add(new StringProjectResource(projectContext.getProjectRootDirectory(), htmlPath, html,
+                                                                           executionContext));
     }
 }
