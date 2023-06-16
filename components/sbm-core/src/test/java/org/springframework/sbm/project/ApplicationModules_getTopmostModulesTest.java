@@ -54,7 +54,7 @@ class ApplicationModules_getTopmostModulesTest {
         @BeforeEach
         void beforeEach() {
             projectContext = TestProjectContext.buildProjectContext()
-                    .addProjectResource("pom.xml", projectPom)
+                    .withProjectResource("pom.xml", projectPom)
                     .build();
         }
 
@@ -103,8 +103,8 @@ class ApplicationModules_getTopmostModulesTest {
         @BeforeEach
         void beforeEach() {
             projectContext = TestProjectContext.buildProjectContext()
-                    .addProjectResource("pom.xml", parentPom)
-                    .addProjectResource("module1/pom.xml", childModule)
+                    .withProjectResource("pom.xml", parentPom)
+                    .withProjectResource("module1/pom.xml", childModule)
                     .build();
         }
 
@@ -176,9 +176,9 @@ class ApplicationModules_getTopmostModulesTest {
         @BeforeEach
         void beforeEach() {
             projectContext = TestProjectContext.buildProjectContext()
-                    .addProjectResource("pom.xml", parentPom)
-                    .addProjectResource("module1/pom.xml", childPom1)
-                    .addProjectResource("module2/pom.xml", childPom2)
+                    .withProjectResource("pom.xml", parentPom)
+                    .withProjectResource("module1/pom.xml", childPom1)
+                    .withProjectResource("module2/pom.xml", childPom2)
                     .build();
         }
 
@@ -273,10 +273,10 @@ class ApplicationModules_getTopmostModulesTest {
         @BeforeEach
         void beforeEach() {
             projectContext = TestProjectContext.buildProjectContext()
-                    .addProjectResource("pom.xml", parentPom)
-                    .addProjectResource("module1/pom.xml", childPom1)
-                    .addProjectResource("module2/pom.xml", childPom2)
-                    .addProjectResource("module3/pom.xml", childPom3)
+                    .withProjectResource("pom.xml", parentPom)
+                    .withProjectResource("module1/pom.xml", childPom1)
+                    .withProjectResource("module2/pom.xml", childPom2)
+                    .withProjectResource("module3/pom.xml", childPom3)
                     .build();
         }
 

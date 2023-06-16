@@ -39,7 +39,7 @@ public class JmxEndpointExposureConditionTest {
     public void givenProjectWithJmxEndpointExposureCustomization_evaluateCondition_expectFalse() {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_JMX_ENDPOINT_EXPOSED)
+                .withProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_JMX_ENDPOINT_EXPOSED)
                 .build();
 
         JmxEndpointExposureCondition jmxEndpointExposureCondition = new JmxEndpointExposureCondition();
@@ -50,7 +50,7 @@ public class JmxEndpointExposureConditionTest {
     public void givenProjectWithJmxEndpointExposureCustomization_evaluateCondition_expectTrue() {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITHOUT_JMX_ENDPOINT_EXPOSED)
+                .withProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITHOUT_JMX_ENDPOINT_EXPOSED)
                 .build();
 
         JmxEndpointExposureCondition jmxEndpointExposureCondition = new JmxEndpointExposureCondition();

@@ -62,7 +62,7 @@ public class ConstructorBindingReportSectionTest {
                 """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", javaClassWithConstructorBinding)
+                .withJavaSource("src/main/java", javaClassWithConstructorBinding)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1")
                 .build();
 
@@ -110,7 +110,7 @@ public class ConstructorBindingReportSectionTest {
                 """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java/com/example/A.java", javaClassWithConstructorBinding)
+                .withJavaSource("src/main/java/com/example/A.java", javaClassWithConstructorBinding)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1")
                 .build();
 

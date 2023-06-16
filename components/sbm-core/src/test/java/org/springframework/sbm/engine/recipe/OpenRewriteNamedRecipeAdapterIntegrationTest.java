@@ -79,7 +79,7 @@ public class OpenRewriteNamedRecipeAdapterIntegrationTest {
                 "}\n";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", javaSource)
+                .withJavaSource("src/main/java", javaSource)
                 .build();
         // and apply the adapter
         recipeAdapter.apply(context);
@@ -111,7 +111,7 @@ public class OpenRewriteNamedRecipeAdapterIntegrationTest {
                 "public class Foo {}";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", javaSource)
+                .withJavaSource("src/main/java", javaSource)
                 .build();
 
         RuntimeException thrown = assertThrows(RuntimeException.class, () -> recipeAdapter.apply(context));

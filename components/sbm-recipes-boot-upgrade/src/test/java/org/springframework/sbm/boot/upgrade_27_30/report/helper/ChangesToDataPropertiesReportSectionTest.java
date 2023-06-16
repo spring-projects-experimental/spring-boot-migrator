@@ -36,8 +36,8 @@ public class ChangesToDataPropertiesReportSectionTest {
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.5")
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
-                .addProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
+                .withProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
+                .withProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
                 .build();
 
         SpringBootUpgradeReportTestSupport.generatedSection("Changes to Data Properties")
@@ -71,8 +71,8 @@ public class ChangesToDataPropertiesReportSectionTest {
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.5")
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource("src/main/resources/application.properties", "data.foo=bar")
-                .addProjectResource("src/main/resources/application-another.properties", "data.here=there")
+                .withProjectResource("src/main/resources/application.properties", "data.foo=bar")
+                .withProjectResource("src/main/resources/application-another.properties", "data.here=there")
                 .build();
 
         SpringBootUpgradeReportTestSupport.generatedSection("Changes to Data Properties")

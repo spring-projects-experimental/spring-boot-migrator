@@ -38,7 +38,7 @@ public class Boot_27_30_AddLoggingDateFormatTest {
     public void givenAProjectWithoutLoggingDateFormatOverride_andSpringBootProperties_applyAction_expectPropertyAdded(){
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource("src/main/resources/application.properties", DUMMY_PROPERTY_FILE)
+                .withProjectResource("src/main/resources/application.properties", DUMMY_PROPERTY_FILE)
                 .build();
 
         Boot_27_30_AddLoggingDateFormat action = new Boot_27_30_AddLoggingDateFormat();

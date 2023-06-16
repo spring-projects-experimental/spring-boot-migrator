@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
@@ -41,7 +40,7 @@ public class LoggingDateFormatHelperTest {
                 .withSpringBootParentOf("2.7.5")
                 .addRegistrar(
                         new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource("src/main/resources/application-myprofile.properties", "not.logging.pattern.dateformat=value")
+                .withProjectResource("src/main/resources/application-myprofile.properties", "not.logging.pattern.dateformat=value")
                 .build();
 
         LoggingDateFormatHelper sut = new LoggingDateFormatHelper();
@@ -74,7 +73,7 @@ public class LoggingDateFormatHelperTest {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource("src/main/resources/application-myprofile.properties", "logging.pattern.dateformat=some-format")
+                .withProjectResource("src/main/resources/application-myprofile.properties", "logging.pattern.dateformat=some-format")
                 .build();
 
         LoggingDateFormatHelper sut = new LoggingDateFormatHelper();

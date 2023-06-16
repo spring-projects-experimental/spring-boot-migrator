@@ -15,13 +15,11 @@
  */
 package org.springframework.sbm.project.buildfile;
 
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaParser;
-import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.maven.tree.Scope;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,6 @@ import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
-import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
@@ -41,9 +38,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -88,7 +83,7 @@ public class AddDependencyTest {
         String javaSourceCode = "import javax.validation.constraints.Email; class Y {@Email String email;}";
         ProjectContext context = TestProjectContext
                 .buildProjectContext(eventPublisher, rewriteJavaParser)
-                .addJavaSource("src/main/java", javaSourceCode)
+                .withJavaSource("src/main/java", javaSourceCode)
                 .build();
         // provide ProjectContext to Spring beans
         contextHolder.setProjectContext(context);

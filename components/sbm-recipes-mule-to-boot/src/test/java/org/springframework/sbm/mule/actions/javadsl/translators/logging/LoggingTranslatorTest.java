@@ -278,7 +278,7 @@ class LoggingTranslatorTest {
                 "</mule>";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/mule/mule.xml", muleXml)
+                .withProjectResource("src/main/mule/mule.xml", muleXml)
                 .addRegistrar(new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext()))
                 .build();
 
@@ -299,7 +299,7 @@ class LoggingTranslatorTest {
 
     private DslSnippet applySut(String muleXml) {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/mule/mule.xml", muleXml)
+                .withProjectResource("src/main/mule/mule.xml", muleXml)
                 .addRegistrar(new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext()))
                 .build();
 

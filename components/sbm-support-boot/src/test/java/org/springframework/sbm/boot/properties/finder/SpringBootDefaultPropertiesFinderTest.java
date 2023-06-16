@@ -32,7 +32,7 @@ public class SpringBootDefaultPropertiesFinderTest {
     public void givenAProjectWithDefaultSpringBootProperties_applyFinder_expectPropertyFile(){
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource(Path.of("src","main", "resources", "application.properties"), "foo=bar")
+                .withProjectResource(Path.of("src","main", "resources", "application.properties"), "foo=bar")
                 .build();
 
         SpringBootDefaultPropertiesFinder springBootDefaultPropertiesFinder = new SpringBootDefaultPropertiesFinder();

@@ -47,8 +47,8 @@ public class PagingAndSortingHelperTest {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.1")
-                .addJavaSource("src/main/java", javaClassWithPagingAndSortingRepository)
-                .addJavaSource("src/main/java",javaClassWithoutPagingAndSortingRepo)
+                .withJavaSource("src/main/java", javaClassWithPagingAndSortingRepository)
+                .withJavaSource("src/main/java",javaClassWithoutPagingAndSortingRepo)
                 .withBuildFileHavingDependencies("org.springframework.data:spring-data-commons:2.7.1")
                 .build();
 
@@ -106,8 +106,8 @@ public class PagingAndSortingHelperTest {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.1")
-                .addJavaSource("src/main/java", javaClassWithReactiveSortingRepo)
-                .addJavaSource("src/main/java",javaClassWithoutReactiveSortingRepo)
+                .withJavaSource("src/main/java", javaClassWithReactiveSortingRepo)
+                .withJavaSource("src/main/java",javaClassWithoutReactiveSortingRepo)
                 .withBuildFileHavingDependencies("org.springframework.data:spring-data-commons:2.7.1")
                 .withBuildFileHavingDependencies("io.projectreactor:reactor-core:3.4.19")
                 .build();
@@ -166,8 +166,8 @@ public class PagingAndSortingHelperTest {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.1")
-                .addJavaSource("src/main/java", javaClassWithReactiveSortingRepo)
-                .addJavaSource("src/main/java",javaClassWithoutReactiveSortingRepo)
+                .withJavaSource("src/main/java", javaClassWithReactiveSortingRepo)
+                .withJavaSource("src/main/java",javaClassWithoutReactiveSortingRepo)
                 .withBuildFileHavingDependencies("org.springframework.data:spring-data-commons:2.7.1")
                 .withBuildFileHavingDependencies("io.reactivex.rxjava3:rxjava:3.1.5")
                 .build();
@@ -250,10 +250,10 @@ public class PagingAndSortingHelperTest {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.1")
-                .addJavaSource("src/main/java", javaClassWithPagingAndSortingRepository)
-                .addJavaSource("src/main/java",javaClassWithoutPagingAndSortingRepo)
-                .addJavaSource("src/main/java",javaClassWithReactiveSortingRepo)
-                .addJavaSource("src/main/java",javaClassWithRXReactiveSortingRepo)
+                .withJavaSource("src/main/java", javaClassWithPagingAndSortingRepository)
+                .withJavaSource("src/main/java",javaClassWithoutPagingAndSortingRepo)
+                .withJavaSource("src/main/java",javaClassWithReactiveSortingRepo)
+                .withJavaSource("src/main/java",javaClassWithRXReactiveSortingRepo)
                 .withBuildFileHavingDependencies("org.springframework.data:spring-data-commons:2.7.1")
                 .withBuildFileHavingDependencies("io.reactivex.rxjava3:rxjava:3.1.5")
                 .withBuildFileHavingDependencies("io.projectreactor:reactor-core:3.4.19")
@@ -309,7 +309,7 @@ public class PagingAndSortingHelperTest {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.1")
-                .addJavaSource("src/main/java",javaClassWithoutPagingAndSortingRepo)
+                .withJavaSource("src/main/java",javaClassWithoutPagingAndSortingRepo)
                 .withBuildFileHavingDependencies("org.springframework.data:spring-data-commons:2.7.1")
                 .build();
 

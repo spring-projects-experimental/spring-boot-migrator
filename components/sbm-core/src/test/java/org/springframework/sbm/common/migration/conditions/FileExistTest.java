@@ -25,7 +25,7 @@ class FileExistTest {
     @Test
     void shouldReturnTrueWhenFileExist() {
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addEmptyProjectResource("src/main/resources/some.file")
+                .withEmptyProjectResource("src/main/resources/some.file")
                 .build();
 
         FileExist sut = FileExist.builder().fileName("some.file").build();

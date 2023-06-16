@@ -38,7 +38,7 @@ class RenameUnitNameOfPersistenceContextAnnotationsToDefaultTest {
 
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
-                .addJavaSource("src/main/java", javaCode)
+                .withJavaSource("src/main/java", javaCode)
                 .withBuildFileHavingDependencies("javax.persistence:javax.persistence-api:2.2", "javax.ejb:javax.ejb-api:3.2")
                 .build();
 

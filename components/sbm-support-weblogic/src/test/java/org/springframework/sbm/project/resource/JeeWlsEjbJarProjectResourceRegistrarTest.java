@@ -44,7 +44,7 @@ class JeeWlsEjbJarProjectResourceRegistrarTest {
 
         JeeWlsEjbJarProjectResourceRegistrar sut = new JeeWlsEjbJarProjectResourceRegistrar();
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource(Path.of("src/main/resources/weblogic-ejb-jar.xml"), wlsEjbJarXml)
+                .withProjectResource(Path.of("src/main/resources/weblogic-ejb-jar.xml"), wlsEjbJarXml)
                 .addRegistrar(new JeeWlsEjbJarProjectResourceRegistrar())
                 .build();
 

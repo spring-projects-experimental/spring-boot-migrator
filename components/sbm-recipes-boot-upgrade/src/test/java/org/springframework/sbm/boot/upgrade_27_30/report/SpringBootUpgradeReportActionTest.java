@@ -46,8 +46,8 @@ class SpringBootUpgradeReportActionTest {
     void renderReport() throws IOException {
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
-                .addProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
+                .withProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
+                .withProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
                 .build();
 
         @Language("adoc")
@@ -199,8 +199,8 @@ class SpringBootUpgradeReportActionTest {
         TestProjectContext.buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .withMavenRootBuildFileSource(pomSource)
-                .addProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
-                .addProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
+                .withProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
+                .withProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
                 .serializeProjectContext(tempDir);
 
         RecipeIntegrationTestSupport.initializeProject(tempDir, "spring-upgrade-report")
