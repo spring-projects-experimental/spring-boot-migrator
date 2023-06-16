@@ -18,10 +18,11 @@ package org.springframework.sbm.project.parser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
-import org.openrewrite.yaml.tree.Yaml;
+import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.sbm.test.TestProjectContextInfo;
 
 import java.util.List;
 
@@ -35,19 +36,19 @@ public class ForgivingParsingOfTestResourcesTest {
     @Test
     @DisplayName("Proof that resource with syntax error is excluded from AST but other resources aren't")
     void test_renameMe() {
-        ProjectContext context = TestProjectContext
+        TestProjectContextInfo projectContextInfo = TestProjectContext
                 .buildProjectContext()
-                .addProjectResource("src/test/resources/one.yaml", "valid: true")
-                .addProjectResource("src/test/resources/error.yaml",
-                        """
+                .withProjectResource("src/test/resources/one.yaml", "valid: true")
+                .withProjectResource("src/test/resources/error.yaml", """
                         min-risk-score:
                           100 # illegal line break
                         attenuation-duration: !include attenuation-duration_ok.yaml
                           risk-score-classes: !include risk-score-class_ok.yaml # illegal indentation
                         exposure-config: !include exposure-config_ok.yaml
                         """)
-                .addProjectResource("src/test/resources/three.yaml", "is.valid: true")
-                .build();
+                .withProjectResource("src/test/resources/three.yaml", "is.valid: true")
+                .buildProjectContextInfo();
+        ProjectContext context = projectContextInfo.projectContext();
 
         List<RewriteSourceFileHolder<? extends SourceFile>> parsedResources = context.getProjectResources().list();
         assertThat(parsedResources).hasSize(3);
@@ -55,5 +56,14 @@ public class ForgivingParsingOfTestResourcesTest {
         assertThat(parsedResources.get(1).getSourcePath().toString()).isEqualTo("src/test/resources/one.yaml");
         // src/test/resources/error.yaml is ignored
         assertThat(parsedResources.get(2).getSourcePath().toString()).isEqualTo("src/test/resources/three.yaml");
+        ParsingExecutionContextView contextView = ParsingExecutionContextView.view(projectContextInfo.executionContext());
+        assertThat(contextView.getParseFailures()).hasSize(1);
+        assertThat(contextView.getParseFailures().get(0).getText()).isEqualTo("""
+                                                                                min-risk-score:
+                                                                                  100 # illegal line break
+                                                                                attenuation-duration: !include attenuation-duration_ok.yaml
+                                                                                  risk-score-classes: !include risk-score-class_ok.yaml # illegal indentation
+                                                                                exposure-config: !include exposure-config_ok.yaml
+                                                                                """);
     }
 }

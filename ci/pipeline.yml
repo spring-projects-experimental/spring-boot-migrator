@@ -3,7 +3,7 @@ anchors:
   git-repo-resource-source: &git-repo-resource-source
     uri: ((github-repo-uri)) # https://github.com/spring-projects-experimental/spring-boot-migrator
     username: ((github-repo-user)) # fabapp2
- #   password: ((github-ci-release-token))
+    password: ((github-ci-release-token))
     branch: ((branch))
   registry-image-resource-source: &registry-image-resource-source
     username: ((docker-hub-username))
@@ -158,35 +158,7 @@ jobs:
 #        vars: {branch: ((.:branch.name))}
 
 # Build every new PR
-  - name: build-pull-requests
-    serial: true
-    public: true
-    plan:
-      - get: ci-image
-      - get: git-repo
-        resource: git-pull-request
-        trigger: true
-        version: every
-      - do:
-          - put: git-pull-request
-            params:
-              path: git-repo
-              status: pending
-          - task: build-project
-            privileged: true
-            image: ci-image
-            file: git-repo/ci/tasks/build-pr-project.yml
-#            timeout: 30m # ((task-timeout))
-        on_success:
-          put: git-pull-request
-          params:
-            path: git-repo
-            status: success
-        on_failure:
-          put: git-pull-request
-          params:
-            path: git-repo
-            status: failure
+
 
   - name: create-github-release
     serial: true
@@ -199,27 +171,34 @@ jobs:
 #        params:
 #          download_artifacts: false
 #          save_build_info: true
-      - task: generate-changelog
-        file: git-repo/ci/tasks/generate-changelog.yml
-        params:
-          RELEASE_TYPE: RELEASE
-          GITHUB_USERNAME: ((github-username))
-          GITHUB_TOKEN: ((github-ci-release-token))
-        vars:
-          <<: *docker-hub-mirror-vars
+#      - task: generate-changelog
+#        file: git-repo/ci/tasks/generate-changelog.yml
+#        params:
+#          GITHUB_ORGANIZATION: spring-projects-experimental
+#          GITHUB_REPO: spring-boot-migrator
+#          RELEASE_TYPE: RELEASE
+#          GITHUB_USERNAME: ((github-username))
+#          GITHUB_TOKEN: ((github-ci-release-token))
+#        vars:
+#          <<: *docker-hub-mirror-vars
+      - task: maven-release
+        image: ci-image
+        privileged: true
+        file: git-repo/ci/tasks/maven-release.yml
+
       - put: github-release
         params:
-          name: generated-changelog/tag
-          tag: generated-changelog/tag
-          body: generated-changelog/changelog.md
-
+          name: 0.14.0 #generated-changelog/tag
+          tag: 0.14.0 #generated-changelog/tag
+          body: the body #generated-changelog/changelog.md
+          globs:
+            - git-repo/applications/spring-boot-upgrade/target/spring-boot-upgrade.jar
+            - git-repo/applications/spring-shell/target/spring-boot-migrator.jar
 groups:
   - name: "builds"
     jobs: ["build"]
   - name: "ci-images"
     jobs: ["build-ci-images"]
-  - name: "pull-requests"
-    jobs: ["build-pull-requests"]
   - name: "releases"
     jobs: ["create-github-release"]
 

@@ -102,17 +102,17 @@
 #          contributors:
 #            - "Fabian Krüger[@fabapp2]"
 
-        - title: Upgrade Dependencies
-          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeDependenciesHelper
+        - title: Prepare for Spring 3.0 dependency
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.IsSpring27Or30ProjectHelper
+
           change: |-
-            Spring Boot 3.0 upgraded many used dependencies. 
-            Also, dependencies previously in the `javax` packages use the new `jakarta` packages now.
-            WARNING: THis is a dummy and needs to be replaced with the matching changes from the release notes!
+            Some of the dependencies artifacts are removed/deprecated/moved to new co ordinates, this automated recipe helps prepare SBM to migrate
           affected: |-
-            List the found dependencies here?
+            *
           remediation:
             description: |-
-              A comprehensive list of affected dependencies and their new replacements
+              * adds ehcache classifier
+              * auto corrects right co ordinates of wiremock if used
             recipe: sbu30-upgrade-dependencies
           contributors:
             - "Fabian Krüger[@fabapp2]"
@@ -132,6 +132,28 @@
           contributors:
             - "Fabian Krüger[@fabapp2]"
 
+        #
+        # Generated from https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#json-b
+        #
+        - title: JSON-B
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.JohnzonDependencyHelper
+          change: |-
+            Dependency management for Apache Johnzon has been removed in favor of Eclipse Yasson.
+            A Jakarta EE 10-compatible version of Apache Johnzon can be used with Spring Boot 3, but you will now have to specify a version in your dependency declaration.
+
+          affected: |-
+            This application uses johnzon-core from org.apache.johnzon. Spring Boot 3.0 does not provide dependency support for this library,
+            so an explicit version number must now be provided in the POM for this dependency.
+          remediation:
+            description: |-
+              This recipe will add an explicit version number to the org.apache.johnzon:johnzon-core dependency in the POM.
+            recipe: sbu30-johnzon-dependency-update
+
+          projects:
+            - spring-boot
+
+          gitHubIssue: 678
+
         - title: Upgrade to Jakarta EE 10
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.UpgradeSpringBootVersionHelper
           change: |-
@@ -141,8 +163,8 @@
           remediation:
             description: |-
               Whenever Spring Boot depends on a Jakarta EE specification, Spring Boot 3.0 has upgraded to the version that is included in Jakarta EE 10. For example, Spring Boot 3.0 uses the Servlet 6.0 and JPA 3.1 specifications.
-              If you are managing your own dependencies, and aren’t relying on our starter POMs, you should ensure that you have updated your Maven or Gradle file appropriately. You need to be especially careful that older Java EE dependencies are no longer directly or transitively used in your build. For example, if you should always be using jakarta.servlet:jakarta.servlet-api and not javax.servlet:javax.servlet-api.
-              As well as dependency coordinate changes, Jakarta EE now uses jakarta packages rather than javax. Once you’ve update your dependencies you may find that import statements in your project need to be updated.
+              If you are managing your own dependencies, and aren't relying on our starter POMs, you should ensure that you have updated your Maven or Gradle file appropriately. You need to be especially careful that older Java EE dependencies are no longer directly or transitively used in your build. For example, if you should always be using jakarta.servlet:jakarta.servlet-api and not javax.servlet:javax.servlet-api.
+              As well as dependency coordinate changes, Jakarta EE now uses jakarta packages rather than javax. Once you've update your dependencies you may find that import statements in your project need to be updated.
             recipe: sbu30-migrate-to-jakarta-packages
           githubIssue: 723
           contributors:
@@ -230,7 +252,7 @@
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.LoggingDateFormatHelper
           change: |-
             The default format for the date and time component of log messages for Logback and Log4j2 has changed to
-            align with the ISO-8601 standard. The new default format `yyyy-MM-dd’T’HH:mm:ss.SSSXXX` uses a `T` to
+            align with the ISO-8601 standard. The new default format `yyyy-MM-dd'T'HH:mm:ss.SSSXXX` uses a `T` to
             separate the date and time instead of a space character and adds the timezone offset to the end.
             The `LOG_DATEFORMAT_PATTERN` environment variable or `logging.pattern.dateformat` property can be used to
             restore the previous default value of `yyyy-MM-dd HH:mm:ss.SSS`.
@@ -244,6 +266,28 @@
           contributors:
             - "Fabian Krüger[@fabapp2]"
 
+        - title: Deprecation of Spring.factories
+          helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.SpringFactoriesHelper
+          change: |-
+            In Spring 2.7 custom auto configurations defined in spring.factories file has been moved to `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+          affected: |-
+            The scan found spring.factories file:
+
+            <#list files as file>
+            * `${file}`
+            </#list>
+          remediation:
+            description: ""
+            possibilities:
+              - title: Move spring.factories properties
+                description: |-
+                  Move the contents of spring.factories file into `org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+                resources:
+                  - https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.7-Release-Notes#auto-configuration-registration[Auto Configuration Registration Docs]
+                recipe: sbu30-auto-configuration
+          gitHubIssue: 150
+          contributors:
+            - "Sandeep Nagaraj[@sanagaraj-pivotal]"
         - title: Banner support
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.BannerSupportHelper
           change: |-
@@ -287,12 +331,12 @@
           change: |-
             When using constructor bound @ConfigurationProperties the @ConstructorBinding annotation
             is no longer required if the class has a single parameterized constructor.
-            If you have more than one constructor, you’ll still need to use `@ConstructorBinding`
+            If you have more than one constructor, you'll still need to use `@ConstructorBinding`
             to tell Spring Boot which one to use.
 
             For most users, this updated logic will allow for simpler `@ConfigurationProperties`
             classes. If, however, you have a `@ConfigurationProperties` and you want to inject
-            beans into the constructor rather than binding it, you’ll now need to add an
+            beans into the constructor rather than binding it, you'll now need to add an
             `@Autowired` annotation.
           sources:
             - https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0.0-M2-Release-Notes#constructingbinding-no-longer-needed-at-the-type-level[Spring Boot Release Notes]
@@ -465,7 +509,7 @@
         - title: Commons Multipart Upload
           helper: org.springframework.sbm.boot.upgrade_27_30.report.helper.CommonsMultipartResolverHelper
           change: |-
-            Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
+            Support for Spring Framework's `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
           affected: |-
             We found usage of `CommonsMultipartResolver` in following files:
             
@@ -1545,36 +1589,6 @@
         #  contributors:
         #    - Your Name[@your-gh-handle]
 
-
-        #
-        # Generated from https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#json-b
-        #
-        - title: "JSON-B"
-          helper:
-            type: org.springframework.sbm.boot.upgrade_27_30.report.helper.ConditionOnlyHelper
-            condition:
-              type: org.springframework.sbm.build.migration.conditions.AnyEffectiveDependencyExistMatchingRegex
-              dependencies:
-                - 'org\.springframework\.boot\:spring-boot-starter\:.*'
-
-          change: |-
-            Dependency management for Apache Johnzon has been removed in favor of Eclipse Yasson.
-            A Jakarta EE 10-compatible version of Apache Johnzon can be used with Spring Boot 3, but you will now have to specify a version in your dependency declaration.
-
-          affected: |-
-            Actually, we don't know if the scanned application is really affected by this change.
-            But we found a dependency matching regex `org\.springframework\.boot\:spring-boot-starter\:.*`.
-            This indicates that the scanned application might be affected.
-          remediation:
-            description: |-
-              [IMPORTANT]
-              ====
-              This section has been automatically generated from the https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#json-b[Spring Boot 3.0 Migration Guide^, role="ext-link"]. +
-              **Please consider contributing to issue https://github.com/spring-projects-experimental/spring-boot-migrator/issues/678[#678^, role="ext-link"]**
-              ====
-          projects:
-            - spring-boot
-          gitHubIssue: 678
         #  contributors:
         #    - Your Name[@your-gh-handle]
 

@@ -53,11 +53,11 @@ public class RemoveImageBannerTest {
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenBuildFileSource("pom.xml", parentPom)
                 .withMavenBuildFileSource("moduleA/pom.xml", moduleA)
-                .addProjectResource("moduleA/src/main/resources/banner.jpg", "")
+                .withProjectResource("moduleA/src/main/resources/banner.jpg", "")
                 .withMavenBuildFileSource("moduleB/pom.xml", moduleB)
-                .addProjectResource("moduleB/src/main/resources/banner.png", "")
+                .withProjectResource("moduleB/src/main/resources/banner.png", "")
                 .withMavenBuildFileSource("moduleC/pom.xml", moduleC)
-                .addProjectResource("moduleC/src/main/resources/banner.gif", "")
+                .withProjectResource("moduleC/src/main/resources/banner.gif", "")
                 .build();
 
         assertThat(context.getProjectResources().list()).hasSize(7);

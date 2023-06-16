@@ -23,118 +23,127 @@ public class MuleToJavaDSLTransactionalTest extends JavaDSLActionBaseTest {
 
     @Test
     public void transactionalComponentTest() {
-        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "\n" +
-                "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
-                "      xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns:tracking=\"http://www.mulesoft.org/schema/mule/ee/tracking\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-                "      xmlns:spring=\"http://www.springframework.org/schema/beans\"\n" +
-                "      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "      xsi:schemaLocation=\"\n" +
-                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd\">\n" +
-                "    <flow name=\"example\">\n" +
-                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/transactional\" doc:name=\"HTTP\"/>\n" +
-                "        <transactional>\n" +
-                "            <foreach collection=\"#[['apple', 'banana', 'orange']]\">\n" +
-                "                <logger message=\"#[payload]\" level=\"INFO\" />\n" +
-                "            </foreach>\n" +
-                "            <logger message=\"Done with for looping\" level=\"INFO\" />\n" +
-                "        </transactional>\n" +
-                "    </flow>\n" +
-                "</mule>";
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                                
+                <mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+                      xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                      xmlns:spring="http://www.springframework.org/schema/beans"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:schemaLocation="
+                http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+                http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+                http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+                    <flow name="example">
+                        <http:listener config-ref="HTTP_Listener_Configuration" path="/transactional" doc:name="HTTP"/>
+                        <transactional>
+                            <foreach collection="#[['apple', 'banana', 'orange']]">
+                                <logger message="#[payload]" level="INFO" />
+                            </foreach>
+                            <logger message="Done with for looping" level="INFO" />
+                        </transactional>
+                    </flow>
+                </mule>
+                """;
 
         addXMLFileToResource(xml);
-        runAction();
-
-        assertThat(getGeneratedJavaFile()).isEqualTo("package com.example.javadsl;\n" +
-                "import org.springframework.context.annotation.Bean;\n" +
-                "import org.springframework.context.annotation.Configuration;\n" +
-                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                "import org.springframework.integration.handler.LoggingHandler;\n" +
-                "import org.springframework.integration.http.dsl.Http;\n" +
-                "\n" +
-                "@Configuration\n" +
-                "public class FlowConfigurations {\n" +
-                "    @Bean\n" +
-                "    IntegrationFlow example(org.springframework.integration.dsl.IntegrationFlow exampleTransactional_1) {\n" +
-                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/transactional\")).handle((p, h) -> p)\n" +
-                "                .gateway(exampleTransactional_1, e -> e.transactional(true))\n" +
-                "                .get();\n" +
-                "    }\n" +
-                "\n" +
-                "    @Bean\n" +
-                "    IntegrationFlow exampleTransactional_1() {\n" +
-                "        return flow -> flow\n" +
-                "                //TODO: translate expression #[['apple', 'banana', 'orange']] which must produces an array\n" +
-                "                // to iterate over\n" +
-                "                .split()\n" +
-                "                .log(LoggingHandler.Level.INFO, \"${payload}\")\n" +
-                "                .aggregate()\n" +
-                "                .log(LoggingHandler.Level.INFO, \"Done with for looping\");\n" +
-                "    }\n" +
-                "}");
+        runAction(projectContext -> {
+            assertThat(getGeneratedJavaFile()).isEqualTo(
+                    """
+                    package com.example.javadsl;
+                    import org.springframework.context.annotation.Bean;
+                    import org.springframework.context.annotation.Configuration;
+                    import org.springframework.integration.dsl.IntegrationFlow;
+                    import org.springframework.integration.dsl.IntegrationFlows;
+                    import org.springframework.integration.handler.LoggingHandler;
+                    import org.springframework.integration.http.dsl.Http;
+                                     
+                    @Configuration
+                    public class FlowConfigurations {
+                        @Bean
+                        IntegrationFlow example(org.springframework.integration.dsl.IntegrationFlow exampleTransactional_1) {
+                            return IntegrationFlows.from(Http.inboundGateway("/transactional")).handle((p, h) -> p)
+                                    .gateway(exampleTransactional_1, e -> e.transactional(true))
+                                    .get();
+                        }
+                                     
+                        @Bean
+                        IntegrationFlow exampleTransactional_1() {
+                            return flow -> flow
+                                    //TODO: translate expression #[['apple', 'banana', 'orange']] which must produces an array
+                                    // to iterate over
+                                    .split()
+                                    .log(LoggingHandler.Level.INFO, "${payload}")
+                                    .aggregate()
+                                    .log(LoggingHandler.Level.INFO, "Done with for looping");
+                        }
+                    }""");
+        });
     }
 
     @Test
     public void transactionalChildNodeUsesDWLTransformation() {
-        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "\n" +
-                "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
-                "      xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns:tracking=\"http://www.mulesoft.org/schema/mule/ee/tracking\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-                "      xmlns:spring=\"http://www.springframework.org/schema/beans\"\n" +
-                "      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "      xsi:schemaLocation=\"\n" +
-                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd\">\n" +
-                "    <flow name=\"example\">\n" +
-                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/transactional\" doc:name=\"HTTP\"/>\n" +
-                "        <transactional>\n" +
-                "            <foreach collection=\"#[['apple', 'banana', 'orange']]\">\n" +
-                "                <logger message=\"#[payload]\" level=\"INFO\" />\n" +
-                "                <dw:transform-message doc:name=\"action transform\">\n" +
-                "                    <dw:set-payload><![CDATA[%dw 1.0\n" +
-                "%output application/json\n" +
-                "---\n" +
-                "{\n" +
-                "    action_Code: 10,\n" +
-                "    returnCode:  20\n" +
-                "}]]></dw:set-payload>\n" +
-                "                </dw:transform-message>\n" +
-                "            </foreach>\n" +
-                "            <logger message=\"Done with for looping\" level=\"INFO\" />\n" +
-                "        </transactional>\n" +
-                "    </flow>\n" +
-                "</mule>";
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                                
+                <mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+                      xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                      xmlns:spring="http://www.springframework.org/schema/beans"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:schemaLocation="
+                http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+                http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+                http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+                    <flow name="example">
+                        <http:listener config-ref="HTTP_Listener_Configuration" path="/transactional" doc:name="HTTP"/>
+                        <transactional>
+                            <foreach collection="#[['apple', 'banana', 'orange']]">
+                                <logger message="#[payload]" level="INFO" />
+                                <dw:transform-message doc:name="action transform">
+                                    <dw:set-payload><![CDATA[%dw 1.0
+                %output application/json
+                ---
+                {
+                    action_Code: 10,
+                    returnCode:  20
+                }]]></dw:set-payload>
+                                </dw:transform-message>
+                            </foreach>
+                            <logger message="Done with for looping" level="INFO" />
+                        </transactional>
+                    </flow>
+                </mule>
+                """;
 
         addXMLFileToResource(xml);
-        runAction();
-        assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
-        assertThat(projectContext.getProjectJavaSources().list().get(1).print())
-                .isEqualTo(
-                        "package com.example.javadsl;\n" +
-                                "\n" +
-                                "public class ExampleTransactional_1Transform_1 {\n" +
-                                "    /*\n" +
-                                "     * TODO:\n" +
-                                "     *\n" +
-                                "     * Please add necessary transformation for below snippet\n" +
-                                "     * [%dw 1.0\n" +
-                                "     * %output application/json\n" +
-                                "     * ---\n" +
-                                "     * {\n" +
-                                "     *     action_Code: 10,\n" +
-                                "     *     returnCode:  20\n" +
-                                "     * }]\n" +
-                                "     * */\n" +
-                                "    public static ExampleTransactional_1Transform_1 transform(Object payload) {\n" +
-                                "\n" +
-                                "        return new ExampleTransactional_1Transform_1();\n" +
-                                "    }\n" +
-                                "}");
+        runAction(projectContext -> {
+            assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
+            assertThat(projectContext.getProjectJavaSources().list().get(1).print())
+                    .isEqualTo(
+                        """
+                        package com.example.javadsl;
+                                                   
+                        public class ExampleTransactional_1Transform_1 {
+                            /*
+                             * TODO:
+                             *
+                             * Please add necessary transformation for below snippet
+                             * [%dw 1.0
+                             * %output application/json
+                             * ---
+                             * {
+                             *     action_Code: 10,
+                             *     returnCode:  20
+                             * }]
+                             * */
+                            public static ExampleTransactional_1Transform_1 transform(Object payload) {
+                                                   
+                                return new ExampleTransactional_1Transform_1();
+                            }
+                        }"""
+                    );
+        });
     }
 }

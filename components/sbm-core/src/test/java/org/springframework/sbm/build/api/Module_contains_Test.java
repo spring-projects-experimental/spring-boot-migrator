@@ -46,11 +46,11 @@ class Module_contains_Test {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
                 .withMavenBuildFileSource("pom.xml", rootPom)
-                .addJavaSource("src/main/java", javaClass)
-                .addProjectResource("src/main/resources/resource-found.txt", "")
-                .addJavaSource("src/test/java", testjavaClass)
-                .addProjectResource("src/test/resources/test-resource-found.txt", "")
-                .addProjectResource("not-in-source-set.txt", "")
+                .withJavaSource("src/main/java", javaClass)
+                .withProjectResource("src/main/resources/resource-found.txt", "")
+                .withJavaSource("src/test/java", testjavaClass)
+                .withProjectResource("src/test/resources/test-resource-found.txt", "")
+                .withProjectResource("not-in-source-set.txt", "")
                 .build();
 
         Module root = context.getApplicationModules().getModule("root");
@@ -97,18 +97,18 @@ class Module_contains_Test {
                 .buildProjectContext()
                 // parent module
                 .withMavenBuildFileSource("pom.xml", rootPom)
-                .addProjectResource("not-in-source-set.txt", "")
+                .withProjectResource("not-in-source-set.txt", "")
                 // module1
                 .withMavenBuildFileSource("module1/pom.xml", module1Pom)
-                .addJavaSource("module1/src/test/java", testjavaClass)
-                .addProjectResource("module1/src/test/resources/test-resource-found.txt", "")
+                .withJavaSource("module1/src/test/java", testjavaClass)
+                .withProjectResource("module1/src/test/resources/test-resource-found.txt", "")
                 // module-in-module1
                 .withMavenBuildFileSource("module1/module-in-module1/pom.xml", moduleInModule1Pom)
-                .addProjectResource(sourcePathString, "")
+                .withProjectResource(sourcePathString, "")
                 // module2
                 .withMavenBuildFileSource("module2/pom.xml", module2Pom)
-                .addJavaSource("module2/src/main/java", javaClass)
-                .addProjectResource("module2/src/main/resources/resource-found.txt", "")
+                .withJavaSource("module2/src/main/java", javaClass)
+                .withProjectResource("module2/src/main/resources/resource-found.txt", "")
 
                 .build();
 

@@ -64,8 +64,8 @@ public class MultiModulePlayground {
 
         private final ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(rootPom)
-                .addProjectResource("module1/pom.xml", childPom)
-                .addJavaSourceToModule("module1/src/main/java/Foo.java", javaCode)
+                .withProjectResource("module1/pom.xml", childPom)
+                .withJavaSourceInModule("module1/src/main/java/Foo.java", javaCode)
                 .build();
 
         @Test

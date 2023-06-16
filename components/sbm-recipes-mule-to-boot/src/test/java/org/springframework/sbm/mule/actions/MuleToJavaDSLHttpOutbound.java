@@ -41,32 +41,34 @@ public class MuleToJavaDSLHttpOutbound extends JavaDSLActionBaseTest {
     @Test
     public void supportForHttpOutboundRequest() {
         addXMLFileToResource(xml);
-        runAction();
-        assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
-        assertThat(getGeneratedJavaFile())
-                .isEqualTo("package com.example.javadsl;\n" +
-                        "import org.springframework.context.annotation.Bean;\n" +
-                        "import org.springframework.context.annotation.Configuration;\n" +
-                        "import org.springframework.http.HttpMethod;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                        "import org.springframework.integration.http.dsl.Http;\n" +
-                        "\n" +
-                        "@Configuration\n" +
-                        "public class FlowConfigurations {\n" +
-                        "    @Bean\n" +
-                        "    IntegrationFlow httpFlow() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/gimme-a-cat-fact\")).handle((p, h) -> p)\n" +
-                        "                .headerFilter(\"accept-encoding\", false)\n" +
-                        "                .handle(\n" +
-                        "                        Http.outboundGateway(\"https://catfact.ninja:443/fact\")\n" +
-                        "                                .httpMethod(HttpMethod.GET)\n" +
-                        "                                //FIXME: Use appropriate response class type here instead of String.class\n" +
-                        "                                .expectedResponseType(String.class)\n" +
-                        "                )\n" +
-                        "                .handle((p, h) -> \"#[payload]\")\n" +
-                        "                .get();\n" +
-                        "    }\n" +
-                        "}");
+        runAction(projectContext1 -> {
+            assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
+            assertThat(getGeneratedJavaFile())
+                    .isEqualTo("""
+                               package com.example.javadsl;
+                               import org.springframework.context.annotation.Bean;
+                               import org.springframework.context.annotation.Configuration;
+                               import org.springframework.http.HttpMethod;
+                               import org.springframework.integration.dsl.IntegrationFlow;
+                               import org.springframework.integration.dsl.IntegrationFlows;
+                               import org.springframework.integration.http.dsl.Http;
+                                                              
+                               @Configuration
+                               public class FlowConfigurations {
+                                   @Bean
+                                   IntegrationFlow httpFlow() {
+                                       return IntegrationFlows.from(Http.inboundGateway("/gimme-a-cat-fact")).handle((p, h) -> p)
+                                               .headerFilter("accept-encoding", false)
+                                               .handle(
+                                                       Http.outboundGateway("https://catfact.ninja:443/fact")
+                                                               .httpMethod(HttpMethod.GET)
+                                                               //FIXME: Use appropriate response class type here instead of String.class
+                                                               .expectedResponseType(String.class)
+                                               )
+                                               .handle((p, h) -> "#[payload]")
+                                               .get();
+                                   }
+                               }""");
+        });
     }
 }

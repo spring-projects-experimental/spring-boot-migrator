@@ -79,22 +79,22 @@ public class MigrateJaxRsRecipe {
                                 ReplaceTypeAction.builder()
                                         .condition(HasAnnotation.builder().annotation("javax.ws.rs.PathParam").build())
                                         .description("Replace JAX-RS @PathParam with Spring Boot @PathVariable annotation.")
-                                        .annotation("javax.ws.rs.PathParam")
-                                        .withAnnotation("org.springframework.web.bind.annotation.PathVariable")
+                                        .existingType("javax.ws.rs.PathParam")
+                                        .withType("org.springframework.web.bind.annotation.PathVariable")
                                         .build(),
 
                                 ReplaceTypeAction.builder()
                                         .condition(HasAnnotation.builder().annotation("javax.ws.rs.QueryParam").build())
                                         .description("Replace JAX-RS @QueryParam with Spring Boot @RequestParam annotation.")
-                                        .annotation("javax.ws.rs.QueryParam")
-                                        .withAnnotation("org.springframework.web.bind.annotation.RequestParam")
+                                        .existingType("javax.ws.rs.QueryParam")
+                                        .withType("org.springframework.web.bind.annotation.RequestParam")
                                         .build(),
 
                                 ReplaceTypeAction.builder()
                                         .condition(HasAnnotation.builder().annotation("javax.ws.rs.FormParam").build())
                                         .description("Replace JAX-RS @FormParam with Spring Boot @RequestParam annotation.")
-                                        .annotation("javax.ws.rs.QueryParam")
-                                        .withAnnotation("org.springframework.web.bind.annotation.RequestParam")
+                                        .existingType("javax.ws.rs.QueryParam")
+                                        .withType("org.springframework.web.bind.annotation.RequestParam")
                                         .build(),
 
                                 JavaRecipeAction.builder()

@@ -14,9 +14,10 @@
 
     - type: org.springframework.sbm.build.migration.actions.AddMavenDependencyManagementAction
       condition:
-        type: org.springframework.sbm.build.migration.conditions.NoDependencyExistMatchingRegex
-        dependencies:
-          - 'org\.springframework\.boot'
+        type: org.springframework.sbm.build.migration.conditions.NoMoreRecentManagedDependencyExists
+        groupId: org.springframework.boot
+        artifactId: spring-boot-dependencies
+        version: 2.7.3
       name: "add managed dependency to Maven"
       groupId: org.springframework.boot
       artifactId: spring-boot-dependencies
@@ -33,7 +34,7 @@
                   <dependency>
                       <groupId>org.springframework.boot</groupId>
                       <artifactId>spring-boot-dependencies</artifactId>
-                      <version>2.6.3</version>
+                      <version>2.7.3</version>
                       <type>pom</type>
                       <scope>import</scope>
                   </dependency>
@@ -48,10 +49,10 @@
       dependencies:
         - groupId: org.springframework.boot
           artifactId: spring-boot-starter
-          version: 2.6.3 # OR finds the managed version and ignores this field
+          version: 2.7.3 # OR finds the managed version and ignores this field
         - groupId: org.springframework.boot
           artifactId: spring-boot-starter-test
-          version: 2.6.3
+          version: 2.7.3
           scope: test
       multiModuleHandler:
         type: org.springframework.sbm.build.migration.actions.AddDependenciesToApplicationModules

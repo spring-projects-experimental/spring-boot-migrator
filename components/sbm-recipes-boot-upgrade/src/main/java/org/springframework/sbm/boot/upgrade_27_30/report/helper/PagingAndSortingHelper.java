@@ -20,8 +20,8 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.marker.SearchResult;
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -99,7 +99,7 @@ public class PagingAndSortingHelper extends SpringBootUpgradeReportSectionHelper
 
             @NotNull
             private J.ClassDeclaration applyThisRecipe(J.ClassDeclaration classDecl) {
-                return classDecl.withMarkers(classDecl.getMarkers().searchResult());
+                return SearchResult.found(classDecl, "Found type implementing PagingAndSorting.");
             }
         });
     }

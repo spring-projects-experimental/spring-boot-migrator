@@ -26,6 +26,7 @@ import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfiguration
 import org.springframework.sbm.mule.resource.MuleXml;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceFilter;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import javax.xml.bind.JAXBElement;
@@ -75,8 +76,8 @@ class AmqpInboundEndpointTranslatorTest {
     void amqpTranslatorTest() {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/mule/amqp-mule.xml", amqpXML)
-                .addRegistrar(new MuleXmlProjectResourceRegistrar())
+                .withProjectResource("src/main/mule/amqp-mule.xml", amqpXML)
+                .addRegistrar(new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext()))
                 .build();
 
         DslSnippet snippet = apply(projectContext);

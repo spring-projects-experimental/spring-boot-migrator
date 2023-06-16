@@ -50,8 +50,8 @@ class MoveFilesActionTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withProjectRoot(projectRoot)
-                .addProjectResource(someFilePath, fileContent1)
-                .addProjectResource(anotherFilePath, fileContent2)
+                .withProjectResource(someFilePath, fileContent1)
+                .withProjectResource(anotherFilePath, fileContent2)
                 .build();
 
         ProjectResource someFile = projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/SomeFile.foo")).get(0);

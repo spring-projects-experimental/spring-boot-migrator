@@ -106,12 +106,12 @@ class ModuleTest {
         String javaSource4 = "public class SomeTest {}";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addProjectResource("pom.xml", parentPom)
-                .addProjectResource("module1/pom.xml", pom1)
-                .addProjectResource("module2/pom.xml", pom2)
-                .addJavaSource("module1/src/main/java", javaSource2)
-                .addJavaSource("module2/src/main/java", javaSource3)
-                .addJavaSource("module2/src/test/java", javaSource4)
+                .withProjectResource("pom.xml", parentPom)
+                .withProjectResource("module1/pom.xml", pom1)
+                .withProjectResource("module2/pom.xml", pom2)
+                .withJavaSource("module1/src/main/java", javaSource2)
+                .withJavaSource("module2/src/main/java", javaSource3)
+                .withJavaSource("module2/src/test/java", javaSource4)
                 .build();
 
         Module parentModule = context.getApplicationModules().getModule(Path.of(""));

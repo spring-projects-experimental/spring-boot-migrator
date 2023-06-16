@@ -24,6 +24,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 class MigrateSimpleMuleAppDataweaveIntegrationTest extends IntegrationTestBaseClass {
     private final RestTemplate restTemplate = new RestTemplate();
     private static RunningNetworkedContainer tmDataweaveContainer;

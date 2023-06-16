@@ -16,6 +16,7 @@
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.upgrade.common.UpgradeReportUtil;
 import org.springframework.sbm.engine.recipe.AbstractAction;
@@ -46,6 +47,10 @@ public class Boot_24_25_UpgradeReportAction extends AbstractAction {
     @JsonIgnore
     private List<UpgradeSectionBuilder> upgradeSectionBuilders = new ArrayList<>();
 
+    @Autowired
+    @JsonIgnore
+    private ExecutionContext executionContext;
+
     @Override
     public void apply(ProjectContext projectContext) {
 
@@ -61,7 +66,8 @@ public class Boot_24_25_UpgradeReportAction extends AbstractAction {
         String markdown = UpgradeReportUtil.renderMarkdown(params, configuration);
         String html = UpgradeReportUtil.renderHtml(markdown);
         Path htmlPath = projectContext.getProjectRootDirectory().resolve(Path.of("Upgrade-Spring-Boot-2.4-to-2.5.html"));
-        projectContext.getProjectResources().add(new StringProjectResource(projectContext.getProjectRootDirectory(), htmlPath, html));
+        projectContext.getProjectResources().add(new StringProjectResource(projectContext.getProjectRootDirectory(), htmlPath, html,
+                                                                           executionContext));
     }
 
 

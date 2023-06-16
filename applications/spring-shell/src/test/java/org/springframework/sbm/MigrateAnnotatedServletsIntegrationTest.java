@@ -35,58 +35,61 @@ public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBase
     @Test
     void happyPath() {
 
-        String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n" +
-                "         xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
-                "    <modelVersion>4.0.0</modelVersion>\n" +
-                "    <groupId>com.vmware.example</groupId>\n" +
-                "    <artifactId>jboss-sample</artifactId>\n" +
-                "    <version>1.0.0</version>\n" +
-                "    <properties>\n" +
-                "        <maven.compiler.source>1.8</maven.compiler.source>\n" +
-                "        <maven.compiler.target>11</maven.compiler.target>\n" +
-                "    </properties>\n" +
-                "    <dependencies>\n" +
-                "        <dependency>\n" +
-                "            <groupId>javax.ejb</groupId>\n" +
-                "            <artifactId>javax.ejb-api</artifactId>\n" +
-                "            <version>3.2</version>\n" +
-                "            <scope>provided</scope>\n" +
-                "        </dependency>\n" +
-                "        <dependency>\n" +
-                "            <groupId>javax.enterprise</groupId>\n" +
-                "            <artifactId>cdi-api</artifactId>\n" +
-                "            <version>1.2</version>\n" +
-                "            <scope>provided</scope>\n" +
-                "        </dependency>\n" +
-                "        <dependency>\n" +
-                "            <groupId>javax.servlet</groupId>\n" +
-                "            <artifactId>javax.servlet-api</artifactId>\n" +
-                "            <version>4.0.1</version>\n" +
-                "        </dependency>\n" +
-                "   </dependencies>\n" +
-                "</project>\n";
+        String pomXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+                         xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>com.vmware.example</groupId>
+                    <artifactId>jboss-sample</artifactId>
+                    <version>1.0.0</version>
+                    <properties>
+                        <maven.compiler.source>1.8</maven.compiler.source>
+                        <maven.compiler.target>11</maven.compiler.target>
+                    </properties>
+                    <dependencies>
+                        <dependency>
+                            <groupId>javax.ejb</groupId>
+                            <artifactId>javax.ejb-api</artifactId>
+                            <version>3.2</version>
+                            <scope>provided</scope>
+                        </dependency>
+                        <dependency>
+                            <groupId>javax.enterprise</groupId>
+                            <artifactId>cdi-api</artifactId>
+                            <version>1.2</version>
+                            <scope>provided</scope>
+                        </dependency>
+                        <dependency>
+                            <groupId>javax.servlet</groupId>
+                            <artifactId>javax.servlet-api</artifactId>
+                            <version>4.0.1</version>
+                        </dependency>
+                   </dependencies>
+                </project>
+                """;
 
-        String servletClass =
-                "package org.jboss.as.quickstarts.helloworld;\n" +
-                        "\n" +
-                        "import java.io.IOException;\n" +
-                        "import java.io.PrintWriter;\n" +
-                        "\n" +
-                        "import javax.servlet.ServletException;\n" +
-                        "import javax.servlet.annotation.WebServlet;\n" +
-                        "import javax.servlet.http.HttpServlet;\n" +
-                        "import javax.servlet.http.HttpServletRequest;\n" +
-                        "import javax.servlet.http.HttpServletResponse;\n" +
-                        "\n" +
-                        "@WebServlet(\"/HelloWorld\")\n" +
-                        "public class HelloWorldServlet extends HttpServlet {\n" +
-                        "    @Override\n" +
-                        "    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {\n" +
-                        "        resp.getWriter().append(\"Hello World!\");\n" +
-                        "    }\n" +
-                        "}\n";
+        String servletClass = """
+                package org.jboss.as.quickstarts.helloworld;
+                                
+                import java.io.IOException;
+                import java.io.PrintWriter;
+                                
+                import javax.servlet.ServletException;
+                import javax.servlet.annotation.WebServlet;
+                import javax.servlet.http.HttpServlet;
+                import javax.servlet.http.HttpServletRequest;
+                import javax.servlet.http.HttpServletResponse;
+                                
+                @WebServlet("/HelloWorld")
+                public class HelloWorldServlet extends HttpServlet {
+                    @Override
+                    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                        resp.getWriter().append("Hello World!");
+                    }
+                }
+                """;
 
         writeFile(pomXml, "pom.xml");
         writeJavaFile(servletClass);
@@ -107,9 +110,10 @@ public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBase
         assertThat(content).contains("@SpringBootApplication").withFailMessage(() -> "@SpringBootApplication annotation not found");
         assertThat(content).contains("@ServletComponentScan").withFailMessage(() -> "@ServletComponentScan annotation not found");
 
-        executeMavenGoals(getTestDir(), "package");
+        String servlet = loadJavaFile("org.jboss.as.quickstarts.helloworld", "HelloWorldServlet");
+        assertThat(content).contains("@SpringBootApplication").withFailMessage(() -> "@SpringBootApplication annotation not found");
 
-        executeMavenGoals(getTestDir(), "package", "spring-boot:build-image");
+        executeMavenGoals(getTestDir(), "spring-boot:build-image");
 
         Integer port = startDockerContainer("jboss-sample:1.0.0", "/HelloWorld", 8080);
 
@@ -120,4 +124,49 @@ public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBase
 
     }
 
+    @Test
+    void recipeNBotApplicableWhenOnlyFilterExists() {
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+                         xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>com.vmware.example</groupId>
+                    <artifactId>jboss-sample</artifactId>
+                    <version>1.0.0</version>
+                    <properties>
+                        <maven.compiler.source>1.8</maven.compiler.source>
+                        <maven.compiler.target>11</maven.compiler.target>
+                    </properties>
+                    <dependencies>
+                        <dependency>
+                            <groupId>javax.servlet</groupId>
+                            <artifactId>javax.servlet-api</artifactId>
+                            <version>4.0.1</version>
+                        </dependency>
+                   </dependencies>
+                </project>
+                """;
+
+        String servletFilterClass = """
+                package org.jboss.as.quickstarts.helloworld;
+                import javax.servlet.annotation.WebFilter;
+                
+                @WebFilter("/")
+                public class MyFilter {
+                }
+                """;
+
+        writeFile(pom, "pom.xml");
+        writeJavaFile(servletFilterClass);
+
+        executeMavenGoals(getTestDir(), "compile");
+
+        scanProject();
+
+        assertRecipeNotApplicable(
+                "migrate-annotated-servlets"
+        );
+    }
 }

@@ -26,7 +26,7 @@ public class ScanCommandHeaderRenderer {
         AttributedStringBuilder builder = new AttributedStringBuilder();
         builder.append("\n");
         builder.style(AttributedStyle.DEFAULT.italicDefault().boldDefault().foreground(Colors.rgbColor("green")));
-        builder.append("scanning '" + projectRoot + "'");
+        builder.append("scanning '").append(projectRoot).append("'");
         return builder.toAnsi();
     }
 }

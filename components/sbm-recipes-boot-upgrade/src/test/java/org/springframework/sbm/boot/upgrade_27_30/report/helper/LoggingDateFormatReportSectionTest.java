@@ -20,6 +20,7 @@ import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMa
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportTestSupport;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 /**
@@ -32,8 +33,8 @@ public class LoggingDateFormatReportSectionTest {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
                 .withSpringBootParentOf("2.7.5")
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
-                .addProjectResource("src/main/resources/application-myprofile.properties", "not.logging.pattern.dateformat=some-format")
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
+                .withProjectResource("src/main/resources/application-myprofile.properties", "not.logging.pattern.dateformat=some-format")
                 .build();
 
         SpringBootUpgradeReportTestSupport
@@ -45,7 +46,7 @@ public class LoggingDateFormatReportSectionTest {
                         
                         ==== What Changed
                         The default format for the date and time component of log messages for Logback and Log4j2 has changed to
-                        align with the ISO-8601 standard. The new default format `yyyy-MM-dd’T’HH:mm:ss.SSSXXX` uses a `T` to
+                        align with the ISO-8601 standard. The new default format `yyyy-MM-dd'T'HH:mm:ss.SSSXXX` uses a `T` to
                         separate the date and time instead of a space character and adds the timezone offset to the end.
                         The `LOG_DATEFORMAT_PATTERN` environment variable or `logging.pattern.dateformat` property can be used to
                         restore the previous default value of `yyyy-MM-dd HH:mm:ss.SSS`.
@@ -77,7 +78,7 @@ public class LoggingDateFormatReportSectionTest {
                         
                         ==== What Changed
                         The default format for the date and time component of log messages for Logback and Log4j2 has changed to
-                        align with the ISO-8601 standard. The new default format `yyyy-MM-dd’T’HH:mm:ss.SSSXXX` uses a `T` to
+                        align with the ISO-8601 standard. The new default format `yyyy-MM-dd'T'HH:mm:ss.SSSXXX` uses a `T` to
                         separate the date and time instead of a space character and adds the timezone offset to the end.
                         The `LOG_DATEFORMAT_PATTERN` environment variable or `logging.pattern.dateformat` property can be used to
                         restore the previous default value of `yyyy-MM-dd HH:mm:ss.SSS`.
@@ -97,8 +98,8 @@ public class LoggingDateFormatReportSectionTest {
     void shouldNotRenderSectionWhenPropertyIsDefined() {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
-                .addProjectResource("src/main/resources/application-myprofile.properties", "logging.pattern.dateformat=some-format")
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
+                .withProjectResource("src/main/resources/application-myprofile.properties", "logging.pattern.dateformat=some-format")
                 .build();
 
         SpringBootUpgradeReportTestSupport

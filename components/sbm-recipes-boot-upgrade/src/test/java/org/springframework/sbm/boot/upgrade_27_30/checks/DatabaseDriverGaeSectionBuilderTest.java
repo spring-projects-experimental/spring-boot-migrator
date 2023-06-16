@@ -38,7 +38,7 @@ class DatabaseDriverGaeSectionBuilderTest {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("com.google.appengine:appengine-api-1.0-sdk:1.9.17")
-                .addJavaSource("src/main/java", javaClass)
+                .withJavaSource("src/main/java", javaClass)
                 .build();
 
         Sbu30_PreconditionCheckResult result = new DatabaseDriverGaeSectionBuilder(new DatabaseDriverGaeFinder()).run(context);

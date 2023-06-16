@@ -16,6 +16,7 @@
 package org.springframework.sbm.boot.properties;
 
 import lombok.RequiredArgsConstructor;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.properties.tree.Properties;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
@@ -37,6 +38,7 @@ public class SpringBootApplicationPropertiesRegistrar implements ProjectResource
     public static final String PATTERN1 = "/**/src/main/resources/config/application*.properties";
     private PathMatcher pathMatcher = new OsAgnosticPathMatcher();
     private final SpringApplicationPropertiesPathMatcher springApplicationPropertiesPathMatcher;
+    private final ExecutionContext executionContext;
 
     @Override
     public boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
@@ -49,7 +51,7 @@ public class SpringBootApplicationPropertiesRegistrar implements ProjectResource
     public SpringBootApplicationProperties wrapRewriteSourceFileHolder(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
         // TODO: How to pass current executionContext ?
         Properties.File properties = Properties.File.class.cast(rewriteSourceFileHolder.getSourceFile());
-        SpringBootApplicationProperties springBootApplicationProperties = new SpringBootApplicationProperties(rewriteSourceFileHolder.getAbsoluteProjectDir(), properties);
+        SpringBootApplicationProperties springBootApplicationProperties = new SpringBootApplicationProperties(rewriteSourceFileHolder.getAbsoluteProjectDir(), properties, executionContext);
         SpringProfile springProfile = extractProfileFromFilename(springBootApplicationProperties.getAbsolutePath());
         springBootApplicationProperties.setSpringProfile(springProfile);
         return springBootApplicationProperties;

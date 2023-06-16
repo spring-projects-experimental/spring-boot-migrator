@@ -23,6 +23,7 @@ import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AddMavenDependencyManagementActionTest {
 
@@ -204,5 +205,61 @@ class AddMavenDependencyManagementActionTest {
         assertThat(buildFile.print())
                 .as(TestDiff.of(buildFile.print(), expected))
                 .isEqualTo(expected);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSameManagedDependencyExistsWithHigherVersion() {
+        String versionInPom = "2.7.5";
+        String versionInRecipe = "2.7.4";
+        testAddMavenDependencyManagementAction(versionInPom, versionInRecipe);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSameManagedDependencyExistsWithSameVersion() {
+        String versionInPom = "2.7.5";
+        String versionInRecipe = "2.7.5";
+        testAddMavenDependencyManagementAction(versionInPom, versionInRecipe);
+    }
+
+    private void testAddMavenDependencyManagementAction(String versionInPom, String versionInRecipe) {
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                	<modelVersion>4.0.0</modelVersion>
+                	<groupId>com.example</groupId>
+                	<artifactId>demo</artifactId>
+                	<version>0.0.1-SNAPSHOT</version>
+                	<name>demo</name>
+                	<description>Demo project for Spring Boot</description>
+                	<properties>
+                		<java.version>17</java.version>
+                	</properties>
+                	<dependencyManagement>
+                		<dependencies>
+                			<dependency>
+                				<groupId>org.springframework.boot</groupId>
+                				<artifactId>spring-boot-dependencies</artifactId>
+                				<version>%s</version>
+                				<type>pom</type>
+                				<scope>import</scope>
+                			</dependency>
+                		</dependencies>
+                	</dependencyManagement>
+                </project>
+                """.formatted(versionInPom);
+
+        ProjectContext projectContext = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pom).build();
+
+        AddMavenDependencyManagementAction sut = new AddMavenDependencyManagementAction();
+        sut.setGroupId("org.springframework.boot");
+        sut.setArtifactId("spring-boot-dependencies");
+
+        sut.setVersion(versionInRecipe);
+
+        assertThrows(IllegalStateException.class, () -> {
+            sut.apply(projectContext);
+        }).getMessage().equals("Failed to add a managed dependency org.springframework.boot:spring-boot-dependencies with version "+ versionInRecipe +". " +
+                               "This managed dependency already exists in " + projectContext.getApplicationModules().getRootModule().getBuildFile().getAbsolutePath().toString() + " in version "+versionInPom+".");
     }
 }

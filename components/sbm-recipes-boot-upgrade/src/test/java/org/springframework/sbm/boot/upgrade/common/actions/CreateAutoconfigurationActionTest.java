@@ -38,7 +38,7 @@ class CreateAutoconfigurationActionTest {
     @BeforeEach
     public void setup() {
         context = TestProjectContext.buildProjectContext()
-                .addProjectResource(
+                .withProjectResource(
                         "src/main/resources/META-INF/spring.factories",
                         """
                                 hello.world=something
@@ -79,7 +79,7 @@ class CreateAutoconfigurationActionTest {
     @Test
     public void shouldMoveMultipleProperties() {
         context = TestProjectContext.buildProjectContext()
-                .addProjectResource(
+                .withProjectResource(
                         "src/main/resources/META-INF/spring.factories",
                         """
                                 hello.world=something
@@ -144,7 +144,7 @@ class CreateAutoconfigurationActionTest {
     private ProjectContext moduleInModuleProjectContext() {
         return TestProjectContext.
                 buildProjectContext()
-                .addProjectResource("pom.xml",
+                .withProjectResource("pom.xml",
                         """
                                 <?xml version="1.0" encoding="UTF-8"?>
                                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -159,7 +159,7 @@ class CreateAutoconfigurationActionTest {
                                     <name>root</name>
                                 </project>
                                 """)
-                .addProjectResource("app/pom.xml",
+                .withProjectResource("app/pom.xml",
                         """
                                 <?xml version="1.0" encoding="UTF-8"?>
                                                                 
@@ -179,7 +179,7 @@ class CreateAutoconfigurationActionTest {
                                     </modules>
                                 </project>
                                 """)
-                .addProjectResource("app/spring-app/pom.xml",
+                .withProjectResource("app/spring-app/pom.xml",
                         """
                                 <?xml version="1.0" encoding="UTF-8"?>
                                                                 
@@ -196,7 +196,7 @@ class CreateAutoconfigurationActionTest {
                                     <artifactId>spring-app</artifactId>
                                 </project>
                                 """)
-                .addProjectResource("app/spring-app/src/main/resources/META-INF/spring.factories",
+                .withProjectResource("app/spring-app/src/main/resources/META-INF/spring.factories",
                         """
                                 org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.hello.GreetingConfig
                                 """)
@@ -206,7 +206,7 @@ class CreateAutoconfigurationActionTest {
     private ProjectContext setupMultiMavenSpringModule() {
         return TestProjectContext.
                 buildProjectContext()
-                .addProjectResource("pom.xml",
+                .withProjectResource("pom.xml",
                         """
                                 <?xml version="1.0" encoding="UTF-8"?>
                                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -222,7 +222,7 @@ class CreateAutoconfigurationActionTest {
                                     <name>root</name>
                                 </project>
                                 """)
-                .addProjectResource("spring-app/pom.xml",
+                .withProjectResource("spring-app/pom.xml",
                         """
                                 <?xml version="1.0" encoding="UTF-8"?>
                                                                 
@@ -240,7 +240,7 @@ class CreateAutoconfigurationActionTest {
                                 </project>
                                                                 
                                 """)
-                .addProjectResource("spring-app/src/main/resources/META-INF/spring.factories",
+                .withProjectResource("spring-app/src/main/resources/META-INF/spring.factories",
                         """
                                 org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.hello.GreetingConfig
                                 """)

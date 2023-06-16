@@ -62,7 +62,7 @@ public class ConstructorBindingReportSectionTest {
                 """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", javaClassWithConstructorBinding)
+                .withJavaSource("src/main/java", javaClassWithConstructorBinding)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1")
                 .build();
 
@@ -76,12 +76,12 @@ public class ConstructorBindingReportSectionTest {
                     ==== What Changed
                     When using constructor bound @ConfigurationProperties the @ConstructorBinding annotation
                     is no longer required if the class has a single parameterized constructor.
-                    If you have more than one constructor, you’ll still need to use `@ConstructorBinding`
+                    If you have more than one constructor, you'll still need to use `@ConstructorBinding`
                     to tell Spring Boot which one to use.
                                                     
                     For most users, this updated logic will allow for simpler `@ConfigurationProperties`
                     classes. If, however, you have a `@ConfigurationProperties` and you want to inject
-                    beans into the constructor rather than binding it, you’ll now need to add an
+                    beans into the constructor rather than binding it, you'll now need to add an
                     `@Autowired` annotation.
                                                     
                     ==== Why is the application affected
@@ -110,7 +110,7 @@ public class ConstructorBindingReportSectionTest {
                 """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java/com/example/A.java", javaClassWithConstructorBinding)
+                .withJavaSource("src/main/java/com/example/A.java", javaClassWithConstructorBinding)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot:2.7.1")
                 .build();
 

@@ -23,221 +23,233 @@ public class MuleToJavaDSLForeachTest extends JavaDSLActionBaseTest {
 
     @Test
     public void simpleForEachTest() {
-        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "\n" +
-                "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
-                "    xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns:tracking=\"http://www.mulesoft.org/schema/mule/ee/tracking\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-                "    xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
-                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "    xsi:schemaLocation=\"\n" +
-                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd\">\n" +
-                "    <flow name=\"foreach\">\n" +
-                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/foreach\" doc:name=\"HTTP\"/>    \n" +
-                "        <foreach collection=\"#[['apple', 'banana', 'orange']]\">\n" +
-                "            <logger message=\"#[payload]\" level=\"INFO\" />\n" +
-                "        </foreach>\n" +
-                "        <logger message=\"Done with for looping\" level=\"INFO\" />\n" +
-                "    </flow>\n" +
-                "</mule>";
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                                
+                <mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+                    xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                    xmlns:spring="http://www.springframework.org/schema/beans"\s
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="
+                http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+                http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+                http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+                    <flow name="foreach">
+                        <http:listener config-ref="HTTP_Listener_Configuration" path="/foreach" doc:name="HTTP"/>   \s
+                        <foreach collection="#[['apple', 'banana', 'orange']]">
+                            <logger message="#[payload]" level="INFO" />
+                        </foreach>
+                        <logger message="Done with for looping" level="INFO" />
+                    </flow>
+                </mule>
+                """;
 
         addXMLFileToResource(xml);
-        runAction();
-        assertThat(getGeneratedJavaFile()).isEqualTo(
-                "package com.example.javadsl;\n" +
-                        "import org.springframework.context.annotation.Bean;\n" +
-                        "import org.springframework.context.annotation.Configuration;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integr" +
-                        "ation.dsl.IntegrationFlows;\n" +
-                        "import org.springframework.integration.handler.LoggingHandler;\n" +
-                        "import org.springframework.integration.http.dsl.Http;\n" +
-                        "\n" +
-                        "@Configuration\n" +
-                        "public class FlowConfigurations {\n" +
-                        "    @Bean\n" +
-                        "    IntegrationFlow foreach() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/foreach\")).handle((p, h) -> p)\n" +
-                        "                //TODO: translate expression #[['apple', 'banana', 'orange']] which must produces an array\n" +
-                        "                // to iterate over\n" +
-                        "                .split()\n" +
-                        "                .log(LoggingHandler.Level.INFO, \"${payload}\")\n" +
-                        "                .aggregate()\n" +
-                        "                .log(LoggingHandler.Level.INFO, \"Done with for looping\")\n" +
-                        "                .get();\n" +
-                        "    }\n" +
-                        "}");
+        runAction(projectContext -> {
+            assertThat(getGeneratedJavaFile()).isEqualTo(
+                """
+                package com.example.javadsl;
+                import org.springframework.context.annotation.Bean;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.integration.dsl.IntegrationFlow;
+                import org.springframework.integration.dsl.IntegrationFlows;
+                import org.springframework.integration.handler.LoggingHandler;
+                import org.springframework.integration.http.dsl.Http;
+                                 
+                @Configuration
+                public class FlowConfigurations {
+                    @Bean
+                    IntegrationFlow foreach() {
+                        return IntegrationFlows.from(Http.inboundGateway("/foreach")).handle((p, h) -> p)
+                                //TODO: translate expression #[['apple', 'banana', 'orange']] which must produces an array
+                                // to iterate over
+                                .split()
+                                .log(LoggingHandler.Level.INFO, "${payload}")
+                                .aggregate()
+                                .log(LoggingHandler.Level.INFO, "Done with for looping")
+                                .get();
+                    }
+                }""");
+        });
     }
 
     @Test
     public void forEachWithChoice() {
 
-        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "\n" +
-                "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
-                "    xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns:tracking=\"http://www.mulesoft.org/schema/mule/ee/tracking\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-                "    xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
-                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "    xsi:schemaLocation=\"\n" +
-                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd\">\n" +
-                "    <flow name=\"foreach\">\n" +
-                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/foreach\" doc:name=\"HTTP\"/>    \n" +
-                "        <foreach collection=\"#[[1, 2, 3, 4]]\">\n" +
-                "            <choice doc:name=\"Choice\">\n" +
-                "            <when expression=\"#[payload == 1]\">\n" +
-                "                <logger level=\"INFO\" message=\"Ondu\"></logger>\n" +
-                "            </when>\n" +
-                "            <when expression=\"#[payload == 2]\">\n" +
-                "                <logger level=\"INFO\" message=\"Eradu\"></logger>\n" +
-                "            </when>\n" +
-                "            <when expression=\"#[payload == 3]\">\n" +
-                "                <logger level=\"INFO\" message=\"Mooru\"></logger>\n" +
-                "            </when>\n" +
-                "            <otherwise>\n" +
-                "                <logger level=\"INFO\" message=\"Moorina mele\"></logger>\n" +
-                "            </otherwise>\n" +
-                "        </choice>\n" +
-                "        </foreach>\n" +
-                "        <logger message=\"Done with for looping\" level=\"INFO\" />\n" +
-                "    </flow>\n" +
-                "</mule>";
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                                
+                <mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+                    xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                    xmlns:spring="http://www.springframework.org/schema/beans"\s
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="
+                http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+                http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+                http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+                    <flow name="foreach">
+                        <http:listener config-ref="HTTP_Listener_Configuration" path="/foreach" doc:name="HTTP"/>   \s
+                        <foreach collection="#[[1, 2, 3, 4]]">
+                            <choice doc:name="Choice">
+                            <when expression="#[payload == 1]">
+                                <logger level="INFO" message="Ondu"></logger>
+                            </when>
+                            <when expression="#[payload == 2]">
+                                <logger level="INFO" message="Eradu"></logger>
+                            </when>
+                            <when expression="#[payload == 3]">
+                                <logger level="INFO" message="Mooru"></logger>
+                            </when>
+                            <otherwise>
+                                <logger level="INFO" message="Moorina mele"></logger>
+                            </otherwise>
+                        </choice>
+                        </foreach>
+                        <logger message="Done with for looping" level="INFO" />
+                    </flow>
+                </mule>
+                """;
 
         addXMLFileToResource(xml);
-        runAction();
-
-        assertThat(getGeneratedJavaFile()).isEqualTo(
-                "package com.example.javadsl;\n" +
-                        "import org.springframework.context.annotation.Bean;\n" +
-                        "import org.springframework.context.annotation.Configuration;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                        "import org.springframework.integration.handler.LoggingHandler;\n" +
-                        "import org.springframework.integration.http.dsl.Http;\n" +
-                        "import org.springframework.util.LinkedMultiValueMap;\n" +
-                        "\n" +
-                        "@Configuration\n" +
-                        "public class FlowConfigurations {\n" +
-                        "    @Bean\n" +
-                        "    IntegrationFlow foreach() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/foreach\")).handle((p, h) -> p)\n" +
-                        "                //TODO: translate expression #[[1, 2, 3, 4]] which must produces an array\n" +
-                        "                // to iterate over\n" +
-                        "                .split()\n" +
-                        "                /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
-                        "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
-                        "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
-                        "                        m -> m\n" +
-                        "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 1]*/,\n" +
-                        "                                        sf -> sf.log(LoggingHandler.Level.INFO, \"Ondu\")\n" +
-                        "                                )\n" +
-                        "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 2]*/,\n" +
-                        "                                        sf -> sf.log(LoggingHandler.Level.INFO, \"Eradu\")\n" +
-                        "                                )\n" +
-                        "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 3]*/,\n" +
-                        "                                        sf -> sf.log(LoggingHandler.Level.INFO, \"Mooru\")\n" +
-                        "                                )\n" +
-                        "                                .resolutionRequired(false)\n" +
-                        "                                .defaultSubFlowMapping(sf -> sf.log(LoggingHandler.Level.INFO, \"Moorina mele\"))\n" +
-                        "                )\n" +
-                        "                .aggregate()\n" +
-                        "                .log(LoggingHandler.Level.INFO, \"Done with for looping\")\n" +
-                        "                .get();\n" +
-                        "    }\n" +
-                        "}");
+        runAction(projectContext -> {
+            assertThat(getGeneratedJavaFile()).isEqualTo(
+                    """
+                    package com.example.javadsl;
+                    import org.springframework.context.annotation.Bean;
+                    import org.springframework.context.annotation.Configuration;
+                    import org.springframework.integration.dsl.IntegrationFlow;
+                    import org.springframework.integration.dsl.IntegrationFlows;
+                    import org.springframework.integration.handler.LoggingHandler;
+                    import org.springframework.integration.http.dsl.Http;
+                    import org.springframework.util.LinkedMultiValueMap;
+                                     
+                    @Configuration
+                    public class FlowConfigurations {
+                        @Bean
+                        IntegrationFlow foreach() {
+                            return IntegrationFlows.from(Http.inboundGateway("/foreach")).handle((p, h) -> p)
+                                    //TODO: translate expression #[[1, 2, 3, 4]] which must produces an array
+                                    // to iterate over
+                                    .split()
+                                    /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/
+                                    .<LinkedMultiValueMap<String, String>, String>route(
+                                            p -> p.getFirst("dataKey") /*TODO: use apt condition*/,
+                                            m -> m
+                                                    .subFlowMapping("dataValue" /*TODO: Translate dataValue to #[payload == 1]*/,
+                                                            sf -> sf.log(LoggingHandler.Level.INFO, "Ondu")
+                                                    )
+                                                    .subFlowMapping("dataValue" /*TODO: Translate dataValue to #[payload == 2]*/,
+                                                            sf -> sf.log(LoggingHandler.Level.INFO, "Eradu")
+                                                    )
+                                                    .subFlowMapping("dataValue" /*TODO: Translate dataValue to #[payload == 3]*/,
+                                                            sf -> sf.log(LoggingHandler.Level.INFO, "Mooru")
+                                                    )
+                                                    .resolutionRequired(false)
+                                                    .defaultSubFlowMapping(sf -> sf.log(LoggingHandler.Level.INFO, "Moorina mele"))
+                                    )
+                                    .aggregate()
+                                    .log(LoggingHandler.Level.INFO, "Done with for looping")
+                                    .get();
+                        }
+                    }""");
+        });
     }
 
     @Test
     public void forEachWithCallToSubflow() {
 
-        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "\n" +
-                "<mule xmlns:dw=\"http://www.mulesoft.org/schema/mule/ee/dw\"\n" +
-                "    xmlns:http=\"http://www.mulesoft.org/schema/mule/http\" xmlns:tracking=\"http://www.mulesoft.org/schema/mule/ee/tracking\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-                "    xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
-                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "    xsi:schemaLocation=\"\n" +
-                "http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd\n" +
-                "http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd\">\n" +
-                "    <flow name=\"foreach\">\n" +
-                "        <http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/foreach\" doc:name=\"HTTP\"/>    \n" +
-                "        <foreach collection=\"#[[1, 2, 3, 4]]\">\n" +
-                "            <choice doc:name=\"Choice\">\n" +
-                "            <when expression=\"#[payload == 1]\">\n" +
-                "                <flow-ref name=\"logOneInKannada\"></flow-ref>\n" +
-                "            </when>\n" +
-                "            <when expression=\"#[payload == 2]\">\n" +
-                "                <logger level=\"INFO\" message=\"Eradu\"></logger>\n" +
-                "            </when>\n" +
-                "            <when expression=\"#[payload == 3]\">\n" +
-                "                <logger level=\"INFO\" message=\"Mooru\"></logger>\n" +
-                "            </when>\n" +
-                "            <otherwise>\n" +
-                "                <logger level=\"INFO\" message=\"Moorina mele\"></logger>\n" +
-                "            </otherwise>\n" +
-                "        </choice>\n" +
-                "        </foreach>\n" +
-                "        <logger message=\"Done with for looping\" level=\"INFO\" />\n" +
-                "    </flow>\n" +
-                "    \n" +
-                "    <sub-flow name=\"logOneInKannada\">\n" +
-                "       <logger message=\"Ondu\" level=\"INFO\" doc:name=\"loggerOrdinal\"/>\n" +
-                "   </sub-flow>\n" +
-                "</mule>";
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                                
+                <mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+                    xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                    xmlns:spring="http://www.springframework.org/schema/beans"\s
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="
+                http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+                http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+                http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+                    <flow name="foreach">
+                        <http:listener config-ref="HTTP_Listener_Configuration" path="/foreach" doc:name="HTTP"/>   \s
+                        <foreach collection="#[[1, 2, 3, 4]]">
+                            <choice doc:name="Choice">
+                            <when expression="#[payload == 1]">
+                                <flow-ref name="logOneInKannada"></flow-ref>
+                            </when>
+                            <when expression="#[payload == 2]">
+                                <logger level="INFO" message="Eradu"></logger>
+                            </when>
+                            <when expression="#[payload == 3]">
+                                <logger level="INFO" message="Mooru"></logger>
+                            </when>
+                            <otherwise>
+                                <logger level="INFO" message="Moorina mele"></logger>
+                            </otherwise>
+                        </choice>
+                        </foreach>
+                        <logger message="Done with for looping" level="INFO" />
+                    </flow>
+                   \s
+                    <sub-flow name="logOneInKannada">
+                       <logger message="Ondu" level="INFO" doc:name="loggerOrdinal"/>
+                   </sub-flow>
+                </mule>
+                """;
 
         addXMLFileToResource(xml);
-        runAction();
+        runAction(projectContext -> {
+            assertThat(getGeneratedJavaFile()).isEqualTo(
+                    """
+                    package com.example.javadsl;
+                    import org.springframework.context.annotation.Bean;
+                    import org.springframework.context.annotation.Configuration;
+                    import org.springframework.integration.dsl.IntegrationFlow;
+                    import org.springframework.integration.dsl.IntegrationFlows;
+                    import org.springframework.integration.handler.LoggingHandler;
+                    import org.springframework.integration.http.dsl.Http;
+                    import org.springframework.util.LinkedMultiValueMap;
+                                             
+                    @Configuration
+                    public class FlowConfigurations {
+                        @Bean
+                        IntegrationFlow foreach(org.springframework.integration.dsl.IntegrationFlow logOneInKannada) {
+                            return IntegrationFlows.from(Http.inboundGateway("/foreach")).handle((p, h) -> p)
+                                    //TODO: translate expression #[[1, 2, 3, 4]] which must produces an array
+                                    // to iterate over
+                                    .split()
+                                    /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/
+                                    .<LinkedMultiValueMap<String, String>, String>route(
+                                            p -> p.getFirst("dataKey") /*TODO: use apt condition*/,
+                                            m -> m
+                                                    .subFlowMapping("dataValue" /*TODO: Translate dataValue to #[payload == 1]*/,
+                                                            sf -> sf.gateway(logOneInKannada)
+                                                    )
+                                                    .subFlowMapping("dataValue" /*TODO: Translate dataValue to #[payload == 2]*/,
+                                                            sf -> sf.log(LoggingHandler.Level.INFO, "Eradu")
+                                                    )
+                                                    .subFlowMapping("dataValue" /*TODO: Translate dataValue to #[payload == 3]*/,
+                                                            sf -> sf.log(LoggingHandler.Level.INFO, "Mooru")
+                                                    )
+                                                    .resolutionRequired(false)
+                                                    .defaultSubFlowMapping(sf -> sf.log(LoggingHandler.Level.INFO, "Moorina mele"))
+                                    )
+                                    .aggregate()
+                                    .log(LoggingHandler.Level.INFO, "Done with for looping")
+                                    .get();
+                        }
+                                             
+                        @Bean
+                        IntegrationFlow logOneInKannada() {
+                            return flow -> flow
+                                    .log(LoggingHandler.Level.INFO, "Ondu");
+                        }
+                    }"""
+                    );
+        });
 
-        assertThat(getGeneratedJavaFile()).isEqualTo(
-                "package com.example.javadsl;\n" +
-                "import org.springframework.context.annotation.Bean;\n" +
-                "import org.springframework.context.annotation.Configuration;\n" +
-                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                "import org.springframework.integration.handler.LoggingHandler;\n" +
-                "import org.springframework.integration.http.dsl.Http;\n" +
-                "import org.springframework.util.LinkedMultiValueMap;\n" +
-                "\n" +
-                "@Configuration\n" +
-                "public class FlowConfigurations {\n" +
-                "    @Bean\n" +
-                "    IntegrationFlow foreach(org.springframework.integration.dsl.IntegrationFlow logOneInKannada) {\n" +
-                "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/foreach\")).handle((p, h) -> p)\n" +
-                "                //TODO: translate expression #[[1, 2, 3, 4]] which must produces an array\n" +
-                "                // to iterate over\n" +
-                "                .split()\n" +
-                "                /* TODO: LinkedMultiValueMap might not be apt, substitute with right input type*/\n" +
-                "                .<LinkedMultiValueMap<String, String>, String>route(\n" +
-                "                        p -> p.getFirst(\"dataKey\") /*TODO: use apt condition*/,\n" +
-                "                        m -> m\n" +
-                "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 1]*/,\n" +
-                "                                        sf -> sf.gateway(logOneInKannada)\n" +
-                "                                )\n" +
-                "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 2]*/,\n" +
-                "                                        sf -> sf.log(LoggingHandler.Level.INFO, \"Eradu\")\n" +
-                "                                )\n" +
-                "                                .subFlowMapping(\"dataValue\" /*TODO: Translate dataValue to #[payload == 3]*/,\n" +
-                "                                        sf -> sf.log(LoggingHandler.Level.INFO, \"Mooru\")\n" +
-                "                                )\n" +
-                "                                .resolutionRequired(false)\n" +
-                "                                .defaultSubFlowMapping(sf -> sf.log(LoggingHandler.Level.INFO, \"Moorina mele\"))\n" +
-                "                )\n" +
-                "                .aggregate()\n" +
-                "                .log(LoggingHandler.Level.INFO, \"Done with for looping\")\n" +
-                "                .get();\n" +
-                "    }\n" +
-                "\n" +
-                "    @Bean\n" +
-                "    IntegrationFlow logOneInKannada() {\n" +
-                "        return flow -> flow\n" +
-                "                .log(LoggingHandler.Level.INFO, \"Ondu\");\n" +
-                "    }\n" +
-                "}");
+
     }
 }

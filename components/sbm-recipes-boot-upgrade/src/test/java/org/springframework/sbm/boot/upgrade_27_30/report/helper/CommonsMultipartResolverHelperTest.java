@@ -45,7 +45,7 @@ public class CommonsMultipartResolverHelperTest {
                 """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", commonsMultiPartClass)
+                .withJavaSource("src/main/java", commonsMultiPartClass)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-web:2.7.1")
                 .build();
 
@@ -57,7 +57,7 @@ public class CommonsMultipartResolverHelperTest {
                          === Commons Multipart Upload
                                                          
                          ==== What Changed
-                         Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
+                         Support for Spring Framework's `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
                                                          
                          ==== Why is the application affected
                          We found usage of `CommonsMultipartResolver` in following files:
@@ -109,8 +109,8 @@ public class CommonsMultipartResolverHelperTest {
                  }
                 """;
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", commonsMultiPartClass1)
-                .addJavaSource("src/main/java", commonsMultiPartClass2)
+                .withJavaSource("src/main/java", commonsMultiPartClass1)
+                .withJavaSource("src/main/java", commonsMultiPartClass2)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-web:2.7.1")
                 .build();
 
@@ -122,7 +122,7 @@ public class CommonsMultipartResolverHelperTest {
                          === Commons Multipart Upload
                                                          
                          ==== What Changed
-                         Support for Spring Framework’s `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
+                         Support for Spring Framework's `CommonsMultipartResolver` has been removed following its removal in Spring Framework 6
                                                          
                          ==== Why is the application affected
                          We found usage of `CommonsMultipartResolver` in following files:
@@ -148,7 +148,7 @@ public class CommonsMultipartResolverHelperTest {
                 """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", aClass)
+                .withJavaSource("src/main/java", aClass)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-web:2.7.1")
                 .build();
 

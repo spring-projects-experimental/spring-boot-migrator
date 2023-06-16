@@ -28,13 +28,13 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class ReplaceTypeAction extends AbstractAction {
 
-    private String annotation;
+    private String existingType;
 
-    private String withAnnotation;
+    private String withType;
 
     @Override
     public void apply(ProjectContext context) {
-        context.getProjectJavaSources().replaceType(annotation, withAnnotation);
+        context.getProjectJavaSources().replaceType(existingType, withType);
     }
 }
 
