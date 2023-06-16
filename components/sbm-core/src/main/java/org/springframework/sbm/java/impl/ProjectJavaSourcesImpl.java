@@ -77,8 +77,8 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
     }
 
     @Override
-    public void replaceType(String annotation, String withAnnotation) {
-        ChangeType visitor = new ChangeType(annotation, withAnnotation, false);
+    public void replaceType(String existingType, String withType) {
+        ChangeType visitor = new ChangeType(existingType, withType, false);
         globalRefactoring.refactor(visitor);
     }
 
@@ -131,8 +131,8 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
     }
 
     @Override
-    public List<? extends JavaSource> findClassesUsingType(String fqName) {
-        UsesType<ExecutionContext> usesType = new UsesType<>(fqName);
+    public List<? extends JavaSource> findClassesUsingType(String type) {
+        UsesType<ExecutionContext> usesType = new UsesType<>(type);
         GenericOpenRewriteRecipe<UsesType<ExecutionContext>> recipe = new GenericOpenRewriteRecipe<>(() -> usesType);
         return find(recipe).stream()
                 .filter(RewriteSourceFileHolder.class::isInstance)
