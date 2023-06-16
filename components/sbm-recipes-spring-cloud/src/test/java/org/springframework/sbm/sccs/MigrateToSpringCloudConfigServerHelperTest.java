@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.sccs;
 
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.test.ProjectContextFileSystemTestSupport;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
@@ -63,7 +64,7 @@ class MigrateToSpringCloudConfigServerHelperTest {
                 .addProjectResource("src/main/resources/application-cloud.properties", cloudProfilePropertiesString)
                 .withJavaSources(javaSource1, javaSource2)
                 .withBuildFileHavingDependencies("org.springframework:spring-context:5.3.5")
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .build();
 
         List<SpringProfile> allSpringProfiles = sut.findAllSpringProfiles(projectContext);
@@ -110,7 +111,7 @@ class MigrateToSpringCloudConfigServerHelperTest {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addProjectResource("src/main/resources/application-cloud.properties", cloudProfilePropertiesString)
                 .addProjectResource("src/main/resources/application.properties", applicationPropertiesString)
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .build();
 
         sut.configureSccsConnection(projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()));

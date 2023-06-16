@@ -19,6 +19,7 @@ import org.openrewrite.java.tree.J;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
@@ -374,7 +375,8 @@ public class ResponseBuilderTest {
         String actual = projectContext.getProjectJavaSources().list().get(0).print();
 
         // verify it compiles
-        List<J.CompilationUnit> parse = new RewriteJavaParser(new SbmApplicationProperties()).parse(actual);
+        List<J.CompilationUnit> parse = new RewriteJavaParser(new SbmApplicationProperties(),
+                                                              new RewriteExecutionContext()).parse(actual);
 
         assertThat(actual)
                 .as(TestDiff.of(actual, expected))

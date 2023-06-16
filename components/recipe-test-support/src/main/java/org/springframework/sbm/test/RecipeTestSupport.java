@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
 import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
@@ -28,7 +27,9 @@ import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
-import org.springframework.sbm.search.recipe.actions.OpenRewriteJavaSearchAction;
+import org.springframework.sbm.scopes.ExecutionScope;
+import org.springframework.sbm.scopes.ScanScope;
+import org.springframework.sbm.scopes.ScopeConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -77,7 +78,10 @@ public class RecipeTestSupport {
             RewriteMavenParser.class,
             MavenSettingsInitializer.class,
             MavenBuildFileRefactoringFactory.class,
-            ProjectResourceSetHolder.class
+            ProjectResourceSetHolder.class,
+            ScopeConfiguration.class,
+            ExecutionScope.class,
+            ScanScope.class
     };
 
 

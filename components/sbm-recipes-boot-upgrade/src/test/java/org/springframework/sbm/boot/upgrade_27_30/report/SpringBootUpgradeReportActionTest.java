@@ -24,6 +24,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.test.RecipeIntegrationTestSupport;
 import org.w3c.dom.NodeList;
@@ -44,7 +45,7 @@ class SpringBootUpgradeReportActionTest {
     @Test
     void renderReport() throws IOException {
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .addProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
                 .addProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
                 .build();
@@ -196,7 +197,7 @@ class SpringBootUpgradeReportActionTest {
                 """;
 
         TestProjectContext.buildProjectContext()
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .withMavenRootBuildFileSource(pomSource)
                 .addProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
                 .addProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")

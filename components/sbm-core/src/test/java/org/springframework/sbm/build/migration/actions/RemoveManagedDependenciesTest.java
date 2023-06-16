@@ -20,6 +20,7 @@ import org.openrewrite.semver.LatestRelease;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.sbm.test.ActionTest;
 
 import java.util.List;
 
@@ -36,19 +37,16 @@ public class RemoveManagedDependenciesTest {
         final String hibernateCoordinates = "org.hibernate:hibernate-core:5.6.11.Final";
         final String springBootDataJpaCoordinates = "org.springframework.boot:spring-boot-starter-data-jpa:2.7.4";
 
-        final ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies(hibernateCoordinates, springBootDataJpaCoordinates)
-                .build();
+        ActionTest.withProjectContext(TestProjectContext.buildProjectContext()
+                .withBuildFileHavingDependencies(hibernateCoordinates, springBootDataJpaCoordinates))
+                .actionUnderTest(new RemoveManagedDependencies())
+                .verify(projectContext -> assertThat(projectContext.getBuildFile()
+                                                             .getDeclaredDependencies()
+                                                             .stream()
+                                                             .map(Dependency::getCoordinates)
+                                                             .anyMatch(hibernateCoordinates::equals)).isFalse()
+                );
 
-        RemoveManagedDependencies removeManagedDependencies = new RemoveManagedDependencies();
-        removeManagedDependencies.apply(projectContext);
-
-        assertThat(projectContext.getBuildFile()
-                .getDeclaredDependencies()
-                .stream()
-                .map(Dependency::getCoordinates)
-                .anyMatch(hibernateCoordinates::equals)
-        ).isFalse();
     }
 
     @Test
@@ -78,26 +76,23 @@ public class RemoveManagedDependenciesTest {
         // brings managed hibernate 5.6.11.Final
         final String springBootDataJpaCoordinates = "org.springframework.boot:spring-boot-starter-data-jpa:2.7.4";
 
-        final ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies(hibernateCoordinates, springBootDataJpaCoordinates)
-                .build();
+        ActionTest.withProjectContext(TestProjectContext.buildProjectContext().withBuildFileHavingDependencies(hibernateCoordinates, springBootDataJpaCoordinates))
+                .actionUnderTest(new RemoveManagedDependencies())
+                .verify(projectContext -> {
+                    List<Dependency> declaredDependencies = projectContext
+                            .getApplicationModules()
+                            .getRootModule()
+                            .getBuildFile()
+                            .getDeclaredDependencies();
 
-        RemoveManagedDependencies removeManagedDependencies = new RemoveManagedDependencies();
-        removeManagedDependencies.apply(projectContext);
-
-        List<Dependency> declaredDependencies = projectContext
-                .getApplicationModules()
-                .getRootModule()
-                .getBuildFile()
-                .getDeclaredDependencies();
-
-        // only one dependency left
-        assertThat(declaredDependencies.size()).isEqualTo(1);
-        // dependency to older hibernate was removed
-        assertThat(declaredDependencies
-                           .get(0)
-                           .getCoordinates())
-                .isEqualTo(springBootDataJpaCoordinates);
+                    // only one dependency left
+                    assertThat(declaredDependencies.size()).isEqualTo(1);
+                    // dependency to older hibernate was removed
+                    assertThat(declaredDependencies
+                                       .get(0)
+                                       .getCoordinates())
+                            .isEqualTo(springBootDataJpaCoordinates);
+                });
     }
 
     @Test
@@ -106,28 +101,28 @@ public class RemoveManagedDependenciesTest {
         // brings older hibernate 5.6.11.Final
         final String springBootDataJpaCoordinates = "org.springframework.boot:spring-boot-starter-data-jpa:2.7.4";
 
-        final ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies(hibernateCoordinates, springBootDataJpaCoordinates)
-                .build();
-
         RemoveManagedDependencies removeManagedDependencies = new RemoveManagedDependencies();
-        removeManagedDependencies.apply(projectContext);
+        ActionTest.withProjectContext(
+                    TestProjectContext.buildProjectContext().withBuildFileHavingDependencies(hibernateCoordinates, springBootDataJpaCoordinates)
+                )
+                .actionUnderTest(removeManagedDependencies)
+                .verify(projectContext -> {
+                    List<Dependency> declaredDependencies = projectContext
+                            .getApplicationModules()
+                            .getRootModule()
+                            .getBuildFile()
+                            .getDeclaredDependencies();
 
-        List<Dependency> declaredDependencies = projectContext
-                .getApplicationModules()
-                .getRootModule()
-                .getBuildFile()
-                .getDeclaredDependencies();
-
-        // both dependencies kept
-        assertThat(declaredDependencies.size()).isEqualTo(2);
-        assertThat(declaredDependencies
-                           .get(0)
-                           .getCoordinates())
-                .isEqualTo(hibernateCoordinates);
-        assertThat(declaredDependencies
-                           .get(1)
-                           .getCoordinates())
-                .isEqualTo(springBootDataJpaCoordinates);
+                    // both dependencies kept
+                    assertThat(declaredDependencies.size()).isEqualTo(2);
+                    assertThat(declaredDependencies
+                                       .get(0)
+                                       .getCoordinates())
+                            .isEqualTo(hibernateCoordinates);
+                    assertThat(declaredDependencies
+                                       .get(1)
+                                       .getCoordinates())
+                            .isEqualTo(springBootDataJpaCoordinates);
+                });
     }
 }

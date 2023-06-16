@@ -60,39 +60,19 @@ public class MuleToJavaDSLMultipleTest extends JavaDSLActionBaseTest {
     @Test
     public void generatesAmqpDSLStatementsAndConfigurations() {
         addXMLFileToResource(muleInboundOutboundXml);
-        runAction();
-        assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
-        List<SpringBootApplicationProperties> springBootApplicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
-        assertThat(springBootApplicationProperties).hasSize(1);
+        runAction(projectContext -> {
+            assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
+            List<SpringBootApplicationProperties> springBootApplicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
+            assertThat(springBootApplicationProperties).hasSize(1);
 
-        SpringBootApplicationProperties properties = springBootApplicationProperties.get(0);
+            SpringBootApplicationProperties properties = springBootApplicationProperties.get(0);
 
 
-        String applicationPropertiesContent = properties.print();
-        assertThat(applicationPropertiesContent).isEqualTo(
-                "spring.rabbitmq.host=localhost\n" +
-                        "spring.rabbitmq.port=5672"
-        );
-        assertThat(getGeneratedJavaFile())
-                .isEqualTo(
-                        "package com.example.javadsl;\n" +
-                                "import org.springframework.amqp.rabbit.core.RabbitTemplate;\n" +
-                                "import org.springframework.context.annotation.Bean;\n" +
-                                "import org.springframework.context.annotation.Configuration;\n" +
-                                "import org.springframework.integration.amqp.dsl.Amqp;\n" +
-                                "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                                "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                                "import org.springframework.integration.handler.LoggingHandler;\n" +
-                                "\n" +
-                                "@Configuration\n" +
-                                "public class FlowConfigurations {\n" +
-                                "    @Bean\n" +
-                                "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory, org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate) {\n" +
-                                "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" +
-                                "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" +
-                                "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"))\n" +
-                                "                .get();\n" +
-                                "    }\n" +
-                                "}");
+            String applicationPropertiesContent = properties.print();
+            assertThat(applicationPropertiesContent).isEqualTo(
+                    "spring.rabbitmq.host=localhost\n" + "spring.rabbitmq.port=5672");
+            assertThat(getGeneratedJavaFile()).isEqualTo(
+                    "package com.example.javadsl;\n" + "import org.springframework.amqp.rabbit.core.RabbitTemplate;\n" + "import org.springframework.context.annotation.Bean;\n" + "import org.springframework.context.annotation.Configuration;\n" + "import org.springframework.integration.amqp.dsl.Amqp;\n" + "import org.springframework.integration.dsl.IntegrationFlow;\n" + "import org.springframework.integration.dsl.IntegrationFlows;\n" + "import org.springframework.integration.handler.LoggingHandler;\n" + "\n" + "@Configuration\n" + "public class FlowConfigurations {\n" + "    @Bean\n" + "    IntegrationFlow amqp_muleFlow(org.springframework.amqp.rabbit.connection.ConnectionFactory connectionFactory, org.springframework.amqp.rabbit.core.RabbitTemplate rabbitTemplate) {\n" + "        return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, \"sbm-integration-queue-one\"))\n" + "                .log(LoggingHandler.Level.INFO, \"payload to be sent: #[new String(payload)]\")\n" + "                .handle(Amqp.outboundAdapter(rabbitTemplate).exchangeName(\"sbm-integration-exchange\").routingKey(\"sbm-integration-queue-two\"))\n" + "                .get();\n" + "    }\n" + "}");
+        });
     }
 }

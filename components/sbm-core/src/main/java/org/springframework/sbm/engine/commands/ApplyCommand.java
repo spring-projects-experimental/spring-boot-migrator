@@ -15,6 +15,10 @@
  */
 package org.springframework.sbm.engine.commands;
 
+import org.openrewrite.ExecutionContext;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.sbm.common.filter.DeletedResourcePathStringFilter;
 import org.springframework.sbm.common.filter.ModifiedResourcePathStringFilter;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -24,6 +28,7 @@ import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
+import org.springframework.sbm.scopes.ExecutionScope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,45 +43,54 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
     private final ProjectSyncVerifier projectSyncVerifier;
 
     private final GitSupport gitSupport;
+    private final ConfigurableListableBeanFactory beanFactory;
+    private final ExecutionScope executionScope;
 
     public ApplyCommand(
             RecipesBuilder recipesBuilder,
             ProjectContextSerializer contextSerializer,
             ProjectSyncVerifier projectSyncVerifier,
-            GitSupport gitSupport) {
+            GitSupport gitSupport,
+            ConfigurableListableBeanFactory beanFactory, ExecutionScope executionScope) {
         super("apply");
         this.recipesBuilder = recipesBuilder;
         this.contextSerializer = contextSerializer;
         this.projectSyncVerifier = projectSyncVerifier;
         this.gitSupport = gitSupport;
+        this.beanFactory = beanFactory;
+        this.executionScope = executionScope;
     }
 
     public List<Action> execute(ProjectContext projectContext, String recipeName) {
-        Recipe recipe = recipesBuilder.buildRecipes().getRecipeByName(recipeName)
-                .orElseThrow(() -> new IllegalArgumentException("Recipe with name '" + recipeName + "' could not be found"));
+        try {
+            Recipe recipe = recipesBuilder.buildRecipes().getRecipeByName(recipeName)
+                    .orElseThrow(() -> new IllegalArgumentException("Recipe with name '" + recipeName + "' could not be found"));
 
-        // verify that project sources are in sync with in memory representation
-        projectSyncVerifier.rescanWhenProjectIsOutOfSyncAndGitAvailable(projectContext);
+            // verify that project sources are in sync with in memory representation
+            projectSyncVerifier.rescanWhenProjectIsOutOfSyncAndGitAvailable(projectContext);
 
-        List<Action> appliedActions = recipe.apply(projectContext);
+            List<Action> appliedActions = recipe.apply(projectContext);
 
-        // verify that project sources didn't change while running recipe
-        projectSyncVerifier.verifyProjectIsInSyncWhenGitAvailable(projectContext);
+            // verify that project sources didn't change while running recipe
+            projectSyncVerifier.verifyProjectIsInSyncWhenGitAvailable(projectContext);
 
-        List<String> modifiedResources = projectContext.search(new ModifiedResourcePathStringFilter());
+            List<String> modifiedResources = projectContext.search(new ModifiedResourcePathStringFilter());
 
-        List<String> deletedResources = projectContext.search(new DeletedResourcePathStringFilter());
+            List<String> deletedResources = projectContext.search(new DeletedResourcePathStringFilter());
 
-        contextSerializer.writeChanges(projectContext);
+            contextSerializer.writeChanges(projectContext);
 
-        gitSupport.commitWhenGitAvailable(projectContext, recipeName, modifiedResources, deletedResources);
+            gitSupport.commitWhenGitAvailable(projectContext, recipeName, modifiedResources, deletedResources);
 
-        return appliedActions;
+            return appliedActions;
+        } finally {
+            executionScope.clear(beanFactory);
+        }
     }
 
     @Override
     @Deprecated
     public Recipe execute(String... arguments) {
-        return null;
+        throw new UnsupportedOperationException("This method will be removed.");
     }
 }

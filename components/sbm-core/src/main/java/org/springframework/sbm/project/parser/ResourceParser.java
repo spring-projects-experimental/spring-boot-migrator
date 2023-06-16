@@ -18,6 +18,7 @@ package org.springframework.sbm.project.parser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.hcl.HclParser;
@@ -33,7 +34,6 @@ import org.openrewrite.yaml.YamlParser;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.events.StartedScanningProjectResourceEvent;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -43,6 +43,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -56,6 +57,7 @@ public class ResourceParser {
     private final PlainTextParser plainTextParser;
     private final ResourceFilter resourceFilter;
     private final ApplicationEventPublisher eventPublisher;
+    private final ExecutionContext executionContext;
 
     List<Resource> filter(Path projectDirectory, Set<Path> resourcePaths, List<Resource> resources, Path relativeModuleDir) {
         Path comparingPath = relativeModuleDir != null ? projectDirectory.resolve(relativeModuleDir) : projectDirectory;
@@ -113,7 +115,7 @@ public class ResourceParser {
             parserAndParserInputMappings.get(parser).add(r);
         });
 
-        ParsingExecutionContextView ctx = ParsingExecutionContextView.view(new RewriteExecutionContext(eventPublisher));
+        ParsingExecutionContextView ctx = ParsingExecutionContextView.view(executionContext);
         ctx.setParsingListener((input, sourceFile) -> eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(sourceFile.getSourcePath())));
 
         return parserAndParserInputMappings.entrySet().stream()
@@ -127,7 +129,33 @@ public class ResourceParser {
 
     @NotNull
     private Function<Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>>, ? extends List<? extends SourceFile>> parseEntry(Path baseDir, ParsingExecutionContextView ctx) {
-        return e -> e.getKey().parseInputs(e.getValue(), baseDir, ctx);
+        return e -> {
+            Stream<SourceFile> sourceFileStream = getSourceFileStream(baseDir, ctx, e);
+            return sourceFileStream.toList();
+        };
+    }
+
+    @NotNull
+    private Stream<SourceFile> getSourceFileStream(Path baseDir, ExecutionContext ctx, Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>> e) {
+        return e
+                .getValue()
+                .stream()
+                .map(resource -> (List<SourceFile>) parseSingleResource(baseDir, ctx, e, resource))
+                .flatMap(elem -> Stream.ofNullable(elem))
+                .flatMap(List::stream);
+    }
+
+    private List<? extends SourceFile> parseSingleResource(Path baseDir, ExecutionContext ctx, Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>> e, Parser.Input resource) {
+        try {
+            return e.getKey().parseInputs(List.of(resource), baseDir, ctx);
+        } catch(Exception ex) {
+            if(resource.getPath().toString().contains("src/test/resources")) {
+                log.error("Could not parse resource '%s' using parser %s. Exception was: %s".formatted(resource.getPath(), e.getKey().getClass().getName(), ex.getMessage()));
+                return null;
+            } else {
+                throw ex;
+            }
+        }
     }
 
     @NotNull

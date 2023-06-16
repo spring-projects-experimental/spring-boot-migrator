@@ -21,12 +21,10 @@ import org.openrewrite.Parser;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Class to parse Maven build files.
@@ -42,15 +40,16 @@ public class RewriteMavenParser implements Parser<Xml.Document> {
     private MavenParser parser;
     private final MavenSettingsInitializer mavenSettingsInitializer;
 
-    public RewriteMavenParser(MavenSettingsInitializer mavenSettingsInitializer) {
+    private ExecutionContext executionContext;
+
+    public RewriteMavenParser(MavenSettingsInitializer mavenSettingsInitializer, ExecutionContext executionContext) {
         this.mavenSettingsInitializer = mavenSettingsInitializer;
-        initMavenParser(new RewriteExecutionContext(), null);
+        this.executionContext = executionContext;
+        initMavenParser(this.executionContext, null);
     }
 
     @NotNull
     private void initMavenParser(ExecutionContext executionContext, Path projectRoot) {
-        mavenSettingsInitializer.initializeMavenSettings(executionContext);
-
         MavenParser.Builder builder = MavenParser.builder();
         if (projectRoot != null && projectRoot.resolve(".mvn/maven.config").toFile().exists()) {
             builder.mavenConfig(projectRoot.resolve(".mvn/maven.config"));

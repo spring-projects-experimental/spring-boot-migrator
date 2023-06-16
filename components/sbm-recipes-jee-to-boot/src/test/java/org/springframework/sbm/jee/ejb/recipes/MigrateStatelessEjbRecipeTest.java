@@ -67,14 +67,14 @@ public class MigrateStatelessEjbRecipeTest {
             assertThatActionHasCondition(replaceTypeActions.get(0), HasMemberAnnotation.class);
             HasMemberAnnotation condition2 = getConditionFor(replaceTypeActions.get(0), HasMemberAnnotation.class);
             assertThat(condition2.getAnnotation()).isEqualTo("javax.inject.Inject");
-            assertThat(replaceTypeActions.get(0).getAnnotation()).isEqualTo("javax.inject.Inject");
-            assertThat(replaceTypeActions.get(0).getWithAnnotation()).isEqualTo("org.springframework.beans.factory.annotation.Autowired");
+            assertThat(replaceTypeActions.get(0).getExistingType()).isEqualTo("javax.inject.Inject");
+            assertThat(replaceTypeActions.get(0).getWithType()).isEqualTo("org.springframework.beans.factory.annotation.Autowired");
 
             assertThatActionHasCondition(replaceTypeActions.get(1), HasTypeAnnotation.class);
             HasTypeAnnotation condition4 = getConditionFor(replaceTypeActions.get(1), HasTypeAnnotation.class);
             assertThat(condition4.getAnnotation()).isEqualTo("javax.ejb.Startup");
-            assertThat(replaceTypeActions.get(1).getAnnotation()).isEqualTo("javax.ejb.Startup");
-            assertThat(replaceTypeActions.get(1).getWithAnnotation()).isEqualTo("org.springframework.stereotype.Service");
+            assertThat(replaceTypeActions.get(1).getExistingType()).isEqualTo("javax.ejb.Startup");
+            assertThat(replaceTypeActions.get(1).getWithType()).isEqualTo("org.springframework.stereotype.Service");
 
             MigrateLocalStatelessSessionBeans migrateLocalStatelessSessionBeans = getAction(recipe, MigrateLocalStatelessSessionBeans.class);
             assertThatActionHasCondition(migrateLocalStatelessSessionBeans, HasTypeAnnotation.class);

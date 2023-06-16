@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.build.api;
 
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.maven.MavenDownloadingException;
 import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.GroupArtifactVersion;
 import org.openrewrite.maven.tree.MavenRepository;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,17 +39,17 @@ public class SpringManagedDependencies {
     private List<org.openrewrite.maven.tree.Dependency> dependencies;
     private static Map<GroupArtifactVersion, SpringManagedDependencies> INSTANCES = new HashMap<>();
 
-    public static SpringManagedDependencies by(String groupId, String artifact, String version){
+    public static SpringManagedDependencies by(String groupId, String artifact, String version, ExecutionContext executionContext){
         final GroupArtifactVersion groupArtifactVersion =
                 new GroupArtifactVersion(groupId, artifact, version);
 
-        INSTANCES.computeIfAbsent(groupArtifactVersion, SpringManagedDependencies::new);
+        INSTANCES.computeIfAbsent(groupArtifactVersion, gav ->  new SpringManagedDependencies(gav, executionContext));
         return INSTANCES.get(groupArtifactVersion);
     }
 
-    private SpringManagedDependencies(GroupArtifactVersion groupArtifactVersion){
+    private SpringManagedDependencies(GroupArtifactVersion groupArtifactVersion, ExecutionContext executionContext){
         try {
-            dependencies = new MavenPomDownloader(Collections.emptyMap(), new RewriteExecutionContext())
+            dependencies = new MavenPomDownloader(Collections.emptyMap(), executionContext)
                     .download(groupArtifactVersion, null, null, SPRING_REPOSITORIES)
                     .getDependencies();
         } catch (MavenDownloadingException e) {

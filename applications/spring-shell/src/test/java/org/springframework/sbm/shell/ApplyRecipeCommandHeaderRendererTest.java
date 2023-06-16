@@ -13,10 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build;
+package org.springframework.sbm.shell;
 
-/**
- * @author Fabian Krüger
- */
-public class Foo {
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ApplyRecipeCommandHeaderRendererTest {
+
+    @Test
+    void renderHeader() {
+		ScanCommandHeaderRenderer sut = new ScanCommandHeaderRenderer();
+		String s = sut.renderHeader("some/path");
+		assertThat(s).isEqualTo("\n\u001B[32mscanning 'some/path'\u001B[0m");
+	}
 }

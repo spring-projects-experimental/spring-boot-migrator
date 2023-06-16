@@ -24,44 +24,49 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Disabled("FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/195")
 public class WMQFlowTest extends JavaDSLActionBaseTest {
 
-    String wmqXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<mule xmlns:wmq=\"http://www.mulesoft.org/schema/mule/ee/wmq\" xmlns=\"http://www.mulesoft.org/schema/mule/core\" xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\"\n" +
-            "   xmlns:spring=\"http://www.springframework.org/schema/beans\" \n" +
-            "   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-            "   xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd\n" +
-            "http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd\n" +
-            "http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/ee/wmq/current/mule-wmq-ee.xsd\">\n" +
-            "   <wmq:connector name=\"WMQ\" hostName=\"localhost\" port=\"1414\" queueManager=\"TestQueueManager\" channel=\"TestChannel\" username=\"guest\" password=\"guet\" transportType=\"CLIENT_MQ_TCPIP\" validateConnections=\"true\" doc:name=\"WMQ\"/>\n" +
-            "   <flow name=\"wmqtestFlow\">\n" +
-            "      <wmq:inbound-endpoint queue=\"TestQueue\" connector-ref=\"WMQ\" doc:name=\"WMQ\" targetClient=\"JMS_COMPLIANT\"/>\n" +
-            "      <logger level=\"INFO\" doc:name=\"Logger\"/>\n" +
-            "   </flow>\n" +
-            "</mule>";
+    String wmqXML = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <mule xmlns:wmq="http://www.mulesoft.org/schema/mule/ee/wmq" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+               xmlns:spring="http://www.springframework.org/schema/beans"\s
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+            http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+            http://www.mulesoft.org/schema/mule/ee/wmq http://www.mulesoft.org/schema/mule/ee/wmq/current/mule-wmq-ee.xsd">
+               <wmq:connector name="WMQ" hostName="localhost" port="1414" queueManager="TestQueueManager" channel="TestChannel" username="guest" password="guet" transportType="CLIENT_MQ_TCPIP" validateConnections="true" doc:name="WMQ"/>
+               <flow name="wmqtestFlow">
+                  <wmq:inbound-endpoint queue="TestQueue" connector-ref="WMQ" doc:name="WMQ" targetClient="JMS_COMPLIANT"/>
+                  <logger level="INFO" doc:name="Logger"/>
+               </flow>
+            </mule>
+            """;
 
 
     @Test
     public void wmq() {
         addXMLFileToResource(wmqXML);
-        runAction();
-        assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
-        assertThat(getGeneratedJavaFile())
-                .isEqualTo("package com.example.javadsl;\n" +
-                        "import org.springframework.context.annotation.Bean;\n" +
-                        "import org.springframework.context.annotation.Configuration;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                        "import org.springframework.integration.handler.LoggingHandler;\n" +
-                        "import org.springframework.integration.jms.dsl.Jms;\n" +
-                        "\n" +
-                        "@Configuration\n" +
-                        "public class FlowConfigurations {\n" +
-                        "    @Bean\n" +
-                        "    IntegrationFlow wmqtestFlow(javax.jms.ConnectionFactory connectionFactory) {\n" +
-                        "        return IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination(\"TestQueue\")).handle((p, h) -> p)\n" +
-                        "                .log(LoggingHandler.Level.INFO)\n" +
-                        "                .get();\n" +
-                        "    }\n" +
-                        "}"
-                );
+        runAction(projectContext -> {
+            assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
+            assertThat(getGeneratedJavaFile())
+                    .isEqualTo("""
+                               package com.example.javadsl;
+                               import org.springframework.context.annotation.Bean;
+                               import org.springframework.context.annotation.Configuration;
+                               import org.springframework.integration.dsl.IntegrationFlow;
+                               import org.springframework.integration.dsl.IntegrationFlows;
+                               import org.springframework.integration.handler.LoggingHandler;
+                               import org.springframework.integration.jms.dsl.Jms;
+                                                              
+                               @Configuration
+                               public class FlowConfigurations {
+                                   @Bean
+                                   IntegrationFlow wmqtestFlow(javax.jms.ConnectionFactory connectionFactory) {
+                                       return IntegrationFlows.from(Jms.inboundAdapter(connectionFactory).destination("TestQueue")).handle((p, h) -> p)
+                                               .log(LoggingHandler.Level.INFO)
+                                               .get();
+                                   }
+                               }
+                               """
+                    );
+        });
     }
 }

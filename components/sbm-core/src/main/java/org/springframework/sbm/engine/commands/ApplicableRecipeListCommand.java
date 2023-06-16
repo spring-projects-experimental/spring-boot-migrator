@@ -15,12 +15,14 @@
  */
 package org.springframework.sbm.engine.commands;
 
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
+import org.springframework.sbm.scopes.ExecutionScope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,11 +35,26 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
     private final RecipesBuilder recipesBuilder;
     private final ProjectContextInitializer projectContextBuilder;
 
-    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder) {
+    private final ConfigurableListableBeanFactory beanFactory;
+
+    private final ExecutionScope executionScope;
+
+    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder, ConfigurableListableBeanFactory beanFactory, ExecutionScope executionScope) {
         super(COMMAND_NAME);
         this.projectRootPathResolver = projectRootPathResolver;
         this.recipesBuilder = recipesBuilder;
         this.projectContextBuilder = projectContextBuilder;
+        this.beanFactory = beanFactory;
+        this.executionScope = executionScope;
+    }
+
+    public List<Recipe> execute(ProjectContext projectContext) {
+        return getApplicableRecipes(projectContext);
+    }
+
+    private List<Recipe> getApplicableRecipes(ProjectContext context) {
+        Recipes recipes = recipesBuilder.buildRecipes();
+        return recipes.getApplicable(context);
     }
 
     @Override
@@ -49,14 +66,5 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
 //        ProjectContext context = projectContextBuilder.initProjectContext(projectRoot, new RewriteExecutionContext());
 //        return getApplicableRecipes(context);
         return null;
-    }
-
-    private List<Recipe> getApplicableRecipes(ProjectContext context) {
-        Recipes recipes = recipesBuilder.buildRecipes();
-        return recipes.getApplicable(context);
-    }
-
-    public List<Recipe> execute(ProjectContext projectContext) {
-        return getApplicableRecipes(projectContext);
     }
 }
