@@ -16,13 +16,8 @@
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.java.MethodMatcher;
-import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.JavaType;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.java.api.Method;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,9 +45,9 @@ class Boot_24_25_SpringDataJpaTest {
                 "}";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", model)
-                .addJavaSource("src/main/java", repo)
-                .addJavaSource("src/main/java", caller)
+                .withJavaSource("src/main/java", model)
+                .withJavaSource("src/main/java", repo)
+                .withJavaSource("src/main/java", caller)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-data-jpa:2.4.12")
                 .build();
 

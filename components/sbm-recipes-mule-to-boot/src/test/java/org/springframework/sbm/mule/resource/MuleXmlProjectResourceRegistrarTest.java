@@ -49,7 +49,7 @@ class MuleXmlProjectResourceRegistrarTest {
 
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/mule/mule-def.xml", xml)
+                .withProjectResource("src/main/mule/mule-def.xml", xml)
                 .addRegistrar(new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext()))
                 .build();
 

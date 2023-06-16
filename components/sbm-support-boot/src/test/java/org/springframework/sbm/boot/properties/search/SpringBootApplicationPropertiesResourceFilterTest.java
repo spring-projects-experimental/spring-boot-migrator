@@ -32,7 +32,7 @@ public class SpringBootApplicationPropertiesResourceFilterTest {
     @Test
     void test() {
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/resources/application.properties", "foo=bar\na=b")
+                .withProjectResource("src/main/resources/application.properties", "foo=bar\na=b")
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .build();
 

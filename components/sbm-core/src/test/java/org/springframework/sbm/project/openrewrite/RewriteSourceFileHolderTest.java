@@ -31,7 +31,7 @@ class RewriteSourceFileHolderTest {
     public static final String SOURCE_CODE = "package com.foo.bar; class Foo{}";
 
     private ProjectContext projectContext = TestProjectContext.buildProjectContext()
-            .addJavaSource("src/main/java", SOURCE_CODE)
+            .withJavaSource("src/main/java", SOURCE_CODE)
             .build();
 
     private RewriteSourceFileHolder<J.CompilationUnit> sut = projectContext
@@ -43,7 +43,7 @@ class RewriteSourceFileHolderTest {
     @Test
     void replaceWithShouldMarkAsChanged_whenContentDiffers() {
         J.CompilationUnit newSourceFile = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", "package com.foo.bar; class Bar{}")
+                .withJavaSource("src/main/java", "package com.foo.bar; class Bar{}")
                 .build()
                 .getProjectJavaSources()
                 .list()
@@ -61,7 +61,7 @@ class RewriteSourceFileHolderTest {
     void replaceWithShouldNotMarkAsChanged_WhenContentEquals() {
         String sourceCode = "class Foo{}";
         J.CompilationUnit newSourceFile = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", SOURCE_CODE)
+                .withJavaSource("src/main/java", SOURCE_CODE)
                 .build()
                 .getProjectJavaSources()
                 .list()

@@ -72,7 +72,7 @@ class MigrateEjbDeploymentDescriptorTest {
                 "</ejb-jar>";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), deploymentDescriptorXml)
+                .withProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), deploymentDescriptorXml)
                 .withJavaSources(javaSource)
                 .withBuildFileHavingDependencies("javax.ejb:javax.ejb-api:3.2")
                 .addRegistrar(new JeeEjbJarXmlProjectResourceRegistrar())
@@ -122,7 +122,7 @@ class MigrateEjbDeploymentDescriptorTest {
                 "</ejb-jar>";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), deploymentDescriptorXml)
+                .withProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), deploymentDescriptorXml)
                 .withJavaSources(javaSource)
                 .withBuildFileHavingDependencies("javax.ejb:javax.ejb-api:3.2")
                 .addRegistrar(new JeeEjbJarXmlProjectResourceRegistrar())
@@ -172,7 +172,7 @@ class MigrateEjbDeploymentDescriptorTest {
                 "</ejb-jar>";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), deploymentDescriptorXml)
+                .withProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), deploymentDescriptorXml)
                 .withJavaSources(javaSource)
                 .withBuildFileHavingDependencies("javax.ejb:javax.ejb-api:3.2")
                 .addRegistrar(new JeeEjbJarXmlProjectResourceRegistrar())
@@ -222,7 +222,7 @@ class MigrateEjbDeploymentDescriptorTest {
                 "</ejb-jar>";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), deploymentDescriptorXml)
+                .withProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), deploymentDescriptorXml)
                 .withJavaSources(javaSource)
                 .withBuildFileHavingDependencies("javax.ejb:javax.ejb-api:3.2")
                 .addRegistrar(new JeeEjbJarXmlProjectResourceRegistrar())

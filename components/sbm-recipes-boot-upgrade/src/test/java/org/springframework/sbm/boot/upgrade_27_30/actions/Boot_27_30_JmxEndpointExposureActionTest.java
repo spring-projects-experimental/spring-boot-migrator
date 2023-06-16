@@ -36,7 +36,7 @@ public class Boot_27_30_JmxEndpointExposureActionTest {
     public void givenAProjectWithoutJmxEndpointExposureOverride_andSpringBootProperties_applyAction_expectPropertyAdded() {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource("src/main/resources/application.properties", DUMMY_PROPERTY_FILE)
+                .withProjectResource("src/main/resources/application.properties", DUMMY_PROPERTY_FILE)
                 .build();
 
         Boot_27_30_JmxEndpointExposureAction boot_27_30_jmxEndpointExposureAction = new Boot_27_30_JmxEndpointExposureAction();

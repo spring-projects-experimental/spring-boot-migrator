@@ -66,7 +66,7 @@ public class LoggingDateFormatPropertyFinderTest {
     public void givenProjectWithLogDateFormatCustomization_findResources_returnResource(){
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_LOG_DATE_FORMAT)
+                .withProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_LOG_DATE_FORMAT)
                 .build();
 
         LoggingDateFormatPropertyFinder loggingDateFormatPropertyFinder = new LoggingDateFormatPropertyFinder();
@@ -80,11 +80,11 @@ public class LoggingDateFormatPropertyFinderTest {
     public void givenMultiModuleProjectWithLogDateFormatCustomization_findResources_returnResource(){
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(MULTI_MODULE_POM_XML)
-                .addProjectResource(Path.of("module1","pom.xml"),SUB_MODULE_POM_XML.replace("{{module}}", "module1"))
-                .addProjectResource(Path.of("module2","pom.xml"),SUB_MODULE_POM_XML.replace("{{module}}", "module2"))
+                .withProjectResource(Path.of("module1","pom.xml"),SUB_MODULE_POM_XML.replace("{{module}}", "module1"))
+                .withProjectResource(Path.of("module2","pom.xml"),SUB_MODULE_POM_XML.replace("{{module}}", "module2"))
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource(Path.of("module1","src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_LOG_DATE_FORMAT)
-                .addProjectResource(Path.of("module2","src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_LOG_DATE_FORMAT)
+                .withProjectResource(Path.of("module1","src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_LOG_DATE_FORMAT)
+                .withProjectResource(Path.of("module2","src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_LOG_DATE_FORMAT)
                 .build();
 
         LoggingDateFormatPropertyFinder loggingDateFormatPropertyFinder = new LoggingDateFormatPropertyFinder();

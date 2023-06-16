@@ -41,7 +41,7 @@ public class LoggingDateFormatConditionTest {
     public void givenProjectWithLogDateFormatCustomization_evaluateCondition_expectFalse(){
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_LOG_DATE_FORMAT)
+                .withProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITH_LOG_DATE_FORMAT)
                 .build();
 
         LoggingDateFormatCondition condition = new LoggingDateFormatCondition();
@@ -53,7 +53,7 @@ public class LoggingDateFormatConditionTest {
     public void givenProjectWithoutLogDateFormatCustomization_evaluateCondition_expectTrue(){
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITHOUT_LOG_DATE_FORMAT)
+                .withProjectResource(Path.of("src", "main", "resources", "application.properties"), APPLICATION_PROPERTIES_WITHOUT_LOG_DATE_FORMAT)
                 .build();
 
         LoggingDateFormatCondition condition = new LoggingDateFormatCondition();

@@ -19,7 +19,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.openrewrite.tree.ParsingExecutionContextView;
-import org.openrewrite.yaml.tree.Yaml;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -39,15 +38,15 @@ public class ForgivingParsingOfTestResourcesTest {
     void test_renameMe() {
         TestProjectContextInfo projectContextInfo = TestProjectContext
                 .buildProjectContext()
-                .addProjectResource("src/test/resources/one.yaml", "valid: true")
-                .addProjectResource("src/test/resources/error.yaml", """
+                .withProjectResource("src/test/resources/one.yaml", "valid: true")
+                .withProjectResource("src/test/resources/error.yaml", """
                         min-risk-score:
                           100 # illegal line break
                         attenuation-duration: !include attenuation-duration_ok.yaml
                           risk-score-classes: !include risk-score-class_ok.yaml # illegal indentation
                         exposure-config: !include exposure-config_ok.yaml
                         """)
-                .addProjectResource("src/test/resources/three.yaml", "is.valid: true")
+                .withProjectResource("src/test/resources/three.yaml", "is.valid: true")
                 .buildProjectContextInfo();
         ProjectContext context = projectContextInfo.projectContext();
 

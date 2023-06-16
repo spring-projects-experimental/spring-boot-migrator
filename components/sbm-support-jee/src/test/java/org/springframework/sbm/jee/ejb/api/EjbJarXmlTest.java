@@ -66,7 +66,7 @@ class EjbJarXmlTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new JeeEjbJarXmlProjectResourceRegistrar())
-                .addProjectResource("src/main/resources/ejb-jar.xml", ejbJarXmlContent)
+                .withProjectResource("src/main/resources/ejb-jar.xml", ejbJarXmlContent)
                 .build();
 
         Optional<EjbJarXml> ejbJarXmlOptional = projectContext.search(new EjbJarXmlResourceFinder());
@@ -104,7 +104,7 @@ class EjbJarXmlTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new JeeEjbJarXmlProjectResourceRegistrar())
-                .addProjectResource("src/main/resources/ejb-jar.xml", ejbJarXmlContent)
+                .withProjectResource("src/main/resources/ejb-jar.xml", ejbJarXmlContent)
                 .build();
 
         Optional<EjbJarXml> ejbJarXmlOptional = projectContext.search(new EjbJarXmlResourceFinder());
@@ -183,7 +183,7 @@ class EjbJarXmlTest {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withProjectRoot(Path.of(".").toAbsolutePath())
                 .addRegistrar(new JeeEjbJarXmlProjectResourceRegistrar())
-                .addProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), ejbJarXmlContent)
+                .withProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), ejbJarXmlContent)
                 .build();
 
 

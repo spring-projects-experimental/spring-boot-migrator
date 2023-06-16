@@ -49,7 +49,6 @@ import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.springframework.sbm.test.ActionTest;
 import org.springframework.sbm.test.TestProjectContextInfo;
 
 import java.util.List;
@@ -127,7 +126,7 @@ public class JavaDSLActionBaseTest {
 
         IntStream.range(0, xmlFile.length)
                 .forEach(i ->
-                        projectContextBuilder.addProjectResource("src/main/resources/xml-file-"+i+".xml", xmlFile[i])
+                        projectContextBuilder.withProjectResource("src/main/resources/xml-file-"+i+".xml", xmlFile[i])
                 )
         ;
     }

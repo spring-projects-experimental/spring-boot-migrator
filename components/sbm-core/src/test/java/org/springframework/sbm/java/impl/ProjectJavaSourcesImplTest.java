@@ -35,11 +35,11 @@ class ProjectJavaSourcesImplTest {
 
     @Test
     void findTypesImplementing() {
-        ProjectContext context = TestProjectContext.buildProjectContext().addJavaSource("src/main/java", """
+        ProjectContext context = TestProjectContext.buildProjectContext().withJavaSource("src/main/java", """
                 package com.example;
                                         
                 public interface TheInterface {}
-                """).addJavaSource("src/main/java", """
+                """).withJavaSource("src/main/java", """
                 package com.example;
                                         
                 public class TheClass implements TheInterface {}
@@ -56,7 +56,7 @@ class ProjectJavaSourcesImplTest {
     @Test
     void findTypesImplementingInterfaceFromJdk() {
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", """
+                .withJavaSource("src/main/java", """
                 package com.example;
                 
                 import java.io.Serializable;
@@ -76,7 +76,7 @@ class ProjectJavaSourcesImplTest {
     void findTypesImplementingWithInterfaceFromJar() {
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("org.springframework:spring-context:5.3.23")
-                .addJavaSource("src/main/java", """
+                .withJavaSource("src/main/java", """
                         package com.example;
                         
                         import org.springframework.beans.BeansException;

@@ -185,8 +185,8 @@ class Boot_24_25_SqlScriptDataSourceInitializationActionTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withProjectRoot(rootDirectory)
-                .addProjectResource(applicationPropertiesPath, applicationPropertiesLines1)
-                .addProjectResource(applicationPropertiesPathTest, applicationPropertiesLines2)
+                .withProjectResource(applicationPropertiesPath, applicationPropertiesLines1)
+                .withProjectResource(applicationPropertiesPathTest, applicationPropertiesLines2)
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .build();
 
@@ -199,7 +199,7 @@ class Boot_24_25_SqlScriptDataSourceInitializationActionTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withProjectRoot(rootDirectory)
-                .addProjectResource(applicationPropertiesPath, applicationPropertiesLines)
+                .withProjectResource(applicationPropertiesPath, applicationPropertiesLines)
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .build();
 
@@ -213,8 +213,8 @@ class Boot_24_25_SqlScriptDataSourceInitializationActionTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withProjectRoot(rootDirectory)
-                .addProjectResource(applicationPropertiesPath, applicationPropertiesLines)
-                .addProjectResource(applicationPropertiesPathTest, applicationPropertiesLines)
+                .withProjectResource(applicationPropertiesPath, applicationPropertiesLines)
+                .withProjectResource(applicationPropertiesPathTest, applicationPropertiesLines)
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .build();
 
