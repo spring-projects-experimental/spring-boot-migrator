@@ -21,7 +21,7 @@ import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 
 import java.util.Optional;
 
-public class EjbJarXmlResourceFilter implements ProjectResourceFinder<Optional<EjbJarXml>> {
+public class EjbJarXmlResourceFinder implements ProjectResourceFinder<Optional<EjbJarXml>> {
 
     private static final String EJB_JAR_XML = "ejb-jar.xml";
 
