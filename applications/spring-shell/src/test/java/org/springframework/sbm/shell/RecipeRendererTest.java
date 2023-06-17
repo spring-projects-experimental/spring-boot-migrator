@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.shell;
 
+import org.springframework.sbm.engine.recipe.Recipe;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
@@ -75,8 +76,8 @@ class RecipeRendererTest {
 
         AttributedStringBuilder builder = new AttributedStringBuilder();
 
-        sut.buildRecipePresentation(builder, recipe1);
-        sut.buildRecipePresentation(builder, recipe2);
+        sut.buildRecipePresentation(1, builder, recipe1);
+        sut.buildRecipePresentation(2, builder, recipe2);
 
 
         AttributedString attributedString = sut.renderRecipesList("", title, List.of(recipe1, recipe2));

@@ -16,18 +16,17 @@
  */
 package org.springframework.sbm.shell;
 
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
-import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import org.jline.utils.AttributedString;
-import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
-import org.jline.utils.Colors;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
@@ -49,11 +48,15 @@ public class ApplyShellCommand {
     private final ApplicableRecipeListRenderer applicableRecipeListRenderer;
     private final ProjectContextHolder projectContextHolder;
     private final ApplyCommandRenderer applyCommandRenderer;
+    private final ApplicableRecipesListHolder applicableRecipeListHolder;
 
     @ShellMethod(key = {"apply", "a"}, value = "Apply a given recipe to the target application.")
     @ShellMethodAvailability("availabilityCheck")
     public AttributedString apply(@ShellOption(arity = 1, valueProvider = ApplyRecipeValueProvider.class,
-            help = "The name of the recipe to apply.") String recipeName) {
+            help = "The number of the recipe to apply.") String recipeIndex) {
+        int realIndex = Integer.parseInt(recipeIndex) - 1;
+        Recipe recipe = applicableRecipeListHolder.getRecipeByIndex(realIndex);
+        String recipeName = recipe.getName();
         AttributedStringBuilder header = buildHeader(recipeName);
         System.out.println(header.toAnsi());
 

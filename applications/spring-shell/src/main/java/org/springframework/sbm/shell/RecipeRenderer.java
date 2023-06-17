@@ -39,19 +39,18 @@ public class RecipeRenderer {
             AttributedString titleString = renderTitle(title);
             builder.append(titleString);
 
-            foundRecipes.forEach(recipe -> this.buildRecipePresentation(builder, recipe));
+            foundRecipes.forEach(recipe -> this.buildRecipePresentation(foundRecipes.indexOf(recipe), builder, recipe));
 
             builder.append("\n");
-            builder.append("Run command '> apply recipe-name' to apply a recipe.");
+            builder.append("Run command '> apply <recipe-number>' to apply a recipe.");
             builder.append("\n");
         }
         return builder.toAttributedString();
     }
 
-    public AttributedStringBuilder buildRecipePresentation(AttributedStringBuilder builder, Recipe recipe) {
-        builder.style(AttributedStyle.DEFAULT);
-        builder.append("  - ");
-        builder.style(AttributedStyle.DEFAULT.italicDefault().boldDefault().foreground(Colors.rgbColor("yellow")));
+    public AttributedStringBuilder buildRecipePresentation(int index, AttributedStringBuilder builder, Recipe recipe) {
+        builder.style(AttributedStyle.BOLD);//.foreground(Colors.rgbColor("yellow")));
+        builder.append("  ").append(Integer.toString(index + 1)).append(") ");
         builder.append(recipe.getName());
         builder.style(AttributedStyle.DEFAULT);
         builder.append("\n     -> ").append(recipe.getDescription());
