@@ -15,10 +15,7 @@
  */
 package org.springframework.sbm.engine.commands;
 
-import org.openrewrite.ExecutionContext;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.sbm.common.filter.DeletedResourcePathStringFilter;
 import org.springframework.sbm.common.filter.ModifiedResourcePathStringFilter;
 import org.springframework.sbm.engine.context.ProjectContext;
