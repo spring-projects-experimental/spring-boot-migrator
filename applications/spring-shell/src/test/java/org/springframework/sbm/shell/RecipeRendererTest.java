@@ -15,8 +15,6 @@
  */
 package org.springframework.sbm.shell;
 
-import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.sbm.engine.recipe.RecipeAutomation;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
@@ -24,6 +22,7 @@ import org.jline.utils.Colors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.sbm.engine.recipe.Recipe;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +36,7 @@ class RecipeRendererTest {
     RecipeRenderer sut = new RecipeRenderer();
 
     @Test
-    void shouldRenderRecipeWithManualEmoji() {
+    void shouldRenderRecipe() {
 
         Recipe recipe = mock(Recipe.class);
         String recipeName = "recipe-1";
@@ -45,74 +44,22 @@ class RecipeRendererTest {
 
         when(recipe.getName()).thenReturn(recipeName);
         when(recipe.getDescription()).thenReturn(recipeDescription);
-        when(recipe.getAutomationInfo()).thenReturn(RecipeAutomation.MANUAL);
-
 
         AttributedStringBuilder builder = new AttributedStringBuilder();
         builder.style(AttributedStyle.DEFAULT);
         builder.append("  - ");
-        builder.style(AttributedStyle.DEFAULT.italicDefault().boldDefault().foreground(Colors.rgbColor("yellow")));
+        builder.style(AttributedStyle.DEFAULT.boldDefault().foreground(Colors.rgbColor("yellow")));
         builder.append(recipe.getName());
         builder.style(AttributedStyle.DEFAULT);
-        builder.append(" [" + RecipeRenderer.MANUAL_EMOJI + "]");
         builder.append("\n     -> " + recipe.getDescription());
         builder.append("\n");
 
                 AttributedStringBuilder builder2 = new AttributedStringBuilder();
-        assertThat(sut.buildRecipePresentation(builder2, recipe).toAttributedString())
-                .isEqualTo(builder.toAttributedString());
-    }
-
-    @Test
-    void shouldRenderRecipeWithAutomatedEmoji() {
-
-        Recipe recipe = mock(Recipe.class);
-        String recipeName = "recipe-1";
-        String recipeDescription = "the description";
-
-        when(recipe.getName()).thenReturn(recipeName);
-        when(recipe.getDescription()).thenReturn(recipeDescription);
-        when(recipe.getAutomationInfo()).thenReturn(RecipeAutomation.AUTOMATED);
-
-        AttributedStringBuilder builder = new AttributedStringBuilder();
-        builder.style(AttributedStyle.DEFAULT);
-        builder.append("  - ");
-        builder.style(AttributedStyle.DEFAULT.italicDefault().boldDefault().foreground(Colors.rgbColor("yellow")));
-        builder.append(recipe.getName());
-        builder.style(AttributedStyle.DEFAULT);
-        builder.append(" [" + RecipeRenderer.AUTOMATED_EMOJI + "]");
-        builder.append("\n     -> " + recipe.getDescription());
-        builder.append("\n");
-
-        AttributedStringBuilder builder2 = new AttributedStringBuilder();
-        assertThat(sut.buildRecipePresentation(builder2, recipe).toAttributedString())
-                .isEqualTo(builder.toAttributedString());
-    }
-
-    @Test
-    void shouldRenderRecipeWithPartiallyAutomatedEmoji() {
-
-        Recipe recipe = mock(Recipe.class);
-        String recipeName = "recipe-1";
-        String recipeDescription = "the description";
-
-        when(recipe.getName()).thenReturn(recipeName);
-        when(recipe.getDescription()).thenReturn(recipeDescription);
-        when(recipe.getAutomationInfo()).thenReturn(RecipeAutomation.PARTIALLY_AUTOMATED);
-
-        AttributedStringBuilder builder = new AttributedStringBuilder();
-        builder.style(AttributedStyle.DEFAULT);
-        builder.append("  - ");
-        builder.style(AttributedStyle.DEFAULT.italicDefault().boldDefault().foreground(Colors.rgbColor("yellow")));
-        builder.append(recipe.getName());
-        builder.style(AttributedStyle.DEFAULT);
-        builder.append(" [" + RecipeRenderer.MANUAL_EMOJI + " " + RecipeRenderer.AUTOMATED_EMOJI + "]");
-        builder.append("\n     -> " + recipe.getDescription());
-        builder.append("\n");
-
-        AttributedStringBuilder builder2 = new AttributedStringBuilder();
-        assertThat(sut.buildRecipePresentation(builder2, recipe).toAttributedString())
-                .isEqualTo(builder.toAttributedString());
+        AttributedString attributedString = sut.buildRecipePresentation(builder2, recipe).toAttributedString();
+        AttributedString expectedAttributedString = builder.toAttributedString();
+        assertThat(attributedString)
+                .as(attributedString + "  " + expectedAttributedString)
+                .isEqualTo(expectedAttributedString);
     }
 
     @Test
@@ -128,14 +75,13 @@ class RecipeRendererTest {
 
         AttributedStringBuilder builder = new AttributedStringBuilder();
 
-        when(sut.renderEmojiMapping()).thenReturn(emojiMapping);
         sut.buildRecipePresentation(builder, recipe1);
         sut.buildRecipePresentation(builder, recipe2);
 
 
         AttributedString attributedString = sut.renderRecipesList("", title, List.of(recipe1, recipe2));
 
-        assertThat(attributedString.toString()).contains(emojiMapping.toString(), title, recipe1Name, recipe2Name);
+        assertThat(attributedString.toString()).contains(title, recipe1Name, recipe2Name);
     }
 
     @Test
