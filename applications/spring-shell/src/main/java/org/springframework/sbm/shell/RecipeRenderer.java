@@ -18,7 +18,6 @@ package org.springframework.sbm.shell;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
-import org.jline.utils.Colors;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +48,7 @@ public class RecipeRenderer {
     }
 
     public AttributedStringBuilder buildRecipePresentation(int index, AttributedStringBuilder builder, Recipe recipe) {
-        builder.style(AttributedStyle.BOLD);//.foreground(Colors.rgbColor("yellow")));
+        builder.style(AttributedStyle.BOLD);
         builder.append("  ").append(Integer.toString(index + 1)).append(") ");
         builder.append(recipe.getName());
         builder.style(AttributedStyle.DEFAULT);

@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
+import org.jline.utils.Colors;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -30,14 +31,12 @@ import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
 import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ShellComponent;
-import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellMethodAvailability;
-import org.springframework.shell.standard.ShellOption;
-import org.springframework.shell.standard.ValueProvider;
+import org.springframework.shell.standard.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+import static java.lang.Integer.parseUnsignedInt;
 
 @ShellComponent
 @RequiredArgsConstructor
@@ -53,10 +52,17 @@ public class ApplyShellCommand {
     @ShellMethod(key = {"apply", "a"}, value = "Apply a given recipe to the target application.")
     @ShellMethodAvailability("availabilityCheck")
     public AttributedString apply(@ShellOption(arity = 1, valueProvider = ApplyRecipeValueProvider.class,
-            help = "The number of the recipe to apply.") String recipeIndex) {
-        int realIndex = Integer.parseInt(recipeIndex) - 1;
-        Recipe recipe = applicableRecipeListHolder.getRecipeByIndex(realIndex);
-        String recipeName = recipe.getName();
+            help = "The number of the recipe to apply.") String recipe) {
+        // allow passing in number of position or name of recipe (meh)
+        String recipeName = recipe;
+        try {
+            int recipeIndex = parseUnsignedInt(recipe);
+            int realIndex = recipeIndex - 1;
+            Recipe matchingRecipe = applicableRecipeListHolder.getRecipeByIndex(realIndex);
+            recipeName = matchingRecipe.getName();
+        } catch (NumberFormatException nfe) {
+
+        }
         AttributedStringBuilder header = buildHeader(recipeName);
         System.out.println(header.toAnsi());
 
