@@ -25,6 +25,6 @@ class ApplyRecipeCommandHeaderRendererTest {
     void renderHeader() {
 		ScanCommandHeaderRenderer sut = new ScanCommandHeaderRenderer();
 		String s = sut.renderHeader("some/path");
-		assertThat(s).isEqualTo("\n\u001B[32mscanning 'some/path'\u001B[0m");
+		assertThat(s).isEqualTo("\nscanning 'some/path'");
 	}
 }

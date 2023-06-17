@@ -18,7 +18,6 @@ package org.springframework.sbm.shell;
 import lombok.Setter;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
 import org.springframework.context.event.EventListener;
 import org.springframework.sbm.engine.events.*;
 import org.springframework.sbm.engine.recipe.Action;
@@ -67,7 +66,6 @@ public class ApplyCommandRenderer {
     public AttributedString render(String recipeName, List<Action> actions) {
         AttributedStringBuilder builder = new AttributedStringBuilder();
         builder.append("\n");
-        builder.style(AttributedStyle.DEFAULT.italicDefault());
         builder.append(recipeName);
         builder.append(" successfully applied the following actions:\n")
                 .append(actions.stream()

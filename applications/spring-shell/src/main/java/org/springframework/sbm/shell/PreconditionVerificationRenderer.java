@@ -28,7 +28,7 @@ public class PreconditionVerificationRenderer {
 
     public String renderPreconditionCheckResults(PreconditionVerificationResult result) {
         AttributedStringBuilder stringBuilder = new AttributedStringBuilder();
-        stringBuilder.style(stringBuilder.style().DEFAULT.bold().foreground(Colors.rgbColor("black")));
+        stringBuilder.style(stringBuilder.style().DEFAULT.bold());
         stringBuilder.append("\n\n").append(String.format("Checked preconditions for '%s'", result.getProjectRoot())).append("\n");
 
         result.getResults().forEach(r -> stringBuilder.append(renderCheckResult(r)));
