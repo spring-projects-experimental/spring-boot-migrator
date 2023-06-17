@@ -60,6 +60,12 @@ public class ProjectContext {
         return projectResources;
     }
 
+    /**
+     * @deprecated
+     * Use {@link #getApplicationModules()} instead.
+     * TODO: Make method private
+     */
+    @Deprecated(forRemoval = false)
     public List<Module> getModules() {
         return search(new BuildFileProjectResourceFilter()).stream()
                 .map(this::mapToModule)
