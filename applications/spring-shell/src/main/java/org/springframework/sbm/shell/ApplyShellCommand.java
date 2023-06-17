@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
-import org.jline.utils.Colors;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -84,7 +83,7 @@ public class ApplyShellCommand {
     private AttributedStringBuilder buildHeader(String recipeName) {
         AttributedStringBuilder builder = new AttributedStringBuilder();
         builder.append("Applying recipe ");
-        builder.style(AttributedStyle.DEFAULT.italicDefault().boldDefault().foreground(Colors.rgbColor("yellow")));
+        builder.style(AttributedStyle.DEFAULT.boldDefault());
         builder.append("'")
                 .append(recipeName)
                 .append("'");
