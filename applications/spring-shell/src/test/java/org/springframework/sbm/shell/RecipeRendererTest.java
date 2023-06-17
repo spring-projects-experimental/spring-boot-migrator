@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.shell;
 
+import org.springframework.sbm.engine.recipe.Recipe;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
