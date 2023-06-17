@@ -74,8 +74,8 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
 
             ProjectContext projectContext = TestProjectContext.buildProjectContext()
                     .withMavenRootBuildFileSource(parentPom)
-                    .addProjectResource("pom1/pom.xml", pom1)
-                    .addProjectResource("pom2/pom.xml", pom2)
+                    .withProjectResource("pom1/pom.xml", pom1)
+                    .withProjectResource("pom2/pom.xml", pom2)
                     .addRegistrar(new PersistenceXmlProjectResourceRegistrar())
                     .build();
 
@@ -139,9 +139,9 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
 
             ProjectContext projectContext = TestProjectContext.buildProjectContext()
                     .withMavenRootBuildFileSource(parentPom)
-                    .addProjectResource("pom1/pom.xml", pom1)
-                    .addProjectResource("pom2/pom.xml", pom2)
-                    .addProjectResource("pom2/src/main/resources/META-INF/persistence.xml", persistenceXml)
+                    .withProjectResource("pom1/pom.xml", pom1)
+                    .withProjectResource("pom2/pom.xml", pom2)
+                    .withProjectResource("pom2/src/main/resources/META-INF/persistence.xml", persistenceXml)
                     .addRegistrar(new PersistenceXmlProjectResourceRegistrar())
                     .build();
 
@@ -160,7 +160,7 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
     void migrateJpaToSpringBoot() {
         ActionTest.withProjectContext(
                 TestProjectContext.buildProjectContext()
-                        .addProjectResource(Path.of("src/main/resources/META-INF/persistence.xml"), """
+                        .withProjectResource(Path.of("src/main/resources/META-INF/persistence.xml"), """
                                 <persistence version="1.0"
                                              xmlns="http://xmlns.jcp.org/xml/ns/persistence"
                                              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

@@ -72,6 +72,14 @@ public class ProjectContext {
         return new Module(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator, javaParser, executionContext);
     }
 
+    /**
+     * This is a legacy way of retrieving applications build file.
+     * This function does not generalise for situations where application is under a multi-module maven structure
+     * Use {@link #getApplicationModules()} instead of getBuildFile()
+     * If one would want to retrieve the root build file use:
+     * {@link #getApplicationModules()} and then call to get root module using: {@link ApplicationModules#getRootModule()}
+     * */
+    @Deprecated(forRemoval = true)
     public BuildFile getBuildFile() {
         return search(new RootBuildFileFilter());
     }

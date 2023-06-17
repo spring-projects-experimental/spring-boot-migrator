@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
@@ -61,9 +60,9 @@ class SpringMVCAndWebFluxUrlMatchingChangesHelperTest {
                 .buildProjectContext()
                 .withSpringBootParentOf("2.7.5")
                 .withBuildFileHavingDependencies("org.springframework:spring-web:5.3.23")
-                .addJavaSource("src/main/java", restController1)
-                .addJavaSource("src/main/java", restController2)
-                .addJavaSource("src/main/java", anotherClass)
+                .withJavaSource("src/main/java", restController1)
+                .withJavaSource("src/main/java", restController2)
+                .withJavaSource("src/main/java", anotherClass)
                 .build();
 
         SpringMVCAndWebFluxUrlMatchingChangesHelper sut = new SpringMVCAndWebFluxUrlMatchingChangesHelper();
@@ -90,7 +89,7 @@ class SpringMVCAndWebFluxUrlMatchingChangesHelperTest {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
                 .withBuildFileHavingDependencies("org.springframework:spring-web:5.3.23")
-                .addJavaSource("src/main/java", anotherClass)
+                .withJavaSource("src/main/java", anotherClass)
                 .build();
 
         SpringMVCAndWebFluxUrlMatchingChangesHelper sut = new SpringMVCAndWebFluxUrlMatchingChangesHelper();

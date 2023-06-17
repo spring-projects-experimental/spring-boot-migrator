@@ -114,10 +114,10 @@ class SpringDataJpaAnalyzerTest {
                         "}";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", tag)
-                .addJavaSource("src/main/java", tagRepository)
-                .addJavaSource("src/main/java", task)
-                .addJavaSource("src/main/java", taskRepository)
+                .withJavaSource("src/main/java", tag)
+                .withJavaSource("src/main/java", tagRepository)
+                .withJavaSource("src/main/java", task)
+                .withJavaSource("src/main/java", taskRepository)
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-data-jpa:2.4.12")
                 .build();
 

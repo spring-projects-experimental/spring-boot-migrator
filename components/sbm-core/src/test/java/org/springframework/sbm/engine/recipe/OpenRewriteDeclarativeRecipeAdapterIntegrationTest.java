@@ -87,7 +87,7 @@ class OpenRewriteDeclarativeRecipeAdapterIntegrationTest {
         String javaSource = "@java.lang.Deprecated\n" +
                 "public class Foo {}";
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", javaSource)
+                .withJavaSource("src/main/java", javaSource)
                 .build();
         // run the adapter action and thus the declared rewrite recipes
         recipeAdapter.apply(context);

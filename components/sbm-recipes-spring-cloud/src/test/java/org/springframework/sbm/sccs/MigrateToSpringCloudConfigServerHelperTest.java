@@ -60,8 +60,8 @@ class MigrateToSpringCloudConfigServerHelperTest {
                 "property1=bar";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/resources/application.properties", applicationPropertiesString)
-                .addProjectResource("src/main/resources/application-cloud.properties", cloudProfilePropertiesString)
+                .withProjectResource("src/main/resources/application.properties", applicationPropertiesString)
+                .withProjectResource("src/main/resources/application-cloud.properties", cloudProfilePropertiesString)
                 .withJavaSources(javaSource1, javaSource2)
                 .withBuildFileHavingDependencies("org.springframework:spring-context:5.3.5")
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
@@ -109,8 +109,8 @@ class MigrateToSpringCloudConfigServerHelperTest {
                 "property1=bar";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/resources/application-cloud.properties", cloudProfilePropertiesString)
-                .addProjectResource("src/main/resources/application.properties", applicationPropertiesString)
+                .withProjectResource("src/main/resources/application-cloud.properties", cloudProfilePropertiesString)
+                .withProjectResource("src/main/resources/application.properties", applicationPropertiesString)
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .build();
 

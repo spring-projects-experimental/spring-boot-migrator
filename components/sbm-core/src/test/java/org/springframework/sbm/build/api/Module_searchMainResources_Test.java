@@ -85,7 +85,7 @@ public class Module_searchMainResources_Test {
             ProjectContext context = TestProjectContext
                     .buildProjectContext()
                     .withMavenBuildFileSource("pom.xml", singlePom)
-                    .addProjectResource("src/main/resources/some-resource.txt", "the content")
+                    .withProjectResource("src/main/resources/some-resource.txt", "the content")
                     .build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
@@ -105,8 +105,8 @@ public class Module_searchMainResources_Test {
         @DisplayName("with resources in src/test/resources and src/main/resources provides ProjectResourceSet with resources from src/main/resources")
         void withResourcesInTestAndMain_providesResourcesFromMain() {
             ProjectContext context = builder
-                    .addProjectResource("src/main/resources/some-resource.txt", "the content")
-                    .addProjectResource("src/test/resources/some-resource.txt", "the test content")
+                    .withProjectResource("src/main/resources/some-resource.txt", "the content")
+                    .withProjectResource("src/test/resources/some-resource.txt", "the test content")
                     .build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
@@ -127,7 +127,7 @@ public class Module_searchMainResources_Test {
         void withResourcesInSrcTestResources_providesEmptyProjectResources() {
 
             ProjectContext context = builder
-                    .addProjectResource("src/test/resources/some-resource.txt", "the content")
+                    .withProjectResource("src/test/resources/some-resource.txt", "the content")
                     .build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
@@ -240,7 +240,7 @@ public class Module_searchMainResources_Test {
         void withResourcesInOtherModules_providesEmptyProjectResources() {
 
             ProjectContext context = builder
-                    .addProjectResource("component/src/main/resources/some-resource.txt", "")
+                    .withProjectResource("component/src/main/resources/some-resource.txt", "")
                     .build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
@@ -260,8 +260,8 @@ public class Module_searchMainResources_Test {
         void withResourcesInMainAndTest_providesProjectResourcesFromSrcMainResources() {
 
             ProjectContext context = builder
-                    .addProjectResource("application/src/main/resources/some-resource.txt", "the content")
-                    .addProjectResource("application/src/test/resources/some-resource.txt", "the test content")
+                    .withProjectResource("application/src/main/resources/some-resource.txt", "the content")
+                    .withProjectResource("application/src/test/resources/some-resource.txt", "the test content")
                     .build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
@@ -282,7 +282,7 @@ public class Module_searchMainResources_Test {
         void withResourcesInMain_providesProjectResourcesFromSrcMainResources() {
 
             ProjectContext context = builder
-                    .addProjectResource("application/src/main/resources/some-resource.txt", "the content")
+                    .withProjectResource("application/src/main/resources/some-resource.txt", "the content")
                     .build();
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);

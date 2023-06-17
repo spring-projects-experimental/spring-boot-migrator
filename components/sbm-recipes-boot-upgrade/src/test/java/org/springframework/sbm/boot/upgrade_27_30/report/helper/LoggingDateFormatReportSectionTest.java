@@ -34,7 +34,7 @@ public class LoggingDateFormatReportSectionTest {
                 .buildProjectContext()
                 .withSpringBootParentOf("2.7.5")
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource("src/main/resources/application-myprofile.properties", "not.logging.pattern.dateformat=some-format")
+                .withProjectResource("src/main/resources/application-myprofile.properties", "not.logging.pattern.dateformat=some-format")
                 .build();
 
         SpringBootUpgradeReportTestSupport
@@ -99,7 +99,7 @@ public class LoggingDateFormatReportSectionTest {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
-                .addProjectResource("src/main/resources/application-myprofile.properties", "logging.pattern.dateformat=some-format")
+                .withProjectResource("src/main/resources/application-myprofile.properties", "logging.pattern.dateformat=some-format")
                 .build();
 
         SpringBootUpgradeReportTestSupport

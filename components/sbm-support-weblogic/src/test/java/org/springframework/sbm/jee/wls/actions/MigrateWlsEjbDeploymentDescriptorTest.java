@@ -88,7 +88,7 @@ class MigrateWlsEjbDeploymentDescriptorTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withJavaSources(javaSource)
-                .addProjectResource(Path.of("./src/main/resources/META-INF/weblogic-ejb-jar.xml"), wlsDeploymentDescriptor)
+                .withProjectResource(Path.of("./src/main/resources/META-INF/weblogic-ejb-jar.xml"), wlsDeploymentDescriptor)
                 .withMavenRootBuildFileSource(buildFileSource)
                 .addRegistrar(new JeeWlsEjbJarProjectResourceRegistrar())
                 .build();
@@ -138,7 +138,7 @@ class MigrateWlsEjbDeploymentDescriptorTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withJavaSources(javaSource)
-                .addProjectResource(Path.of("./src/main/resources/META-INF/weblogic-ejb-jar.xml"), wlsDeploymentDescriptor)
+                .withProjectResource(Path.of("./src/main/resources/META-INF/weblogic-ejb-jar.xml"), wlsDeploymentDescriptor)
                 .addRegistrar(new JeeWlsEjbJarProjectResourceRegistrar())
                 .withBuildFileHavingDependencies("javax.ejb:javax.ejb-api:3.2", "org.springframework:spring-tx:5.3.9")
                 .build();
@@ -183,7 +183,7 @@ class MigrateWlsEjbDeploymentDescriptorTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withJavaSources(javaSource)
-                .addProjectResource(Path.of("./src/main/resources/META-INF/weblogic-ejb-jar.xml"), wlsDeploymentDescriptor)
+                .withProjectResource(Path.of("./src/main/resources/META-INF/weblogic-ejb-jar.xml"), wlsDeploymentDescriptor)
                 .addRegistrar(new JeeWlsEjbJarProjectResourceRegistrar())
                 .withBuildFileHavingDependencies("javax.ejb:javax.ejb-api:3.2", "org.springframework:spring-tx:5.3.9")
                 .build();

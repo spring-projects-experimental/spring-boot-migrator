@@ -19,25 +19,21 @@ import freemarker.template.Configuration;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
-import org.openrewrite.java.JavaParser;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.build.impl.*;
-import org.springframework.sbm.build.resource.BuildFileResourceWrapper;
+import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;
-import org.springframework.sbm.java.JavaSourceProjectResourceWrapper;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
-import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
-import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.JavaSourceUtil;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.TestDummyResource;
-import org.springframework.sbm.project.parser.*;
+import org.springframework.sbm.project.parser.DependencyHelper;
+import org.springframework.sbm.project.parser.PathScanner;
+import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import org.springframework.sbm.test.SpringBeanProvider;
 import org.springframework.sbm.test.TestProjectContextInfo;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
@@ -50,7 +46,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -252,7 +247,7 @@ public class TestProjectContext {
             try {
                 Path relativePath = absoluteProjectRoot.relativize(r.getFile().toPath());
                 String content = ResourceHelper.getResourceAsString(r);
-                builder.addProjectResource(relativePath, content);
+                builder.withProjectResource(relativePath, content);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -318,7 +313,7 @@ public class TestProjectContext {
          * @param sourcePath relative from project root.
          * @param content    of the resource
          */
-        public Builder addProjectResource(Path sourcePath, String content) {
+        public Builder withProjectResource(Path sourcePath, String content) {
             if (sourcePath.isAbsolute()) throw new IllegalArgumentException(
                     "Invalid sourcePath given, sourcePath must be given relative from project root.");
             this.resourcesWithRelativePaths.put(sourcePath.normalize(), content);
@@ -331,9 +326,9 @@ public class TestProjectContext {
          * @param sourcePathString relative from project root.
          * @param content          of the resource
          */
-        public Builder addProjectResource(String sourcePathString, String content) {
+        public Builder withProjectResource(String sourcePathString, String content) {
             Path sourcePath = Path.of(sourcePathString);
-            return addProjectResource(sourcePath, content);
+            return withProjectResource(sourcePath, content);
         }
 
         /**
@@ -341,8 +336,8 @@ public class TestProjectContext {
          *
          * @param sourcePathString relative from project root.
          */
-        public Builder addEmptyProjectResource(String sourcePathString) {
-            addProjectResource(sourcePathString, "");
+        public Builder withEmptyProjectResource(String sourcePathString) {
+            withProjectResource(sourcePathString, "");
             return this;
         }
 
@@ -361,12 +356,12 @@ public class TestProjectContext {
          * The source Path is ' src/main/java' in the root module and the path inside is calculated from package declaration if exists.
          */
         @Deprecated
-        public Builder addJavaSource(String sourceCode) {
+        public Builder withJavaSource(String sourceCode) {
             return withJavaSources(sourceCode);
         }
 
 
-        public Builder addJavaSource(Path sourcePathDir, String sourceCode) {
+        public Builder withJavaSource(Path sourcePathDir, String sourceCode) {
             if (sourcePathDir.isAbsolute()) {
                 throw new IllegalArgumentException("Source path must be relative to project root dir.");
             }
@@ -376,11 +371,11 @@ public class TestProjectContext {
             return this;
         }
 
-        public Builder addJavaSource(String sourcePath, String sourceCode) {
-            return addJavaSource(Path.of(sourcePath), sourceCode);
+        public Builder withJavaSource(String sourcePath, String sourceCode) {
+            return withJavaSource(Path.of(sourcePath), sourceCode);
         }
 
-        public Builder addJavaSourceToModule(String modulePath, String sourceCode) {
+        public Builder withJavaSourceInModule(String modulePath, String sourceCode) {
             if (Path.of(modulePath).isAbsolute()) {
                 throw new IllegalArgumentException("Source path must be relative to project root dir.");
             }
@@ -439,7 +434,7 @@ public class TestProjectContext {
 
         @Deprecated
         public Builder withMavenBuildFileSource(Path path, String pomSource) {
-            this.addProjectResource(projectRoot.resolve(path).normalize(), pomSource);
+            this.withProjectResource(projectRoot.resolve(path).normalize(), pomSource);
             return this;
         }
 
@@ -448,7 +443,7 @@ public class TestProjectContext {
             if (!sourceDir.endsWith("pom.xml")) {
                 sourcePath = sourcePath.resolve("pom.xml");
             }
-            this.addProjectResource(sourcePath, pomSource);
+            this.withProjectResource(sourcePath, pomSource);
             return this;
         }
 

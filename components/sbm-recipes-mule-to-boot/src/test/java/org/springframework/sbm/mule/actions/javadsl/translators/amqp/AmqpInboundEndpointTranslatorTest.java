@@ -76,7 +76,7 @@ class AmqpInboundEndpointTranslatorTest {
     void amqpTranslatorTest() {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/mule/amqp-mule.xml", amqpXML)
+                .withProjectResource("src/main/mule/amqp-mule.xml", amqpXML)
                 .addRegistrar(new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext()))
                 .build();
 

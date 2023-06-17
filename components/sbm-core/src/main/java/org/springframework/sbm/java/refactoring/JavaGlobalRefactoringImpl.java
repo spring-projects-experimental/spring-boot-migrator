@@ -15,16 +15,18 @@
  */
 package org.springframework.sbm.java.refactoring;
 
+import org.jetbrains.annotations.NotNull;
+import org.openrewrite.*;
+import org.openrewrite.java.JavaIsoVisitor;
+import org.openrewrite.java.JavaVisitor;
+import org.openrewrite.java.tree.J;
+import org.openrewrite.marker.Marker;
+import org.openrewrite.marker.Markers;
+import org.openrewrite.marker.RecipesThatMadeChanges;
+import org.openrewrite.marker.SearchResult;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
-import org.jetbrains.annotations.NotNull;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.Recipe;
-import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
-import org.openrewrite.java.JavaVisitor;
-import org.openrewrite.java.tree.J;
 
 import java.util.Arrays;
 import java.util.List;
@@ -81,7 +83,8 @@ public class JavaGlobalRefactoringImpl implements JavaGlobalRefactoring {
 
     @Override
     public List<RewriteSourceFileHolder<J.CompilationUnit>> find(Recipe recipe) {
-        return findInternal(getAllCompilationUnits(), recipe);
+        List<RewriteSourceFileHolder<J.CompilationUnit>> matches = findInternal(getAllCompilationUnits(), recipe);
+        return matches;
     }
 
     @NotNull
@@ -94,9 +97,31 @@ public class JavaGlobalRefactoringImpl implements JavaGlobalRefactoring {
                 .map(J.CompilationUnit.class::cast)
                 .map(cu -> resourceWrappers.stream()
                         .filter(fh -> fh.getId().equals(cu.getId()))
-                        .map(pr -> (RewriteSourceFileHolder<J.CompilationUnit>) pr)
+                        .map(pr -> {
+                            J.CompilationUnit cuRemovedMarkers = removeMarkers(cu, SearchResult.class, RecipesThatMadeChanges.class);
+                            pr.replaceWith(cuRemovedMarkers);
+                            return pr;
+                        })
                         .findAny().orElseThrow())
                 .collect(Collectors.toList());
+    }
+
+    private J.CompilationUnit removeMarkers(J.CompilationUnit cu, Class<? extends Marker>... markerTypes) {
+        RecipeRun recipeRun = new GenericOpenRewriteRecipe<>(() -> new JavaIsoVisitor<ExecutionContext>() {
+            @Override
+            public Markers visitMarkers(Markers m, ExecutionContext executionContext) {
+                Markers markers = super.visitMarkers(m, executionContext);
+                if (!markers.getMarkers().isEmpty()) {
+                    for (Class<? extends Marker> marker : markerTypes) {
+                        markers = markers.removeByType(marker);
+                    }
+                }
+                return markers;
+            }
+        }).run(List.of(cu), executionContext);
+        J.CompilationUnit compilationUnit = (J.CompilationUnit) recipeRun.getResults().get(0).getAfter();
+        compilationUnit = compilationUnit.withMarkers(compilationUnit.getMarkers().removeByType(RecipesThatMadeChanges.class));
+        return compilationUnit;
     }
 
     @Deprecated

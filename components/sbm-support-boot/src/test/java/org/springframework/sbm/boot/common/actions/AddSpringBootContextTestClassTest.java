@@ -161,11 +161,11 @@ public class AddSpringBootContextTestClassTest {
             sbmApplicationProperties.setDefaultBasePackage("com.example.sbm");
 
             ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                    .addProjectResource("pom.xml", parentPom)
+                    .withProjectResource("pom.xml", parentPom)
                     .withApplicationProperties(sbmApplicationProperties)
-                    .addProjectResource("module1/pom.xml", childPom1)
-                    .addProjectResource("module2/pom.xml", childPom2)
-                    .addJavaSourceToModule("module1/src/main/java", javaClass1)
+                    .withProjectResource("module1/pom.xml", childPom1)
+                    .withProjectResource("module2/pom.xml", childPom2)
+                    .withJavaSourceInModule("module1/src/main/java", javaClass1)
                     .build();
 
             sut.setSbmApplicationProperties(sbmApplicationProperties);

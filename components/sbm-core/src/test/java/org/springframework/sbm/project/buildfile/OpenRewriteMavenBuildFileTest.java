@@ -21,10 +21,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.openrewrite.ExecutionContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Bean;
 import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
@@ -38,7 +35,6 @@ import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -310,7 +306,7 @@ public class OpenRewriteMavenBuildFileTest {
 
             BuildFile buildFile = TestProjectContext
                     .buildProjectContext()
-                    .addProjectResource(".mvn/maven.config", """
+                    .withProjectResource(".mvn/maven.config", """
                             -Drevision=1.0.0
                             """)
                     .withMavenRootBuildFileSource(pom)
@@ -532,7 +528,7 @@ public class OpenRewriteMavenBuildFileTest {
                         </project>
                         """
                 )
-                .addJavaSource("src/main/java",
+                .withJavaSource("src/main/java",
                        """
                         import javax.validation.constraints.Email;
                         public class Cat {

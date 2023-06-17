@@ -58,7 +58,7 @@ class HttpListenerTranslatorTest {
                 "</mule>\n";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/mule/http-mule.xml", httpMule)
+                .withProjectResource("src/main/mule/http-mule.xml", httpMule)
                 .addRegistrar(new MuleXmlProjectResourceRegistrar(new RewriteExecutionContext()))
                 .build();
 

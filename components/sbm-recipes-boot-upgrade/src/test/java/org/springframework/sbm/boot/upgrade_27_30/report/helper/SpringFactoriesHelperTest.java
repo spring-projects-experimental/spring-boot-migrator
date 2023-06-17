@@ -17,10 +17,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.project.resource.TestProjectContext;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +27,7 @@ class SpringFactoriesHelperTest {
     public void detectsFileWithSpringFactories() {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addProjectResource(
+                .withProjectResource(
                         "src/main/resources/META-INF/spring.factories",
                         """
                                 hello.world=something

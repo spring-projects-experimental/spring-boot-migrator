@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.xml.XmlParser;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.jee.ejb.filter.EjbJarXmlResourceFilter;
+import org.springframework.sbm.jee.ejb.filter.EjbJarXmlResourceFinder;
 import org.springframework.sbm.jee.ejb.resource.JeeEjbJarXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -66,10 +66,10 @@ class EjbJarXmlTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new JeeEjbJarXmlProjectResourceRegistrar())
-                .addProjectResource("src/main/resources/ejb-jar.xml", ejbJarXmlContent)
+                .withProjectResource("src/main/resources/ejb-jar.xml", ejbJarXmlContent)
                 .build();
 
-        Optional<EjbJarXml> ejbJarXmlOptional = projectContext.search(new EjbJarXmlResourceFilter());
+        Optional<EjbJarXml> ejbJarXmlOptional = projectContext.search(new EjbJarXmlResourceFinder());
         EjbJarType ejbJarXml = ejbJarXmlOptional.get().getEjbJarXml();
         assertThat(ejbJarXml.getEnterpriseBeans().getSessionOrEntityOrMessageDriven()).hasSize(1);
         assertThat(ejbJarXml.getEnterpriseBeans().getSessionOrEntityOrMessageDriven().get(0)).isInstanceOf(SessionBeanType.class);
@@ -104,10 +104,10 @@ class EjbJarXmlTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .addRegistrar(new JeeEjbJarXmlProjectResourceRegistrar())
-                .addProjectResource("src/main/resources/ejb-jar.xml", ejbJarXmlContent)
+                .withProjectResource("src/main/resources/ejb-jar.xml", ejbJarXmlContent)
                 .build();
 
-        Optional<EjbJarXml> ejbJarXmlOptional = projectContext.search(new EjbJarXmlResourceFilter());
+        Optional<EjbJarXml> ejbJarXmlOptional = projectContext.search(new EjbJarXmlResourceFinder());
 
         EjbJarType ejbJarType = ejbJarXmlOptional.get().unmarshal(ejbJarXmlContent);
 
@@ -162,6 +162,7 @@ class EjbJarXmlTest {
 
     @Test
     void createEjbJarXmlwithOneEjb_removeEjb_shouldResultInEmpty() {
+
         String ejbJarXmlContent =
                 "<ejb-jar xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\"\n" +
                         "      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -182,11 +183,11 @@ class EjbJarXmlTest {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withProjectRoot(Path.of(".").toAbsolutePath())
                 .addRegistrar(new JeeEjbJarXmlProjectResourceRegistrar())
-                .addProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), ejbJarXmlContent)
+                .withProjectResource(Path.of("./src/main/resources/META-INF/ejb-jar.xml"), ejbJarXmlContent)
                 .build();
 
 
-        Optional<EjbJarXml> ejbJarXmlOptional = projectContext.search(new EjbJarXmlResourceFilter());
+        Optional<EjbJarXml> ejbJarXmlOptional = projectContext.search(new EjbJarXmlResourceFinder());
 
         assertThat(ejbJarXmlOptional).isNotEmpty();
         EjbJarXml ejbJarXml = ejbJarXmlOptional.get();
