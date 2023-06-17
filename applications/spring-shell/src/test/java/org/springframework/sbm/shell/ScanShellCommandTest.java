@@ -61,6 +61,9 @@ class ScanShellCommandTest {
     @Mock
     private ConsolePrinter consolePrinter;
 
+    @Mock
+    ApplicableRecipesListHolder applicableRecipesListHolder;
+
     @InjectMocks
     ScanShellCommand sut;
 
@@ -86,7 +89,11 @@ class ScanShellCommandTest {
 
         String result = sut.scan(projectRoot);
 
+        verify(applicableRecipesListHolder).clear();
+        verify(applicableRecipesListHolder, never()).setRecipes(any());
+
         ArgumentCaptor<String> capturedOutput = ArgumentCaptor.forClass(String.class);
+
         verify(consolePrinter).println(capturedOutput.capture());
 
         // header and validation result rendered
@@ -126,6 +133,8 @@ class ScanShellCommandTest {
 
         String result = sut.scan(projectRoot);
 
+        verify(applicableRecipesListHolder).clear();
+        verify(applicableRecipesListHolder).setRecipes(recipes);
         // list of recipes returned
         assertThat(result).isEqualTo("\u001B[91mThe applicable recipe\u001B[0m");
         // header and validation result rendered

@@ -42,6 +42,7 @@ public class ScanShellCommand {
     private final PreconditionVerificationRenderer preconditionVerificationRenderer;
     private final ScanCommandHeaderRenderer scanCommandHeaderRenderer;
     private final ConsolePrinter consolePrinter;
+    private final ApplicableRecipesListHolder applicableRecipesListHolder;
 
     @ShellMethod(key = {"scan", "s"},
             value = "Scans the target project directory and get the list of applicable recipes.")
@@ -49,6 +50,8 @@ public class ScanShellCommand {
             @ShellOption(arity = 1, defaultValue = ".", valueProvider = ScanValueProvider.class,
                     help = "The root directory of the target application.")
                     String projectRoot) {
+
+        applicableRecipesListHolder.clear();
 
         List<Resource> resources = scanCommand.scanProjectRoot(projectRoot);
         String scanCommandHeader = scanCommandHeaderRenderer.renderHeader(projectRoot);
@@ -67,6 +70,7 @@ public class ScanShellCommand {
             ProjectContext projectContext = scanCommand.execute(projectRoot);
             contextHolder.setProjectContext(projectContext);
             List<Recipe> recipes = applicableRecipeListCommand.execute(projectContext);
+            applicableRecipesListHolder.setRecipes(recipes);
             AttributedString recipeList = applicableRecipeListRenderer.render(recipes);
             stringBuilder.append(recipeList);
         }

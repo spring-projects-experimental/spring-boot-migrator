@@ -18,7 +18,6 @@ package org.springframework.sbm.shell;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
-import org.jline.utils.Colors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -46,16 +45,15 @@ class RecipeRendererTest {
         when(recipe.getDescription()).thenReturn(recipeDescription);
 
         AttributedStringBuilder builder = new AttributedStringBuilder();
-        builder.style(AttributedStyle.DEFAULT);
-        builder.append("  - ");
-        builder.style(AttributedStyle.DEFAULT.boldDefault().foreground(Colors.rgbColor("yellow")));
+        builder.style(AttributedStyle.BOLD);
+        builder.append("  2) ");
         builder.append(recipe.getName());
         builder.style(AttributedStyle.DEFAULT);
         builder.append("\n     -> " + recipe.getDescription());
         builder.append("\n");
 
-                AttributedStringBuilder builder2 = new AttributedStringBuilder();
-        AttributedString attributedString = sut.buildRecipePresentation(builder2, recipe).toAttributedString();
+        AttributedString attributedString = sut.buildRecipePresentation(1, new AttributedStringBuilder(), recipe).toAttributedString();
+
         AttributedString expectedAttributedString = builder.toAttributedString();
         assertThat(attributedString)
                 .as(attributedString + "  " + expectedAttributedString)
@@ -75,8 +73,8 @@ class RecipeRendererTest {
 
         AttributedStringBuilder builder = new AttributedStringBuilder();
 
-        sut.buildRecipePresentation(builder, recipe1);
-        sut.buildRecipePresentation(builder, recipe2);
+        sut.buildRecipePresentation(1, builder, recipe1);
+        sut.buildRecipePresentation(2, builder, recipe2);
 
 
         AttributedString attributedString = sut.renderRecipesList("", title, List.of(recipe1, recipe2));
