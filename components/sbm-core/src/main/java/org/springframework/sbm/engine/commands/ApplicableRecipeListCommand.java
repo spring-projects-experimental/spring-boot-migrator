@@ -64,10 +64,7 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
     @Deprecated
     // FIXME: Refactor: inheriting AbstractCommand forces this method!
     public List<Recipe> execute(String... arguments) {
-//        Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
 //        // FIXME: This call creates a new ProjectResourceSet which is not correct.
-//        ProjectContext context = projectContextBuilder.initProjectContext(projectRoot, new RewriteExecutionContext());
-//        return getApplicableRecipes(context);
         return null;
     }
 }
