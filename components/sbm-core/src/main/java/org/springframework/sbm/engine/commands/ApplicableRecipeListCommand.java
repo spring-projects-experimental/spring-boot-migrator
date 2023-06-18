@@ -29,22 +29,12 @@ import java.util.List;
 public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
 
     private static final String COMMAND_NAME = "applicableRecipes";
-    private final ProjectRootPathResolver projectRootPathResolver;
     private final RecipesBuilder recipesBuilder;
-    private final ProjectContextInitializer projectContextBuilder;
-
-    private final ConfigurableListableBeanFactory beanFactory;
-
-    private final ExecutionScope executionScope;
     private final ApplicableRecipesListHolder applicableRecipesListHolder;
 
-    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder, ConfigurableListableBeanFactory beanFactory, ExecutionScope executionScope, ApplicableRecipesListHolder applicableRecipesListHolder) {
+    protected ApplicableRecipeListCommand(RecipesBuilder recipesBuilder, ExecutionScope executionScope, ApplicableRecipesListHolder applicableRecipesListHolder) {
         super(COMMAND_NAME);
-        this.projectRootPathResolver = projectRootPathResolver;
         this.recipesBuilder = recipesBuilder;
-        this.projectContextBuilder = projectContextBuilder;
-        this.beanFactory = beanFactory;
-        this.executionScope = executionScope;
         this.applicableRecipesListHolder = applicableRecipesListHolder;
     }
 
