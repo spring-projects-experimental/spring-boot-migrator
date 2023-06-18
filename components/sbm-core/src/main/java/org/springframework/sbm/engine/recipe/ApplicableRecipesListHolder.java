@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.shell;
+package org.springframework.sbm.engine.recipe;
 
-import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

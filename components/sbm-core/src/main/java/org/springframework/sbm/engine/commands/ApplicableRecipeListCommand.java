@@ -23,6 +23,7 @@ import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import org.springframework.sbm.scopes.ExecutionScope;
+import org.springframework.sbm.engine.recipe.ApplicableRecipesListHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,14 +39,16 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
     private final ConfigurableListableBeanFactory beanFactory;
 
     private final ExecutionScope executionScope;
+    private final ApplicableRecipesListHolder applicableRecipesListHolder;
 
-    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder, ConfigurableListableBeanFactory beanFactory, ExecutionScope executionScope) {
+    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder, ConfigurableListableBeanFactory beanFactory, ExecutionScope executionScope, ApplicableRecipesListHolder applicableRecipesListHolder) {
         super(COMMAND_NAME);
         this.projectRootPathResolver = projectRootPathResolver;
         this.recipesBuilder = recipesBuilder;
         this.projectContextBuilder = projectContextBuilder;
         this.beanFactory = beanFactory;
         this.executionScope = executionScope;
+        this.applicableRecipesListHolder = applicableRecipesListHolder;
     }
 
     public List<Recipe> execute(ProjectContext projectContext) {
@@ -53,8 +56,11 @@ public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
     }
 
     private List<Recipe> getApplicableRecipes(ProjectContext context) {
+        applicableRecipesListHolder.clear();
         Recipes recipes = recipesBuilder.buildRecipes();
-        return recipes.getApplicable(context);
+        List<Recipe> applicable = recipes.getApplicable(context);
+        applicableRecipesListHolder.setRecipes(applicable);
+        return applicable;
     }
 
     @Override

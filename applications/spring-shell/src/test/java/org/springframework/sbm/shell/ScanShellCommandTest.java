@@ -31,6 +31,7 @@ import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
+import org.springframework.sbm.engine.recipe.ApplicableRecipesListHolder;
 import org.springframework.sbm.engine.recipe.Recipe;
 
 import java.util.List;

@@ -26,6 +26,7 @@ import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.recipe.Action;
+import org.springframework.sbm.engine.recipe.ApplicableRecipesListHolder;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.shell.Availability;
 import org.springframework.shell.CompletionContext;
