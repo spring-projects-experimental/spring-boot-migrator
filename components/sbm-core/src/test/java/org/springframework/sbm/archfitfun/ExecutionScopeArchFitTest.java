@@ -131,6 +131,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     CustomValidatorBean.class,
                     ScopeConfiguration.class,
                     ApplicableRecipeListCommand.class,
+                    ApplicableRecipesListHolder.class,
                     SbmRecipeLoader.class,
 //                    SbmRecipeLoader.class,
                     ExecutionScopeArchFitTestContext.class
