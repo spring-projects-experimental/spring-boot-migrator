@@ -59,7 +59,7 @@ public class ScanShellCommandWithWindowsPathTest {
         recipes = List.of();
         projectContext = mock(ProjectContext.class);
 
-        sut = new ScanShellCommand(scanCommand, applicationRecipeListRenderer, applicableRecipeListCommand, contextHolder, preconditionVerificationRenderer, scanCommandHeaderRenderer, consolePrinter, new ApplicableRecipesListHolder());
+        sut = new ScanShellCommand(scanCommand, applicationRecipeListRenderer, applicableRecipeListCommand, contextHolder, preconditionVerificationRenderer, scanCommandHeaderRenderer, consolePrinter);
     }
 
     private void recordMocks(String projectRoot, ScanCommand scanCommand, ApplicableRecipeListRenderer applicationRecipeListRenderer, ApplicableRecipeListCommand applicableRecipeListCommand, List<Resource> resources, List<Recipe> recipes, ProjectContext projectContext) {
