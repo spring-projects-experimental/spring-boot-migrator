@@ -17,12 +17,17 @@ package org.springframework.sbm.project.parser;
 
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.*;
+import org.apache.maven.model.Activation;
+import org.apache.maven.model.ActivationProperty;
+import org.apache.maven.model.Profile;
+import org.apache.maven.model.Repository;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Server;
-import org.apache.maven.settings.crypto.*;
+import org.apache.maven.settings.crypto.DefaultSettingsDecrypter;
+import org.apache.maven.settings.crypto.SettingsDecrypter;
+import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +43,6 @@ import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.project.TestDummyResource;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -60,7 +64,7 @@ import static org.mockito.Mockito.*;
  *
  * @author Fabian Krüger
  */
-class RewriteMavenSettingsInitialierTest {
+class RewriteMavenSettingsInitializerTest {
 
     private final String profile1_id = "profile1";
     private static final Path mavenHome = Path.of("./target/.m2").toAbsolutePath().normalize();
