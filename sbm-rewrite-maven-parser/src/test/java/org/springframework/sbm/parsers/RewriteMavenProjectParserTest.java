@@ -5,13 +5,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.marker.JavaVersion;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
-import org.openrewrite.java.tree.TypeUtils;
 import org.openrewrite.marker.BuildTool;
 import org.openrewrite.marker.GitProvenance;
 import org.openrewrite.marker.OperatingSystemProvenance;
@@ -19,26 +20,23 @@ import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
-import org.openrewrite.shaded.jgit.internal.storage.dfs.DfsRepositoryDescription;
-import org.openrewrite.shaded.jgit.internal.storage.dfs.InMemoryRepository;
-import org.openrewrite.shaded.jgit.internal.storage.file.FileRepository;
-import org.openrewrite.shaded.jgit.lib.Repository;
+import org.openrewrite.tree.ParsingEventListener;
+import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.style.Autodetect;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.assertj.core.api.Assertions.extractProperty;
 
 /**
  * @author Fabian Krüger
@@ -154,5 +152,21 @@ class RewriteMavenProjectParserTest {
         assertThat(contextView.getSettings()).isNotNull();  // TODO: verify settings
 
         // TODO: Add test that uses Maven settings and encrypted passwords
+    }
+    
+    @Test
+    @DisplayName("Parse complex Maven reactor project")
+    void parseComplexMavenReactorProject() {
+        Path projectRoot = Path.of("./..").toAbsolutePath().normalize();
+        RewriteMavenProjectParser projectParser = new RewriteMavenProjectParser();
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
+        List<String> parsedFiles = new ArrayList<>();
+        ParsingExecutionContextView.view(executionContext).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+            String format = dateTimeFormatter.format(Instant.now());
+            System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
+            parsedFiles.add(sourceFile.getSourcePath().toString());
+        });
+        RewriteProjectParsingResult parsingResult = projectParser.parse(projectRoot, true, "pomCache", false, List.of("testcode"), List.of("*.txt"), -1, false, executionContext);
     }
 }

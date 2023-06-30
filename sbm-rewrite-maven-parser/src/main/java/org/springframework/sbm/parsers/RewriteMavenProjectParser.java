@@ -22,6 +22,7 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.execution.*;
 import org.apache.maven.graph.DefaultProjectDependencyGraph;
+import org.apache.maven.model.Profile;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
@@ -32,8 +33,6 @@ import org.codehaus.plexus.*;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.eclipse.aether.RepositorySystemSession;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
@@ -46,6 +45,7 @@ import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 
+import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
@@ -67,10 +67,15 @@ public class RewriteMavenProjectParser {
     /**
      * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
      * It uses default settings for configuration.
-     * Use {@link #parse(Path, boolean, String, boolean, Collection, Collection, int, boolean)}
+     * Use {@link #parse(Path, boolean, String, boolean, Collection, Collection, int, boolean, ExecutionContext)}
      * if you need to pass in different settings
      */
     public RewriteProjectParsingResult parse(Path baseDir) {
+        ExecutionContext executionContext = new InMemoryExecutionContext();
+        return parse(baseDir, executionContext);
+    }
+
+    public RewriteProjectParsingResult parse(Path baseDir, ExecutionContext executionContext) {
         boolean pomCacheEnabled = true;
         String pomCacheDirectory = "pom-cache";
         boolean skipMavenParsing = false;
@@ -79,17 +84,13 @@ public class RewriteMavenProjectParser {
         int sizeThreshold = -1;
         boolean runPerSubmodule = false;
 
-        return parse(baseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, exclusions, plainTextMasks, sizeThreshold, runPerSubmodule);
+        return parse(baseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, exclusions, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext);
     }
 
     @NotNull
-    public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule) {
+    public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext) {
         PlexusContainer plexusContainer = buildPlexusContainer(baseDir);
-//        ProjectBuilder projectBuilder = buildProjectBuilder(plexusContainer);
-//        ProjectBuildingResult buildingResult = buildProject(projectBuilder, baseDir);
-
         AtomicReference<RewriteProjectParsingResult> parsingResult = new AtomicReference<>();
-
         runMaven(baseDir, plexusContainer, session -> {
             List<MavenProject> mavenProjects = session.getAllProjects();
             MavenMojoProjectParser rewriteProjectParser = buildMavenMojoProjectParser(
@@ -105,7 +106,6 @@ public class RewriteMavenProjectParser {
                     plexusContainer,
                     session);
             List<NamedStyles> styles = List.of();
-            ExecutionContext executionContext = new InMemoryExecutionContext();
             List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles, executionContext);
             parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
         });
@@ -169,29 +169,31 @@ public class RewriteMavenProjectParser {
             MavenExecutionRequest request = new DefaultMavenExecutionRequest();
             ArtifactRepositoryFactory repositoryFactory = null;
             repositoryFactory = plexusContainer.lookup(ArtifactRepositoryFactory.class);
-            ArtifactRepository repository = repositoryFactory.createArtifactRepository("local", "file://"+LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null); // new MavenArtifactRepository("local", "file://"+LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null);
+            ArtifactRepository repository = repositoryFactory.createArtifactRepository("local", "file://" + LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null); // new MavenArtifactRepository("local", "file://"+LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null);
+            request.setBaseDirectory(baseDir.toFile());
+            request.setLocalRepositoryPath(LOCAL_REPOSITORY);
+            request.setActiveProfiles(List.of("default")); // TODO: make profile configurable
+            // fixes the maven run when plugins depending on Java version are encountered.
+            // This is the case for some transitive dependencies when running against the SBM code base itself.
+            // In these cases the Java version could not be retrieved without this line
+            request.setSystemProperties(System.getProperties());
+
+            Profile profile = new Profile();
+            profile.setId("default");
+            request.setProfiles(List.of(profile));
+            request.setDegreeOfConcurrency(5);
+            request.setLoggingLevel(MavenExecutionRequest.LOGGING_LEVEL_DEBUG);
+            request.setMultiModuleProjectDirectory(baseDir.toFile());
             request.setLocalRepository(repository);
             request.setGoals(List.of("dependency:resolve"));
             request.setPom(baseDir.resolve("pom.xml").toFile());
             request.setExecutionListener(new AbstractExecutionListener() {
-//                @Override
-//                public void sessionStarted(ExecutionEvent event) {
-//                    super.sessionStarted(event);
-//                    // debug here to see how the sesion and the project looks like
-//                    try {
-//                        event.getProject().getCompileClasspathElements().stream()
-//                                .forEach(System.out::println);
-//                    } catch (DependencyResolutionRequiredException e) {
-//
-//
-//                    }
-//                }
-//
-//                @Override
-//                public void mojoStarted(ExecutionEvent event) {
-//                    super.mojoStarted(event);
-//                    System.out.println(event.getMojoExecution().getGroupId() + ":" + event.getMojoExecution().getArtifactId());
-//                }
+                @Override
+                public void mojoFailed(ExecutionEvent event) {
+                    super.mojoFailed(event);
+                    String mojo = event.getMojoExecution().getGroupId() + ":" + event.getMojoExecution().getArtifactId() + ":" + event.getMojoExecution().getGoal();
+                    throw new RuntimeException("Exception while executing Maven Mojo: " + mojo, event.getException());
+                }
 
                 @Override
                 public void mojoSucceeded(ExecutionEvent event) {
@@ -212,7 +214,7 @@ public class RewriteMavenProjectParser {
             MavenExecutionResult execute = maven.execute(request);
             if (execute.hasExceptions()) {
                 System.out.println(execute.getExceptions().get(0).getMessage());
-                throw new RuntimeException(execute.getExceptions().get(0));
+//                throw new RuntimeException(execute.getExceptions().get(0));
             }
         } catch (ComponentLookupException e) {
             throw new RuntimeException(e);
