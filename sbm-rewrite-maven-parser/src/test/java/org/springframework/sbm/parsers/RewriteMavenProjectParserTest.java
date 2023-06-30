@@ -424,7 +424,7 @@ class RewriteMavenProjectParserTest {
                 mock(ParsingEventListener.class),
                 mock(ApplicationEventPublisher.class)
                 );
-        
+
         Set<String> ignoredPatters = Set.of();
         ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader());
         List<Resource> resources = projectScanner.scan(baseDir, ignoredPatters);
