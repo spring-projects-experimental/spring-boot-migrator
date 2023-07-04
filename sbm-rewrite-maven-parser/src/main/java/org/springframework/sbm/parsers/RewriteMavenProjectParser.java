@@ -64,12 +64,6 @@ public class RewriteMavenProjectParser {
     public static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toString();
 
 
-    /**
-     * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
-     * It uses default settings for configuration.
-     * Use {@link #parse(Path, boolean, String, boolean, Collection, Collection, int, boolean, ExecutionContext)}
-     * if you need to pass in different settings
-     */
     public RewriteProjectParsingResult parse(Path baseDir) {
         ExecutionContext executionContext = new InMemoryExecutionContext();
         return parse(baseDir, executionContext);
@@ -87,6 +81,12 @@ public class RewriteMavenProjectParser {
         return parse(baseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, exclusions, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext);
     }
 
+    /**
+     * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
+     * It uses default settings for configuration.
+     * Use {@link #parse(Path, boolean, String, boolean, Collection, Collection, int, boolean, ExecutionContext)}
+     * if you need to pass in different settings
+     */
     @NotNull
     public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext) {
         PlexusContainer plexusContainer = buildPlexusContainer(baseDir);
@@ -181,7 +181,7 @@ public class RewriteMavenProjectParser {
             Profile profile = new Profile();
             profile.setId("default");
             request.setProfiles(List.of(profile));
-            request.setDegreeOfConcurrency(5);
+            request.setDegreeOfConcurrency(1);
             request.setLoggingLevel(MavenExecutionRequest.LOGGING_LEVEL_DEBUG);
             request.setMultiModuleProjectDirectory(baseDir.toFile());
             request.setLocalRepository(repository);
@@ -196,18 +196,24 @@ public class RewriteMavenProjectParser {
                 }
 
                 @Override
-                public void mojoSucceeded(ExecutionEvent event) {
-                    try {
-                        event.getProject().getCompileClasspathElements().stream()
-                                .forEach(System.out::println);
-
-                        sessionConsumer.accept(event.getSession());
-
-                    } catch (DependencyResolutionRequiredException e) {
-                        throw new RuntimeException(e);
-                    }
-                    super.mojoSucceeded(event);
+                public void sessionStarted(ExecutionEvent event) {
+                    super.sessionStarted(event);
+                    sessionConsumer.accept(event.getSession());
                 }
+
+//                @Override
+//                public void mojoSucceeded(ExecutionEvent event) {
+//
+//                    super.mojoSucceeded(event);
+//                    try {
+//                        event.getProject().getCompileClasspathElements().stream()
+//                                .forEach(System.out::println);
+//
+//
+//                    } catch (DependencyResolutionRequiredException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                }
             });
 //            request.setLocalRepositoryPath(LOCAL_REPOSITORY);
             Maven maven = plexusContainer.lookup(Maven.class);

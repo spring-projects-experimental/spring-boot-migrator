@@ -1,0 +1,308 @@
+package org.springframework.sbm.parsers;
+
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
+import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.openrewrite.java.marker.JavaProject;
+import org.openrewrite.java.marker.JavaVersion;
+import org.openrewrite.marker.BuildTool;
+import org.openrewrite.marker.GitProvenance;
+import org.openrewrite.marker.Marker;
+import org.openrewrite.marker.OperatingSystemProvenance;
+import org.openrewrite.marker.ci.BuildEnvironment;
+import org.openrewrite.shaded.jgit.api.Git;
+import org.openrewrite.shaded.jgit.lib.Repository;
+import org.openrewrite.shaded.jgit.storage.file.FileRepositoryBuilder;
+import org.springframework.core.io.Resource;
+import org.springframework.sbm.test.util.DummyResource;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.StatusResultMatchersExtensionsKt.isEqualTo;
+
+/**
+ * @author Fabian Krüger
+ */
+class ProvenanceMarkerFactoryTest {
+    @Test
+    @DisplayName("Should Create Provenance Markers")
+    void shouldCreateProvenanceMarkers() throws IOException {
+
+        @Language("xml")
+        String pom1Content =
+            """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                <modelVersion>4.0.0</modelVersion>
+                            
+                <groupId>com.example</groupId>
+                <artifactId>parent-module</artifactId>
+                <version>1.0</version>
+                <modules>
+                    <module>module1</module>
+                </modules>
+            </project>
+            """;
+
+        @Language("xml")
+        String pom2Content =
+            """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                <modelVersion>4.0.0</modelVersion>
+                <parent>
+                    <groupId>com.example</groupId>
+                    <artifactId>parent</artifactId>
+                    <version>1.0</version>
+                </parent>
+                <artifactId>module1</artifactId>
+                <modules>
+                    <module>submodule</module>
+                </modules>
+            </project>
+            """;
+
+        @Language("xml")
+        String pom3Content =
+            """
+            <project xmlns="http://maven.apache.org/POM/4.0.0"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                <modelVersion>4.0.0</modelVersion>
+                <parent>
+                    <groupId>com.example</groupId>
+                    <artifactId>module1</artifactId>
+                    <version>1.0</version>
+                </parent>
+                <artifactId>submodule</artifactId>
+            </project>
+            """;
+        Resource pom1 = new DummyResource("pom.xml", pom1Content);
+        Resource pom2 = new DummyResource("module1/pom.xml", pom2Content);
+        Resource pom3 = new DummyResource("module1/submodule/pom.xml", pom3Content);
+
+        Stream<Resource> pomFiles = Stream.of(pom1, pom2, pom3);
+
+        ParserSettings parserSettings = ParserSettings.builder()
+                .loggerClass(MyLogger.class.getName())
+                .pomCacheEnabled(true)
+                .pomCacheDirectory("pom-cache")
+                .skipMavenParsing(false)
+                .exclusions(Set.of())
+                .plainTextMasks(Set.of())
+                .sizeThresholdMb(-1)
+                .runPerSubmodule(false)
+                .build();
+
+        ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory(parserSettings);
+        Path baseDir = Path.of(".").toAbsolutePath().normalize();
+        Map<Resource, List<? extends Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, pomFiles);
+
+        // pom1 has 5 markers
+        assertThat(resourceListMap.get(pom1)).hasSize(5);
+
+        JavaVersion jv = findMarker(resourceListMap, pom1, JavaVersion.class);
+        assertThat(countGetters(jv)).isEqualTo(7);
+        assertThat(jv.getCreatedBy()).isEqualTo(System.getProperty("java.runtime.version"));
+        assertThat(jv.getMajorVersion()).isEqualTo(Integer.parseInt(System.getProperty("java.specification.version")));
+        assertThat(jv.getSourceCompatibility()).isEqualTo(System.getProperty("java.runtime.version"));
+        assertThat(jv.getTargetCompatibility()).isEqualTo(System.getProperty("java.runtime.version"));
+        assertThat(jv.getMajorReleaseVersion()).isEqualTo(Integer.parseInt(System.getProperty("java.specification.version")));
+        assertThat(jv.getVmVendor()).isEqualTo(System.getProperty("java.vm.vendor"));
+        assertThat(jv.getId()).isInstanceOf(UUID.class);
+
+        JavaProject jp = findMarker(resourceListMap, pom1, JavaProject.class);
+        assertThat(countGetters(jp)).isEqualTo(3);
+        assertThat(jp.getId()).isInstanceOf(UUID.class);
+        assertThat(jp.getProjectName()).isEqualTo("empty-project");
+        JavaProject.Publication publication = jp.getPublication();
+        assertThat(countGetters(publication)).isEqualTo(3);
+        assertThat(publication.getGroupId()).isEqualTo("unknown");
+        assertThat(publication.getArtifactId()).isEqualTo("empty-project");
+        assertThat(publication.getVersion()).isEqualTo("0");
+
+        String branch = getCurrentGitBranchName();
+        String origin = getCurrentGitOrigin();
+        String gitHash = getCurrentGitHash();
+        GitProvenance expectedGitProvenance = GitProvenance.fromProjectDirectory(baseDir, BuildEnvironment.build(System::getenv));
+        GitProvenance gitProvenance = findMarker(resourceListMap, pom1, GitProvenance.class);
+        assertThat(countGetters(gitProvenance)).isEqualTo(9);
+        assertThat(gitProvenance.getId()).isInstanceOf(UUID.class);
+        assertThat(gitProvenance.getBranch()).isEqualTo(branch);
+        assertThat(gitProvenance.getEol()).isEqualTo(GitProvenance.EOL.Native);
+        assertThat(gitProvenance.getOrigin()).isEqualTo(origin);
+        assertThat(gitProvenance.getAutocrlf()).isEqualTo(GitProvenance.AutoCRLF.Input);
+        assertThat(gitProvenance.getRepositoryName()).isEqualTo(expectedGitProvenance.getRepositoryName());
+        assertThat(gitProvenance.getChange()).isEqualTo(gitHash);
+        assertThat(gitProvenance.getOrganizationName()).isEqualTo("spring-projects-experimental");
+        assertThat(gitProvenance.getOrganizationName("https://github.com")).isEqualTo("spring-projects-experimental");
+
+        OperatingSystemProvenance operatingSystemProvenance = findMarker(resourceListMap, pom1, OperatingSystemProvenance.class);
+        OperatingSystemProvenance expected = OperatingSystemProvenance.current();
+        assertThat(operatingSystemProvenance.getName()).isEqualTo(expected.getName());
+        // ...
+
+        BuildTool buildTool = findMarker(resourceListMap, pom1, BuildTool.class);
+        assertThat(countGetters(buildTool)).isEqualTo(3);
+        assertThat(buildTool.getId()).isInstanceOf(UUID.class);
+        String mavenVersion = new DefaultRuntimeInformation().getMavenVersion();
+        assertThat(buildTool.getVersion()).isEqualTo(mavenVersion);
+        assertThat(buildTool.getType()).isEqualTo(BuildTool.Type.Maven);
+    }
+
+    private String getCurrentGitHash() {
+        try {
+            Repository repo = findRepo();
+            return repo.findRef("HEAD").getTarget().getObjectId().getName();
+        } catch (IOException e) {
+            throw new RuntimeException("Could not find reference to HEAD in given repo %s".formatted(findRepo().getDirectory().toString()));
+        }
+    }
+
+    private String getCurrentGitOrigin() {
+        Repository repo = findRepo();
+        return repo.getConfig().getString("remote", "origin", "url");
+    }
+
+    private static String getCurrentGitBranchName() {
+        try {
+            Repository repo = findRepo();
+            String branch = null;
+            branch = repo.getBranch();
+            return branch;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private long countGetters(Object marker) {
+        return getGetter(marker)
+                .count();
+    }
+
+    @NotNull
+    private static Stream<Method> getGetter(Object marker) {
+        return Arrays
+                .stream(marker.getClass().getDeclaredMethods())
+                .filter(m -> Modifier.isPublic(m.getModifiers()))
+                //                .filter(m -> m.getParameterCount() == 0)
+                .filter(m -> m.getName().startsWith("get"));
+    }
+
+    private static Repository findRepo() {
+        try {
+            FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
+            repositoryBuilder.addCeilingDirectory(Path.of("../..").toAbsolutePath().toFile());
+            FileRepositoryBuilder gitDir = repositoryBuilder.findGitDir(Path.of(".").toAbsolutePath().toFile());
+            Repository repo = null;
+            repo = Git.open(gitDir.getGitDir()).status().getRepository();
+            return repo;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private <T> T findMarker(Map<Resource, List<? extends Marker>> markedResources, Resource pom, Class<T> markerClass) {
+        return markedResources.get(pom).stream()
+                .filter(markerClass::isInstance)
+                .map(markerClass::cast)
+                .findFirst()
+                .get();
+    }
+
+    public static class MyLogger implements Log {
+
+        @Override
+        public boolean isDebugEnabled() {
+            return false;
+        }
+
+        @Override
+        public void debug(CharSequence charSequence) {
+
+        }
+
+        @Override
+        public void debug(CharSequence charSequence, Throwable throwable) {
+
+        }
+
+        @Override
+        public void debug(Throwable throwable) {
+
+        }
+
+        @Override
+        public boolean isInfoEnabled() {
+            return false;
+        }
+
+        @Override
+        public void info(CharSequence charSequence) {
+
+        }
+
+        @Override
+        public void info(CharSequence charSequence, Throwable throwable) {
+
+        }
+
+        @Override
+        public void info(Throwable throwable) {
+
+        }
+
+        @Override
+        public boolean isWarnEnabled() {
+            return false;
+        }
+
+        @Override
+        public void warn(CharSequence charSequence) {
+
+        }
+
+        @Override
+        public void warn(CharSequence charSequence, Throwable throwable) {
+
+        }
+
+        @Override
+        public void warn(Throwable throwable) {
+
+        }
+
+        @Override
+        public boolean isErrorEnabled() {
+            return false;
+        }
+
+        @Override
+        public void error(CharSequence charSequence) {
+
+        }
+
+        @Override
+        public void error(CharSequence charSequence, Throwable throwable) {
+
+        }
+
+        @Override
+        public void error(Throwable throwable) {
+
+        }
+    }
+}

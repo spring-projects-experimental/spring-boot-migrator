@@ -30,9 +30,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -157,12 +160,14 @@ class RewriteMavenProjectParserTest {
     @Test
     @DisplayName("Parse complex Maven reactor project")
     void parseComplexMavenReactorProject() {
-        Path projectRoot = Path.of("./..").toAbsolutePath().normalize();
+        Path projectRoot = Path.of("./..").toAbsolutePath().normalize(); // SBM root
         RewriteMavenProjectParser projectParser = new RewriteMavenProjectParser();
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         List<String> parsedFiles = new ArrayList<>();
         ParsingExecutionContextView.view(executionContext).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                    .withLocale(Locale.US)
+                    .withZone(ZoneId.systemDefault());
             String format = dateTimeFormatter.format(Instant.now());
             System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
             parsedFiles.add(sourceFile.getSourcePath().toString());
