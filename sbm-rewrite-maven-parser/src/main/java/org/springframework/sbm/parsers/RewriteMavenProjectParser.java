@@ -15,11 +15,14 @@
  */
 package org.springframework.sbm.parsers;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.maven.Maven;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
+import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.execution.*;
 import org.apache.maven.graph.DefaultProjectDependencyGraph;
+import org.apache.maven.model.Profile;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
@@ -27,6 +30,9 @@ import org.apache.maven.project.*;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.codehaus.plexus.*;
+import org.codehaus.plexus.classworlds.ClassWorld;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
@@ -36,47 +42,30 @@ import org.openrewrite.internal.ListUtils;
 import org.openrewrite.java.tree.JavaSourceFile;
 import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.style.NamedStyles;
-import org.openrewrite.tree.ParsingEventListener;
-import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
 /**
- * Parses a given {@link Path} to a Open Rewrite's AST representation {@code List<}{@link SourceFile}{@code >}.
- *
  * @author Fabian Krüger
  */
-@Slf4j
-@Component
-@RequiredArgsConstructor
 public class RewriteMavenProjectParser {
 
+    public static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toString();
 
-    public static final Collection<String> EXCLUSIONS = Set.of("**/.DS_Store", ".DS_Store");
-    private final MavenPlexusContainerFactory mavenPlexusContainerFactory;
-    private final ParsingEventListener parsingListener;
-    private final MavenExecutor mavenRunner;
 
-    /**
-     * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
-     * It uses default settings for configuration.
-     * Use {@link #parse(Path, boolean, String, boolean, Collection, Collection, int, boolean, ExecutionContext)}
-     * if you need to pass in different settings
-     */
     public RewriteProjectParsingResult parse(Path baseDir) {
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {
-            throw new RuntimeException(t);
-        });
-        ParsingExecutionContextView.view(executionContext).setParsingListener(parsingListener);
+        ExecutionContext executionContext = new InMemoryExecutionContext();
         return parse(baseDir, executionContext);
     }
 
@@ -84,69 +73,55 @@ public class RewriteMavenProjectParser {
         boolean pomCacheEnabled = true;
         String pomCacheDirectory = "pom-cache";
         boolean skipMavenParsing = false;
+        Collection<String> exclusions = Set.of();
         Collection<String> plainTextMasks = Set.of();
         int sizeThreshold = -1;
         boolean runPerSubmodule = false;
 
-        return parse(baseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, EXCLUSIONS, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext);
+        return parse(baseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, exclusions, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext);
     }
 
-
+    /**
+     * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
+     * It uses default settings for configuration.
+     * Use {@link #parse(Path, boolean, String, boolean, Collection, Collection, int, boolean, ExecutionContext)}
+     * if you need to pass in different settings
+     */
     @NotNull
     public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext) {
-        final Path absoluteBaseDir = getAbsolutePath(baseDir);
-        Collection<String> allExclusions = getAllExclusions(exclusions);
-        PlexusContainer plexusContainer = mavenPlexusContainerFactory.create(absoluteBaseDir);
-        RewriteProjectParsingResult parsingResult = parseInternal(absoluteBaseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext, absoluteBaseDir, allExclusions, plexusContainer);
-        return parsingResult;
-    }
-
-    private RewriteProjectParsingResult parseInternal(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext, Path absoluteBaseDir, Collection<String> allExclusions, PlexusContainer plexusContainer) {
+        PlexusContainer plexusContainer = buildPlexusContainer(baseDir);
         AtomicReference<RewriteProjectParsingResult> parsingResult = new AtomicReference<>();
-        mavenRunner.runAfterMavenGoals(
-                baseDir,
-                plexusContainer,
-                List.of("clean", "package"),
-                event -> {
-                    List<MavenProject> projects = event.getSession().getProjectDependencyGraph().getAllProjects();
-
-                    if (event.getProject().getName().equals(projects.get(projects.size() - 1).getArtifactId())) {
-                        try {
-                            MavenSession session = event.getSession();
-                            List<MavenProject> mavenProjects = session.getAllProjects();
-                            MavenMojoProjectParser rewriteProjectParser = buildMavenMojoProjectParser(
-                                    absoluteBaseDir,
-                                    mavenProjects,
-                                    pomCacheEnabled,
-                                    pomCacheDirectory,
-                                    skipMavenParsing,
-                                    allExclusions,
-                                    plainTextMasks,
-                                    sizeThreshold,
-                                    runPerSubmodule,
-                                    plexusContainer,
-                                    session);
-                            List<NamedStyles> styles = List.of();
-                            List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles, executionContext);
-                            parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
-                        } catch(Exception e) {
-                            throw new RuntimeException(e);
-                        }
-
-                    }
-                }
-        );
+        runMaven(baseDir, plexusContainer, session -> {
+            List<MavenProject> mavenProjects = session.getAllProjects();
+            MavenMojoProjectParser rewriteProjectParser = buildMavenMojoProjectParser(
+                    baseDir,
+                    mavenProjects,
+                    pomCacheEnabled,
+                    pomCacheDirectory,
+                    skipMavenParsing,
+                    exclusions,
+                    plainTextMasks,
+                    sizeThreshold,
+                    runPerSubmodule,
+                    plexusContainer,
+                    session);
+            List<NamedStyles> styles = List.of();
+            List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles, executionContext);
+            parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
+        });
         return parsingResult.get();
     }
 
     private List<SourceFile> parseSourceFiles(MavenMojoProjectParser rewriteProjectParser, List<MavenProject> mavenProjects, List<NamedStyles> styles, ExecutionContext executionContext) {
         try {
             Stream<SourceFile> sourceFileStream = rewriteProjectParser.listSourceFiles(
-                    mavenProjects.get(mavenProjects.size() - 1), // FIXME: Order and access to root module
+                    mavenProjects.get(0),
                     styles,
                     executionContext);
             return sourcesWithAutoDetectedStyles(sourceFileStream);
-        } catch (DependencyResolutionRequiredException | MojoExecutionException e) {
+        } catch (DependencyResolutionRequiredException e) {
+            throw new RuntimeException(e);
+        } catch (MojoExecutionException e) {
             throw new RuntimeException(e);
         }
     }
@@ -189,25 +164,128 @@ public class RewriteMavenProjectParser {
         }
     }
 
-    @NotNull
-    private static Collection<String> getAllExclusions(Collection<String> exclusions) {
-        Collection<String> allExclusions = new HashSet<>();
-        allExclusions.addAll(EXCLUSIONS);
-        allExclusions.addAll(exclusions);
-        return allExclusions;
-    }
+    private void runMaven(Path baseDir, PlexusContainer plexusContainer, Consumer<MavenSession> sessionConsumer) {
+        try {
+            MavenExecutionRequest request = new DefaultMavenExecutionRequest();
+            ArtifactRepositoryFactory repositoryFactory = null;
+            repositoryFactory = plexusContainer.lookup(ArtifactRepositoryFactory.class);
+            ArtifactRepository repository = repositoryFactory.createArtifactRepository("local", "file://" + LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null); // new MavenArtifactRepository("local", "file://"+LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null);
+            request.setBaseDirectory(baseDir.toFile());
+            request.setLocalRepositoryPath(LOCAL_REPOSITORY);
+            request.setActiveProfiles(List.of("default")); // TODO: make profile configurable
+            // fixes the maven run when plugins depending on Java version are encountered.
+            // This is the case for some transitive dependencies when running against the SBM code base itself.
+            // In these cases the Java version could not be retrieved without this line
+            request.setSystemProperties(System.getProperties());
 
-    @NotNull
-    private static Path getAbsolutePath(Path baseDir) {
-        if(!baseDir.isAbsolute()) {
-            baseDir = baseDir.toAbsolutePath().normalize();
+            Profile profile = new Profile();
+            profile.setId("default");
+            request.setProfiles(List.of(profile));
+            request.setDegreeOfConcurrency(1);
+            request.setLoggingLevel(MavenExecutionRequest.LOGGING_LEVEL_DEBUG);
+            request.setMultiModuleProjectDirectory(baseDir.toFile());
+            request.setLocalRepository(repository);
+            request.setGoals(List.of("dependency:resolve"));
+            request.setPom(baseDir.resolve("pom.xml").toFile());
+            request.setExecutionListener(new AbstractExecutionListener() {
+                @Override
+                public void mojoFailed(ExecutionEvent event) {
+                    super.mojoFailed(event);
+                    String mojo = event.getMojoExecution().getGroupId() + ":" + event.getMojoExecution().getArtifactId() + ":" + event.getMojoExecution().getGoal();
+                    throw new RuntimeException("Exception while executing Maven Mojo: " + mojo, event.getException());
+                }
+
+                @Override
+                public void sessionStarted(ExecutionEvent event) {
+                    super.sessionStarted(event);
+                    sessionConsumer.accept(event.getSession());
+                }
+
+//                @Override
+//                public void mojoSucceeded(ExecutionEvent event) {
+//
+//                    super.mojoSucceeded(event);
+//                    try {
+//                        event.getProject().getCompileClasspathElements().stream()
+//                                .forEach(System.out::println);
+//
+//
+//                    } catch (DependencyResolutionRequiredException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                }
+            });
+//            request.setLocalRepositoryPath(LOCAL_REPOSITORY);
+            Maven maven = plexusContainer.lookup(Maven.class);
+            MavenExecutionResult execute = maven.execute(request);
+            if (execute.hasExceptions()) {
+                System.out.println(execute.getExceptions().get(0).getMessage());
+//                throw new RuntimeException(execute.getExceptions().get(0));
+            }
+        } catch (ComponentLookupException e) {
+            throw new RuntimeException(e);
         }
-        return baseDir;
     }
 
     private void runOpenRewriteParser(MavenSession session) {
         session.getProjects();
     }
+
+    private PlexusContainer buildPlexusContainer(Path baseDir) {
+        try {
+            ClassLoader parent = null;
+            boolean isContainerAutoWiring = false;
+            String containerClassPathScanning = "on";
+            String containerComponentVisibility = null;
+            URL overridingComponentsXml = null; //getClass().getClassLoader().getResource("META-INF/**/components.xml");
+
+            ContainerConfiguration configuration = new DefaultContainerConfiguration();
+            configuration.setAutoWiring(isContainerAutoWiring)
+                    .setClassPathScanning(containerClassPathScanning)
+                    .setComponentVisibility(containerComponentVisibility)
+                    .setContainerConfigurationURL(overridingComponentsXml);
+
+            // inspired from https://github.com/jenkinsci/lib-jenkins-maven-embedder/blob/master/src/main/java/hudson/maven/MavenEmbedderUtils.java#L141
+            ClassWorld classWorld = new ClassWorld();
+            ClassRealm classRealm = new ClassRealm(classWorld, "maven", getClass().getClassLoader());
+            classRealm.setParentRealm(new ClassRealm(classWorld, "maven-parent",
+                    parent == null ? Thread.currentThread().getContextClassLoader()
+                            : parent));
+            configuration.setRealm(classRealm);
+
+            configuration.setClassWorld(classWorld);
+            return new DefaultPlexusContainer(configuration);
+        } catch (PlexusContainerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+//
+//    private ProjectBuildingResult buildProject(ProjectBuilder projectBuilder, Path baseDir) {
+//        try {
+//            Path pomXmlFile = baseDir.resolve("pom.xml");
+//            DefaultProjectBuildingRequest request = new DefaultProjectBuildingRequest();
+//            RepositorySystemSession repositorySystemSession = new DefaultRepositorySystemSession();
+//            request.setRepositorySession(repositorySystemSession);
+//            ProjectBuildingResult buildingResult = null;
+//            buildingResult = projectBuilder.build(
+//                    pomXmlFile.toFile(),
+//                    request
+//            );
+//            return buildingResult;
+//        } catch (ProjectBuildingException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+
+//    private ProjectBuilder buildProjectBuilder(PlexusContainer plexusContainer) {
+//        try {
+//            ClassLoader mavenClassLoader = getClass().getClassLoader();
+//            return plexusContainer.lookup(ProjectBuilder.class);
+//        } catch (ComponentLookupException e) {
+//            throw new RuntimeException("Could not lookup an instance of ProjectBuilder from Plexus container.", e);
+//        }
+//
+//    }
 
     // copied from OpenRewrite for now, TODO: remove and reuse
     List<SourceFile> sourcesWithAutoDetectedStyles(Stream<SourceFile> sourceFiles) {

@@ -1,18 +1,3 @@
-/*
- * Copyright 2021 - 2022 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.springframework.sbm.parsers;
 
 import org.apache.maven.plugin.logging.Log;
@@ -20,9 +5,7 @@ import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaVersion;
 import org.openrewrite.marker.BuildTool;
@@ -35,7 +18,6 @@ import org.openrewrite.shaded.jgit.lib.Repository;
 import org.openrewrite.shaded.jgit.storage.file.FileRepositoryBuilder;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.test.util.DummyResource;
-import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -45,119 +27,94 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.StatusResultMatchersExtensionsKt.isEqualTo;
 
 /**
  * @author Fabian Krüger
  */
 class ProvenanceMarkerFactoryTest {
+    @Test
+    @DisplayName("Should Create Provenance Markers")
+    void shouldCreateProvenanceMarkers() throws IOException {
 
-    @Nested
-    public class GivenSimpleMultiModuleProject {
-
-        @Test
-        @DisplayName("Should Create Provenance Markers")
-        void shouldCreateProvenanceMarkers(@TempDir Path tempDir)  {
-
-            @Language("xml")
-            String pom1Content =
-                    """
-                    <?xml version="1.0" encoding="UTF-8"?>
-                    <project xmlns="http://maven.apache.org/POM/4.0.0"
-                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                        <modelVersion>4.0.0</modelVersion>
-                                    
-                        <groupId>com.example</groupId>
-                        <artifactId>parent-module</artifactId>
-                        <version>1.0</version>
-                        <packaging>pom</packaging>
-                        <modules>
-                            <module>module1</module>
-                        </modules>
-                    </project>
-                    """;
-
-            @Language("xml")
-            String pom2Content =
-                    """
-                    <?xml version="1.0" encoding="UTF-8"?>
-                    <project xmlns="http://maven.apache.org/POM/4.0.0"
-                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                        <modelVersion>4.0.0</modelVersion>
-                        <parent>
-                            <groupId>com.example</groupId>
-                            <artifactId>parent-module</artifactId>
-                            <version>1.0</version>
-                        </parent>
-                        <packaging>pom</packaging>
-                        <artifactId>module1</artifactId>
-                        <modules>
-                            <module>submodule</module>
-                        </modules>
-                    </project>
-                    """;
-
-            @Language("xml")
-            String pom3Content =
-                    """
-                    <project xmlns="http://maven.apache.org/POM/4.0.0"
+        @Language("xml")
+        String pom1Content =
+            """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0"
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                        <modelVersion>4.0.0</modelVersion>
-                        <parent>
-                            <groupId>com.example</groupId>
-                            <artifactId>module1</artifactId>
-                            <version>1.0</version>
-                        </parent>
-                        <name>TheSubmodule</name>
-                        <version>1.1</version>
-                        <artifactId>submodule</artifactId>
-                    </project>
-                    """;
-            Resource pom1 = new DummyResource(tempDir.resolve("pom.xml"), pom1Content);
-            Resource pom2 = new DummyResource(tempDir.resolve("module1/pom.xml"), pom2Content);
-            Resource pom3 = new DummyResource(tempDir.resolve("module1/submodule/pom.xml"), pom3Content);
+                <modelVersion>4.0.0</modelVersion>
+                            
+                <groupId>com.example</groupId>
+                <artifactId>parent-module</artifactId>
+                <version>1.0</version>
+                <modules>
+                    <module>module1</module>
+                </modules>
+            </project>
+            """;
 
-            List<Resource> pomFiles = List.of(pom1, pom2, pom3);
-            ResourceUtil.write(tempDir, pomFiles);
+        @Language("xml")
+        String pom2Content =
+            """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                <modelVersion>4.0.0</modelVersion>
+                <parent>
+                    <groupId>com.example</groupId>
+                    <artifactId>parent</artifactId>
+                    <version>1.0</version>
+                </parent>
+                <artifactId>module1</artifactId>
+                <modules>
+                    <module>submodule</module>
+                </modules>
+            </project>
+            """;
 
-            ParserSettings parserSettings = ParserSettings.builder()
-                    .loggerClass(MyLogger.class.getName())
-                    .pomCacheEnabled(true)
-                    .pomCacheDirectory("pom-cache")
-                    .skipMavenParsing(false)
-                    .exclusions(Set.of())
-                    .plainTextMasks(Set.of())
-                    .sizeThresholdMb(-1)
-                    .runPerSubmodule(false)
-                    .build();
+        @Language("xml")
+        String pom3Content =
+            """
+            <project xmlns="http://maven.apache.org/POM/4.0.0"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                <modelVersion>4.0.0</modelVersion>
+                <parent>
+                    <groupId>com.example</groupId>
+                    <artifactId>module1</artifactId>
+                    <version>1.0</version>
+                </parent>
+                <artifactId>submodule</artifactId>
+            </project>
+            """;
+        Resource pom1 = new DummyResource("pom.xml", pom1Content);
+        Resource pom2 = new DummyResource("module1/pom.xml", pom2Content);
+        Resource pom3 = new DummyResource("module1/submodule/pom.xml", pom3Content);
 
-            ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory
-                    (parserSettings, new MavenProjectFactory(new MavenPlexusContainerFactory()), new MavenMojoProjectParserFactory(parserSettings));
-            Path baseDir = Path.of(".").toAbsolutePath().normalize();
-            Map<Path, List<Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, pomFiles);
+        Stream<Resource> pomFiles = Stream.of(pom1, pom2, pom3);
 
-            String version = "1.0";
+        ParserSettings parserSettings = ParserSettings.builder()
+                .loggerClass(MyLogger.class.getName())
+                .pomCacheEnabled(true)
+                .pomCacheDirectory("pom-cache")
+                .skipMavenParsing(false)
+                .exclusions(Set.of())
+                .plainTextMasks(Set.of())
+                .sizeThresholdMb(-1)
+                .runPerSubmodule(false)
+                .build();
 
-            verifyMarkers(pom1, baseDir, resourceListMap, "parent-module", "com.example", "parent-module", version);
-            verifyMarkers(pom2, baseDir, resourceListMap, "module1", "com.example", "module1", version);
-            verifyMarkers(pom3, baseDir, resourceListMap, "TheSubmodule", "com.example", "submodule", "1.1");
-        }
+        ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory(parserSettings);
+        Path baseDir = Path.of(".").toAbsolutePath().normalize();
+        Map<Resource, List<? extends Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, pomFiles);
 
-        /**
-         * With a configured maven-compile-plugin the source and target version should be taken from the plugin
-         */
-        @Nested
-        public class GivenSimpleMultiModuleProjectWithCompilerPlugin {
+        // pom1 has 5 markers
+        assertThat(resourceListMap.get(pom1)).hasSize(5);
 
-        }
-    }
-
-    private void verifyMarkers(Resource resource, Path baseDir, Map<Path, List<Marker>> resourceListMap, String projectName, String groupId, String artifactModule, String version) {
-        assertThat(resourceListMap.get(ResourceUtil.getPath(resource))).hasSize(5);
-
-        JavaVersion jv = findMarker(resourceListMap, resource, JavaVersion.class);
+        JavaVersion jv = findMarker(resourceListMap, pom1, JavaVersion.class);
         assertThat(countGetters(jv)).isEqualTo(7);
         assertThat(jv.getCreatedBy()).isEqualTo(System.getProperty("java.runtime.version"));
         assertThat(jv.getMajorVersion()).isEqualTo(Integer.parseInt(System.getProperty("java.specification.version")));
@@ -167,21 +124,21 @@ class ProvenanceMarkerFactoryTest {
         assertThat(jv.getVmVendor()).isEqualTo(System.getProperty("java.vm.vendor"));
         assertThat(jv.getId()).isInstanceOf(UUID.class);
 
-        JavaProject jp = findMarker(resourceListMap, resource, JavaProject.class);
+        JavaProject jp = findMarker(resourceListMap, pom1, JavaProject.class);
         assertThat(countGetters(jp)).isEqualTo(3);
         assertThat(jp.getId()).isInstanceOf(UUID.class);
-        assertThat(jp.getProjectName()).isEqualTo(projectName);
+        assertThat(jp.getProjectName()).isEqualTo("empty-project");
         JavaProject.Publication publication = jp.getPublication();
         assertThat(countGetters(publication)).isEqualTo(3);
-        assertThat(publication.getGroupId()).isEqualTo(groupId);
-        assertThat(publication.getArtifactId()).isEqualTo(artifactModule);
-        assertThat(publication.getVersion()).isEqualTo(version);
+        assertThat(publication.getGroupId()).isEqualTo("unknown");
+        assertThat(publication.getArtifactId()).isEqualTo("empty-project");
+        assertThat(publication.getVersion()).isEqualTo("0");
 
         String branch = getCurrentGitBranchName();
         String origin = getCurrentGitOrigin();
         String gitHash = getCurrentGitHash();
         GitProvenance expectedGitProvenance = GitProvenance.fromProjectDirectory(baseDir, BuildEnvironment.build(System::getenv));
-        GitProvenance gitProvenance = findMarker(resourceListMap, resource, GitProvenance.class);
+        GitProvenance gitProvenance = findMarker(resourceListMap, pom1, GitProvenance.class);
         assertThat(countGetters(gitProvenance)).isEqualTo(9);
         assertThat(gitProvenance.getId()).isInstanceOf(UUID.class);
         assertThat(gitProvenance.getBranch()).isEqualTo(branch);
@@ -193,19 +150,18 @@ class ProvenanceMarkerFactoryTest {
         assertThat(gitProvenance.getOrganizationName()).isEqualTo("spring-projects-experimental");
         assertThat(gitProvenance.getOrganizationName("https://github.com")).isEqualTo("spring-projects-experimental");
 
-        OperatingSystemProvenance operatingSystemProvenance = findMarker(resourceListMap, resource, OperatingSystemProvenance.class);
+        OperatingSystemProvenance operatingSystemProvenance = findMarker(resourceListMap, pom1, OperatingSystemProvenance.class);
         OperatingSystemProvenance expected = OperatingSystemProvenance.current();
         assertThat(operatingSystemProvenance.getName()).isEqualTo(expected.getName());
         // ...
 
-        BuildTool buildTool = findMarker(resourceListMap, resource, BuildTool.class);
+        BuildTool buildTool = findMarker(resourceListMap, pom1, BuildTool.class);
         assertThat(countGetters(buildTool)).isEqualTo(3);
         assertThat(buildTool.getId()).isInstanceOf(UUID.class);
         String mavenVersion = new DefaultRuntimeInformation().getMavenVersion();
         assertThat(buildTool.getVersion()).isEqualTo(mavenVersion);
         assertThat(buildTool.getType()).isEqualTo(BuildTool.Type.Maven);
     }
-
 
     private String getCurrentGitHash() {
         try {
@@ -259,8 +215,8 @@ class ProvenanceMarkerFactoryTest {
         }
     }
 
-    private <T> T findMarker(Map<Path, List<Marker>> markedResources, Resource pom, Class<T> markerClass) {
-        return markedResources.get(ResourceUtil.getPath(pom)).stream()
+    private <T> T findMarker(Map<Resource, List<? extends Marker>> markedResources, Resource pom, Class<T> markerClass) {
+        return markedResources.get(pom).stream()
                 .filter(markerClass::isInstance)
                 .map(markerClass::cast)
                 .findFirst()

@@ -20,8 +20,6 @@ import org.apache.commons.logging.Log;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,13 +35,11 @@ import java.util.Set;
 public class ParserSettings {
 
     private String loggerClass;
-    private boolean pomCacheEnabled = true;
+    private boolean pomCacheEnabled;
     private String pomCacheDirectory;
-    private boolean skipMavenParsing = false;
-    private Set<String> exclusions = new HashSet<>();
-    private Set<String> plainTextMasks = new HashSet<>();
-    private int sizeThresholdMb = -1;
-    private boolean runPerSubmodule = false;
-    private boolean failOnInvalidActiveRecipes = false;
-    private List<String> activeProfiles = List.of("default");
+    private boolean skipMavenParsing;
+    private Set<String> exclusions;
+    private Set<String> plainTextMasks;
+    private int sizeThresholdMb;
+    private boolean runPerSubmodule;
 }

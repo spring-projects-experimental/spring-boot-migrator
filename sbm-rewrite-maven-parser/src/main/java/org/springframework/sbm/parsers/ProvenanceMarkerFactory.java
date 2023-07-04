@@ -42,7 +42,6 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.MavenMojoProjectParser;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,43 +53,289 @@ import java.util.stream.Stream;
 /**
  * @author Fabian Krüger
  */
-@Component
 @RequiredArgsConstructor
-class ProvenanceMarkerFactory {
+public class ProvenanceMarkerFactory {
 
     private final ParserSettings parserSettings;
-    private final MavenProjectFactory mavenProjectFactory;
-    private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
 
     /**
-     * Reuses {@link MavenMojoProjectParser#generateProvenance(MavenProject)} to create {@link Marker}s for pom files in
-     * provided {@code pomFileResources}.
-     *
-     * @return the map of pom.xml {@link Resource}s and their {@link Marker}s.
+     * See {@link MavenMojoProjectParser#generateProvenance(MavenProject)}.
      */
-    public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, List<Resource> pomFileResources) {
+    public Map<Resource, List<? extends Marker>> generateProvenanceMarkers(Path baseDir, Stream<Resource> pomFileResources) {
 
         RuntimeInformation runtimeInformation = new DefaultRuntimeInformation();
         MavenSession mavenSession = null;
         SettingsDecrypter settingsDecrypter = null;
 
-        MavenMojoProjectParser helper = getMavenMojoProjectParser(baseDir, runtimeInformation, mavenSession, settingsDecrypter);
-        Map<Path, List<Marker>> result = new HashMap<>();
+        MavenMojoProjectParser helper = new MavenMojoProjectParser(
+                getLogger(parserSettings),
+                baseDir,
+                parserSettings.isPomCacheEnabled(),
+                parserSettings.getPomCacheDirectory(),
+                runtimeInformation,
+                parserSettings.isSkipMavenParsing(),
+                parserSettings.getExclusions(),
+                parserSettings.getPlainTextMasks(),
+                parserSettings.getSizeThresholdMb(),
+                mavenSession,
+                settingsDecrypter,
+                parserSettings.isRunPerSubmodule()
+        );
+        Map<Resource, List<? extends Marker>> result = new HashMap<>();
         pomFileResources.forEach(pom -> {
             MavenProject mavenProject = createMavenProject(pom);
-            List<Marker> markers = helper.generateProvenance(mavenProject);
-            result.put(ResourceUtil.getPath(pom), markers);
+            List<? extends Marker> markers = helper.generateProvenance(mavenProject);
+            result.put(pom, markers);
         });
         return result;
     }
 
-    @NotNull
-    private MavenMojoProjectParser getMavenMojoProjectParser(Path baseDir, RuntimeInformation runtimeInformation, MavenSession mavenSession, SettingsDecrypter settingsDecrypter) {
-        return mavenMojoProjectParserFactory.create(baseDir, runtimeInformation, settingsDecrypter);
-    }
-
     private MavenProject createMavenProject(Resource pom) {
-        return mavenProjectFactory.createMavenProject(pom);
+        try {
+            MavenXpp3Reader reader = new MavenXpp3Reader();
+            Model model = reader.read(ResourceUtil.getInputStream(pom));
+            MavenProject mavenProject = new MavenProject(model);
+            mavenProject.setName(model.getName());
+            mavenProject.setGroupId(model.getGroupId());
+            mavenProject.setArtifactId(model.getArtifactId());
+            mavenProject.setVersion(model.getVersion());
+            Plugin plugin = model.getBuild().getPlugins().get(0);
+            PluginArtifact pluginArtifact = new PluginArtifact(plugin, new Artifact() {
+                @Override
+                public String getGroupId() {
+                    return null;
+                }
+
+                @Override
+                public String getArtifactId() {
+                    return null;
+                }
+
+                @Override
+                public String getVersion() {
+                    return null;
+                }
+
+                @Override
+                public void setVersion(String s) {
+
+                }
+
+                @Override
+                public String getScope() {
+                    return null;
+                }
+
+                @Override
+                public String getType() {
+                    return null;
+                }
+
+                @Override
+                public String getClassifier() {
+                    return null;
+                }
+
+                @Override
+                public boolean hasClassifier() {
+                    return false;
+                }
+
+                @Override
+                public File getFile() {
+                    return new File("pom.xml");
+                }
+
+                @Override
+                public void setFile(File file) {
+
+                }
+
+                @Override
+                public String getBaseVersion() {
+                    return null;
+                }
+
+                @Override
+                public void setBaseVersion(String s) {
+
+                }
+
+                @Override
+                public String getId() {
+                    return null;
+                }
+
+                @Override
+                public String getDependencyConflictId() {
+                    return null;
+                }
+
+                @Override
+                public void addMetadata(ArtifactMetadata artifactMetadata) {
+
+                }
+
+                @Override
+                public Collection<ArtifactMetadata> getMetadataList() {
+                    return null;
+                }
+
+                @Override
+                public void setRepository(ArtifactRepository artifactRepository) {
+
+                }
+
+                @Override
+                public ArtifactRepository getRepository() {
+                    return null;
+                }
+
+                @Override
+                public void updateVersion(String s, ArtifactRepository artifactRepository) {
+
+                }
+
+                @Override
+                public String getDownloadUrl() {
+                    return null;
+                }
+
+                @Override
+                public void setDownloadUrl(String s) {
+
+                }
+
+                @Override
+                public ArtifactFilter getDependencyFilter() {
+                    return null;
+                }
+
+                @Override
+                public void setDependencyFilter(ArtifactFilter artifactFilter) {
+
+                }
+
+                @Override
+                public ArtifactHandler getArtifactHandler() {
+                    return null;
+                }
+
+                @Override
+                public List<String> getDependencyTrail() {
+                    return null;
+                }
+
+                @Override
+                public void setDependencyTrail(List<String> list) {
+
+                }
+
+                @Override
+                public void setScope(String s) {
+
+                }
+
+                @Override
+                public VersionRange getVersionRange() {
+                    return null;
+                }
+
+                @Override
+                public void setVersionRange(VersionRange versionRange) {
+
+                }
+
+                @Override
+                public void selectVersion(String s) {
+
+                }
+
+                @Override
+                public void setGroupId(String s) {
+
+                }
+
+                @Override
+                public void setArtifactId(String s) {
+
+                }
+
+                @Override
+                public boolean isSnapshot() {
+                    return false;
+                }
+
+                @Override
+                public void setResolved(boolean b) {
+
+                }
+
+                @Override
+                public boolean isResolved() {
+                    return false;
+                }
+
+                @Override
+                public void setResolvedVersion(String s) {
+
+                }
+
+                @Override
+                public void setArtifactHandler(ArtifactHandler artifactHandler) {
+
+                }
+
+                @Override
+                public boolean isRelease() {
+                    return false;
+                }
+
+                @Override
+                public void setRelease(boolean b) {
+
+                }
+
+                @Override
+                public List<ArtifactVersion> getAvailableVersions() {
+                    return null;
+                }
+
+                @Override
+                public void setAvailableVersions(List<ArtifactVersion> list) {
+
+                }
+
+                @Override
+                public boolean isOptional() {
+                    return false;
+                }
+
+                @Override
+                public void setOptional(boolean b) {
+
+                }
+
+                @Override
+                public ArtifactVersion getSelectedVersion() throws OverConstrainedVersionException {
+                    return null;
+                }
+
+                @Override
+                public boolean isSelectedVersionKnown() throws OverConstrainedVersionException {
+                    return false;
+                }
+
+                @Override
+                public int compareTo(@NotNull Artifact o) {
+                    return 0;
+                }
+            });
+            mavenProject.setPluginArtifacts(Set.of(pluginArtifact));
+            return mavenProject;
+        } catch (IOException | XmlPullParserException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Log getLogger(ParserSettings parserSettings) {
