@@ -76,7 +76,7 @@ public class OpenRewriteProjectParser {
         List<NamedStyles> styles = List.of();
 
         // retrieve all pom files from all modules
-        Stream<Resource> buildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
+        List<Resource> buildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
 
         // generate provenance
         Map<Resource, List<? extends Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, buildFileResources);

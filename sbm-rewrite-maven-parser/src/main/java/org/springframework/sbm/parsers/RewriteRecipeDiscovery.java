@@ -25,6 +25,7 @@ import org.openrewrite.Validated;
 import org.openrewrite.config.Environment;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.AbstractRewriteMojo;
+import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +48,7 @@ public class RewriteRecipeDiscovery {
     private final ParserSettings parserSettings;
     private final MavenProjectFactory mavenProjectFactory;
 
-    public List<Recipe> discoverFilteredRecipes(Resource rootPom, List<String> activeRecipes) {
+    public List<Recipe> discoverFilteredRecipes(Xml.Document rootPom, List<String> activeRecipes) {
         if (activeRecipes.isEmpty()) {
             log.warn("No active recipes were provided.");
             return emptyList();
@@ -55,7 +56,7 @@ public class RewriteRecipeDiscovery {
 
         List<Recipe> recipes = new ArrayList<>();
 
-        MavenProject mavenProject = mavenProjectFactory.createMavenProject(rootPom);
+        MavenProject mavenProject = mavenProjectFactory.createMavenProject(rootPom.printAll());
         AbstractRewriteMojoHelper helper = new AbstractRewriteMojoHelper(mavenProject);
         Path repositoryRoot = helper.repositoryRoot();
 

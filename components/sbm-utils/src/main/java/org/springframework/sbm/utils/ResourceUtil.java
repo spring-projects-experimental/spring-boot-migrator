@@ -13,11 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package org.springframework.sbm.utils;
 
 import org.springframework.core.io.Resource;
@@ -43,6 +38,14 @@ public class ResourceUtil {
             return resource.getInputStream();
         } catch (IOException var2) {
             throw new RuntimeException(var2);
+        }
+    }
+
+    public static String getContent(Resource r) {
+        try {
+            return new String(getInputStream(r).readAllBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

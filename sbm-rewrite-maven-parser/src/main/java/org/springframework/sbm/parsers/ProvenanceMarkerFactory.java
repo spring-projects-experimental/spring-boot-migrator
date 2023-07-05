@@ -64,7 +64,7 @@ public class ProvenanceMarkerFactory {
     /**
      * See {@link MavenMojoProjectParser#generateProvenance(MavenProject)}.
      */
-    public Map<Resource, List<? extends Marker>> generateProvenanceMarkers(Path baseDir, Stream<Resource> pomFileResources) {
+    public Map<Resource, List<? extends Marker>> generateProvenanceMarkers(Path baseDir, List<Resource> pomFileResources) {
 
         RuntimeInformation runtimeInformation = new DefaultRuntimeInformation();
         MavenSession mavenSession = null;

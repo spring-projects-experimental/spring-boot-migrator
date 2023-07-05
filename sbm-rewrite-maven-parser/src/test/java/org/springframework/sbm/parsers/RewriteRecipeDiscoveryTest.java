@@ -7,13 +7,16 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.SourceFile;
+import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.test.util.OpenRewriteDummyRecipeInstaller;
+import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,6 +46,7 @@ class RewriteRecipeDiscoveryTest {
     void shouldDiscoverDummyRecipes() {
         ParserSettings parserSettings = ParserSettings.builder()
                 .runPerSubmodule(false)
+                .exclusions(Set.of("testcode"))
                 .build();
         MavenProjectFactory mavenProjectFactory = new MavenProjectFactory();
         DummyResource rootPom = new DummyResource("pom.xml",
@@ -69,7 +73,22 @@ class RewriteRecipeDiscoveryTest {
 
 
         RewriteRecipeDiscovery recipeDiscovery = new RewriteRecipeDiscovery(parserSettings, mavenProjectFactory);
-        List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes(rootPom, List.of("Dummy Recipe"));
+//        OpenRewriteProjectParser openRewriteProjectParser = new OpenRewriteProjectParser(new ProvenanceMarkerFactory(new ParserSettings(), new MavenProjectFactory()), new BuildFileParser(new MavenModelReader()), new SourceFileParser(), new StyleDetector(), new ParserSettings());
+//        Path baseDir = Path.of(".");
+//        RewriteProjectParsingResult parsingResult = openRewriteProjectParser.parse(baseDir, List.of(rootPom), new InMemoryExecutionContext(t -> t.printStackTrace()));
+        RewriteMavenProjectParser rewriteMavenProjectParser = new RewriteMavenProjectParser();
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
+        RewriteProjectParsingResult parsingResult = rewriteMavenProjectParser.parse(
+                Path.of("/Users/fkrueger/projects/spring-boot-migrator/sbm-rewrite-maven-parser/testcode/openrewrite-dummy-recipe"),
+                true,
+                "pomCache",
+                false,
+                Set.of("**/testcode/**"),
+                Set.of(),
+                -1,
+                false,
+                executionContext);
+        List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes((Xml.Document) parsingResult.sourceFiles().get(0), List.of("Dummy Recipe"));
     }
 
 }

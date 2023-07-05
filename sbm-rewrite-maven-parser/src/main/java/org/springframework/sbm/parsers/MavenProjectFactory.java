@@ -34,6 +34,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -46,9 +47,13 @@ import java.util.Set;
 @Component
 public class MavenProjectFactory {
     public MavenProject createMavenProject(Resource pom) {
+        return createMavenProject(ResourceUtil.getContent(pom));
+    }
+
+    public MavenProject createMavenProject(String s) {
         try {
             MavenXpp3Reader reader = new MavenXpp3Reader();
-            Model model = reader.read(ResourceUtil.getInputStream(pom));
+            Model model = reader.read(new ByteArrayInputStream(s.getBytes()));
             MavenProject mavenProject = new MavenProject(model);
             mavenProject.setName(model.getName());
             mavenProject.setGroupId(model.getGroupId());

@@ -96,25 +96,24 @@ class BuildFileParserTest {
             );
 
             // filter and sort build files
-            Stream<Resource> resourceStream = sut.filterAndSortBuildFiles(resources);
+            List<Resource> resourceList = sut.filterAndSortBuildFiles(resources);
 
             // verify result
-            List<Resource> resourceStreamList = resourceStream.toList();
-            assertThat(resourceStreamList).hasSize(3);
+            assertThat(resourceList).hasSize(3);
 
             Path resolve = Path.of(".").resolve("pom.xml").toAbsolutePath().normalize();
-            assertThat(ResourceUtil.getPath(resourceStreamList.get(0))).isEqualTo(resolve);
+            assertThat(ResourceUtil.getPath(resourceList.get(0))).isEqualTo(resolve);
 
             Path resolve2 = Path.of("module1/pom.xml").toAbsolutePath().normalize();
-            assertThat(ResourceUtil.getPath(resourceStreamList.get(1))).isEqualTo(resolve2);
+            assertThat(ResourceUtil.getPath(resourceList.get(1))).isEqualTo(resolve2);
 
             Path resolve3 = Path.of("module1/submodule/pom.xml").toAbsolutePath().normalize();
-            assertThat(ResourceUtil.getPath(resourceStreamList.get(2))).isEqualTo(resolve3);
+            assertThat(ResourceUtil.getPath(resourceList.get(2))).isEqualTo(resolve3);
         }
 
         @Test
         void parseBuildFiles_shouldReturnSortedListOfParsedBuildFiles() {
-            Stream<Resource> filteredAndSortedBuildFiles = Stream.of(
+            List<Resource> filteredAndSortedBuildFiles = List.of(
                     new DummyResource("module1/submodule/pom.xml", pom3),
                     new DummyResource("pom.xml", pom1),
                     new DummyResource("module1/pom.xml", pom2)
