@@ -1,28 +1,34 @@
 package org.springframework.sbm.parsers;
 
 import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.marker.Marker;
+import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Fabian Krüger
  */
 class BuildFileParserTest {
 
-    @Test
-    void retrieveSortedBuildFiles() {
+    @Nested
+    public class GivenSimpleMavenMultiModuleProject {
+
         @Language("xml")
-        String pom1 =
+        private String pom1 =
                 """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -40,7 +46,7 @@ class BuildFileParserTest {
                 """;
 
         @Language("xml")
-        String pom2 =
+        private String pom2 =
                 """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -60,7 +66,7 @@ class BuildFileParserTest {
                 """;
 
         @Language("xml")
-        String pom3 =
+        private String pom3 =
                 """
                 <project xmlns="http://maven.apache.org/POM/4.0.0"
                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -75,31 +81,48 @@ class BuildFileParserTest {
                 </project>
                 """;
 
-        BuildFileParser sut = new BuildFileParser();
+        private BuildFileParser sut = new BuildFileParser(new MavenModelReader());
 
-        // the poms have no order
-        List<Resource> resources = List.of(
-                new DummyResource("src/test/resources/dummy/pom.xml", ""),
-                new DummyResource("module1/submodule/pom.xml", pom3),
-                new DummyResource("pom.xml", pom1),
-                new DummyResource("module1/pom.xml", pom2),
-                new DummyResource("src/main/java/SomeJavaClass.java", "")
-        );
+        @Test
+        void filterAndSortBuildFiles_shouldReturnSortedListOfFilteredBuildFiles() {
 
-        // filter and sort build files
-        Stream<Resource> resourceStream = sut.retrieveSortedBuildFiles(resources);
+            // the poms have no order
+            List<Resource> resources = List.of(
+                    new DummyResource("src/test/resources/dummy/pom.xml", ""),
+                    new DummyResource("module1/submodule/pom.xml", pom3),
+                    new DummyResource("pom.xml", pom1),
+                    new DummyResource("module1/pom.xml", pom2),
+                    new DummyResource("src/main/java/SomeJavaClass.java", "")
+            );
 
-        // verify result
-        List<Resource> resourceStreamList = resourceStream.toList();
-        assertThat(resourceStreamList).hasSize(3);
+            // filter and sort build files
+            List<Resource> resourceList = sut.filterAndSortBuildFiles(resources);
 
-        Path resolve = Path.of(".").resolve("pom.xml").toAbsolutePath().normalize();
-        assertThat(ResourceUtil.getPath(resourceStreamList.get(0))).isEqualTo(resolve);
+            // verify result
+            assertThat(resourceList).hasSize(3);
 
-        Path resolve2 = Path.of("module1/pom.xml").toAbsolutePath().normalize();
-        assertThat(ResourceUtil.getPath(resourceStreamList.get(1))).isEqualTo(resolve2);
+            Path resolve = Path.of(".").resolve("pom.xml").toAbsolutePath().normalize();
+            assertThat(ResourceUtil.getPath(resourceList.get(0))).isEqualTo(resolve);
 
-        Path resolve3 = Path.of("module1/submodule/pom.xml").toAbsolutePath().normalize();
-        assertThat(ResourceUtil.getPath(resourceStreamList.get(2))).isEqualTo(resolve3);
+            Path resolve2 = Path.of("module1/pom.xml").toAbsolutePath().normalize();
+            assertThat(ResourceUtil.getPath(resourceList.get(1))).isEqualTo(resolve2);
+
+            Path resolve3 = Path.of("module1/submodule/pom.xml").toAbsolutePath().normalize();
+            assertThat(ResourceUtil.getPath(resourceList.get(2))).isEqualTo(resolve3);
+        }
+
+        @Test
+        void parseBuildFiles_shouldReturnSortedListOfParsedBuildFiles() {
+            List<Resource> filteredAndSortedBuildFiles = List.of(
+                    new DummyResource("module1/submodule/pom.xml", pom3),
+                    new DummyResource("pom.xml", pom1),
+                    new DummyResource("module1/pom.xml", pom2)
+            );
+            Map<Resource, List<? extends Marker>> provenanceMarkers = new HashMap<>();
+            ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
+            boolean skipMavenParsing = false;
+            Map<Resource, Xml.Document> parsedBuildFiles = sut.parseBuildFiles(filteredAndSortedBuildFiles, provenanceMarkers, executionContext, skipMavenParsing);
+        }
     }
+
 }

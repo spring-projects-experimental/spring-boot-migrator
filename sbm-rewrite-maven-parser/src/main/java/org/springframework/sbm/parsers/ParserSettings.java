@@ -42,4 +42,5 @@ public class ParserSettings {
     private Set<String> plainTextMasks;
     private int sizeThresholdMb;
     private boolean runPerSubmodule;
+    private boolean failOnInvalidActiveRecipes;
 }

@@ -101,7 +101,7 @@ class ProvenanceMarkerFactoryTest {
             Resource pom2 = new DummyResource("module1/pom.xml", pom2Content);
             Resource pom3 = new DummyResource("module1/submodule/pom.xml", pom3Content);
 
-            Stream<Resource> pomFiles = Stream.of(pom1, pom2, pom3);
+            List<Resource> pomFiles = List.of(pom1, pom2, pom3);
 
             ParserSettings parserSettings = ParserSettings.builder()
                     .loggerClass(MyLogger.class.getName())
@@ -114,7 +114,7 @@ class ProvenanceMarkerFactoryTest {
                     .runPerSubmodule(false)
                     .build();
 
-            ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory(parserSettings);
+            ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory(parserSettings, new MavenProjectFactory());
             Path baseDir = Path.of(".").toAbsolutePath().normalize();
             Map<Resource, List<? extends Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, pomFiles);
 

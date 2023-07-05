@@ -15,7 +15,10 @@
  */
 package org.springframework.sbm.parsers;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.maven.model.Model;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
@@ -26,20 +29,36 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * @author Fabian Krüger
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class BuildFileParser {
-    public Map<Resource, Xml.Document> parseBuildFiles(Stream<Resource> buildFileResources, Map<Resource, List<? extends Marker>> provenanceMarkers) {
+
+    private final MavenModelReader mavenModelReader;
+
+    /**
+     * See {@link org.openrewrite.maven.MavenMojoProjectParser#parseMaven(List, Map, ExecutionContext)}
+     */
+    public Map<Resource, Xml.Document> parseBuildFiles(List<Resource> buildFileResources, Map<Resource, List<? extends Marker>> provenanceMarkers, ExecutionContext executionContext, boolean skipMavenParsing) {
+        if(skipMavenParsing) {
+            return Map.of();
+        }
+
+        Resource topLevelPom = buildFileResources.get(0);
+
+        Model topLevelModel = mavenModelReader.readModel(topLevelPom);
+
+        // TODO: Does allPoms in MavenMojoProjectParser match the poms in buildFileResources!?
+
+
         return null;
     }
 
-    // TODO: filter out poms in test sources, src/test/...
-    public Stream<Resource> retrieveSortedBuildFiles(List<Resource> resources) {
+    public List<Resource> filterAndSortBuildFiles(List<Resource> resources) {
         return resources.stream()
                 .filter(r -> "pom.xml".equals(ResourceUtil.getPath(r).toFile().getName()))
                 .filter(r -> filterTestResources(r))
@@ -53,7 +72,8 @@ public class BuildFileParser {
                     ArrayList<String> r2PathParts = new ArrayList<String>();
                     r2Path.iterator().forEachRemaining(it -> r2PathParts.add(it.toString()));
                     return Integer.compare(r1PathParts.size(), r2PathParts.size());
-                });
+                })
+                .toList();
     }
 
     private static boolean filterTestResources(Resource r) {

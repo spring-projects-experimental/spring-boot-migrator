@@ -44,8 +44,8 @@ import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
@@ -59,6 +59,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * @author Fabian Krüger
  */
+@Component
 public class RewriteMavenProjectParser {
 
     public static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toString();
@@ -91,7 +92,7 @@ public class RewriteMavenProjectParser {
     public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext) {
         PlexusContainer plexusContainer = buildPlexusContainer(baseDir);
         AtomicReference<RewriteProjectParsingResult> parsingResult = new AtomicReference<>();
-        runMaven(baseDir, plexusContainer, session -> {
+        runInMaven(baseDir, plexusContainer, session -> {
             List<MavenProject> mavenProjects = session.getAllProjects();
             MavenMojoProjectParser rewriteProjectParser = buildMavenMojoProjectParser(
                     baseDir,
@@ -164,7 +165,7 @@ public class RewriteMavenProjectParser {
         }
     }
 
-    private void runMaven(Path baseDir, PlexusContainer plexusContainer, Consumer<MavenSession> sessionConsumer) {
+    private void runInMaven(Path baseDir, PlexusContainer plexusContainer, Consumer<MavenSession> sessionConsumer) {
         try {
             MavenExecutionRequest request = new DefaultMavenExecutionRequest();
             ArtifactRepositoryFactory repositoryFactory = null;
