@@ -16,7 +16,6 @@
 package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -28,7 +27,6 @@ import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
@@ -42,13 +40,14 @@ import java.util.stream.Stream;
  */
 @Component
 @RequiredArgsConstructor
-public class CustomMavenProjectParser {
+public class OpenRewriteProjectParser {
 
     private static boolean runPerSubmodule = false;
     private final ProvenanceMarkerFactory provenanceMarkerFactory;
     private final BuildFileParser buildFileParser;
     private final SourceFileParser sourceFileParser;
     private final StyleDetector styleDetector;
+    private final ParserSettings parserSettings;
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
@@ -72,20 +71,20 @@ public class CustomMavenProjectParser {
      */
     public RewriteProjectParsingResult parse(Path baseDir, List<Resource> resources, ExecutionContext executionContext) {
         // TODO: is "runPerSubmodule" required?
-
-        List<NamedStyles> styles = List.of(); // TODO: where to retrieve styles from?
+        // TODO: See ConfigurableRewriteMojo#getPlainTextMasks()
+        // TODO: where to retrieve styles from? --> see AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
+        List<NamedStyles> styles = List.of();
 
         // retrieve all pom files from all modules
-        Stream<Resource> buildFileResources = buildFileParser.retrieveSortedBuildFiles(resources);
+        Stream<Resource> buildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
 
         // generate provenance
         Map<Resource, List<? extends Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, buildFileResources);
 
         // parse build files
-        Map<Resource, Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(buildFileResources, provenanceMarkers);
+        Map<Resource, Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(buildFileResources, provenanceMarkers, executionContext, parserSettings.isSkipMavenParsing());
 
-
-        Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(parsedBuildFiles, provenanceMarkers, styles, executionContext);
+        Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(parsedBuildFiles, resources, provenanceMarkers, styles, executionContext);
 
         List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(sourceFilesStream);
 

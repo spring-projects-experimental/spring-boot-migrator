@@ -15,32 +15,27 @@
  */
 package org.springframework.sbm.parsers;
 
-import lombok.*;
-import org.apache.commons.logging.Log;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.springframework.core.io.Resource;
+import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
+import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * @author Fabian Krüger
  */
 @Component
-@Getter
-@Setter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@ConfigurationProperties(prefix = "parser")
-public class ParserSettings {
-
-    private String loggerClass;
-    private boolean pomCacheEnabled;
-    private String pomCacheDirectory;
-    private boolean skipMavenParsing;
-    private Set<String> exclusions;
-    private Set<String> plainTextMasks;
-    private int sizeThresholdMb;
-    private boolean runPerSubmodule;
-    private boolean failOnInvalidActiveRecipes;
+public class MavenModelReader {
+    public Model readModel(Resource mavenPomFile) {
+        try {
+            return new MavenXpp3Reader().read(ResourceUtil.getInputStream(mavenPomFile));
+        } catch (IOException | XmlPullParserException e) {
+            Path path = ResourceUtil.getPath(mavenPomFile);
+            throw new RuntimeException("Could not read Maven model from resource '%s'".formatted(path.toString()), e);
+        }
+    }
 }

@@ -15,32 +15,10 @@
  */
 package org.springframework.sbm.parsers;
 
-import lombok.*;
-import org.apache.commons.logging.Log;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
-
-import java.util.Set;
-
 /**
  * @author Fabian Krüger
  */
-@Component
-@Getter
-@Setter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@ConfigurationProperties(prefix = "parser")
-public class ParserSettings {
-
-    private String loggerClass;
-    private boolean pomCacheEnabled;
-    private String pomCacheDirectory;
-    private boolean skipMavenParsing;
-    private Set<String> exclusions;
-    private Set<String> plainTextMasks;
-    private int sizeThresholdMb;
-    private boolean runPerSubmodule;
-    private boolean failOnInvalidActiveRecipes;
+public class InvalidRecipesException extends RuntimeException {
+    public InvalidRecipesException(String s) {
+    }
 }
