@@ -44,6 +44,7 @@ import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -58,6 +59,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * @author Fabian Krüger
  */
+@Component
 public class RewriteMavenProjectParser {
 
     public static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toString();

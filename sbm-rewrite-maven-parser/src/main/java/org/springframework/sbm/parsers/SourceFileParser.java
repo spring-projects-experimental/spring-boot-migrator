@@ -21,6 +21,7 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.stream.Stream;
 /**
  * @author Fabian Krüger
  */
+@Component
 public class SourceFileParser {
     public Stream<SourceFile> parseOtherSourceFiles(Map<Resource, Xml.Document> parsedBuildFiles, List<Resource> resources, Map<Resource, List<? extends Marker>> provenanceMarkers, List<NamedStyles> styles, ExecutionContext executionContext) {
         return null;
