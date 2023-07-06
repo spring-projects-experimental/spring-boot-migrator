@@ -209,12 +209,22 @@ public class RewriteMavenProjectParser {
 
                 @Override
                 public void mojoSucceeded(ExecutionEvent event) {
-                    log.debug("Mojo succeeded: " + event.getMojoExecution().getGoal() + " in " + event.getMojoExecution().getLifecyclePhase());
-                    if(event.getMojoExecution().getGoal().equals("testCompile")) {
-                        log.info("Starting Maven session consumer");
+//                    log.info("Mojo succeeded: " + event.getMojoExecution().getGoal() + " in " + event.getMojoExecution().getLifecyclePhase() + " for " + event.getProject().getGroupId() + ":" + event.getProject().getArtifactId());
+//
+//                    if(event.getMojoExecution().getGoal().equals("testCompile") && event.getSession().getTopLevelProject().getArtifactId().equals(event.getProject().getArtifactId())) {
+//                        log.info("Starting Maven session consumer");
+//                        sessionConsumer.accept(event.getSession());
+//                    }
+                }
+
+                @Override
+                public void projectSucceeded(ExecutionEvent event) {
+                    System.out.println("PROJECT SUCCEEDED: " + event.getProject().getName());
+                    if(event.getProject().getName().equals("spring-boot-upgrade")) {
                         sessionConsumer.accept(event.getSession());
                     }
                 }
+
 
                 //                @Override
 //                public void mojoSucceeded(ExecutionEvent event) {
