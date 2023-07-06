@@ -198,7 +198,11 @@ class RewriteMavenProjectParserTest {
             System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
             parsedFiles.add(sourceFile.getSourcePath().toString());
         });
-        RewriteProjectParsingResult parsingResult = projectParser.parse(projectRoot, true, "pomCache", false, List.of("testcode"), List.of("*.txt"), -1, false, executionContext);
+        RewriteProjectParsingResult parsingResult = projectParser.parse(projectRoot, true, "pomCache", false, List.of("**/testcode/**", ".rewrite/**", "internal/**"), List.of("*.txt"), -1, false, executionContext);
+
+        parsingResult.sourceFiles().stream()
+                .map(SourceFile::getSourcePath)
+                .forEach(System.out::println);
     }
 
 }
