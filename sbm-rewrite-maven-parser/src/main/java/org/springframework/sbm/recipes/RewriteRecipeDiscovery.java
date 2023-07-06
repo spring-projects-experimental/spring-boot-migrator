@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.recipes;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +27,16 @@ import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.AbstractRewriteMojo;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.InvalidRecipesException;
+import org.springframework.sbm.parsers.MavenProjectFactory;
+import org.springframework.sbm.parsers.ParserSettings;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -47,6 +51,17 @@ public class RewriteRecipeDiscovery {
 
     private final ParserSettings parserSettings;
     private final MavenProjectFactory mavenProjectFactory;
+
+
+    public Optional<Recipe> discoverFilteredRecipe(Xml.Document rootPom, String activeRecipe) {
+        List<Recipe> recipes = discoverFilteredRecipes(rootPom, List.of(activeRecipe));
+        if(recipes.isEmpty()) {
+            return Optional.empty();
+        } else if(recipes.size() > 1) {
+            throw new IllegalStateException("Found %d recipes by name '%s'".formatted(recipes.size(), activeRecipe));
+        }
+        return Optional.of(recipes.get(0));
+    }
 
     public List<Recipe> discoverFilteredRecipes(Xml.Document rootPom, List<String> activeRecipes) {
         if (activeRecipes.isEmpty()) {

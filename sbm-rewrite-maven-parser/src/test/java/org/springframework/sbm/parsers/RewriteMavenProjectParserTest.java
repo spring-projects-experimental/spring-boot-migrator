@@ -8,6 +8,7 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
+import org.openrewrite.java.JavaParserExecutionContextView;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.marker.JavaVersion;
@@ -24,19 +25,18 @@ import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.style.Autodetect;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.core.io.Resource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.extractProperty;
@@ -62,6 +62,7 @@ class RewriteMavenProjectParserTest {
                     <properties>
                         <maven.compiler.target>17</maven.compiler.target>
                         <maven.compiler.source>17</maven.compiler.source>
+                        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
                     </properties>
                     <dependencies>
                         <dependency>
@@ -100,7 +101,16 @@ class RewriteMavenProjectParserTest {
         RewriteMavenProjectParser sut = new RewriteMavenProjectParser();
 
         // call SUT
-        RewriteProjectParsingResult parsingResult = sut.parse(tempDir);
+        RewriteProjectParsingResult parsingResult = sut.parse(
+                tempDir,
+                true,
+                tempDir.toString(),
+                false,
+                Set.of("**/testcode/**", "testcode/**", ".rewrite-cache/**"),
+                Set.of(),
+                -1,
+                false,
+                new InMemoryExecutionContext(t -> t.printStackTrace()));
 
         // Verify result
         List<SourceFile> sourceFiles = parsingResult.sourceFiles();
@@ -145,14 +155,15 @@ class RewriteMavenProjectParserTest {
                 .toList();
 
         // Classpath contains classes from JDK and spring-boot-starter and transitive dependencies, currently 6710
-        assertThat(classpath).hasSize(6710);
+        assertThat(classpath).hasSize(6859);
 
         ExecutionContext resultingExecutionContext = parsingResult.executionContext();
         assertThat(resultingExecutionContext).isNotNull();
         Map<String, Object> messages = (Map<String, Object>) ReflectionTestUtils.getField(resultingExecutionContext, "messages");
-        assertThat(messages).hasSize(7);
+        assertThat(messages).hasSize(8);
         MavenExecutionContextView contextView = MavenExecutionContextView.view(resultingExecutionContext);
         assertThat(contextView.getSettings()).isNotNull();  // TODO: verify settings
+        assertThat(ParsingExecutionContextView.view(resultingExecutionContext).getCharset()).isEqualTo(Charset.forName("UTF-8"));
 
         // TODO: Add test that uses Maven settings and encrypted passwords
     }
@@ -174,4 +185,5 @@ class RewriteMavenProjectParserTest {
         });
         RewriteProjectParsingResult parsingResult = projectParser.parse(projectRoot, true, "pomCache", false, List.of("testcode"), List.of("*.txt"), -1, false, executionContext);
     }
+
 }

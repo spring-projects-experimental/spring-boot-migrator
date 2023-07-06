@@ -15,7 +15,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -81,7 +80,7 @@ class BuildFileParserTest {
                 </project>
                 """;
 
-        private BuildFileParser sut = new BuildFileParser(new MavenModelReader());
+        private BuildFileParser sut = new BuildFileParser(new MavenModelReader(), new ParserSettings());
 
         @Test
         void filterAndSortBuildFiles_shouldReturnSortedListOfFilteredBuildFiles() {
@@ -118,10 +117,15 @@ class BuildFileParserTest {
                     new DummyResource("pom.xml", pom1),
                     new DummyResource("module1/pom.xml", pom2)
             );
-            Map<Resource, List<? extends Marker>> provenanceMarkers = new HashMap<>();
+            Map<Resource, List<Marker>> provenanceMarkers = new HashMap<>();
             ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
             boolean skipMavenParsing = false;
-            Map<Resource, Xml.Document> parsedBuildFiles = sut.parseBuildFiles(filteredAndSortedBuildFiles, provenanceMarkers, executionContext, skipMavenParsing);
+            Map<Resource, Xml.Document> parsedBuildFiles = sut.parseBuildFiles(
+                    Path.of("."),
+                    filteredAndSortedBuildFiles,
+                    executionContext,
+                    skipMavenParsing,
+                    provenanceMarkers);
         }
     }
 

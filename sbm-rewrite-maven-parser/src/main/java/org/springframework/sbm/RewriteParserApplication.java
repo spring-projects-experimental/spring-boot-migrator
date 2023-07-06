@@ -21,8 +21,8 @@ import org.openrewrite.xml.tree.Xml;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.*;
+import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
 
 import java.nio.file.Path;
 import java.util.List;

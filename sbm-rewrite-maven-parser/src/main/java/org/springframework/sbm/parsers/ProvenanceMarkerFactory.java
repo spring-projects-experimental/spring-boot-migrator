@@ -56,41 +56,37 @@ import java.util.stream.Stream;
  */
 @Component
 @RequiredArgsConstructor
-public class ProvenanceMarkerFactory {
+class ProvenanceMarkerFactory {
 
     private final ParserSettings parserSettings;
     private final MavenProjectFactory mavenProjectFactory;
+    private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
 
     /**
-     * See {@link MavenMojoProjectParser#generateProvenance(MavenProject)}.
+     * Reuses {@link MavenMojoProjectParser#generateProvenance(MavenProject)} to create {@link Marker}s for pom files in
+     * provided {@code pomFileResources}.
+     *
+     * @return the map of pom.xml {@link Resource}s and their {@link Marker}s.
      */
-    public Map<Resource, List<? extends Marker>> generateProvenanceMarkers(Path baseDir, List<Resource> pomFileResources) {
+    public Map<Resource, List<Marker>> generateProvenanceMarkers(Path baseDir, List<Resource> pomFileResources) {
 
         RuntimeInformation runtimeInformation = new DefaultRuntimeInformation();
         MavenSession mavenSession = null;
         SettingsDecrypter settingsDecrypter = null;
 
-        MavenMojoProjectParser helper = new MavenMojoProjectParser(
-                getLogger(parserSettings),
-                baseDir,
-                parserSettings.isPomCacheEnabled(),
-                parserSettings.getPomCacheDirectory(),
-                runtimeInformation,
-                parserSettings.isSkipMavenParsing(),
-                parserSettings.getExclusions(),
-                parserSettings.getPlainTextMasks(),
-                parserSettings.getSizeThresholdMb(),
-                mavenSession,
-                settingsDecrypter,
-                parserSettings.isRunPerSubmodule()
-        );
-        Map<Resource, List<? extends Marker>> result = new HashMap<>();
+        MavenMojoProjectParser helper = getMavenMojoProjectParser(baseDir, runtimeInformation, mavenSession, settingsDecrypter);
+        Map<Resource, List<Marker>> result = new HashMap<>();
         pomFileResources.forEach(pom -> {
             MavenProject mavenProject = createMavenProject(pom);
-            List<? extends Marker> markers = helper.generateProvenance(mavenProject);
+            List<Marker> markers = helper.generateProvenance(mavenProject);
             result.put(pom, markers);
         });
         return result;
+    }
+
+    @NotNull
+    private MavenMojoProjectParser getMavenMojoProjectParser(Path baseDir, RuntimeInformation runtimeInformation, MavenSession mavenSession, SettingsDecrypter settingsDecrypter) {
+        return mavenMojoProjectParserFactory.create(baseDir, runtimeInformation, settingsDecrypter);
     }
 
     private MavenProject createMavenProject(Resource pom) {

@@ -114,9 +114,10 @@ class ProvenanceMarkerFactoryTest {
                     .runPerSubmodule(false)
                     .build();
 
-            ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory(parserSettings, new MavenProjectFactory());
+            ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory
+                    (parserSettings, new MavenProjectFactory(), new MavenMojoProjectParserFactory(parserSettings));
             Path baseDir = Path.of(".").toAbsolutePath().normalize();
-            Map<Resource, List<? extends Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, pomFiles);
+            Map<Resource, List<Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, pomFiles);
 
             String version = "1.0";
 
@@ -134,7 +135,7 @@ class ProvenanceMarkerFactoryTest {
         }
     }
 
-    private void verifyMarkers(Resource resource, Path baseDir, Map<Resource, List<? extends Marker>> resourceListMap, String projectName, String groupId, String artifactModule, String version) {
+    private void verifyMarkers(Resource resource, Path baseDir, Map<Resource, List<Marker>> resourceListMap, String projectName, String groupId, String artifactModule, String version) {
         assertThat(resourceListMap.get(resource)).hasSize(5);
 
         JavaVersion jv = findMarker(resourceListMap, resource, JavaVersion.class);
@@ -239,7 +240,7 @@ class ProvenanceMarkerFactoryTest {
         }
     }
 
-    private <T> T findMarker(Map<Resource, List<? extends Marker>> markedResources, Resource pom, Class<T> markerClass) {
+    private <T> T findMarker(Map<Resource, List<Marker>> markedResources, Resource pom, Class<T> markerClass) {
         return markedResources.get(pom).stream()
                 .filter(markerClass::isInstance)
                 .map(markerClass::cast)
