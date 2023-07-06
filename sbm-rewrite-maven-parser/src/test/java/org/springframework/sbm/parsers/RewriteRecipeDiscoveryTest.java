@@ -6,19 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
-import org.openrewrite.SourceFile;
-import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.core.io.Resource;
+import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.test.util.OpenRewriteDummyRecipeInstaller;
-import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Fabian Krüger

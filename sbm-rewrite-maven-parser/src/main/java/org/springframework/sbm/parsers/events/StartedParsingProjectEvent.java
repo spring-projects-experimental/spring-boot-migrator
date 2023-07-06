@@ -15,12 +15,8 @@
  */
 package org.springframework.sbm.parsers.events;
 
-import org.springframework.core.io.Resource;
-
-import java.util.List;
-
 /**
  * @author Fabian Krüger
  */
-public record StartedParsingProjectEvent(List<Resource> resources) {
+public class StartedParsingProjectEvent {
 }

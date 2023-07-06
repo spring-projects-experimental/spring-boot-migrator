@@ -29,7 +29,7 @@ import java.nio.file.Path;
  * @author Fabian Krüger
  */
 @Component
-public class MavenModelReader {
+class MavenModelReader {
     public Model readModel(Resource mavenPomFile) {
         try {
             return new MavenXpp3Reader().read(ResourceUtil.getInputStream(mavenPomFile));

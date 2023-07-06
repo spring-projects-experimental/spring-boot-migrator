@@ -18,43 +18,171 @@ package org.springframework.sbm.parsers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.model.Model;
+import org.apache.maven.plugin.logging.Log;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.Parser;
+import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
+import org.openrewrite.maven.MavenExecutionContextView;
+import org.openrewrite.maven.MavenMojoProjectParser;
+import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.cache.InMemoryMavenPomCache;
+import org.openrewrite.maven.cache.MavenPomCache;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
 
 /**
+ * Copies behaviour from rewrite-maven-plugin:5.2.2
+ *
  * @author Fabian Krüger
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BuildFileParser {
+class BuildFileParser {
 
     private final MavenModelReader mavenModelReader;
+    private final ParserSettings parserSettings;
 
     /**
      * See {@link org.openrewrite.maven.MavenMojoProjectParser#parseMaven(List, Map, ExecutionContext)}
      */
-    public Map<Resource, Xml.Document> parseBuildFiles(List<Resource> buildFileResources, Map<Resource, List<? extends Marker>> provenanceMarkers, ExecutionContext executionContext, boolean skipMavenParsing) {
+    public Map<Resource, Xml.Document> parseBuildFiles(Path baseDir, List<Resource> buildFileResources, ExecutionContext executionContext, boolean skipMavenParsing, Map<Resource, List<Marker>> provenanceMarkers) {
+        Assert.notNull(baseDir, "Base directory must be provided but was null.");
+        Assert.notEmpty(buildFileResources, "No build files provided.");
         if(skipMavenParsing) {
             return Map.of();
         }
 
-        Resource topLevelPom = buildFileResources.get(0);
+        List<Resource> pomFiles = new ArrayList<>();
+        pomFiles.addAll(buildFileResources);
 
-        Model topLevelModel = mavenModelReader.readModel(topLevelPom);
+        Resource topLevelPom = pomFiles.get(0);
+        Model topLevelModel = new MavenModelReader().readModel(topLevelPom);
 
-        // TODO: Does allPoms in MavenMojoProjectParser match the poms in buildFileResources!?
+        // 380 : 382
+        List<Resource> upstreamPoms = collectUpstreamPomFiles(pomFiles);
+        pomFiles.addAll(upstreamPoms);
 
+        // 383
+        MavenParser.Builder mavenParserBuilder = MavenParser.builder().mavenConfig(baseDir.resolve(".mvn/maven.config"));
 
+        // 385 : 387
+        initializeMavenSettings(executionContext);
+
+        // 389 : 393
+        if (parserSettings.isPomCacheEnabled()) {
+            //The default pom cache is enabled as a two-layer cache L1 == in-memory and L2 == RocksDb
+            //If the flag is set to false, only the default, in-memory cache is used.
+            MavenPomCache pomCache = getPomCache();
+            MavenExecutionContextView.view(executionContext).setPomCache(pomCache);
+        }
+
+        // 395 : 398
+        List<String> activeProfiles = readActiveProfiles(topLevelModel);
+        mavenParserBuilder.activeProfiles(activeProfiles.toArray(new String[]{}));
+
+        // 400 : 402
+        List<SourceFile> parsedPoms = parsePoms(baseDir, pomFiles, mavenParserBuilder, executionContext);
+
+        // 422 : 436
+        Map<Resource, Xml.Document> result = createResult(baseDir, pomFiles, parsedPoms);
+
+        // 438 : 444: add marker
+        for (Resource mavenProject : pomFiles) {
+            List<Marker> markers = provenanceMarkers.getOrDefault(mavenProject, emptyList());
+            Xml.Document document = result.get(mavenProject);
+            for (Marker marker : markers) {
+                result.put(mavenProject, document.withMarkers(document.getMarkers().addIfAbsent(marker)));
+            }
+        }
+
+        return result;
+    }
+
+    private Map<Resource, Xml.Document> createResult(Path basePath, List<Resource> pomFiles, List<SourceFile> parsedPoms) {
+        return pomFiles.stream()
+                .map(pom -> getResourceStringFunction(basePath, pom, parsedPoms))
+                .collect(Collectors.toMap(l -> l.getKey(), l -> l.getValue()));
+    }
+
+    private static Map.Entry<Resource, Xml.Document> getResourceStringFunction(Path basePath, Resource pom, List<SourceFile> parsedPoms) {
+        Xml.Document sourceFile = parsedPoms
+                .stream()
+                .filter(p -> basePath.resolve(p.getSourcePath()).normalize().toString().equals(ResourceUtil.getPath(pom).toString()))
+                .filter(Xml.Document.class::isInstance)
+                .map(Xml.Document.class::cast)
+                .findFirst()
+                .get();
+        return Map.entry(pom, sourceFile);
+    }
+
+    private List<SourceFile> parsePoms(Path baseDir, List<Resource> pomFiles, MavenParser.Builder mavenParserBuilder, ExecutionContext executionContext) {
+        Iterable<Parser.Input> pomFileInputs = pomFiles.stream()
+                .map(p -> new Parser.Input(ResourceUtil.getPath(p), () -> ResourceUtil.getInputStream(p)))
+                .toList();
+        return mavenParserBuilder.build().parseInputs(pomFileInputs, baseDir, executionContext).toList();
+    }
+
+    private List<String> readActiveProfiles(Model topLevelModel) {
+        return parserSettings.getActiveProfiles() != null ? parserSettings.getActiveProfiles() : List.of("default");
+    }
+
+    /**
+     * {@link MavenMojoProjectParser#getPomCache(String, Log)}
+     */
+    private static MavenPomCache getPomCache() {
+        // FIXME: Provide a way to initialize the MavenTypeCache from properties
+//        if (pomCache == null) {
+//            if (isJvm64Bit()) {
+//                try {
+//                    if (pomCacheDirectory == null) {
+//                        //Default directory in the RocksdbMavenPomCache is ".rewrite-cache"
+//                        pomCache = new CompositeMavenPomCache(
+//                                new InMemoryMavenPomCache(),
+//                                new RocksdbMavenPomCache(Paths.get(System.getProperty("user.home")))
+//                        );
+//                    } else {
+//                        pomCache = new CompositeMavenPomCache(
+//                                new InMemoryMavenPomCache(),
+//                                new RocksdbMavenPomCache(Paths.get(pomCacheDirectory))
+//                        );
+//                    }
+//                } catch (Exception e) {
+//                    logger.warn("Unable to initialize RocksdbMavenPomCache, falling back to InMemoryMavenPomCache");
+//                    logger.debug(e);
+//                }
+//            } else {
+//                logger.warn("RocksdbMavenPomCache is not supported on 32-bit JVM. falling back to InMemoryMavenPomCache");
+//            }
+//        }
+//        if (pomCache == null) {
+            MavenPomCache pomCache = new InMemoryMavenPomCache();
+//        }
+        return pomCache;
+    }
+
+    private void initializeMavenSettings(ExecutionContext executionContext) {
+
+    }
+
+    private List<Resource> collectUpstreamPomFiles(List<Resource> pomFiles) {
+//        pomFiles.stream()
+//                .map(mavenModelReader::readModel)
+//                .map(Model::)
+//        return pomFiles;
+        // FIXME: implement
         return null;
     }
 

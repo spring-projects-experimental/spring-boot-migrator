@@ -26,14 +26,8 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.AbstractRewriteMojo;
 import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.style.NamedStyles;
-import org.openrewrite.tree.ParsingEventListener;
-import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.events.FinishedParsingProjectEvent;
-import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
-import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
@@ -56,9 +50,6 @@ public class RewriteProjectParser {
     private final SourceFileParser sourceFileParser;
     private final StyleDetector styleDetector;
     private final ParserSettings parserSettings;
-    private final MavenBuildFileGraph buildFileGraph;
-    private final ParsingEventListener parsingEventListener;
-    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
@@ -81,46 +72,28 @@ public class RewriteProjectParser {
      * @see {@link MavenMojoProjectParser#listSourceFiles(MavenProject, List, ExecutionContext)}
      */
     public RewriteProjectParsingResult parse(Path baseDir, List<Resource> resources, ExecutionContext executionContext) {
-        if(!baseDir.isAbsolute()) {
-            baseDir = baseDir.toAbsolutePath().normalize();
-        }
-
-        eventPublisher.publishEvent(new StartedParsingProjectEvent(resources));
-
-        ParsingExecutionContextView.view(executionContext).setParsingListener(parsingEventListener);
-
         // TODO: "runPerSubmodule"
         // TODO: See ConfigurableRewriteMojo#getPlainTextMasks()
         // TODO: where to retrieve styles from? --> see AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
         List<NamedStyles> styles = List.of();
 
         // retrieve all pom files from all modules in the active reactor build
-        // TODO: Move this to a build file sort and filter component, for now it could use Maven's DefaultGraphBuilder
-        //       this requires File to be used and thus binds the component to file access.
-        List<Resource> sortedBuildFileResources = buildFileGraph.build(baseDir, resources);
-//        List<Resource> sortedBuildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
+        // TODO: This requires adhering to the active profiles to e.g. exclude modules
+
+
+        List<Resource> buildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
 
         // generate provenance
-        Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, sortedBuildFileResources);
+        Map<Resource, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, buildFileResources);
 
         // 127: parse build files
-        Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, sortedBuildFileResources, executionContext, parserSettings.isSkipMavenParsing(), provenanceMarkers);
-
-        List<SourceFile> parsedAndSortedBuildFileDocuments = sortedBuildFileResources.stream()
-                .map(r -> resourceToDocumentMap.get(ResourceUtil.getPath(r)))
-                .map(SourceFile.class::cast)
-                .toList();
+        Map<Resource, Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(baseDir, buildFileResources, executionContext, parserSettings.isSkipMavenParsing(), provenanceMarkers);
 
         // 128 : 131
-        log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
-        Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(baseDir, resourceToDocumentMap, sortedBuildFileResources, resources, provenanceMarkers, styles, executionContext);
-//        List<SourceFile> sourceFilesWithoutPoms = sourceFilesStream.filter(sf -> resourceToDocumentMap.keySet().contains(baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize())).toList();
-        List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();
-        resultingList.addAll(parsedAndSortedBuildFileDocuments);
-        resultingList.addAll(sourceFilesStream.toList());
-        List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
+        log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + parsedBuildFiles.size(), parsedBuildFiles.size()));
+        Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(baseDir, parsedBuildFiles, resources, provenanceMarkers, styles, executionContext);
 
-        eventPublisher.publishEvent(new FinishedParsingProjectEvent(sourceFiles));
+        List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(sourceFilesStream);
 
         return new RewriteProjectParsingResult(sourceFiles, executionContext);
     }

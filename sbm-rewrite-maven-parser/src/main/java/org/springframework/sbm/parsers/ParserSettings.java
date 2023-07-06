@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -43,4 +44,5 @@ public class ParserSettings {
     private int sizeThresholdMb;
     private boolean runPerSubmodule;
     private boolean failOnInvalidActiveRecipes;
+    private List<String> activeProfiles;
 }
