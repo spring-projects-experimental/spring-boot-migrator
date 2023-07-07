@@ -61,7 +61,7 @@
         <hibernate.version>5.4.27.Final</hibernate.version>
         <hibernate-validator.version>6.2.0.Final</hibernate-validator.version>
         <hsqldb.version>2.5.1</hsqldb.version>
-        <h2database.version>2.1.210</h2database.version>
+        <h2database.version>2.2.220</h2database.version>
 
         <!-- Logging -->
         <slf4j.version>1.7.30</slf4j.version>
