@@ -35,9 +35,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -58,7 +56,7 @@ class BuildFileParser {
     /**
      * See {@link org.openrewrite.maven.MavenMojoProjectParser#parseMaven(List, Map, ExecutionContext)}
      */
-    public Map<Resource, Xml.Document> parseBuildFiles(Path baseDir, List<Resource> buildFileResources, ExecutionContext executionContext, boolean skipMavenParsing, Map<Resource, List<Marker>> provenanceMarkers) {
+    public Map<Path, Xml.Document>  parseBuildFiles(Path baseDir, List<Resource> buildFileResources, ExecutionContext executionContext, boolean skipMavenParsing, Map<Path, List<Marker>> provenanceMarkers) {
         Assert.notNull(baseDir, "Base directory must be provided but was null.");
         Assert.notEmpty(buildFileResources, "No build files provided.");
         if(skipMavenParsing) {
@@ -72,8 +70,9 @@ class BuildFileParser {
         Model topLevelModel = new MavenModelReader().readModel(topLevelPom);
 
         // 380 : 382
-        List<Resource> upstreamPoms = collectUpstreamPomFiles(pomFiles);
-        pomFiles.addAll(upstreamPoms);
+        // already
+//        List<Resource> upstreamPoms = collectUpstreamPomFiles(pomFiles);
+//        pomFiles.addAll(upstreamPoms);
 
         // 383
         MavenParser.Builder mavenParserBuilder = MavenParser.builder().mavenConfig(baseDir.resolve(".mvn/maven.config"));
@@ -96,28 +95,62 @@ class BuildFileParser {
         // 400 : 402
         List<SourceFile> parsedPoms = parsePoms(baseDir, pomFiles, mavenParserBuilder, executionContext);
 
+        parsedPoms = parsedPoms.stream()
+                .map(pp -> this.markPomFile(pp, provenanceMarkers.getOrDefault(baseDir.resolve(pp.getSourcePath()), emptyList())))
+                .toList();
+
         // 422 : 436
-        Map<Resource, Xml.Document> result = createResult(baseDir, pomFiles, parsedPoms);
+        Map<Path, Xml.Document> result = createResult(baseDir, pomFiles, parsedPoms);
 
         // 438 : 444: add marker
-        for (Resource mavenProject : pomFiles) {
-            List<Marker> markers = provenanceMarkers.getOrDefault(mavenProject, emptyList());
-            Xml.Document document = result.get(mavenProject);
-            for (Marker marker : markers) {
-                result.put(mavenProject, document.withMarkers(document.getMarkers().addIfAbsent(marker)));
-            }
-        }
+//        for (Resource mavenProject : pomFiles) {
+//            List<Marker> markers = provenanceMarkers.getOrDefault(mavenProject, emptyList());
+//            Xml.Document document = result.get(mavenProject);
+//            for (Marker marker : markers) {
+//                result.put(mavenProject, document.withMarkers(document.getMarkers().addIfAbsent(marker)));
+//            }
+//        }
 
         return result;
     }
 
-    private Map<Resource, Xml.Document> createResult(Path basePath, List<Resource> pomFiles, List<SourceFile> parsedPoms) {
-        return pomFiles.stream()
-                .map(pom -> getResourceStringFunction(basePath, pom, parsedPoms))
-                .collect(Collectors.toMap(l -> l.getKey(), l -> l.getValue()));
+    private SourceFile markPomFile(SourceFile pp, List<Marker> markers) {
+        for (Marker marker : markers) {
+            pp = pp.withMarkers(pp.getMarkers().addIfAbsent(marker));
+        }
+        return pp;
     }
 
-    private static Map.Entry<Resource, Xml.Document> getResourceStringFunction(Path basePath, Resource pom, List<SourceFile> parsedPoms) {
+    private Map<Path, Xml.Document> createResult(Path basePath, List<Resource> pomFiles, List<SourceFile> parsedPoms) {
+        return parsedPoms.stream()
+                .map(pom -> mapResourceToDocument(basePath, pom, pomFiles))
+                .collect(Collectors.toMap(e-> ResourceUtil.getPath(e.getKey()), e -> e.getValue()));
+
+
+
+//        return pomFiles.stream()
+//                .map(pom -> mapResourceToDocument(basePath, pom, parsedPoms))
+//                .sorted(this::sortMap)
+//                .collect(Collectors.toMap(l -> l.getKey(), l -> l.getValue()));
+    }
+
+    private int sortMap(Map.Entry<Resource, Xml.Document> e1, Map.Entry<Resource, Xml.Document> e2) {
+        Path path1 = ResourceUtil.getPath(e1.getKey());
+        Path path2 = ResourceUtil.getPath(e2.getKey());
+        return path1.compareTo(path2);
+    }
+
+
+    private Map.Entry<Resource, Xml.Document> mapResourceToDocument(Path basePath, SourceFile pom, List<Resource> parsedPoms) {
+        Xml.Document doc = (Xml.Document) pom;
+        Resource resource = parsedPoms.stream()
+                .filter(p -> ResourceUtil.getPath(p).toString().equals(basePath.resolve(pom.getSourcePath()).toAbsolutePath().normalize().toString()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Could not find matching path for Xml.Document '%s'".formatted(pom.getSourcePath().toAbsolutePath().normalize().toString())));
+        return Map.entry(resource, doc);
+    }
+
+    private static Map.Entry<Resource, Xml.Document> mapResourceToDocument(Path basePath, Resource pom, List<SourceFile> parsedPoms) {
         Xml.Document sourceFile = parsedPoms
                 .stream()
                 .filter(p -> basePath.resolve(p.getSourcePath()).normalize().toString().equals(ResourceUtil.getPath(pom).toString()))
@@ -212,4 +245,5 @@ class BuildFileParser {
         }
         return !underTest;
     }
+
 }

@@ -14,7 +14,21 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.1.1</spring-boot.version>
         <resolverVersion>1.9.7</resolverVersion>
+        <openrewrite.version>8.1.6</openrewrite.version>
+        <rewrite-maven-plugin.version>5.2.6</rewrite-maven-plugin.version>
     </properties>
+    <repositories>
+        <repository>
+            <id>jcenter</id>
+            <name>jcenter</name>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
+        <repository>
+            <id>mavencentral</id>
+            <name>mavencentral</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+    </repositories>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -33,39 +47,43 @@
             <version>0.14.1-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-maven</artifactId>
-            <version>8.1.2</version>
+            <version>${openrewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-java</artifactId>
-            <version>8.1.2</version>
+            <version>${openrewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-json</artifactId>
-            <version>8.1.2</version>
+            <version>${openrewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-yaml</artifactId>
-            <version>8.1.2</version>
+            <version>${openrewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-hcl</artifactId>
-            <version>8.1.2</version>
+            <version>${openrewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-protobuf</artifactId>
-            <version>8.1.2</version>
+            <version>${openrewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-xml</artifactId>
-            <version>8.1.2</version>
+            <version>${openrewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -74,11 +92,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.openrewrite.maven</groupId>
             <artifactId>rewrite-maven-plugin</artifactId>
-            <version>5.2.2</version>
+            <version>${rewrite-maven-plugin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -86,11 +105,11 @@
             <scope>provided</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.codehaus.plexus</groupId>-->
-<!--            <artifactId>plexus-classworlds</artifactId>-->
-<!--            <version>2.6.0</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.codehaus.plexus</groupId>-->
+        <!--            <artifactId>plexus-classworlds</artifactId>-->
+        <!--            <version>2.6.0</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
@@ -122,49 +141,49 @@
             <artifactId>plexus-cipher</artifactId>
             <version>1.8</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.eclipse.sisu</groupId>-->
-<!--            <artifactId>org.eclipse.sisu.plexus</artifactId>-->
-<!--            <version>0.3.3</version>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.sonatype.sisu</groupId>-->
-<!--                    <artifactId>sisu-guice</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.eclipse.sisu</groupId>-->
+        <!--            <artifactId>org.eclipse.sisu.plexus</artifactId>-->
+        <!--            <version>0.3.3</version>-->
+        <!--            <exclusions>-->
+        <!--                <exclusion>-->
+        <!--                    <groupId>org.sonatype.sisu</groupId>-->
+        <!--                    <artifactId>sisu-guice</artifactId>-->
+        <!--                </exclusion>-->
+        <!--            </exclusions>-->
+        <!--        </dependency>-->
 
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven.resolver</groupId>-->
-<!--            <artifactId>maven-resolver-transport-wagon</artifactId>-->
-<!--            <version>${resolverVersion}</version>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.codehaus.plexus</groupId>-->
-<!--                    <artifactId>plexus-container-default</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven.resolver</groupId>-->
-<!--            <artifactId>maven-resolver-api</artifactId>-->
-<!--            <version>${resolverVersion}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven.resolver</groupId>-->
-<!--            <artifactId>maven-resolver-impl</artifactId>-->
-<!--            <version>${resolverVersion}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven.resolver</groupId>-->
-<!--            <artifactId>maven-resolver-spi</artifactId>-->
-<!--            <version>${resolverVersion}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.maven.resolver</groupId>-->
-<!--            <artifactId>maven-resolver-util</artifactId>-->
-<!--            <version>${resolverVersion}</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.maven.resolver</groupId>-->
+        <!--            <artifactId>maven-resolver-transport-wagon</artifactId>-->
+        <!--            <version>${resolverVersion}</version>-->
+        <!--            <exclusions>-->
+        <!--                <exclusion>-->
+        <!--                    <groupId>org.codehaus.plexus</groupId>-->
+        <!--                    <artifactId>plexus-container-default</artifactId>-->
+        <!--                </exclusion>-->
+        <!--            </exclusions>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.maven.resolver</groupId>-->
+        <!--            <artifactId>maven-resolver-api</artifactId>-->
+        <!--            <version>${resolverVersion}</version>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.maven.resolver</groupId>-->
+        <!--            <artifactId>maven-resolver-impl</artifactId>-->
+        <!--            <version>${resolverVersion}</version>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.maven.resolver</groupId>-->
+        <!--            <artifactId>maven-resolver-spi</artifactId>-->
+        <!--            <version>${resolverVersion}</version>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.maven.resolver</groupId>-->
+        <!--            <artifactId>maven-resolver-util</artifactId>-->
+        <!--            <version>${resolverVersion}</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-connector-basic</artifactId>
@@ -190,11 +209,11 @@
             <artifactId>jaxb-api</artifactId>
             <version>2.3.1</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.codehaus.plexus</groupId>-->
-<!--            <artifactId>plexus-utils</artifactId>-->
-<!--            <version>3.5.0</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.codehaus.plexus</groupId>-->
+        <!--            <artifactId>plexus-utils</artifactId>-->
+        <!--            <version>3.5.0</version>-->
+        <!--        </dependency>-->
 
     </dependencies>
 
@@ -212,6 +231,26 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M7</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>5.4.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

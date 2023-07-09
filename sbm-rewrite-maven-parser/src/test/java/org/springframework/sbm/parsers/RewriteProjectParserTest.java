@@ -87,12 +87,15 @@ class RewriteProjectParserTest {
         ParserSettings parserSettings = new ParserSettings();
         MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
+        MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
         RewriteProjectParser projectParser = new RewriteProjectParser(
-                new ProvenanceMarkerFactory(parserSettings, new MavenProjectFactory(), mavenMojoProjectParserFactory),
+                new ProvenanceMarkerFactory(parserSettings,
+                        new MavenProjectFactory(), mavenMojoProjectParserFactory),
                 new BuildFileParser(mavenModelReader, parserSettings),
-                new SourceFileParser(mavenModelReader, parserSettings, mavenMojoProjectParserFactory),
+                new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
-                parserSettings
+                parserSettings,
+                new MavenBuildFileGraph(new MavenPlexusContainerFactory())
         );
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         List<String> parsedFiles = new ArrayList<>();

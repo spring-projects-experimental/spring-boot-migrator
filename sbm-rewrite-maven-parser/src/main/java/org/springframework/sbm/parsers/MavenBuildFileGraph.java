@@ -26,7 +26,6 @@ import org.apache.maven.model.Profile;
 import org.apache.maven.model.building.Result;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.UserLocalArtifactRepository;
-import org.apache.maven.shared.invoker.*;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.springframework.core.io.Resource;
@@ -40,18 +39,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Uses Mavens {@link GraphBuilder} to build the graph of Maven projects from the list of {@link Resource}s.
- *
- * Internally a Maven application context is created and an instance of {@link GraphBuilder} is retrieved from the container.
- * The {@link GraphBuilder} is then  class requires the provided resources to exist on filesystem.
- *
- * TODO: Check if GraphBuilder uses to active profiles
- *
  * @author Fabian Krüger
  */
 @Component
 @RequiredArgsConstructor
-class MavenBuildFileGraph implements BuildFileGraph {
+public class MavenBuildFileGraph implements BuildFileGraph {
 
     public static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toString();
     private final MavenPlexusContainerFactory containerFactory;
@@ -138,7 +130,7 @@ class MavenBuildFileGraph implements BuildFileGraph {
         return resources.stream()
                 .filter(r -> ResourceUtil.getPath(r).equals(m))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Could not find a resource in the list of resources that matches the path of pom '%s'".formatted(m.toString())));
+                .get();
     }
 
 }
