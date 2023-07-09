@@ -1,0 +1,85 @@
+# OpenRewriteProjectParser
+
+The `OpenRewriteProjectParser` aims to provide the exact same parsing capabilities as the parsing in `rewrite-maven-plugin` and `rewrite-gradle-plugin`.
+
+This allows parsing a given project to it's OpenRewrite AST representation and then provide the AST to OR recipes and visitors to run OpenRewrite recipes without requiring a build plugin.
+
+## Running OpenRewrite recipes
+
+### Scan the codebase
+
+The `RewriteProjectParser` uses Spring's `Resource` abstraction to abstract from file system.
+This allows testing without file access among other things.
+The `ProjectScanner` allows to scan all resources under a  given `Path`.
+
+[source,java]
+....
+@Component
+
+public class ProjectScannerClient {
+    public List<Resource> scan(Path baseDir) {
+
+    }
+}
+@Autowired
+private ProjectScanner scanner;
+
+List<Resource> resources = scanner.scan(projectRoot);
+
+....
+
+### Parse the scanned resources
+
+### Discover recipes
+
+### Run recipe
+
+
+
+
+[source,java]
+....
+import org.openrewrite.InMemoryExecutionContext;import org.openrewrite.LargeSourceSet;
+import org.openrewrite.Recipe;
+import org.openrewrite.internal.InMemoryLargeSourceSet
+import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
+import java.util.List;import java.util.Optional;
+
+@Component
+@RequiredArgsConstructor
+public class MyTool {
+
+    // The parser is a Spring bean
+    private final RewriteProjectParser parser;
+    // RecipeDiscovery is a Spring bean
+    private final RewriteRecipeDiscovery recipeDiscovery;
+    // ProjectScanner is a Spring bean
+    private final ProjectScanner projectScanner;
+
+    public RecipeResult runRecipe(Path baseDir, String recipeName) {
+        ExecutionContext ctx = new InMemoryExecutionContext();
+        List<Resource> resources = projectScanner.scan(baseDir);
+        List<SourceFile> ast = parser.parse(baseDir, resources, ctx);
+        Xml.Document rootPom = findRootPom(ast);
+        recipeDiscovery.discoverFilteredRecipe(rootPom, recipeName)
+            .ifPresent(recipe -> recipe.run(new InMemoryLargeSourceSet(ast), ctx));
+    }
+}
+....
+
+[plantuml,"class-design","svg"]
+....
+class RewriteProjectParser {
+    parse(..)
+}
+
+class MavenProjectParser {
+
+}
+
+MavenProjectParser ..> BuildFileParser
+BuildFileParser ..> RewriteMavenMojoProjectParser
+
+class GradleProjectParser {
+}
+....

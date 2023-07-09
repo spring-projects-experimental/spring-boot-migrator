@@ -34,7 +34,8 @@ public class StyleDetector {
     public List<SourceFile> sourcesWithAutoDetectedStyles(Stream<SourceFile> sourceFilesStream) {
         OpenedRewriteMojo m = new OpenedRewriteMojo();
         Method method = ReflectionUtils.findMethod(OpenedRewriteMojo.class, "sourcesWithAutoDetectedStyles", Stream.class);
-        return (List<SourceFile>) ReflectionUtils.invokeMethod(method, m);
+        ReflectionUtils.makeAccessible(method);
+        return (List<SourceFile>) ReflectionUtils.invokeMethod(method, m, sourceFilesStream);
     }
 
     static class OpenedRewriteMojo extends AbstractRewriteMojo {

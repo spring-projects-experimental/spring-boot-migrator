@@ -132,10 +132,10 @@ class BuildFileParserTest {
                     new DummyResource("pom.xml", pom1),
                     new DummyResource("module1/pom.xml", pom2)
             );
-            Map<Resource, List<Marker>> provenanceMarkers = new HashMap<>();
+            Map<Path, List<Marker>> provenanceMarkers = new HashMap<>();
             ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
             boolean skipMavenParsing = false;
-            Map<Resource, Xml.Document> parsedBuildFiles = sut.parseBuildFiles(
+            Map<Path, Xml.Document> parsedBuildFiles = sut.parseBuildFiles(
                     Path.of("."),
                     filteredAndSortedBuildFiles,
                     executionContext,

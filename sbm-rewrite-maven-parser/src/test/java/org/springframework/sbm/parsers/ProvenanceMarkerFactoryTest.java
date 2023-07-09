@@ -34,6 +34,7 @@ import org.openrewrite.shaded.jgit.lib.Repository;
 import org.openrewrite.shaded.jgit.storage.file.FileRepositoryBuilder;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.test.util.DummyResource;
+import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -55,7 +56,7 @@ class ProvenanceMarkerFactoryTest {
 
         @Test
         @DisplayName("Should Create Provenance Markers")
-        void shouldCreateProvenanceMarkers() throws IOException {
+        void shouldCreateProvenanceMarkers()  {
 
             @Language("xml")
             String pom1Content =
@@ -132,7 +133,7 @@ class ProvenanceMarkerFactoryTest {
             ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory
                     (parserSettings, new MavenProjectFactory(), new MavenMojoProjectParserFactory(parserSettings));
             Path baseDir = Path.of(".").toAbsolutePath().normalize();
-            Map<Resource, List<Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, pomFiles);
+            Map<Path, List<Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, pomFiles);
 
             String version = "1.0";
 
@@ -150,8 +151,8 @@ class ProvenanceMarkerFactoryTest {
         }
     }
 
-    private void verifyMarkers(Resource resource, Path baseDir, Map<Resource, List<Marker>> resourceListMap, String projectName, String groupId, String artifactModule, String version) {
-        assertThat(resourceListMap.get(resource)).hasSize(5);
+    private void verifyMarkers(Resource resource, Path baseDir, Map<Path, List<Marker>> resourceListMap, String projectName, String groupId, String artifactModule, String version) {
+        assertThat(resourceListMap.get(ResourceUtil.getPath(resource))).hasSize(5);
 
         JavaVersion jv = findMarker(resourceListMap, resource, JavaVersion.class);
         assertThat(countGetters(jv)).isEqualTo(7);
@@ -255,8 +256,8 @@ class ProvenanceMarkerFactoryTest {
         }
     }
 
-    private <T> T findMarker(Map<Resource, List<Marker>> markedResources, Resource pom, Class<T> markerClass) {
-        return markedResources.get(pom).stream()
+    private <T> T findMarker(Map<Path, List<Marker>> markedResources, Resource pom, Class<T> markerClass) {
+        return markedResources.get(ResourceUtil.getPath(pom)).stream()
                 .filter(markerClass::isInstance)
                 .map(markerClass::cast)
                 .findFirst()

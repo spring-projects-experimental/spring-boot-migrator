@@ -28,6 +28,7 @@ import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
@@ -50,6 +51,7 @@ public class RewriteProjectParser {
     private final SourceFileParser sourceFileParser;
     private final StyleDetector styleDetector;
     private final ParserSettings parserSettings;
+    private final MavenBuildFileGraph buildFileGraph;
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
@@ -78,22 +80,32 @@ public class RewriteProjectParser {
         List<NamedStyles> styles = List.of();
 
         // retrieve all pom files from all modules in the active reactor build
+        // TODO: select only relevant pom files
         // TODO: This requires adhering to the active profiles to e.g. exclude modules
-
-
-        List<Resource> buildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
+        // TODO: Move this to a build file sort and filter component, for now it could use Maven's DefaultGraphBuilder
+        //       this requires File to be used and thus binds the component to file access.
+        List<Resource> sortedBuildFileResources = buildFileGraph.build(baseDir, resources);
+//        List<Resource> sortedBuildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
 
         // generate provenance
-        Map<Resource, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, buildFileResources);
+        Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, sortedBuildFileResources);
 
         // 127: parse build files
-        Map<Resource, Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(baseDir, buildFileResources, executionContext, parserSettings.isSkipMavenParsing(), provenanceMarkers);
+        Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, sortedBuildFileResources, executionContext, parserSettings.isSkipMavenParsing(), provenanceMarkers);
+
+        List<SourceFile> parsedAndSortedBuildFileDocuments = sortedBuildFileResources.stream()
+                .map(r -> resourceToDocumentMap.get(ResourceUtil.getPath(r)))
+                .map(SourceFile.class::cast)
+                .toList();
 
         // 128 : 131
-        log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + parsedBuildFiles.size(), parsedBuildFiles.size()));
-        Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(baseDir, parsedBuildFiles, resources, provenanceMarkers, styles, executionContext);
-
-        List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(sourceFilesStream);
+        log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
+        Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(baseDir, resourceToDocumentMap, sortedBuildFileResources, resources, provenanceMarkers, styles, executionContext);
+        List<SourceFile> sourceFilesWithoutPoms = sourceFilesStream.filter(sf -> resourceToDocumentMap.keySet().contains(baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize())).toList();
+        List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();
+        resultingList.addAll(parsedAndSortedBuildFileDocuments);
+        resultingList.addAll(sourceFilesWithoutPoms);
+        List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
 
         return new RewriteProjectParsingResult(sourceFiles, executionContext);
     }

@@ -86,7 +86,7 @@ class RewriteRecipeDiscoveryTest {
 //        OpenRewriteProjectParser openRewriteProjectParser = new OpenRewriteProjectParser(new ProvenanceMarkerFactory(new ParserSettings(), new MavenProjectFactory()), new BuildFileParser(new MavenModelReader()), new SourceFileParser(), new StyleDetector(), new ParserSettings());
 //        Path baseDir = Path.of(".");
 //        RewriteProjectParsingResult parsingResult = openRewriteProjectParser.parse(baseDir, List.of(rootPom), new InMemoryExecutionContext(t -> t.printStackTrace()));
-        RewriteMavenProjectParser rewriteMavenProjectParser = new RewriteMavenProjectParser();
+        RewriteMavenProjectParser rewriteMavenProjectParser = new RewriteMavenProjectParser(new MavenPlexusContainerFactory());
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         RewriteProjectParsingResult parsingResult = rewriteMavenProjectParser.parse(
                 Path.of("/Users/fkrueger/projects/spring-boot-migrator/sbm-rewrite-maven-parser/testcode/openrewrite-dummy-recipe"),

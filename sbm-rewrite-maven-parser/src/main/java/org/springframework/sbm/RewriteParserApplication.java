@@ -15,8 +15,11 @@
  */
 package org.springframework.sbm;
 
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -60,6 +63,9 @@ public class RewriteParserApplication {
 
         recipes.stream()
                         .forEach(r -> r.getRecipeList());
+
+        InMemoryLargeSourceSet inMemoryLargeSourceSet = new InMemoryLargeSourceSet(parsingResult.sourceFiles());
+        RecipeRun recipeRun = recipes.get(0).run(inMemoryLargeSourceSet, parsingResult.executionContext());
 
         parsingResult.sourceFiles()
                 .stream()
