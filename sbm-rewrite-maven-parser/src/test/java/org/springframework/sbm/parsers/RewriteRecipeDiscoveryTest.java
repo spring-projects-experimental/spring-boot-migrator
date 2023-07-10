@@ -15,21 +15,16 @@
  */
 package org.springframework.sbm.parsers;
 
-import io.github.classgraph.ClassGraph;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.config.ClasspathScanningLoader;
 import org.openrewrite.config.DeclarativeRecipe;
 import org.openrewrite.config.Environment;
-import org.openrewrite.config.YamlResourceLoader;
-import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
-import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.test.util.OpenRewriteDummyRecipeInstaller;
 
 import java.nio.file.Path;
@@ -64,35 +59,35 @@ class RewriteRecipeDiscoveryTest {
     @Test
     @DisplayName("Should Discover Dummy Recipes")
     void shouldDiscoverDummyRecipes() {
-        ParserSettings parserSettings = ParserSettings.builder()
-                .runPerSubmodule(false)
-                .exclusions(Set.of("testcode"))
-                .build();
-        MavenProjectFactory mavenProjectFactory = new MavenProjectFactory();
-        DummyResource rootPom = new DummyResource("pom.xml",
-                """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>org.springframework.sbm</groupId>
-                    <artifactId>sbm-openrewrite-parser</artifactId>
-                    <version>1.0-SNAPSHOT</version>
-                    <properties>
-                        <maven.compiler.source>17</maven.compiler.source>
-                        <maven.compiler.target>17</maven.compiler.target>
-                        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-                    </properties>
-                </project>
-                """);
+//        ParserSettings parserSettings = ParserSettings.builder()
+//                .runPerSubmodule(false)
+//                .exclusions(Set.of("testcode"))
+//                .build();
+//        MavenProjectFactory mavenProjectFactory = new MavenProjectFactory();
+//        DummyResource rootPom = new DummyResource("pom.xml",
+//                """
+//                <?xml version="1.0" encoding="UTF-8"?>
+//                <project xmlns="http://maven.apache.org/POM/4.0.0"
+//                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+//                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+//                    <modelVersion>4.0.0</modelVersion>
+//                    <groupId>org.springframework.sbm</groupId>
+//                    <artifactId>sbm-openrewrite-parser</artifactId>
+//                    <version>1.0-SNAPSHOT</version>
+//                    <properties>
+//                        <maven.compiler.source>17</maven.compiler.source>
+//                        <maven.compiler.target>17</maven.compiler.target>
+//                        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+//                    </properties>
+//                </project>
+//                """);
+//
+//
+//        OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
+//        recipeInstaller.installRecipe();
 
 
-        OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
-        recipeInstaller.installRecipe();
-
-
-        RewriteRecipeDiscovery recipeDiscovery = new RewriteRecipeDiscovery(parserSettings, mavenProjectFactory);
+        RewriteRecipeDiscovery recipeDiscovery = new RewriteRecipeDiscovery();
 //        OpenRewriteProjectParser openRewriteProjectParser = new OpenRewriteProjectParser(new ProvenanceMarkerFactory(new ParserSettings(), new MavenProjectFactory()), new BuildFileParser(new MavenModelReader()), new SourceFileParser(), new StyleDetector(), new ParserSettings());
 //        Path baseDir = Path.of(".");
 //        RewriteProjectParsingResult parsingResult = openRewriteProjectParser.parse(baseDir, List.of(rootPom), new InMemoryExecutionContext(t -> t.printStackTrace()));
@@ -108,14 +103,27 @@ class RewriteRecipeDiscoveryTest {
 //                -1,
 //                false,
 //                executionContext);
-        List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes(List.of("Dummy Recipe"), new Properties());
+
+        String[] acceptPackages = {"org.springframework.sbm"};
+        Path jarPath = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springfdramework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe.jar");
+        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(new ClasspathScanningLoader(new Properties(), acceptPackages)), getClass().getClassLoader());
+        List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes(List.of("Dummy Recipe"), new Properties(), acceptPackages, classpathScanningLoader);
     }
 
     @Test
     @DisplayName("Load Recipe From Classpath")
-    void loadRecipeFromClasspath() {
-        String[] acceptPackages = {}; // "com.example"
-        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
+    @Disabled("Still fiddling")
+    void loadRecipeFromJar() {
+        OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
+        recipeInstaller.installRecipe();
+
+        String[] acceptPackages = {};
+
+        Path jarPath = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
+        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(new ClasspathScanningLoader(new Properties(), acceptPackages)), getClass().getClassLoader());
+
+//        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), new String[]{});
+
         Environment environment = Environment.builder()
                 .load(classpathScanningLoader)
                 .build();

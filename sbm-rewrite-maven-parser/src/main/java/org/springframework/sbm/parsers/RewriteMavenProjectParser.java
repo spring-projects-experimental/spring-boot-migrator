@@ -113,16 +113,6 @@ public class RewriteMavenProjectParser {
                     plexusContainer,
                     session);
             List<NamedStyles> styles = List.of();
-            try {
-                GraphBuilder graphBuilder = plexusContainer.lookup(GraphBuilder.class);
-                ProjectBuildingRequest request = session.getProjectBuildingRequest();
-                Result<? extends ProjectDependencyGraph> build = graphBuilder.build(session);
-                // ordered projects, this is how it could be done when File is acceptable
-                // the alternative would be to build the graph programmatically ourselves
-                List<MavenProject> allProjects = build.get().getAllProjects();
-            } catch (ComponentLookupException e) {
-                throw new RuntimeException(e);
-            }
             List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles, executionContext);
             parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
         });

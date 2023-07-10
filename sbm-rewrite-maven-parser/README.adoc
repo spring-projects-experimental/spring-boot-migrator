@@ -1,4 +1,53 @@
-# OpenRewriteProjectParser
+# sbm-openrewrite-launcher
+these components
+
+The `sbm-openrewrite-launcher` module provides these components
+
+- `ProjectScanner` - to scan a project to a list of `Resource`s
+- `RewriteProjectParser` - to parse the list of `Resource`s that belong to the build to OpenRewrite's AST representation
+- `RecipeDiscovery` - to provide access to recipes found at possible locations (Jar, classpath, ...)
+
+## Parse a project
+
+Use ProjectScanner to scan a given baseDir
+[source,java]
+....
+Path baseDir = Path.of("...").toAbsolutePath.normalize();
+List<Resource> resources = projectScanner.scan(baseDir);
+....
+
+Create ExecutionContext, it will be populated with messages during the parsing.
+These messages are important for other recipes
+[source,java]
+....
+ExecutionContext ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
+....
+
+The RewriteParser parses a given baseDir to ORs AST
+[source,java]
+....
+RewriteProjectParser parser = new RewriteProjectParser();
+List<SourceFile> ast = parser.parse(baseDir, resources, ctx);
+....
+
+## Discover recipes
+[source,java]
+....
+RecipeDiscovery discovery = new RewriteRecipeDiscovery();
+List<String> activeRecipes = ...
+List<Recipe> recipes = discovery.discoverFilteredRecipes(activeRecipes, properties);
+....
+
+## Run recipes
+[source,java]
+....
+RecipeRun result = recipes.get(0).run(ast, ctx);
+....
+
+
+## Handle Recipe Result
+
+
 
 The `OpenRewriteProjectParser` aims to provide the exact same parsing capabilities as the parsing in `rewrite-maven-plugin` and `rewrite-gradle-plugin`.
 

@@ -48,6 +48,11 @@ public class RewriteRecipeDiscovery {
     private final ParserSettings parserSettings;
     private final MavenProjectFactory mavenProjectFactory;
 
+    public RewriteRecipeDiscovery() {
+        parserSettings = new ParserSettings();
+        mavenProjectFactory = new MavenProjectFactory();
+    }
+
 
     public Optional<Recipe> discoverFilteredRecipe(Xml.Document rootPom, String activeRecipe) {
         List<Recipe> recipes = discoverFilteredRecipes(rootPom, List.of(activeRecipe));

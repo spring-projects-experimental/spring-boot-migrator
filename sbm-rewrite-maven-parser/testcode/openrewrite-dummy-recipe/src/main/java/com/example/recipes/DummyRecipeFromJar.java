@@ -2,7 +2,7 @@ package com.example.recipes;
 
 import org.openrewrite.Recipe;
 
-public class DummyRecipe extends Recipe {
+public class DummyRecipeFromJar extends Recipe {
 
     @Override
     public java.lang.String getDisplayName() {
