@@ -6,11 +6,11 @@ public class DummyRecipe extends Recipe {
 
     @Override
     public java.lang.String getDisplayName() {
-        return "Dummy Recipe";
+        return "Packaged Dummy Recipe from Jar";
     }
 
     @Override
     public java.lang.String getDescription() {
-        return "Some dummy recipe for tests";
+        return "Some Packaged Dummy Recipe from Jar";
     }
 }
