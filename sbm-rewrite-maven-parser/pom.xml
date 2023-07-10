@@ -141,49 +141,6 @@
             <artifactId>plexus-cipher</artifactId>
             <version>1.8</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.eclipse.sisu</groupId>-->
-        <!--            <artifactId>org.eclipse.sisu.plexus</artifactId>-->
-        <!--            <version>0.3.3</version>-->
-        <!--            <exclusions>-->
-        <!--                <exclusion>-->
-        <!--                    <groupId>org.sonatype.sisu</groupId>-->
-        <!--                    <artifactId>sisu-guice</artifactId>-->
-        <!--                </exclusion>-->
-        <!--            </exclusions>-->
-        <!--        </dependency>-->
-
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.maven.resolver</groupId>-->
-        <!--            <artifactId>maven-resolver-transport-wagon</artifactId>-->
-        <!--            <version>${resolverVersion}</version>-->
-        <!--            <exclusions>-->
-        <!--                <exclusion>-->
-        <!--                    <groupId>org.codehaus.plexus</groupId>-->
-        <!--                    <artifactId>plexus-container-default</artifactId>-->
-        <!--                </exclusion>-->
-        <!--            </exclusions>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.maven.resolver</groupId>-->
-        <!--            <artifactId>maven-resolver-api</artifactId>-->
-        <!--            <version>${resolverVersion}</version>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.maven.resolver</groupId>-->
-        <!--            <artifactId>maven-resolver-impl</artifactId>-->
-        <!--            <version>${resolverVersion}</version>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.maven.resolver</groupId>-->
-        <!--            <artifactId>maven-resolver-spi</artifactId>-->
-        <!--            <version>${resolverVersion}</version>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.maven.resolver</groupId>-->
-        <!--            <artifactId>maven-resolver-util</artifactId>-->
-        <!--            <version>${resolverVersion}</version>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-connector-basic</artifactId>
@@ -208,16 +165,6 @@
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
             <version>2.3.1</version>
-        </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.codehaus.plexus</groupId>-->
-        <!--            <artifactId>plexus-utils</artifactId>-->
-        <!--            <version>3.5.0</version>-->
-        <!--        </dependency>-->
-        <dependency>
-            <groupId>org.springframework.sbm</groupId>
-            <artifactId>openrewrite-dummy-recipe</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
