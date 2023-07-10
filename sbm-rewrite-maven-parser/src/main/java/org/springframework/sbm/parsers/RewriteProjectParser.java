@@ -80,8 +80,6 @@ public class RewriteProjectParser {
         List<NamedStyles> styles = List.of();
 
         // retrieve all pom files from all modules in the active reactor build
-        // TODO: select only relevant pom files
-        // TODO: This requires adhering to the active profiles to e.g. exclude modules
         // TODO: Move this to a build file sort and filter component, for now it could use Maven's DefaultGraphBuilder
         //       this requires File to be used and thus binds the component to file access.
         List<Resource> sortedBuildFileResources = buildFileGraph.build(baseDir, resources);
@@ -101,10 +99,10 @@ public class RewriteProjectParser {
         // 128 : 131
         log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
         Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(baseDir, resourceToDocumentMap, sortedBuildFileResources, resources, provenanceMarkers, styles, executionContext);
-        List<SourceFile> sourceFilesWithoutPoms = sourceFilesStream.filter(sf -> resourceToDocumentMap.keySet().contains(baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize())).toList();
+//        List<SourceFile> sourceFilesWithoutPoms = sourceFilesStream.filter(sf -> resourceToDocumentMap.keySet().contains(baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize())).toList();
         List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();
         resultingList.addAll(parsedAndSortedBuildFileDocuments);
-        resultingList.addAll(sourceFilesWithoutPoms);
+        resultingList.addAll(sourceFilesStream.toList());
         List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
 
         return new RewriteProjectParsingResult(sourceFiles, executionContext);

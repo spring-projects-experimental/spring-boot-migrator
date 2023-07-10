@@ -127,16 +127,17 @@ class BuildFileParserTest {
 
         @Test
         void parseBuildFiles_shouldReturnSortedListOfParsedBuildFiles() {
+            Path baseDir = Path.of(".").toAbsolutePath().normalize();
             List<Resource> filteredAndSortedBuildFiles = List.of(
-                    new DummyResource("module1/submodule/pom.xml", pom3),
-                    new DummyResource("pom.xml", pom1),
-                    new DummyResource("module1/pom.xml", pom2)
+                    new DummyResource(baseDir, "module1/submodule/pom.xml", pom3),
+                    new DummyResource(baseDir, "pom.xml", pom1),
+                    new DummyResource(baseDir, "module1/pom.xml", pom2)
             );
             Map<Path, List<Marker>> provenanceMarkers = new HashMap<>();
             ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
             boolean skipMavenParsing = false;
             Map<Path, Xml.Document> parsedBuildFiles = sut.parseBuildFiles(
-                    Path.of("."),
+                    baseDir,
                     filteredAndSortedBuildFiles,
                     executionContext,
                     skipMavenParsing,

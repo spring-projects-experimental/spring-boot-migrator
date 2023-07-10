@@ -18,6 +18,7 @@ package org.springframework.sbm.parsers;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
@@ -25,6 +26,7 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.test.util.DummyResource;
+import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
 import java.time.Instant;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -82,8 +85,8 @@ class RewriteProjectParserTest {
 
     @Test
     @DisplayName("Parse complex Maven reactor project")
-    void parseComplexMavenReactorProject2() {
-        Path projectRoot = Path.of("./..").toAbsolutePath().normalize(); // SBM root
+    void parseComplexMavenReactorProject2(@TempDir Path tempDir) {
+        Path basePath = tempDir;
         ParserSettings parserSettings = new ParserSettings();
         MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
@@ -110,9 +113,12 @@ class RewriteProjectParserTest {
 
         // TODO: Provide Scanner with excludes
         // TODO: Make RewriteProjectParser publish ApplicationEvents
-
-        List<Resource> resources = List.of(new DummyResource("pom.xml", pomXml), new DummyResource("src/main/java/com/example/MyMain.java", javaClass));
-        RewriteProjectParsingResult parsingResult = projectParser.parse(projectRoot, resources, executionContext);
+        List<Resource> resources = List.of(
+                new DummyResource(basePath.resolve("pom.xml"), pomXml),
+                new DummyResource(basePath.resolve("src/main/java/com/example/MyMain.java"), javaClass));
+        ResourceUtil.write(basePath, resources);
+        RewriteProjectParsingResult parsingResult = projectParser.parse(basePath, resources, executionContext);
+        assertThat(parsingResult.sourceFiles()).hasSize(2);
     }
 
 }

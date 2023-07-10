@@ -34,12 +34,16 @@ public class DummyResource implements Resource {
     private final String content;
 
     public DummyResource(Path path, String content) {
-        this.path = path.toAbsolutePath().normalize();
+        this.path = path;
         this.content = content;
     }
 
     public DummyResource(String path, String content) {
         this(Path.of(path), content);
+    }
+
+    public DummyResource(Path baseDir, String s, String pom) {
+        this(baseDir.resolve(s).toAbsolutePath().normalize(), pom);
     }
 
     @Override

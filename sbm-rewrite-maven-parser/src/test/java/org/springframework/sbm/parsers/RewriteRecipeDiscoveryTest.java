@@ -15,12 +15,18 @@
  */
 package org.springframework.sbm.parsers;
 
+import io.github.classgraph.ClassGraph;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
+import org.openrewrite.config.ClasspathScanningLoader;
+import org.openrewrite.config.DeclarativeRecipe;
+import org.openrewrite.config.Environment;
+import org.openrewrite.config.YamlResourceLoader;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
 import org.springframework.sbm.test.util.DummyResource;
@@ -28,7 +34,11 @@ import org.springframework.sbm.test.util.OpenRewriteDummyRecipeInstaller;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Fabian Krüger
@@ -86,19 +96,59 @@ class RewriteRecipeDiscoveryTest {
 //        OpenRewriteProjectParser openRewriteProjectParser = new OpenRewriteProjectParser(new ProvenanceMarkerFactory(new ParserSettings(), new MavenProjectFactory()), new BuildFileParser(new MavenModelReader()), new SourceFileParser(), new StyleDetector(), new ParserSettings());
 //        Path baseDir = Path.of(".");
 //        RewriteProjectParsingResult parsingResult = openRewriteProjectParser.parse(baseDir, List.of(rootPom), new InMemoryExecutionContext(t -> t.printStackTrace()));
-        RewriteMavenProjectParser rewriteMavenProjectParser = new RewriteMavenProjectParser(new MavenPlexusContainerFactory());
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
-        RewriteProjectParsingResult parsingResult = rewriteMavenProjectParser.parse(
-                Path.of("/Users/fkrueger/projects/spring-boot-migrator/sbm-rewrite-maven-parser/testcode/openrewrite-dummy-recipe"),
-                true,
-                "pomCache",
-                false,
-                Set.of("**/testcode/**"),
-                Set.of(),
-                -1,
-                false,
-                executionContext);
-        List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes((Xml.Document) parsingResult.sourceFiles().get(0), List.of("Dummy Recipe"));
+//        RewriteMavenProjectParser rewriteMavenProjectParser = new RewriteMavenProjectParser(new MavenPlexusContainerFactory());
+//        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
+//        RewriteProjectParsingResult parsingResult = rewriteMavenProjectParser.parse(
+//                Path.of("/Users/fkrueger/projects/spring-boot-migrator/sbm-rewrite-maven-parser/testcode/openrewrite-dummy-recipe"),
+//                true,
+//                "pomCache",
+//                false,
+//                Set.of("**/testcode/**"),
+//                Set.of(),
+//                -1,
+//                false,
+//                executionContext);
+        List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes(List.of("Dummy Recipe"), new Properties());
+    }
+
+    @Test
+    @DisplayName("Load Recipe From Classpath")
+    void loadRecipeFromClasspath() {
+        String[] acceptPackages = {}; // "com.example"
+        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
+        Environment environment = Environment.builder()
+                .load(classpathScanningLoader)
+                .build();
+        List<Recipe> recipes = environment.listRecipes();
+        assertThat(recipes).hasSizeGreaterThan(2);
+
+        // found the Java recipe under src/test/java/com/example/recipes/DummyRecipe.java
+        Optional<Recipe> recipe = getRecipeByDisplayName(recipes, "Dummy Recipe in Java");
+        assertThat(recipe).isNotEmpty();
+
+        // found the declarative recipe under src/test/resources/META-INF/rewrite/dummy-recipe-in-yaml.yaml
+        Optional<Recipe> customJavaFromYaml = getRecipeByName(recipes, "com.example.SomeDummyRecipeInYaml");
+        assertThat(customJavaFromYaml).isNotEmpty();
+        assertThat(customJavaFromYaml.get()).isInstanceOf(DeclarativeRecipe.class);
+    }
+
+    private Optional<Recipe> getRecipeByName(List<Recipe> recipes, String s) {
+        return recipes.stream()
+                .filter(r -> r.getName().equals(s))
+                .findFirst();
+    }
+
+//    @Test
+//    @DisplayName("Load YAML Recipes from META-INF/recipes")
+//    void loadYamlRecipesFromMetaInfRecipes() {
+//        YamlResourceLoader resourceLoader = new YamlResourceLoader();
+//    }
+
+    @NotNull
+    private static Optional<Recipe> getRecipeByDisplayName(List<Recipe> recipes, String recipeDisplayName) {
+        return recipes.stream().filter(r -> {
+            return r.getDisplayName().equals(recipeDisplayName);
+        }).findFirst();
     }
 
 }

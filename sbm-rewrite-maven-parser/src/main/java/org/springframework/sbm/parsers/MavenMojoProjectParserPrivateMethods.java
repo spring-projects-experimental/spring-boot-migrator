@@ -60,8 +60,22 @@ public class MavenMojoProjectParserPrivateMethods {
     private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
     private final MavenArtifactDownloader artifactDownloader;
 
+    /**
+     * Calls {@link MavenMojoProjectParser#processMainSources(MavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
+     */
     public List<SourceFile> processMainSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
-        String methodName = "processMainSources";
+        return invokeProcessMethod(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processMainSources");
+    }
+
+    /**
+     * Calls {@link MavenMojoProjectParser#processTestSources(MavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
+     */
+    public List<SourceFile> processTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser,?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
+        return invokeProcessMethod(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processTestSources");
+    }
+
+    @NotNull
+    private List<SourceFile> invokeProcessMethod(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, String methodName) {
         MavenMojoProjectParser mavenMojoProjectParser = createMavenMojoProjectParser(baseDir);
         Method method = ReflectionUtils.findMethod(
                 MavenMojoProjectParser.class,
@@ -171,6 +185,7 @@ public class MavenMojoProjectParserPrivateMethods {
             throw new RuntimeException("Could not cast result returned from MavenMojoParser#methodName to Stream<SourceFile>.");
         }
     }
+
 
     /**
      * {@link MavenMojoProjectParser#addProvenance(Path, List, Collection)}

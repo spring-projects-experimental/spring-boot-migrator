@@ -18,7 +18,6 @@ package org.springframework.sbm.parsers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
@@ -122,6 +121,9 @@ public class SourceFileParser {
         List<PathMatcher> pathMatchers = exclusions.stream()
                 .map(pattern -> baseDir.getFileSystem().getPathMatcher("glob:" + pattern))
                 .toList();
+        if(pathMatchers.isEmpty()) {
+            return Stream.concat(mainSources.stream(), testSources.stream()).toList();
+        }
         return Stream.concat(mainSources.stream(), testSources.stream())
                 .filter(s -> isNotExcluded(baseDir, pathMatchers, s))
                 .toList();
@@ -133,7 +135,7 @@ public class SourceFileParser {
     }
 
     private List<SourceFile> parseTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
-        return invokeProcessMethod(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processTestSources");
+        return mavenMojoProjectParserPrivateMethods.processTestSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext);
     }
 
     /**
@@ -150,10 +152,6 @@ public class SourceFileParser {
 //        return invokeProcessMethod(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processMainSources");
     }
 
-    @NotNull
-    private List<SourceFile> invokeProcessMethod(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, String methodName) {
-        return mavenMojoProjectParserPrivateMethods.processMainSources(baseDir,  moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext);
-    }
 
 
 

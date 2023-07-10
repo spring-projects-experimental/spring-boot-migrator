@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * // TODO: Check if GraphBuilder uses to active profiles
  * @author Fabian Krüger
  */
 @Component
@@ -130,7 +131,7 @@ public class MavenBuildFileGraph implements BuildFileGraph {
         return resources.stream()
                 .filter(r -> ResourceUtil.getPath(r).equals(m))
                 .findFirst()
-                .get();
+                .orElseThrow(() -> new IllegalStateException("Could not find a resource in the list of resources that matches the path of pom '%s'".formatted(m.toString())));
     }
 
 }

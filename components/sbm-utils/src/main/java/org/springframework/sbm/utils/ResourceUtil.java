@@ -19,7 +19,9 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 public class ResourceUtil {
     public ResourceUtil() {
@@ -38,6 +40,31 @@ public class ResourceUtil {
             return resource.getInputStream();
         } catch (IOException var2) {
             throw new RuntimeException(var2);
+        }
+    }
+
+    public static void write(Path basePath, List<Resource> resources) {
+        resources.stream()
+                .forEach(r -> ResourceUtil.persistResource(basePath, r));
+    }
+
+    private static void persistResource(Path basePath, Resource r) {
+        Path path = ResourceUtil.getPath(r);
+        if(path.toFile().exists()) {
+            return;
+        }
+        if(path.isAbsolute()) {
+            Path relativize = path.relativize(basePath);
+        } else {
+            path = basePath.resolve(path).toAbsolutePath().normalize();
+        }
+        try {
+            if(!path.getParent().toFile().exists()) {
+                Files.createDirectories(path.getParent());
+            }
+            Files.writeString(path, ResourceUtil.getContent(r));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
