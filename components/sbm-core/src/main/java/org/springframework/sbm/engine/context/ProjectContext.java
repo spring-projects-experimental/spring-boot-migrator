@@ -103,4 +103,9 @@ public class ProjectContext {
         return new ApplicationModules(getModules());
     }
 
+    public void apply(Recipe recipe) {
+        List<? extends SourceFile> rewriteSourceFiles = this.search(new OpenRewriteSourceFilesFinder());
+        List<Result> results = recipe.run(rewriteSourceFiles, executionContext).getResults();
+        resultMerger.mergeResults(this, results);
+    }
 }
