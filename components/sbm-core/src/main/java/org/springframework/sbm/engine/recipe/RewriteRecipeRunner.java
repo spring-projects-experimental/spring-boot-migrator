@@ -31,11 +31,4 @@ public class RewriteRecipeRunner {
     private final RewriteMigrationResultMerger resultMerger;
     private final ExecutionContext executionContext;
 
-    // FIXME: Make this a method 'apply(org.openrewrite.Recipe)' on ProjectContext, see https://github.com/spring-projects-experimental/spring-boot-migrator/issues/803
-    public void run(ProjectContext context, Recipe recipe) {
-        List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles, executionContext).getResults();
-        resultMerger.mergeResults(context, results);
-    }
-
 }
