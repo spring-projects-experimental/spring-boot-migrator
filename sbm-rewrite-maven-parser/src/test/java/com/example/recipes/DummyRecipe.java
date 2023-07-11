@@ -21,7 +21,7 @@ public class DummyRecipe extends Recipe {
 
     @Override
     public String getDisplayName() {
-        return "Dummy Recipe in Java";
+        return "DummyRecipe";
     }
 
     @Override
