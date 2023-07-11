@@ -24,9 +24,7 @@ import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.execution.*;
 import org.apache.maven.graph.DefaultProjectDependencyGraph;
-import org.apache.maven.graph.GraphBuilder;
 import org.apache.maven.model.Profile;
-import org.apache.maven.model.building.Result;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
@@ -59,6 +57,8 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 
 /**
+ * Parses a given {@link Path} to a Open Rewrite's AST representation {@code List<}{@link SourceFile}{@code >}.
+ *
  * @author Fabian Krüger
  */
 @Slf4j
@@ -66,13 +66,18 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class RewriteMavenProjectParser {
 
-    public static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toString();
-    public static final List<String> MAVEN_GOALS = List.of("clean", "test-compile");// "dependency:resolve";
+
     private final MavenPlexusContainerFactory mavenPlexusContainerFactory;
+    private final MavenExecutionRequestFactory mavenExecutionRequestFactory;
 
-
+    /**
+     * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
+     * It uses default settings for configuration.
+     * Use {@link #parse(Path, boolean, String, boolean, Collection, Collection, int, boolean, ExecutionContext)}
+     * if you need to pass in different settings
+     */
     public RewriteProjectParsingResult parse(Path baseDir) {
-        ExecutionContext executionContext = new InMemoryExecutionContext();
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         return parse(baseDir, executionContext);
     }
 
@@ -88,34 +93,35 @@ public class RewriteMavenProjectParser {
         return parse(baseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, exclusions, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext);
     }
 
-    /**
-     * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
-     * It uses default settings for configuration.
-     * Use {@link #parse(Path, boolean, String, boolean, Collection, Collection, int, boolean, ExecutionContext)}
-     * if you need to pass in different settings
-     */
+
     @NotNull
     public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext) {
-        PlexusContainer plexusContainer = buildPlexusContainer(baseDir);
+        PlexusContainer plexusContainer = createPlexusContainer(baseDir);
         AtomicReference<RewriteProjectParsingResult> parsingResult = new AtomicReference<>();
-        runInMaven(baseDir, plexusContainer, session -> {
-            List<MavenProject> mavenProjects = session.getAllProjects();
-            MavenMojoProjectParser rewriteProjectParser = buildMavenMojoProjectParser(
-                    baseDir,
-                    mavenProjects,
-                    pomCacheEnabled,
-                    pomCacheDirectory,
-                    skipMavenParsing,
-                    exclusions,
-                    plainTextMasks,
-                    sizeThreshold,
-                    runPerSubmodule,
-                    plexusContainer,
-                    session);
-            List<NamedStyles> styles = List.of();
-            List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles, executionContext);
-            parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
+        new MavenRunner().runAfterMavenGoals(plexusContainer, baseDir, List.of("clean", "package"), event -> {
+            List<MavenProject> projects = event.getSession().getProjects();
+
+            if (event.getProject().getName().equals(projects.get(projects.size() - 1).getArtifactId())) {
+                MavenSession session = event.getSession();
+                List<MavenProject> mavenProjects = session.getAllProjects();
+                MavenMojoProjectParser rewriteProjectParser = buildMavenMojoProjectParser(
+                        baseDir,
+                        mavenProjects,
+                        pomCacheEnabled,
+                        pomCacheDirectory,
+                        skipMavenParsing,
+                        exclusions,
+                        plainTextMasks,
+                        sizeThreshold,
+                        runPerSubmodule,
+                        plexusContainer,
+                        session);
+                List<NamedStyles> styles = List.of();
+                List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles, executionContext);
+                parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
+            }
         });
+
         return parsingResult.get();
     }
 
@@ -171,86 +177,36 @@ public class RewriteMavenProjectParser {
         }
     }
 
-    private void runInMaven(Path baseDir, PlexusContainer plexusContainer, Consumer<MavenSession> sessionConsumer) {
-        try {
-            MavenExecutionRequest request = new DefaultMavenExecutionRequest();
-            ArtifactRepositoryFactory repositoryFactory = plexusContainer.lookup(ArtifactRepositoryFactory.class);
-            ArtifactRepository repository = new UserLocalArtifactRepository(repositoryFactory.createArtifactRepository("local", "file://" + LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null));// repositoryFactory.createArtifactRepository("local", "file://" + LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null); // new MavenArtifactRepository("local", "file://"+LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null);
-            repository.setUrl("file://" + LOCAL_REPOSITORY);
-            request.setBaseDirectory(baseDir.toFile());
-            request.setLocalRepositoryPath(LOCAL_REPOSITORY);
-            request.setActiveProfiles(List.of("default")); // TODO: make profile configurable
-            // fixes the maven run when plugins depending on Java version are encountered.
-            // This is the case for some transitive dependencies when running against the SBM code base itself.
-            // In these cases the Java version could not be retrieved without this line
-            request.setSystemProperties(System.getProperties());
+    class MavenRunner {
 
-            Profile profile = new Profile();
-            profile.setId("default");
-            request.setProfiles(List.of(profile));
-            request.setDegreeOfConcurrency(1);
-            request.setLoggingLevel(MavenExecutionRequest.LOGGING_LEVEL_DEBUG);
-            request.setMultiModuleProjectDirectory(baseDir.toFile());
-            request.setLocalRepository(repository);
-            request.setGoals(MAVEN_GOALS);
-            request.setPom(baseDir.resolve("pom.xml").toFile());
-            request.setExecutionListener(new AbstractExecutionListener() {
-                @Override
-                public void mojoFailed(ExecutionEvent event) {
-                    super.mojoFailed(event);
-                    String mojo = event.getMojoExecution().getGroupId() + ":" + event.getMojoExecution().getArtifactId() + ":" + event.getMojoExecution().getGoal();
-                    throw new RuntimeException("Exception while executing Maven Mojo: " + mojo, event.getException());
-                }
-
-                @Override
-                public void sessionStarted(ExecutionEvent event) {
-                    super.sessionStarted(event);
-                }
-
-                @Override
-                public void mojoSucceeded(ExecutionEvent event) {
-//                    log.info("Mojo succeeded: " + event.getMojoExecution().getGoal() + " in " + event.getMojoExecution().getLifecyclePhase() + " for " + event.getProject().getGroupId() + ":" + event.getProject().getArtifactId());
-//
-//                    if(event.getMojoExecution().getGoal().equals("testCompile") && event.getSession().getTopLevelProject().getArtifactId().equals(event.getProject().getArtifactId())) {
-//                        log.info("Starting Maven session consumer");
-//                        sessionConsumer.accept(event.getSession());
-//                    }
-                }
-
-                @Override
-                public void projectSucceeded(ExecutionEvent event) {
-                    System.out.println("PROJECT SUCCEEDED: " + event.getProject().getName());
-                    List<MavenProject> projects = event.getSession().getProjects();
-
-                    if(event.getProject().getName().equals(projects.get(projects.size()-1).getArtifactId())) {
-                        sessionConsumer.accept(event.getSession());
+        void runAfterMavenGoals(PlexusContainer plexusContainer, Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
+            try {
+                MavenExecutionRequest request = mavenExecutionRequestFactory.createMavenExecutionRequest(plexusContainer, baseDir);
+                request.setExecutionListener(new AbstractExecutionListener() {
+                    @Override
+                    public void mojoFailed(ExecutionEvent event) {
+                        super.mojoFailed(event);
+                        String mojo = event.getMojoExecution().getGroupId() + ":" + event.getMojoExecution().getArtifactId() + ":" + event.getMojoExecution().getGoal();
+                        throw new RuntimeException("Exception while executing Maven Mojo: " + mojo, event.getException());
                     }
+
+                    @Override
+                    public void projectSucceeded(ExecutionEvent event) {
+                        eventConsumer.accept(event);
+                    }
+                });
+                Maven maven = plexusContainer.lookup(Maven.class);
+                MavenExecutionResult execute = maven.execute(request);
+                if (execute.hasExceptions()) {
+                    System.out.println(execute.getExceptions().get(0).getMessage());
                 }
-
-
-                //                @Override
-//                public void mojoSucceeded(ExecutionEvent event) {
-//
-//                    super.mojoSucceeded(event);
-//                    try {
-//                        event.getProject().getCompileClasspathElements().stream()
-//                                .forEach(System.out::println);
-//
-//
-//                    } catch (DependencyResolutionRequiredException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-            });
-//            request.setLocalRepositoryPath(LOCAL_REPOSITORY);
-            Maven maven = plexusContainer.lookup(Maven.class);
-            MavenExecutionResult execute = maven.execute(request);
-            if (execute.hasExceptions()) {
-                System.out.println(execute.getExceptions().get(0).getMessage());
-//                throw new RuntimeException(execute.getExceptions().get(0));
+            } catch (ComponentLookupException e) {
+                throw new RuntimeException(e);
             }
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException(e);
+        }
+        void runAfterMavenGoals(Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
+            PlexusContainer plexusContainer = createPlexusContainer(baseDir);
+            runAfterMavenGoals(plexusContainer, baseDir, goals, eventConsumer);
         }
     }
 
@@ -258,7 +214,7 @@ public class RewriteMavenProjectParser {
         session.getProjects();
     }
 
-    private PlexusContainer buildPlexusContainer(Path baseDir) {
+    private PlexusContainer createPlexusContainer(Path baseDir) {
         return mavenPlexusContainerFactory.create(baseDir);
     }
 //
