@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.recipes;
+package io.example.recipes;
 
 import org.openrewrite.Recipe;
 
-public class DummyRecipe extends Recipe {
-
+/**
+ * @author Fabian Krüger
+ */
+public class AnotherDummyRecipe extends Recipe {
     @Override
     public String getDisplayName() {
-        return "DummyRecipe";
+        return "AnotherDummyRecipeFromJar";
     }
 
     @Override
     public String getDescription() {
-        return "Some dummy recipe for tests";
+        return "Description of AnotherDummyRecipeFromJar";
     }
+
 }
