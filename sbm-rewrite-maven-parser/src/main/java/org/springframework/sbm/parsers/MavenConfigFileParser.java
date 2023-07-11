@@ -39,7 +39,7 @@ import java.util.stream.Stream;
  * @author Fabian Krüger
  */
 @Component
-class MavenConfigFileParser {
+public class MavenConfigFileParser {
 
     public static final char ALTERNATE_POM_FILE = 'f';
 
