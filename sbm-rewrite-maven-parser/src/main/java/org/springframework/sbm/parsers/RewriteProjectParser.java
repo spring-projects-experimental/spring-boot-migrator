@@ -26,6 +26,8 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.AbstractRewriteMojo;
 import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.style.NamedStyles;
+import org.openrewrite.tree.ParsingEventListener;
+import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -52,6 +54,7 @@ public class RewriteProjectParser {
     private final StyleDetector styleDetector;
     private final ParserSettings parserSettings;
     private final MavenBuildFileGraph buildFileGraph;
+    private final ParsingEventListener parsingEventListener;
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
@@ -77,6 +80,9 @@ public class RewriteProjectParser {
         if(!baseDir.isAbsolute()) {
             baseDir = baseDir.toAbsolutePath().normalize();
         }
+
+        ParsingExecutionContextView.view(executionContext).setParsingListener(parsingEventListener);
+
         // TODO: "runPerSubmodule"
         // TODO: See ConfigurableRewriteMojo#getPlainTextMasks()
         // TODO: where to retrieve styles from? --> see AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
