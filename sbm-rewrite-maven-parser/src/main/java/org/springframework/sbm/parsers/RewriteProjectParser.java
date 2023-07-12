@@ -74,6 +74,9 @@ public class RewriteProjectParser {
      * @see {@link MavenMojoProjectParser#listSourceFiles(MavenProject, List, ExecutionContext)}
      */
     public RewriteProjectParsingResult parse(Path baseDir, List<Resource> resources, ExecutionContext executionContext) {
+        if(!baseDir.isAbsolute()) {
+            baseDir = baseDir.toAbsolutePath().normalize();
+        }
         // TODO: "runPerSubmodule"
         // TODO: See ConfigurableRewriteMojo#getPlainTextMasks()
         // TODO: where to retrieve styles from? --> see AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
