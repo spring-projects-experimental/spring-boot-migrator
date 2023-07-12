@@ -21,9 +21,7 @@ import io.github.classgraph.ClassGraph;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.openrewrite.Recipe;
-import org.openrewrite.config.ClasspathScanningLoader;
-import org.openrewrite.config.DeclarativeRecipe;
-import org.openrewrite.config.Environment;
+import org.openrewrite.config.*;
 import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
 import org.springframework.sbm.test.util.OpenRewriteDummyRecipeInstaller;
 
@@ -148,6 +146,35 @@ class RewriteRecipeDiscoveryTest {
         Optional<Recipe> customJavaFromYaml = getRecipeByName(recipes, "com.example.SomeDummyRecipeInYaml");
         assertThat(customJavaFromYaml).isNotEmpty();
         assertThat(customJavaFromYaml.get()).isInstanceOf(DeclarativeRecipe.class);
+    }
+
+    @Test
+    @DisplayName("Should Find Recipes By Category")
+    void shouldFindRecipesByCategory() {
+//        RewriteRecipeDiscovery sut = new RewriteRecipeDiscovery();
+//        List<Recipe> recipes = sut.discoverRecipesByCategory("category");
+        ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{"io.example"});
+        Environment environment = Environment.builder()
+                .load(resourceLoader)
+                .build();
+
+        Collection<RecipeDescriptor> recipeDescriptors = environment.listRecipeDescriptors();
+        RecipeDescriptor descriptor = recipeDescriptors.stream()
+                .filter(rd -> "AnotherDummyRecipeFromJar".equals(rd.getDisplayName()))
+                .findFirst()
+                .get();
+
+            System.out.println("Name: " + descriptor.getName());
+            System.out.println("Display Name: " + descriptor.getDisplayName());
+            System.out.println("Description: " + descriptor.getDescription());
+            System.out.println("Contributors: " + descriptor.getContributors());
+            System.out.println("Maintainers: " + descriptor.getMaintainers());
+            System.out.println("Recipes: " + descriptor.getRecipeList());
+            System.out.println("DataTables: " + descriptor.getDataTables());
+            System.out.println("Estimated effort: " + descriptor.getEstimatedEffortPerOccurrence());
+            System.out.println("Examples: " + descriptor.getExamples());
+            System.out.println("Options: " + descriptor.getOptions());
+            System.out.println("Tags: " + descriptor.getTags());
     }
 
     @Test
