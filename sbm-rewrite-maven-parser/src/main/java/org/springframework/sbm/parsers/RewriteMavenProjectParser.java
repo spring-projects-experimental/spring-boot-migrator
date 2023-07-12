@@ -100,6 +100,10 @@ public class RewriteMavenProjectParser {
 
     @NotNull
     public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext) {
+        if(!baseDir.isAbsolute()) {
+            baseDir = baseDir.toAbsolutePath().normalize();
+        }
+        final Path absoluteBasePath = baseDir;
         Collection<String> allExclusions = new ArrayList<>();
         allExclusions.addAll(EXCLUSIONS);
         allExclusions.addAll(exclusions);
@@ -110,23 +114,29 @@ public class RewriteMavenProjectParser {
             List<MavenProject> projects = event.getSession().getProjects();
 
             if (event.getProject().getName().equals(projects.get(projects.size() - 1).getArtifactId())) {
-                MavenSession session = event.getSession();
-                List<MavenProject> mavenProjects = session.getAllProjects();
-                MavenMojoProjectParser rewriteProjectParser = buildMavenMojoProjectParser(
-                        baseDir,
-                        mavenProjects,
-                        pomCacheEnabled,
-                        pomCacheDirectory,
-                        skipMavenParsing,
-                        allExclusions,
-                        plainTextMasks,
-                        sizeThreshold,
-                        runPerSubmodule,
-                        plexusContainer,
-                        session);
-                List<NamedStyles> styles = List.of();
-                List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles, executionContext);
-                parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
+                try {
+                    MavenSession session = event.getSession();
+                    List<MavenProject> mavenProjects = session.getAllProjects();
+                    MavenMojoProjectParser rewriteProjectParser = buildMavenMojoProjectParser(
+                            absoluteBasePath,
+                            mavenProjects,
+                            pomCacheEnabled,
+                            pomCacheDirectory,
+                            skipMavenParsing,
+                            allExclusions,
+                            plainTextMasks,
+                            sizeThreshold,
+                            runPerSubmodule,
+                            plexusContainer,
+                            session);
+                    List<NamedStyles> styles = List.of();
+                    List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles, executionContext);
+                    parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
+                    RewriteProjectParsingResult parsingResult1 = parsingResult.get();
+                } catch(Exception e) {
+                    throw new RuntimeException(e);
+                }
+
             }
         });
 
