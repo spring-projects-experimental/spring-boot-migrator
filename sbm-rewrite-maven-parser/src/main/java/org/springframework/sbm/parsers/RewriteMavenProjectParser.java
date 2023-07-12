@@ -81,7 +81,9 @@ public class RewriteMavenProjectParser {
      * if you need to pass in different settings
      */
     public RewriteProjectParsingResult parse(Path baseDir) {
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {
+            throw new RuntimeException(t);
+        });
         ParsingExecutionContextView.view(executionContext).setParsingListener(parsingListener);
         return parse(baseDir, executionContext);
     }
