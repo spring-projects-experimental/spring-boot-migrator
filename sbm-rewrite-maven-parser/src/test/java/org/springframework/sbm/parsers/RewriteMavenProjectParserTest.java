@@ -38,6 +38,7 @@ import org.openrewrite.maven.cache.CompositeMavenPomCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
+import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.style.Autodetect;
 import org.openrewrite.xml.tree.Xml;
@@ -61,6 +62,7 @@ import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Fail.fail;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Fabian Krüger
@@ -71,7 +73,8 @@ class RewriteMavenProjectParserTest {
             new MavenPlexusContainerFactory(),
             new MavenExecutionRequestFactory(
                     new MavenConfigFileParser()
-            )
+            ),
+            mock(ParsingEventListener.class)
     );
 
     @Test

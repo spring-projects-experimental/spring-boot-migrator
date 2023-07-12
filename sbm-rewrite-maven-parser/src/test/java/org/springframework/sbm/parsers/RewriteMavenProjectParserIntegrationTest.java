@@ -38,8 +38,6 @@ public class RewriteMavenProjectParserIntegrationTest {
     @Autowired
     private RewriteMavenProjectParser sut;
 
-    private static List<ParsedResourceEvent> capturedEvents = new ArrayList<>();
-
     @Test
     @DisplayName("Should Publish Build Events")
     void shouldPublishBuildEvents() {
@@ -54,6 +52,8 @@ public class RewriteMavenProjectParserIntegrationTest {
         assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString())
                 .isEqualTo("module-b/pom.xml");
     }
+
+    private static List<ParsedResourceEvent> capturedEvents = new ArrayList<>();
 
     @TestConfiguration
     static class TestEventListener {
