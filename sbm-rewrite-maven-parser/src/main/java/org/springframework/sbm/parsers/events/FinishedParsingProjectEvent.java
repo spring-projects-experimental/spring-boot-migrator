@@ -15,8 +15,12 @@
  */
 package org.springframework.sbm.parsers.events;
 
+import org.openrewrite.SourceFile;
+
+import java.util.List;
+
 /**
  * @author Fabian Krüger
  */
-public class FinishedParsingProjectEvent {
+public record FinishedParsingProjectEvent(List<SourceFile> sourceFiles) {
 }

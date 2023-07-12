@@ -42,6 +42,7 @@ import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.style.Autodetect;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -395,7 +396,8 @@ class RewriteMavenProjectParserTest {
                 new StyleDetector(),
                 parserSettings,
                 new MavenBuildFileGraph(new MavenPlexusContainerFactory()),
-                mock(ParsingEventListener.class)
+                mock(ParsingEventListener.class),
+                mock(ApplicationEventPublisher.class)
                 );
         Set<String> ignoredPatters = Set.of();
         ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader());
