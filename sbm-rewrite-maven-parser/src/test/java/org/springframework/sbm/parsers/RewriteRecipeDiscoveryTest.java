@@ -104,10 +104,12 @@ class RewriteRecipeDiscoveryTest {
 //                false,
 //                executionContext);
 
-        String[] acceptPackages = {"org.springframework.sbm"};
-        Path jarPath = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
-        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(new ClasspathScanningLoader(new Properties(), acceptPackages)), getClass().getClassLoader());
-        List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes(List.of("DummyRecipe"), new Properties(), acceptPackages, classpathScanningLoader);
+        String[] acceptPackages = {};
+//        Path jarPath = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
+        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
+        List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes(List.of("com.example.recipes.DummyRecipe"), new Properties(), acceptPackages, classpathScanningLoader);
+        assertThat(dummyRecipe).isNotNull();
+        assertThat(dummyRecipe).isNotEmpty();
     }
 
 
