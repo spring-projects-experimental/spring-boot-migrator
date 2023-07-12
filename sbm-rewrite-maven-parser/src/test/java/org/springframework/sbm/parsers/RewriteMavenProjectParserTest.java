@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.parsers;
 
-import org.apache.maven.project.MavenProject;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -25,8 +24,6 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
-import org.openrewrite.java.JavaParser;
-import org.openrewrite.java.JavaParserExecutionContextView;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.marker.JavaVersion;
@@ -34,7 +31,6 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.BuildTool;
 import org.openrewrite.marker.GitProvenance;
-import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.OperatingSystemProvenance;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
@@ -60,7 +56,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -310,6 +305,7 @@ class RewriteMavenProjectParserTest {
 
     @Test
     @DisplayName("Parse complex Maven reactor project")
+    @Disabled("https://github.com/openrewrite/rewrite/issues/3409")
     void parseComplexMavenReactorProject() {
         String target = "./testcode/maven-projects/cwa-server";
         cloneProject("https://github.com/corona-warn-app/cwa-server.git", target, "v3.2.0");
