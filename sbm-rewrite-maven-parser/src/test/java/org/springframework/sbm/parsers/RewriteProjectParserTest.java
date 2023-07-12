@@ -25,6 +25,7 @@ import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -101,7 +102,8 @@ class RewriteProjectParserTest {
                 new StyleDetector(),
                 parserSettings,
                 new MavenBuildFileGraph(new MavenPlexusContainerFactory()),
-                mock(ParsingEventListener.class)
+                mock(ParsingEventListener.class),
+                mock(ApplicationEventPublisher.class)
         );
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         List<String> parsedFiles = new ArrayList<>();

@@ -106,7 +106,7 @@ public class RewriteMavenProjectParser {
             baseDir = baseDir.toAbsolutePath().normalize();
         }
         final Path absoluteBasePath = baseDir;
-        Collection<String> allExclusions = new ArrayList<>();
+        Collection<String> allExclusions = new HashSet<>();
         allExclusions.addAll(EXCLUSIONS);
         allExclusions.addAll(exclusions);
 

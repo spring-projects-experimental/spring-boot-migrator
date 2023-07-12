@@ -29,7 +29,10 @@ import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.events.FinishedParsingProjectEvent;
+import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
@@ -55,6 +58,7 @@ public class RewriteProjectParser {
     private final ParserSettings parserSettings;
     private final MavenBuildFileGraph buildFileGraph;
     private final ParsingEventListener parsingEventListener;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
@@ -80,6 +84,8 @@ public class RewriteProjectParser {
         if(!baseDir.isAbsolute()) {
             baseDir = baseDir.toAbsolutePath().normalize();
         }
+
+        eventPublisher.publishEvent(new StartedParsingProjectEvent(resources));
 
         ParsingExecutionContextView.view(executionContext).setParsingListener(parsingEventListener);
 
@@ -113,6 +119,8 @@ public class RewriteProjectParser {
         resultingList.addAll(parsedAndSortedBuildFileDocuments);
         resultingList.addAll(sourceFilesStream.toList());
         List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
+
+        eventPublisher.publishEvent(new FinishedParsingProjectEvent(sourceFiles));
 
         return new RewriteProjectParsingResult(sourceFiles, executionContext);
     }
