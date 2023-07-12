@@ -150,6 +150,34 @@ class RewriteRecipeDiscoveryTest {
     }
 
     @Test
+    @DisplayName("Should Find Recipes By Tag")
+    void shouldFindRecipesByTag() {
+        String tag = "Java";
+        RewriteRecipeDiscovery sut = new RewriteRecipeDiscovery();
+        List<Recipe> recipes = sut.findRecipesByTags(tag);
+
+        assertThat(recipes).hasSize(1);
+        assertThat(getRecipeByName(recipes, "io.example.recipes.AnotherDummyRecipe")).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Should Find Recipe Categories")
+    void shouldFindRecipeCategories() {
+        ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{});
+        Collection<CategoryDescriptor> categoryDescriptors = resourceLoader.listCategoryDescriptors();
+        categoryDescriptors.stream()
+                .forEach(cd -> {
+                    System.out.println("Tags: " + cd.getTags());
+                    System.out.println("Description: " + cd.getDescription());
+                    System.out.println("DisplayName: " + cd.getDisplayName());
+                    System.out.println("Priority: " + cd.getPriority());
+                    System.out.println("PackageName: " + cd.getPackageName());
+                    System.out.println("------------------------------------------------");
+                });
+
+    }
+
+    @Test
     @DisplayName("Should Find RecipeDescriptor By Name")
     void shouldFindRecipeDescriptorByName() {
 
