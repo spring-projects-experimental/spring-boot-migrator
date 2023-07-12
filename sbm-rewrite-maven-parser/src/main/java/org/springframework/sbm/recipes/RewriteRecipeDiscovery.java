@@ -53,6 +53,17 @@ public class RewriteRecipeDiscovery {
         mavenProjectFactory = new MavenProjectFactory();
     }
 
+    /**
+     *
+     */
+    public List<Recipe> discoverRecipes() {
+        ClasspathScanningLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{});
+        return Environment.builder()
+                .load(resourceLoader)
+                .build()
+                .listRecipes();
+    }
+
 
     public Optional<Recipe> discoverFilteredRecipe(Xml.Document rootPom, String activeRecipe) {
         List<Recipe> recipes = discoverFilteredRecipes(rootPom, List.of(activeRecipe));
