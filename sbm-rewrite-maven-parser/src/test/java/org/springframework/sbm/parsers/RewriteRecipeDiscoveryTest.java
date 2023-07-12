@@ -18,6 +18,7 @@ package org.springframework.sbm.parsers;
 import com.example.recipes.DummyRecipe;
 import io.example.recipes.AnotherDummyRecipe;
 import io.github.classgraph.ClassGraph;
+import org.assertj.core.data.Index;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.openrewrite.Recipe;
@@ -149,32 +150,44 @@ class RewriteRecipeDiscoveryTest {
     }
 
     @Test
-    @DisplayName("Should Find Recipes By Category")
-    void shouldFindRecipesByCategory() {
-//        RewriteRecipeDiscovery sut = new RewriteRecipeDiscovery();
-//        List<Recipe> recipes = sut.discoverRecipesByCategory("category");
-        ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{"io.example"});
-        Environment environment = Environment.builder()
-                .load(resourceLoader)
-                .build();
+    @DisplayName("Should Find RecipeDescriptor By Name")
+    void shouldFindRecipeDescriptorByName() {
 
-        Collection<RecipeDescriptor> recipeDescriptors = environment.listRecipeDescriptors();
-        RecipeDescriptor descriptor = recipeDescriptors.stream()
-                .filter(rd -> "AnotherDummyRecipeFromJar".equals(rd.getDisplayName()))
-                .findFirst()
-                .get();
+        RewriteRecipeDiscovery sut = new RewriteRecipeDiscovery();
 
-            System.out.println("Name: " + descriptor.getName());
-            System.out.println("Display Name: " + descriptor.getDisplayName());
-            System.out.println("Description: " + descriptor.getDescription());
-            System.out.println("Contributors: " + descriptor.getContributors());
-            System.out.println("Maintainers: " + descriptor.getMaintainers());
-            System.out.println("Recipes: " + descriptor.getRecipeList());
-            System.out.println("DataTables: " + descriptor.getDataTables());
-            System.out.println("Estimated effort: " + descriptor.getEstimatedEffortPerOccurrence());
-            System.out.println("Examples: " + descriptor.getExamples());
-            System.out.println("Options: " + descriptor.getOptions());
-            System.out.println("Tags: " + descriptor.getTags());
+        RecipeDescriptor descriptor = sut.findRecipeDescriptor("AnotherDummyRecipe");
+
+        assertThat(descriptor).isNotNull();
+        assertThat(descriptor.getName()).isEqualTo("io.example.recipes.AnotherDummyRecipe");
+        assertThat(descriptor.getDisplayName()).isEqualTo("AnotherDummyRecipe");
+        assertThat(descriptor.getDescription()).isEqualTo("Description of AnotherDummyRecipe");
+
+        assertThat(descriptor.getContributors()).satisfies(contributor -> {
+            assertThat(contributor.getName()).isEqualTo("Fabian Krüger");
+            assertThat(contributor.getEmail()).isEqualTo("some@email.com");
+            assertThat(contributor.getLineCount()).isEqualTo(1);
+        }, Index.atIndex(0));
+        assertThat(descriptor.getContributors()).satisfies(contributor -> {
+            assertThat(contributor.getName()).isEqualTo("Mike Wazowski");
+            assertThat(contributor.getEmail()).isEqualTo("mike@monsterag.com");
+            assertThat(contributor.getLineCount()).isEqualTo(1000);
+        }, Index.atIndex(1));
+
+        assertThat(descriptor.getMaintainers()).satisfies(maintainer -> {
+            assertThat(maintainer.getMaintainer()).isEqualTo("Spring");
+            assertThat(maintainer.getLogo()).isNull();
+        }, Index.atIndex(0));
+        assertThat(descriptor.getMaintainers()).satisfies(maintainer -> {
+            assertThat(maintainer.getMaintainer()).isEqualTo("SBM");
+            assertThat(maintainer.getLogo()).isNull();
+        }, Index.atIndex(1));
+
+        /*System.out.println("Recipes: " + descriptor.getRecipeList());
+        System.out.println("DataTables: " + descriptor.getDataTables());
+        System.out.println("Estimated effort: " + descriptor.getEstimatedEffortPerOccurrence());
+        System.out.println("Examples: " + descriptor.getExamples());
+        System.out.println("Options: " + descriptor.getOptions());
+        System.out.println("Tags: " + descriptor.getTags());*/
     }
 
     @Test

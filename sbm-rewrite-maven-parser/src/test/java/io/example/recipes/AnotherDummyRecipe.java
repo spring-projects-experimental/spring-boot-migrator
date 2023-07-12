@@ -45,17 +45,17 @@ public class AnotherDummyRecipe extends Recipe {
 
     @Override
     public String getDisplayName() {
-        return "AnotherDummyRecipeFromJar";
+        return "AnotherDummyRecipe";
     }
 
     @Override
     public String getDescription() {
-        return "Description of AnotherDummyRecipeFromJar";
+        return "Description of AnotherDummyRecipe";
     }
 
     @Override
     public List<Contributor> getContributors() {
-        return List.of(new Contributor("Fabian Krüger", "some@email.com", 1), new Contributor("Mike Wazowski", "mike@monstwerag.com", 1000));
+        return List.of(new Contributor("Fabian Krüger", "some@email.com", 1), new Contributor("Mike Wazowski", "mike@monsterag.com", 1000));
     }
 
     @Override

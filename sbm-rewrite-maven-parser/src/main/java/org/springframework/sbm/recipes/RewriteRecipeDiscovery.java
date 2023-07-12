@@ -158,6 +158,20 @@ public class RewriteRecipeDiscovery {
         return recipes;
     }
 
+    public RecipeDescriptor findRecipeDescriptor(String anotherDummyRecipe) {
+        ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{"io.example"});
+        Environment environment = Environment.builder()
+                .load(resourceLoader)
+                .build();
+
+        Collection<RecipeDescriptor> recipeDescriptors = environment.listRecipeDescriptors();
+        RecipeDescriptor descriptor = recipeDescriptors.stream()
+                .filter(rd -> "AnotherDummyRecipe".equals(rd.getDisplayName()))
+                .findFirst()
+                .get();
+        return descriptor;
+    }
+
 
     class AbstractRewriteMojoHelper extends AbstractRewriteMojo {
 
