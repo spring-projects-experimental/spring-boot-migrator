@@ -1,6 +1,10 @@
 package com.example.recipes;
 
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
+import org.openrewrite.Tree;
+import org.openrewrite.TreeVisitor;
+import org.openrewrite.internal.lang.Nullable;
 
 public class DummyRecipeFromJar extends Recipe {
     @Override

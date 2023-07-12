@@ -215,8 +215,8 @@ class RewriteRecipeDiscoveryTest {
     }
 
     @Test
-    @DisplayName("Load Recipe From Classpath")
-//    @Disabled("Still fiddling")
+    @DisplayName("Load Recipe From JAR")
+    @Disabled("Still fiddling")
     void loadRecipeFromJar() {
         OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
         recipeInstaller.installRecipe();
