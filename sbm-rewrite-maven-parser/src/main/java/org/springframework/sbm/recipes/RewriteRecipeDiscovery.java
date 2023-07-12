@@ -172,6 +172,20 @@ public class RewriteRecipeDiscovery {
         return descriptor;
     }
 
+    public List<Recipe> findRecipesByTags(String tag) {
+        ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{});
+        Environment environment = Environment.builder()
+                .load(resourceLoader)
+                .build();
+
+        List<Recipe> recipes = environment.listRecipes()
+                .stream()
+                .filter(r -> r.getTags().contains(tag))
+                .toList();
+
+        return recipes;
+    }
+
 
     class AbstractRewriteMojoHelper extends AbstractRewriteMojo {
 
