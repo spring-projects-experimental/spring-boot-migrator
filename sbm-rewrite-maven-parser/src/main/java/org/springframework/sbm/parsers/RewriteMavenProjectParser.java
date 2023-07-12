@@ -43,6 +43,8 @@ import org.openrewrite.internal.ListUtils;
 import org.openrewrite.java.tree.JavaSourceFile;
 import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.style.NamedStyles;
+import org.openrewrite.tree.ParsingEventListener;
+import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -70,6 +72,7 @@ public class RewriteMavenProjectParser {
     public static final Collection<String> EXCLUSIONS = Set.of("**/.DS_Store", ".DS_Store");
     private final MavenPlexusContainerFactory mavenPlexusContainerFactory;
     private final MavenExecutionRequestFactory mavenExecutionRequestFactory;
+    private final ParsingEventListener parsingListener;
 
     /**
      * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
@@ -79,6 +82,7 @@ public class RewriteMavenProjectParser {
      */
     public RewriteProjectParsingResult parse(Path baseDir) {
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
+        ParsingExecutionContextView.view(executionContext).setParsingListener(parsingListener);
         return parse(baseDir, executionContext);
     }
 
@@ -136,9 +140,7 @@ public class RewriteMavenProjectParser {
                     styles,
                     executionContext);
             return sourcesWithAutoDetectedStyles(sourceFileStream);
-        } catch (DependencyResolutionRequiredException e) {
-            throw new RuntimeException(e);
-        } catch (MojoExecutionException e) {
+        } catch (DependencyResolutionRequiredException | MojoExecutionException e) {
             throw new RuntimeException(e);
         }
     }
