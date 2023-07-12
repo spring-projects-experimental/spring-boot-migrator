@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.parsers;
 
+import com.example.recipes.DummyRecipe;
+import io.example.recipes.AnotherDummyRecipe;
+import io.github.classgraph.ClassGraph;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -28,10 +31,7 @@ import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
 import org.springframework.sbm.test.util.OpenRewriteDummyRecipeInstaller;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -83,8 +83,8 @@ class RewriteRecipeDiscoveryTest {
 //                """);
 //
 //
-//        OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
-//        recipeInstaller.installRecipe();
+        OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
+        recipeInstaller.installRecipe();
 
 
         RewriteRecipeDiscovery recipeDiscovery = new RewriteRecipeDiscovery();
@@ -105,22 +105,126 @@ class RewriteRecipeDiscoveryTest {
 //                executionContext);
 
         String[] acceptPackages = {"org.springframework.sbm"};
-        Path jarPath = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springfdramework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe.jar");
+        Path jarPath = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
         ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(new ClasspathScanningLoader(new Properties(), acceptPackages)), getClass().getClassLoader());
-        List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes(List.of("Dummy Recipe"), new Properties(), acceptPackages, classpathScanningLoader);
+        List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes(List.of("DummyRecipe"), new Properties(), acceptPackages, classpathScanningLoader);
+    }
+
+
+    @Test
+    @DisplayName("ProvidingAcceptedPackagesShouldOnlyShowRecipesWithMatchingPackage")
+    void providingAcceptedPackagesShouldOnlyShowRecipesWithMatchingPackage() {
+        ClasspathScanningLoader resourceLoader1 = new ClasspathScanningLoader(new Properties(), new String[]{"com.example"});
+        Collection<Recipe> recipes = resourceLoader1.listRecipes();
+        assertThat(recipes).anyMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
+        assertThat(recipes).noneMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
+
+        ClasspathScanningLoader resourceLoader2 = new ClasspathScanningLoader(new Properties(), new String[]{"io.example"});
+        Collection<Recipe> recipes2 = resourceLoader2.listRecipes();
+        assertThat(recipes2).noneMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
+        assertThat(recipes2).anyMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
+
+        ClasspathScanningLoader resourceLoader3 = new ClasspathScanningLoader(new Properties(), new String[]{"io.example", "com.example"});
+        Collection<Recipe> recipes3 = resourceLoader3.listRecipes();
+        assertThat(recipes3).anyMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
+        assertThat(recipes3).anyMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
+    }
+
+    @Test
+    @DisplayName("Discover all available recipes by default")
+    void discoverAllAvailableRecipesByDefault() {
+        RewriteRecipeDiscovery sut = new RewriteRecipeDiscovery();
+        List<Recipe> recipes = sut.discoverRecipes();
+        assertThat(recipes).anyMatch(r -> r.getClass() == DummyRecipe.class);
+        assertThat(recipes).anyMatch(r -> r.getClass() == AnotherDummyRecipe.class);
+        assertThat(recipes).anyMatch(r -> "com.example.SomeDummyRecipeInYaml".equals(r.getName()));
+    }
+    
+    @Test
+    @DisplayName("Load OpenRewrite Recipes")
+    void loadOpenRewriteRecipes() {
+        ClasspathScanningLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{"com.example"});
+        Collection<Recipe> recipes1 = resourceLoader.listRecipes();
+        assertThat(recipes1)
+                .map(Object::getClass)
+                .map(Class::getName)
+                .contains(DummyRecipe.class.getName());
+
+        List<Recipe> recipes = Environment.builder()
+//                .scanJar()
+                .load(resourceLoader)
+                .build()
+                .listRecipes();
+
+        assertThat(recipes).isNotEmpty();
+
+        assertThat(recipes)
+//                .map(Object::getClass)
+//                .map(Class::getName)
+                .map(Recipe::getName)
+                .contains(DummyRecipe.class.getName());
+
+        assertThat(recipes)
+                .map(Recipe::getName)
+                .contains("com.example.SomeDummyRecipeInYaml");
     }
 
     @Test
     @DisplayName("Load Recipe From Classpath")
-    @Disabled("Still fiddling")
+    void loadRecipeFromClasspath2() {
+        String[] acceptPackages = {}; // "com.example"
+        ClasspathScanningLoader loader = new ClasspathScanningLoader(new Properties(), acceptPackages);
+        Path jarPath = Path.of("/Users/fkrueger/.m2/repository/org/openrewrite/recipe/rewrite-spring/4.36.0/rewrite-spring-4.36.0.jar");// Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
+
+
+
+        String jarName = jarPath.toFile().getName();
+        List<String> strings = new ClassGraph()
+                .acceptJars(jarName)
+                .ignoreParentClassLoaders()
+                .overrideClassLoaders(getClass().getClassLoader()).enableClassInfo().scan().getAllClassesAsMap()
+                .keySet()
+                .stream()
+                .filter(k -> k.startsWith("org.springframework"))
+                .toList();
+
+
+        List<Recipe> recipes1 = Environment.builder()
+                .scanJar(jarPath, Set.of(), getClass().getClassLoader().getParent())
+                .build()
+                .listRecipes();
+
+
+        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(loader), getClass().getClassLoader());
+        Environment environment = Environment.builder()
+                .load(loader, Set.of(classpathScanningLoader))
+                .build();
+        List<Recipe> recipes = environment.listRecipes();
+        assertThat(recipes).hasSizeGreaterThan(1);
+        // found the Java recipe under src/test/java/com/example/recipes/DummyRecipe.jav
+        Optional<Recipe> recipe = getRecipeByDisplayName(recipes, "DummyRecipe");
+        assertThat(recipe).isNotEmpty();
+        Optional<Recipe> customJavaFromYaml = getRecipeByName(recipes, "com.example.SomeDummyRecipeInYaml");
+        assertThat(customJavaFromYaml).isNotEmpty();
+        assertThat(customJavaFromYaml.get()).isInstanceOf(DeclarativeRecipe.class);
+//        scanClasses(new ClassGraph()
+//                .ignoreParentClassLoaders()
+//                .overrideClassLoaders(getClass().getClassLoader()), classpathScanningLoader);
+    }
+
+    @Test
+    @DisplayName("Load Recipe From Classpath")
+//    @Disabled("Still fiddling")
     void loadRecipeFromJar() {
         OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
         recipeInstaller.installRecipe();
 
-        String[] acceptPackages = {};
+        String[] acceptPackages = {"com", "org.springframework"};
 
         Path jarPath = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
-        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(new ClasspathScanningLoader(new Properties(), acceptPackages)), getClass().getClassLoader());
+        assertThat(jarPath.toFile()).exists();
+        ClasspathScanningLoader scanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
+        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(scanningLoader), getClass().getClassLoader());
 
 //        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), new String[]{});
 
