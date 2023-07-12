@@ -37,7 +37,7 @@ import java.util.Properties;
  */
 @Component
 @RequiredArgsConstructor
-public class MavenExecutionRequestFactory {
+class MavenExecutionRequestFactory {
 
     private final MavenConfigFileParser mavenConfigFileParser;
     public static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toString();

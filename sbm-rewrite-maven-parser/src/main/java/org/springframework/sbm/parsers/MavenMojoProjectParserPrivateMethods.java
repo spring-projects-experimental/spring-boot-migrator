@@ -55,7 +55,7 @@ import java.util.stream.Stream;
  */
 @Component
 @RequiredArgsConstructor
-public class MavenMojoProjectParserPrivateMethods {
+class MavenMojoProjectParserPrivateMethods {
 
     private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
     private final MavenArtifactDownloader artifactDownloader;

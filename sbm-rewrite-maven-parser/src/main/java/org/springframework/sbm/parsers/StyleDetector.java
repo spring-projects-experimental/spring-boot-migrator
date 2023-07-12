@@ -30,7 +30,7 @@ import java.util.stream.Stream;
  * @author Fabian Krüger
  */
 @Component
-public class StyleDetector {
+class StyleDetector {
     public List<SourceFile> sourcesWithAutoDetectedStyles(Stream<SourceFile> sourceFilesStream) {
         OpenedRewriteMojo m = new OpenedRewriteMojo();
         Method method = ReflectionUtils.findMethod(OpenedRewriteMojo.class, "sourcesWithAutoDetectedStyles", Stream.class);

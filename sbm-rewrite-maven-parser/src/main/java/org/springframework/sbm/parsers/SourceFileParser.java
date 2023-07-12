@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SourceFileParser {
+class SourceFileParser {
 
     private final MavenModelReader modelReader;
     private final ParserSettings parserSettings;
