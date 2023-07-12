@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 /**
  * @author Fabian Krüger
  */
-public class Slf4jToMavenLoggerAdapter implements Log {
+class Slf4jToMavenLoggerAdapter implements Log {
     private final Logger log;
 
     public Slf4jToMavenLoggerAdapter(Logger log) {
