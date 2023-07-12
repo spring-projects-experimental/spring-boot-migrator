@@ -42,6 +42,9 @@ public class ProjectScanner {
     private final ResourceLoader resourceLoader;
 
     public List<Resource> scan(Path baseDir, Set<String> ignoredPatters) {
+        if(!baseDir.isAbsolute()) {
+            baseDir = baseDir.toAbsolutePath().normalize();
+        }
         if(!baseDir.toFile().exists()) {
             throw new IllegalArgumentException("Provided path does not exist: " + baseDir);
         }
