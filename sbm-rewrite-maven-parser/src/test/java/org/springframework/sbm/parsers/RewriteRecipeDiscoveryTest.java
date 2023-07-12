@@ -19,10 +19,7 @@ import com.example.recipes.DummyRecipe;
 import io.example.recipes.AnotherDummyRecipe;
 import io.github.classgraph.ClassGraph;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openrewrite.Recipe;
 import org.openrewrite.config.ClasspathScanningLoader;
 import org.openrewrite.config.DeclarativeRecipe;
@@ -54,56 +51,16 @@ class RewriteRecipeDiscoveryTest {
         }
 
         System.setProperty("maven.home", mvnHome);
+
+        OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
+        recipeInstaller.installRecipe();
     }
+
 
     @Test
     @DisplayName("Should Discover Dummy Recipes")
     void shouldDiscoverDummyRecipes() {
-//        ParserSettings parserSettings = ParserSettings.builder()
-//                .runPerSubmodule(false)
-//                .exclusions(Set.of("testcode"))
-//                .build();
-//        MavenProjectFactory mavenProjectFactory = new MavenProjectFactory();
-//        DummyResource rootPom = new DummyResource("pom.xml",
-//                """
-//                <?xml version="1.0" encoding="UTF-8"?>
-//                <project xmlns="http://maven.apache.org/POM/4.0.0"
-//                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-//                    <modelVersion>4.0.0</modelVersion>
-//                    <groupId>org.springframework.sbm</groupId>
-//                    <artifactId>sbm-openrewrite-parser</artifactId>
-//                    <version>1.0-SNAPSHOT</version>
-//                    <properties>
-//                        <maven.compiler.source>17</maven.compiler.source>
-//                        <maven.compiler.target>17</maven.compiler.target>
-//                        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-//                    </properties>
-//                </project>
-//                """);
-//
-//
-        OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
-        recipeInstaller.installRecipe();
-
-
         RewriteRecipeDiscovery recipeDiscovery = new RewriteRecipeDiscovery();
-//        OpenRewriteProjectParser openRewriteProjectParser = new OpenRewriteProjectParser(new ProvenanceMarkerFactory(new ParserSettings(), new MavenProjectFactory()), new BuildFileParser(new MavenModelReader()), new SourceFileParser(), new StyleDetector(), new ParserSettings());
-//        Path baseDir = Path.of(".");
-//        RewriteProjectParsingResult parsingResult = openRewriteProjectParser.parse(baseDir, List.of(rootPom), new InMemoryExecutionContext(t -> t.printStackTrace()));
-//        RewriteMavenProjectParser rewriteMavenProjectParser = new RewriteMavenProjectParser(new MavenPlexusContainerFactory());
-//        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
-//        RewriteProjectParsingResult parsingResult = rewriteMavenProjectParser.parse(
-//                Path.of("/Users/fkrueger/projects/spring-boot-migrator/sbm-rewrite-maven-parser/testcode/openrewrite-dummy-recipe"),
-//                true,
-//                "pomCache",
-//                false,
-//                Set.of("**/testcode/**"),
-//                Set.of(),
-//                -1,
-//                false,
-//                executionContext);
-
         String[] acceptPackages = {};
 //        Path jarPath = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
         ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
@@ -179,24 +136,6 @@ class RewriteRecipeDiscoveryTest {
         Path jarPath = Path.of("/Users/fkrueger/.m2/repository/org/openrewrite/recipe/rewrite-spring/4.36.0/rewrite-spring-4.36.0.jar");// Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
 
 
-
-        String jarName = jarPath.toFile().getName();
-        List<String> strings = new ClassGraph()
-                .acceptJars(jarName)
-                .ignoreParentClassLoaders()
-                .overrideClassLoaders(getClass().getClassLoader()).enableClassInfo().scan().getAllClassesAsMap()
-                .keySet()
-                .stream()
-                .filter(k -> k.startsWith("org.springframework"))
-                .toList();
-
-
-        List<Recipe> recipes1 = Environment.builder()
-                .scanJar(jarPath, Set.of(), getClass().getClassLoader().getParent())
-                .build()
-                .listRecipes();
-
-
         ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(loader), getClass().getClassLoader());
         Environment environment = Environment.builder()
                 .load(loader, Set.of(classpathScanningLoader))
@@ -209,9 +148,6 @@ class RewriteRecipeDiscoveryTest {
         Optional<Recipe> customJavaFromYaml = getRecipeByName(recipes, "com.example.SomeDummyRecipeInYaml");
         assertThat(customJavaFromYaml).isNotEmpty();
         assertThat(customJavaFromYaml.get()).isInstanceOf(DeclarativeRecipe.class);
-//        scanClasses(new ClassGraph()
-//                .ignoreParentClassLoaders()
-//                .overrideClassLoaders(getClass().getClassLoader()), classpathScanningLoader);
     }
 
     @Test
@@ -251,12 +187,6 @@ class RewriteRecipeDiscoveryTest {
                 .filter(r -> r.getName().equals(s))
                 .findFirst();
     }
-
-//    @Test
-//    @DisplayName("Load YAML Recipes from META-INF/recipes")
-//    void loadYamlRecipesFromMetaInfRecipes() {
-//        YamlResourceLoader resourceLoader = new YamlResourceLoader();
-//    }
 
     @NotNull
     private static Optional<Recipe> getRecipeByDisplayName(List<Recipe> recipes, String recipeDisplayName) {
