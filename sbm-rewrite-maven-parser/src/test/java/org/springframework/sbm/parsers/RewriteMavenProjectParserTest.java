@@ -17,6 +17,7 @@ package org.springframework.sbm.parsers;
 
 import org.apache.maven.project.MavenProject;
 import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -41,14 +42,15 @@ import org.openrewrite.maven.cache.CompositeMavenPomCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
-import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.style.Autodetect;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.FileSystemUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -62,14 +64,20 @@ import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.extractProperty;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Fail.fail;
 
 /**
  * @author Fabian Krüger
  */
 class RewriteMavenProjectParserTest {
+
+    private final RewriteMavenProjectParser sut = new RewriteMavenProjectParser(
+            new MavenPlexusContainerFactory(),
+            new MavenExecutionRequestFactory(
+                    new MavenConfigFileParser()
+            )
+    );
 
     @Test
     @DisplayName("Parsing Simplistic Maven Project ")
@@ -122,8 +130,6 @@ class RewriteMavenProjectParserTest {
         Files.createFile(pathToFile);
         Files.writeString(pathToFile, javaClass);
         Files.writeString(tempDir.resolve("pom.xml"), pomXml);
-
-        RewriteMavenProjectParser sut = new RewriteMavenProjectParser(new MavenPlexusContainerFactory());
 
         // call SUT
         RewriteProjectParsingResult parsingResult = sut.parse(
@@ -284,10 +290,31 @@ class RewriteMavenProjectParserTest {
     }
 
     @Test
+    @DisplayName("Should Parse Maven Config Project")
+    @Disabled("https://github.com/openrewrite/rewrite/issues/3409")
+    void shouldParseMavenConfigProject() {
+        Path baseDir = Path.of("./testcode/maven-projects/maven-config").toAbsolutePath().normalize();
+        RewriteProjectParsingResult parsingResult = sut.parse(
+                baseDir,
+                false,
+                "",
+                false,
+                Set.of(".mvn"),
+                Set.of(),
+                -1,
+                false,
+                new InMemoryExecutionContext(t -> fail(t.getMessage()))
+        );
+        assertThat(parsingResult.sourceFiles()).hasSize(2);
+    }
+
+    @Test
     @DisplayName("Parse complex Maven reactor project")
     void parseComplexMavenReactorProject() {
-        Path projectRoot = Path.of("./..").toAbsolutePath().normalize(); // SBM root
-        RewriteMavenProjectParser projectParser = new RewriteMavenProjectParser(new MavenPlexusContainerFactory());
+        String target = "./testcode/maven-projects/cwa-server";
+        cloneProject("https://github.com/corona-warn-app/cwa-server.git", target, "v3.2.0");
+        Path projectRoot = Path.of(target).toAbsolutePath().normalize(); // SBM root
+        RewriteMavenProjectParser projectParser = sut;
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         List<String> parsedFiles = new ArrayList<>();
         ParsingExecutionContextView.view(executionContext).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
@@ -305,13 +332,40 @@ class RewriteMavenProjectParserTest {
                 .forEach(System.out::println);
     }
 
+    private void removeProject(String target) {
+        try {
+            FileSystemUtils.deleteRecursively(Path.of(target).toAbsolutePath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void cloneProject(String url, String target, String tag) {
+        File directory = Path.of(target).toFile();
+        if(directory.exists()) {
+            return;
+        }
+        try {
+            Git git = Git.cloneRepository()
+                    .setDirectory(directory)
+                    .setURI(url)
+                    .call();
+
+            git.checkout()
+                    .setName("refs/tags/" + tag)
+                    .call();
+
+        } catch (GitAPIException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     @DisplayName("Parse multi-module-1")
     void parseMultiModule1_withIntegratedParser() {
         ExecutionContext ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
         Path baseDir = getProject("multi-module-1");
 
-        RewriteMavenProjectParser sut = new RewriteMavenProjectParser(new MavenPlexusContainerFactory());
         RewriteProjectParsingResult parsingResult = sut.parse(
                 baseDir,
                 false,
