@@ -42,9 +42,6 @@ public class ProjectScanner {
     private final ResourceLoader resourceLoader;
 
     public List<Resource> scan(Path baseDir, Set<String> ignoredPatters) {
-        if(!baseDir.isAbsolute()) {
-            baseDir = baseDir.toAbsolutePath().normalize();
-        }
         if(!baseDir.toFile().exists()) {
             throw new IllegalArgumentException("Provided path does not exist: " + baseDir);
         }
@@ -55,7 +52,6 @@ public class ProjectScanner {
             Resource[] resources = ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(pattern);
 
             List<PathMatcher> pathMatchers = ignoredPatters.stream()
-                    .map(p -> p.startsWith("glob:") ? p : "glob:" + p)
                     .map(baseDir.getFileSystem()::getPathMatcher)
                     .toList();
 
