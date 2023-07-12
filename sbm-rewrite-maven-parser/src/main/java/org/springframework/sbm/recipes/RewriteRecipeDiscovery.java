@@ -116,6 +116,8 @@ public class RewriteRecipeDiscovery {
             }
         }
 
+        recipes.add(recipe);
+
         return recipes;
     }
 
