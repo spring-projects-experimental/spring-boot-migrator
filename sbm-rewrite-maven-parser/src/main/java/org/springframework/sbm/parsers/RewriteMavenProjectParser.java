@@ -67,6 +67,7 @@ import static java.util.stream.Collectors.toList;
 public class RewriteMavenProjectParser {
 
 
+    public static final Collection<String> EXCLUSIONS = Set.of("**/.DS_Store", ".DS_Store");
     private final MavenPlexusContainerFactory mavenPlexusContainerFactory;
     private final MavenExecutionRequestFactory mavenExecutionRequestFactory;
 
@@ -85,17 +86,20 @@ public class RewriteMavenProjectParser {
         boolean pomCacheEnabled = true;
         String pomCacheDirectory = "pom-cache";
         boolean skipMavenParsing = false;
-        Collection<String> exclusions = Set.of();
         Collection<String> plainTextMasks = Set.of();
         int sizeThreshold = -1;
         boolean runPerSubmodule = false;
 
-        return parse(baseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, exclusions, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext);
+        return parse(baseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, EXCLUSIONS, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext);
     }
 
 
     @NotNull
     public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext) {
+        Collection<String> allExclusions = new ArrayList<>();
+        allExclusions.addAll(EXCLUSIONS);
+        allExclusions.addAll(exclusions);
+
         PlexusContainer plexusContainer = createPlexusContainer(baseDir);
         AtomicReference<RewriteProjectParsingResult> parsingResult = new AtomicReference<>();
         new MavenRunner().runAfterMavenGoals(plexusContainer, baseDir, List.of("clean", "package"), event -> {
@@ -110,7 +114,7 @@ public class RewriteMavenProjectParser {
                         pomCacheEnabled,
                         pomCacheDirectory,
                         skipMavenParsing,
-                        exclusions,
+                        allExclusions,
                         plainTextMasks,
                         sizeThreshold,
                         runPerSubmodule,
