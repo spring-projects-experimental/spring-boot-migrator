@@ -394,7 +394,8 @@ class RewriteMavenProjectParserTest {
                 new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
                 parserSettings,
-                new MavenBuildFileGraph(new MavenPlexusContainerFactory())
+                new MavenBuildFileGraph(new MavenPlexusContainerFactory()),
+                mock(ParsingEventListener.class)
                 );
         Set<String> ignoredPatters = Set.of();
         ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader());
