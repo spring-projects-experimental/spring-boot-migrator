@@ -1,0 +1,244 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< org.springframework.sbm:sbm-core >------------------
+[INFO] Building sbm-core 0.14.1-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ sbm-core ---
+[INFO] org.springframework.sbm:sbm-core:jar:0.14.1-SNAPSHOT
+[INFO] +- org.example:sbm-openrewrite-parser:jar:1.0-SNAPSHOT:compile
+[INFO] |  +- org.openrewrite:rewrite-xml:jar:8.1.8:compile
+[INFO] |  +- org.openrewrite.maven:rewrite-maven-plugin:jar:5.2.2:compile
+[INFO] |  |  +- org.openrewrite:rewrite-java-8:jar:8.1.2:compile
+[INFO] |  |  +- org.openrewrite:rewrite-python:jar:1.0.1:compile
+[INFO] |  |  |  +- org.jetbrains.kotlin:kotlin-stdlib-jdk8:jar:1.6.21:runtime
+[INFO] |  |  |  |  \- org.jetbrains.kotlin:kotlin-stdlib-jdk7:jar:1.6.21:runtime
+[INFO] |  |  |  +- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:jar:1.6.4:runtime
+[INFO] |  |  |  +- it.unimi.dsi:fastutil:jar:8.5.2:runtime
+[INFO] |  |  |  \- one.util:streamex:jar:0.8.1:runtime
+[INFO] |  |  +- com.puppycrawl.tools:checkstyle:jar:9.3:compile
+[INFO] |  |  |  +- info.picocli:picocli:jar:4.6.2:compile
+[INFO] |  |  |  +- commons-beanutils:commons-beanutils:jar:1.9.4:compile
+[INFO] |  |  |  |  +- commons-logging:commons-logging:jar:1.2:compile
+[INFO] |  |  |  |  \- commons-collections:commons-collections:jar:3.2.2:compile
+[INFO] |  |  |  +- org.reflections:reflections:jar:0.10.2:compile
+[INFO] |  |  |  |  +- org.javassist:javassist:jar:3.28.0-GA:compile
+[INFO] |  |  |  |  \- com.google.code.findbugs:jsr305:jar:3.0.2:compile
+[INFO] |  |  |  \- net.sf.saxon:Saxon-HE:jar:10.6:compile
+[INFO] |  |  +- com.fasterxml.jackson.module:jackson-module-kotlin:jar:2.13.4:compile
+[INFO] |  |  |  \- org.jetbrains.kotlin:kotlin-reflect:jar:1.6.21:compile
+[INFO] |  |  +- io.micrometer.prometheus:prometheus-rsocket-client:jar:1.5.1:compile
+[INFO] |  |  |  \- io.micrometer:micrometer-registry-prometheus:jar:1.9.5:compile
+[INFO] |  |  |     \- io.prometheus:simpleclient_common:jar:0.15.0:compile
+[INFO] |  |  |        \- io.prometheus:simpleclient:jar:0.15.0:compile
+[INFO] |  |  |           +- io.prometheus:simpleclient_tracer_otel:jar:0.15.0:compile
+[INFO] |  |  |           |  \- io.prometheus:simpleclient_tracer_common:jar:0.15.0:compile
+[INFO] |  |  |           \- io.prometheus:simpleclient_tracer_otel_agent:jar:0.15.0:compile
+[INFO] |  |  +- io.rsocket:rsocket-transport-netty:jar:1.1.3:compile
+[INFO] |  |  |  +- io.projectreactor.netty:reactor-netty-core:jar:1.0.24:compile
+[INFO] |  |  |  |  +- io.netty:netty-handler:jar:4.1.84.Final:compile
+[INFO] |  |  |  |  |  +- io.netty:netty-resolver:jar:4.1.84.Final:compile
+[INFO] |  |  |  |  |  +- io.netty:netty-transport:jar:4.1.84.Final:compile
+[INFO] |  |  |  |  |  +- io.netty:netty-transport-native-unix-common:jar:4.1.84.Final:compile
+[INFO] |  |  |  |  |  \- io.netty:netty-codec:jar:4.1.84.Final:compile
+[INFO] |  |  |  |  +- io.netty:netty-handler-proxy:jar:4.1.84.Final:compile
+[INFO] |  |  |  |  |  \- io.netty:netty-codec-socks:jar:4.1.84.Final:compile
+[INFO] |  |  |  |  +- io.netty:netty-resolver-dns:jar:4.1.84.Final:compile
+[INFO] |  |  |  |  |  \- io.netty:netty-codec-dns:jar:4.1.84.Final:compile
+[INFO] |  |  |  |  +- io.netty:netty-resolver-dns-native-macos:jar:osx-x86_64:4.1.84.Final:compile
+[INFO] |  |  |  |  |  \- io.netty:netty-resolver-dns-classes-macos:jar:4.1.84.Final:compile
+[INFO] |  |  |  |  \- io.netty:netty-transport-native-epoll:jar:linux-x86_64:4.1.84.Final:compile
+[INFO] |  |  |  |     \- io.netty:netty-transport-classes-epoll:jar:4.1.84.Final:compile
+[INFO] |  |  |  \- io.projectreactor.netty:reactor-netty-http:jar:1.0.24:compile
+[INFO] |  |  |     +- io.netty:netty-codec-http:jar:4.1.84.Final:compile
+[INFO] |  |  |     \- io.netty:netty-codec-http2:jar:4.1.84.Final:compile
+[INFO] |  |  +- io.rsocket:rsocket-core:jar:1.1.3:compile
+[INFO] |  |  |  +- io.netty:netty-buffer:jar:4.1.84.Final:compile
+[INFO] |  |  |  |  \- io.netty:netty-common:jar:4.1.84.Final:compile
+[INFO] |  |  |  \- io.projectreactor:reactor-core:jar:3.4.24:compile
+[INFO] |  |  |     \- org.reactivestreams:reactive-streams:jar:1.0.4:compile
+[INFO] |  |  +- org.codehaus.plexus:plexus-interactivity-api:jar:1.1:compile
+[INFO] |  |  \- org.apache.maven.shared:maven-filtering:jar:3.3.1:compile
+[INFO] |  |     +- org.sonatype.plexus:plexus-build-api:jar:0.0.7:compile
+[INFO] |  |     \- commons-io:commons-io:jar:2.11.0:compile
+[INFO] |  +- org.apache.maven:maven-core:jar:3.9.1:compile
+[INFO] |  |  +- org.apache.maven:maven-settings:jar:3.9.1:compile
+[INFO] |  |  +- org.apache.maven:maven-settings-builder:jar:3.9.1:compile
+[INFO] |  |  +- org.apache.maven:maven-builder-support:jar:3.9.1:compile
+[INFO] |  |  +- org.apache.maven:maven-repository-metadata:jar:3.9.1:compile
+[INFO] |  |  +- org.apache.maven:maven-plugin-api:jar:3.9.1:compile
+[INFO] |  |  +- org.apache.maven:maven-resolver-provider:jar:3.9.1:compile
+[INFO] |  |  +- org.apache.maven.resolver:maven-resolver-impl:jar:1.9.7:compile
+[INFO] |  |  |  \- org.apache.maven.resolver:maven-resolver-named-locks:jar:1.9.7:compile
+[INFO] |  |  +- org.apache.maven.resolver:maven-resolver-api:jar:1.9.7:compile
+[INFO] |  |  +- org.apache.maven.resolver:maven-resolver-spi:jar:1.9.7:compile
+[INFO] |  |  +- org.apache.maven.resolver:maven-resolver-util:jar:1.9.7:compile
+[INFO] |  |  +- org.apache.maven.shared:maven-shared-utils:jar:3.3.4:compile
+[INFO] |  |  +- org.eclipse.sisu:org.eclipse.sisu.plexus:jar:0.3.5:compile
+[INFO] |  |  +- org.eclipse.sisu:org.eclipse.sisu.inject:jar:0.3.5:compile
+[INFO] |  |  +- com.google.inject:guice:jar:5.1.0:compile
+[INFO] |  |  |  \- aopalliance:aopalliance:jar:1.0:compile
+[INFO] |  |  +- com.google.guava:guava:jar:30.1-jre:compile
+[INFO] |  |  +- com.google.guava:failureaccess:jar:1.0.1:compile
+[INFO] |  |  +- javax.inject:javax.inject:jar:1:compile
+[INFO] |  |  +- org.codehaus.plexus:plexus-utils:jar:3.5.1:compile
+[INFO] |  |  +- org.codehaus.plexus:plexus-classworlds:jar:2.6.0:compile
+[INFO] |  |  +- org.codehaus.plexus:plexus-interpolation:jar:1.26:compile
+[INFO] |  |  \- org.codehaus.plexus:plexus-component-annotations:jar:2.1.0:compile
+[INFO] |  +- org.apache.maven:maven-artifact:jar:3.9.1:compile
+[INFO] |  +- org.apache.maven:maven-compat:jar:3.9.1:compile
+[INFO] |  |  \- org.apache.maven.wagon:wagon-provider-api:jar:3.5.3:compile
+[INFO] |  +- org.apache.maven:maven-embedder:jar:3.9.1:compile
+[INFO] |  |  +- org.codehaus.plexus:plexus-sec-dispatcher:jar:2.0:compile
+[INFO] |  |  \- commons-cli:commons-cli:jar:1.4:compile
+[INFO] |  +- org.codehaus.plexus:plexus-cipher:jar:1.8:compile
+[INFO] |  +- org.apache.maven.resolver:maven-resolver-connector-basic:jar:1.9.7:compile
+[INFO] |  +- org.apache.maven:maven-model:jar:3.9.1:compile
+[INFO] |  +- org.apache.maven:maven-model-builder:jar:3.9.1:compile
+[INFO] |  \- javax.xml.bind:jaxb-api:jar:2.3.1:compile
+[INFO] |     \- javax.activation:javax.activation-api:jar:1.2.0:compile
+[INFO] +- org.springframework.sbm:sbm-openrewrite:jar:0.14.1-SNAPSHOT:compile
+[INFO] |  +- org.openrewrite:rewrite-core:jar:8.1.8:compile
+[INFO] |  |  +- com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.13.4:compile
+[INFO] |  |  +- org.openrewrite.tools:java-object-diff:jar:1.0.1:runtime
+[INFO] |  |  +- io.quarkus.gizmo:gizmo:jar:1.0.11.Final:runtime
+[INFO] |  |  |  \- org.jboss:jandex:jar:2.4.2.Final:runtime
+[INFO] |  |  +- net.java.dev.jna:jna-platform:jar:5.13.0:runtime
+[INFO] |  |  |  \- net.java.dev.jna:jna:jar:5.13.0:runtime
+[INFO] |  |  \- org.apache.commons:commons-compress:jar:1.23.0:runtime
+[INFO] |  +- org.rocksdb:rocksdbjni:jar:7.1.2:compile
+[INFO] |  +- org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-api:jar:3.1.4:compile
+[INFO] |  +- org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-spi:jar:3.1.4:compile
+[INFO] |  +- org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-api-maven:jar:3.1.4:compile
+[INFO] |  +- org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-spi-maven:jar:3.1.4:compile
+[INFO] |  +- org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-impl-maven:jar:3.1.4:compile
+[INFO] |  |  +- org.apache.maven.resolver:maven-resolver-transport-wagon:jar:1.4.1:compile
+[INFO] |  |  +- org.sonatype.plexus:plexus-sec-dispatcher:jar:1.4:compile
+[INFO] |  |  |  \- org.sonatype.plexus:plexus-cipher:jar:1.4:compile
+[INFO] |  |  +- org.apache.maven.wagon:wagon-file:jar:3.3.4:compile
+[INFO] |  |  \- org.apache.maven.wagon:wagon-http-lightweight:jar:2.12:compile
+[INFO] |  |     \- org.apache.maven.wagon:wagon-http-shared:jar:2.12:compile
+[INFO] |  |        \- org.jsoup:jsoup:jar:1.7.2:compile
+[INFO] |  \- org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-bom:pom:3.1.4:compile
+[INFO] +- org.springframework.sbm:sbm-utils:jar:0.14.1-SNAPSHOT:compile
+[INFO] |  \- org.springframework:spring-core:jar:5.3.23:compile
+[INFO] |     \- org.springframework:spring-jcl:jar:5.3.23:compile
+[INFO] +- org.springframework.boot:spring-boot-starter-freemarker:jar:2.7.5:compile
+[INFO] |  +- org.freemarker:freemarker:jar:2.3.31:compile
+[INFO] |  \- org.springframework:spring-context-support:jar:5.3.23:compile
+[INFO] +- com.tngtech.archunit:archunit-junit5:jar:1.0.1:test
+[INFO] |  +- com.tngtech.archunit:archunit-junit5-api:jar:1.0.1:test
+[INFO] |  |  \- com.tngtech.archunit:archunit:jar:1.0.1:test
+[INFO] |  \- com.tngtech.archunit:archunit-junit5-engine:jar:1.0.1:test
+[INFO] |     \- com.tngtech.archunit:archunit-junit5-engine-api:jar:1.0.1:test
+[INFO] |        \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] +- org.springframework.boot:spring-boot-starter-test:jar:2.7.5:test
+[INFO] |  +- org.springframework.boot:spring-boot-test:jar:2.7.5:test
+[INFO] |  +- org.springframework.boot:spring-boot-test-autoconfigure:jar:2.7.5:test
+[INFO] |  +- com.jayway.jsonpath:json-path:jar:2.7.0:test
+[INFO] |  |  \- net.minidev:json-smart:jar:2.4.8:test
+[INFO] |  |     \- net.minidev:accessors-smart:jar:2.4.8:test
+[INFO] |  +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:runtime
+[INFO] |  |  \- jakarta.activation:jakarta.activation-api:jar:1.2.2:runtime
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  +- org.hamcrest:hamcrest:jar:2.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter:jar:5.8.2:test
+[INFO] |  |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  |  +- org.junit.jupiter:junit-jupiter-params:jar:5.8.2:test
+[INFO] |  |  \- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  +- org.mockito:mockito-core:jar:4.5.1:test
+[INFO] |  |  +- net.bytebuddy:byte-buddy:jar:1.12.18:test
+[INFO] |  |  +- net.bytebuddy:byte-buddy-agent:jar:1.12.18:test
+[INFO] |  |  \- org.objenesis:objenesis:jar:3.2:test
+[INFO] |  +- org.mockito:mockito-junit-jupiter:jar:4.5.1:test
+[INFO] |  +- org.skyscreamer:jsonassert:jar:1.5.1:test
+[INFO] |  |  \- com.vaadin.external.google:android-json:jar:0.0.20131108.vaadin1:test
+[INFO] |  +- org.springframework:spring-test:jar:5.3.23:test
+[INFO] |  \- org.xmlunit:xmlunit-core:jar:2.9.0:test
+[INFO] +- org.openrewrite:rewrite-maven:jar:8.1.8:compile
+[INFO] |  +- org.jetbrains:annotations:jar:24.0.1:compile
+[INFO] |  +- com.github.ben-manes.caffeine:caffeine:jar:2.9.3:runtime
+[INFO] |  |  +- org.checkerframework:checker-qual:jar:3.19.0:runtime
+[INFO] |  |  \- com.google.errorprone:error_prone_annotations:jar:2.10.0:runtime
+[INFO] |  +- org.antlr:antlr4:jar:4.11.1:runtime
+[INFO] |  |  +- org.antlr:antlr4-runtime:jar:4.11.1:runtime
+[INFO] |  |  +- org.antlr:antlr-runtime:jar:3.5.3:compile
+[INFO] |  |  +- org.antlr:ST4:jar:4.3.4:compile
+[INFO] |  |  +- org.abego.treelayout:org.abego.treelayout.core:jar:1.0.3:runtime
+[INFO] |  |  +- org.glassfish:javax.json:jar:1.1.4:runtime
+[INFO] |  |  \- com.ibm.icu:icu4j:jar:71.1:runtime
+[INFO] |  +- io.github.resilience4j:resilience4j-retry:jar:1.7.0:runtime
+[INFO] |  |  +- io.vavr:vavr:jar:0.10.2:runtime
+[INFO] |  |  |  \- io.vavr:vavr-match:jar:0.10.2:runtime
+[INFO] |  |  \- io.github.resilience4j:resilience4j-core:jar:1.7.0:runtime
+[INFO] |  +- com.fasterxml.jackson.dataformat:jackson-dataformat-smile:jar:2.13.4:compile
+[INFO] |  +- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.13.4:runtime
+[INFO] |  +- io.micrometer:micrometer-core:jar:1.9.5:compile
+[INFO] |  |  +- org.hdrhistogram:HdrHistogram:jar:2.1.12:compile
+[INFO] |  |  \- org.latencyutils:LatencyUtils:jar:2.0.3:runtime
+[INFO] |  \- org.apache.commons:commons-text:jar:1.10.0:compile
+[INFO] +- org.openrewrite:rewrite-java:jar:8.1.8:compile
+[INFO] |  +- org.apache.commons:commons-lang3:jar:3.12.0:compile
+[INFO] |  +- io.github.classgraph:classgraph:jar:4.8.161:runtime
+[INFO] |  +- org.xerial.snappy:snappy-java:jar:1.1.10.1:runtime
+[INFO] |  +- io.github.fastfilter:fastfilter:jar:1.0.2:runtime
+[INFO] |  +- org.ow2.asm:asm:jar:9.5:runtime
+[INFO] |  \- org.ow2.asm:asm-util:jar:9.5:runtime
+[INFO] |     +- org.ow2.asm:asm-tree:jar:9.5:runtime
+[INFO] |     \- org.ow2.asm:asm-analysis:jar:9.5:runtime
+[INFO] +- org.openrewrite:rewrite-yaml:jar:8.1.8:compile
+[INFO] |  \- org.yaml:snakeyaml:jar:1.30:compile
+[INFO] +- org.openrewrite:rewrite-json:jar:8.1.8:compile
+[INFO] +- org.openrewrite:rewrite-properties:jar:8.1.8:compile
+[INFO] +- org.openrewrite:rewrite-java-11:jar:8.1.8:compile
+[INFO] +- org.openrewrite:rewrite-java-17:jar:8.1.8:compile
+[INFO] +- org.openrewrite:rewrite-protobuf:jar:8.1.8:compile
+[INFO] +- org.openrewrite:rewrite-hcl:jar:8.1.8:compile
+[INFO] +- org.projectlombok:lombok:jar:1.18.24:compile
+[INFO] +- org.springframework.boot:spring-boot-starter:jar:2.7.5:compile
+[INFO] |  +- org.springframework.boot:spring-boot:jar:2.7.5:compile
+[INFO] |  +- org.springframework.boot:spring-boot-autoconfigure:jar:2.7.5:compile
+[INFO] |  +- org.springframework.boot:spring-boot-starter-logging:jar:2.7.5:compile
+[INFO] |  |  +- ch.qos.logback:logback-classic:jar:1.2.11:compile
+[INFO] |  |  |  \- ch.qos.logback:logback-core:jar:1.2.11:compile
+[INFO] |  |  +- org.apache.logging.log4j:log4j-to-slf4j:jar:2.17.2:compile
+[INFO] |  |  |  \- org.apache.logging.log4j:log4j-api:jar:2.17.2:compile
+[INFO] |  |  \- org.slf4j:jul-to-slf4j:jar:1.7.36:compile
+[INFO] |  \- jakarta.annotation:jakarta.annotation-api:jar:1.3.5:compile
+[INFO] +- org.springframework:spring-context:jar:5.3.23:compile
+[INFO] |  +- org.springframework:spring-aop:jar:5.3.23:compile
+[INFO] |  +- org.springframework:spring-beans:jar:5.3.23:compile
+[INFO] |  \- org.springframework:spring-expression:jar:5.3.23:compile
+[INFO] +- org.eclipse.jgit:org.eclipse.jgit:jar:6.4.0.202211300538-r:compile
+[INFO] |  +- com.googlecode.javaewah:JavaEWAH:jar:1.1.13:compile
+[INFO] |  \- org.slf4j:slf4j-api:jar:1.7.36:compile
+[INFO] +- org.hibernate.validator:hibernate-validator:jar:6.2.5.Final:compile
+[INFO] |  +- jakarta.validation:jakarta.validation-api:jar:2.0.2:compile
+[INFO] |  +- org.jboss.logging:jboss-logging:jar:3.4.3.Final:compile
+[INFO] |  \- com.fasterxml:classmate:jar:1.5.1:compile
+[INFO] +- org.glassfish:jakarta.el:jar:3.0.3:compile
+[INFO] +- javax.annotation:javax.annotation-api:jar:1.3.2:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-core:jar:2.13.4:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-databind:jar:2.13.4.2:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-annotations:jar:2.13.4:compile
+[INFO] +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.13.4:compile
+[INFO] +- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.13.4:compile
+[INFO] +- com.squareup.okhttp3:okhttp:jar:4.9.3:compile
+[INFO] |  +- com.squareup.okio:okio:jar:2.8.0:compile
+[INFO] |  |  \- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.6.21:compile
+[INFO] |  \- org.jetbrains.kotlin:kotlin-stdlib:jar:1.6.21:compile
+[INFO] +- org.springframework.sbm:test-helper:jar:0.14.1-SNAPSHOT:test
+[INFO] +- org.springframework.sbm:sbm-openrewrite:jar:tests:0.14.1-SNAPSHOT:test
+[INFO] +- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:jar:2.14.1:compile
+[INFO] |  +- org.codehaus.woodstox:stax2-api:jar:4.2.1:compile
+[INFO] |  \- com.fasterxml.woodstox:woodstox-core:jar:6.4.0:compile
+[INFO] \- org.slf4j:jcl-over-slf4j:jar:2.0.6:compile
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.347 s
+[INFO] Finished at: 2023-07-12T20:54:43+02:00
+[INFO] ------------------------------------------------------------------------

@@ -15,24 +15,34 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>spring-boot-migrator</artifactId>
         <groupId>org.springframework.sbm</groupId>
         <version>0.14.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
     <artifactId>sbm-core</artifactId>
 
+
     <dependencies>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>sbm-openrewrite-parser</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.sbm</groupId>
+            <artifactId>sbm-rewrite-maven-parser</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-openrewrite</artifactId>
             <version>0.14.1-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-utils</artifactId>
@@ -60,6 +70,10 @@
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-maven</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-xml</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
@@ -94,11 +108,11 @@
             <artifactId>rewrite-hcl</artifactId>
         </dependency>
         <!-- TODO: bind to profile, currently not in use -->
-<!--        <dependency>-->
-<!--            <groupId>org.mapdb</groupId>-->
-<!--            <artifactId>mapdb</artifactId>-->
-<!--            <version>3.0.8</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.mapdb</groupId>-->
+        <!--            <artifactId>mapdb</artifactId>-->
+        <!--            <version>3.0.8</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -167,13 +181,13 @@
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.dataformat</groupId>
-			<artifactId>jackson-dataformat-xml</artifactId>
-			<version>2.14.1</version>
-		</dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>2.14.1</version>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
     <build>
         <plugins>
             <plugin>

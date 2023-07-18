@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.engine.commands;
 
+import org.openrewrite.java.RemoveAnnotation;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.sbm.common.filter.DeletedResourcePathStringFilter;
 import org.springframework.sbm.common.filter.ModifiedResourcePathStringFilter;
@@ -60,6 +61,9 @@ public class ApplyCommand extends AbstractCommand<Recipe> {
 
     public List<Action> execute(ProjectContext projectContext, String recipeName) {
         try {
+
+            RemoveAnnotation ra = new RemoveAnnotation("").run().getResults().
+
             Recipe recipe = recipesBuilder.buildRecipes().getRecipeByName(recipeName)
                     .orElseThrow(() -> new IllegalArgumentException("Recipe with name '" + recipeName + "' could not be found"));
 

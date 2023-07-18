@@ -35,7 +35,7 @@ import java.util.List;
  * all settings from {@code settings.xml} are respected.
  */
 @Component
-public class RewriteMavenParser implements Parser<Xml.Document> {
+public class RewriteMavenParser implements MavenXmlParser {
 
     private MavenParser parser;
     private final MavenSettingsInitializer mavenSettingsInitializer;

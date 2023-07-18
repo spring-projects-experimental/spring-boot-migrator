@@ -115,7 +115,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         return springBootDependenciesMap;
     }
     @Override
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new MavenIsoVisitor<>() {
             @Override
             public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {

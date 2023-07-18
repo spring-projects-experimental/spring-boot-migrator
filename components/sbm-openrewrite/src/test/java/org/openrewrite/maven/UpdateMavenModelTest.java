@@ -73,7 +73,7 @@ public class UpdateMavenModelTest {
             }
 
             @Override
-            protected TreeVisitor<?, ExecutionContext> getVisitor() {
+            public TreeVisitor<?, ExecutionContext> getVisitor() {
                 return new MavenIsoVisitor<ExecutionContext>() {
 
                     @Override
@@ -140,7 +140,7 @@ public class UpdateMavenModelTest {
             }
 
             @Override
-            protected TreeVisitor<?, ExecutionContext> getVisitor() {
+            public TreeVisitor<?, ExecutionContext> getVisitor() {
                 return new UpdateMavenModel<>();
             }
         }.run(List.of(after)).getResults().get(0).getAfter();
