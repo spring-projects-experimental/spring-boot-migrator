@@ -79,6 +79,9 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     }
 
     // FIXME: What happens to getApplicableTest()
+    // [Rewrite8 migration] Method `Recipe#getApplicableTest(..)` is deprecated and needs to be converted to a `ScanningRecipe`. Or you can use `Precondition#check()` if it is meant to use a single-source applicability test. please follow the migration guide here: https://docs.openrewrite.org/changelog/8-1-2-release
+    // [Rewrite8 migration] Method `Recipe#getApplicableTest(..)` is deprecated and needs to be converted to a `ScanningRecipe`. Or you can use `Precondition#check()` if it is meant to use a single-source applicability test. please follow the migration guide here: https://docs.openrewrite.org/changelog/8-1-2-release
+    // [Rewrite8 migration] Method `Recipe#getApplicableTest(..)` is deprecated and needs to be converted to a `ScanningRecipe`. Or you can use `Precondition#check()` if it is meant to use a single-source applicability test. please follow the migration guide here: https://docs.openrewrite.org/changelog/8-1-2-release
     protected TreeVisitor<?, ExecutionContext> getApplicableTest() {
         return new MavenIsoVisitor<>() {
             @Override

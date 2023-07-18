@@ -27,6 +27,7 @@ public class ErrorClass extends org.openrewrite.Recipe {
         return "NAME";
     }
 
+    // FIXME: [Rewrite8 migration] This recipe uses the visit multiple sources method `visit(List<SourceFile> before, P p)`, needs to be migrated to use new introduced scanning recipe, please follow the migration guide here: https://docs.openrewrite.org/changelog/8-1-2-release
     @Override
     protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
         ctx.getOnError().accept(new RuntimeException("A problem happened whilst visiting"));
