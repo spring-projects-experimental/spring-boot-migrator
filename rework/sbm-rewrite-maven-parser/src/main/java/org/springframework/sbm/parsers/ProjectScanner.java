@@ -55,6 +55,7 @@ public class ProjectScanner {
             Resource[] resources = ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(pattern);
 
             List<PathMatcher> pathMatchers = ignoredPatters.stream()
+                    .map(p -> p.startsWith("glob:") ? p : "glob:" + p)
                     .map(baseDir.getFileSystem()::getPathMatcher)
                     .toList();
 
