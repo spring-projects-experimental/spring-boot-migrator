@@ -52,7 +52,8 @@ public class AddAnnotationUsingTemplateTest {
                         .javaParser(JavaParser.fromJavaVersion())
                         .build();
                 maybeAddImport("org.junit.jupiter.api.Disabled");
-                return template.apply(getCursor().getParent(), cd.getCoordinates().addAnnotation((a1, a2) -> 0));
+                J.ClassDeclaration apply = template.apply(getCursor(), cd.getCoordinates().addAnnotation((a1, a2) -> 0));
+                return apply;
             }
         };
 
