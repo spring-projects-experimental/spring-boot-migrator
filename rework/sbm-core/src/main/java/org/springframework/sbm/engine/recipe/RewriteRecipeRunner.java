@@ -20,6 +20,7 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +35,7 @@ public class RewriteRecipeRunner {
     // FIXME: Make this a method 'apply(org.openrewrite.Recipe)' on ProjectContext, see https://github.com/spring-projects-experimental/spring-boot-migrator/issues/803
     public void run(ProjectContext context, Recipe recipe) {
         List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles, executionContext).getResults();
+        List<Result> results = recipe.run(new InMemoryLargeSourceSet(rewriteSourceFiles.stream().map(SourceFile.class::cast).toList()), executionContext).getChangeset().getAllResults();
         resultMerger.mergeResults(context, results);
     }
 

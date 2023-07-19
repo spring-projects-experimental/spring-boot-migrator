@@ -43,6 +43,11 @@ public class RemoveMavenPlugin extends Recipe {
     }
 
     @Override
+    public String getDescription() {
+        return getDisplayName();
+    }
+
+    @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new RemoveMavenPluginVisitor();
     }

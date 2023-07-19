@@ -176,4 +176,9 @@ public class AddMavenPlugin extends Recipe {
 		return "Add Maven Plugin";
 	}
 
+	@Override
+	public String getDescription() {
+		return getDisplayName();
+	}
+
 }

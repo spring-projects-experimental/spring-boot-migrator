@@ -23,6 +23,7 @@ import org.openrewrite.java.tree.*;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -52,9 +53,9 @@ public class OpenRewriteType implements Type {
     private final JavaRefactoring refactoring;
     private final ClassDeclaration classDeclaration;
     private final ExecutionContext executionContext;
-    private JavaParser.Builder javaParserBuilder;
+    private JavaParserBuilder javaParserBuilder;
 
-    public OpenRewriteType(ClassDeclaration classDeclaration, RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring, ExecutionContext executionContext, JavaParser.Builder javaParserBuilder) {
+    public OpenRewriteType(ClassDeclaration classDeclaration, RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring, ExecutionContext executionContext, JavaParserBuilder javaParserBuilder) {
         this.classDeclId = classDeclaration.getId();
         this.classDeclaration = classDeclaration;
         this.rewriteSourceFileHolder = rewriteSourceFileHolder;
@@ -105,26 +106,16 @@ public class OpenRewriteType implements Type {
     @Override
     public void addAnnotation(String fqName) {
         // FIXME: Hack, JavaParser should have latest classpath
-        Supplier<JavaParser> javaParserSupplier = () -> javaParserBuilder;
+        Supplier<JavaParser.Builder> javaParserSupplier = () -> javaParserBuilder;
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
         AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserSupplier, getClassDeclaration(), snippet, fqName);
         refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
-
-
-        List<SourceFile> ast = List.of();
-        ExecutionContext ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
-        RecipeRun runResult = new RemoveAnnotation("").run(new InMemoryLargeSourceSet(ast), ctx);
-        List<SourceFile> result = runResult.getChangeset().getAllResults().stream()
-                .map(r -> r.getAfter())
-                .toList();
-        ast = merge(ast, result);
     }
 
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
         // FIXME: #7 JavaParser does not update typesInUse
-        Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
-        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserSupplier, getClassDeclaration(), snippet, annotationImport, otherImports);
+        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserBuilder, getClassDeclaration(), snippet, annotationImport, otherImports);
         Recipe recipe = new GenericOpenRewriteRecipe<>(() -> addAnnotationVisitor);
         refactoring.refactor(rewriteSourceFileHolder, recipe);
     }
@@ -140,16 +131,16 @@ public class OpenRewriteType implements Type {
     // FIXME: reuse
     public void removeAnnotation(String fqName) {
         // TODO: See if RemoveAnnotationVisitor can be replaced with OpenRewrite's version
-        Recipe removeAnnotationRecipe = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(getClassDeclaration(), fqName))
-                .doNext(new RemoveUnusedImports());
+        Recipe removeAnnotationRecipe = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(getClassDeclaration(), fqName));
         refactoring.refactor(rewriteSourceFileHolder, removeAnnotationRecipe);
+        refactoring.refactor(rewriteSourceFileHolder, new RemoveUnusedImports());
     }
 
     @Override
     public void removeAnnotation(Annotation annotation) {
-        Recipe removeAnnotationRecipe = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(getClassDeclaration(), annotation.getFullyQualifiedName()))
-                .doNext(new RemoveUnusedImports());
+        Recipe removeAnnotationRecipe = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(getClassDeclaration(), annotation.getFullyQualifiedName()));
         refactoring.refactor(rewriteSourceFileHolder, removeAnnotationRecipe);
+        refactoring.refactor(rewriteSourceFileHolder, new RemoveUnusedImports());
     }
 
     @Override
@@ -163,23 +154,19 @@ public class OpenRewriteType implements Type {
     public void addMethod(String methodTemplate, Set<String> requiredImports) {
         this.apply(new GenericOpenRewriteRecipe<>(() -> new JavaIsoVisitor<ExecutionContext>() {
             @Override
-            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
-                // FIXME: #7 hack, get JavaParser as SpringBean with access to classpath
-                // TODO: 786
-                javaParserBuilder = new RewriteJavaParser(new SbmApplicationProperties(), executionContext);
-                javaParserBuilder.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
-
-                J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
+            public ClassDeclaration visitClassDeclaration(ClassDeclaration classDecl, ExecutionContext executionContext) {
+                ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
                 JavaTemplate template = JavaTemplate
-                        .builder(() -> getCursor().getParent(), methodTemplate)
-                        .javaParser(() -> javaParserBuilder)
+                        .builder(methodTemplate)
+                        .javaParser(javaParserBuilder)
                         .imports(requiredImports.toArray(new String[0]))
                         .build();
                 requiredImports.forEach(this::maybeAddImport);
-                cd = cd.withTemplate(template, cd.getBody().getCoordinates().lastStatement());
+                cd = template.apply(getCursor(), cd.getBody().getCoordinates().lastStatement());
                 return cd;
             }
-        }).doNext(new WrappingAndBraces()));
+        }));
+        this.apply(new WrappingAndBraces());
     }
 
 

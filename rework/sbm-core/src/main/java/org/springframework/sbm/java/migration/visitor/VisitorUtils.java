@@ -156,6 +156,11 @@ public class VisitorUtils {
         }
 
         @Override
+        public String getDescription() {
+            return getDisplayName();
+        }
+
+        @Override
         public TreeVisitor<?, ExecutionContext> getVisitor() {
             return new JavaIsoVisitor<ExecutionContext>() {
 
@@ -169,7 +174,8 @@ public class VisitorUtils {
                             removeMarker(expression, marker);
                             MethodDeclaration method = getCursor().firstEnclosing(MethodDeclaration.class);
                             if (method != null) {
-                                doAfterVisit(new ChangeMethodReturnTypeRecipe(m -> m.getId().equals(method.getId()), marker.getExpression(), marker.getImports()));
+                                ChangeMethodReturnTypeRecipe changeMethodReturnTypeRecipe = new ChangeMethodReturnTypeRecipe(m -> m.getId().equals(method.getId()), marker.getExpression(), marker.getImports());
+                                doAfterVisit(changeMethodReturnTypeRecipe.getVisitor());
                             }
                         }
                     }

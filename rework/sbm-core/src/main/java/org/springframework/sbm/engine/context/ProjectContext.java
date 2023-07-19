@@ -26,6 +26,7 @@ import org.springframework.sbm.java.api.ProjectJavaSources;
 import org.springframework.sbm.java.impl.ProjectJavaSourcesImpl;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 import lombok.Getter;
@@ -44,15 +45,15 @@ public class ProjectContext {
     private BasePackageCalculator basePackageCalculator;
     private final ProjectResourceSet projectResources;
     private String revision;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
 
-    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParser javaParser, ExecutionContext executionContext) {
+    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParserBuilder javaParserBuilder, ExecutionContext executionContext) {
         this.projectRootDirectory = projectRootDirectory.toAbsolutePath();
         this.projectResources = projectResources;
         this.javaRefactoringFactory = javaRefactoringFactory;
         this.basePackageCalculator = basePackageCalculator;
-        this.javaParser = javaParser;
+        this.javaParserBuilder = javaParserBuilder;
         this.executionContext = executionContext;
     }
 
@@ -75,7 +76,7 @@ public class ProjectContext {
     private Module mapToModule(BuildFile buildFile) {
         String buildFileName = "";
         Path modulePath = projectRootDirectory.relativize(buildFile.getAbsolutePath().getParent());
-        return new Module(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator, javaParser, executionContext);
+        return new Module(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator, javaParserBuilder, executionContext);
     }
 
     /**

@@ -120,7 +120,7 @@ class SubTypeHierarchyTest {
                 .build()
                 .getProjectJavaSources();
 
-        FindCompilationUnitContainingType findCompilationUnitContainingType = new FindCompilationUnitContainingType(JavaType.Class.build("Bar2"));
+        FindCompilationUnitContainingType findCompilationUnitContainingType = new FindCompilationUnitContainingType((JavaType.FullyQualified) JavaType.buildType("Bar2"));
 
         List<RewriteSourceFileHolder<J.CompilationUnit>> result = (List<RewriteSourceFileHolder<J.CompilationUnit>>) projectJavaSources.find(findCompilationUnitContainingType);
 

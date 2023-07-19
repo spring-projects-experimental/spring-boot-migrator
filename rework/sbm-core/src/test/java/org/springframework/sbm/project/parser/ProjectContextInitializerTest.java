@@ -220,7 +220,7 @@ class ProjectContextInitializerTest {
                 """;
 
         MavenParser mavenParser = MavenParser.builder().build();
-        List<Xml.Document> parsedPomFiles = mavenParser.parse(parentPom, module1Pom, module2Pom);
+        List<Xml.Document> parsedPomFiles = mavenParser.parse(parentPom, module1Pom, module2Pom).map(Xml.Document.class::cast).toList();
         MavenResolutionResult parentPomMarker = parsedPomFiles.get(0).getMarkers().findFirst(MavenResolutionResult.class).get();
         assertThat(parentPomMarker.getDependencies().get(Scope.Provided)).isEmpty();
         assertThat(parentPomMarker.getDependencies().get(Scope.Runtime)).isEmpty();
