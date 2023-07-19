@@ -38,6 +38,13 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Pattern;
 
+/**
+ * FIXME: This Recipe was broken with OR 8.1.x upgrade. Do we fix and keep it?
+ * In some cases a new version is added but the older version tag is not removed.
+ * In other cases the dropwizard dependency was upghraded to its recent version.
+ * Is this expected?
+ */
+
 @Slf4j
 public class UpgradeUnmanagedSpringProject extends Recipe {
 
