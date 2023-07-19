@@ -128,6 +128,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             return "Refresh POM model";
         }
 
+        @Override
+        public String getDescription() {
+            return getDisplayName();
+        }
+
     }
 
     public static final Path JAVA_SOURCE_FOLDER = Path.of("src/main/java");
@@ -843,7 +848,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             recipe.getRecipeList().add(new RemoveMavenPlugin(split[0], split[1]));
         }
 
-        List<Result> run = recipe.run(new InMemoryLargeSourceSet(List.of(getSourceFile())), executionContext).getResults();
+        List<Result> run = recipe.run(new InMemoryLargeSourceSet(List.of(getSourceFile())), executionContext).getChangeset().getAllResults();
         if (!run.isEmpty()) {
             replaceWith((Xml.Document) run.get(0).getAfter());
         }
