@@ -48,11 +48,6 @@ public class RewriteRecipeDiscovery {
     private final ParserSettings parserSettings;
     private final MavenProjectFactory mavenProjectFactory;
 
-    public RewriteRecipeDiscovery() {
-        parserSettings = new ParserSettings();
-        mavenProjectFactory = new MavenProjectFactory();
-    }
-
     /**
      *
      */

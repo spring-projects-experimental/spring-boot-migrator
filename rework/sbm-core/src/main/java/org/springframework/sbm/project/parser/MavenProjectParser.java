@@ -52,10 +52,14 @@ import java.util.stream.Collectors;
 /**
  * Parse a Maven project on disk into a list of {@link org.openrewrite.SourceFile} including
  * Maven, Java, YAML, properties, and XML AST representations of sources and resources found.
+ *
+ * @deprecated
+ * Use {@code RewriteProjectParser} from {@code sbm-rewrite-launcher} instead
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Deprecated(forRemoval = true)
 public class MavenProjectParser {
 
     private final ResourceParser resourceParser;

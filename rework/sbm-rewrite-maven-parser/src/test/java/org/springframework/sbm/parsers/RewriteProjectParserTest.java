@@ -96,7 +96,7 @@ class RewriteProjectParserTest {
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(parserSettings,
-                        new MavenProjectFactory(), mavenMojoProjectParserFactory),
+                        new MavenProjectFactory(new MavenPlexusContainerFactory()), mavenMojoProjectParserFactory),
                 new BuildFileParser(mavenModelReader, parserSettings),
                 new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
                 new StyleDetector(),

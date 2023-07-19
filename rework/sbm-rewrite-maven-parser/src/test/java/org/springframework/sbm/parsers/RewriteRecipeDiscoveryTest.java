@@ -59,7 +59,7 @@ class RewriteRecipeDiscoveryTest {
     @Test
     @DisplayName("Should Discover Dummy Recipes")
     void shouldDiscoverDummyRecipes() {
-        RewriteRecipeDiscovery recipeDiscovery = new RewriteRecipeDiscovery();
+        RewriteRecipeDiscovery recipeDiscovery = buildRecipeDiscovery();
         String[] acceptPackages = {};
 //        Path jarPath = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
         ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
@@ -91,13 +91,13 @@ class RewriteRecipeDiscoveryTest {
     @Test
     @DisplayName("Discover all available recipes by default")
     void discoverAllAvailableRecipesByDefault() {
-        RewriteRecipeDiscovery sut = new RewriteRecipeDiscovery();
+        RewriteRecipeDiscovery sut = buildRecipeDiscovery();
         List<Recipe> recipes = sut.discoverRecipes();
         assertThat(recipes).anyMatch(r -> r.getClass() == DummyRecipe.class);
         assertThat(recipes).anyMatch(r -> r.getClass() == AnotherDummyRecipe.class);
         assertThat(recipes).anyMatch(r -> "com.example.SomeDummyRecipeInYaml".equals(r.getName()));
     }
-    
+
     @Test
     @DisplayName("Load OpenRewrite Recipes")
     void loadOpenRewriteRecipes() {
@@ -153,7 +153,7 @@ class RewriteRecipeDiscoveryTest {
     @DisplayName("Should Find Recipes By Tag")
     void shouldFindRecipesByTag() {
         String tag = "Java";
-        RewriteRecipeDiscovery sut = new RewriteRecipeDiscovery();
+        RewriteRecipeDiscovery sut = buildRecipeDiscovery();
         List<Recipe> recipes = sut.findRecipesByTags(tag);
 
         assertThat(recipes).hasSize(1);
@@ -182,7 +182,7 @@ class RewriteRecipeDiscoveryTest {
     @DisplayName("Should Find RecipeDescriptor By Name")
     void shouldFindRecipeDescriptorByName() {
 
-        RewriteRecipeDiscovery sut = new RewriteRecipeDiscovery();
+        RewriteRecipeDiscovery sut = buildRecipeDiscovery();
 
         RecipeDescriptor descriptor = sut.findRecipeDescriptor("AnotherDummyRecipe");
 
@@ -264,4 +264,9 @@ class RewriteRecipeDiscoveryTest {
         }).findFirst();
     }
 
+
+    @NotNull
+    private static RewriteRecipeDiscovery buildRecipeDiscovery() {
+        return new RewriteRecipeDiscovery(new ParserSettings(), new MavenProjectFactory(new MavenPlexusContainerFactory()));
+    }
 }

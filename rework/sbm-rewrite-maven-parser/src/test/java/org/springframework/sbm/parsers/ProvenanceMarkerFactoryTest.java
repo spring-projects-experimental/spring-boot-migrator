@@ -131,7 +131,7 @@ class ProvenanceMarkerFactoryTest {
                     .build();
 
             ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory
-                    (parserSettings, new MavenProjectFactory(), new MavenMojoProjectParserFactory(parserSettings));
+                    (parserSettings, new MavenProjectFactory(new MavenPlexusContainerFactory()), new MavenMojoProjectParserFactory(parserSettings));
             Path baseDir = Path.of(".").toAbsolutePath().normalize();
             Map<Path, List<Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, pomFiles);
 

@@ -392,16 +392,20 @@ class RewriteMavenProjectParserTest {
         MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
+        MavenPlexusContainerFactory plexusContainerFactory = new MavenPlexusContainerFactory();
+        MavenProjectFactory mavenProjectFactory = new MavenProjectFactory(plexusContainerFactory);
+
         RewriteProjectParser rpp = new RewriteProjectParser(
-                new ProvenanceMarkerFactory(parserSettings, new MavenProjectFactory(), mavenMojoProjectParserFactory),
+                new ProvenanceMarkerFactory(parserSettings, mavenProjectFactory, mavenMojoProjectParserFactory),
                 new BuildFileParser(mavenModelReader, parserSettings),
                 new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
                 parserSettings,
-                new MavenBuildFileGraph(new MavenPlexusContainerFactory()),
+                new MavenBuildFileGraph(plexusContainerFactory),
                 mock(ParsingEventListener.class),
                 mock(ApplicationEventPublisher.class)
                 );
+        
         Set<String> ignoredPatters = Set.of();
         ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader());
         List<Resource> resources = projectScanner.scan(baseDir, ignoredPatters);
