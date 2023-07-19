@@ -18,16 +18,14 @@ package org.openrewrite.maven;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.Parser;
-import org.openrewrite.SourceFile;
+import org.openrewrite.*;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
-import org.openrewrite.maven.tree.MavenResolutionResult;
-import org.openrewrite.maven.tree.ResolvedDependency;
-import org.openrewrite.maven.tree.Scope;
-import org.openrewrite.xml.tree.Xml;
+import org.openrewrite.maven.tree.*;
+import org.openrewrite.tree.ParseError;
 import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.Problem;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -330,12 +328,24 @@ public class MavenParserTest {
                     </dependencies>
                 </project>
                 """;
-        MavenParser mavenParser = MavenParser.builder().build();
-        SourceFile parentPom = mavenParser.parse(parentPomXml).toList().get(0);
+        MavenParser mavenParser = MavenParser.builder()
+                .build();
+
+        ExecutionContext ctx = new InMemoryExecutionContext(t -> {
+            throw new RuntimeException(t);
+        });
+
+
+        MavenExecutionContextView.view(ctx).setResolutionListener(new Listener());
+
+        // parent can be parsed
+        SourceFile parentPom = mavenParser.parse(ctx, parentPomXml).toList().get(0);
         Optional<MavenResolutionResult> mavenResolutionResult = parentPom.getMarkers().findFirst(MavenResolutionResult.class);
         assertThat(mavenResolutionResult).isPresent();
-        assertThatExceptionOfType(UncheckedMavenDownloadingException.class)
-                .isThrownBy(() -> mavenParser.parse(parentPomXml, module1PomXml))
+
+        // parent with module1 fails, but requires the listener to handle this case
+        assertThatExceptionOfType(RewriteMavenDownloadingException.class)
+                .isThrownBy(() -> mavenParser.parse(ctx, parentPomXml, module1PomXml))
                 .describedAs("Maven visitors should not be visiting XML documents without a Maven marker");
     }
 
@@ -366,14 +376,17 @@ public class MavenParserTest {
 
     @Problem(description = "java.io.UncheckedIOException: Failed to parse pom", since = "7.18.2", fixedIn = "7.23.0")
     void testParsingPomWithEmptyDependenciesSection() {
-        String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                "    <modelVersion>4.0.0</modelVersion>\n" +
-                "    <groupId>com.example</groupId>\n" +
-                "    <artifactId>foo-bar</artifactId>\n" +
-                "    <version>0.1.0-SNAPSHOT</version>\n" +
-                "    <dependencies></dependencies>\n" +
-                "</project>";
+        @Language("xml")
+        String pomXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>com.example</groupId>
+                    <artifactId>foo-bar</artifactId>
+                    <version>0.1.0-SNAPSHOT</version>
+                    <dependencies></dependencies>
+                </project>
+                """;
 
         List<SourceFile> parse = MavenParser.builder().build().parse(pomXml).toList();
         assertThat(parse).isNotEmpty();
@@ -423,4 +436,41 @@ public class MavenParserTest {
         assertThat(resolvedDependencies).hasSize(81); // FIXME: #7 was 81 before ?!
     }
 
+    // FIXME: Exception Handling with
+    private class Listener implements ResolutionEventListener {
+            @Override
+            public void clear() {
+
+            }
+
+            @Override
+            public void downloadError(GroupArtifactVersion gav, Pom containing) {
+                throw new RewriteMavenDownloadingException("Failed to download dependency: %s".formatted(gav.toString()), null, gav);
+            }
+
+            @Override
+            public void parent(Pom parent, Pom containing) {
+
+            }
+
+            @Override
+            public void dependency(Scope scope, ResolvedDependency resolvedDependency, ResolvedPom containing) {
+
+            }
+
+            @Override
+            public void bomImport(ResolvedGroupArtifactVersion gav, Pom containing) {
+
+            }
+
+            @Override
+            public void property(String key, String value, Pom containing) {
+
+            }
+
+            @Override
+            public void dependencyManagement(ManagedDependency dependencyManagement, Pom containing) {
+
+        }
+    }
 }
