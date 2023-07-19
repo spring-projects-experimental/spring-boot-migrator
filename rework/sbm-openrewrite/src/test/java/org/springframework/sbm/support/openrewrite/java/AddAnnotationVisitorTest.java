@@ -59,20 +59,24 @@ class AddAnnotationVisitorTest {
 
     @Test
     void visitMethodDeclaration() {
-        String code = "public class Foo {\n" +
-                "    void foo() {}\n" +
-                "}";
+        String code = """
+                public class Foo {
+                    void foo() {}
+                }
+                """;
         J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(code);
         AddAnnotationVisitor sut = new AddAnnotationVisitor(() -> OpenRewriteTestSupport.getJavaParser("org.junit.jupiter:junit-jupiter-api:5.7.1"), compilationUnit.getClasses().get(0).getBody().getStatements().get(0), "@Test", "org.junit.jupiter.api.Test");
         RecipeRun recipeRun = new GenericOpenRewriteRecipe<>(() -> sut).run(new InMemoryLargeSourceSet(List.of(compilationUnit)), new InMemoryExecutionContext(t -> fail(t)));
         assertThat(recipeRun.getChangeset().getAllResults()).isNotEmpty();
         assertThat(recipeRun.getChangeset().getAllResults().get(0).getAfter().printAll()).isEqualTo(
-                "import org.junit.jupiter.api.Test;\n" +
-                        "\n" +
-                        "public class Foo {\n" +
-                        "    @Test\n" +
-                        "    void foo() {}\n" +
-                        "}"
+                """
+                        import org.junit.jupiter.api.Test;
+                                                
+                        public class Foo {
+                            @Test
+                            void foo() {}
+                        }
+                        """
         );
     }
 

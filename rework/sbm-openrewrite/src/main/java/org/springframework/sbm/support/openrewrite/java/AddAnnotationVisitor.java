@@ -34,6 +34,8 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     private final String snippet;
     private final String[] imports;
     private final Supplier<JavaParser.Builder> javaParserSupplier;
+    // ugly, just because UUID of elemnts stay same now and can't be used as criteria leading to multiple visits of the same .
+    private boolean targetVisited;
 
     public AddAnnotationVisitor(JavaParser.Builder javaParserSupplier, J target, String snippet, String annotationImport, String... otherImports) {
         this(() -> javaParserSupplier, target, snippet, annotationImport, otherImports);
@@ -50,11 +52,11 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
 
     public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext p) {
         J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, p);
-        if (target.getId().equals(cd.getId())) {
+        if (target.getId().equals(cd.getId()) && !targetVisited) {
             JavaTemplate template = getJavaTemplate(p, snippet, imports);
-            // FIXME: #7 Moving this line from above getTemplate() fixed BootifyAnnotatedServletsIntegrationTest ?!
-            Stream.of(imports).forEach(i -> maybeAddImport(i));
+            Stream.of(imports).forEach(i -> maybeAddImport(i, null, false));
             cd = template.apply(getCursor(), cd.getCoordinates().addAnnotation((o1, o2) -> 0));
+            targetVisited = true;
         }
         return cd;
     }
@@ -62,10 +64,14 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
 
     public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration methodDecl, ExecutionContext p) {
         J.MethodDeclaration md = super.visitMethodDeclaration(methodDecl, p);
-        if (target.getId().equals(md.getId())) {
+        if (target.getId().equals(md.getId()) && !targetVisited) {
             JavaTemplate template = getJavaTemplate(p, snippet, imports);
-            Stream.of(imports).forEach(i -> maybeAddImport(i));
+            Stream.of(imports).forEach(i -> {
+                maybeAddImport(i, null, false);
+//                maybeAddImport(i)
+            });
             md = template.apply(snippet, getCursor(), md.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
+            targetVisited = true;
         }
         return md;
     }
@@ -73,10 +79,11 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     @Override
     public J.VariableDeclarations visitVariableDeclarations(J.VariableDeclarations multiVariable, ExecutionContext p) {
         J.VariableDeclarations vd = super.visitVariableDeclarations(multiVariable, p);
-        if (target == vd) {
+        if (target.getId().equals(vd.getId()) && !targetVisited) {
             JavaTemplate template = getJavaTemplate(p, snippet, imports);
-            Stream.of(imports).forEach(i -> maybeAddImport(i));
+            Stream.of(imports).forEach(i -> maybeAddImport(i, null, false));
             vd = template.apply(getCursor(), vd.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
+            targetVisited = true;
         }
         return vd;
     }
