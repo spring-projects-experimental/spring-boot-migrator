@@ -36,7 +36,7 @@ import java.util.function.Consumer;
 
 @Slf4j
 @Component
-class RewriteMavenArtifactDownloader extends MavenArtifactDownloader {
+public class RewriteMavenArtifactDownloader extends MavenArtifactDownloader {
 
     // TODO: #7 make artifactCache configurable
     public RewriteMavenArtifactDownloader() {

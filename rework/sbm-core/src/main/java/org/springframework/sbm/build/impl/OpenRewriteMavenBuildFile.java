@@ -40,6 +40,7 @@ import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyMana
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.io.ByteArrayInputStream;
