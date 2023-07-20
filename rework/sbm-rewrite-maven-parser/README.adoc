@@ -132,3 +132,67 @@ BuildFileParser ..> RewriteMavenMojoProjectParser
 class GradleProjectParser {
 }
 ....
+
+Example code showing how to apply OpenRewrite's UpgradeSpringBoot_3_1 recipe
+
+[source, java]
+.....
+import org.openrewrite.*;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.ProjectScanner;
+import org.springframework.sbm.parsers.RewriteMavenProjectParser;
+import org.springframework.sbm.parsers.RewriteProjectParsingResult;
+import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * @author Fabian Krüger
+ */
+@SpringBootApplication
+public class BootUpgrade implements CommandLineRunner {
+    public static void main(String[] args) {
+        SpringApplication.run(BootUpgrade.class, args);
+    }
+
+    @Autowired
+    ProjectScanner scanner;
+    @Autowired
+    RewriteMavenProjectParser parser;
+    @Autowired
+    RewriteRecipeDiscovery discovery;
+
+    @Override
+    public void run(String... args) throws Exception {
+
+        String path  = "demo-spring-song-app";
+        Path baseDir = Path.of(path ).toAbsolutePath().normalize();
+        System.out.println(baseDir);
+        if(!baseDir.toFile().exists() || !baseDir.toFile().isDirectory()) {
+            throw new IllegalArgumentException("Given path '%s' does not exist or is not a directory.".formatted(path));
+        }
+        List<Resource> resources = scanner.scan(baseDir, Set.of("**/.idea/**", "**/.DS_Store", "**/.git/**"));
+        ExecutionContext ctx = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
+        RewriteProjectParsingResult parsingResult = parser.parse(baseDir/*, resources*/, ctx);
+        String recipeName = "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1";
+        List<Recipe> recipes = discovery.discoverRecipes();
+        recipes.stream()
+                .filter(r -> recipeName.equals(r.getName()))
+                .forEach(r -> {
+                    System.out.println("Applying recipe '%s'".formatted(r.getName()));
+                    LargeSourceSet lss = new InMemoryLargeSourceSet(parsingResult.sourceFiles());
+                    RecipeRun recipeRun = r.run(lss, ctx);
+                    recipeRun.getChangeset().getAllResults().stream()
+                            .map(Result::diff)
+                            .forEach(System.out::println);
+                });
+    }
+}
+.....
