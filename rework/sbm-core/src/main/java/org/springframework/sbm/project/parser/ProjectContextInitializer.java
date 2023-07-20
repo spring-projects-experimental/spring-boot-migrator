@@ -16,6 +16,7 @@
 package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -30,7 +31,6 @@ import org.springframework.stereotype.Component;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -38,11 +38,9 @@ public class ProjectContextInitializer {
 
     private final ProjectContextFactory projectContextFactory;
     private final MavenProjectParser mavenProjectParser;
-    // FIXME #7 remove
-//    private final RewriteMavenParserFactory rewriteMavenParserFactory;
     private final GitSupport gitSupport;
-
     private final RewriteSourceFileWrapper rewriteSourceFileWrapper;
+    private final ExecutionContext executionContext;
 
     public ProjectContext initProjectContext(Path projectDir, List<Resource> resources) {
         final Path absoluteProjectDir = projectDir.toAbsolutePath().normalize();
@@ -52,7 +50,7 @@ public class ProjectContextInitializer {
         List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources);
         List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = rewriteSourceFileWrapper.wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);
 
-        ProjectResourceSet projectResourceSet = new ProjectResourceSet(rewriteSourceFileHolders);
+        ProjectResourceSet projectResourceSet = new ProjectResourceSet(rewriteSourceFileHolders, executionContext);
         ProjectContext projectContext = projectContextFactory.createProjectContext(projectDir, projectResourceSet);
 
         storeGitCommitHash(projectDir, projectContext);
