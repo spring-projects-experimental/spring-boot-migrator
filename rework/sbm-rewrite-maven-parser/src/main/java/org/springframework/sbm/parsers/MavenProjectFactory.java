@@ -87,18 +87,10 @@ public class MavenProjectFactory {
 
     public MavenProject createMavenProject(Resource pom) {
         try {
-            DefaultProjectBuilder builder = new DefaultProjectBuilder();
-            ProjectBuildingRequest request = buildRequest();
-            FileModelSource modelSource = new FileModelSource(pom.getFile());
-            ProjectBuildingResult buildingResult = builder.build(modelSource, request);
-            return buildingResult.getProject();
+            return createMavenProject(pom.getFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch (ProjectBuildingException e) {
-            throw new RuntimeException(e);
         }
-
-//        return createMavenProject(ResourceUtil.getContent(pom));
     }
 
     public MavenProject createMavenProject(String s) {
