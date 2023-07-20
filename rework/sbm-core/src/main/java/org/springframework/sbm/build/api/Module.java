@@ -21,6 +21,7 @@ import org.springframework.sbm.build.impl.JavaSourceSetImpl;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.common.util.Verify;
+import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
@@ -57,6 +58,7 @@ public class Module {
     private final BasePackageCalculator basePackageCalculator;
     private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
+    private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
 
     public JavaSourceLocation getBaseJavaSourceLocation() {
         return getMainJavaSourceSet().getJavaSourceLocation();
@@ -130,8 +132,18 @@ public class Module {
         if (!modulesMarker.isEmpty()) {
             return modulesMarker
                     .stream()
-                    .map(m -> new Module(m.getPom().getGav().toString(), this.buildFile, projectRootDir, modulePath,
-                                         projectResourceSet, javaRefactoringFactory, basePackageCalculator, javaParserBuilder, executionContext))
+                    .map(m -> new Module(
+                            m.getPom().getGav().toString(),
+                            this.buildFile,
+                            projectRootDir,
+                            modulePath,
+                            projectResourceSet,
+                            javaRefactoringFactory,
+                            basePackageCalculator,
+                            javaParserBuilder,
+                            executionContext,
+                            rewriteMigrationResultMerger)
+                    )
                     .collect(Collectors.toList());
         } else {
             return new ArrayList<>();
@@ -144,7 +156,7 @@ public class Module {
 
     public <T> T search(ProjectResourceFinder<T> finder) {
         List<RewriteSourceFileHolder<? extends SourceFile>> resources = getModuleResources();
-        ProjectResourceSet filteredProjectResourceSet = new ProjectResourceSet(resources);
+        ProjectResourceSet filteredProjectResourceSet = new ProjectResourceSet(resources, executionContext);
         return finder.apply(filteredProjectResourceSet);
     }
 
@@ -216,6 +228,7 @@ public class Module {
         private final Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate;
 
         public ImmutableFilteringProjectResourceSet(ProjectResourceSet projectResourceSet, Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate) {
+            super(projectResourceSet.list(), executionContext);
             this.projectResourceSet = projectResourceSet;
             this.predicate = predicate;
         }
