@@ -89,6 +89,16 @@
                 <version>${lombok.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-http</artifactId>
+                <version>3.5.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-transport-wagon</artifactId>
+                <version>${resolverVersion}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.sbm</groupId>
                 <artifactId>test-helper</artifactId>
                 <version>${project.version}</version>

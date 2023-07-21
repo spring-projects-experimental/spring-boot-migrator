@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Fabian Krüger
@@ -36,7 +36,7 @@ class MavenExecutorTest {
         Path baseDir = Path.of("./testcode/maven-projects/maven-config");
         List<String> goals = List.of("clean", "install");
         sut.runAfterMavenGoals(baseDir, goals, event -> {
-
+            assertThat(event.getSession()).isNotNull();
         });
     }
 }

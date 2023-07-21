@@ -43,21 +43,41 @@ class MavenExecutor {
      * providing the current {@link MavenSession}.
      */
     void runAfterMavenGoals(Path baseDir, PlexusContainer plexusContainer, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
-        try {
-            MavenExecutionRequest request = requestFactory.createMavenExecutionRequest(plexusContainer, baseDir);
-            request.setExecutionListener(new AbstractExecutionListener() {
-                @Override
-                public void mojoFailed(ExecutionEvent event) {
-                    super.mojoFailed(event);
-                    String mojo = event.getMojoExecution().getGroupId() + ":" + event.getMojoExecution().getArtifactId() + ":" + event.getMojoExecution().getGoal();
-                    throw new RuntimeException("Exception while executing Maven Mojo: " + mojo, event.getException());
-                }
+        AbstractExecutionListener executionListener = new AbstractExecutionListener() {
+            @Override
+            public void mojoFailed(ExecutionEvent event) {
+                super.mojoFailed(event);
+                String mojo = event.getMojoExecution().getGroupId() + ":" + event.getMojoExecution().getArtifactId() + ":" + event.getMojoExecution().getGoal();
+                throw new RuntimeException("Exception while executing Maven Mojo: " + mojo, event.getException());
+            }
 
-                @Override
-                public void projectSucceeded(ExecutionEvent event) {
-                    eventConsumer.accept(event);
-                }
-            });
+            @Override
+            public void projectSucceeded(ExecutionEvent event) {
+                eventConsumer.accept(event);
+            }
+        };
+        MavenExecutionRequest request = requestFactory.createMavenExecutionRequest(plexusContainer, baseDir);
+        runWithListener(baseDir, request, plexusContainer, goals, executionListener);
+
+    }
+
+    void runAfterMavenGoals(Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
+        PlexusContainer plexusContainer = containerFactory.create(baseDir);
+        runAfterMavenGoals(baseDir, plexusContainer, goals, eventConsumer);
+    }
+
+    // FIXME: goals are part of the request and request goals param can be removed
+    void runAfterMavenGoals(Path baseDir, MavenExecutionRequest request, PlexusContainer plexusContainer, List<String> goals, AbstractExecutionListener listener) {
+        runWithListener(baseDir,
+                request,
+                plexusContainer,
+                goals,
+                listener);
+    }
+
+    private void runWithListener(Path baseDir, MavenExecutionRequest request, PlexusContainer plexusContainer, List<String> goals, AbstractExecutionListener executionListener) {
+        try {
+            request.setExecutionListener(executionListener);
             Maven maven = plexusContainer.lookup(Maven.class);
             MavenExecutionResult execute = maven.execute(request);
             if (execute.hasExceptions()) {
@@ -68,8 +88,16 @@ class MavenExecutor {
         }
     }
 
-    void runAfterMavenGoals(Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
-        PlexusContainer plexusContainer = containerFactory.create(baseDir);
-        runAfterMavenGoals(baseDir, plexusContainer, goals, eventConsumer);
+    public void execute(Path baseDir, MavenExecutionRequest request, PlexusContainer plexusContainer) {
+        try {
+            Maven maven = plexusContainer.lookup(Maven.class);
+            MavenExecutionResult execute = maven.execute(request);
+            if (execute.hasExceptions()) {
+                throw new ParsingException("Maven could not run %s on project '%s'".formatted(request.getGoals(), baseDir), execute.getExceptions());
+            }
+        } catch (ComponentLookupException e) {
+            throw new RuntimeException(e);
+
+        }
     }
 }

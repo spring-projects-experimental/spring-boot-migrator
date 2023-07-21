@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -94,14 +93,26 @@ class RewriteProjectParserTest {
         MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
+        MavenPlexusContainerFactory containerFactory = new MavenPlexusContainerFactory();
+        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(
+                new MavenConfigFileParser()
+        );
         RewriteProjectParser projectParser = new RewriteProjectParser(
-                new ProvenanceMarkerFactory(parserSettings,
-                        new MavenProjectFactory(new MavenPlexusContainerFactory()), mavenMojoProjectParserFactory),
+                new ProvenanceMarkerFactory(
+                        parserSettings,
+                        new MavenProjectFactory(
+                                containerFactory,
+                                new MavenExecutor(
+                                        requestFactory,
+                                        containerFactory
+                                ),
+                                requestFactory
+                        ), mavenMojoProjectParserFactory),
                 new BuildFileParser(mavenModelReader, parserSettings),
                 new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
                 parserSettings,
-                new MavenBuildFileGraph(new MavenPlexusContainerFactory()),
+                new MavenBuildFileGraph(containerFactory),
                 mock(ParsingEventListener.class),
                 mock(ApplicationEventPublisher.class)
         );

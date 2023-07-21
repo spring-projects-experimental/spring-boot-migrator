@@ -13,10 +13,11 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.1.1</spring-boot.version>
-        <resolverVersion>1.9.7</resolverVersion>
-        <openrewrite.version>8.1.6</openrewrite.version>
-        <rewrite-maven-plugin.version>5.2.6</rewrite-maven-plugin.version>
+        <rewrite.version>8.1.6</rewrite.version>
+        <rewrite-maven-plugin.version>5.3.2</rewrite-maven-plugin.version>
         <maven.version>3.9.1</maven.version>
+        <maven-resolver.version>1.9.7</maven-resolver.version>
+        <maven-wagon-http.version>3.5.3</maven-wagon-http.version>
     </properties>
 
     <scm>
@@ -62,32 +63,32 @@
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-maven</artifactId>
-            <version>${openrewrite.version}</version>
+            <version>${rewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-java</artifactId>
-            <version>${openrewrite.version}</version>
+            <version>${rewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-json</artifactId>
-            <version>${openrewrite.version}</version>
+            <version>${rewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-yaml</artifactId>
-            <version>${openrewrite.version}</version>
+            <version>${rewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-hcl</artifactId>
-            <version>${openrewrite.version}</version>
+            <version>${rewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-protobuf</artifactId>
-            <version>${openrewrite.version}</version>
+            <version>${rewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite.recipe</groupId>
@@ -97,7 +98,7 @@
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-xml</artifactId>
-            <version>${openrewrite.version}</version>
+            <version>${rewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite.maven</groupId>
@@ -119,20 +120,20 @@
             <scope>provided</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.codehaus.plexus</groupId>-->
-<!--            <artifactId>plexus-classworlds</artifactId>-->
-<!--            <version>2.6.0</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-http</artifactId>
-            <version>3.5.3</version>
+            <version>${maven-wagon-http.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-transport-wagon</artifactId>
-            <version>${resolverVersion}</version>
+            <version>${maven-resolver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-connector-basic</artifactId>
+            <version>${maven-resolver.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -160,15 +161,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-cipher</artifactId>
             <version>1.8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.resolver</groupId>
-            <artifactId>maven-resolver-connector-basic</artifactId>
-            <version>${resolverVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>

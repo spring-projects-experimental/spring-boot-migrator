@@ -54,7 +54,6 @@ import org.springframework.util.FileSystemUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -64,7 +63,7 @@ import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
 
@@ -412,7 +411,8 @@ class RewriteMavenProjectParserTest {
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
         MavenPlexusContainerFactory plexusContainerFactory = new MavenPlexusContainerFactory();
-        MavenProjectFactory mavenProjectFactory = new MavenProjectFactory(plexusContainerFactory);
+        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
+        MavenProjectFactory mavenProjectFactory = new MavenProjectFactory(plexusContainerFactory, new MavenExecutor(requestFactory, plexusContainerFactory), requestFactory);
 
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(parserSettings, mavenProjectFactory, mavenMojoProjectParserFactory),

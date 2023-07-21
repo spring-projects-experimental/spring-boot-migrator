@@ -16,7 +16,6 @@
 package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.maven.Maven;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.execution.AbstractExecutionListener;
@@ -24,7 +23,6 @@ import org.apache.maven.execution.ExecutionEvent;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
-import org.apache.maven.model.building.FileModelSource;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.*;
 import org.apache.maven.project.artifact.PluginArtifact;
@@ -37,6 +35,7 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -50,19 +49,26 @@ import java.util.concurrent.atomic.AtomicReference;
 public class MavenProjectFactory {
 
     private final MavenPlexusContainerFactory plexusContainerFactory;
+    private final MavenExecutor mavenExecutor;
+    private final MavenExecutionRequestFactory requestFactory;
 
+    /**
+     * Takes a {@code pom.xml} {@link File} and returns the {@link MavenProject} for it.
+     */
     public MavenProject createMavenProject(File file) {
+        if (!file.isFile() || !"pom.xml".equals(file.getName())) {
+            throw new IllegalArgumentException("Maven pom.xml file must be provided.");
+        }
         try {
-            PlexusContainer plexusContainer = plexusContainerFactory.create(file.toPath().getParent());
-            ProjectBuilder builder = plexusContainer.lookup(ProjectBuilder.class);
-            Maven maven = plexusContainer.lookup(Maven.class);
-            MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
-            MavenExecutionRequest mavenExecutionRequest = requestFactory.createMavenExecutionRequest(plexusContainer, file.toPath().getParent());
-            mavenExecutionRequest.setGoals(List.of("validate"));
+            Path baseDir = file.toPath().getParent();
+            PlexusContainer plexusContainer = plexusContainerFactory.create(baseDir);
             AtomicReference<MavenProject> projectAtomicReference = new AtomicReference<>();
-            mavenExecutionRequest.setExecutionListener(new AbstractExecutionListener() {
+            final ProjectBuilder builder = plexusContainer.lookup(ProjectBuilder.class);
+            MavenExecutionRequest request = requestFactory.createMavenExecutionRequest(plexusContainer, baseDir);
+            request.setExecutionListener(new AbstractExecutionListener() {
                 @Override
                 public void sessionStarted(ExecutionEvent event) {
+
                     super.sessionStarted(event);
                     try {
                         DefaultProjectBuildingRequest request = new DefaultProjectBuildingRequest();
@@ -70,7 +76,6 @@ public class MavenProjectFactory {
                         request.setSystemProperties(System.getProperties());
                         request.setProcessPlugins(false);
                         request.setRepositorySession(event.getSession().getRepositorySession());
-
                         ProjectBuildingResult buildingResult = builder.build(file, request);
                         projectAtomicReference.set(buildingResult.getProject());
                     } catch (ProjectBuildingException e) {
@@ -78,7 +83,8 @@ public class MavenProjectFactory {
                     }
                 }
             });
-            maven.execute(mavenExecutionRequest);
+            request.setGoals(List.of("validate"));
+            mavenExecutor.execute(baseDir, request, plexusContainer);
             return projectAtomicReference.get();
         } catch (ComponentLookupException e) {
             throw new RuntimeException(e);
@@ -107,7 +113,7 @@ public class MavenProjectFactory {
             mavenProject.setGroupId(model.getGroupId());
             mavenProject.setArtifactId(model.getArtifactId());
             mavenProject.setVersion(model.getVersion());
-            if(model.getBuild() != null){
+            if (model.getBuild() != null) {
                 Plugin plugin = model.getBuild().getPlugins().get(0);
 
                 PluginArtifact pluginArtifact = new PluginArtifact(plugin, new DefaultArtifact(

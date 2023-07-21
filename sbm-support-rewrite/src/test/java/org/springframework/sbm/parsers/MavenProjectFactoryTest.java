@@ -15,27 +15,13 @@
  */
 package org.springframework.sbm.parsers;
 
-import org.apache.maven.Maven;
-import org.apache.maven.execution.AbstractExecutionListener;
-import org.apache.maven.execution.DefaultMavenExecutionRequest;
-import org.apache.maven.execution.ExecutionEvent;
-import org.apache.maven.execution.MavenExecutionRequest;
-import org.apache.maven.model.building.FileModelSource;
-import org.apache.maven.project.*;
-import org.codehaus.plexus.PlexusContainer;
-import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.eclipse.aether.RepositorySystemSession;
+import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.sbm.utils.ResourceUtil;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Fabian Krüger
@@ -141,7 +127,18 @@ class MavenProjectFactoryTest {
                 </project>
                 """;
 
-        MavenProjectFactory sut = new MavenProjectFactory(new MavenPlexusContainerFactory());
+        MavenPlexusContainerFactory plexusContainerFactory = new MavenPlexusContainerFactory();
+        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(
+                new MavenConfigFileParser()
+        );
+        MavenProjectFactory sut = new MavenProjectFactory(
+                plexusContainerFactory,
+                new MavenExecutor(
+                        requestFactory,
+                        plexusContainerFactory
+                ),
+                requestFactory
+        );
         Path pomFile = tempDir.resolve("pom.xml");
         Files.writeString(pomFile, pomXml);
         MavenProject mavenProject = sut.createMavenProject(pomFile.toFile());

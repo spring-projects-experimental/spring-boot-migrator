@@ -17,10 +17,12 @@ package org.springframework.sbm.parsers;
 
 import com.example.recipes.DummyRecipe;
 import io.example.recipes.AnotherDummyRecipe;
-import io.github.classgraph.ClassGraph;
 import org.assertj.core.data.Index;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.openrewrite.Recipe;
 import org.openrewrite.config.*;
 import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
@@ -267,6 +269,8 @@ class RewriteRecipeDiscoveryTest {
 
     @NotNull
     private static RewriteRecipeDiscovery buildRecipeDiscovery() {
-        return new RewriteRecipeDiscovery(new ParserSettings(), new MavenProjectFactory(new MavenPlexusContainerFactory()));
+        MavenPlexusContainerFactory plexusContainerFactory = new MavenPlexusContainerFactory();
+        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
+        return new RewriteRecipeDiscovery(new ParserSettings(), new MavenProjectFactory(plexusContainerFactory, new MavenExecutor(requestFactory, plexusContainerFactory), requestFactory));
     }
 }
