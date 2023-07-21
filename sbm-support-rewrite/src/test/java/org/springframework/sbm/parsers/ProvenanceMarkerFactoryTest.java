@@ -164,10 +164,10 @@ class ProvenanceMarkerFactoryTest {
 
         JavaVersion jv = findMarker(resourceListMap, resource, JavaVersion.class);
         assertThat(countGetters(jv)).isEqualTo(7);
-        assertThat(jv.getCreatedBy()).isEqualTo(System.getProperty("java.runtime.version"));
+        assertThat(jv.getCreatedBy()).isEqualTo(System.getProperty("java.specification.version"));
         assertThat(jv.getMajorVersion()).isEqualTo(Integer.parseInt(System.getProperty("java.specification.version")));
-        assertThat(jv.getSourceCompatibility()).isEqualTo(System.getProperty("java.runtime.version"));
-        assertThat(jv.getTargetCompatibility()).isEqualTo(System.getProperty("java.runtime.version"));
+        assertThat(jv.getSourceCompatibility()).isEqualTo(System.getProperty("java.specification.version"));
+        assertThat(jv.getTargetCompatibility()).isEqualTo(System.getProperty("java.specification.version"));
         assertThat(jv.getMajorReleaseVersion()).isEqualTo(Integer.parseInt(System.getProperty("java.specification.version")));
         assertThat(jv.getVmVendor()).isEqualTo(System.getProperty("java.vm.vendor"));
         assertThat(jv.getId()).isInstanceOf(UUID.class);
