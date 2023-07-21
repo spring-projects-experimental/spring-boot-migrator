@@ -1,7 +1,7 @@
-# sbm-openrewrite-launcher
+# sbm-support-rewrite
 these components
 
-The `sbm-openrewrite-launcher` module provides these components
+The `sbm-support-rewrite` module provides these components
 
 - `ProjectScanner` - to scan a project to a list of `Resource`s
 - `RewriteProjectParser` - to parse the list of `Resource`s that belong to the build to OpenRewrite's AST representation
