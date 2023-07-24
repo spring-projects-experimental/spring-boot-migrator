@@ -46,4 +46,5 @@ public class ParserSettings {
     private boolean runPerSubmodule = false;
     private boolean failOnInvalidActiveRecipes = false;
     private List<String> activeProfiles = List.of("default");
+    private Set<String> ignoredPathPatterns = new HashSet<>();
 }
