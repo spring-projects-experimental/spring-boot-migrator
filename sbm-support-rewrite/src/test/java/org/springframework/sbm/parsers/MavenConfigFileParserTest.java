@@ -33,6 +33,8 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests adherence to settings in '.mvn/maven.config' by {@link MavenConfigFileParser},
+ *
  * @author Fabian Krüger
  */
 public class MavenConfigFileParserTest {
