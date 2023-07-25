@@ -42,7 +42,7 @@ class BuildFileParserTest {
     public class GivenSimpleMavenMultiModuleProject {
 
         @Language("xml")
-        private String pom1 =
+        private static final String POM_1 =
                 """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -60,7 +60,7 @@ class BuildFileParserTest {
                 """;
 
         @Language("xml")
-        private String pom2 =
+        private static final String POM_2 =
                 """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -80,7 +80,7 @@ class BuildFileParserTest {
                 """;
 
         @Language("xml")
-        private String pom3 =
+        private static final String POM_3 =
                 """
                 <project xmlns="http://maven.apache.org/POM/4.0.0"
                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -102,11 +102,11 @@ class BuildFileParserTest {
 
             // the poms have no order
             List<Resource> resources = List.of(
-                    new DummyResource("src/test/resources/dummy/pom.xml", ""),
-                    new DummyResource("module1/submodule/pom.xml", pom3),
-                    new DummyResource("pom.xml", pom1),
-                    new DummyResource("module1/pom.xml", pom2),
-                    new DummyResource("src/main/java/SomeJavaClass.java", "")
+                    new DummyResource("src/test/resources/dummy/pom.xml", ""),  // filtered
+                    new DummyResource("module1/submodule/pom.xml", POM_3),      // pos. 3
+                    new DummyResource("pom.xml", POM_1),                        // pos. 1
+                    new DummyResource("module1/pom.xml", POM_2),                // pos. 2
+                    new DummyResource("src/main/java/SomeJavaClass.java", "")   // filtered
             );
 
             // filter and sort build files
@@ -129,9 +129,9 @@ class BuildFileParserTest {
         void parseBuildFiles_shouldReturnSortedListOfParsedBuildFiles() {
             Path baseDir = Path.of(".").toAbsolutePath().normalize();
             List<Resource> filteredAndSortedBuildFiles = List.of(
-                    new DummyResource(baseDir, "module1/submodule/pom.xml", pom3),
-                    new DummyResource(baseDir, "pom.xml", pom1),
-                    new DummyResource(baseDir, "module1/pom.xml", pom2)
+                    new DummyResource(baseDir, "module1/submodule/pom.xml", POM_3),
+                    new DummyResource(baseDir, "pom.xml", POM_1),
+                    new DummyResource(baseDir, "module1/pom.xml", POM_2)
             );
             Map<Path, List<Marker>> provenanceMarkers = new HashMap<>();
             ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
