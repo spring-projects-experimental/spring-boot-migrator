@@ -103,9 +103,8 @@ public class RewriteMavenProjectParser {
 
     private RewriteProjectParsingResult parseInternal(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext, Path absoluteBaseDir, Collection<String> allExclusions, PlexusContainer plexusContainer) {
         AtomicReference<RewriteProjectParsingResult> parsingResult = new AtomicReference<>();
-        mavenRunner.runAfterMavenGoals(
+        mavenRunner.onProjectSucceededEvent(
                 baseDir,
-                plexusContainer,
                 List.of("clean", "package"),
                 event -> {
                     List<MavenProject> projects = event.getSession().getProjectDependencyGraph().getAllProjects();

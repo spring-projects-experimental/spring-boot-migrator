@@ -84,7 +84,7 @@ public class MavenProjectFactory {
                 }
             });
             request.setGoals(List.of("validate"));
-            mavenExecutor.execute(baseDir, request, plexusContainer);
+            mavenExecutor.execute(request);
             return projectAtomicReference.get();
         } catch (ComponentLookupException e) {
             throw new RuntimeException(e);
