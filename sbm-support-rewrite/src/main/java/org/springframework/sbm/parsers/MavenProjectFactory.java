@@ -16,10 +16,10 @@
 package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.model.Model;
-import org.apache.maven.model.Plugin;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.*;
 import org.apache.maven.project.artifact.PluginArtifact;
@@ -34,11 +34,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 
 /**
- * Creates instances of {@link MavenProject}.
- *
  * @author Fabian Krüger
  */
 @Component
@@ -48,11 +47,11 @@ public class MavenProjectFactory {
     private final MavenExecutor mavenExecutor;
 
     /**
-     * Convenience method for {@link #createMavenProject(File)}.
+     * Convenience method for {@link #createMavenProjectFromMaven(File)}.
      */
-     public MavenProject createMavenProject(Resource pom) {
+     public MavenProject createMavenProjectFromMaven(Resource pom) {
         try {
-            return createMavenProject(pom.getFile());
+            return createMavenProjectFromMaven(pom.getFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -64,7 +63,7 @@ public class MavenProjectFactory {
      * and provides the {@link MavenProject} received from {@link org.apache.maven.execution.ExecutionEvent}.
      * All classpath elements are resolved.
      */
-    public MavenProject createMavenProject(File file) {
+    public MavenProject createMavenProjectFromMaven(File file) {
         if (!file.isFile() || !"pom.xml".equals(file.getName())) {
             throw new IllegalArgumentException("Maven pom.xml file must be provided.");
         }
@@ -81,43 +80,32 @@ public class MavenProjectFactory {
     /**
      *
      */
-    public MavenProject createMavenProject(String s) {
+    public MavenProject createMavenProjectFromPomContent(String s) {
         try {
-
-            DefaultProjectBuilder builder = new DefaultProjectBuilder();
             MavenXpp3Reader reader = new MavenXpp3Reader();
             Model model = reader.read(new ByteArrayInputStream(s.getBytes()));
-            ProjectBuildingRequest request = buildRequest();
-//            builder.build(model., request);
-
             MavenProject mavenProject = new MavenProject(model);
             mavenProject.setName(model.getName());
             mavenProject.setGroupId(model.getGroupId());
             mavenProject.setArtifactId(model.getArtifactId());
             mavenProject.setVersion(model.getVersion());
             if (model.getBuild() != null) {
-                Plugin plugin = model.getBuild().getPlugins().get(0);
-
-                PluginArtifact pluginArtifact = new PluginArtifact(plugin, new DefaultArtifact(
-                        plugin.getGroupId(),
-                        plugin.getArtifactId(),
-                        plugin.getVersion(),
-                        "",
-                        "",
-                        "",
-                        new DefaultArtifactHandler()
-                ));
-                mavenProject.setPluginArtifacts(Set.of(pluginArtifact));
+                Set<Artifact> pluginArtifacts = model.getBuild().getPlugins().stream()
+                        .map(plugin -> new PluginArtifact(plugin, new DefaultArtifact(
+                                plugin.getGroupId(),
+                                plugin.getArtifactId(),
+                                plugin.getVersion(),
+                                "",
+                                "",
+                                "",
+                                new DefaultArtifactHandler()
+                        )))
+                        .collect(Collectors.toSet());
+                mavenProject.setPluginArtifacts(pluginArtifacts);
             }
             return mavenProject;
         } catch (IOException | XmlPullParserException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private ProjectBuildingRequest buildRequest() {
-        DefaultProjectBuildingRequest request = new DefaultProjectBuildingRequest();
-        request.setSystemProperties(System.getProperties());
-        return request;
     }
 }

@@ -16,27 +16,13 @@
 package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
-import org.apache.maven.artifact.handler.ArtifactHandler;
-import org.apache.maven.artifact.metadata.ArtifactMetadata;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
-import org.apache.maven.artifact.versioning.ArtifactVersion;
-import org.apache.maven.artifact.versioning.OverConstrainedVersionException;
-import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.artifact.PluginArtifact;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.MavenMojoProjectParser;
@@ -44,12 +30,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * @author Fabian Krüger
@@ -91,7 +74,7 @@ class ProvenanceMarkerFactory {
     }
 
     private MavenProject createMavenProject(Resource pom) {
-        return mavenProjectFactory.createMavenProject(pom);
+        return mavenProjectFactory.createMavenProjectFromMaven(pom);
     }
 
     private Log getLogger(ParserSettings parserSettings) {

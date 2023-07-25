@@ -124,7 +124,7 @@ public class RewriteRecipeDiscovery {
 
         List<Recipe> recipes = new ArrayList<>();
 
-        MavenProject mavenProject = mavenProjectFactory.createMavenProject(rootPom.printAll());
+        MavenProject mavenProject = mavenProjectFactory.createMavenProjectFromPomContent(rootPom.printAll());
         AbstractRewriteMojoHelper helper = new AbstractRewriteMojoHelper(mavenProject);
 
         Environment env =helper.environment(getClass().getClassLoader());
