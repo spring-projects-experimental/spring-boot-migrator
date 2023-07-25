@@ -53,11 +53,31 @@ class BuildFileParser {
     private final ParserSettings parserSettings;
 
     /**
-     * See {@link org.openrewrite.maven.MavenMojoProjectParser#parseMaven(List, Map, ExecutionContext)}
+     * Parse a list of Maven Pom files to a Map of {@code Path} and their parsed {@Xml.Document}s.
+     * The {@link Xml.Document}s are marked with {@link org.openrewrite.maven.tree.MavenResolutionResult} and the provided provenance markers.
+     * Reimplements {@link org.openrewrite.maven.MavenMojoProjectParser#parseMaven(List, Map, ExecutionContext)}.
+     * The provided list of pom files must be sorted beforehand. See {@link MavenBuildFileGraph#build(Path, List)}.
+     *
+     * @param baseDir the {@link Path} to the root of the scanned project
+     * @param buildFileResources the list of resources for relevant pom files.
+     * @param executionContext the ExecutionContext to use
+     * @param provenanceMarkers the map of markers to be added
+     * @param
      */
-    public Map<Path, Xml.Document>  parseBuildFiles(Path baseDir, List<Resource> buildFileResources, ExecutionContext executionContext, boolean skipMavenParsing, Map<Path, List<Marker>> provenanceMarkers) {
+    public Map<Path, Xml.Document>  parseBuildFiles(
+            Path baseDir,
+            List<Resource> buildFileResources,
+            ExecutionContext executionContext,
+            boolean skipMavenParsing,
+            Map<Path, List<Marker>> provenanceMarkers
+    ) {
         Assert.notNull(baseDir, "Base directory must be provided but was null.");
         Assert.notEmpty(buildFileResources, "No build files provided.");
+        List<Resource> nonPomFiles = retrieveNonPomFiles(buildFileResources);
+        Assert.isTrue(nonPomFiles.isEmpty(), "Provided resources which are not Maven build files: '%s'".formatted(nonPomFiles.stream().map(r -> ResourceUtil.getPath(r).toAbsolutePath()).toList()));
+        List<Resource> resourcesWithoutProvenanceMarker = findResourcesWithoutProvenanceMarker(baseDir, buildFileResources, provenanceMarkers);
+        Assert.isTrue(resourcesWithoutProvenanceMarker.isEmpty(), "No provenance marker provided for these pom files %s".formatted(resourcesWithoutProvenanceMarker.stream().map(r -> ResourceUtil.getPath(r).toAbsolutePath()).toList()));
+
         if(skipMavenParsing) {
             return Map.of();
         }
@@ -111,6 +131,16 @@ class BuildFileParser {
 //        }
 
         return result;
+    }
+
+    private List<Resource> findResourcesWithoutProvenanceMarker(Path baseDir, List<Resource> buildFileResources, Map<Path, List<Marker>> provenanceMarkers) {
+        return buildFileResources.stream()
+                .filter(r -> !provenanceMarkers.containsKey(baseDir.resolve(ResourceUtil.getPath(r)).normalize()))
+                .toList();
+    }
+
+    private static List<Resource> retrieveNonPomFiles(List<Resource> buildFileResources) {
+        return buildFileResources.stream().filter(r -> !"pom.xml".equals(ResourceUtil.getPath(r).getFileName().toString())).toList();
     }
 
     private SourceFile markPomFile(SourceFile pp, List<Marker> markers) {
@@ -191,11 +221,11 @@ class BuildFileParser {
                 .sorted((r1, r2) -> {
 
                     Path r1Path = ResourceUtil.getPath(r1);
-                    ArrayList<String> r1PathParts = new ArrayList<String>();
+                    ArrayList<String> r1PathParts = new ArrayList<>();
                     r1Path.iterator().forEachRemaining(it -> r1PathParts.add(it.toString()));
 
                     Path r2Path = ResourceUtil.getPath(r2);
-                    ArrayList<String> r2PathParts = new ArrayList<String>();
+                    ArrayList<String> r2PathParts = new ArrayList<>();
                     r2Path.iterator().forEachRemaining(it -> r2PathParts.add(it.toString()));
                     return Integer.compare(r1PathParts.size(), r2PathParts.size());
                 })
