@@ -124,21 +124,7 @@ class BuildFileParser {
         return parsedPoms.stream()
                 .map(pom -> mapResourceToDocument(basePath, pom, pomFiles))
                 .collect(Collectors.toMap(e-> ResourceUtil.getPath(e.getKey()), e -> e.getValue()));
-
-
-
-//        return pomFiles.stream()
-//                .map(pom -> mapResourceToDocument(basePath, pom, parsedPoms))
-//                .sorted(this::sortMap)
-//                .collect(Collectors.toMap(l -> l.getKey(), l -> l.getValue()));
     }
-
-    private int sortMap(Map.Entry<Resource, Xml.Document> e1, Map.Entry<Resource, Xml.Document> e2) {
-        Path path1 = ResourceUtil.getPath(e1.getKey());
-        Path path2 = ResourceUtil.getPath(e2.getKey());
-        return path1.compareTo(path2);
-    }
-
 
     private Map.Entry<Resource, Xml.Document> mapResourceToDocument(Path basePath, SourceFile pom, List<Resource> parsedPoms) {
         Xml.Document doc = (Xml.Document) pom;
@@ -147,17 +133,6 @@ class BuildFileParser {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Could not find matching path for Xml.Document '%s'".formatted(pom.getSourcePath().toAbsolutePath().normalize().toString())));
         return Map.entry(resource, doc);
-    }
-
-    private static Map.Entry<Resource, Xml.Document> mapResourceToDocument(Path basePath, Resource pom, List<SourceFile> parsedPoms) {
-        Xml.Document sourceFile = parsedPoms
-                .stream()
-                .filter(p -> basePath.resolve(p.getSourcePath()).normalize().toString().equals(ResourceUtil.getPath(pom).toString()))
-                .filter(Xml.Document.class::isInstance)
-                .map(Xml.Document.class::cast)
-                .findFirst()
-                .get();
-        return Map.entry(pom, sourceFile);
     }
 
     private List<SourceFile> parsePoms(Path baseDir, List<Resource> pomFiles, MavenParser.Builder mavenParserBuilder, ExecutionContext executionContext) {
@@ -207,15 +182,6 @@ class BuildFileParser {
 
     private void initializeMavenSettings(ExecutionContext executionContext) {
 
-    }
-
-    private List<Resource> collectUpstreamPomFiles(List<Resource> pomFiles) {
-//        pomFiles.stream()
-//                .map(mavenModelReader::readModel)
-//                .map(Model::)
-//        return pomFiles;
-        // FIXME: implement
-        return null;
     }
 
     public List<Resource> filterAndSortBuildFiles(List<Resource> resources) {
