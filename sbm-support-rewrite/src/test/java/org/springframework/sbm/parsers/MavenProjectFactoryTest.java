@@ -16,12 +16,17 @@
 package org.springframework.sbm.parsers;
 
 import org.apache.maven.project.MavenProject;
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Fabian Krüger
@@ -31,23 +36,19 @@ class MavenProjectFactoryTest {
     @Test
     @DisplayName("Factory should create fully initialized MavenProject")
     void factoryShouldCreateFullyInitializedMavenProject(@TempDir Path tempDir) throws Exception {
+        @Language("xml")
         String pomXml = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter-parent</artifactId>
-                        <version>2.7.1</version>
-                        <relativePath/> <!-- lookup parent from repository -->
-                    </parent>
                     <groupId>com.example</groupId>
-                    <artifactId>demo-spring-song-app</artifactId>
+                    <artifactId>the-example</artifactId>
                     <version>0.0.1-SNAPSHOT</version>
+                    <name>the-name</name>
                     <properties>
                         <java.version>11</java.version>
-                        <spring-cloud.version>2021.0.4</spring-cloud.version>
+                        <spring-boot.version>3.1.2</spring-boot.version>
                     </properties>
                     <repositories>
                         <repository>
@@ -64,55 +65,24 @@ class MavenProjectFactoryTest {
                     <dependencies>
                         <dependency>
                             <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-starter-web</artifactId>
+                            <artifactId>spring-boot-starter</artifactId>
                         </dependency>
                         <dependency>
-                            <groupId>org.ehcache</groupId>
-                            <artifactId>ehcache</artifactId>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-starter-data-jpa</artifactId>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.h2database</groupId>
-                            <artifactId>h2</artifactId>
-                            <scope>runtime</scope>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.hibernate.validator</groupId>
-                            <artifactId>hibernate-validator</artifactId>
-                        </dependency>
-                                
-                                
-                        <dependency>
-                            <groupId>com.github.tomakehurst</groupId>
-                            <artifactId>wiremock-jre8</artifactId>
-                            <version>2.35.0</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.johnzon</groupId>
-                            <artifactId>johnzon-core</artifactId>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-starter-test</artifactId>
+                            <groupId>javax.validation</groupId>
+                            <artifactId>validation-api</artifactId>
+                            <version>2.0.1.Final</version>
                             <scope>test</scope>
                         </dependency>
                     </dependencies>
                     <dependencyManagement>
                         <dependencies>
                             <dependency>
-                                <groupId>org.springframework.cloud</groupId>
-                                <artifactId>spring-cloud-dependencies</artifactId>
-                                <version>${spring-cloud.version}</version>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-dependencies</artifactId>
+                                <version>${spring-boot.version}</version>
                                 <type>pom</type>
                                 <scope>import</scope>
-                            </dependency>
+                           </dependency>
                         </dependencies>
                     </dependencyManagement>
                     <build>
@@ -123,25 +93,56 @@ class MavenProjectFactoryTest {
                             </plugin>
                         </plugins>
                     </build>
-                                
                 </project>
                 """;
 
         MavenPlexusContainerFactory plexusContainerFactory = new MavenPlexusContainerFactory();
-        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(
-                new MavenConfigFileParser()
-        );
+        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
+        MavenExecutor mavenExecutor = new MavenExecutor(requestFactory, plexusContainerFactory);
         MavenProjectFactory sut = new MavenProjectFactory(
-                plexusContainerFactory,
-                new MavenExecutor(
-                        requestFactory,
-                        plexusContainerFactory
-                ),
-                requestFactory
+                mavenExecutor
         );
+
         Path pomFile = tempDir.resolve("pom.xml");
         Files.writeString(pomFile, pomXml);
         MavenProject mavenProject = sut.createMavenProject(pomFile.toFile());
+        assertThat(mavenProject.getName()).isEqualTo("the-name");
+        assertThat(mavenProject.getArtifactId()).isEqualTo("the-example");
+        assertThat(mavenProject.getGroupId()).isEqualTo("com.example");
+
+        List<String> mainDeps = List.of(
+                tempDir.resolve("target/classes").toString(),
+                dep("org/springframework/boot/spring-boot-starter/3.1.2/spring-boot-starter-3.1.2.jar"),
+                dep("org/springframework/boot/spring-boot/3.1.2/spring-boot-3.1.2.jar"),
+                dep("org/springframework/spring-context/6.0.11/spring-context-6.0.11.jar"),
+                dep("org/springframework/spring-aop/6.0.11/spring-aop-6.0.11.jar"),
+                dep("org/springframework/spring-beans/6.0.11/spring-beans-6.0.11.jar"),
+                dep("org/springframework/spring-expression/6.0.11/spring-expression-6.0.11.jar"),
+                dep("org/springframework/boot/spring-boot-autoconfigure/3.1.2/spring-boot-autoconfigure-3.1.2.jar"),
+                dep("org/springframework/boot/spring-boot-starter-logging/3.1.2/spring-boot-starter-logging-3.1.2.jar"),
+                dep("ch/qos/logback/logback-classic/1.4.8/logback-classic-1.4.8.jar"),
+                dep("ch/qos/logback/logback-core/1.4.8/logback-core-1.4.8.jar"),
+                dep("org/slf4j/slf4j-api/2.0.7/slf4j-api-2.0.7.jar"),
+                dep("org/apache/logging/log4j/log4j-to-slf4j/2.20.0/log4j-to-slf4j-2.20.0.jar"),
+                dep("org/apache/logging/log4j/log4j-api/2.20.0/log4j-api-2.20.0.jar"),
+                dep("org/slf4j/jul-to-slf4j/2.0.7/jul-to-slf4j-2.0.7.jar"),
+                dep("jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar"),
+                dep("org/springframework/spring-core/6.0.11/spring-core-6.0.11.jar"),
+                dep("org/springframework/spring-jcl/6.0.11/spring-jcl-6.0.11.jar"),
+                dep("org/yaml/snakeyaml/1.33/snakeyaml-1.33.jar")
+        );
+        assertThat(mavenProject.getCompileClasspathElements()).containsExactlyInAnyOrder(mainDeps.toArray(new String[]{}));
+
+        List<String> testDeps = new ArrayList<>();
+        testDeps.addAll(mainDeps);
+        testDeps.add(tempDir.resolve("target/test-classes").toString());
+        testDeps.add(dep("javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar"));
+        assertThat(mavenProject.getTestClasspathElements()).containsExactlyInAnyOrder(testDeps.toArray(new String[]{}));
+    }
+
+    private String dep(String s) {
+        Path m2Repo = Path.of(System.getProperty("user.home")).resolve(".m2/repository/").resolve(s);
+        return m2Repo.toString();
     }
 
 

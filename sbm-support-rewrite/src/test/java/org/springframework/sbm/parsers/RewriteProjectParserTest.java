@@ -101,12 +101,10 @@ class RewriteProjectParserTest {
                 new ProvenanceMarkerFactory(
                         parserSettings,
                         new MavenProjectFactory(
-                                containerFactory,
                                 new MavenExecutor(
                                         requestFactory,
                                         containerFactory
-                                ),
-                                requestFactory
+                                )
                         ), mavenMojoProjectParserFactory),
                 new BuildFileParser(parserSettings),
                 new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),

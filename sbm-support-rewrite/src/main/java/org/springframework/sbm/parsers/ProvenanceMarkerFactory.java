@@ -77,6 +77,7 @@ class ProvenanceMarkerFactory {
         MavenMojoProjectParser helper = getMavenMojoProjectParser(baseDir, runtimeInformation, mavenSession, settingsDecrypter);
         Map<Path, List<Marker>> result = new HashMap<>();
         pomFileResources.forEach(pom -> {
+            // FIXME: this results in another Maven execution but the MavenProject could be retrieved from the current execution.
             MavenProject mavenProject = createMavenProject(pom);
             List<Marker> markers = helper.generateProvenance(mavenProject);
             result.put(ResourceUtil.getPath(pom), markers);

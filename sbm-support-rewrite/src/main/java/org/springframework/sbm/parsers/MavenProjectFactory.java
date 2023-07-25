@@ -18,16 +18,11 @@ package org.springframework.sbm.parsers;
 import lombok.RequiredArgsConstructor;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.apache.maven.execution.AbstractExecutionListener;
-import org.apache.maven.execution.ExecutionEvent;
-import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.*;
 import org.apache.maven.project.artifact.PluginArtifact;
-import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -42,56 +37,20 @@ import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
+ * Creates instances of {@link MavenProject}.
+ *
  * @author Fabian Krüger
  */
 @Component
 @RequiredArgsConstructor
 public class MavenProjectFactory {
 
-    private final MavenPlexusContainerFactory plexusContainerFactory;
     private final MavenExecutor mavenExecutor;
-    private final MavenExecutionRequestFactory requestFactory;
 
     /**
-     * Takes a {@code pom.xml} {@link File} and returns the {@link MavenProject} for it.
+     * Convenience method for {@link #createMavenProject(File)}.
      */
-    public MavenProject createMavenProject(File file) {
-        if (!file.isFile() || !"pom.xml".equals(file.getName())) {
-            throw new IllegalArgumentException("Maven pom.xml file must be provided.");
-        }
-        try {
-            Path baseDir = file.toPath().getParent();
-            PlexusContainer plexusContainer = plexusContainerFactory.create();
-            AtomicReference<MavenProject> projectAtomicReference = new AtomicReference<>();
-            final ProjectBuilder builder = plexusContainer.lookup(ProjectBuilder.class);
-            MavenExecutionRequest request = requestFactory.createMavenExecutionRequest(plexusContainer, baseDir);
-            request.setExecutionListener(new AbstractExecutionListener() {
-                @Override
-                public void sessionStarted(ExecutionEvent event) {
-
-                    super.sessionStarted(event);
-                    try {
-                        DefaultProjectBuildingRequest request = new DefaultProjectBuildingRequest();
-
-                        request.setSystemProperties(System.getProperties());
-                        request.setProcessPlugins(false);
-                        request.setRepositorySession(event.getSession().getRepositorySession());
-                        ProjectBuildingResult buildingResult = builder.build(file, request);
-                        projectAtomicReference.set(buildingResult.getProject());
-                    } catch (ProjectBuildingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-            request.setGoals(List.of("validate"));
-            mavenExecutor.execute(request);
-            return projectAtomicReference.get();
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public MavenProject createMavenProject(Resource pom) {
+     public MavenProject createMavenProject(Resource pom) {
         try {
             return createMavenProject(pom.getFile());
         } catch (IOException e) {
@@ -99,6 +58,29 @@ public class MavenProjectFactory {
         }
     }
 
+    /**
+     * Creates {@link MavenProject} instance from a given pom file.
+     * It uses the {@link MavenExecutor} to run `{@code dependency:resolve}` goal
+     * and provides the {@link MavenProject} received from {@link org.apache.maven.execution.ExecutionEvent}.
+     * All classpath elements are resolved.
+     */
+    public MavenProject createMavenProject(File file) {
+        if (!file.isFile() || !"pom.xml".equals(file.getName())) {
+            throw new IllegalArgumentException("Maven pom.xml file must be provided.");
+        }
+
+        Path baseDir = file.toPath().getParent();
+        AtomicReference<MavenProject> projectAtomicReference = new AtomicReference<>();
+        mavenExecutor.onProjectSucceededEvent(baseDir, List.of("dependency:resolve"), event -> {
+            MavenProject project = event.getProject();
+            projectAtomicReference.set(project);
+        });
+        return projectAtomicReference.get();
+    }
+
+    /**
+     *
+     */
     public MavenProject createMavenProject(String s) {
         try {
 

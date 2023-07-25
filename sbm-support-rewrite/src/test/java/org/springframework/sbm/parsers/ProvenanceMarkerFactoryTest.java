@@ -137,7 +137,7 @@ class ProvenanceMarkerFactoryTest {
             MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
             ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory(
                     parserSettings,
-                    new MavenProjectFactory(containerFactory, new MavenExecutor(requestFactory, containerFactory), requestFactory),
+                    new MavenProjectFactory(new MavenExecutor(requestFactory, containerFactory)),
                     new MavenMojoProjectParserFactory(parserSettings)
             );
             Path baseDir = Path.of(".").toAbsolutePath().normalize();

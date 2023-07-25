@@ -271,6 +271,6 @@ class RewriteRecipeDiscoveryTest {
     private static RewriteRecipeDiscovery buildRecipeDiscovery() {
         MavenPlexusContainerFactory plexusContainerFactory = new MavenPlexusContainerFactory();
         MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
-        return new RewriteRecipeDiscovery(new ParserSettings(), new MavenProjectFactory(plexusContainerFactory, new MavenExecutor(requestFactory, plexusContainerFactory), requestFactory));
+        return new RewriteRecipeDiscovery(new ParserSettings(), new MavenProjectFactory(new MavenExecutor(requestFactory, plexusContainerFactory)));
     }
 }
