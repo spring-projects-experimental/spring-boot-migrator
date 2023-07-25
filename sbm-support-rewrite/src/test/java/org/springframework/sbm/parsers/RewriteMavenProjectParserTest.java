@@ -416,7 +416,7 @@ class RewriteMavenProjectParserTest {
 
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(parserSettings, mavenProjectFactory, mavenMojoProjectParserFactory),
-                new BuildFileParser(mavenModelReader, parserSettings),
+                new BuildFileParser(parserSettings),
                 new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
                 parserSettings,

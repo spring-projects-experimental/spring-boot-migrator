@@ -95,7 +95,7 @@ class BuildFileParserTest {
                 </project>
                 """;
 
-        private BuildFileParser sut = new BuildFileParser(new MavenModelReader(), new ParserSettings());
+        private BuildFileParser sut = new BuildFileParser(new ParserSettings());
 
         @Test
         void filterAndSortBuildFiles_shouldReturnSortedListOfFilteredBuildFiles() {

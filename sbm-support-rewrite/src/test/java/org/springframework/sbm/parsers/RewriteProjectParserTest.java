@@ -108,7 +108,7 @@ class RewriteProjectParserTest {
                                 ),
                                 requestFactory
                         ), mavenMojoProjectParserFactory),
-                new BuildFileParser(mavenModelReader, parserSettings),
+                new BuildFileParser(parserSettings),
                 new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
                 parserSettings,

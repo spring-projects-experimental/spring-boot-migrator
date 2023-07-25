@@ -50,7 +50,6 @@ import static java.util.Collections.emptyList;
 @RequiredArgsConstructor
 class BuildFileParser {
 
-    private final MavenModelReader mavenModelReader;
     private final ParserSettings parserSettings;
 
     /**
