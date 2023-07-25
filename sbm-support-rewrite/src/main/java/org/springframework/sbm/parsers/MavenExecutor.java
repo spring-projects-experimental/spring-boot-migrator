@@ -43,7 +43,7 @@ class MavenExecutor {
      * Runs given {@code goals} in Maven and calls {@code eventConsumer} when Maven calls {@link org.apache.maven.execution.ExecutionListener#projectSucceeded(ExecutionEvent)}.
      * The {@code eventConsumer} will be provided with the current {@link MavenSession} through the {@link ExecutionEvent}.
      */
-     public void onProjectSucceededEvent(Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
+    public void onProjectSucceededEvent(Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
         PlexusContainer plexusContainer = containerFactory.create();
         AbstractExecutionListener executionListener = new AbstractExecutionListener() {
             @Override

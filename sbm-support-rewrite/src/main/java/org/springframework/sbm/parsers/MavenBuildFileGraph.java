@@ -26,7 +26,6 @@ import org.apache.maven.model.Profile;
 import org.apache.maven.model.building.Result;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.UserLocalArtifactRepository;
-import org.apache.maven.shared.invoker.*;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.springframework.core.io.Resource;
@@ -60,7 +59,7 @@ class MavenBuildFileGraph implements BuildFileGraph {
     @Override
     public List<Resource> build(Path baseDir, List<Resource> resources) {
         try {
-            PlexusContainer plexusContainer = containerFactory.create(baseDir);
+            PlexusContainer plexusContainer = containerFactory.create();
             GraphBuilder graphBuilder = plexusContainer.lookup(GraphBuilder.class);
 
             Maven maven = plexusContainer.lookup(Maven.class);

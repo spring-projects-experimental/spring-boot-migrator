@@ -96,7 +96,7 @@ public class RewriteMavenProjectParser {
     public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext) {
         final Path absoluteBaseDir = getAbsolutePath(baseDir);
         Collection<String> allExclusions = getAllExclusions(exclusions);
-        PlexusContainer plexusContainer = mavenPlexusContainerFactory.create(absoluteBaseDir);
+        PlexusContainer plexusContainer = mavenPlexusContainerFactory.create();
         RewriteProjectParsingResult parsingResult = parseInternal(absoluteBaseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext, absoluteBaseDir, allExclusions, plexusContainer);
         return parsingResult;
     }

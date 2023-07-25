@@ -21,14 +21,13 @@ import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
-import java.nio.file.Path;
 
 /**
  * @author Fabian Krüger
  */
 @Component
 class MavenPlexusContainerFactory {
-    public PlexusContainer create(Path baseDir) {
+    public PlexusContainer create() {
         try {
             ClassLoader parent = null;
             boolean isContainerAutoWiring = false;

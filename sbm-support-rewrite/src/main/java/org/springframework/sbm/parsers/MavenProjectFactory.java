@@ -61,7 +61,7 @@ public class MavenProjectFactory {
         }
         try {
             Path baseDir = file.toPath().getParent();
-            PlexusContainer plexusContainer = plexusContainerFactory.create(baseDir);
+            PlexusContainer plexusContainer = plexusContainerFactory.create();
             AtomicReference<MavenProject> projectAtomicReference = new AtomicReference<>();
             final ProjectBuilder builder = plexusContainer.lookup(ProjectBuilder.class);
             MavenExecutionRequest request = requestFactory.createMavenExecutionRequest(plexusContainer, baseDir);
