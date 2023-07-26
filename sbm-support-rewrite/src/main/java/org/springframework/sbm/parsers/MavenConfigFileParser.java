@@ -33,8 +33,7 @@ import java.util.stream.Stream;
 
 /**
  * Parse {@code .mvn/maven.config/} and provide access to relevant settings.
- *
- * Borrows a lot of code from {@link org.apache.maven.cli.CLIManager}.
+ * Code thankfully taken from <a href="https://github.com/apache/maven/blob/857a5e129ad8dad05495ba631818b55f1925d210/maven-embedder/src/main/java/org/apache/maven/cli/CLIManager.java">org.apache.maven.cli.CLIManager</a>.
  *
  * @author Fabian Krüger
  */
