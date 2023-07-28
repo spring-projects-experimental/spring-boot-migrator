@@ -22,6 +22,7 @@ import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.tree.Dependency;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.helpers.DependencyVersionHelper;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -126,7 +127,8 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         assertThat(johnzonDependency.getClassifier()).isEqualTo("jakarta");
         assertThat(johnzonDependency.getArtifactId()).isEqualTo("johnzon-core");
-        assertThat(johnzonDependency.getVersion()).isEqualTo("1.2.20");
+        Optional<String> expectedJohnzonVersion = DependencyVersionHelper.getLatestReleaseVersion(johnzonDependency.getGroupId(), johnzonDependency.getArtifactId());
+        assertThat(johnzonDependency.getVersion()).isEqualTo(expectedJohnzonVersion.get());
     }
 
     @NotNull
