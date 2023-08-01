@@ -1,8 +1,8 @@
 package com.example.jee.app;
 
 import javax.ws.rs.*;
-import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -38,8 +38,8 @@ public class PersonController {
         return "<xml>Hello "+name+"</xml>";
     }
 
-    private boolean isResponseStatusSuccessful(ContainerResponseContext responseContext) {
-        return responseContext.getStatusInfo().getFamily() == SUCCESSFUL;
+    private boolean isResponseStatusSuccessful(Response.Status.Family family) {
+        return family == SUCCESSFUL;
     }
 
 }
