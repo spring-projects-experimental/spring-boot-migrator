@@ -24,7 +24,9 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.AbstractRewriteMojo;
+import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenMojoProjectParser;
+import org.openrewrite.maven.tree.MavenRepository;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
@@ -84,7 +86,7 @@ public class RewriteProjectParser {
         if(!baseDir.isAbsolute()) {
             baseDir = baseDir.toAbsolutePath().normalize();
         }
-
+        MavenExecutionContextView.view(executionContext).setLocalRepository(new MavenRepository("local", "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository"), null, null, false, null, null, null));
         eventPublisher.publishEvent(new StartedParsingProjectEvent(resources));
 
         ParsingExecutionContextView.view(executionContext).setParsingListener(parsingEventListener);
