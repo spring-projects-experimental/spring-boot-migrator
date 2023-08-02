@@ -15,6 +15,8 @@
         <spring-boot.version>3.1.1</spring-boot.version>
         <rewrite.version>8.1.6</rewrite.version>
         <rewrite-maven-plugin.version>5.3.2</rewrite-maven-plugin.version>
+        <rewrite-spring.version>5.0.5</rewrite-spring.version>
+        <sbm.version>0.15.0-SNAPSHOT</sbm.version>
         <maven.version>3.9.1</maven.version>
         <maven-resolver.version>1.9.7</maven-resolver.version>
         <maven-wagon-http.version>3.5.3</maven-wagon-http.version>
@@ -54,7 +56,7 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-utils</artifactId>
-            <version>0.14.1-SNAPSHOT</version>
+            <version>${sbm.version}</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -93,7 +95,7 @@
         <dependency>
             <groupId>org.openrewrite.recipe</groupId>
             <artifactId>rewrite-spring</artifactId>
-            <version>5.0.5</version>
+            <version>${rewrite-spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
