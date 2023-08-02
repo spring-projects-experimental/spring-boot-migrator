@@ -105,7 +105,7 @@ class MavenProjectFactoryTest {
 
         Path pomFile = tempDir.resolve("pom.xml");
         Files.writeString(pomFile, pomXml);
-        MavenProject mavenProject = sut.createMavenProject(pomFile.toFile());
+        MavenProject mavenProject = sut.createMavenProjectFromMaven(pomFile.toFile());
         assertThat(mavenProject.getName()).isEqualTo("the-name");
         assertThat(mavenProject.getArtifactId()).isEqualTo("the-example");
         assertThat(mavenProject.getGroupId()).isEqualTo("com.example");
