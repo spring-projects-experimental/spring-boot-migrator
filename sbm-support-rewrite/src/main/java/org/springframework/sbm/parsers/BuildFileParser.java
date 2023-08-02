@@ -17,6 +17,7 @@ package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugin.logging.Log;
 import org.openrewrite.ExecutionContext;
@@ -56,7 +57,7 @@ class BuildFileParser {
      * Parse a list of Maven Pom files to a Map of {@code Path} and their parsed {@Xml.Document}s.
      * The {@link Xml.Document}s are marked with {@link org.openrewrite.maven.tree.MavenResolutionResult} and the provided provenance markers.
      * Reimplements {@link org.openrewrite.maven.MavenMojoProjectParser#parseMaven(List, Map, ExecutionContext)}.
-     * The provided list of pom files must be sorted beforehand. See {@link MavenBuildFileGraph#build(Path, List)}.
+     * The provided list of pom files must be sorted beforehand. See {@link BuildFileGraph#build(List, MavenSession)}.
      *
      * @param baseDir the {@link Path} to the root of the scanned project
      * @param buildFileResources the list of resources for relevant pom files.

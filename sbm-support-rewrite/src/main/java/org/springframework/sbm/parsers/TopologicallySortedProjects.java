@@ -16,6 +16,7 @@
 package org.springframework.sbm.parsers;
 
 import lombok.Getter;
+import org.apache.maven.project.MavenProject;
 import org.springframework.core.io.Resource;
 
 import java.util.List;
@@ -31,4 +32,5 @@ public class TopologicallySortedProjects {
     public TopologicallySortedProjects(List<Resource> ordered) {
         this.ordered = ordered;
     }
+
 }

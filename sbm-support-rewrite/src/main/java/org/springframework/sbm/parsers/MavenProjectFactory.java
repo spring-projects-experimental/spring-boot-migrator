@@ -57,12 +57,17 @@ public class MavenProjectFactory {
         }
     }
 
+
     /**
      * Creates {@link MavenProject} instance from a given pom file.
      * It uses the {@link MavenExecutor} to run `{@code dependency:resolve}` goal
      * and provides the {@link MavenProject} received from {@link org.apache.maven.execution.ExecutionEvent}.
      * All classpath elements are resolved.
+     *
+     * @deprecated
+     * This method starts a new Maven build. There should be only one Maven build
      */
+    @Deprecated
     public MavenProject createMavenProjectFromMaven(File file) {
         if (!file.isFile() || !"pom.xml".equals(file.getName())) {
             throw new IllegalArgumentException("Maven pom.xml file must be provided.");

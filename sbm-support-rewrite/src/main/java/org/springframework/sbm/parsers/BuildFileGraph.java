@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.parsers;
 
+import org.apache.maven.execution.MavenSession;
 import org.springframework.core.io.Resource;
 
 import java.nio.file.Path;
@@ -24,5 +25,5 @@ import java.util.List;
  * @author Fabian Krüger
  */
 public interface BuildFileGraph {
-    TopologicallySortedProjects build(Path baseDir, List<Resource> resources);
+    TopologicallySortedProjects build(List<Resource> resources, MavenSession mavenSession);
 }

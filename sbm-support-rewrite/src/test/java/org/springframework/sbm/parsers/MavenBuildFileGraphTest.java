@@ -34,22 +34,25 @@ class MavenBuildFileGraphTest {
     @Test
     @DisplayName("Should Create Correct BuildPath")
     void shouldCreateCorrectBuildPath() {
-        ProjectScanner scanner = new ProjectScanner(new FileSystemResourceLoader());
+        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
+        PlexusContainerProvider containerProvider = new PlexusContainerProvider();
+        MavenExecutor mavenExecutor = new MavenExecutor(requestFactory, containerProvider);
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-1").toAbsolutePath().normalize();
+        ProjectScanner scanner = new ProjectScanner(new FileSystemResourceLoader());
         List<Resource> resources = scanner.scan(baseDir, Set.of());
-        PlexusContainerProvider PlexusContainerProvider = new PlexusContainerProvider();
-        MavenBuildFileGraph sut = new MavenBuildFileGraph(PlexusContainerProvider);
+        mavenExecutor.onProjectSucceededEvent(baseDir, List.of("clean", "install"), event -> {
+            MavenBuildFileGraph sut = new MavenBuildFileGraph(containerProvider);
+            List<Resource> build = sut.build(resources, event.getSession()).getOrdered();
 
-        List<Resource> build = sut.build(baseDir, resources);
+            assertThat(ResourceUtil.getPath(build.get(0)).toString())
+                    .isEqualTo(baseDir.resolve("pom.xml").toString());
 
-        assertThat(ResourceUtil.getPath(build.get(0)).toString())
-                .isEqualTo(baseDir.resolve("pom.xml").toString());
+            assertThat(ResourceUtil.getPath(build.get(1)).toString())
+                    .isEqualTo(baseDir.resolve("module-b/pom.xml").toString());
 
-        assertThat(ResourceUtil.getPath(build.get(1)).toString())
-                .isEqualTo(baseDir.resolve("module-b/pom.xml").toString());
-
-        assertThat(ResourceUtil.getPath(build.get(2)).toString())
-                .isEqualTo(baseDir.resolve("module-a/pom.xml").toString());
+            assertThat(ResourceUtil.getPath(build.get(2)).toString())
+                    .isEqualTo(baseDir.resolve("module-a/pom.xml").toString());
+        });
     }
 
 
