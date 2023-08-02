@@ -57,7 +57,7 @@ class MavenBuildFileGraph implements BuildFileGraph {
 
 
     @Override
-    public List<Resource> build(Path baseDir, List<Resource> resources) {
+    public TopologicallySortedProjects build(Path baseDir, List<Resource> resources) {
         try {
             PlexusContainer plexusContainer = plexusContainerProvider.get();
             GraphBuilder graphBuilder = plexusContainer.lookup(GraphBuilder.class);
@@ -115,7 +115,7 @@ class MavenBuildFileGraph implements BuildFileGraph {
 //                    .filter(resource -> finalOrdered.contains(ResourceUtil.getPath(resource)))
 //                    .toList();
 
-            return ordered;
+            return new TopologicallySortedProjects(ordered);
 
 //            List<File> pomFiles = resources.stream()
 //                    .filter(r -> ResourceUtil.getPath(r).toFile().getName().equals("pom.xml"))

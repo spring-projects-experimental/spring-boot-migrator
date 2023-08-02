@@ -16,7 +16,6 @@
 package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
@@ -51,15 +50,15 @@ class ProvenanceMarkerFactory {
      *
      * @return the map of pom.xml {@link Resource}s and their {@link Marker}s.
      */
-    public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, List<Resource> pomFileResources) {
+    public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, TopologicallySortedProjects pomFileResources) {
 
         RuntimeInformation runtimeInformation = new DefaultRuntimeInformation();
-        MavenSession mavenSession = null;
         SettingsDecrypter settingsDecrypter = null;
 
-        MavenMojoProjectParser helper = getMavenMojoProjectParser(baseDir, runtimeInformation, mavenSession, settingsDecrypter);
+        MavenMojoProjectParser helper = getMavenMojoProjectParser(baseDir, runtimeInformation, settingsDecrypter);
         Map<Path, List<Marker>> result = new HashMap<>();
-        pomFileResources.forEach(pom -> {
+
+        pomFileResources.getOrdered().forEach(pom -> {
             // FIXME: this results in another Maven execution but the MavenProject could be retrieved from the current execution.
             // FIXME: This results in multiple calls to 'mvn install'
             MavenProject mavenProject = createMavenProject(pom);
@@ -70,7 +69,7 @@ class ProvenanceMarkerFactory {
     }
 
     @NotNull
-    private MavenMojoProjectParser getMavenMojoProjectParser(Path baseDir, RuntimeInformation runtimeInformation, MavenSession mavenSession, SettingsDecrypter settingsDecrypter) {
+    private MavenMojoProjectParser getMavenMojoProjectParser(Path baseDir, RuntimeInformation runtimeInformation, SettingsDecrypter settingsDecrypter) {
         return mavenMojoProjectParserFactory.create(baseDir, runtimeInformation, settingsDecrypter);
     }
 

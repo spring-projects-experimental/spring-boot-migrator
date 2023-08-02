@@ -15,14 +15,20 @@
  */
 package org.springframework.sbm.parsers;
 
+import lombok.Getter;
 import org.springframework.core.io.Resource;
 
-import java.nio.file.Path;
 import java.util.List;
 
 /**
  * @author Fabian Krüger
  */
-public interface BuildFileGraph {
-    TopologicallySortedProjects build(Path baseDir, List<Resource> resources);
+public class TopologicallySortedProjects {
+
+    @Getter
+    private final List<Resource> ordered;
+
+    public TopologicallySortedProjects(List<Resource> ordered) {
+        this.ordered = ordered;
+    }
 }

@@ -100,23 +100,23 @@ public class RewriteProjectParser {
         // retrieve all pom files from all modules in the active reactor build
         // TODO: Move this to a build file sort and filter component, for now it could use Maven's DefaultGraphBuilder
         //       this requires File to be used and thus binds the component to file access.
-        List<Resource> sortedBuildFileResources = buildFileGraph.build(baseDir, resources);
+        TopologicallySortedProjects sortedProjects = buildFileGraph.build(baseDir, resources);
 //        List<Resource> sortedBuildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
 
         // generate provenance
-        Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, sortedBuildFileResources);
+        Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, sortedProjects);
 
         // 127: parse build files
-        Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, sortedBuildFileResources, executionContext, parserSettings.isSkipMavenParsing(), provenanceMarkers);
+        Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, sortedProjects.getOrdered(), executionContext, parserSettings.isSkipMavenParsing(), provenanceMarkers);
 
-        List<SourceFile> parsedAndSortedBuildFileDocuments = sortedBuildFileResources.stream()
+        List<SourceFile> parsedAndSortedBuildFileDocuments = sortedProjects.getOrdered().stream()
                 .map(r -> resourceToDocumentMap.get(ResourceUtil.getPath(r)))
                 .map(SourceFile.class::cast)
                 .toList();
 
         // 128 : 131
         log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
-        Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(baseDir, resourceToDocumentMap, sortedBuildFileResources, resources, provenanceMarkers, styles, executionContext);
+        Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(baseDir, resourceToDocumentMap, sortedProjects.getOrdered(), resources, provenanceMarkers, styles, executionContext);
 //        List<SourceFile> sourceFilesWithoutPoms = sourceFilesStream.filter(sf -> resourceToDocumentMap.keySet().contains(baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize())).toList();
         List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();
         resultingList.addAll(parsedAndSortedBuildFileDocuments);
