@@ -86,6 +86,7 @@ public class RewriteProjectParser {
         if(!baseDir.isAbsolute()) {
             baseDir = baseDir.toAbsolutePath().normalize();
         }
+        // FIXME: ... WARN 30694 --- [           main] .m.p.i.DeprecatedCoreExpressionValidator : Parameter 'local' is deprecated core expression; Avoid use of ArtifactRepository type. If you need access to local repository, switch to '${repositorySystemSession}' expression and get LRM from it instead.
         MavenExecutionContextView.view(executionContext).setLocalRepository(new MavenRepository("local", "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository"), null, null, false, null, null, null));
         eventPublisher.publishEvent(new StartedParsingProjectEvent(resources));
 
