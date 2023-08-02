@@ -70,7 +70,7 @@ public class MavenProjectFactory {
 
         Path baseDir = file.toPath().getParent();
         AtomicReference<MavenProject> projectAtomicReference = new AtomicReference<>();
-        mavenExecutor.onProjectSucceededEvent(baseDir, List.of("validate", "dependency:resolve"), event -> {
+        mavenExecutor.onProjectSucceededEvent(baseDir, List.of("clean", "install"), event -> {
             MavenProject project = event.getProject();
             projectAtomicReference.set(project);
         });
