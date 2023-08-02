@@ -90,13 +90,14 @@ class MavenProjectFactoryTest {
                             <plugin>
                                 <groupId>org.springframework.boot</groupId>
                                 <artifactId>spring-boot-maven-plugin</artifactId>
+                                <version>${spring-boot.version}</version>
                             </plugin>
                         </plugins>
                     </build>
                 </project>
                 """;
 
-        MavenPlexusContainerFactory plexusContainerFactory = new MavenPlexusContainerFactory();
+        PlexusContainerProvider plexusContainerFactory = new PlexusContainerProvider();
         MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
         MavenExecutor mavenExecutor = new MavenExecutor(requestFactory, plexusContainerFactory);
         MavenProjectFactory sut = new MavenProjectFactory(

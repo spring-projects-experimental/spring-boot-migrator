@@ -53,13 +53,13 @@ import java.util.concurrent.atomic.AtomicReference;
 class MavenBuildFileGraph implements BuildFileGraph {
 
     public static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toString();
-    private final MavenPlexusContainerFactory containerFactory;
+    private final PlexusContainerProvider plexusContainerProvider;
 
 
     @Override
     public List<Resource> build(Path baseDir, List<Resource> resources) {
         try {
-            PlexusContainer plexusContainer = containerFactory.create();
+            PlexusContainer plexusContainer = plexusContainerProvider.get();
             GraphBuilder graphBuilder = plexusContainer.lookup(GraphBuilder.class);
 
             Maven maven = plexusContainer.lookup(Maven.class);

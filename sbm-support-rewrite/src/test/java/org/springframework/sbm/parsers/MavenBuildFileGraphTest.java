@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Fabian Krüger
@@ -38,8 +37,8 @@ class MavenBuildFileGraphTest {
         ProjectScanner scanner = new ProjectScanner(new FileSystemResourceLoader());
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-1").toAbsolutePath().normalize();
         List<Resource> resources = scanner.scan(baseDir, Set.of());
-        MavenPlexusContainerFactory mavenPLexusContainerFactory = new MavenPlexusContainerFactory();
-        MavenBuildFileGraph sut = new MavenBuildFileGraph(mavenPLexusContainerFactory);
+        PlexusContainerProvider PlexusContainerProvider = new PlexusContainerProvider();
+        MavenBuildFileGraph sut = new MavenBuildFileGraph(PlexusContainerProvider);
 
         List<Resource> build = sut.build(baseDir, resources);
 

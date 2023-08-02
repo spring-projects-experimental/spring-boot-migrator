@@ -78,7 +78,7 @@ class RewriteMavenProjectParserTest {
         MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(
                 new MavenConfigFileParser()
         );
-        MavenPlexusContainerFactory plexusContainerFactory = new MavenPlexusContainerFactory();
+        PlexusContainerProvider plexusContainerFactory = new PlexusContainerProvider();
         sut = new RewriteMavenProjectParser(
                 plexusContainerFactory,
                 new DefaultParsingEventListener(mock(ApplicationEventPublisher.class)),
@@ -410,7 +410,7 @@ class RewriteMavenProjectParserTest {
         MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
-        MavenPlexusContainerFactory plexusContainerFactory = new MavenPlexusContainerFactory();
+        PlexusContainerProvider plexusContainerFactory = new PlexusContainerProvider();
         MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
         MavenProjectFactory mavenProjectFactory = new MavenProjectFactory(new MavenExecutor(requestFactory, plexusContainerFactory));
 

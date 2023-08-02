@@ -36,7 +36,7 @@ import java.util.function.Consumer;
 class MavenExecutor {
 
     private final MavenExecutionRequestFactory requestFactory;
-    private final MavenPlexusContainerFactory containerFactory;
+    private final PlexusContainerProvider plexusContainerProvider;
 
 
     /**
@@ -44,7 +44,7 @@ class MavenExecutor {
      * The {@code eventConsumer} will be provided with the current {@link MavenSession} through the {@link ExecutionEvent}.
      */
     public void onProjectSucceededEvent(Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
-        PlexusContainer plexusContainer = containerFactory.create();
+        PlexusContainer plexusContainer = plexusContainerProvider.get();
         AbstractExecutionListener executionListener = new AbstractExecutionListener() {
             @Override
             public void mojoFailed(ExecutionEvent event) {
@@ -77,7 +77,7 @@ class MavenExecutor {
      */
     public void execute(MavenExecutionRequest request) {
         try {
-            PlexusContainer plexusContainer = containerFactory.create();
+            PlexusContainer plexusContainer = plexusContainerProvider.get();
             Maven maven = plexusContainer.lookup(Maven.class);
             MavenExecutionResult execute = maven.execute(request);
             if (execute.hasExceptions()) {

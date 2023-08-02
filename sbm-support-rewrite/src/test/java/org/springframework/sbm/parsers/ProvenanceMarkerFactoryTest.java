@@ -133,7 +133,7 @@ class ProvenanceMarkerFactoryTest {
                     .runPerSubmodule(false)
                     .build();
 
-            MavenPlexusContainerFactory containerFactory = new MavenPlexusContainerFactory();
+            PlexusContainerProvider containerFactory = new PlexusContainerProvider();
             MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
             ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory(
                     parserSettings,

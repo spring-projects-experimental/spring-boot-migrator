@@ -62,7 +62,7 @@ public class RewriteMavenProjectParser {
 
 
     public static final Collection<String> EXCLUSIONS = Set.of("**/.DS_Store", ".DS_Store");
-    private final MavenPlexusContainerFactory mavenPlexusContainerFactory;
+    private final PlexusContainerProvider plexusContainerProvider;
     private final ParsingEventListener parsingListener;
     private final MavenExecutor mavenRunner;
 
@@ -96,7 +96,7 @@ public class RewriteMavenProjectParser {
     public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext) {
         final Path absoluteBaseDir = getAbsolutePath(baseDir);
         Collection<String> allExclusions = getAllExclusions(exclusions);
-        PlexusContainer plexusContainer = mavenPlexusContainerFactory.create();
+        PlexusContainer plexusContainer = plexusContainerProvider.get();
         RewriteProjectParsingResult parsingResult = parseInternal(absoluteBaseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext, absoluteBaseDir, allExclusions, plexusContainer);
         return parsingResult;
     }
