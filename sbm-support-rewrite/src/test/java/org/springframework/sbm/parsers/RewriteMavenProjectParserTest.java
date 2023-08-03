@@ -163,7 +163,11 @@ class RewriteMavenProjectParserTest {
         assertThat(sourceFiles).hasSize(2);
         SourceFile pom = sourceFiles.get(0);
         assertThat(pom).isInstanceOf(Xml.Document.class);
-        assertThat(pom.getMarkers().getMarkers()).hasSize(7);
+        int expectedNumMarkers = 7;
+        if(System.getenv("GITHUB_ACTION_REF") != null) {
+            expectedNumMarkers = 8;
+        }
+        assertThat(pom.getMarkers().getMarkers()).hasSize(expectedNumMarkers);
         assertThat(pom.getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested().getDependencies()).hasSize(1);
         assertThat(pom.getMarkers().findFirst(GitProvenance.class)).isNotNull();
         assertThat(pom.getMarkers().findFirst(OperatingSystemProvenance.class)).isNotNull();
@@ -174,7 +178,7 @@ class RewriteMavenProjectParserTest {
 
         assertThat(sourceFiles.get(1)).isInstanceOf(J.CompilationUnit.class);
         J.CompilationUnit compilationUnit = J.CompilationUnit.class.cast(sourceFiles.get(1));
-        assertThat(compilationUnit.getMarkers().getMarkers()).hasSize(7);
+        assertThat(compilationUnit.getMarkers().getMarkers()).hasSize(expectedNumMarkers);
         assertThat(compilationUnit.getMarkers().findFirst(GitProvenance.class)).isNotNull();
         assertThat(compilationUnit.getMarkers().findFirst(OperatingSystemProvenance.class)).isNotNull();
         assertThat(compilationUnit.getMarkers().findFirst(BuildTool.class)).isNotNull();
@@ -184,7 +188,7 @@ class RewriteMavenProjectParserTest {
         assertThat(compilationUnit.getMarkers().findFirst(Autodetect.class)).isNotNull();
         List<JavaType> typeInUse = new ArrayList<>();
         typeInUse.addAll(compilationUnit.getTypesInUse().getTypesInUse());
-        assertThat(typeInUse).hasSize(7);
+        assertThat(typeInUse).hasSize(expectedNumMarkers);
         List<String> fqnTypesInUse = typeInUse.stream()
                 .filter(JavaType.class::isInstance)
                 .map(JavaType.class::cast)
