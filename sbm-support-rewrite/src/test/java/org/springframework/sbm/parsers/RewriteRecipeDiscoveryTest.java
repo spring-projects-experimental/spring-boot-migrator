@@ -235,8 +235,6 @@ class RewriteRecipeDiscoveryTest {
         ClasspathScanningLoader scanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
         ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(scanningLoader), getClass().getClassLoader());
 
-//        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), new String[]{});
-
         Environment environment = Environment.builder()
                 .load(classpathScanningLoader)
                 .build();
@@ -269,8 +267,6 @@ class RewriteRecipeDiscoveryTest {
 
     @NotNull
     private static RewriteRecipeDiscovery buildRecipeDiscovery() {
-        PlexusContainerProvider plexusContainerFactory = new PlexusContainerProvider();
-        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
-        return new RewriteRecipeDiscovery(new ParserSettings(), new MavenProjectFactory(new MavenExecutor(requestFactory, plexusContainerFactory)));
+        return new RewriteRecipeDiscovery(new ParserSettings());
     }
 }

@@ -93,10 +93,7 @@ class RewriteProjectParserTest {
         MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
-        PlexusContainerProvider containerFactory = new PlexusContainerProvider();
-        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(
-                new MavenConfigFileParser()
-        );
+        MavenPlexusContainer containerFactory = new MavenPlexusContainer();
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(
                         parserSettings,

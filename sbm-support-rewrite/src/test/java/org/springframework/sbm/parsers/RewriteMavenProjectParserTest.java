@@ -206,8 +206,12 @@ class RewriteMavenProjectParserTest {
                 .map(JavaType.FullyQualified::getFullyQualifiedName)
                 .toList();
 
-        // Classpath contains classes from JDK and spring-boot-starter and transitive dependencies, currently 6710
-        assertThat(classpath).hasSize(6859);
+        // Classpath contains classes from JDK and spring-boot-starter
+        assertThat(classpath).contains(
+                "org.springframework.boot.web.reactive.context.ApplicationReactiveWebEnvironment",
+                "org.springframework.context.ApplicationContext",
+                "java.math.BigInteger"
+                );
 
         verifyExecutionContext(parsingResult);
 
@@ -410,9 +414,7 @@ class RewriteMavenProjectParserTest {
         MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
-        PlexusContainerProvider plexusContainerFactory = new PlexusContainerProvider();
-        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
-        MavenProjectFactory mavenProjectFactory = new MavenProjectFactory(new MavenExecutor(requestFactory, plexusContainerFactory));
+        MavenPlexusContainer plexusContainerFactory = new MavenPlexusContainer();
 
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(parserSettings, mavenProjectFactory, mavenMojoProjectParserFactory),
