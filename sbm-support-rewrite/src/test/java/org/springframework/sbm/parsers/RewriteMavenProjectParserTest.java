@@ -63,6 +63,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
@@ -442,7 +443,7 @@ class RewriteMavenProjectParserTest {
         }
         if (Xml.Document.class == clazz) {
             Xml.Document pom = Xml.Document.class.cast(sourceFile);
-            assertThat(pom.getMarkers().getMarkers()).hasSize(7);
+            assertThat(pom.getMarkers().getMarkers()).as(() -> pom.getMarkers().getMarkers().stream().map(m -> m.getClass().getName()).collect(Collectors.joining("\n"))).hasSize(7);
 //            assertThat(pom.getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested().getDependencies()).hasSize(1);
             assertThat(pom.getMarkers().findFirst(JavaProject.class)).isNotNull();
             assertThat(pom.getMarkers().findFirst(Autodetect.class)).isNotNull();
