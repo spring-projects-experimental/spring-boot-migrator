@@ -38,7 +38,6 @@ import java.util.function.Consumer;
 @Component
 public class RewriteMavenArtifactDownloader extends MavenArtifactDownloader {
 
-    // TODO: #7 make artifactCache configurable
     public RewriteMavenArtifactDownloader() {
         super(
                 new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository")).orElse(
