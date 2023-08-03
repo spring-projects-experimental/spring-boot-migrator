@@ -444,7 +444,6 @@ class RewriteMavenProjectParserTest {
         }
         if (Xml.Document.class == clazz) {
             Xml.Document pom = Xml.Document.class.cast(sourceFile);
-
             int numExpectedMarkers = 7;
             if(System.getenv("GITHUB_ACTIONS") != null) {
                 numExpectedMarkers = 8;
