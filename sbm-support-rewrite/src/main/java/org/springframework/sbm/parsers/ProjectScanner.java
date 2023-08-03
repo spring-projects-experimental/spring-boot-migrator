@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternUtils;
-import org.springframework.sbm.common.util.LinuxWindowsPathUnifier;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
 

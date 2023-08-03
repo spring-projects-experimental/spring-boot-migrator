@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.sbm.common.util;
+package org.springframework.sbm.utils;
 
 import org.springframework.util.StringUtils;
 

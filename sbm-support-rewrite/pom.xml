@@ -54,11 +54,6 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>org.springframework.sbm</groupId>
-            <artifactId>sbm-utils</artifactId>
-            <version>${sbm.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
         </dependency>
