@@ -91,7 +91,7 @@ class ProvenanceMarkerFactoryTest {
 
                 System.out.println(System.getenv());
 
-                if(System.getenv("GITHUB_ACTION_ID") != null) {
+                if(System.getenv("GITHUB_ACTION_REF") != null) {
                     numExpectedMarkers = 6; // CI marker
                 }
                 assertThat(markers).hasSize(numExpectedMarkers);
