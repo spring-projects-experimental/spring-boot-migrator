@@ -100,94 +100,12 @@ class MavenMojoProjectParserPrivateMethods {
             throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted(methodName, MavenMojoProjectParser.class.getName()));
         }
 
-
-        // FIXME: Retrieve MavenProject as parameter
-        /*MavenProject mavenProject = new MavenProject() {
-            @Override
-            public Build getBuild() {
-                return new Build() {
-                    // mavenProject.getBuild().getDirectory()
-                    @Override
-                    public String getDirectory() {
-                        Path modulePath = getModulePath();
-                        Path sourceDirectory = modulePath.resolve("target");
-                        return sourceDirectory.toString();
-                    }
-
-                    // mavenProject.getBuild().getSourceDirectory()
-
-                    @Override
-                    public String getSourceDirectory() {
-                        Path modulePath = getModulePath();
-                        Path sourceDirectory = modulePath.resolve("src/main/java").toAbsolutePath().normalize();
-                        return sourceDirectory.toString();
-                    }
-
-                    @Override
-                    public String getTestSourceDirectory() {
-                        Path modulePath = getModulePath();
-                        Path sourceDirectory = modulePath.resolve("src/test/java").toAbsolutePath().normalize();
-                        return sourceDirectory.toString();
-                    }
-
-                    @NotNull
-                    private Path getModulePath() {
-                        Path moduleDir = moduleBuildFile.getSourcePath().getParent();
-                        if (moduleDir == null) {
-                            moduleDir = Path.of("");
-                        }
-                        Path resolve = baseDir.resolve(moduleDir).toAbsolutePath().normalize();
-                        return resolve;
-                    }
-                };
-            }
-
-            // mavenProject.getCompileClasspathElements()
-            @Override
-            public List<String> getCompileClasspathElements() {
-                MavenResolutionResult mavenResolution = moduleBuildFile.getMarkers().findFirst(MavenResolutionResult.class).get();
-                List<ResolvedDependency> resolvedDependencies = mavenResolution.getDependencies().get(Scope.Provided);
-                List<String> dependencies = downloadArtifacts(resolvedDependencies).stream()
-                        .map(Path::toAbsolutePath)
-                        .map(Path::toString)
-                        .toList();
-
-                // FIXME: provide paths to jars here
-                return dependencies;
-            }
-
-            @Override
-            public List<String> getTestClasspathElements() {
-                MavenResolutionResult mavenResolution = moduleBuildFile.getMarkers().findFirst(MavenResolutionResult.class).get();
-                List<ResolvedDependency> resolvedDependencies = mavenResolution.getDependencies().get(Scope.Test);
-                List<String> dependencies = downloadArtifacts(resolvedDependencies).stream()
-                        .map(Path::toAbsolutePath)
-                        .map(Path::toString)
-                        .toList();
-
-                // FIXME: provide paths to jars here
-                return dependencies;
-            }
-
-            // mavenProject.getBasedir().toPath()
-            @Override
-            public File getBasedir() {
-                return Path.of("...").toFile();
-            }
-        };*/
-
         Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser,
-//                    MavenProject mavenProject,
                 mavenProject,
-//                    JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
                 javaParserBuilder,
-//                    ResourceParser resourceParser,
                 rp,
-//                    List<Marker> projectProvenance,
                 provenanceMarkers,
-//                    Set<Path> alreadyParsed,
                 alreadyParsed,
-//                    ExecutionContext
                 executionContext
         );
         if (result instanceof Stream) {
