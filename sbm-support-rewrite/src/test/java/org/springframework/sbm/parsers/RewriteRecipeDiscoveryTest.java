@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-@DisabledIfEnvironmentVariable(named = "GITHUB_ACTION_REF", matches = "*")
+@DisabledIfEnvironmentVariable(named = "GITHUB_ACTION_REF", matches = ".*")
 class RewriteRecipeDiscoveryTest {
 
     @BeforeAll
