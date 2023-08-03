@@ -417,7 +417,8 @@ class RewriteMavenProjectParserTest {
         MavenPlexusContainer plexusContainerFactory = new MavenPlexusContainer();
 
         RewriteProjectParser rpp = new RewriteProjectParser(
-                new ProvenanceMarkerFactory(parserSettings, mavenProjectFactory, mavenMojoProjectParserFactory),
+                new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
+                new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
                 new BuildFileParser(parserSettings),
                 new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
                 new StyleDetector(),

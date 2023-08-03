@@ -23,12 +23,8 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -128,13 +124,6 @@ class MavenBuildFileGraph implements BuildFileGraph {
         } catch (ComponentLookupException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private Resource findResourceWithPath(Path m, List<Resource> resources) {
-        return resources.stream()
-                .filter(r -> ResourceUtil.getPath(r).equals(m))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Could not find a resource in the list of resources that matches the path of pom '%s'".formatted(m.toString())));
     }
 
 }

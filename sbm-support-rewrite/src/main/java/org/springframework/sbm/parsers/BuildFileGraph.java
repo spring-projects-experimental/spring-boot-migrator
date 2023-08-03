@@ -18,7 +18,6 @@ package org.springframework.sbm.parsers;
 import org.apache.maven.execution.MavenSession;
 import org.springframework.core.io.Resource;
 
-import java.nio.file.Path;
 import java.util.List;
 
 /**

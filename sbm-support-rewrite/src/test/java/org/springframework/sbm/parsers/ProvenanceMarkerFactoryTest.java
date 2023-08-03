@@ -16,8 +16,10 @@
 package org.springframework.sbm.parsers;
 
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.rtinfo.RuntimeInformation;
 import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
-import org.intellij.lang.annotations.Language;
+import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,6 +32,7 @@ import org.openrewrite.marker.GitProvenance;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.OperatingSystemProvenance;
 import org.openrewrite.marker.ci.BuildEnvironment;
+import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.lib.Repository;
 import org.openrewrite.shaded.jgit.storage.file.FileRepositoryBuilder;
@@ -45,6 +48,9 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Fabian Krüger
@@ -57,97 +63,44 @@ class ProvenanceMarkerFactoryTest {
         @Test
         @DisplayName("Should Create Provenance Markers")
         void shouldCreateProvenanceMarkers(@TempDir Path tempDir)  {
-
-            @Language("xml")
-            String pom1Content =
-                    """
-                    <?xml version="1.0" encoding="UTF-8"?>
-                    <project xmlns="http://maven.apache.org/POM/4.0.0"
-                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                        <modelVersion>4.0.0</modelVersion>
-                                    
-                        <groupId>com.example</groupId>
-                        <artifactId>parent-module</artifactId>
-                        <version>1.0</version>
-                        <packaging>pom</packaging>
-                        <modules>
-                            <module>module1</module>
-                        </modules>
-                    </project>
-                    """;
-
-            @Language("xml")
-            String pom2Content =
-                    """
-                    <?xml version="1.0" encoding="UTF-8"?>
-                    <project xmlns="http://maven.apache.org/POM/4.0.0"
-                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                        <modelVersion>4.0.0</modelVersion>
-                        <parent>
-                            <groupId>com.example</groupId>
-                            <artifactId>parent-module</artifactId>
-                            <version>1.0</version>
-                        </parent>
-                        <packaging>pom</packaging>
-                        <artifactId>module1</artifactId>
-                        <modules>
-                            <module>submodule</module>
-                        </modules>
-                    </project>
-                    """;
-
-            @Language("xml")
-            String pom3Content =
-                    """
-                    <project xmlns="http://maven.apache.org/POM/4.0.0"
-                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                        <modelVersion>4.0.0</modelVersion>
-                        <parent>
-                            <groupId>com.example</groupId>
-                            <artifactId>module1</artifactId>
-                            <version>1.0</version>
-                        </parent>
-                        <name>TheSubmodule</name>
-                        <version>1.1</version>
-                        <artifactId>submodule</artifactId>
-                    </project>
-                    """;
-            Resource pom1 = new DummyResource(tempDir.resolve("pom.xml"), pom1Content);
-            Resource pom2 = new DummyResource(tempDir.resolve("module1/pom.xml"), pom2Content);
-            Resource pom3 = new DummyResource(tempDir.resolve("module1/submodule/pom.xml"), pom3Content);
-
-            List<Resource> pomFiles = List.of(pom1, pom2, pom3);
-            ResourceUtil.write(tempDir, pomFiles);
-
-            ParserSettings parserSettings = ParserSettings.builder()
-                    .loggerClass(MyLogger.class.getName())
-                    .pomCacheEnabled(true)
-                    .pomCacheDirectory("pom-cache")
-                    .skipMavenParsing(false)
-                    .exclusions(Set.of())
-                    .plainTextMasks(Set.of())
-                    .sizeThresholdMb(-1)
-                    .runPerSubmodule(false)
-                    .build();
-
-            PlexusContainerProvider containerFactory = new PlexusContainerProvider();
-            MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
-            ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory(
-                    parserSettings,
-                    new MavenProjectFactory(new MavenExecutor(requestFactory, containerFactory)),
-                    new MavenMojoProjectParserFactory(parserSettings)
-            );
             Path baseDir = Path.of(".").toAbsolutePath().normalize();
-            Map<Path, List<Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, new TopologicallySortedProjects(pomFiles));
 
-            String version = "1.0";
+            // The MavenMojoProjectParserFactory creates an instance of OpenRewrite's MavenMojoProjectParser
+            // We provide a mock, there's a test for MavenMojoProjectParser
+            MavenMojoProjectParserFactory parserFactory = mock(MavenMojoProjectParserFactory.class);
+            MavenMojoProjectParser mojoProjectParser = mock(MavenMojoProjectParser.class);
+            when(parserFactory.create(isA(Path.class), isA(DefaultRuntimeInformation.class), isNull())).thenReturn(mojoProjectParser);
 
-            verifyMarkers(pom1, baseDir, resourceListMap, "parent-module", "com.example", "parent-module", version);
-            verifyMarkers(pom2, baseDir, resourceListMap, "module1", "com.example", "module1", version);
-            verifyMarkers(pom3, baseDir, resourceListMap, "TheSubmodule", "com.example", "submodule", "1.1");
+            ProvenanceMarkerFactory sut = new ProvenanceMarkerFactory(parserFactory);
+
+
+            SortedProjects sortedProjects = mock(SortedProjects.class);
+            MavenProject mavenProject1 = mock(MavenProject.class);
+            MavenProject mavenProject2 = mock(MavenProject.class);
+            List<MavenProject> mavenProjects = List.of(
+                    mavenProject1,
+                    mavenProject2
+            );
+            // The provided TopologicallySortedProjects instance will
+            // provide the sorted MavenProjects
+            when(sortedProjects.getSortedProjects()).thenReturn(mavenProjects);
+
+            // internally the Maven projects will be matched with the provided resources
+            Path path1 = Path.of("some/path").toAbsolutePath().normalize();
+            // path1 matches with mavenProject1
+            when(sortedProjects.getMatchingBuildFileResource(mavenProject1)).thenReturn(new DummyResource(path1, ""));
+            Path path2 = Path.of("some/other").toAbsolutePath().normalize();
+            // path2 matches with mavenProject2
+            when(sortedProjects.getMatchingBuildFileResource(mavenProject2)).thenReturn(new DummyResource(path2, ""));
+            List<Marker> markers1 = List.of();
+            List<Marker> markers2 = List.of();
+            when(mojoProjectParser.generateProvenance(mavenProject1)).thenReturn(markers1);
+            when(mojoProjectParser.generateProvenance(mavenProject2)).thenReturn(markers2);
+
+            Map<Path, List<Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, sortedProjects);
+
+            assertThat(resourceListMap.get(path1)).isEqualTo(markers1);
+            assertThat(resourceListMap.get(path2)).isEqualTo(markers2);
         }
 
         /**

@@ -42,7 +42,7 @@ class MavenBuildFileGraphTest {
         List<Resource> resources = scanner.scan(baseDir, Set.of());
         mavenExecutor.onProjectSucceededEvent(baseDir, List.of("clean", "install"), event -> {
             MavenBuildFileGraph sut = new MavenBuildFileGraph(containerProvider);
-            List<Resource> build = sut.build(resources, event.getSession()).getOrdered();
+            List<Resource> build = sut.build(resources, event.getSession()).getResources();
 
             assertThat(ResourceUtil.getPath(build.get(0)).toString())
                     .isEqualTo(baseDir.resolve("pom.xml").toString());
