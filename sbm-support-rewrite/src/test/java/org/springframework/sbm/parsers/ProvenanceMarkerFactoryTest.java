@@ -87,7 +87,14 @@ class ProvenanceMarkerFactoryTest {
                 List<Marker> markers = sut.generateProvenance(mavenModel);
 
                 // and assert markers
-                assertThat(markers).hasSize(5);
+                int numExpectedMarkers = 5;
+
+                System.out.println(System.getenv());
+
+                if(System.getenv("GITHUB_ACTIONS") != null) {
+                    numExpectedMarkers = 6; // CI marker
+                }
+                assertThat(markers).hasSize(numExpectedMarkers);
                 JavaVersion jv = findMarker(markers, JavaVersion.class);
                 assertThat(countGetters(jv)).isEqualTo(7);
                 assertThat(jv.getCreatedBy()).isEqualTo(System.getProperty("java.specification.version"));
