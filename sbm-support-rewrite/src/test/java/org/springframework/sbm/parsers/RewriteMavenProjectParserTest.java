@@ -445,7 +445,7 @@ class RewriteMavenProjectParserTest {
         if (Xml.Document.class == clazz) {
             Xml.Document pom = Xml.Document.class.cast(sourceFile);
             int numExpectedMarkers = 7;
-            if(System.getenv("GITHUB_ACTIONS") != null) {
+            if(System.getenv("GITHUB_ACTION_ID") != null) {
                 numExpectedMarkers = 8;
             }
             assertThat(pom.getMarkers().getMarkers())
@@ -453,7 +453,7 @@ class RewriteMavenProjectParserTest {
                     .hasSize(numExpectedMarkers);
 
             assertThat(pom.getMarkers().findFirst(MavenResolutionResult.class)).isPresent();
-            if(System.getenv("GITHUB_ACTIONS") != null) {
+            if(System.getenv("GITHUB_ACTION_ID") != null) {
                 assertThat(pom.getMarkers().findFirst(GithubActionsBuildEnvironment.class)).isPresent();
             }
             assertThat(pom.getMarkers().findFirst(GitProvenance.class)).isNotNull();
