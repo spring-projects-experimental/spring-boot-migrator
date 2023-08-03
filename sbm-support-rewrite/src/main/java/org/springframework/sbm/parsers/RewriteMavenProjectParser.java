@@ -89,20 +89,19 @@ public class RewriteMavenProjectParser {
         int sizeThreshold = -1;
         boolean runPerSubmodule = false;
 
-        return parse(baseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, EXCLUSIONS, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext);
+        return parse(baseDir, EXCLUSIONS, executionContext);
     }
 
 
     @NotNull
-    public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext) {
+    public RewriteProjectParsingResult parse(Path baseDir, Collection<String> exclusions, ExecutionContext executionContext) {
         final Path absoluteBaseDir = getAbsolutePath(baseDir);
-        Collection<String> allExclusions = getAllExclusions(exclusions);
         PlexusContainer plexusContainer = mavenPlexusContainer.get();
-        RewriteProjectParsingResult parsingResult = parseInternal(absoluteBaseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext, absoluteBaseDir, allExclusions, plexusContainer);
+        RewriteProjectParsingResult parsingResult = parseInternal(absoluteBaseDir, executionContext, plexusContainer);
         return parsingResult;
     }
 
-    private RewriteProjectParsingResult parseInternal(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext, Path absoluteBaseDir, Collection<String> allExclusions, PlexusContainer plexusContainer) {
+    private RewriteProjectParsingResult parseInternal(Path baseDir, ExecutionContext executionContext, PlexusContainer plexusContainer) {
         AtomicReference<RewriteProjectParsingResult> parsingResult = new AtomicReference<>();
         mavenRunner.onProjectSucceededEvent(
                 baseDir,

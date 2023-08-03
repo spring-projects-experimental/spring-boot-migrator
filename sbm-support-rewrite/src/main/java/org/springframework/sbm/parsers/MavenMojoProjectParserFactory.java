@@ -18,8 +18,6 @@ package org.springframework.sbm.parsers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.execution.ProjectDependencyGraph;
-import org.apache.maven.graph.DefaultProjectDependencyGraph;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.rtinfo.RuntimeInformation;
