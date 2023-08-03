@@ -23,6 +23,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.openrewrite.Recipe;
 import org.openrewrite.config.*;
 import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
@@ -33,9 +35,11 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 /**
  * @author Fabian Krüger
  */
+@DisabledIfEnvironmentVariable(named = "GITHUB_ACTION_REF", matches = "*")
 class RewriteRecipeDiscoveryTest {
 
     @BeforeAll
