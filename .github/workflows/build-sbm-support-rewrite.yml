@@ -17,8 +17,8 @@ jobs:
       - name: setup-java
         uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
-          java-version: '17'
-          cache: 'maven'
+          distribution: zulu
+          java-version: 17
+          cache: maven
       - name: build-project
         run: mvn clean install
