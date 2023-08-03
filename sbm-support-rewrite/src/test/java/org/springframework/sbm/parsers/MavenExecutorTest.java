@@ -31,12 +31,14 @@ class MavenExecutorTest {
     @DisplayName("Verify MavenSession when running in Maven")
     void verifyMavenSessionWhenRunningInMaven() {
         MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
-        MavenPlexusContainerFactory containerFactory= new MavenPlexusContainerFactory();
+        MavenPlexusContainer containerFactory= new MavenPlexusContainer();
         MavenExecutor sut = new MavenExecutor(requestFactory, containerFactory);
         Path baseDir = Path.of("./testcode/maven-projects/maven-config");
         List<String> goals = List.of("clean", "install");
-        sut.runAfterMavenGoals(baseDir, goals, event -> {
+        sut.onProjectSucceededEvent(baseDir, goals, event -> {
             assertThat(event.getSession()).isNotNull();
         });
     }
+
+
 }

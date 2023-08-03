@@ -23,6 +23,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.openrewrite.Recipe;
 import org.openrewrite.config.*;
 import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
@@ -33,9 +35,11 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 /**
  * @author Fabian Krüger
  */
+@DisabledIfEnvironmentVariable(named = "GITHUB_ACTION_REF", matches = ".*")
 class RewriteRecipeDiscoveryTest {
 
     @BeforeAll
@@ -235,8 +239,6 @@ class RewriteRecipeDiscoveryTest {
         ClasspathScanningLoader scanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
         ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(scanningLoader), getClass().getClassLoader());
 
-//        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), new String[]{});
-
         Environment environment = Environment.builder()
                 .load(classpathScanningLoader)
                 .build();
@@ -269,8 +271,6 @@ class RewriteRecipeDiscoveryTest {
 
     @NotNull
     private static RewriteRecipeDiscovery buildRecipeDiscovery() {
-        MavenPlexusContainerFactory plexusContainerFactory = new MavenPlexusContainerFactory();
-        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
-        return new RewriteRecipeDiscovery(new ParserSettings(), new MavenProjectFactory(plexusContainerFactory, new MavenExecutor(requestFactory, plexusContainerFactory), requestFactory));
+        return new RewriteRecipeDiscovery(new ParserSettings());
     }
 }

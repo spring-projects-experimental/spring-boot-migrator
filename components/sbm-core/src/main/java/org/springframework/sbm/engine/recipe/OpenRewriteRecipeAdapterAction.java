@@ -17,6 +17,8 @@
 package org.springframework.sbm.engine.recipe;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
@@ -27,6 +29,8 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import java.util.List;
 
 @Slf4j
+@AllArgsConstructor
+@SuperBuilder
 public class OpenRewriteRecipeAdapterAction extends AbstractAction {
 
     private final Recipe recipe;

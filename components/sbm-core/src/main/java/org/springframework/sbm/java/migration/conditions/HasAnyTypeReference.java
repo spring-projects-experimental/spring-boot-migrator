@@ -15,15 +15,17 @@
  */
 package org.springframework.sbm.java.migration.conditions;
 
+import lombok.*;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class HasAnyTypeReference implements Condition {
 
     private List<String> fqTypeNames;

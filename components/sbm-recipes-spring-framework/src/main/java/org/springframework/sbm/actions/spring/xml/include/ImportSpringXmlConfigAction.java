@@ -16,7 +16,7 @@
 package org.springframework.sbm.actions.spring.xml.include;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.sbm.common.util.LinuxWindowsPathUnifier;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
 import org.springframework.sbm.engine.context.ProjectContext;

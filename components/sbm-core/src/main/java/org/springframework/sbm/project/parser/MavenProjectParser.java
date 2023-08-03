@@ -73,8 +73,10 @@ public class MavenProjectParser {
         projectMetadata.setMavenSettings(mavenSettings);
         MavenExecutionContextView mavenExecutionContext = MavenExecutionContextView.view(executionContext);
         mavenExecutionContext.setMavenSettings(mavenSettings);
-
-
+//        if(mavenExecutionContext.getLocalRepository() == null) {
+        MavenExecutionContextView.view(executionContext).setLocalRepository(new MavenRepository("local", "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository"), null, null, false, null, null, null));
+//        }
+        // default local repo provided by MavenExecutionContextView misses two '/' in the path
         mavenConfigHandler.injectMavenConfigIntoSystemProperties(resources);
 
         @Nullable BuildEnvironment buildEnvironment = null;

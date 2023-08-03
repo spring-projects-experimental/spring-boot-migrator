@@ -13,16 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
 
-import org.springframework.core.io.Resource;
+package org.springframework.sbm.utils;
+
+import org.springframework.util.StringUtils;
 
 import java.nio.file.Path;
-import java.util.List;
 
-/**
- * @author Fabian Krüger
- */
-public interface BuildFileGraph {
-    List<Resource> build(Path baseDir, List<Resource> resources);
+public class LinuxWindowsPathUnifier {
+
+    public String unifyPath(Path path) {
+        return unifyPath(path.toString());
+    }
+
+    public String unifyPath(String path) {
+        path = StringUtils.cleanPath(path);
+        if (isWindows()) {
+            path = transformToLinuxPath(path);
+        }
+        return path;
+    }
+
+    boolean isWindows() {
+        return System.getProperty("os.name").contains("Windows");
+    }
+
+    private String transformToLinuxPath(String path) {
+        return path.replaceAll("^[\\w]+:\\/?", "/");
+    }
 }

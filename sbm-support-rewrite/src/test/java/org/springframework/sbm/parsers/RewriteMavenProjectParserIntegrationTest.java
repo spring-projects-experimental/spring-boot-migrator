@@ -17,6 +17,7 @@ package org.springframework.sbm.parsers;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.ExpectedToFail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -41,6 +42,7 @@ public class RewriteMavenProjectParserIntegrationTest {
     private static List<ParsedResourceEvent> capturedEvents = new ArrayList<>();
 
     @Test
+    @ExpectedToFail("Parsing order of pom files is not correct, see https://github.com/openrewrite/rewrite-maven-plugin/pull/601")
     @DisplayName("Should Publish Build Events")
     void shouldPublishBuildEvents() {
 
@@ -50,9 +52,9 @@ public class RewriteMavenProjectParserIntegrationTest {
         assertThat(capturedEvents.get(0).sourceFile().getSourcePath().toString())
                 .isEqualTo("pom.xml");
         assertThat(capturedEvents.get(1).sourceFile().getSourcePath().toString())
-                .isEqualTo("module-a/pom.xml");
-        assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString())
                 .isEqualTo("module-b/pom.xml");
+        assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString())
+                .isEqualTo("module-a/pom.xml");
     }
 
     @TestConfiguration

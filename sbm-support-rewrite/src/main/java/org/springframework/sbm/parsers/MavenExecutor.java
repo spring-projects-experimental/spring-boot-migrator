@@ -16,8 +16,10 @@
 package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.Maven;
 import org.apache.maven.execution.*;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.springframework.stereotype.Component;
@@ -27,22 +29,27 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Execute Maven goals and prpivide the  provide a {@link Consumer} for
+ * Execute Maven goals and provides the current MavenSession to a custom listener.
  *
  * @author Fabian Krüger
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 class MavenExecutor {
 
     private final MavenExecutionRequestFactory requestFactory;
-    private final MavenPlexusContainerFactory containerFactory;
+    private final MavenPlexusContainer mavenPlexusContainer;
+
 
     /**
-     * Runs given {@code goals} in Maven and calls {@code eventConsumer} when {@link org.apache.maven.execution.ExecutionListener#projectSucceeded(ExecutionEvent)} is called
-     * providing the current {@link MavenSession}.
+     * Runs given {@code goals} in Maven and calls {@code eventConsumer} when Maven processed the last MavenProject.
+     * Maven then calls {@link org.apache.maven.execution.ExecutionListener#projectSucceeded(ExecutionEvent)}.
+     * The {@code eventConsumer} will be provided with the current {@link MavenSession} through the {@link ExecutionEvent}.
+     * The MavenSession provides all required information about the given project.
      */
-    void runAfterMavenGoals(Path baseDir, PlexusContainer plexusContainer, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
+    public void onProjectSucceededEvent(Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
+        PlexusContainer plexusContainer = mavenPlexusContainer.get();
         AbstractExecutionListener executionListener = new AbstractExecutionListener() {
             @Override
             public void mojoFailed(ExecutionEvent event) {
@@ -53,51 +60,49 @@ class MavenExecutor {
 
             @Override
             public void projectSucceeded(ExecutionEvent event) {
-                eventConsumer.accept(event);
+                List<MavenProject> sortedProjects = event.getSession().getProjectDependencyGraph().getSortedProjects();
+                MavenProject lastProject = (MavenProject) sortedProjects.get(sortedProjects.size()-1);
+                log.info("Maven successfully processed project: %s".formatted(event.getSession().getCurrentProject().getName()));
+                if(event.getSession().getCurrentProject().getFile().toPath().toString().equals(lastProject.getFile().getPath().toString())) {
+                    eventConsumer.accept(event);
+                }
+            }
+
+            @Override
+            public void mojoSucceeded(ExecutionEvent event) {
+                super.mojoSucceeded(event);
+                System.out.println("Mojo succeeded: " + event.getMojoExecution().getGoal());
+            }
+
+            @Override
+            public void projectFailed(ExecutionEvent event) {
+                super.projectFailed(event);
+                throw new RuntimeException("Exception while executing Maven project: " + event.getProject().getName(), event.getException());
             }
         };
         MavenExecutionRequest request = requestFactory.createMavenExecutionRequest(plexusContainer, baseDir);
-        runWithListener(baseDir, request, plexusContainer, goals, executionListener);
-
+        request.setGoals(goals);
+        request.setExecutionListener(executionListener);
+        execute(request);
     }
 
-    void runAfterMavenGoals(Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
-        PlexusContainer plexusContainer = containerFactory.create(baseDir);
-        runAfterMavenGoals(baseDir, plexusContainer, goals, eventConsumer);
-    }
-
-    // FIXME: goals are part of the request and request goals param can be removed
-    void runAfterMavenGoals(Path baseDir, MavenExecutionRequest request, PlexusContainer plexusContainer, List<String> goals, AbstractExecutionListener listener) {
-        runWithListener(baseDir,
-                request,
-                plexusContainer,
-                goals,
-                listener);
-    }
-
-    private void runWithListener(Path baseDir, MavenExecutionRequest request, PlexusContainer plexusContainer, List<String> goals, AbstractExecutionListener executionListener) {
+    /**
+     * Executes the {@code request} against Maven.
+     *
+     * @see MavenExecutionRequestFactory
+     */
+    public void execute(MavenExecutionRequest request) {
         try {
-            request.setExecutionListener(executionListener);
+            PlexusContainer plexusContainer = mavenPlexusContainer.get();
             Maven maven = plexusContainer.lookup(Maven.class);
             MavenExecutionResult execute = maven.execute(request);
             if (execute.hasExceptions()) {
-                throw new ParsingException("Maven could not run %s on project '%s'".formatted(goals, baseDir), execute.getExceptions());
+                throw new ParsingException("Maven could not run %s on project '%s'".formatted(request.getGoals(), request.getBaseDirectory()), execute.getExceptions());
             }
         } catch (ComponentLookupException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public void execute(Path baseDir, MavenExecutionRequest request, PlexusContainer plexusContainer) {
-        try {
-            Maven maven = plexusContainer.lookup(Maven.class);
-            MavenExecutionResult execute = maven.execute(request);
-            if (execute.hasExceptions()) {
-                throw new ParsingException("Maven could not run %s on project '%s'".formatted(request.getGoals(), baseDir), execute.getExceptions());
-            }
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException(e);
-
         }
     }
 }
+
+

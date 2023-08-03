@@ -18,6 +18,7 @@ package org.openrewrite.maven;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.ExpectedToFail;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.SourceFile;
 
@@ -35,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MavenParserTest {
     @Test
     @DisplayName("Should Read .mvn/maven.config")
-    @Disabled("https://github.com/openrewrite/rewrite/issues/3409")
+    @ExpectedToFail("See https://github.com/openrewrite/rewrite/issues/3409")
     void shouldReadMvnMavenConfig() {
         String mavenConfig = """
                 -Drevision=42
@@ -46,14 +47,20 @@ public class MavenParserTest {
         Path baseDir = Path.of("./testcode/maven-projects/maven-config");
         Stream<SourceFile> parse = MavenParser.builder()
                 .mavenConfig(baseDir.resolve(".mvn/maven.config"))
-                .build().parse(List.of(baseDir.resolve("pom.xml")), null, new InMemoryExecutionContext(t -> {
-            t.printStackTrace();
-            fail("exception");
-        }));
+                .build()
+                .parse(
+                        List.of(baseDir.resolve("pom.xml")),
+                        null,
+                        new InMemoryExecutionContext(t -> {
+                            t.printStackTrace();
+                            fail("exception");
+                        })
+                );
     }
 
     @Test
     @DisplayName("testRegex")
+    // TODO: Tryout of the regex that leads to the failing test (above), remove this test when issue #3409 is fixed.
     void testRegex() {
 
         String regex = "(?:$|\\s)-P\\s+([^\\s]+)";

@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.boot.properties;
 
-import org.springframework.sbm.common.util.LinuxWindowsPathUnifier;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;

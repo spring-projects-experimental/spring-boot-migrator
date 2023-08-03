@@ -42,8 +42,8 @@ public class DummyResource implements Resource {
         this(Path.of(path), content);
     }
 
-    public DummyResource(Path baseDir, String s, String pom) {
-        this(baseDir.resolve(s).toAbsolutePath().normalize(), pom);
+    public DummyResource(Path baseDir, String sourcePath, String pom) {
+        this(baseDir.resolve(sourcePath).toAbsolutePath().normalize(), pom);
     }
 
     @Override

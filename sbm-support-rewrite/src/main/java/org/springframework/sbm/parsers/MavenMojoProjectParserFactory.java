@@ -18,8 +18,6 @@ package org.springframework.sbm.parsers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.execution.ProjectDependencyGraph;
-import org.apache.maven.graph.DefaultProjectDependencyGraph;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.rtinfo.RuntimeInformation;
@@ -69,11 +67,11 @@ class MavenMojoProjectParserFactory {
             Collection<String> plainTextMasks,
             int sizeThresholdMb,
             boolean runPerSubmodule,
-            PlexusContainer plexusContainer, MavenSession session) {
+            PlexusContainer plexusContainer,
+            MavenSession session) {
         try {
             Log logger = new Slf4jToMavenLoggerAdapter(log);
-            RuntimeInformation runtimeInformation = plexusContainer.lookup(RuntimeInformation.class);//new DefaultRuntimeInformation();
-            ProjectDependencyGraph projectDependencyGraph = new DefaultProjectDependencyGraph(mavenProjects);
+            RuntimeInformation runtimeInformation = plexusContainer.lookup(RuntimeInformation.class);
             SettingsDecrypter decrypter = plexusContainer.lookup(SettingsDecrypter.class);
 
             MavenMojoProjectParser sut = new MavenMojoProjectParser(

@@ -14,25 +14,18 @@ package org.springframework.sbm.parsers;/*
  * limitations under the License.
  */
 
-import org.apache.maven.Maven;
-import org.apache.maven.artifact.repository.*;
-import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
-import org.apache.maven.execution.DefaultMavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionRequest;
-import org.apache.maven.execution.MavenExecutionResult;
-import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests that {@link MavenConfigFileParser} reads and provides the information in {@code .mvn/maven.config}.
+ *
  * @author Fabian Krüger
  */
 public class MavenConfigFileParserTest {

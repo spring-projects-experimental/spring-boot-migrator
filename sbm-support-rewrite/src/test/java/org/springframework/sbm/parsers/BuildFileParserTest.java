@@ -15,12 +15,17 @@
  */
 package org.springframework.sbm.parsers;
 
+import org.apache.maven.project.MavenProject;
 import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.marker.Marker;
+import org.openrewrite.maven.MavenExecutionContextView;
+import org.openrewrite.maven.tree.*;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.test.util.DummyResource;
@@ -30,8 +35,12 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Fabian Krüger
@@ -42,71 +51,71 @@ class BuildFileParserTest {
     public class GivenSimpleMavenMultiModuleProject {
 
         @Language("xml")
-        private String pom1 =
+        private static final String POM_1 =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                                
-                    <groupId>com.example</groupId>
-                    <artifactId>parent-module</artifactId>
-                    <version>1.0</version>
-                    <modules>
-                        <module>module1</module>
-                    </modules>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                                        
+                            <groupId>com.example</groupId>
+                            <artifactId>parent</artifactId>
+                            <version>1.0</version>
+                            <modules>
+                                <module>module1</module>
+                            </modules>
+                        </project>
+                        """;
 
         @Language("xml")
-        private String pom2 =
+        private static final String POM_2 =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.example</groupId>
-                        <artifactId>parent</artifactId>
-                        <version>1.0</version>
-                    </parent>
-                    <artifactId>module1</artifactId>
-                    <modules>
-                        <module>submodule</module>
-                    </modules>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <parent>
+                                <groupId>com.example</groupId>
+                                <artifactId>parent</artifactId>
+                                <version>1.0</version>
+                            </parent>
+                            <artifactId>module1</artifactId>
+                            <modules>
+                                <module>submodule</module>
+                            </modules>
+                        </project>
+                        """;
 
         @Language("xml")
-        private String pom3 =
+        private static final String POM_3 =
                 """
-                <project xmlns="http://maven.apache.org/POM/4.0.0"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.example</groupId>
-                        <artifactId>module1</artifactId>
-                        <version>1.0</version>
-                    </parent>
-                    <artifactId>submodule</artifactId>
-                </project>
-                """;
+                        <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <parent>
+                                <groupId>com.example</groupId>
+                                <artifactId>module1</artifactId>
+                                <version>1.0</version>
+                            </parent>
+                            <artifactId>submodule</artifactId>
+                        </project>
+                        """;
 
-        private BuildFileParser sut = new BuildFileParser(new MavenModelReader(), new ParserSettings());
+        private final BuildFileParser sut = new BuildFileParser(new ParserSettings());
 
         @Test
         void filterAndSortBuildFiles_shouldReturnSortedListOfFilteredBuildFiles() {
 
-            // the poms have no order
+            // the provided resources have no order and contain non-pom files
             List<Resource> resources = List.of(
-                    new DummyResource("src/test/resources/dummy/pom.xml", ""),
-                    new DummyResource("module1/submodule/pom.xml", pom3),
-                    new DummyResource("pom.xml", pom1),
-                    new DummyResource("module1/pom.xml", pom2),
-                    new DummyResource("src/main/java/SomeJavaClass.java", "")
+                    new DummyResource("src/test/resources/dummy/pom.xml", ""),  // filtered
+                    new DummyResource("module1/submodule/pom.xml", POM_3),      // pos. 3
+                    new DummyResource("pom.xml", POM_1),                        // pos. 1
+                    new DummyResource("module1/pom.xml", POM_2),                // pos. 2
+                    new DummyResource("src/main/java/SomeJavaClass.java", "")   // filtered
             );
 
             // filter and sort build files
@@ -128,21 +137,104 @@ class BuildFileParserTest {
         @Test
         void parseBuildFiles_shouldReturnSortedListOfParsedBuildFiles() {
             Path baseDir = Path.of(".").toAbsolutePath().normalize();
-            List<Resource> filteredAndSortedBuildFiles = List.of(
-                    new DummyResource(baseDir, "module1/submodule/pom.xml", pom3),
-                    new DummyResource(baseDir, "pom.xml", pom1),
-                    new DummyResource(baseDir, "module1/pom.xml", pom2)
+
+            // List of resources
+            Path module1SubmoduleSourcePath = baseDir.resolve("module1/submodule/pom.xml");
+            Path parentSourcePath = baseDir.resolve("pom.xml");
+            Path module1SourcePath = baseDir.resolve("module1/pom.xml");
+            List<Resource> resources = List.of(
+                    new DummyResource(module1SubmoduleSourcePath, POM_3),
+                    new DummyResource(parentSourcePath, POM_1),
+                    new DummyResource(module1SourcePath, POM_2)
             );
-            Map<Path, List<Marker>> provenanceMarkers = new HashMap<>();
+
+            // provenance markers
+            Path module1SubmodulePomPath = baseDir.resolve(module1SubmoduleSourcePath);
+            Path parentPomPath = baseDir.resolve(parentSourcePath);
+            Path module1PomXml = baseDir.resolve(module1SourcePath);
+            Map<Path, List<Marker>> provenanceMarkers = Map.of(
+                    parentPomPath, List.of(new JavaProject(UUID.randomUUID(), "parent", null)),
+                    module1PomXml, List.of(new JavaProject(UUID.randomUUID(), "module1", null)),
+                    module1SubmodulePomPath, List.of(new JavaProject(UUID.randomUUID(), "module1/submodule", null))
+            );
+
             ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
             boolean skipMavenParsing = false;
+
             Map<Path, Xml.Document> parsedBuildFiles = sut.parseBuildFiles(
                     baseDir,
-                    filteredAndSortedBuildFiles,
+                    resources,
+                    List.of("default"),
                     executionContext,
                     skipMavenParsing,
                     provenanceMarkers);
+
+            assertThat(parsedBuildFiles).hasSize(3);
+            assertThat(parsedBuildFiles.get(module1SubmodulePomPath).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1/submodule");
+            assertThat(parsedBuildFiles.get(parentPomPath).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("parent");
+            assertThat(parsedBuildFiles.get(module1PomXml).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1");
         }
+
+        @Test
+        @DisplayName("parse without baseDir should throw exception")
+        void parseWithoutBaseDirShouldThrowException() {
+            String message = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> sut.parseBuildFiles(null, List.of(), List.of("default"), new InMemoryExecutionContext(), false, Map.of())
+            )
+            .getMessage();
+            assertThat(message).isEqualTo("Base directory must be provided but was null.");
+        }
+
+        @Test
+        @DisplayName("parse with empty resources should throw exception")
+        void parseWithEmptyResourcesShouldThrowException() {
+            String message = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> sut.parseBuildFiles(Path.of("."), List.of(), List.of(), new InMemoryExecutionContext(), false, Map.of())
+            )
+            .getMessage();
+            assertThat(message).isEqualTo("No build files provided.");
+        }
+
+        @Test
+        @DisplayName("parse with non-pom resources provided should throw exception")
+        void parseWithNonPomResourcesProvidedShouldThrowException() {
+            Path baseDir = Path.of(".").toAbsolutePath().normalize();
+            Resource nonPomResource = new DummyResource(baseDir, "src/main/java/SomeClass.java", "public class SomeClass {}");
+            List<Resource> nonPomResource1 = List.of(nonPomResource);
+            String message = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> sut.parseBuildFiles(baseDir, nonPomResource1, List.of(), new InMemoryExecutionContext(), false, Map.of())
+            )
+            .getMessage();
+            assertThat(message).isEqualTo("Provided resources which are not Maven build files: '["+ baseDir +"/src/main/java/SomeClass.java]'");
+        }
+
+        @Test
+        @DisplayName("parse with incomplete provenance markers should throw exception")
+        void parseWithIncompleteProvenanceMarkersShouldThrowException() {
+            Path baseDir = Path.of(".").toAbsolutePath().normalize();
+
+            Path pom1Path = baseDir.resolve("pom.xml");
+            Resource pom1 = new DummyResource(pom1Path, "");
+            Path pom2Path = baseDir.resolve("module1/pom.xml");
+            Resource pom2 = new DummyResource(pom2Path, "");
+            List<Resource> poms = List.of(pom1, pom2);
+
+            Map<Path, List<Marker>> provenanceMarkers = Map.of(
+                    pom1Path, List.of(new JavaProject(UUID.randomUUID(), "pom.xml", null))
+                    // no marker for module1/pom.xml
+            );
+
+            String message = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> sut.parseBuildFiles(baseDir, poms, List.of(), new InMemoryExecutionContext(), false, provenanceMarkers)
+            )
+                    .getMessage();
+            assertThat(message).isEqualTo("No provenance marker provided for these pom files ["+Path.of(".").toAbsolutePath().normalize().resolve("module1/pom.xml]"));
+        }
+
     }
 
 }
