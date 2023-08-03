@@ -22,17 +22,21 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.openrewrite.Recipe;
 import org.openrewrite.Validated;
-import org.openrewrite.config.*;
+import org.openrewrite.config.ClasspathScanningLoader;
+import org.openrewrite.config.Environment;
+import org.openrewrite.config.RecipeDescriptor;
+import org.openrewrite.config.ResourceLoader;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.AbstractRewriteMojo;
-import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.parsers.InvalidRecipesException;
-import org.springframework.sbm.parsers.MavenProjectFactory;
 import org.springframework.sbm.parsers.ParserSettings;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -46,8 +50,6 @@ import static java.util.stream.Collectors.toList;
 public class RewriteRecipeDiscovery {
 
     private final ParserSettings parserSettings;
-    private final MavenProjectFactory mavenProjectFactory;
-
     /**
      *
      */
@@ -57,25 +59,6 @@ public class RewriteRecipeDiscovery {
                 .load(resourceLoader)
                 .build()
                 .listRecipes();
-    }
-
-
-    public Optional<Recipe> discoverFilteredRecipe(Xml.Document rootPom, String activeRecipe) {
-        List<Recipe> recipes = discoverFilteredRecipes(rootPom, List.of(activeRecipe));
-        if (recipes.isEmpty()) {
-            return Optional.empty();
-        } else if (recipes.size() > 1) {
-            throw new IllegalStateException("Found %d recipes by name '%s'".formatted(recipes.size(), activeRecipe));
-        }
-        return Optional.of(recipes.get(0));
-    }
-
-    public List<Recipe> discoverFilteredRecipes(List<String> activeRecipes, Properties properties) {
-        return discoverFilteredRecipes(activeRecipes, properties, new String[] {});
-    }
-
-    public List<Recipe> discoverFilteredRecipes(List<String> activeRecipes, Properties properties, String[] acceptPackages) {
-        return discoverFilteredRecipes(activeRecipes, properties, acceptPackages, new ClasspathScanningLoader(properties, new String[]{}));
     }
 
     public List<Recipe> discoverFilteredRecipes(List<String> activeRecipes, Properties properties, String[] acceptPackages, ClasspathScanningLoader classpathScanningLoader) {
@@ -116,7 +99,7 @@ public class RewriteRecipeDiscovery {
         return recipes;
     }
 
-    public List<Recipe> discoverFilteredRecipes(Xml.Document rootPom, List<String> activeRecipes) {
+    public List<Recipe> discoverFilteredRecipes(List<String> activeRecipes, MavenProject mavenProject) {
         if (activeRecipes.isEmpty()) {
             log.warn("No active recipes were provided.");
             return emptyList();
@@ -124,7 +107,6 @@ public class RewriteRecipeDiscovery {
 
         List<Recipe> recipes = new ArrayList<>();
 
-        MavenProject mavenProject = mavenProjectFactory.createMavenProjectFromPomContent(rootPom.printAll());
         AbstractRewriteMojoHelper helper = new AbstractRewriteMojoHelper(mavenProject);
 
         Environment env =helper.environment(getClass().getClassLoader());
