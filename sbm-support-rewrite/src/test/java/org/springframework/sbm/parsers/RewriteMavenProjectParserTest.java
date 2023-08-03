@@ -423,7 +423,6 @@ class RewriteMavenProjectParserTest {
                 new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
                 parserSettings,
-                new MavenBuildFileGraph(plexusContainerFactory),
                 mock(ParsingEventListener.class),
                 mock(ApplicationEventPublisher.class)
                 );

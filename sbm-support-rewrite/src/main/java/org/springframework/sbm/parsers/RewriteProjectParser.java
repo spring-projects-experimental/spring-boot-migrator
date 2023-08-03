@@ -62,7 +62,6 @@ public class RewriteProjectParser {
     private final SourceFileParser sourceFileParser;
     private final StyleDetector styleDetector;
     private final ParserSettings parserSettings;
-    private final MavenBuildFileGraph buildFileGraph;
     private final ParsingEventListener parsingEventListener;
     private final ApplicationEventPublisher eventPublisher;
 

@@ -101,7 +101,6 @@ class RewriteProjectParserTest {
                 new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
                 parserSettings,
-                new MavenBuildFileGraph(containerFactory),
                 mock(ParsingEventListener.class),
                 mock(ApplicationEventPublisher.class)
         );

@@ -18,8 +18,6 @@ package org.springframework.sbm.parsers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.model.Model;
-import org.apache.maven.plugin.logging.Log;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
@@ -36,7 +34,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
@@ -57,7 +57,6 @@ class BuildFileParser {
      * Parse a list of Maven Pom files to a Map of {@code Path} and their parsed {@Xml.Document}s.
      * The {@link Xml.Document}s are marked with {@link org.openrewrite.maven.tree.MavenResolutionResult} and the provided provenance markers.
      * Reimplements {@link org.openrewrite.maven.MavenMojoProjectParser#parseMaven(List, Map, ExecutionContext)}.
-     * The provided list of pom files must be sorted beforehand. See {@link BuildFileGraph#build(List, MavenSession)}.
      *
      * @param baseDir the {@link Path} to the root of the scanned project
      * @param buildFiles the list of resources for relevant pom files.
@@ -106,12 +105,6 @@ class BuildFileParser {
 
         // 395 : 398
 
-//        public List<String> getActiveProfiles() {
-//            Resource topLevelPom = resources.get(0);
-//            // FIXME: Provide active profiles through Maven helper / model / whatever
-//            Model topLevelModel = new MavenModelReader().readModel(topLevelPom);
-//            List<String> activeProfiles = readActiveProfiles(topLevelModel);
-//        }
         mavenParserBuilder.activeProfiles(activeProfiles.toArray(new String[]{}));
 
         // 400 : 402
@@ -179,7 +172,6 @@ class BuildFileParser {
      * {@link MavenMojoProjectParser##getPomCache()}
      */
     private static MavenPomCache getPomCache() {
-        // FIXME: Provide a way to initialize the MavenTypeCache from properties
 //        if (pomCache == null) {
 //            if (isJvm64Bit()) {
 //                try {
