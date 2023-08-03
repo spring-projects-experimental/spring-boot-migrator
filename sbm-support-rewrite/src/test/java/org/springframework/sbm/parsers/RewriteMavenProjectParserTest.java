@@ -33,6 +33,7 @@ import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.BuildTool;
 import org.openrewrite.marker.GitProvenance;
 import org.openrewrite.marker.OperatingSystemProvenance;
+import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.cache.CompositeMavenPomCache;
@@ -443,8 +444,23 @@ class RewriteMavenProjectParserTest {
         }
         if (Xml.Document.class == clazz) {
             Xml.Document pom = Xml.Document.class.cast(sourceFile);
-            assertThat(pom.getMarkers().getMarkers()).as(() -> pom.getMarkers().getMarkers().stream().map(m -> m.getClass().getName()).collect(Collectors.joining("\n"))).hasSize(7);
-//            assertThat(pom.getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested().getDependencies()).hasSize(1);
+
+            int numExpectedMarkers = 7;
+            if(System.getenv("GITHUB_ACTIONS") != null) {
+                numExpectedMarkers = 8;
+            }
+            assertThat(pom.getMarkers().getMarkers())
+                    .as(() -> pom.getMarkers().getMarkers().stream().map(m -> m.getClass().getName()).collect(Collectors.joining("\n")))
+                    .hasSize(numExpectedMarkers);
+
+            assertThat(pom.getMarkers().findFirst(MavenResolutionResult.class)).isPresent();
+            if(System.getenv("GITHUB_ACTIONS") != null) {
+                assertThat(pom.getMarkers().findFirst(GithubActionsBuildEnvironment.class)).isPresent();
+            }
+            assertThat(pom.getMarkers().findFirst(GitProvenance.class)).isNotNull();
+            assertThat(pom.getMarkers().findFirst(OperatingSystemProvenance.class)).isNotNull();
+            assertThat(pom.getMarkers().findFirst(BuildTool.class)).isNotNull();
+            assertThat(pom.getMarkers().findFirst(JavaVersion.class)).isNotNull();
             assertThat(pom.getMarkers().findFirst(JavaProject.class)).isNotNull();
             assertThat(pom.getMarkers().findFirst(Autodetect.class)).isNotNull();
             verify.accept((T) pom);
