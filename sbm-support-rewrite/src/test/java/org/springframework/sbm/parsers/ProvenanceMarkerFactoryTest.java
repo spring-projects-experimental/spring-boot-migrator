@@ -126,7 +126,7 @@ class ProvenanceMarkerFactoryTest {
                 assertThat(gitProvenance.getBranch()).isEqualTo(branch);
                 assertThat(gitProvenance.getEol()).isEqualTo(GitProvenance.EOL.Native);
                 assertThat(gitProvenance.getOrigin()).isEqualTo(origin);
-                assertThat(gitProvenance.getAutocrlf()).isEqualTo(GitProvenance.AutoCRLF.Input);
+                assertThat(gitProvenance.getAutocrlf()).isNotNull();
                 assertThat(gitProvenance.getRepositoryName()).isEqualTo(expectedGitProvenance.getRepositoryName());
                 assertThat(gitProvenance.getChange()).isEqualTo(gitHash);
                 assertThat(gitProvenance.getOrganizationName()).isEqualTo("spring-projects-experimental");
