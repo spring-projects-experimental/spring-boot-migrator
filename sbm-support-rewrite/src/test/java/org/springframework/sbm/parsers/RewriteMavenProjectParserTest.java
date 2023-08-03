@@ -215,6 +215,90 @@ class RewriteMavenProjectParserTest {
         // TODO: Add test that uses Maven settings and encrypted passwords
     }
 
+    @Test
+    @DisplayName("Should Parse Maven Config Project")
+    @Disabled("https://github.com/openrewrite/rewrite/issues/3409")
+    void shouldParseMavenConfigProject() {
+        Path baseDir = Path.of("./testcode/maven-projects/maven-config").toAbsolutePath().normalize();
+        RewriteProjectParsingResult parsingResult = sut.parse(
+                baseDir,
+                Set.of(".mvn"),
+                new InMemoryExecutionContext(t -> fail(t.getMessage()))
+        );
+        assertThat(parsingResult.sourceFiles()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("Parse multi-module-1")
+    void parseMultiModule1_withIntegratedParser() {
+        ExecutionContext ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
+        Path baseDir = getProject("multi-module-1");
+        parserSettings.setExclusions(Set.of("README.adoc"));
+        RewriteProjectParsingResult parsingResult = sut.parse(
+                baseDir,
+                ctx);
+        verifyMavenParser(parsingResult);
+
+    }
+
+    @Test
+    void parseMultiModule1_WithCustomParser() {
+        Path baseDir = getProject("multi-module-1");
+        ExecutionContext ctx;
+        ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
+        MavenModelReader mavenModelReader = new MavenModelReader();
+        MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
+        MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
+        MavenPlexusContainer plexusContainerFactory = new MavenPlexusContainer();
+
+        RewriteProjectParser rpp = new RewriteProjectParser(
+                new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
+                new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
+                new BuildFileParser(parserSettings),
+                new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
+                new StyleDetector(),
+                parserSettings,
+                mock(ParsingEventListener.class),
+                mock(ApplicationEventPublisher.class)
+        );
+
+        Set<String> ignoredPatters = Set.of();
+        ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader());
+        List<Resource> resources = projectScanner.scan(baseDir, ignoredPatters);
+        RewriteProjectParsingResult parsingResult1 = rpp.parse(baseDir, resources, ctx);
+
+        verifyMavenParser(parsingResult1);
+    }
+
+    @Test
+    @DisplayName("Parse complex Maven reactor project")
+    @Disabled("https://github.com/openrewrite/rewrite/issues/3409")
+    void parseComplexMavenReactorProject() {
+        String target = "./testcode/maven-projects/cwa-server";
+        cloneProject("https://github.com/corona-warn-app/cwa-server.git", target, "v3.2.0");
+        Path projectRoot = Path.of(target).toAbsolutePath().normalize(); // SBM root
+        RewriteMavenProjectParser projectParser = sut;
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
+        List<String> parsedFiles = new ArrayList<>();
+        ParsingExecutionContextView.view(executionContext).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                    .withLocale(Locale.US)
+                    .withZone(ZoneId.systemDefault());
+            String format = dateTimeFormatter.format(Instant.now());
+            System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
+            parsedFiles.add(sourceFile.getSourcePath().toString());
+        });
+        RewriteProjectParsingResult parsingResult = projectParser.parse(
+                projectRoot,
+                List.of("**/testcode/**", ".rewrite/**", "internal/**"),
+                executionContext
+        );
+
+        parsingResult.sourceFiles().stream()
+                .map(SourceFile::getSourcePath)
+                .forEach(System.out::println);
+    }
+
     private static void verifyExecutionContext(RewriteProjectParsingResult parsingResult) {
         ExecutionContext resultingExecutionContext = parsingResult.executionContext();
         assertThat(resultingExecutionContext).isNotNull();
@@ -310,56 +394,6 @@ class RewriteMavenProjectParserTest {
         assertThat(MavenExecutionContextView.view(resultingExecutionContext).getRepositories()).isEmpty();
     }
 
-    @Test
-    @DisplayName("Should Parse Maven Config Project")
-    @Disabled("https://github.com/openrewrite/rewrite/issues/3409")
-    void shouldParseMavenConfigProject() {
-        Path baseDir = Path.of("./testcode/maven-projects/maven-config").toAbsolutePath().normalize();
-        RewriteProjectParsingResult parsingResult = sut.parse(
-                baseDir,
-                Set.of(".mvn"),
-                new InMemoryExecutionContext(t -> fail(t.getMessage()))
-        );
-        assertThat(parsingResult.sourceFiles()).hasSize(2);
-    }
-
-    @Test
-    @DisplayName("Parse complex Maven reactor project")
-    @Disabled("https://github.com/openrewrite/rewrite/issues/3409")
-    void parseComplexMavenReactorProject() {
-        String target = "./testcode/maven-projects/cwa-server";
-        cloneProject("https://github.com/corona-warn-app/cwa-server.git", target, "v3.2.0");
-        Path projectRoot = Path.of(target).toAbsolutePath().normalize(); // SBM root
-        RewriteMavenProjectParser projectParser = sut;
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
-        List<String> parsedFiles = new ArrayList<>();
-        ParsingExecutionContextView.view(executionContext).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                    .withLocale(Locale.US)
-                    .withZone(ZoneId.systemDefault());
-            String format = dateTimeFormatter.format(Instant.now());
-            System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
-            parsedFiles.add(sourceFile.getSourcePath().toString());
-        });
-        RewriteProjectParsingResult parsingResult = projectParser.parse(
-                projectRoot,
-                List.of("**/testcode/**", ".rewrite/**", "internal/**"),
-                executionContext
-        );
-
-        parsingResult.sourceFiles().stream()
-                .map(SourceFile::getSourcePath)
-                .forEach(System.out::println);
-    }
-
-    private void removeProject(String target) {
-        try {
-            FileSystemUtils.deleteRecursively(Path.of(target).toAbsolutePath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private void cloneProject(String url, String target, String tag) {
         File directory = Path.of(target).toFile();
         if (directory.exists()) {
@@ -378,48 +412,6 @@ class RewriteMavenProjectParserTest {
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Test
-    @DisplayName("Parse multi-module-1")
-    void parseMultiModule1_withIntegratedParser() {
-        ExecutionContext ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
-        Path baseDir = getProject("multi-module-1");
-        parserSettings.setExclusions(Set.of("README.adoc"));
-        RewriteProjectParsingResult parsingResult = sut.parse(
-                baseDir,
-                ctx);
-        verifyMavenParser(parsingResult);
-
-    }
-
-    @Test
-    void parseMultiModule1_WithCustomParser() {
-        Path baseDir = getProject("multi-module-1");
-        ExecutionContext ctx;
-        ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
-        MavenModelReader mavenModelReader = new MavenModelReader();
-        MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
-        MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
-        MavenPlexusContainer plexusContainerFactory = new MavenPlexusContainer();
-
-        RewriteProjectParser rpp = new RewriteProjectParser(
-                new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
-                new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
-                new BuildFileParser(parserSettings),
-                new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
-                new StyleDetector(),
-                parserSettings,
-                mock(ParsingEventListener.class),
-                mock(ApplicationEventPublisher.class)
-        );
-
-        Set<String> ignoredPatters = Set.of();
-        ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader());
-        List<Resource> resources = projectScanner.scan(baseDir, ignoredPatters);
-        RewriteProjectParsingResult parsingResult1 = rpp.parse(baseDir, resources, ctx);
-
-        verifyMavenParser(parsingResult1);
     }
 
     private void verifyMavenParser(RewriteProjectParsingResult parsingResult) {
