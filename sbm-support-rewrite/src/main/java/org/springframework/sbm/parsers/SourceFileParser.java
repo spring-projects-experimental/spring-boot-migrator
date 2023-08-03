@@ -49,6 +49,7 @@ class SourceFileParser {
 
     public Stream<SourceFile> parseOtherSourceFiles(
             Path baseDir,
+            SortedProjects mavenProject,
             Map<Path, Xml.Document> pathToDocumentMap,
             List<Resource> sortedBuildFileList,
             List<Resource> resources,
@@ -57,14 +58,15 @@ class SourceFileParser {
             ExecutionContext executionContext) {
 
         List<SourceFile> parsedSourceFiles = new ArrayList<>();
-        sortedBuildFileList.forEach(r -> {
-            Resource moduleBuildFileResource = (Resource) r;
+
+        mavenProject.getSortedProjects().forEach(currentMavenProject -> {
+            Resource moduleBuildFileResource = mavenProject.getMatchingBuildFileResource(currentMavenProject);
             Xml.Document moduleBuildFile = pathToDocumentMap.get(ResourceUtil.getPath(moduleBuildFileResource));
             List<Marker> markers = provenanceMarkers.get(ResourceUtil.getPath(moduleBuildFileResource));
             if(markers == null || markers.isEmpty()) {
-                log.warn("Could not find provenance markers for resource '%s'".formatted(ResourceUtil.getPath(r)));
+                log.warn("Could not find provenance markers for resource '%s'".formatted(mavenProject.getMatchingBuildFileResource(currentMavenProject)));
             }
-            List<SourceFile> sourceFiles = parseModuleSourceFiles(resources, moduleBuildFile, markers, styles, executionContext, baseDir);
+            List<SourceFile> sourceFiles = parseModuleSourceFiles(resources, currentMavenProject, moduleBuildFile, markers, styles, executionContext, baseDir);
             parsedSourceFiles.addAll(sourceFiles);
         });
 
@@ -74,7 +76,7 @@ class SourceFileParser {
     /**
      * {@link org.openrewrite.maven.MavenMojoProjectParser#listSourceFiles(MavenProject, Xml.Document, List, List, ExecutionContext)}
      */
-    private List<SourceFile> parseModuleSourceFiles(List<Resource> resources, Xml.Document moduleBuildFile, List<Marker> provenanceMarkers, List<NamedStyles> styles, ExecutionContext executionContext, Path baseDir) {
+    private List<SourceFile> parseModuleSourceFiles(List<Resource> resources, MavenProject mavenProject, Xml.Document moduleBuildFile, List<Marker> provenanceMarkers, List<NamedStyles> styles, ExecutionContext executionContext, Path baseDir) {
         List<SourceFile> sourceFiles = new ArrayList<>();
         // 146:149: get source encoding from maven
         // TDOD:
@@ -100,18 +102,18 @@ class SourceFileParser {
 
         // 155:156: parse main and test sources
         Set<Path> alreadyParsed = new HashSet<>();
-        List<SourceFile> mainSources = parseMainSources(baseDir, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
-        List<SourceFile> testSources = parseTestSources(baseDir, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
-
-        // 157:169
-        sourceFiles = mergeAndFilterExcluded(baseDir, parserSettings.getExclusions(), mainSources, testSources);
+        List<SourceFile> mainSources = parseMainSources(baseDir, mavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
+        List<SourceFile> testSources = parseTestSources(baseDir, mavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
 
         // 171:175
         Stream<SourceFile> parsedResourceFiles = rp.parse(baseDir.resolve(moduleBuildFile.getSourcePath()).resolve("src/main/resources"), alreadyParsed )
                 // FIXME: handle generated sources
                 .map(mavenMojoProjectParserPrivateMethods.addProvenance(baseDir, provenanceMarkers, null));
 
-
+        // 157:169
+        List<SourceFile> resourceSourceFiles = mergeAndFilterExcluded(baseDir, parserSettings.getExclusions(), mainSources, testSources);
+        sourceFiles.addAll(parsedResourceFiles.toList());
+        sourceFiles.addAll(resourceSourceFiles);
 
         return sourceFiles;
     }
@@ -124,9 +126,9 @@ class SourceFileParser {
         if(pathMatchers.isEmpty()) {
             return Stream.concat(mainSources.stream(), testSources.stream()).toList();
         }
-        return Stream.concat(mainSources.stream(), testSources.stream())
+        return new ArrayList<>(Stream.concat(mainSources.stream(), testSources.stream())
                 .filter(s -> isNotExcluded(baseDir, pathMatchers, s))
-                .toList();
+                .toList());
     }
 
     private static boolean isNotExcluded(Path baseDir, List<PathMatcher> exclusions, SourceFile s) {
@@ -134,21 +136,21 @@ class SourceFileParser {
                 .noneMatch(pm -> pm.matches(baseDir.resolve(s.getSourcePath()).toAbsolutePath().normalize()));
     }
 
-    private List<SourceFile> parseTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
-        return mavenMojoProjectParserPrivateMethods.processTestSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext);
+    private List<SourceFile> parseTestSources(Path baseDir, MavenProject mavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
+        return mavenMojoProjectParserPrivateMethods.processTestSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, mavenProject);
     }
 
     /**
      * {@link MavenMojoProjectParser#processMainSources(MavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
      */
-    private List<SourceFile> parseMainSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
+    private List<SourceFile> parseMainSources(Path baseDir, MavenProject mavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
         // MavenMojoProjectParser#processMainSources(..) takes MavenProject
         // it reads from it:
         // - mavenProject.getBuild().getDirectory()
         // - mavenProject.getBuild().getSourceDirectory()
         // - mavenProject.getCompileClasspathElements() --> The classpath of the given project/module
         // - mavenProject.getBasedir().toPath()
-        return mavenMojoProjectParserPrivateMethods.processMainSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext);
+        return mavenMojoProjectParserPrivateMethods.processMainSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, mavenProject);
 //        return invokeProcessMethod(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processMainSources");
     }
 

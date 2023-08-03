@@ -57,6 +57,97 @@ import static org.mockito.Mockito.when;
  */
 class ProvenanceMarkerFactoryTest {
 
+    /**
+     * Tests the MavenMojoProjectParser to verify assumptions.
+     */
+    @Nested
+    public class MavenMojoProjectParserTest {
+        @Test
+        @DisplayName("test MavenMojoProjectParser.generateProvenance")
+        void testMavenMojoProjectParserGenerateProvenance() {
+            // the project for which the markers will be created
+            Path baseDir = Path.of("./testcode/maven-projects/simple-spring-boot").toAbsolutePath().normalize();
+
+            // create sut using a factory
+            RuntimeInformation runtimeInformation = new DefaultRuntimeInformation();
+            SettingsDecrypter settingsDecrypter = null;
+            MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(new ParserSettings());
+            MavenMojoProjectParser sut = mavenMojoProjectParserFactory.create(baseDir, runtimeInformation, settingsDecrypter);
+
+            // the sut requires a MavenProject, let's retrieve it from Maven
+            MavenExecutor mavenExecutor = new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer());
+
+            // doing a 'mvn clean install'
+            mavenExecutor.onProjectSucceededEvent(baseDir, List.of("clean", "package"), event -> {
+
+                // and then use the MavenProject from the MavenSession
+                MavenProject mavenModel = event.getSession().getCurrentProject();
+
+                // to call the sut
+                List<Marker> markers = sut.generateProvenance(mavenModel);
+
+                // and assert markers
+                assertThat(markers).hasSize(5);
+                JavaVersion jv = findMarker(markers, JavaVersion.class);
+                assertThat(countGetters(jv)).isEqualTo(7);
+                assertThat(jv.getCreatedBy()).isEqualTo(System.getProperty("java.specification.version"));
+//            assertThat(jv.getMajorVersion()).isEqualTo(Integer.parseInt(System.getProperty("java.specification.version")));
+                assertThat(jv.getMajorVersion()).isEqualTo(18);
+                assertThat(jv.getSourceCompatibility()).isEqualTo("18");
+                assertThat(jv.getTargetCompatibility()).isEqualTo("17");
+                assertThat(jv.getMajorReleaseVersion()).isEqualTo(17);
+                assertThat(jv.getVmVendor()).isEqualTo(System.getProperty("java.vm.vendor"));
+                assertThat(jv.getId()).isInstanceOf(UUID.class);
+
+                JavaProject jp = findMarker(markers, JavaProject.class);
+                assertThat(countGetters(jp)).isEqualTo(3);
+                assertThat(jp.getId()).isInstanceOf(UUID.class);
+                assertThat(jp.getProjectName()).isEqualTo("simple-spring-boot-project");
+                JavaProject.Publication publication = jp.getPublication();
+                assertThat(countGetters(publication)).isEqualTo(3);
+                assertThat(publication.getGroupId()).isEqualTo("com.example");
+                assertThat(publication.getArtifactId()).isEqualTo("simple-spring-boot");
+                assertThat(publication.getVersion()).isEqualTo("0.0.1-SNAPSHOT");
+
+                String branch = getCurrentGitBranchName();
+                String origin = getCurrentGitOrigin();
+                String gitHash = getCurrentGitHash();
+                GitProvenance expectedGitProvenance = GitProvenance.fromProjectDirectory(baseDir, BuildEnvironment.build(System::getenv));
+                GitProvenance gitProvenance = findMarker(markers, GitProvenance.class);
+                assertThat(countGetters(gitProvenance)).isEqualTo(9);
+                assertThat(gitProvenance.getId()).isInstanceOf(UUID.class);
+                assertThat(gitProvenance.getBranch()).isEqualTo(branch);
+                assertThat(gitProvenance.getEol()).isEqualTo(GitProvenance.EOL.Native);
+                assertThat(gitProvenance.getOrigin()).isEqualTo(origin);
+                assertThat(gitProvenance.getAutocrlf()).isEqualTo(GitProvenance.AutoCRLF.Input);
+                assertThat(gitProvenance.getRepositoryName()).isEqualTo(expectedGitProvenance.getRepositoryName());
+                assertThat(gitProvenance.getChange()).isEqualTo(gitHash);
+                assertThat(gitProvenance.getOrganizationName()).isEqualTo("spring-projects-experimental");
+                assertThat(gitProvenance.getOrganizationName("https://github.com")).isEqualTo("spring-projects-experimental");
+
+                OperatingSystemProvenance operatingSystemProvenance = findMarker(markers, OperatingSystemProvenance.class);
+                OperatingSystemProvenance expected = OperatingSystemProvenance.current();
+                assertThat(operatingSystemProvenance.getName()).isEqualTo(expected.getName());
+                // ...
+
+                BuildTool buildTool = findMarker(markers, BuildTool.class);
+                assertThat(countGetters(buildTool)).isEqualTo(3);
+                assertThat(buildTool.getId()).isInstanceOf(UUID.class);
+                String mavenVersion = new DefaultRuntimeInformation().getMavenVersion();
+                assertThat(buildTool.getVersion()).isEqualTo(mavenVersion);
+                assertThat(buildTool.getType()).isEqualTo(BuildTool.Type.Maven);
+
+            });
+        }
+
+        private <T extends Marker> T findMarker(List<Marker> markers, Class<T> markerClass) {
+            return (T) markers.stream().filter(m -> markerClass.isAssignableFrom(m.getClass())).findFirst().orElseThrow();
+        }
+    }
+
+
+
+
     @Nested
     public class GivenSimpleMultiModuleProject {
 

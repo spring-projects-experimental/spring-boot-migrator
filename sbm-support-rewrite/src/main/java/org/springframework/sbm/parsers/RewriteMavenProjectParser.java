@@ -62,7 +62,7 @@ public class RewriteMavenProjectParser {
 
 
     public static final Collection<String> EXCLUSIONS = Set.of("**/.DS_Store", ".DS_Store");
-    private final PlexusContainerProvider plexusContainerProvider;
+    private final MavenPlexusContainer mavenPlexusContainer;
     private final ParsingEventListener parsingListener;
     private final MavenExecutor mavenRunner;
 
@@ -96,7 +96,7 @@ public class RewriteMavenProjectParser {
     public RewriteProjectParsingResult parse(Path baseDir, boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThreshold, boolean runPerSubmodule, ExecutionContext executionContext) {
         final Path absoluteBaseDir = getAbsolutePath(baseDir);
         Collection<String> allExclusions = getAllExclusions(exclusions);
-        PlexusContainer plexusContainer = plexusContainerProvider.get();
+        PlexusContainer plexusContainer = mavenPlexusContainer.get();
         RewriteProjectParsingResult parsingResult = parseInternal(absoluteBaseDir, pomCacheEnabled, pomCacheDirectory, skipMavenParsing, plainTextMasks, sizeThreshold, runPerSubmodule, executionContext, absoluteBaseDir, allExclusions, plexusContainer);
         return parsingResult;
     }
@@ -107,31 +107,26 @@ public class RewriteMavenProjectParser {
                 baseDir,
                 List.of("clean", "package"),
                 event -> {
-                    List<MavenProject> projects = event.getSession().getProjectDependencyGraph().getAllProjects();
-
-                    if (event.getProject().getName().equals(projects.get(projects.size() - 1).getArtifactId())) {
-                        try {
-                            MavenSession session = event.getSession();
-                            List<MavenProject> mavenProjects = session.getAllProjects();
-                            MavenMojoProjectParser rewriteProjectParser = buildMavenMojoProjectParser(
-                                    absoluteBaseDir,
-                                    mavenProjects,
-                                    pomCacheEnabled,
-                                    pomCacheDirectory,
-                                    skipMavenParsing,
-                                    allExclusions,
-                                    plainTextMasks,
-                                    sizeThreshold,
-                                    runPerSubmodule,
-                                    plexusContainer,
-                                    session);
-                            List<NamedStyles> styles = List.of();
-                            List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles, executionContext);
-                            parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
-                        } catch(Exception e) {
-                            throw new RuntimeException(e);
-                        }
-
+                    try {
+                        MavenSession session = event.getSession();
+                        List<MavenProject> mavenProjects = session.getAllProjects();
+                        MavenMojoProjectParser rewriteProjectParser = buildMavenMojoProjectParser(
+                                absoluteBaseDir,
+                                mavenProjects,
+                                pomCacheEnabled,
+                                pomCacheDirectory,
+                                skipMavenParsing,
+                                allExclusions,
+                                plainTextMasks,
+                                sizeThreshold,
+                                runPerSubmodule,
+                                plexusContainer,
+                                session);
+                        List<NamedStyles> styles = List.of();
+                        List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles, executionContext);
+                        parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
                 }
         );
@@ -198,7 +193,7 @@ public class RewriteMavenProjectParser {
 
     @NotNull
     private static Path getAbsolutePath(Path baseDir) {
-        if(!baseDir.isAbsolute()) {
+        if (!baseDir.isAbsolute()) {
             baseDir = baseDir.toAbsolutePath().normalize();
         }
         return baseDir;

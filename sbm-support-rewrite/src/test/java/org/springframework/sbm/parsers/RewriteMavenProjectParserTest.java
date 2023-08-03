@@ -78,7 +78,7 @@ class RewriteMavenProjectParserTest {
         MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(
                 new MavenConfigFileParser()
         );
-        PlexusContainerProvider plexusContainerFactory = new PlexusContainerProvider();
+        MavenPlexusContainer plexusContainerFactory = new MavenPlexusContainer();
         sut = new RewriteMavenProjectParser(
                 plexusContainerFactory,
                 new DefaultParsingEventListener(mock(ApplicationEventPublisher.class)),

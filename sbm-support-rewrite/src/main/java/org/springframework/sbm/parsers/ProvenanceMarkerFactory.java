@@ -44,7 +44,7 @@ class ProvenanceMarkerFactory {
      *
      * @return the map of pom.xml {@link Resource}s and their {@link Marker}s.
      */
-    public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, TopologicallySortedProjects pomFileResources) {
+    public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, SortedProjects pomFileResources) {
 
         RuntimeInformation runtimeInformation = new DefaultRuntimeInformation();
         SettingsDecrypter settingsDecrypter = null;

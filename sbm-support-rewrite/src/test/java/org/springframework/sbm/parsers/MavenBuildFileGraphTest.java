@@ -35,7 +35,7 @@ class MavenBuildFileGraphTest {
     @DisplayName("Should Create Correct BuildPath")
     void shouldCreateCorrectBuildPath() {
         MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
-        PlexusContainerProvider containerProvider = new PlexusContainerProvider();
+        MavenPlexusContainer containerProvider = new MavenPlexusContainer();
         MavenExecutor mavenExecutor = new MavenExecutor(requestFactory, containerProvider);
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-1").toAbsolutePath().normalize();
         ProjectScanner scanner = new ProjectScanner(new FileSystemResourceLoader());

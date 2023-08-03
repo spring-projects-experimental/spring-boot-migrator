@@ -98,7 +98,10 @@ class MavenProjectResolutionTest {
                 </project>
                 """;
 
-        PlexusContainerProvider plexusContainerFactory = new PlexusContainerProvider();
+        Path pomFile = tempDir.resolve("pom.xml");
+        Files.writeString(pomFile, pomXml);
+
+        MavenPlexusContainer plexusContainerFactory = new MavenPlexusContainer();
         MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
         MavenExecutor mavenExecutor = new MavenExecutor(requestFactory, plexusContainerFactory);
         mavenExecutor.onProjectSucceededEvent(tempDir, List.of("dependency:resolve"), event -> {

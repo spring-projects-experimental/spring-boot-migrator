@@ -16,8 +16,10 @@
 package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.Maven;
 import org.apache.maven.execution.*;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.springframework.stereotype.Component;
@@ -31,20 +33,23 @@ import java.util.function.Consumer;
  *
  * @author Fabian Krüger
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 class MavenExecutor {
 
     private final MavenExecutionRequestFactory requestFactory;
-    private final PlexusContainerProvider plexusContainerProvider;
+    private final MavenPlexusContainer mavenPlexusContainer;
 
 
     /**
-     * Runs given {@code goals} in Maven and calls {@code eventConsumer} when Maven calls {@link org.apache.maven.execution.ExecutionListener#projectSucceeded(ExecutionEvent)}.
+     * Runs given {@code goals} in Maven and calls {@code eventConsumer} when Maven processed the last MavenProject.
+     * Maven then calls {@link org.apache.maven.execution.ExecutionListener#projectSucceeded(ExecutionEvent)}.
      * The {@code eventConsumer} will be provided with the current {@link MavenSession} through the {@link ExecutionEvent}.
+     * The MavenSession provides all required information about the given project.
      */
     public void onProjectSucceededEvent(Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
-        PlexusContainer plexusContainer = plexusContainerProvider.get();
+        PlexusContainer plexusContainer = mavenPlexusContainer.get();
         AbstractExecutionListener executionListener = new AbstractExecutionListener() {
             @Override
             public void mojoFailed(ExecutionEvent event) {
@@ -55,7 +60,18 @@ class MavenExecutor {
 
             @Override
             public void projectSucceeded(ExecutionEvent event) {
-                eventConsumer.accept(event);
+                List<MavenProject> sortedProjects = event.getSession().getProjectDependencyGraph().getSortedProjects();
+                MavenProject lastProject = (MavenProject) sortedProjects.get(sortedProjects.size()-1);
+                log.info("Maven successfully processed project: %s".formatted(event.getSession().getCurrentProject().getName()));
+                if(event.getSession().getCurrentProject().getFile().toPath().toString().equals(lastProject.getFile().getPath().toString())) {
+                    eventConsumer.accept(event);
+                }
+            }
+
+            @Override
+            public void mojoSucceeded(ExecutionEvent event) {
+                super.mojoSucceeded(event);
+                System.out.println("Mojo succeeded: " + event.getMojoExecution().getGoal());
             }
 
             @Override
@@ -77,7 +93,7 @@ class MavenExecutor {
      */
     public void execute(MavenExecutionRequest request) {
         try {
-            PlexusContainer plexusContainer = plexusContainerProvider.get();
+            PlexusContainer plexusContainer = mavenPlexusContainer.get();
             Maven maven = plexusContainer.lookup(Maven.class);
             MavenExecutionResult execute = maven.execute(request);
             if (execute.hasExceptions()) {
@@ -88,3 +104,5 @@ class MavenExecutor {
         }
     }
 }
+
+

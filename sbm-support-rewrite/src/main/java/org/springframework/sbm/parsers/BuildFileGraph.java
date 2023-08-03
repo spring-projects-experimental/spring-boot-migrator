@@ -24,5 +24,5 @@ import java.util.List;
  * @author Fabian Krüger
  */
 public interface BuildFileGraph {
-    TopologicallySortedProjects build(List<Resource> resources, MavenSession mavenSession);
+    SortedProjects build(List<Resource> resources, MavenSession mavenSession);
 }

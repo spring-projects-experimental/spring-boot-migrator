@@ -60,34 +60,30 @@ class BuildFileParser {
      * The provided list of pom files must be sorted beforehand. See {@link BuildFileGraph#build(List, MavenSession)}.
      *
      * @param baseDir the {@link Path} to the root of the scanned project
-     * @param buildFileResources the list of resources for relevant pom files.
+     * @param buildFiles the list of resources for relevant pom files.
+     * @param activeProfiles teh active Maven profiles
      * @param executionContext the ExecutionContext to use
      * @param provenanceMarkers the map of markers to be added
      * @param
      */
     public Map<Path, Xml.Document>  parseBuildFiles(
             Path baseDir,
-            List<Resource> buildFileResources,
+            List<Resource> buildFiles,
+            List<String> activeProfiles,
             ExecutionContext executionContext,
             boolean skipMavenParsing,
             Map<Path, List<Marker>> provenanceMarkers
     ) {
         Assert.notNull(baseDir, "Base directory must be provided but was null.");
-        Assert.notEmpty(buildFileResources, "No build files provided.");
-        List<Resource> nonPomFiles = retrieveNonPomFiles(buildFileResources);
+        Assert.notEmpty(buildFiles, "No build files provided.");
+        List<Resource> nonPomFiles = retrieveNonPomFiles(buildFiles);
         Assert.isTrue(nonPomFiles.isEmpty(), "Provided resources which are not Maven build files: '%s'".formatted(nonPomFiles.stream().map(r -> ResourceUtil.getPath(r).toAbsolutePath()).toList()));
-        List<Resource> resourcesWithoutProvenanceMarker = findResourcesWithoutProvenanceMarker(baseDir, buildFileResources, provenanceMarkers);
+        List<Resource> resourcesWithoutProvenanceMarker = findResourcesWithoutProvenanceMarker(baseDir, buildFiles, provenanceMarkers);
         Assert.isTrue(resourcesWithoutProvenanceMarker.isEmpty(), "No provenance marker provided for these pom files %s".formatted(resourcesWithoutProvenanceMarker.stream().map(r -> ResourceUtil.getPath(r).toAbsolutePath()).toList()));
 
         if(skipMavenParsing) {
             return Map.of();
         }
-
-        List<Resource> pomFiles = new ArrayList<>();
-        pomFiles.addAll(buildFileResources);
-
-        Resource topLevelPom = pomFiles.get(0);
-        Model topLevelModel = new MavenModelReader().readModel(topLevelPom);
 
         // 380 : 382
         // already
@@ -109,18 +105,24 @@ class BuildFileParser {
         }
 
         // 395 : 398
-        List<String> activeProfiles = readActiveProfiles(topLevelModel);
+
+//        public List<String> getActiveProfiles() {
+//            Resource topLevelPom = resources.get(0);
+//            // FIXME: Provide active profiles through Maven helper / model / whatever
+//            Model topLevelModel = new MavenModelReader().readModel(topLevelPom);
+//            List<String> activeProfiles = readActiveProfiles(topLevelModel);
+//        }
         mavenParserBuilder.activeProfiles(activeProfiles.toArray(new String[]{}));
 
         // 400 : 402
-        List<SourceFile> parsedPoms = parsePoms(baseDir, pomFiles, mavenParserBuilder, executionContext);
+        List<SourceFile> parsedPoms = parsePoms(baseDir, buildFiles, mavenParserBuilder, executionContext);
 
         parsedPoms = parsedPoms.stream()
                 .map(pp -> this.markPomFile(pp, provenanceMarkers.getOrDefault(baseDir.resolve(pp.getSourcePath()), emptyList())))
                 .toList();
 
         // 422 : 436
-        Map<Path, Xml.Document> result = createResult(baseDir, pomFiles, parsedPoms);
+        Map<Path, Xml.Document> result = createResult(baseDir, buildFiles, parsedPoms);
 
         // 438 : 444: add marker
 //        for (Resource mavenProject : pomFiles) {
@@ -173,12 +175,8 @@ class BuildFileParser {
         return mavenParserBuilder.build().parseInputs(pomFileInputs, baseDir, executionContext).toList();
     }
 
-    private List<String> readActiveProfiles(Model topLevelModel) {
-        return parserSettings.getActiveProfiles() != null ? parserSettings.getActiveProfiles() : List.of("default");
-    }
-
     /**
-     * {@link MavenMojoProjectParser#getPomCache(String, Log)}
+     * {@link MavenMojoProjectParser##getPomCache()}
      */
     private static MavenPomCache getPomCache() {
         // FIXME: Provide a way to initialize the MavenTypeCache from properties

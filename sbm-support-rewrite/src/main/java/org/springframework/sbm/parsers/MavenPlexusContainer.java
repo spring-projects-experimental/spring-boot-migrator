@@ -15,9 +15,11 @@
  */
 package org.springframework.sbm.parsers;
 
+import org.apache.maven.graph.GraphBuilder;
 import org.codehaus.plexus.*;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +30,15 @@ import java.net.URL;
  */
 @Component
 @Lazy
-public class PlexusContainerProvider {
+public class MavenPlexusContainer {
+
+    public GraphBuilder lookup(Class<GraphBuilder> aClass) {
+        try {
+            return ContainerHolder.INSTANCE.lookup(aClass);
+        } catch (ComponentLookupException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private static class ContainerHolder {
         private static final PlexusContainer INSTANCE = create();
@@ -61,6 +71,8 @@ public class PlexusContainerProvider {
             }
         }
     }
+
+    @Deprecated
     public PlexusContainer get() {
         return ContainerHolder.INSTANCE;
     }

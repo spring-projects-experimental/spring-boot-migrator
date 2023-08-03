@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.parsers;
 
+import org.apache.maven.project.MavenProject;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,6 +39,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Fabian Krüger
@@ -134,13 +137,15 @@ class BuildFileParserTest {
         @Test
         void parseBuildFiles_shouldReturnSortedListOfParsedBuildFiles() {
             Path baseDir = Path.of(".").toAbsolutePath().normalize();
-            String module1SubmoduleSourcePath = "module1/submodule/pom.xml";
-            String parentSourcePath = "pom.xml";
-            String module1SourcePath = "module1/pom.xml";
-            List<Resource> filteredAndSortedBuildFiles = List.of(
-                    new DummyResource(baseDir, module1SubmoduleSourcePath, POM_3),
-                    new DummyResource(baseDir, parentSourcePath, POM_1),
-                    new DummyResource(baseDir, module1SourcePath, POM_2)
+
+            // List of resources
+            Path module1SubmoduleSourcePath = baseDir.resolve("module1/submodule/pom.xml");
+            Path parentSourcePath = baseDir.resolve("pom.xml");
+            Path module1SourcePath = baseDir.resolve("module1/pom.xml");
+            List<Resource> resources = List.of(
+                    new DummyResource(module1SubmoduleSourcePath, POM_3),
+                    new DummyResource(parentSourcePath, POM_1),
+                    new DummyResource(module1SourcePath, POM_2)
             );
 
             // provenance markers
@@ -148,24 +153,26 @@ class BuildFileParserTest {
             Path parentPomPath = baseDir.resolve(parentSourcePath);
             Path module1PomXml = baseDir.resolve(module1SourcePath);
             Map<Path, List<Marker>> provenanceMarkers = Map.of(
-                    module1SubmodulePomPath, List.of(new JavaProject(UUID.randomUUID(), module1SubmoduleSourcePath, null)),
-                    parentPomPath, List.of(new JavaProject(UUID.randomUUID(), parentSourcePath, null)),
-                    module1PomXml, List.of(new JavaProject(UUID.randomUUID(), module1SourcePath, null))
+                    parentPomPath, List.of(new JavaProject(UUID.randomUUID(), "parent", null)),
+                    module1PomXml, List.of(new JavaProject(UUID.randomUUID(), "module1", null)),
+                    module1SubmodulePomPath, List.of(new JavaProject(UUID.randomUUID(), "module1/submodule", null))
             );
 
             ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
             boolean skipMavenParsing = false;
+
             Map<Path, Xml.Document> parsedBuildFiles = sut.parseBuildFiles(
                     baseDir,
-                    filteredAndSortedBuildFiles,
+                    resources,
+                    List.of("default"),
                     executionContext,
                     skipMavenParsing,
                     provenanceMarkers);
 
             assertThat(parsedBuildFiles).hasSize(3);
-            assertThat(parsedBuildFiles.get(module1SubmodulePomPath).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo(module1SubmoduleSourcePath);
-            assertThat(parsedBuildFiles.get(parentPomPath).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo(parentSourcePath);
-            assertThat(parsedBuildFiles.get(module1PomXml).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo(module1SourcePath);
+            assertThat(parsedBuildFiles.get(module1SubmodulePomPath).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1/submodule");
+            assertThat(parsedBuildFiles.get(parentPomPath).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("parent");
+            assertThat(parsedBuildFiles.get(module1PomXml).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1");
         }
 
         @Test
@@ -173,7 +180,7 @@ class BuildFileParserTest {
         void parseWithoutBaseDirShouldThrowException() {
             String message = assertThrows(
                     IllegalArgumentException.class,
-                    () -> sut.parseBuildFiles(null, List.of(), new InMemoryExecutionContext(), false, Map.of())
+                    () -> sut.parseBuildFiles(null, List.of(), List.of("default"), new InMemoryExecutionContext(), false, Map.of())
             )
             .getMessage();
             assertThat(message).isEqualTo("Base directory must be provided but was null.");
@@ -184,7 +191,7 @@ class BuildFileParserTest {
         void parseWithEmptyResourcesShouldThrowException() {
             String message = assertThrows(
                     IllegalArgumentException.class,
-                    () -> sut.parseBuildFiles(Path.of("."), List.of(), new InMemoryExecutionContext(), false, Map.of())
+                    () -> sut.parseBuildFiles(Path.of("."), List.of(), List.of(), new InMemoryExecutionContext(), false, Map.of())
             )
             .getMessage();
             assertThat(message).isEqualTo("No build files provided.");
@@ -198,7 +205,7 @@ class BuildFileParserTest {
             List<Resource> nonPomResource1 = List.of(nonPomResource);
             String message = assertThrows(
                     IllegalArgumentException.class,
-                    () -> sut.parseBuildFiles(baseDir, nonPomResource1, new InMemoryExecutionContext(), false, Map.of())
+                    () -> sut.parseBuildFiles(baseDir, nonPomResource1, List.of(), new InMemoryExecutionContext(), false, Map.of())
             )
             .getMessage();
             assertThat(message).isEqualTo("Provided resources which are not Maven build files: '["+ baseDir +"/src/main/java/SomeClass.java]'");
@@ -222,7 +229,7 @@ class BuildFileParserTest {
 
             String message = assertThrows(
                     IllegalArgumentException.class,
-                    () -> sut.parseBuildFiles(baseDir, poms, new InMemoryExecutionContext(), false, provenanceMarkers)
+                    () -> sut.parseBuildFiles(baseDir, poms, List.of(), new InMemoryExecutionContext(), false, provenanceMarkers)
             )
                     .getMessage();
             assertThat(message).isEqualTo("No provenance marker provided for these pom files ["+Path.of(".").toAbsolutePath().normalize().resolve("module1/pom.xml]"));

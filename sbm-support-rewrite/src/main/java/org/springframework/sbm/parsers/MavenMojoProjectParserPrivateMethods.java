@@ -63,19 +63,28 @@ class MavenMojoProjectParserPrivateMethods {
     /**
      * Calls {@link MavenMojoProjectParser#processMainSources(MavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
      */
-    public List<SourceFile> processMainSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
-        return invokeProcessMethod(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processMainSources");
+    public List<SourceFile> processMainSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, MavenProject mavenProject) {
+        return invokeProcessMethod(baseDir, mavenProject, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processMainSources");
     }
 
     /**
      * Calls {@link MavenMojoProjectParser#processTestSources(MavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
      */
-    public List<SourceFile> processTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser,?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
-        return invokeProcessMethod(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processTestSources");
+    public List<SourceFile> processTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser,?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, MavenProject mavenProject) {
+        return invokeProcessMethod(baseDir, mavenProject, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processTestSources");
     }
 
     @NotNull
-    private List<SourceFile> invokeProcessMethod(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, String methodName) {
+    private List<SourceFile> invokeProcessMethod(
+            Path baseDir,
+            MavenProject mavenProject, Xml.Document moduleBuildFile,
+            JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
+            ResourceParser rp,
+            List<Marker> provenanceMarkers,
+            Set<Path> alreadyParsed,
+            ExecutionContext executionContext,
+            String methodName
+    ) {
         MavenMojoProjectParser mavenMojoProjectParser = createMavenMojoProjectParser(baseDir);
         Method method = ReflectionUtils.findMethod(
                 MavenMojoProjectParser.class,
@@ -90,7 +99,10 @@ class MavenMojoProjectParserPrivateMethods {
         if (method == null) {
             throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted(methodName, MavenMojoProjectParser.class.getName()));
         }
-        MavenProject mavenProject = new MavenProject() {
+
+
+        // FIXME: Retrieve MavenProject as parameter
+        /*MavenProject mavenProject = new MavenProject() {
             @Override
             public Build getBuild() {
                 return new Build() {
@@ -162,7 +174,7 @@ class MavenMojoProjectParserPrivateMethods {
             public File getBasedir() {
                 return Path.of("...").toFile();
             }
-        };
+        };*/
 
         Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser,
 //                    MavenProject mavenProject,
