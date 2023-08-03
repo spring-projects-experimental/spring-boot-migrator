@@ -188,7 +188,7 @@ class RewriteMavenProjectParserTest {
         assertThat(compilationUnit.getMarkers().findFirst(Autodetect.class)).isNotNull();
         List<JavaType> typeInUse = new ArrayList<>();
         typeInUse.addAll(compilationUnit.getTypesInUse().getTypesInUse());
-        assertThat(typeInUse).hasSize(expectedNumMarkers);
+        assertThat(typeInUse).hasSize(7);
         List<String> fqnTypesInUse = typeInUse.stream()
                 .filter(JavaType.class::isInstance)
                 .map(JavaType.class::cast)
