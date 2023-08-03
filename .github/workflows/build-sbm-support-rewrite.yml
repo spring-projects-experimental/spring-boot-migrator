@@ -21,4 +21,4 @@ jobs:
           java-version: 17
           cache: maven
       - name: build-project
-        run: mvn clean install
+        run: mvn --batch-mode clean install
