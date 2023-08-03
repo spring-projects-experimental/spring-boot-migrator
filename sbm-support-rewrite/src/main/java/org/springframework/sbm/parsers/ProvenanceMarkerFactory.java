@@ -53,8 +53,6 @@ class ProvenanceMarkerFactory {
         Map<Path, List<Marker>> result = new HashMap<>();
 
         pomFileResources.getSortedProjects().forEach(mavenProject -> {
-            // FIXME: this results in another Maven execution but the MavenProject could be retrieved from the current execution.
-            // FIXME: This results in multiple calls to 'mvn install'
             List<Marker> markers = helper.generateProvenance(mavenProject);
             Resource resource = pomFileResources.getMatchingBuildFileResource(mavenProject);
             Path path = ResourceUtil.getPath(resource);
