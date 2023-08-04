@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.jee.web.api;
 
+import lombok.RequiredArgsConstructor;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.sbm.project.resource.ProjectResourceWrapper;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.web.api.WebAppType;
@@ -22,6 +25,7 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.xml.search.FindTags;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -30,8 +34,10 @@ import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
-@Configuration
+@Component
+@RequiredArgsConstructor
 public class JeeWebXmlProjectResourceRegistrar implements ProjectResourceWrapper<RewriteSourceFileHolder<Xml.Document>> {
+    private final ExecutionContext executionContext;
 
 //    @EventListener(ProjectContextBuiltEvent.class)
 //    public void onProjectContextBuiltEvent(ProjectContextBuiltEvent projectContextBuiltEvent) {
@@ -68,7 +74,7 @@ public class JeeWebXmlProjectResourceRegistrar implements ProjectResourceWrapper
         return (
                 Xml.Document.class.isAssignableFrom(rewriteSourceFileHolder.getSourceFile().getClass()) &&
                 rewriteSourceFileHolder.getAbsolutePath().getFileName().endsWith("web.xml") &&
-                ! new FindTags("/web-app").run(List.of(rewriteSourceFileHolder.getSourceFile())).getResults().isEmpty());
+                ! new FindTags("/web-app").run(new InMemoryLargeSourceSet(List.of(rewriteSourceFileHolder.getSourceFile())), executionContext).getChangeset().getAllResults().isEmpty());
     }
 
     @Override
