@@ -1,0 +1,20 @@
+input:
+spring:
+  elasticsearch:
+    rest:
+      connection-timeout: 1
+      password: testpassword
+      read-timeout: 2
+      sniffer:
+        delay-after-failure: 3
+        interval: 4
+      username: testusername
+expected:
+spring:
+  elasticsearch:
+      connection-timeout: 1
+      password: testpassword
+      socket-timeout: 2
+      restclient.sniffer.delay-after-failure: 3
+      restclient.sniffer.interval: 4
+      username: testusername

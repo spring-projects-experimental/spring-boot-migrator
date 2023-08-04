@@ -1,0 +1,25 @@
+- name: sbu30-add-milestone-repositories
+  description: Spring boot 3.0 Upgrade - Add milestone repository for dependencies and plugins
+  condition:
+    type: org.springframework.sbm.common.migration.conditions.TrueCondition
+
+  actions:
+    - type: org.springframework.sbm.build.migration.actions.AddRepositoryAction
+      description: Add Spring Boot milestone repository.
+      id: "spring-milestone"
+      url: "https://repo.spring.io/milestone"
+      snapshotsEnabled: false
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoRepositoryExistsCondition
+        id: "spring-milestone"
+        url: "https://repo.spring.io/milestone"
+
+    - type: org.springframework.sbm.build.migration.actions.AddPluginRepositoryAction
+      description: Add Spring Boot milestone plugin repository.
+      id: "spring-milestone"
+      url: "https://repo.spring.io/milestone"
+      snapshotsEnabled: false
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoPluginRepositoryExistsCondition
+        id: "spring-milestone"
+        url: "https://repo.spring.io/milestone"
