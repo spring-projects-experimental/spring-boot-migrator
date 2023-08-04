@@ -17,7 +17,7 @@
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java.version>17</java.version>
         <spring-shell.version>2.1.10</spring-shell.version>
-        <openrewrite.version>7.35.0</openrewrite.version>
+        <openrewrite.version>8.1.6</openrewrite.version>
         <openrewrite.spring.version>4.32.0</openrewrite.spring.version>
         <rewrite-migrate-java.version>1.17.0</rewrite-migrate-java.version>
         <spring-boot.version>2.7.5</spring-boot.version>
@@ -30,6 +30,7 @@
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
         <snakeyaml.version>1.33</snakeyaml.version>
+        <sbm-support-rewrite.version>0.0.1-SNAPSHOT</sbm-support-rewrite.version>
         <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
     </properties>
 
@@ -146,18 +147,18 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>org.springframework.shell</groupId>
-                <artifactId>spring-shell-dependencies</artifactId>
-                <version>${spring-shell.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>me.tongfei</groupId>
-                <artifactId>progressbar</artifactId>
-                <version>${progressbar.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.shell</groupId>-->
+<!--                <artifactId>spring-shell-dependencies</artifactId>-->
+<!--                <version>${spring-shell.version}</version>-->
+<!--                <type>pom</type>-->
+<!--                <scope>import</scope>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>me.tongfei</groupId>-->
+<!--                <artifactId>progressbar</artifactId>-->
+<!--                <version>${progressbar.version}</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers</artifactId>
@@ -242,6 +243,7 @@
                 <version>${rewrite-migrate-java.version}</version>
             </dependency>
             <!-- shrinkwrap -->
+            <!-- TODO: Remove, required by sbm-openrewrite to download jars in some test utility -->
             <dependency>
                 <groupId>org.jboss.shrinkwrap.resolver</groupId>
                 <artifactId>shrinkwrap-resolver-api</artifactId>
@@ -330,24 +332,28 @@
             <artifactId>jcl-over-slf4j</artifactId>
             <version>2.0.6</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.sbm</groupId>
+            <artifactId>sbm-support-rewrite</artifactId>
+            <version>${sbm-support-rewrite.version}</version>
+        </dependency>
     </dependencies>
     <modules>
-        <module>applications/spring-shell</module>
-        <module>applications/spring-boot-upgrade</module>
-        <module>components/openrewrite-spring-recipes</module>
-        <module>components/sbm-recipes-boot-upgrade</module>
-        <module>components/sbm-recipes-spring-cloud</module>
-        <module>components/sbm-recipes-spring-framework</module>
-        <module>components/sbm-recipes-jee-to-boot</module>
-        <module>components/sbm-recipes-mule-to-boot</module>
-        <module>components/sbm-support-boot</module>
-        <module>components/sbm-support-weblogic</module>
-        <module>components/sbm-support-jee</module>
+<!--        <module>applications/spring-shell</module>-->
+<!--        <module>components/openrewrite-spring-recipes</module>-->
+<!--        <module>components/sbm-recipes-spring-cloud</module>-->
+<!--        <module>components/sbm-recipes-spring-framework</module>-->
+<!--        <module>components/sbm-recipes-mule-to-boot</module>-->
+<!--        <module>components/sbm-support-weblogic</module>-->
         <module>components/sbm-openrewrite</module>
-        <module>components/sbm-core</module>
         <module>components/test-helper</module>
         <module>components/recipe-test-support</module>
-        <module>components/sbm-utils</module>
+        <module>components/sbm-core</module>
+<!--        <module>components/sbm-support-boot</module>-->
+<!--        <module>components/sbm-support-jee</module>-->
+<!--        <module>components/sbm-recipes-jee-to-boot</module>-->
+<!--        <module>components/sbm-recipes-boot-upgrade</module>-->
+<!--        <module>applications/spring-boot-upgrade</module>-->
     </modules>
     <build>
         <finalName>${jar.name}</finalName>
