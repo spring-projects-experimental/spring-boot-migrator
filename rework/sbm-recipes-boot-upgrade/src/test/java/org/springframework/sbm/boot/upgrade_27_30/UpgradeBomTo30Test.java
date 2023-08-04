@@ -20,8 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
-import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.UpgradeDependencyVersion;
 import org.openrewrite.xml.tree.Xml;
@@ -40,7 +38,6 @@ public class UpgradeBomTo30Test {
                 "spring-boot-dependencies",
                 "3.0.0-M3",
                 null,
-                null,
                 null
         );
 
@@ -51,7 +48,7 @@ public class UpgradeBomTo30Test {
         });
 
         MavenParser parser = MavenParser.builder().build();
-        List<SourceFile> documentList = parser.parse("""
+        List<Xml.Document> documentList = parser.parse("""
                 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -97,9 +94,9 @@ public class UpgradeBomTo30Test {
                         </pluginRepository>
                     </pluginRepositories>
                 </project>
-                """).toList();
+                """);
 
-        List<Result> result = recipe.run(new InMemoryLargeSourceSet(documentList), ctx).getChangeset().getAllResults();
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(1);
 
@@ -160,7 +157,6 @@ public class UpgradeBomTo30Test {
                 "spring-boot-dependencies",
                 "3.0.0-M3",
                 null,
-                null,
                 null
         );
 
@@ -171,7 +167,7 @@ public class UpgradeBomTo30Test {
         });
 
         MavenParser parser = MavenParser.builder().build();
-        List<SourceFile> documentList = parser.parse("""
+        List<Xml.Document> documentList = parser.parse("""
                 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -211,10 +207,9 @@ public class UpgradeBomTo30Test {
                         </pluginRepository>
                     </pluginRepositories>
                 </project>
-                """)
-                .toList();
+                """);
 
-        List<Result> result = recipe.run(new InMemoryLargeSourceSet(documentList), ctx).getChangeset().getAllResults();
+        List<Result> result = recipe.run(documentList, ctx).getResults();
 
         assertThat(result).hasSize(0);
     }

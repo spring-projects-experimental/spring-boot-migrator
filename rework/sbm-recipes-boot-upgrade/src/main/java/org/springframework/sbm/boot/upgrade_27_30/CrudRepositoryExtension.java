@@ -39,11 +39,6 @@ public class CrudRepositoryExtension extends Recipe {
         return "Extends CrudRepository for Interfaces that extends PagingAndSortingRepository";
     }
 
-    @Override
-    public String getDescription() {
-        return getDisplayName();
-    }
-
     public CrudRepositoryExtension() {
 
     }
@@ -56,7 +51,7 @@ public class CrudRepositoryExtension extends Recipe {
     private String pagingAndSortingRepository;
     private String targetCrudRepository;
 
-    // FIXME: OR8.1 - getApplicableTest is not called anymore in 8.1
+    @Override
     protected @Nullable TreeVisitor<?, ExecutionContext> getApplicableTest() {
         return new JavaIsoVisitor<>() {
             @Override
@@ -79,15 +74,14 @@ public class CrudRepositoryExtension extends Recipe {
 
             @NotNull
             private J.ClassDeclaration applyThisRecipe(J.ClassDeclaration classDecl) {
-                // FIXME: OR8.1 return classDecl.withMarkers(classDecl.getMarkers().searchResult());
-                return classDecl.withMarkers(classDecl.getMarkers());
+                return classDecl.withMarkers(classDecl.getMarkers().searchResult());
             }
         };
     }
 
     @Override
     @NotNull
-    public JavaIsoVisitor<ExecutionContext> getVisitor() {
+    protected JavaIsoVisitor<ExecutionContext> getVisitor() {
         return new JavaIsoVisitor<>() {
             @Override
             @NotNull

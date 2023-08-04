@@ -17,7 +17,6 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.SourceFile;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -42,7 +41,7 @@ public class UpgradeDepenenciesMigrationTest {
                 .withBuildFileHavingDependencies("org.ehcache:ehcache")
                 .build();
 
-        System.out.println(context.getApplicationModules().getRootModule().getBuildFile().print());
+        System.out.println(context.getBuildFile().print());
 
         RecipeTestSupport.testRecipe(Path.of("recipes/27_30/migration/sbu30-upgrade-dependencies.yaml"), recipes -> {
             Recipe recipe = recipes.getRecipeByName("sbu30-upgrade-dependencies").get();
@@ -76,7 +75,7 @@ public class UpgradeDepenenciesMigrationTest {
                     </project>
                     """
             );
-            SourceFile document = MavenParser.builder().build().parse(modifiedPom).toList().get(0);
+            Xml.Document document = MavenParser.builder().build().parse(modifiedPom).get(0);
             assertThat(document).isNotNull();
         });
     }
