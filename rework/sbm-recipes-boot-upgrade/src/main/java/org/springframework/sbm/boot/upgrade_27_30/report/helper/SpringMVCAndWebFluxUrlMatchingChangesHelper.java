@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2023 the original author or authors.
+ * Copyright 2021 - 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,9 +53,7 @@ public class SpringMVCAndWebFluxUrlMatchingChangesHelper extends SpringBootUpgra
             return false;
         }
 
-        // FIXME: OR8.1 is this correct
-        boolean includeImplicit = true;
-        GenericOpenRewriteRecipe<UsesType<ExecutionContext>> usesTypeRecipe = new GenericOpenRewriteRecipe<>(() -> new UsesType<>(SPRING_REST_CONTROLLER_FQN, includeImplicit));
+        GenericOpenRewriteRecipe<UsesType<ExecutionContext>> usesTypeRecipe = new GenericOpenRewriteRecipe<>(() -> new UsesType<>(SPRING_REST_CONTROLLER_FQN));
 
         matches = context.getProjectJavaSources().find(usesTypeRecipe).stream()
                 .filter(m -> OpenRewriteJavaSource.class.isInstance(m))
