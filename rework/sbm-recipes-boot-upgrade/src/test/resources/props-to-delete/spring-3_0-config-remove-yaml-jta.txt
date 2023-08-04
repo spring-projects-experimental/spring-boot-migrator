@@ -1,0 +1,29 @@
+input:
+some:
+  other: "prop"
+spring:
+  jta:
+    transaction-manager-id: 1
+    log-dir: "/tmp"
+    atomikos:
+      properties:
+        transaction-manager-unique-name: "name1"
+        serial-jta-transactions: "transaction"
+        recovery:
+          retry-interval: 2
+          max-retries: 3
+          forget-orphaned-log-entries-delay: 4
+          delay: 5
+        max-timeout: 6
+        max-actives: 7
+        log-base-name: "/tmp1"
+        log-base-dir: "/tmp2"
+        force-shutdown-on-vm-exit: true
+        enable-logging: false
+        default-max-wait-time-on-shutdown: 8
+        default-jta-timeout: 9
+        checkpoint-interval: 10
+        allow-sub-transactions: true
+expected:
+some:
+  other: "prop"

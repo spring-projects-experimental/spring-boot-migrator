@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2023 the original author or authors.
+ * Copyright 2021 - 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.stereotype.Component;
 
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;

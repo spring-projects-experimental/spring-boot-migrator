@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2023 the original author or authors.
+ * Copyright 2021 - 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,6 @@ public class CrudRepositoryExtensionWithReferences extends Recipe {
         return "Extends CrudRepository for Interfaces that extends PagingAndSortingRepository";
     }
 
-    @Override
-    public String getDescription() {
-        return getDisplayName();
-    }
-
     public CrudRepositoryExtensionWithReferences() {
 
     }
@@ -60,7 +55,7 @@ public class CrudRepositoryExtensionWithReferences extends Recipe {
     private String pagingAndSortingRepository;
     private String targetCrudRepository;
 
-    // FIXME: OR8.1 visit is not called anymore
+    @Override
     protected List<SourceFile> visit(List<SourceFile> allSourceFiles, ExecutionContext ctx) {
 
         Set<String> classesToAddCrudRepository = new HashSet<>();
