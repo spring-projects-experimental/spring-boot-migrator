@@ -101,8 +101,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                                 )
                         )
                         .collect(Collectors.toList());
-                List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx).toList()
-                        .stream()
+                List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx)
                         .filter(Xml.Document.class::isInstance)
                         .map(Xml.Document.class::cast)
                         .toList();
@@ -771,7 +770,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 throw new IllegalStateException("Trying to upgrade parent version in '%s' failed, the parent does not exist and was null".formatted(getSourcePath()));
             }
             apply(
-                    new UpgradeParentVersion(parent.getGroupId(), parent.getArtifactId(), version, null, null)
+                    new UpgradeParentVersion(parent.getGroupId(), parent.getArtifactId(), version, null, List.of())
             );
         }
     }

@@ -48,35 +48,6 @@
     <!--		<tag>HEAD</tag>-->
     <!--	</scm>-->
 
-    <repositories>
-        <!--  OR Snapshots repo -->
-        <!--        <repository>-->
-        <!--            <id>rewrite-snapshots</id>-->
-        <!--            <name>rewrite-snapshots</name>-->
-        <!--            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
-        <!--        </repository>-->
-        <repository>
-            <id>jcenter</id>
-            <name>jcenter</name>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-        <repository>
-            <id>mavencentral</id>
-            <name>mavencentral</name>
-            <url>https://repo.maven.apache.org/maven2</url>
-        </repository>
-        <!-- TODO: remove after b umping testcontainers to > 1.17.1 -->
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-        <repository>
-            <id>repository.spring.milestone</id>
-            <name>Spring Milestone Repository</name>
-            <url>https://repo.spring.io/milestone</url>
-        </repository>
-    </repositories>
-
     <modules>
         <!-- <module>components/sbm-utils</module> -->
         <module>components/sbm-openrewrite</module>
@@ -224,43 +195,6 @@
                 <artifactId>rewrite-migrate-java</artifactId>
                 <version>${rewrite-migrate-java.version}</version>
             </dependency>
-            <!-- shrinkwrap -->
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-api</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-spi</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-api-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-spi-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-bom</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-                <type>pom</type>
-            </dependency>
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
@@ -299,7 +233,7 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-support-rewrite</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${sbm-support-rewrite.version}</version>
         </dependency>
     </dependencies>
     <build>

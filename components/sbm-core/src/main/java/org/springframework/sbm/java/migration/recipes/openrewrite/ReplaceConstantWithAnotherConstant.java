@@ -107,7 +107,6 @@ public class ReplaceConstantWithAnotherConstant extends Recipe {
                         .apply(getCursor(), ident.getCoordinates().replace())
                         .withPrefix(ident.getPrefix());
             }
-
             return super.visitIdentifier(ident, executionContext);
         }
 
