@@ -332,13 +332,13 @@
         <!--        <module>components/sbm-recipes-spring-framework</module>-->
         <!--        <module>components/sbm-recipes-jee-to-boot</module>-->
         <!--        <module>components/sbm-recipes-mule-to-boot</module>-->
-        <!--        <module>components/sbm-support-boot</module>-->
         <!--        <module>components/sbm-support-weblogic</module>-->
         <!--        <module>components/sbm-support-jee</module>-->
+        <module>sbm-support-boot</module>
         <module>sbm-openrewrite</module>
         <module>sbm-core</module>
         <module>test-helper</module>
-<!--        <module>components/recipe-test-support</module>-->
+        <module>recipe-test-support</module>
     </modules>
     <build>
         <finalName>${jar.name}</finalName>
