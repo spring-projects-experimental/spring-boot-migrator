@@ -55,7 +55,8 @@ public class ConstructorBindingHelper extends SpringBootUpgradeReportSectionHelp
         }
 
         GenericOpenRewriteRecipe<TreeVisitor<?, ExecutionContext>> recipe =
-                new GenericOpenRewriteRecipe<>(() -> new UsesType("org.springframework.boot.context.properties.ConstructorBinding"));
+                // FIXME: OR8.1 - is 'true' correct here?
+                new GenericOpenRewriteRecipe<>(() -> new UsesType("org.springframework.boot.context.properties.ConstructorBinding", true));
 
         List<RewriteSourceFileHolder<J.CompilationUnit>> rewriteSourceFileHolders =
                 context.getProjectJavaSources().find(recipe);
