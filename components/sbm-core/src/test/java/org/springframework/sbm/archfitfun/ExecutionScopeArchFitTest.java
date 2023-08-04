@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.sbm.build.impl.MavenSettingsInitializer;
-import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
@@ -52,6 +51,7 @@ import org.springframework.sbm.scopes.*;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
+import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

@@ -97,7 +97,7 @@ public class ResourceParser {
     public List<SourceFile> parse(Path baseDir, List<Resource> relevantResources, List<Marker> markers) {
         List<Parser.Input> parserInputs = createParserInputs(relevantResources);
 
-        HashMap<Parser<? extends SourceFile>, List<Parser.Input>> parserAndParserInputMappings = new LinkedHashMap();
+        HashMap<Parser, List<Parser.Input>> parserAndParserInputMappings = new LinkedHashMap();
         parserAndParserInputMappings.put(jsonParser, new ArrayList<>());
         parserAndParserInputMappings.put(xmlParser, new ArrayList<>());
         parserAndParserInputMappings.put(yamlParser, new ArrayList<>());
@@ -128,7 +128,7 @@ public class ResourceParser {
     }
 
     @NotNull
-    private Function<Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>>, ? extends List<? extends SourceFile>> parseEntry(Path baseDir, ParsingExecutionContextView ctx) {
+    private Function<Map.Entry<Parser, List<Parser.Input>>, ? extends List<? extends SourceFile>> parseEntry(Path baseDir, ParsingExecutionContextView ctx) {
         return e -> {
             Stream<SourceFile> sourceFileStream = getSourceFileStream(baseDir, ctx, e);
             return sourceFileStream.toList();
@@ -136,7 +136,7 @@ public class ResourceParser {
     }
 
     @NotNull
-    private Stream<SourceFile> getSourceFileStream(Path baseDir, ExecutionContext ctx, Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>> e) {
+    private Stream<SourceFile> getSourceFileStream(Path baseDir, ExecutionContext ctx, Map.Entry<Parser, List<Parser.Input>> e) {
         return e
                 .getValue()
                 .stream()
@@ -145,9 +145,9 @@ public class ResourceParser {
                 .flatMap(List::stream);
     }
 
-    private List<? extends SourceFile> parseSingleResource(Path baseDir, ExecutionContext ctx, Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>> e, Parser.Input resource) {
+    private List<SourceFile> parseSingleResource(Path baseDir, ExecutionContext ctx, Map.Entry<Parser, List<Parser.Input>> e, Parser.Input resource) {
         try {
-            return e.getKey().parseInputs(List.of(resource), baseDir, ctx);
+            return e.getKey().parseInputs(List.of(resource), baseDir, ctx).toList();
         } catch(Exception ex) {
             if(resource.getPath().toString().contains("src/test/resources")) {
                 log.error("Could not parse resource '%s' using parser %s. Exception was: %s".formatted(resource.getPath(), e.getKey().getClass().getName(), ex.getMessage()));
@@ -159,7 +159,7 @@ public class ResourceParser {
     }
 
     @NotNull
-    private Predicate<Map.Entry<Parser<? extends SourceFile>, List<Parser.Input>>> ifNoInput() {
+    private Predicate<Map.Entry<Parser, List<Parser.Input>>> ifNoInput() {
         return e -> !e.getValue().isEmpty();
     }
 

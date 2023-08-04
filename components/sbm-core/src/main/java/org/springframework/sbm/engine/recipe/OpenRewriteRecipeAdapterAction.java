@@ -17,20 +17,18 @@
 package org.springframework.sbm.engine.recipe;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.context.ProjectContext;
 
 import java.util.List;
 
 @Slf4j
-@AllArgsConstructor
-@SuperBuilder
 public class OpenRewriteRecipeAdapterAction extends AbstractAction {
 
     private final Recipe recipe;
@@ -38,6 +36,9 @@ public class OpenRewriteRecipeAdapterAction extends AbstractAction {
     @JsonIgnore
     @Autowired
     private RewriteMigrationResultMerger resultMerger;
+    @JsonIgnore
+    @Autowired
+    private ExecutionContext executionContext;
 
     @Override
     public boolean isApplicable(ProjectContext context) {
@@ -70,7 +71,8 @@ public class OpenRewriteRecipeAdapterAction extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
         List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles).getResults();
+        InMemoryLargeSourceSet largeSourceSet = new InMemoryLargeSourceSet(rewriteSourceFiles.stream().map(SourceFile.class::cast).toList());
+        List<Result> results = recipe.run(largeSourceSet, executionContext).getChangeset().getAllResults();
         resultMerger.mergeResults(context, results);
     }
 
