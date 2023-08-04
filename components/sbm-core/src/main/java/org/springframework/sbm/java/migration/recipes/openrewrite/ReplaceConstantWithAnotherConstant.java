@@ -48,13 +48,9 @@ public class ReplaceConstantWithAnotherConstant extends Recipe {
     }
 
     @Override
-    protected TreeVisitor<?, ExecutionContext> getSingleSourceApplicableTest() {
-        return new UsesType<>(existingFullyQualifiedConstantName.substring(0,existingFullyQualifiedConstantName.lastIndexOf('.')));
-    }
-
-    @Override
-    public JavaVisitor<ExecutionContext> getVisitor() {
-        return new ReplaceConstantWithAnotherConstantVisitor(existingFullyQualifiedConstantName, fullyQualifiedConstantName);
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
+        String fqName = existingFullyQualifiedConstantName.substring(0, existingFullyQualifiedConstantName.lastIndexOf('.'));
+        return Preconditions.check(new UsesType<>(fqName, true), new ReplaceConstantWithAnotherConstantVisitor(existingFullyQualifiedConstantName, fullyQualifiedConstantName));
     }
 
     private static class ReplaceConstantWithAnotherConstantVisitor extends JavaVisitor<ExecutionContext> {
@@ -79,11 +75,10 @@ public class ReplaceConstantWithAnotherConstant extends Recipe {
                     maybeRemoveImport(existingOwningType.substring(0, existingOwningType.indexOf('$')));
                 }
                 maybeAddImport(owningType, false);
-                return fieldAccess
-                        .withTemplate(
-                                JavaTemplate.builder(this::getCursor, template).imports(owningType).build(),
-                                fieldAccess.getCoordinates().replace())
-                        .withPrefix(fieldAccess.getPrefix());
+                JavaTemplate javaTemplate = JavaTemplate.builder(template)
+                        .imports(owningType)
+                        .build();
+                return javaTemplate.apply(getCursor(), fieldAccess.getCoordinates().replace()).withPrefix(fieldAccess.getPrefix());
             }
             return super.visitFieldAccess(fieldAccess, executionContext);
         }
@@ -93,11 +88,9 @@ public class ReplaceConstantWithAnotherConstant extends Recipe {
             if (isConstant(ident.getFieldType()) && !isVariableDeclaration()) {
                 maybeRemoveImport(existingOwningType);
                 maybeAddImport(owningType, false);
-                return ident
-                        .withTemplate(
-                                JavaTemplate.builder(this::getCursor, template).imports(owningType).build(),
-                                ident.getCoordinates().replace())
-                        .withPrefix(ident.getPrefix());
+
+                JavaTemplate javaTemplate = JavaTemplate.builder(template).imports(owningType).build();
+                return javaTemplate.apply(getCursor(), ident.getCoordinates().replace()).withPrefix(ident.getPrefix());
             }
             return super.visitIdentifier(ident, executionContext);
         }

@@ -22,11 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.common.filter.AbsolutePathResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
+import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -48,22 +50,50 @@ public class RewriteMigrationResultMerger {
         });
     }
 
-    private void handleDeleted(ProjectContext context, SourceFile before) {
-        Path path = context.getProjectRootDirectory().resolve(before.getSourcePath());
-        RewriteSourceFileHolder<? extends SourceFile> filteredResources = context.search(new AbsolutePathResourceFinder(path)).get();
-        filteredResources.delete();
+    public void mergeResults(ProjectResourceSet resourceSet, List<Result> results) {
+        results.forEach(result -> {
+            SourceFile after = result.getAfter();
+            SourceFile before = result.getBefore();
+            if (after == null) {
+                handleDeleted(resourceSet, before);
+            } else if (before == null) {
+                handleAdded(resourceSet, after);
+            } else {
+                handleModified(resourceSet, after);
+            }
+        });
     }
 
-    private void handleModified(ProjectContext context, SourceFile after) {
-        Path path = context.getProjectRootDirectory().resolve(after.getSourcePath());
-        RewriteSourceFileHolder<? extends SourceFile> filteredResources = context.search(new AbsolutePathResourceFinder(path)).get();
-        // TODO: handle situations where resource is not rewriteSourceFileHolder -> use predicates for known types to reuse, alternatively using the ProjectContextBuiltEvent might help
-        replaceWrappedResource(filteredResources, after);
+    private void handleDeleted(ProjectContext context, SourceFile before) {
+        handleDeleted(context.getProjectResources(), before);
+    }
+
+    private void handleDeleted(ProjectResourceSet resourceSet, SourceFile before) {
+        Path path = resourceSet.list().get(0).getAbsoluteProjectDir().resolve(before.getSourcePath());
+        Optional<RewriteSourceFileHolder<? extends SourceFile>> match = new AbsolutePathResourceFinder(path).apply(resourceSet);
+        match.get().delete();
     }
 
     private void handleAdded(ProjectContext context, SourceFile after) {
-        RewriteSourceFileHolder<? extends SourceFile> modifiableProjectResource = surceFileWrapper.wrapRewriteSourceFiles(context.getProjectRootDirectory(), List.of(after)).get(0);
-        context.getProjectResources().add(modifiableProjectResource);
+        handleAdded(context.getProjectResources(), after);
+    }
+
+    private void handleAdded(ProjectResourceSet resourceSet, SourceFile after) {
+        RewriteSourceFileHolder<? extends SourceFile> modifiableProjectResource = surceFileWrapper.wrapRewriteSourceFiles(resourceSet.list().get(0).getAbsoluteProjectDir(), List.of(after)).get(0);
+        resourceSet.add(modifiableProjectResource);
+    }
+
+    private void handleModified(ProjectResourceSet resourceSet, SourceFile after) {
+        Path absoluteProjectDir = resourceSet.list().get(0).getAbsoluteProjectDir();
+        Path path = absoluteProjectDir.resolve(after.getSourcePath());
+        Optional<RewriteSourceFileHolder<? extends SourceFile>> match = new AbsolutePathResourceFinder(path).apply(resourceSet);
+        RewriteSourceFileHolder<? extends SourceFile> modifiableProjectResource = surceFileWrapper.wrapRewriteSourceFiles(absoluteProjectDir, List.of(after)).get(0);
+        // TODO: handle situations where resource is not rewriteSourceFileHolder -> use predicates for known types to reuse, alternatively using the ProjectContextBuiltEvent might help
+        replaceWrappedResource(modifiableProjectResource, after);
+    }
+
+    private void handleModified(ProjectContext context, SourceFile after) {
+        handleModified(context.getProjectResources(), after);
     }
 
     private <T extends SourceFile> void replaceWrappedResource(RewriteSourceFileHolder<T> resource, SourceFile r) {

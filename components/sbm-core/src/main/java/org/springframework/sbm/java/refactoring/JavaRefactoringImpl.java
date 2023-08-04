@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.java.refactoring;
 
+import org.openrewrite.java.tree.JavaType;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
@@ -27,6 +28,7 @@ import org.openrewrite.java.tree.J;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JavaRefactoringImpl extends JavaGlobalRefactoringImpl implements JavaRefactoring {
 
@@ -47,16 +49,14 @@ public class JavaRefactoringImpl extends JavaGlobalRefactoringImpl implements Ja
 
     @Override
     public void refactor(RewriteSourceFileHolder<J.CompilationUnit> resourceWrapper, JavaVisitor<ExecutionContext>... visitors) {
-        Recipe recipe = createRecipeChainFromVisitors(visitors);
+        List<Recipe> recipes = createRecipeChainFromVisitors(visitors);
         List<J.CompilationUnit> compilationUnits = List.of(resourceWrapper.getSourceFile());
-        runRecipe(compilationUnits, recipe);
+        refactor(resourceWrapper, recipes.toArray(new Recipe[]{}));
     }
 
     @Override
     public void refactor(RewriteSourceFileHolder<J.CompilationUnit> resourceWrapper, Recipe... recipes) {
-        Recipe recipe = chainRecipes(List.of(recipes));
-        List<J.CompilationUnit> compilationUnits = List.of(resourceWrapper.getSourceFile());
-        runRecipe(compilationUnits, recipe);
+        Stream.of(recipes).forEach(r -> refactor(resourceWrapper, r));
     }
 
     @Override
@@ -69,25 +69,10 @@ public class JavaRefactoringImpl extends JavaGlobalRefactoringImpl implements Ja
         processResults(results);
     }
 
-    private Recipe createRecipeChainFromVisitors(JavaVisitor<ExecutionContext>[] visitors) {
-        Recipe recipe = null;
-        List<Recipe> recipes = Arrays.stream(visitors)
+    private List<Recipe> createRecipeChainFromVisitors(JavaVisitor<ExecutionContext>[] visitors) {
+        return Arrays.stream(visitors)
                 .map(v -> new GenericOpenRewriteRecipe(() -> v))
                 .collect(Collectors.toList());
-        recipe = chainRecipes(recipes);
-        return recipe;
     }
-
-    private Recipe chainRecipes(List<Recipe> recipes) {
-        Recipe recipe = null;
-        if (!recipes.isEmpty()) {
-            recipe = recipes.get(0);
-            for (int i = 1; i < recipes.size(); i++) {
-                recipe.doNext(recipes.get(i));
-            }
-        }
-        return recipe;
-    }
-
 
 }

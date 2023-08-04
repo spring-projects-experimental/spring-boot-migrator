@@ -16,6 +16,7 @@
 package org.springframework.sbm.java.impl;
 
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.SourceFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -50,16 +52,17 @@ public class DependenciesChangedEventHandler {
             List<Parser.Input> compilationUnits = new ArrayList<>(compilationUnitsSet);
 
             Path projectRootDirectory = projectContextHolder.getProjectContext().getProjectRootDirectory();
-            javaParser.setSourceSet("main");
-            javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
 
-            List<J.CompilationUnit> parsedCompilationUnits = javaParser.parseInputs(compilationUnits, null, executionContext);
+            Stream<SourceFile> parsedCompilationUnits = javaParser.parseInputs(compilationUnits, null, executionContext);
             // ((J.VariableDeclarations)parsedCompilationUnits.get(0).getClasses().get(0).getBody().getStatements().get(0)).getLeadingAnnotations().get(0).getType()
-            parsedCompilationUnits.forEach(cu -> {
-                projectContextHolder.getProjectContext().getProjectJavaSources().stream()
-                        .filter(js -> js.getResource().getAbsolutePath().equals(projectRootDirectory.resolve(cu.getSourcePath()).normalize()))
-                        .forEach(js -> js.getResource().replaceWith(cu));
-            });
+            parsedCompilationUnits
+                    .filter(J.CompilationUnit.class::isInstance)
+                    .map(J.CompilationUnit.class::cast)
+                    .forEach(cu -> {
+                        projectContextHolder.getProjectContext().getProjectJavaSources().stream()
+                                .filter(js -> js.getResource().getAbsolutePath().equals(projectRootDirectory.resolve(cu.getSourcePath()).normalize()))
+                                .forEach(js -> js.getResource().replaceWith(cu));
+                    });
         }
     }
 }

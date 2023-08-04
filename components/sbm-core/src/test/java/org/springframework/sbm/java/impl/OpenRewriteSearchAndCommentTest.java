@@ -15,6 +15,8 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
@@ -52,7 +54,7 @@ class OpenRewriteSearchAndCommentTest {
         String markerText = "marker text";
 
         JavaParser javaParser = new RewriteJavaParser(new SbmApplicationProperties(), executionContext);
-        OpenRewriteRecipeJavaSearch sut = new OpenRewriteRecipeJavaSearch(compilationUnits -> new FindAnnotations("@java.lang.Deprecated", false).run(compilationUnits).getResults(), javaParser,
+        OpenRewriteRecipeJavaSearch sut = new OpenRewriteRecipeJavaSearch(compilationUnits -> new FindAnnotations("@java.lang.Deprecated", false).run(new InMemoryLargeSourceSet(compilationUnits.stream().map(SourceFile.class::cast).toList()), executionContext).getChangeset().getAllResults(), javaParser,
                                                                           executionContext);
 
         sut.commentFindings(projectContext.getProjectJavaSources().list(), markerText);

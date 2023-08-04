@@ -19,6 +19,7 @@ import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.java.api.Annotation;
 import org.springframework.sbm.java.api.MethodParam;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
@@ -40,14 +41,14 @@ public class OpenRewriteMethodParam implements MethodParam {
     private final Statement wrappedMethodParam;
 
     private final JavaRefactoring refactoring;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
 
-    public OpenRewriteMethodParam(RewriteSourceFileHolder<J.CompilationUnit> sourceFile, Statement statement, JavaRefactoring refactoring, JavaParser javaParser, ExecutionContext executionContext) {
+    public OpenRewriteMethodParam(RewriteSourceFileHolder<J.CompilationUnit> sourceFile, Statement statement, JavaRefactoring refactoring, JavaParserBuilder javaParserBuilder, ExecutionContext executionContext) {
         wrappedMethodParam = statement;
         this.sourceFile = sourceFile;
         this.refactoring = refactoring;
-        this.javaParser = javaParser;
+        this.javaParserBuilder = javaParserBuilder;
         this.executionContext = executionContext;
     }
 
@@ -55,7 +56,7 @@ public class OpenRewriteMethodParam implements MethodParam {
     public List<Annotation> getAnnotations() {
         if (wrappedMethodParam instanceof J.VariableDeclarations) {
             return ((J.VariableDeclarations) wrappedMethodParam).getLeadingAnnotations().stream()
-                    .map(a -> new OpenRewriteAnnotation(a, refactoring, javaParser))
+                    .map(a -> new OpenRewriteAnnotation(a, refactoring, javaParserBuilder))
                     .collect(Collectors.toList());
         }
         return List.of();
@@ -69,8 +70,7 @@ public class OpenRewriteMethodParam implements MethodParam {
 
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
-        JavaParser javaParser = JavaParserFactory.getCurrentJavaParser(executionContext);
-        AddAnnotationVisitor visitor = new AddAnnotationVisitor(() -> javaParser, wrappedMethodParam, snippet, annotationImport, otherImports);
+        AddAnnotationVisitor visitor = new AddAnnotationVisitor(javaParserBuilder, wrappedMethodParam, snippet, annotationImport, otherImports);
         refactoring.refactor(sourceFile, visitor);
     }
 

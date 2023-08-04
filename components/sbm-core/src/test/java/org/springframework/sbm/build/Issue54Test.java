@@ -81,7 +81,7 @@ public class Issue54Test {
                         </project>
                         """;
 
-        List<Xml.Document> poms = MavenParser.builder().build().parse(pomA, pomB);
+        List<Xml.Document> poms = MavenParser.builder().build().parse(pomA, pomB).map(Xml.Document.class::cast).toList();
 
         assertThat(
                 poms.get(1).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getProperties().get("boolean-variable")
@@ -142,7 +142,7 @@ public class Issue54Test {
                 </project>
                 """;
 
-        List<Xml.Document> poms = MavenParser.builder().build().parse(pomA, pomB);
+        List<Xml.Document> poms = MavenParser.builder().build().parse(pomA, pomB).map(Xml.Document.class::cast).toList();
 
         assertThat(poms
                            .get(1)

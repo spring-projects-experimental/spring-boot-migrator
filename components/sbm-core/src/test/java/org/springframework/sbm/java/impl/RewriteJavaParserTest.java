@@ -48,7 +48,7 @@ public class RewriteJavaParserTest {
         ExecutionContext executionContext = new RewriteExecutionContext((t) -> t.printStackTrace());
         RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(sbmApplicationProperties, executionContext);
         sysOutBuffer.reset();
-        List<J.CompilationUnit> parsed = rewriteJavaParser.parse(executionContext, "public class Broken Class {}");
+        List<J.CompilationUnit> parsed = rewriteJavaParser.parse(executionContext, "public class Broken Class {}").map(J.CompilationUnit.class::cast).toList();
 
         String out = sysOutBuffer.toString();
         System.setOut(realSysOut);
