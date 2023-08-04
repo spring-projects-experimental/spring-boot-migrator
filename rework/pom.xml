@@ -327,13 +327,13 @@
         <!--        <module>applications/spring-shell</module>-->
         <!--        <module>applications/spring-boot-upgrade</module>-->
         <!--        <module>components/openrewrite-spring-recipes</module>-->
-        <!--        <module>components/sbm-recipes-boot-upgrade</module>-->
         <!--        <module>components/sbm-recipes-spring-cloud</module>-->
         <!--        <module>components/sbm-recipes-spring-framework</module>-->
         <!--        <module>components/sbm-recipes-jee-to-boot</module>-->
         <!--        <module>components/sbm-recipes-mule-to-boot</module>-->
         <!--        <module>components/sbm-support-weblogic</module>-->
         <!--        <module>components/sbm-support-jee</module>-->
+        <module>sbm-recipes-boot-upgrade</module>
         <module>sbm-support-boot</module>
         <module>sbm-openrewrite</module>
         <module>sbm-core</module>

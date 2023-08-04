@@ -43,11 +43,6 @@ public class CrudRepositoryExtensionWithReferences extends Recipe {
         return "Extends CrudRepository for Interfaces that extends PagingAndSortingRepository";
     }
 
-    @Override
-    public String getDescription() {
-        return getDisplayName();
-    }
-
     public CrudRepositoryExtensionWithReferences() {
 
     }
@@ -60,7 +55,7 @@ public class CrudRepositoryExtensionWithReferences extends Recipe {
     private String pagingAndSortingRepository;
     private String targetCrudRepository;
 
-    // FIXME: OR8.1 visit is not called anymore
+    @Override
     protected List<SourceFile> visit(List<SourceFile> allSourceFiles, ExecutionContext ctx) {
 
         Set<String> classesToAddCrudRepository = new HashSet<>();
