@@ -1,0 +1,52 @@
+- name: migrate-jms
+  description: Convert JEE JMS app into Spring Boot JMS app
+  condition:
+    description: Any class has import starting with javax.ws.rs
+    type: org.springframework.sbm.java.migration.conditions.HasImportStartingWith
+    value: javax.jms
+  actions:
+    - type: org.springframework.sbm.build.migration.actions.AddDependencies
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoExactDependencyExist
+        dependency:
+          groupId: org.springframework.boot
+          artifactId: spring-boot-starter-activemq
+      dependencies:
+        - groupId: org.springframework.boot
+          artifactId: spring-boot-starter-activemq
+          version: 2.3.4.RELEASE
+      description: Add spring-boot-starter-activemq dependency to build file.
+      detailedDescription: |-
+        This code snippet is going to be added to the <dependencies> section in pom.xml
+
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-activemq</groupId>
+          </dependency>
+
+    - type: org.springframework.sbm.jee.jms.actions.AddJmsConfigAction
+      condition:
+        type: org.springframework.sbm.java.migration.conditions.HasNoTypeAnnotation
+        annotation: 'org.springframework.jms.annotation.EnableJms'
+      description: Add a JmsListenerContainerFactory bean definition.
+      detailedDescription: |-
+        Add a JmsListenerContainerFactory bean definition
+
+        public class JmsConfig {
+
+            @Bean
+            public JmsListenerContainerFactory<?> jmsListenerContainerFactory(
+                   ConnectionFactory connectionFactory,
+                   DefaultJmsListenerContainerFactoryConfigurer configurer) {
+                DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+                configurer.configure(factory, connectionFactory);
+                return factory;
+            }
+        }
+
+    - type: org.springframework.sbm.jee.jms.actions.ReplaceMdbAnnotationWithJmsListener
+      condition:
+        type: org.springframework.sbm.java.migration.conditions.HasTypeAnnotation
+        annotation: 'javax.ejb.MessageDriven'
+      description: Replace EJB MessageDriven annotation with Spring JmsListener annotation.
+

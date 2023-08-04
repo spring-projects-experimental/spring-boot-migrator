@@ -1,0 +1,98 @@
+<!--
+  ~ Copyright 2021 - 2022 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://superbiz.org/wsdl"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  name="CalculatorService" targetNamespace="http://superbiz.org/wsdl">
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://superbiz.org/wsdl" elementFormDefault="unqualified" targetNamespace="http://superbiz.org/wsdl" version="1.0">
+            <xs:element name="multiply" type="tns:multiply"/>
+            <xs:element name="multiplyResponse" type="tns:multiplyResponse"/>
+            <xs:element name="sum" type="tns:sum"/>
+            <xs:element name="sumResponse" type="tns:sumResponse"/>
+            <xs:complexType name="sum">
+                <xs:sequence>
+                    <xs:element name="arg0" type="xs:int"/>
+                    <xs:element name="arg1" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="sumResponse">
+                <xs:sequence>
+                    <xs:element name="return" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="multiply">
+                <xs:sequence>
+                    <xs:element name="arg0" type="xs:int"/>
+                    <xs:element name="arg1" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="multiplyResponse">
+                <xs:sequence>
+                    <xs:element name="return" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="multiplyResponse">
+        <wsdl:part element="tns:multiplyResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="sum">
+        <wsdl:part element="tns:sum" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="sumResponse">
+        <wsdl:part element="tns:sumResponse" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="multiply">
+        <wsdl:part element="tns:multiply" name="parameters"> </wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="CalculatorWs">
+        <wsdl:operation name="sum">
+            <wsdl:input message="tns:sum" name="sum"> </wsdl:input>
+            <wsdl:output message="tns:sumResponse" name="sumResponse"> </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="multiply">
+            <wsdl:input message="tns:multiply" name="multiply"> </wsdl:input>
+            <wsdl:output message="tns:multiplyResponse" name="multiplyResponse"> </wsdl:output>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="CalculatorServiceSoapBinding" type="tns:CalculatorWs">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="sum">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="sum">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="sumResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="multiply">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="multiply">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="multiplyResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="CalculatorService">
+        <wsdl:port binding="tns:CalculatorServiceSoapBinding" name="CalculatorPort">
+            <soap:address location="http://localhost:52534/simple-webservice/Calculator"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
