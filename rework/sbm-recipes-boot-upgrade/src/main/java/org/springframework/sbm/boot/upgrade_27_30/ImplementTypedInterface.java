@@ -52,7 +52,10 @@ public class ImplementTypedInterface<P> extends JavaIsoVisitor<P> {
 
             TypeTree type = TypeTree.build(classDecl.getSimpleName().equals(this.interfaceType.getClassName()) ? this.interfaceType.getFullyQualifiedName() : this.interfaceType.getClassName()).withType(this.interfaceType).withPrefix(Space.format(" "));
             if (typeParameters != null && !typeParameters.isEmpty() && typeParameters.stream().noneMatch(tp -> tp instanceof JavaType.GenericTypeVariable)) {
-                type = new J.ParameterizedType(UUID.randomUUID(), Space.EMPTY, Markers.EMPTY, type, buildTypeParameters(typeParameters));
+                // FIX: OR8.1
+                NameTree clazz = null;
+                JavaType javaType = null;
+                type = new J.ParameterizedType(UUID.randomUUID(), Space.EMPTY, Markers.EMPTY, clazz, buildTypeParameters(typeParameters), /*type*/ javaType);
             }
             c = c.withImplements(ListUtils.concat(c.getImplements(), type));
             JContainer<TypeTree> anImplements = c.getPadding().getImplements();
@@ -106,12 +109,16 @@ public class ImplementTypedInterface<P> extends JavaIsoVisitor<P> {
                     //expression for the fully-qualified type.
                     return null;
                 }
+                // FIXME: OR8.1
+                NameTree clazz = null;
                 return new J.ParameterizedType(
                         Tree.randomId(),
                         space,
                         Markers.EMPTY,
-                        identifier,
-                        typeParameters
+                        clazz,
+                        typeParameters,
+                        type
+                        /*identifier*/
                 );
 
             } else {
