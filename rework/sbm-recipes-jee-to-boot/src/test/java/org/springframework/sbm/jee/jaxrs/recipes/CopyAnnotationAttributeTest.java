@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2023 the original author or authors.
+ * Copyright 2021 - 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -179,7 +179,7 @@ class CopyAnnotationAttributeTest {
         String sourceCode = """                
                 import org.springframework.web.bind.annotation.RequestParam;
                 import javax.ws.rs.DefaultValue;
-                import jakarta.validation.constraints.NotNull;
+                import javax.validation.constraints.NotNull;
                                 
                 class ControllerClass {
                     public String test(@RequestParam(value = "q") @NotNull @DefaultValue("default-value") String searchString) {
@@ -191,7 +191,7 @@ class CopyAnnotationAttributeTest {
         String expected = """
                 import org.springframework.web.bind.annotation.RequestParam;
                 import javax.ws.rs.DefaultValue;
-                import jakarta.validation.constraints.NotNull;
+                import javax.validation.constraints.NotNull;
                                 
                 class ControllerClass {
                     public String test(@RequestParam(defaultValue = "default-value", value = "q") @NotNull @DefaultValue("default-value") String searchString) {
