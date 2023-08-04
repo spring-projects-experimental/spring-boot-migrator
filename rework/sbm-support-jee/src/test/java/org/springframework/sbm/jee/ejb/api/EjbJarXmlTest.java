@@ -153,7 +153,7 @@ class EjbJarXmlTest {
                 "</ejb-jar>";
 
         Path sourcePath = Path.of("some/path/ejb-jar.xml");
-        Xml.Document xml = new XmlParser().parse(ejbJarXmlContent).get(0);
+        Xml.Document xml = (Xml.Document) new XmlParser().parse(ejbJarXmlContent).toList().get(0);
         EjbJarXml jeeEjbJarXmlProjectResourceRegistrar = new EjbJarXml(sourcePath, xml);
         EjbJarType ejbJarType = jeeEjbJarXmlProjectResourceRegistrar.unmarshal(ejbJarXmlContent);
         Assertions.assertThat(ejbJarType).isNotNull();
