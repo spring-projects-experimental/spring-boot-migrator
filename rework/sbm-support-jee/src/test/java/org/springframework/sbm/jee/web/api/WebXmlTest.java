@@ -82,7 +82,7 @@ public class WebXmlTest {
                   </servlet-mapping>
                 </web-app>
                 """;
-        Xml.Document document = new XmlParser().parse(webXmlSource).toList().get(0).withSourcePath(Path.of("src/main/webapp/WEB-INF/web.xml"));
+        Xml.Document document = new XmlParser().parse(webXmlSource).get(0).withSourcePath(Path.of("src/main/webapp/WEB-INF/web.xml"));
         WebXml webXml = new WebXml(Path.of("test-path").toAbsolutePath(), document);
         List<ServletDefinition> servletDefinitions = webXml.getServletDefinitions();
 
@@ -141,7 +141,7 @@ public class WebXmlTest {
     }
 
     private WebXml createWebXml(Path absoluteProjectDir) throws JAXBException {
-        Xml.Document document = new XmlParser().parse(CONTENT).toList().get(0).withSourcePath(Path.of("src/main/webapp/WEB-INF/web.xml"));
+        Xml.Document document = new XmlParser().parse(CONTENT).get(0).withSourcePath(Path.of("src/main/webapp/WEB-INF/web.xml"));
         return new WebXml(absoluteProjectDir, document);
     }
 
