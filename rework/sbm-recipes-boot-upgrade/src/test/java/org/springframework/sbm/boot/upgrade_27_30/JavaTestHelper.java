@@ -20,8 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
-import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.test.RewriteTest;
@@ -57,9 +55,9 @@ public class JavaTestHelper {
                 .dependsOn(dependsOn.toArray(new String[0]))
                 .build();
 
-        List<SourceFile> cu = parser.parse(before).toList();
+        List<J.CompilationUnit> cu = parser.parse(before);
 
-        List<Result> result = recipe.run(new InMemoryLargeSourceSet(cu), ctx).getChangeset().getAllResults();
+        List<Result> result = recipe.run(cu, ctx).getResults();
 
         assertThat(errors).hasSize(0);
         return result;
