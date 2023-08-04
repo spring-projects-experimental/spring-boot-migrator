@@ -27,7 +27,7 @@ import org.openrewrite.java.AddImport;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.RemoveUnusedImports;
-import org.openrewrite.java.cleanup.RemoveUnusedLocalVariables;
+// FIXME: OR8.1 -> import org.openrewrite.java.cleanup.RemoveUnusedLocalVariables;
 import org.openrewrite.java.format.AutoFormat;
 import org.openrewrite.java.tree.*;
 
@@ -47,11 +47,18 @@ public class MigrateJndiLookup extends AbstractAction {
     }
 
     private void migrateJndiLookup(JavaSource sourceWithLookup) {
-        Recipe recipe = new GenericOpenRewriteRecipe<>(() -> new MigrateJndiLookupVisitor())
-                .doNext(new RemoveUnusedLocalVariables(null))
-                .doNext(new RemoveUnusedImports())
-                .doNext(new GenericOpenRewriteRecipe<>(() -> new AddImport<>("org.springframework.beans.factory.annotation.Autowired", null, false)))
-                .doNext(new AutoFormat());
+        // FIXME: OR8.1 no idea if this works?
+        Recipe recipe = new GenericOpenRewriteRecipe<>(
+                "Migrate JNDI lookup",
+                new GenericOpenRewriteRecipe<>(() -> new MigrateJndiLookupVisitor()),
+                 // FIXME: OR8.1 - does not exist anymore?!
+                 //new RemoveUnusedLocalVariables(null),
+                new RemoveUnusedImports(),
+                new GenericOpenRewriteRecipe<>(() -> {
+                    return new AddImport<>("org.springframework.beans.factory.annotation.Autowired", null, false);
+                }),
+                new AutoFormat()
+        );
 
         sourceWithLookup.apply(recipe);
     }
@@ -140,8 +147,8 @@ public class MigrateJndiLookup extends AbstractAction {
             J.VariableDeclarations variable = matchFound.getMultiVariable();
             JavaType.Class type = (JavaType.Class) variable.getTypeExpression().getType();
             String variableName = variable.getVariables().get(0).getSimpleName();
-            JavaTemplate javaTemplate = JavaTemplate.builder(() -> getCursor(), "@Autowired\nprivate " + type.getClassName() + " " + variableName).build();
-            J.Block result = body.withTemplate(javaTemplate, body.getCoordinates().lastStatement());
+            JavaTemplate javaTemplate = JavaTemplate.builder("@Autowired\nprivate " + type.getClassName() + " " + variableName).build();
+            J.Block result = javaTemplate.apply(getCursor(), body.getCoordinates().lastStatement());
             List<Statement> statements1 = result.getStatements();
             Statement statement = statements1.get(statements1.size() - 1);
             statements1.remove(statement);
