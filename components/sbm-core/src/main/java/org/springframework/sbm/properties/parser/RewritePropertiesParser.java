@@ -33,7 +33,7 @@ public class RewritePropertiesParser extends PropertiesParser {
     }
 
     public RewriteSourceFileHolder<Properties.File> parse(Path projectRoot, Path resourcePath, String resourceContent) {
-        Properties.File parse = wrappedParser.parse(resourceContent).get(0).withSourcePath(resourcePath);
+        Properties.File parse = wrappedParser.parse(resourceContent).toList().get(0).withSourcePath(resourcePath);
         return wrapRewriteSourceFile(projectRoot, parse);
     }
 

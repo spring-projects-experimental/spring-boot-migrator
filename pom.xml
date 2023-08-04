@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.springframework.sbm</groupId>
@@ -10,26 +11,26 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <openrewrite.version>8.1.8</openrewrite.version>
+        <spring-boot.version>3.1.1</spring-boot.version>
         <jar.name>spring-boot-migrator</jar.name>
-        <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>
+        <!--        <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>-->
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java.version>17</java.version>
-        <spring-shell.version>2.1.10</spring-shell.version>
-        <openrewrite.version>8.1.6</openrewrite.version>
-        <openrewrite.spring.version>4.32.0</openrewrite.spring.version>
-        <rewrite-migrate-java.version>1.17.0</rewrite-migrate-java.version>
-        <spring-boot.version>2.7.5</spring-boot.version>
-        <progressbar.version>0.9.5</progressbar.version>
-        <testcontainers.version>1.19.0</testcontainers.version>
-        <maven-invoker.version>3.2.0</maven-invoker.version>
+        <!--        <spring-shell.version>2.1.10</spring-shell.version>-->
+<!--        <openrewrite.spring.version>5.0.5</openrewrite.spring.version>-->
+<!--        <rewrite-migrate-java.version>2.0.6</rewrite-migrate-java.version>-->
+        <!--        <progressbar.version>0.9.5</progressbar.version>-->
+        <!--        <testcontainers.version>1.17.6</testcontainers.version>-->
+                <maven-invoker.version>3.2.0</maven-invoker.version>
         <shrinkwrap.resolvers.version>3.1.4</shrinkwrap.resolvers.version>
         <lombok.version>1.18.24</lombok.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
-        <snakeyaml.version>1.33</snakeyaml.version>
+<!--        <snakeyaml.version>1.33</snakeyaml.version>-->
         <sbm-support-rewrite.version>0.0.1-SNAPSHOT</sbm-support-rewrite.version>
         <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
     </properties>
@@ -80,12 +81,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${snakeyaml.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
@@ -119,12 +114,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.springframework.sbm</groupId>
-                <artifactId>recipe-test-support</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
@@ -147,36 +136,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.shell</groupId>-->
-<!--                <artifactId>spring-shell-dependencies</artifactId>-->
-<!--                <version>${spring-shell.version}</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>me.tongfei</groupId>-->
-<!--                <artifactId>progressbar</artifactId>-->
-<!--                <version>${progressbar.version}</version>-->
-<!--            </dependency>-->
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers</artifactId>
-                <version>${testcontainers.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
             <dependency>
                 <groupId>org.apache.maven.shared</groupId>
                 <artifactId>maven-invoker</artifactId>
                 <version>${maven-invoker.version}</version>
             </dependency>
-            <!-- openrewrite -->
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-core</artifactId>
@@ -242,44 +206,6 @@
                 <artifactId>rewrite-migrate-java</artifactId>
                 <version>${rewrite-migrate-java.version}</version>
             </dependency>
-            <!-- shrinkwrap -->
-            <!-- TODO: Remove, required by sbm-openrewrite to download jars in some test utility -->
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-api</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-spi</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-api-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-spi-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-bom</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-                <type>pom</type>
-            </dependency>
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
@@ -296,34 +222,6 @@
                 <version>4.3.4</version>
                 <scope>compile</scope>
             </dependency>
-            <!-- or uses different version then spring boot, explicitly overwrite version -->
-            <!--
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson-databind.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jdk8</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            -->
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -332,28 +230,13 @@
             <artifactId>jcl-over-slf4j</artifactId>
             <version>2.0.6</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.sbm</groupId>
-            <artifactId>sbm-support-rewrite</artifactId>
-            <version>${sbm-support-rewrite.version}</version>
-        </dependency>
     </dependencies>
     <modules>
-<!--        <module>applications/spring-shell</module>-->
-<!--        <module>components/openrewrite-spring-recipes</module>-->
-<!--        <module>components/sbm-recipes-spring-cloud</module>-->
-<!--        <module>components/sbm-recipes-spring-framework</module>-->
-<!--        <module>components/sbm-recipes-mule-to-boot</module>-->
-<!--        <module>components/sbm-support-weblogic</module>-->
         <module>components/sbm-openrewrite</module>
+        <module>components/sbm-core</module>
         <module>components/test-helper</module>
         <module>components/recipe-test-support</module>
-        <module>components/sbm-core</module>
-<!--        <module>components/sbm-support-boot</module>-->
-<!--        <module>components/sbm-support-jee</module>-->
-<!--        <module>components/sbm-recipes-jee-to-boot</module>-->
-<!--        <module>components/sbm-recipes-boot-upgrade</module>-->
-<!--        <module>applications/spring-boot-upgrade</module>-->
+        <module>components/sbm-utils</module>
     </modules>
     <build>
         <finalName>${jar.name}</finalName>
@@ -403,7 +286,7 @@
                     <connectionUrl>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</connectionUrl>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>@{project.version}</tagNameFormat>
-<!--                    <releaseProfiles>release</releaseProfiles>-->
+                    <!--                    <releaseProfiles>release</releaseProfiles>-->
                 </configuration>
             </plugin>
 
@@ -456,8 +339,8 @@
                 <configuration>
                     <properties>
                         <owner>the original author or authors.</owner>
-                        <email />
-                        <year>2022</year>
+                        <email/>
+                        <year>2023</year>
                     </properties>
                     <licenseSets>
                         <licenseSet>

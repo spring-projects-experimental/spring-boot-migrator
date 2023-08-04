@@ -54,9 +54,13 @@ public class ReplaceStaticFieldAccessVisitor extends JavaIsoVisitor<ExecutionCon
                     );
 
                     if (newStaticFieldAccess.isPresent() && differ(newStaticFieldAccess.get(), fieldAccess)) {
-
-                        JavaType.Class newClassType = JavaType.Class.build(newStaticFieldAccess.get().getFqClassName());
-                        J.Identifier ident = new J.Identifier(UUID.randomUUID(), Space.EMPTY, Markers.EMPTY, newClassType.getClassName(), newClassType, null); // FIXME: #497 correct?!
+                        String fqClassName = newStaticFieldAccess.get().getFqClassName();
+                        JavaType newClassType = JavaType.buildType(fqClassName);
+                        if(!JavaType.FullyQualified.class.isInstance(newClassType)) {
+                            throw new IllegalArgumentException("newClassType cannot be casted to JavaType.FullyQualified.");
+                        }
+                        JavaType.FullyQualified fullyQualified = (JavaType.FullyQualified) newClassType;
+                        J.Identifier ident = new J.Identifier(UUID.randomUUID(), Space.EMPTY, Markers.EMPTY, fullyQualified.getClassName(), newClassType, null); // FIXME: #497 correct?!
 
                         String newFieldName = newStaticFieldAccess.get().getField();
 
@@ -78,7 +82,7 @@ public class ReplaceStaticFieldAccessVisitor extends JavaIsoVisitor<ExecutionCon
                         );
 
                         maybeRemoveImport(currentTargetClassType);
-                        maybeAddImport(newClassType.getFullyQualifiedName());
+                        maybeAddImport(fqClassName);
                         return af;
                     }
                 }

@@ -16,10 +16,10 @@
 package org.springframework.sbm.java;
 
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.ProjectResourceWrapper;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 public class JavaSourceProjectResourceWrapper implements ProjectResourceWrapper<OpenRewriteJavaSource> {
 
     private final JavaRefactoringFactory javaRefactoringFactory;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
 
     private final ExecutionContext executionContext;
 
@@ -45,6 +45,6 @@ public class JavaSourceProjectResourceWrapper implements ProjectResourceWrapper<
     public OpenRewriteJavaSource wrapRewriteSourceFileHolder(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
         J.CompilationUnit compilationUnit = J.CompilationUnit.class.cast(rewriteSourceFileHolder.getSourceFile());
         JavaRefactoring refactoring = javaRefactoringFactory.createRefactoring(compilationUnit);
-        return new OpenRewriteJavaSource(rewriteSourceFileHolder.getAbsoluteProjectDir(), compilationUnit, refactoring, javaParser, executionContext);
+        return new OpenRewriteJavaSource(rewriteSourceFileHolder.getAbsoluteProjectDir(), compilationUnit, refactoring, javaParserBuilder, executionContext);
     }
 }

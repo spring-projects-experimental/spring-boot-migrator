@@ -18,6 +18,7 @@ package org.springframework.sbm.build.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.*;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.*;
@@ -39,6 +40,7 @@ import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyMana
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.io.ByteArrayInputStream;
@@ -58,6 +60,18 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     private final ApplicationEventPublisher eventPublisher;
     private final PluginRepositoryHandler pluginRepositoryHandler = new PluginRepositoryHandler();
 	private final MavenBuildFileRefactoring<Xml.Document> refactoring;
+
+    public OpenRewriteMavenBuildFile(Path projectRootDirectory, SourceFile maven, ApplicationEventPublisher eventPublisher, ExecutionContext executionContext, MavenBuildFileRefactoring refactoring) {
+        this(projectRootDirectory, cast(maven), eventPublisher, executionContext, refactoring);
+    }
+
+    private static Xml.Document cast(SourceFile maven) {
+        if(Xml.Document.class.isInstance(maven)) {
+            return Xml.Document.class.cast(maven);
+        } else {
+            throw new IllegalArgumentException("Provided maven was not of expected type Xml.Document but was '%s'".formatted(maven.getClass()));
+        }
+    }
 
     // Execute separately since RefreshPomModel caches the refreshed maven files after the first visit
     public static class RefreshPomModel extends Recipe {
@@ -86,7 +100,10 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                                 )
                         )
                         .collect(Collectors.toList());
-                List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx);
+                List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInput, null, ctx)
+                        .filter(Xml.Document.class::isInstance)
+                        .map(Xml.Document.class::cast)
+                        .toList();
 
                 for (int i = 0; i < newMavenFiles.size(); i++) {
                     Optional<MavenResolutionResult> mavenModels = MavenBuildFileUtil.findMavenResolution(mavenFiles.get(i));
@@ -110,6 +127,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         @Override
         public String getDisplayName() {
             return "Refresh POM model";
+        }
+
+        @Override
+        public String getDescription() {
+            return getDisplayName();
         }
 
     }
@@ -428,7 +450,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     protected void addDependenciesInner(List<Dependency> dependencies) {
         if (!dependencies.isEmpty()) {
             Recipe r = getAddDependencyRecipe(dependencies.get(0));
-            dependencies.stream().skip(1).forEach(d -> r.doNext(getAddDependencyRecipe(d)));
+            dependencies.stream().skip(1).forEach(d -> r.getRecipeList().add(getAddDependencyRecipe(d)));
             apply(r, getResource());
             refreshPomModel();
             List<Dependency> exclusions = dependencies.stream()
@@ -454,7 +476,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         if (!exclusions.isEmpty()) {
             Dependency excludedDependency = exclusions.get(0);
             ExcludeDependency excludeDependency = new ExcludeDependency(excludedDependency.getGroupId(), excludedDependency.getArtifactId(), excludedDependency.getScope());
-            exclusions.stream().skip(1).forEach(d -> excludeDependency.doNext(new ExcludeDependency(d.getGroupId(), d.getArtifactId(), d.getScope())));
+            exclusions.stream().skip(1).forEach(d -> excludeDependency.getRecipeList().add(new ExcludeDependency(d.getGroupId(), d.getArtifactId(), d.getScope())));
             apply(excludeDependency);
             refreshPomModel();
         }
@@ -493,7 +515,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         if (!dependencies.isEmpty()) {
             Recipe r = getDeleteDependencyVisitor(dependencies.get(0));
             dependencies.stream().skip(1).forEach(d -> {
-                r.doNext(getDeleteDependencyVisitor(d));
+                r.getRecipeList().add(getDeleteDependencyVisitor(d));
             });
             apply(r);
             refreshPomModel();
@@ -710,7 +732,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         if (hasParent()) {
             @Nullable Parent parent = getPom().getPom().getRequested().getParent();
             apply(
-                    new UpgradeParentVersion(parent.getGroupId(), parent.getArtifactId(), version, null)
+                    new UpgradeParentVersion(parent.getGroupId(), parent.getArtifactId(), version, null, List.of())
             );
         }
     }
@@ -824,10 +846,10 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         while (iterator.hasNext()) {
             coordinate = iterator.next();
             split = coordinate.split(":");
-            recipe.doNext(new RemoveMavenPlugin(split[0], split[1]));
+            recipe.getRecipeList().add(new RemoveMavenPlugin(split[0], split[1]));
         }
 
-        List<Result> run = recipe.run(List.of(getSourceFile()), executionContext).getResults();
+        List<Result> run = recipe.run(new InMemoryLargeSourceSet(List.of(getSourceFile())), executionContext).getChangeset().getAllResults();
         if (!run.isEmpty()) {
             replaceWith((Xml.Document) run.get(0).getAfter());
         }

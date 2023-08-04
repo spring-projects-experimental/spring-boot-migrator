@@ -16,7 +16,6 @@
 package org.springframework.sbm.java.impl;
 
 import org.openrewrite.java.AddOrUpdateAnnotationAttribute;
-import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.java.api.Annotation;
 import org.springframework.sbm.java.api.Expression;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
@@ -26,6 +25,7 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.JavaType.FullyQualified;
 import org.openrewrite.java.tree.TypeUtils;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,12 +36,12 @@ public class OpenRewriteAnnotation implements Annotation {
 
     private final J.Annotation wrapped;
     private final JavaRefactoring refactoring;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
 
-    public OpenRewriteAnnotation(J.Annotation a, JavaRefactoring refactoring, JavaParser javaParser) {
+    public OpenRewriteAnnotation(J.Annotation a, JavaRefactoring refactoring, JavaParserBuilder javaParserBuilder) {
         this.wrapped = a;
         this.refactoring = refactoring;
-        this.javaParser = javaParser;
+        this.javaParserBuilder = javaParserBuilder;
     }
 
     // FIXME: [FK] thoroughly test this method
@@ -54,10 +54,10 @@ public class OpenRewriteAnnotation implements Annotation {
                 if (e.getClass().isAssignableFrom(J.Assignment.class)) {
                     J.Assignment assign = (J.Assignment) e;
                     String key = assign.getVariable().printTrimmed();
-                    Expression expr = new OpenRewriteExpression(e, refactoring);
+                    Expression expr = new OpenRewriteExpression(e, refactoring, javaParserBuilder);
                     attrs.put(key, expr);
                 } else {
-                    attrs.put("value", new OpenRewriteExpression(e, refactoring));
+                    attrs.put("value", new OpenRewriteExpression(e, refactoring, javaParserBuilder));
                 }
             }
         }
