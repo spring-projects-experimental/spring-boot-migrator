@@ -373,4 +373,9 @@ public class SwapResponseWithResponseEntity extends Recipe {
         return "Replace JAX-RS Response with Spring ResponseEntity";
     }
 
+    @Override
+    public String getDescription() {
+        return getDisplayName();
+    }
+
 }
