@@ -1,0 +1,16 @@
+input:
+some:
+  other: "prop"
+management:
+  metrics:
+    graphql:
+      autotime:
+        percentiles: 100
+        percentiles-histogram: 20
+  endpoint:
+    jolokia:
+      config: "abc"
+      enabled: true
+expected:
+some:
+  other: "prop"

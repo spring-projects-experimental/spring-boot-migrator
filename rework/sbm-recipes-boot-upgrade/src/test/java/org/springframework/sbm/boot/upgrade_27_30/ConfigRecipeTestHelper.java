@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2023 the original author or authors.
+ * Copyright 2021 - 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.params.provider.Arguments;
 import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.LargeSourceSet;
 import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
-import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.properties.PropertiesParser;
 import org.openrewrite.properties.tree.Properties;
 import org.openrewrite.test.RewriteTest;
@@ -45,13 +42,39 @@ public class ConfigRecipeTestHelper {
 
     public static List<Result> runRecipeOnYaml(@Language("yml") String source, String recipeName) {
         InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
-        List<SourceFile> document = new YamlParser().parse(source).toList();
-        LargeSourceSet largeSourceSet = new InMemoryLargeSourceSet(document);
+        List<Yaml.Documents> document = new YamlParser().parse(source);
         return RewriteTest
                 .fromRuntimeClasspath(recipeName)
-                .run(largeSourceSet, ctx)
-                .getChangeset()
-                .getAllResults();
+                .run(document, ctx).getResults();
     }
 
+//    public static List<Result> runRecipeOnProperties(@Language("properties") String source, String recipeName) {
+//        InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
+//        List<Properties.File> document = new PropertiesParser().parse(source);
+//        return RewriteTest
+//                .fromRuntimeClasspath(recipeName)
+//                .run(document, ctx);
+//    }
+//
+//    public static Pair<String, String> provideIO(String inputFilePath) throws IOException {
+//
+//        InputStream data = new FileInputStream(inputFilePath);
+//
+//        String fileContent = new String(data.readAllBytes());
+//        String[] k = fileContent.split("expected:.*\n");
+//
+//        return new ImmutablePair<>(k[0].replaceAll("input:.*\n", ""), k[1]);
+//    }
+//
+//    public static Stream<Arguments> provideFiles(String folder, String fileType) throws URISyntaxException {
+//
+//        URL url = RemovedPropertyTest.class.getResource(folder);
+//
+//        File f = Paths.get(url.toURI()).toFile();
+//
+//        return Arrays.stream(f.listFiles())
+//                .filter(k -> k.toString().contains(fileType))
+//                .map(k -> Arguments.of(k.toString()));
+//
+//    }
 }

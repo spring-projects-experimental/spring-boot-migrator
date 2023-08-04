@@ -1,0 +1,12 @@
+input:
+spring.data.elasticsearch.client.reactive.connection-timeout=1000
+spring.data.elasticsearch.client.reactive.max-in-memory-size=122
+spring.data.elasticsearch.client.reactive.password=abc
+spring.data.elasticsearch.client.reactive.socket-timeout=100
+spring.data.elasticsearch.client.reactive.username=testUser
+expected:
+spring.elasticsearch.connection-timeout=1000
+spring.elasticsearch.webclient.max-in-memory-size=122
+spring.elasticsearch.password=abc
+spring.elasticsearch.socket-timeout=100
+spring.elasticsearch.username=testUser

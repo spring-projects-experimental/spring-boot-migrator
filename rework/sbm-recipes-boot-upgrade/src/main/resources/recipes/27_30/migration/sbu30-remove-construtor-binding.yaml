@@ -1,0 +1,18 @@
+- name: sbu30-remove-construtor-binding
+  description: Spring boot 3.0 Upgrade - Remove redundant @ConstructorBinding annotations
+  condition:
+    type: org.springframework.sbm.common.migration.conditions.TrueCondition
+  actions:
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+      description: Remove redundant @ConstructorBinding annotations when applicable
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.openrewrite.java.spring.boot3.ImprovedConstructorBinding
+        displayName: Remove redundant @ConstructorBinding annotations
+        description: Remove redundant @ConstructorBinding annotations when applicable
+        recipeList:
+          - org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation
