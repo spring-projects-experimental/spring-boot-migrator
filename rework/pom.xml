@@ -323,6 +323,23 @@
             <version>2.0.6</version>
         </dependency>
     </dependencies>
+    <modules>
+        <!--        <module>applications/spring-shell</module>-->
+        <!--        <module>applications/spring-boot-upgrade</module>-->
+        <!--        <module>components/openrewrite-spring-recipes</module>-->
+        <!--        <module>components/sbm-recipes-boot-upgrade</module>-->
+        <!--        <module>components/sbm-recipes-spring-cloud</module>-->
+        <!--        <module>components/sbm-recipes-spring-framework</module>-->
+        <!--        <module>components/sbm-recipes-jee-to-boot</module>-->
+        <!--        <module>components/sbm-recipes-mule-to-boot</module>-->
+        <!--        <module>components/sbm-support-boot</module>-->
+        <!--        <module>components/sbm-support-weblogic</module>-->
+        <!--        <module>components/sbm-support-jee</module>-->
+        <module>sbm-openrewrite</module>
+        <module>sbm-core</module>
+        <module>test-helper</module>
+<!--        <module>components/recipe-test-support</module>-->
+    </modules>
     <build>
         <finalName>${jar.name}</finalName>
         <plugins>
@@ -475,21 +492,4 @@ limitations under the License.
             </plugin>
         </plugins>
     </build>
-    <modules>
-        <!--        <module>applications/spring-shell</module>-->
-        <!--        <module>applications/spring-boot-upgrade</module>-->
-        <!--        <module>components/openrewrite-spring-recipes</module>-->
-        <!--        <module>components/sbm-recipes-spring-cloud</module>-->
-        <!--        <module>components/sbm-recipes-spring-framework</module>-->
-        <!--        <module>components/sbm-recipes-mule-to-boot</module>-->
-        <!--        <module>components/sbm-support-weblogic</module>-->
-        <module>recipe-test-support</module>
-        <module>test-helper</module>
-        <module>sbm-openrewrite</module>
-        <module>sbm-core</module>
-        <module>sbm-support-boot</module>
-        <module>sbm-support-jee</module>
-        <module>sbm-recipes-boot-upgrade</module>
-        <module>sbm-recipes-jee-to-boot</module>
-    </modules>
 </project>
