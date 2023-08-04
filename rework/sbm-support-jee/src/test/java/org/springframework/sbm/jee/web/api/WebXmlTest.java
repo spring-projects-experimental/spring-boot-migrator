@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2023 the original author or authors.
+ * Copyright 2021 - 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class WebXmlTest {
                   </servlet-mapping>
                 </web-app>
                 """;
-        Xml.Document document = new XmlParser().parse(webXmlSource).toList().get(0).withSourcePath(Path.of("src/main/webapp/WEB-INF/web.xml"));
+        Xml.Document document = new XmlParser().parse(webXmlSource).get(0).withSourcePath(Path.of("src/main/webapp/WEB-INF/web.xml"));
         WebXml webXml = new WebXml(Path.of("test-path").toAbsolutePath(), document);
         List<ServletDefinition> servletDefinitions = webXml.getServletDefinitions();
 
@@ -141,7 +141,7 @@ public class WebXmlTest {
     }
 
     private WebXml createWebXml(Path absoluteProjectDir) throws JAXBException {
-        Xml.Document document = new XmlParser().parse(CONTENT).toList().get(0).withSourcePath(Path.of("src/main/webapp/WEB-INF/web.xml"));
+        Xml.Document document = new XmlParser().parse(CONTENT).get(0).withSourcePath(Path.of("src/main/webapp/WEB-INF/web.xml"));
         return new WebXml(absoluteProjectDir, document);
     }
 

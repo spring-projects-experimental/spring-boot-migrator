@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2023 the original author or authors.
+ * Copyright 2021 - 2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ class EjbJarXmlTest {
                 "</ejb-jar>";
 
         Path sourcePath = Path.of("some/path/ejb-jar.xml");
-        Xml.Document xml = (Xml.Document) new XmlParser().parse(ejbJarXmlContent).toList().get(0);
+        Xml.Document xml = new XmlParser().parse(ejbJarXmlContent).get(0);
         EjbJarXml jeeEjbJarXmlProjectResourceRegistrar = new EjbJarXml(sourcePath, xml);
         EjbJarType ejbJarType = jeeEjbJarXmlProjectResourceRegistrar.unmarshal(ejbJarXmlContent);
         Assertions.assertThat(ejbJarType).isNotNull();
