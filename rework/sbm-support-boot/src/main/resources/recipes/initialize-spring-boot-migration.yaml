@@ -1,0 +1,157 @@
+- name: initialize-spring-boot-migration
+  order: 100
+  condition:
+    type: org.springframework.sbm.java.migration.conditions.HasNoTypeAnnotation
+    annotation: org.springframework.boot.autoconfigure.SpringBootApplication
+  description: "Initialize an application as Spring Boot application."
+
+  actions:
+    - type: org.springframework.sbm.build.migration.actions.AddMinimalPomXml
+      description: Adds a blank pom.xml to the project if none exists.
+      condition:
+        type: org.springframework.sbm.common.migration.conditions.NoFileMatchingPathPatternExist
+        pattern: /**/pom.xml
+
+    - type: org.springframework.sbm.build.migration.actions.AddMavenDependencyManagementAction
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoMoreRecentManagedDependencyExists
+        groupId: org.springframework.boot
+        artifactId: spring-boot-dependencies
+        version: 2.7.3
+      name: "add managed dependency to Maven"
+      groupId: org.springframework.boot
+      artifactId: spring-boot-dependencies
+      version: 2.7.3
+      dependencyType: pom
+      scope: import
+      description: Add Spring Boot dependency management section to buildfile.
+      detailedDescription: |-
+
+        Add Spring Boot Dependency Management
+
+          <dependencyManagement>
+               <dependencies>
+                  <dependency>
+                      <groupId>org.springframework.boot</groupId>
+                      <artifactId>spring-boot-dependencies</artifactId>
+                      <version>2.7.3</version>
+                      <type>pom</type>
+                      <scope>import</scope>
+                  </dependency>
+              </dependencies>
+          </dependencyManagement>
+
+    - type: org.springframework.sbm.build.migration.actions.AddDependencies
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.NoDependencyExistMatchingRegex
+        dependencies:
+          - 'org.springframework.boot'
+      dependencies:
+        - groupId: org.springframework.boot
+          artifactId: spring-boot-starter
+          version: 2.7.3 # OR finds the managed version and ignores this field
+        - groupId: org.springframework.boot
+          artifactId: spring-boot-starter-test
+          version: 2.7.3
+          scope: test
+      multiModuleHandler:
+        type: org.springframework.sbm.build.migration.actions.AddDependenciesToApplicationModules
+      description: Add spring dependencies 'spring-boot-starter' and 'spring-boot-starter-test'.
+      detailedDescription: |-
+        This code snippet is going to be added to the <dependencies> section in pom.xml
+
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</groupId>
+          </dependency>
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</groupId>
+            <scope>test</scope>
+          </dependency>
+
+    - type: org.springframework.sbm.build.migration.actions.RemoveDependenciesMatchingRegex
+      condition:
+        type: org.springframework.sbm.common.migration.conditions.TrueCondition
+      dependenciesRegex:
+        - org\.springframework\:(spring-core|spring-jcl|spring-context|spring-beans|spring-expression|spring-aop)\:.*
+        - org\.assertj\:assertj-core\:.*
+        - org\.mockito\:(mockito-core|mockito-junit-jupiter)\:.*
+        - org\.hamcrest\:hamcrest\:.*
+        - org\.junit\.jupiter\:(junit-jupiter|junit-jupiter-api|junit-jupiter-engine|junit-jupiter-params)\:.*
+        - junit\:junit\:.*
+        - org\.xmlunit\:xmlunit-core\:.*
+      multiModuleHandler:
+        type: org.springframework.sbm.build.migration.actions.RemoveDependenciesMatchingRegexFromApplicationModules
+      description: Delete dependencies to artifacts transitively managed by Spring Boot.
+      detailedDescription: |-
+        Delete dependencies to artifacts which are transitively managed
+        by 'spring-boot-starter' and 'spring-boot-starter-test' dependency.
+
+    - type: org.springframework.sbm.build.migration.actions.AddMavenPlugin
+      plugin:
+        groupId: org.springframework.boot
+        artifactId: spring-boot-maven-plugin
+        version: 2.7.3
+      condition:
+        type: org.springframework.sbm.build.migration.conditions.MavenPluginDoesNotExist
+        plugin:
+          groupId: org.springframework.boot
+          artifactId: spring-boot-maven-plugin
+      multiModuleHandler:
+        type: org.springframework.sbm.build.migration.actions.AddMavenPluginToApplicationModules
+      description: Add Spring Boot Maven plugin.
+      detailedDescription: |
+
+        Add Spring Boot Maven Plugin:
+
+          <build>
+              <plugins>
+                  <plugin>
+                      <groupId>org.springframework.boot</groupId>
+                      <artifactId>spring-boot-maven-plugin</artifactId>
+                      <version>2.7.3</version>
+                  </plugin>
+              </plugins>
+          </build>
+
+    - type: org.springframework.sbm.boot.properties.actions.AddSpringBootApplicationPropertiesAction
+      condition:
+        type: org.springframework.sbm.boot.properties.conditions.NoSpringBootApplicationPropertiesExists
+      description: Create application.properties file.
+
+    - type: org.springframework.sbm.boot.common.actions.AddSpringBootMainClassAction
+      condition:
+        type: org.springframework.sbm.java.migration.conditions.HasNoTypeAnnotation
+        annotation: 'org.springframework.boot.autoconfigure.SpringBootApplication'
+      description: Add Spring Boot starter class.
+      detailedDescription: |-
+        Add a class to start the Spring Boot Application Context
+
+          @SpringBootApplication
+          public class SpringBootApplicationStarter {
+
+            public static void main(String... args) {
+              SpringApplication.run(SpringBootApplicationStarter.class, args);
+            }
+          }
+
+    - type: org.springframework.sbm.boot.common.actions.AddSpringBootContextTestClassAction
+      condition:
+        type: org.springframework.sbm.java.migration.conditions.HasNoTypeAnnotation
+        annotation: 'org.springframework.boot.test.context.SpringBootTest'
+      description: Add initial unit test class to test Spring Boot Application Context startup.
+      detailedDescription: |-
+        Add a unit test class to test Spring Boot Application Context loading
+
+          @SpringBootTest
+          public class SpringBootApplicationStarterTests {
+
+            @Test
+            void contextLoads() {
+            }
+
+          }
+    - type: org.springframework.sbm.build.migration.actions.BuildPackaging
+      description: Set packaging to 'jar' type if different
+      packaging: jar
