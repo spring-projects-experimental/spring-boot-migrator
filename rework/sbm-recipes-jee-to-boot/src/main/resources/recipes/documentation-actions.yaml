@@ -1,0 +1,9 @@
+- name: documentation-actions
+  description: Create Documentation for Actions
+  condition:
+    type: org.springframework.sbm.common.migration.conditions.FalseCondition
+  actions:
+    - type: org.springframework.sbm.common.migration.actions.DocumentationExtraction
+      description: Extract documentation.
+      condition:
+        type: org.springframework.sbm.common.migration.conditions.TrueCondition

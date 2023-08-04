@@ -1,0 +1,18 @@
+- name: migrate-tx-to-spring-boot
+  description: Migration of @TransactionAttribute to @Transactionsl
+  order: 50
+  condition:
+    type: org.springframework.sbm.java.migration.conditions.HasImportStartingWith
+    value: javax.ejb.TransactionAttribute
+
+  actions:
+    - type: org.springframework.sbm.jee.tx.actions.MigrateJeeTransactionsToSpringBootAction
+      condition:
+        type: org.springframework.sbm.java.migration.conditions.HasAnyTypeReference
+        fqTypeNames:
+          - javax.ejb.TransactionAttribute
+          - javax.ejb.TransactionAttributeType
+          - javax.ejb.TransactionManagement
+          - javax.ejb.TransactionManagementType
+      description: |-
+        Removes @TransactionManagement and replaces @TransactionAttribute with @Transactional
