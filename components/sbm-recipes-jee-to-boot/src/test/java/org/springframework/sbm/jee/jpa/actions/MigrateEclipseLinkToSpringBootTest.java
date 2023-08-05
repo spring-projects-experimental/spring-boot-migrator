@@ -337,7 +337,7 @@ class MigrateEclipseLinkToSpringBootTest {
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
-                .addProjectResource("src/main/resources/META-INF/persistence.xml", persistenceXml)
+                .withProjectResource("src/main/resources/META-INF/persistence.xml", persistenceXml)
                 .addRegistrar(new PersistenceXmlProjectResourceRegistrar())
                 .build();
 

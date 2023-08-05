@@ -16,11 +16,11 @@
 package org.springframework.sbm.engine.commands;
 
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.context.ProjectRootPathResolver;
+import org.springframework.sbm.engine.recipe.ApplicableRecipesListHolder;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
-import org.springframework.sbm.project.parser.ProjectContextInitializer;
+import org.springframework.sbm.scopes.ExecutionScope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -29,34 +29,32 @@ import java.util.List;
 public class ApplicableRecipeListCommand extends AbstractCommand<List<Recipe>> {
 
     private static final String COMMAND_NAME = "applicableRecipes";
-    private final ProjectRootPathResolver projectRootPathResolver;
     private final RecipesBuilder recipesBuilder;
-    private final ProjectContextInitializer projectContextBuilder;
+    private final ApplicableRecipesListHolder applicableRecipesListHolder;
 
-    protected ApplicableRecipeListCommand(ProjectRootPathResolver projectRootPathResolver, RecipesBuilder recipesBuilder, ProjectContextInitializer projectContextBuilder) {
+    protected ApplicableRecipeListCommand(RecipesBuilder recipesBuilder, ExecutionScope executionScope, ApplicableRecipesListHolder applicableRecipesListHolder) {
         super(COMMAND_NAME);
-        this.projectRootPathResolver = projectRootPathResolver;
         this.recipesBuilder = recipesBuilder;
-        this.projectContextBuilder = projectContextBuilder;
+        this.applicableRecipesListHolder = applicableRecipesListHolder;
+    }
+
+    public List<Recipe> execute(ProjectContext projectContext) {
+        return getApplicableRecipes(projectContext);
+    }
+
+    private List<Recipe> getApplicableRecipes(ProjectContext context) {
+        applicableRecipesListHolder.clear();
+        Recipes recipes = recipesBuilder.buildRecipes();
+        List<Recipe> applicable = recipes.getApplicable(context);
+        applicableRecipesListHolder.setRecipes(applicable);
+        return applicable;
     }
 
     @Override
     @Deprecated
     // FIXME: Refactor: inheriting AbstractCommand forces this method!
     public List<Recipe> execute(String... arguments) {
-//        Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
 //        // FIXME: This call creates a new ProjectResourceSet which is not correct.
-//        ProjectContext context = projectContextBuilder.initProjectContext(projectRoot, new RewriteExecutionContext());
-//        return getApplicableRecipes(context);
         return null;
-    }
-
-    private List<Recipe> getApplicableRecipes(ProjectContext context) {
-        Recipes recipes = recipesBuilder.buildRecipes();
-        return recipes.getApplicable(context);
-    }
-
-    public List<Recipe> execute(ProjectContext projectContext) {
-        return getApplicableRecipes(projectContext);
     }
 }

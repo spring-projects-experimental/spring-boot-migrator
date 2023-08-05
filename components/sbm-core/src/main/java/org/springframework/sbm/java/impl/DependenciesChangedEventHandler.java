@@ -15,14 +15,13 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.Parser;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -38,8 +37,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DependenciesChangedEventHandler {
     private final ProjectContextHolder projectContextHolder;
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final JavaParser javaParser;
+    private final ExecutionContext executionContext;
 
     @EventListener
     public void onDependenciesChanged(DependenciesChangedEvent event) {
@@ -54,7 +53,7 @@ public class DependenciesChangedEventHandler {
             javaParser.setSourceSet("main");
             javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
 
-            List<J.CompilationUnit> parsedCompilationUnits = javaParser.parseInputs(compilationUnits, null, new RewriteExecutionContext(applicationEventPublisher));
+            List<J.CompilationUnit> parsedCompilationUnits = javaParser.parseInputs(compilationUnits, null, executionContext);
             // ((J.VariableDeclarations)parsedCompilationUnits.get(0).getClasses().get(0).getBody().getStatements().get(0)).getLeadingAnnotations().get(0).getType()
             parsedCompilationUnits.forEach(cu -> {
                 projectContextHolder.getProjectContext().getProjectJavaSources().stream()

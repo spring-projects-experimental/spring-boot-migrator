@@ -19,7 +19,7 @@
     <parent>
         <artifactId>spring-boot-migrator</artifactId>
         <groupId>org.springframework.sbm</groupId>
-        <version>0.13.1-SNAPSHOT</version>
+        <version>0.14.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -35,6 +35,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>

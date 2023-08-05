@@ -46,7 +46,7 @@ class FindRestControllerBeansTest {
         ProjectContext context = TestProjectContext
                 .buildProjectContext()
                 .withBuildFileHavingDependencies("org.springframework:spring-web:5.3.22")
-                .addJavaSource("src/main/java", restController)
+                .withJavaSource("src/main/java", restController)
                 .build();
 
         List<RestControllerBean> restControllerBeans = context.search(new FindRestControllerBeans());

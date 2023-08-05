@@ -8,24 +8,24 @@
 
   actions:
     - type: org.springframework.sbm.jee.ejb.actions.MigrateEjbAnnotations
+      description: "Replace @EJB injection with Spring Boot @Autowired."
       condition:
         type: org.springframework.sbm.java.migration.conditions.HasAnnotation
         annotation: "javax.ejb.EJB"
-      description: "Replace @EJB injection with Spring Boot @Autowired."
 
 
     - type: org.springframework.sbm.java.migration.actions.ReplaceTypeAction
-      annotation: "javax.inject.Inject"
-      withAnnotation: "org.springframework.beans.factory.annotation.Autowired"
+      description: "Replace CDI field injection with Spring Boot field injection."
+      existingType: "javax.inject.Inject"
+      withType: "org.springframework.beans.factory.annotation.Autowired"
       condition:
         type: org.springframework.sbm.java.migration.conditions.HasMemberAnnotation
         annotation: "javax.inject.Inject"
-      description: "Replace CDI field injection with Spring Boot field injection."
 
 
     - type: org.springframework.sbm.java.migration.actions.ReplaceTypeAction
-      annotation: "javax.ejb.Startup"
-      withAnnotation: "org.springframework.stereotype.Service"
+      existingType: "javax.ejb.Startup"
+      withType: "org.springframework.stereotype.Service"
       condition:
         type: org.springframework.sbm.java.migration.conditions.HasTypeAnnotation
         annotation: "javax.ejb.Startup"

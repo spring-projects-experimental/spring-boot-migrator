@@ -38,7 +38,7 @@ class SecurityManagerUsagesFinderTest {
                 public class Foo {}
                 """;
 
-        ProjectContext context = TestProjectContext.buildProjectContext().addJavaSource("src/main/java", class1).build();
+        ProjectContext context = TestProjectContext.buildProjectContext().withJavaSource("src/main/java", class1).build();
 
         List<RewriteSourceFileHolder<J.CompilationUnit>> matches = context.getProjectJavaSources().find(new SecurityManagerUsagesFinder());
 
@@ -59,7 +59,7 @@ class SecurityManagerUsagesFinderTest {
                 }
                 """;
 
-        ProjectContext context = TestProjectContext.buildProjectContext().addJavaSource("src/main/java", class1).build();
+        ProjectContext context = TestProjectContext.buildProjectContext().withJavaSource("src/main/java", class1).build();
 
         List<RewriteSourceFileHolder<J.CompilationUnit>> matches = context.getProjectJavaSources().find(new SecurityManagerUsagesFinder());
 
@@ -79,7 +79,7 @@ class SecurityManagerUsagesFinderTest {
                 }
                 """;
 
-        ProjectContext context = TestProjectContext.buildProjectContext().addJavaSource("src/main/java", class1).build();
+        ProjectContext context = TestProjectContext.buildProjectContext().withJavaSource("src/main/java", class1).build();
 
         List<RewriteSourceFileHolder<J.CompilationUnit>> matches = context.getProjectJavaSources().find(new SecurityManagerUsagesFinder());
 

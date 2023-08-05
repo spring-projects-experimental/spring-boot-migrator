@@ -17,8 +17,8 @@ package org.springframework.sbm.engine.recipe;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.*;
+import org.springframework.sbm.engine.context.ProjectContext;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -147,4 +147,6 @@ public class Recipe {
                 numAutomated == 0 ? RecipeAutomation.MANUAL : RecipeAutomation.PARTIALLY_AUTOMATED;
         return automationInfo;
     }
+
+
 }

@@ -41,13 +41,15 @@ class PreconditionVerificationRendererTest {
         checkResult.addResult(failedResult);
 
         String s = sut.renderPreconditionCheckResults(checkResult);
-        assertThat(s).isEqualTo("\u001B[30;1m\n" +
+        assertThat(s).isEqualTo(
+                "\u001B[1m\n" +
                 "\n" +
                 "Checked preconditions for '" +projectRoot+ "'\n" +
                 "\u001B[32;1m[ok]\u001B[0m passed\n" +
                 "\u001B[93;1m [!]\u001B[0m warn\n" +
                 "\u001B[91;1m [X]\u001B[0m failed\n" +
                 "\n" +
-                "\u001B[0m");
+                "\u001B[0m"
+        );
     }
 }

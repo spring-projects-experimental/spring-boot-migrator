@@ -16,6 +16,7 @@
 package org.springframework.sbm.build.resource;
 
 import lombok.RequiredArgsConstructor;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,7 +24,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoring;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.ProjectResourceWrapper;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;
@@ -36,6 +36,7 @@ public class BuildFileResourceWrapper implements ProjectResourceWrapper<OpenRewr
     private final ApplicationEventPublisher eventPublisher;
 
     private final MavenBuildFileRefactoringFactory mavenBuildFileRefactoringFactory;
+    private final ExecutionContext executionContext;
 
     @Override
     public boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
@@ -50,7 +51,7 @@ public class BuildFileResourceWrapper implements ProjectResourceWrapper<OpenRewr
                 rewriteSourceFileHolder.getAbsoluteProjectDir(),
                 maven,
                 eventPublisher,
-                new RewriteExecutionContext(),
+                executionContext,
                 refactoring
         );
     }

@@ -17,22 +17,21 @@
 package org.springframework.sbm.engine.recipe;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.sbm.scopes.ExecutionScope;
+import org.springframework.sbm.scopes.ScanScope;
+import org.springframework.sbm.scopes.ScopeConfiguration;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = {
         RecipeParser.class,
@@ -43,9 +42,12 @@ import static org.mockito.Mockito.*;
         ActionDeserializerRegistry.class,
         DefaultActionDeserializer.class,
         RewriteMigrationResultMerger.class,
-        RewriteRecipeRunner.class,
         RewriteSourceFileWrapper.class,
-        CustomValidatorBean.class
+        CustomValidatorBean.class,
+        RewriteExecutionContext.class,
+        ScopeConfiguration.class,
+        ExecutionScope.class,
+        ScanScope.class
 })
 class OpenRewriteDeclarativeRecipeAdapterIntegrationTest {
 
@@ -83,7 +85,7 @@ class OpenRewriteDeclarativeRecipeAdapterIntegrationTest {
         String javaSource = "@java.lang.Deprecated\n" +
                 "public class Foo {}";
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addJavaSource("src/main/java", javaSource)
+                .withJavaSource("src/main/java", javaSource)
                 .build();
         // run the adapter action and thus the declared rewrite recipes
         recipeAdapter.apply(context);

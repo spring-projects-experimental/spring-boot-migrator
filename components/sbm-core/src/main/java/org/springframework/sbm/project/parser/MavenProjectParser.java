@@ -28,6 +28,8 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.marker.GitProvenance;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.ci.BuildEnvironment;
+import org.openrewrite.maven.MavenExecutionContextView;
+import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.tree.*;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.xml.tree.Xml;
@@ -36,7 +38,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.events.*;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -62,12 +64,21 @@ public class MavenProjectParser {
     private final JavaProvenanceMarkerFactory javaProvenanceMarkerFactory;
     private final JavaParser javaParser;
     private final MavenConfigHandler mavenConfigHandler;
+    private final ProjectMetadata projectMetadata;
+    private final ExecutionContext executionContext;
 
     public List<SourceFile> parse(Path projectDirectory, List<Resource> resources) {
-
+        projectMetadata.setMetadata("some metadata");
+        MavenSettings mavenSettings = new MavenSettings(null, null, null, null, null);
+        projectMetadata.setMavenSettings(mavenSettings);
+        MavenExecutionContextView mavenExecutionContext = MavenExecutionContextView.view(executionContext);
+        mavenExecutionContext.setMavenSettings(mavenSettings);
+//        if(mavenExecutionContext.getLocalRepository() == null) {
+        MavenExecutionContextView.view(executionContext).setLocalRepository(new MavenRepository("local", "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository"), null, null, false, null, null, null));
+//        }
+        // default local repo provided by MavenExecutionContextView misses two '/' in the path
         mavenConfigHandler.injectMavenConfigIntoSystemProperties(resources);
 
-        ExecutionContext ctx = new RewriteExecutionContext();
         @Nullable BuildEnvironment buildEnvironment = null;
         GitProvenance gitProvenance = GitProvenance.fromProjectDirectory(projectDirectory, buildEnvironment);
 
@@ -80,7 +91,7 @@ public class MavenProjectParser {
 
         eventPublisher.publishEvent(new StartedScanningProjectResourceSetEvent("Maven", inputs.size()));
 
-        List<Xml.Document> mavens = mavenParser.parseInputs(inputs, projectDirectory, ctx);
+        List<Xml.Document> mavens = mavenParser.parseInputs(inputs, projectDirectory, executionContext);
         eventPublisher.publishEvent(new FinishedScanningProjectResourceSetEvent());
 
         mavens = sort(mavens);
@@ -97,7 +108,7 @@ public class MavenProjectParser {
             // Create markers for pom
             List<Marker> javaProvenanceMarkers = javaProvenanceMarkerFactory.createJavaProvenanceMarkers(pomXml,
                                                                                                          projectDirectory,
-                                                                                                         ctx);
+                                                                                                         executionContext);
             // Add markers to pom
             Xml.Document mavenWithMarkers = addMarkers(pomXml, javaProvenanceMarkers);
             // Add pom to sources
@@ -112,11 +123,12 @@ public class MavenProjectParser {
 
             // --------
             // Main Java sources
-            List<J.CompilationUnit> mainJavaSources = parseMainJavaSources(projectDirectory, resources, ctx, javaParser,
+            List<J.CompilationUnit> mainJavaSources = parseMainJavaSources(projectDirectory, resources,
+                                                                           executionContext, javaParser,
                                                                            pomXml, mavenWithMarkers,
                                                                            mavenProjectDirectory,
                                                                            javaProvenanceMarkers);
-            JavaSourceSet mainSourceSet = javaParser.getSourceSet(ctx);
+            JavaSourceSet mainSourceSet = javaParser.getSourceSet(executionContext);
             sourceFiles.addAll(mainJavaSources);
             // FIxME: cus already have sourceSetMarker, only provenance need to be added
 
@@ -148,8 +160,9 @@ public class MavenProjectParser {
             // Test Java sources
             ArrayList<Marker> markers = new ArrayList<>(javaProvenanceMarkers);
             markers.add(mainSourceSet);
-            List<J.CompilationUnit> testJavaSources = parseTestJavaSources(projectDirectory, resources, ctx, javaParser, pomXml, mavenWithMarkers, mavenProjectDirectory, markers);
-            JavaSourceSet testSourceSet = javaParser.getSourceSet(ctx);
+            List<J.CompilationUnit> testJavaSources = parseTestJavaSources(projectDirectory, resources,
+                                                                           executionContext, javaParser, pomXml, mavenWithMarkers, mavenProjectDirectory, markers);
+            JavaSourceSet testSourceSet = javaParser.getSourceSet(executionContext);
             sourceFiles.addAll(testJavaSources);
 
             // --------

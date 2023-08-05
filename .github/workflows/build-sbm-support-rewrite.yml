@@ -1,0 +1,24 @@
+name: Build sbm-utils
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "sbm-support-rewrite/**"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sbm-support-rewrite
+    steps:
+      - name: build-sbm-support-rewrite
+        uses: actions/checkout@v3
+      - name: setup-java
+        uses: actions/setup-java@v2
+        with:
+          distribution: zulu
+          java-version: 17
+          cache: maven
+      - name: build-project
+        run: mvn --batch-mode clean install

@@ -31,6 +31,7 @@ import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
+import org.springframework.sbm.engine.recipe.ApplicableRecipesListHolder;
 import org.springframework.sbm.engine.recipe.Recipe;
 
 import java.util.List;
@@ -61,6 +62,9 @@ class ScanShellCommandTest {
     @Mock
     private ConsolePrinter consolePrinter;
 
+    @Mock
+    ApplicableRecipesListHolder applicableRecipesListHolder;
+
     @InjectMocks
     ScanShellCommand sut;
 
@@ -87,6 +91,7 @@ class ScanShellCommandTest {
         String result = sut.scan(projectRoot);
 
         ArgumentCaptor<String> capturedOutput = ArgumentCaptor.forClass(String.class);
+
         verify(consolePrinter).println(capturedOutput.capture());
 
         // header and validation result rendered

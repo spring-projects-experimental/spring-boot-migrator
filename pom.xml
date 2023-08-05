@@ -4,7 +4,7 @@
 
     <groupId>org.springframework.sbm</groupId>
     <artifactId>spring-boot-migrator</artifactId>
-    <version>0.13.1-SNAPSHOT</version>
+    <version>0.14.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -16,10 +16,10 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java.version>17</java.version>
-        <spring-shell.version>2.1.4</spring-shell.version>
+        <spring-shell.version>2.1.10</spring-shell.version>
         <openrewrite.version>7.35.0</openrewrite.version>
         <openrewrite.spring.version>4.32.0</openrewrite.spring.version>
-        <rewrite-migrate-java.version>1.16.0</rewrite-migrate-java.version>
+        <rewrite-migrate-java.version>1.17.0</rewrite-migrate-java.version>
         <spring-boot.version>2.7.5</spring-boot.version>
         <progressbar.version>0.9.5</progressbar.version>
         <testcontainers.version>1.17.6</testcontainers.version>
@@ -89,6 +89,16 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.wagon</groupId>-->
+<!--                <artifactId>wagon-http</artifactId>-->
+<!--                <version>3.5.3</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.resolver</groupId>-->
+<!--                <artifactId>maven-resolver-transport-wagon</artifactId>-->
+<!--                <version>${resolverVersion}</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>org.springframework.sbm</groupId>
                 <artifactId>test-helper</artifactId>
@@ -153,6 +163,12 @@
                 <artifactId>testcontainers</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven.shared</groupId>
@@ -331,6 +347,7 @@
         <module>components/sbm-core</module>
         <module>components/test-helper</module>
         <module>components/recipe-test-support</module>
+        <module>components/sbm-utils</module>
     </modules>
     <build>
         <finalName>${jar.name}</finalName>
@@ -348,7 +365,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.1.2</version>
                 <configuration>
                     <groups>integration</groups>
                     <includes>

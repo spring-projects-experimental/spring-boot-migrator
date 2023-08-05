@@ -281,7 +281,7 @@ class OpenRewriteTypeTest {
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-integration:2.5.5",
                         "org.springframework.boot:spring-boot-starter-web:2.5.5",
                         "org.springframework.integration:spring-integration-http:5.4.4")
-                .addJavaSource("src/main/java/Config.java", "public class Config {}")
+                .withJavaSource("src/main/java/Config.java", "public class Config {}")
                 .build();
 
         Type type = context.getProjectJavaSources().list().get(0).getTypes().get(0);
@@ -328,7 +328,7 @@ class OpenRewriteTypeTest {
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-integration:2.5.5",
                         "org.springframework.boot:spring-boot-starter-web:2.5.5")
-                .addJavaSource("src/main/java/Config.java", "public class Config {}")
+                .withJavaSource("src/main/java/Config.java", "public class Config {}")
                 .build();
 
         long before = System.currentTimeMillis();

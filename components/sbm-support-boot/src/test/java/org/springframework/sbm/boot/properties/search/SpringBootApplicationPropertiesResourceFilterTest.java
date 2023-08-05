@@ -19,6 +19,7 @@ import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMa
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
 
@@ -31,8 +32,8 @@ public class SpringBootApplicationPropertiesResourceFilterTest {
     @Test
     void test() {
         ProjectContext context = TestProjectContext.buildProjectContext()
-                .addProjectResource("src/main/resources/application.properties", "foo=bar\na=b")
-                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher()))
+                .withProjectResource("src/main/resources/application.properties", "foo=bar\na=b")
+                .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .build();
 
         List<SpringBootApplicationProperties> properties = context.search(new SpringBootApplicationPropertiesResourceListFilter());

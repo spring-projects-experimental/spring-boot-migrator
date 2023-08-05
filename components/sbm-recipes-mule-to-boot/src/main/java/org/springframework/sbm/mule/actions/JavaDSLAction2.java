@@ -19,6 +19,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.boot.properties.actions.AddSpringBootApplicationPropertiesAction;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
@@ -31,10 +32,8 @@ import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.java.api.Type;
-import org.springframework.sbm.mule.actions.javadsl.translators.DslSnippet;
 import org.springframework.sbm.mule.api.MuleMigrationContext;
 import org.springframework.sbm.mule.api.MuleMigrationContextFactory;
-import org.springframework.sbm.mule.api.toplevel.AbstractTopLevelElement;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElement;
 import org.springframework.sbm.mule.api.toplevel.TopLevelElementFactory;
 import org.springframework.sbm.mule.api.toplevel.UnknownTopLevelElement;
@@ -56,15 +55,16 @@ public class JavaDSLAction2 extends AbstractAction {
     private static final String SPRING_CONFIGURATION_ANNOTATION = "org.springframework.context.annotation.Configuration";
     private final MuleMigrationContextFactory muleMigrationContextFactory;
     private final Map<Class<?>, TopLevelElementFactory> topLevelTypeMap;
-
+    private final ExecutionContext executionContext;
     @Setter
     private boolean muleTriggerMeshTransformEnabled;
 
     @Autowired
-    public JavaDSLAction2(MuleMigrationContextFactory muleMigrationContextFactory, List<TopLevelElementFactory> topLevelTypeFactories) {
+    public JavaDSLAction2(MuleMigrationContextFactory muleMigrationContextFactory, List<TopLevelElementFactory> topLevelTypeFactories, ExecutionContext executionContext) {
         topLevelTypeMap = topLevelTypeFactories.stream()
                 .collect(Collectors.toMap(TopLevelElementFactory::getSupportedTopLevelType, Function.identity()));
         this.muleMigrationContextFactory = muleMigrationContextFactory;
+        this.executionContext = executionContext;
     }
 
     @Override
@@ -230,7 +230,7 @@ public class JavaDSLAction2 extends AbstractAction {
     private SpringBootApplicationProperties findOrCreateDefaultApplicationProperties(ProjectContext projectContext) {
         List<SpringBootApplicationProperties> bootApplicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
         if (bootApplicationProperties.isEmpty()) {
-            new AddSpringBootApplicationPropertiesAction().apply(projectContext);
+            new AddSpringBootApplicationPropertiesAction(executionContext).apply(projectContext);
         }
 
         return projectContext

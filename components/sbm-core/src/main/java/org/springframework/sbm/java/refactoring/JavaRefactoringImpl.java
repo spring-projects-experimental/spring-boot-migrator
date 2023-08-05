@@ -30,23 +30,19 @@ import java.util.stream.Collectors;
 
 public class JavaRefactoringImpl extends JavaGlobalRefactoringImpl implements JavaRefactoring {
 
-    private J.CompilationUnit compilationUnit;
-
     @Deprecated
-    public JavaRefactoringImpl(ProjectResourceSet projectResources) {
-        super(projectResources);
+    public JavaRefactoringImpl(ProjectResourceSet projectResources, ExecutionContext executionContext) {
+        super(projectResources, executionContext);
     }
 
     @Deprecated
-    public JavaRefactoringImpl(ProjectResourceSet projectResourceSet, J.CompilationUnit compilationUnit) {
-        super(projectResourceSet);
-        this.compilationUnit = compilationUnit;
+    public JavaRefactoringImpl(ProjectResourceSet projectResourceSet, J.CompilationUnit compilationUnit, ExecutionContext executionContext) {
+        super(projectResourceSet, executionContext);
     }
 
     @Deprecated
-    public JavaRefactoringImpl(ProjectResourceSet projectResourceSet, RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder) {
-        super(projectResourceSet);
-        this.compilationUnit = rewriteSourceFileHolder.getSourceFile();
+    public JavaRefactoringImpl(ProjectResourceSet projectResourceSet, RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, ExecutionContext executionContext) {
+        super(projectResourceSet, executionContext);
     }
 
     @Override

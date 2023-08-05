@@ -23,9 +23,9 @@ import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
-import org.springframework.sbm.java.migration.recipes.FindReplaceFieldAccessors;
 import org.springframework.sbm.java.migration.recipes.RewriteConstructorInvocation;
 import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
+import org.springframework.sbm.java.migration.recipes.openrewrite.ReplaceConstantWithAnotherConstant;
 
 import java.util.HashMap;
 import java.util.List;
@@ -82,13 +82,12 @@ public class ReplaceMediaType extends Recipe {
         mappings.put("WILDCARD", "ALL_VALUE");
         mappings.put("WILDCARD_TYPE", "ALL");
 
-        doNext(new FindReplaceFieldAccessors(javaParserSupplier, "javax.ws.rs.core.MediaType", "org.springframework.http.MediaType", mappings));
+        mappings.forEach(
+                (key, value) -> doNext(new ReplaceConstantWithAnotherConstant("javax.ws.rs.core.MediaType." + key,"org.springframework.http.MediaType." + value))
+        );
 
-        doNext(new FindReplaceFieldAccessors(javaParserSupplier, "javax.ws.rs.core.MediaType", "org.springframework.util.MimeType", Map.of(
-                "CHARSET_PARAMETER", "PARAM_CHARSET",
-                "MEDIA_TYPE_WILDCARD", "WILDCARD_TYPE"
-        )));
-
+        doNext(new ReplaceConstantWithAnotherConstant("javax.ws.rs.core.MediaType.CHARSET_PARAMETER","org.springframework.util.MimeType.PARAM_CHARSET"));
+        doNext(new ReplaceConstantWithAnotherConstant("javax.ws.rs.core.MediaType.MEDIA_TYPE_WILDCARD","org.springframework.util.MimeType.WILDCARD_TYPE"));
 
         // instance methods
         // #isCompatible(MediaType)

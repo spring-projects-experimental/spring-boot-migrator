@@ -140,7 +140,7 @@ public class Boot_27_30_UpgradeReplaceJohnzonDependenciesTest {
 
     private ProjectContext getProjectContextWithSpringManagedJohnzonDependency(){
         return TestProjectContext.buildProjectContext()
-                .addProjectResource(Path.of("pom.xml"), SPRING_MANAGED_DEPENDENCY_POM)
+                .withProjectResource(Path.of("pom.xml"), SPRING_MANAGED_DEPENDENCY_POM)
                 .build();
     }
 }

@@ -15,20 +15,26 @@
  */
 package org.springframework.sbm.engine.context;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.Recipe;
+import org.openrewrite.Result;
+import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.build.api.ApplicationModules;
-import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.RootBuildFileFilter;
 import org.springframework.sbm.build.filter.BuildFileProjectResourceFilter;
+import org.springframework.sbm.engine.recipe.OpenRewriteSourceFilesFinder;
+import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
 import org.springframework.sbm.java.api.ProjectJavaSources;
 import org.springframework.sbm.java.impl.ProjectJavaSourcesImpl;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -44,19 +50,29 @@ public class ProjectContext {
     private final ProjectResourceSet projectResources;
     private String revision;
     private final JavaParser javaParser;
+    private final ExecutionContext executionContext;
+    private final RewriteMigrationResultMerger resultMerger;
 
-    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParser javaParser) {
+    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParser javaParser, ExecutionContext executionContext, RewriteMigrationResultMerger resultMerger) {
         this.projectRootDirectory = projectRootDirectory.toAbsolutePath();
         this.projectResources = projectResources;
         this.javaRefactoringFactory = javaRefactoringFactory;
         this.basePackageCalculator = basePackageCalculator;
         this.javaParser = javaParser;
+        this.executionContext = executionContext;
+        this.resultMerger = resultMerger;
     }
 
     public ProjectResourceSet getProjectResources() {
         return projectResources;
     }
 
+    /**
+     * @deprecated
+     * Use {@link #getApplicationModules()} instead.
+     * TODO: Make method private
+     */
+    @Deprecated(forRemoval = false)
     public List<Module> getModules() {
         return search(new BuildFileProjectResourceFilter()).stream()
                 .map(this::mapToModule)
@@ -66,9 +82,17 @@ public class ProjectContext {
     private Module mapToModule(BuildFile buildFile) {
         String buildFileName = "";
         Path modulePath = projectRootDirectory.relativize(buildFile.getAbsolutePath().getParent());
-        return new Module(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator, javaParser);
+        return new Module(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator, javaParser, executionContext);
     }
 
+    /**
+     * This is a legacy way of retrieving applications build file.
+     * This function does not generalise for situations where application is under a multi-module maven structure
+     * Use {@link #getApplicationModules()} instead of getBuildFile()
+     * If one would want to retrieve the root build file use:
+     * {@link #getApplicationModules()} and then call to get root module using: {@link ApplicationModules#getRootModule()}
+     * */
+    @Deprecated(forRemoval = true)
     public BuildFile getBuildFile() {
         return search(new RootBuildFileFilter());
     }
@@ -86,4 +110,9 @@ public class ProjectContext {
         return new ApplicationModules(getModules());
     }
 
+    public void apply(Recipe recipe) {
+        List<? extends SourceFile> rewriteSourceFiles = this.search(new OpenRewriteSourceFilesFinder());
+        List<Result> results = recipe.run(rewriteSourceFiles, executionContext).getResults();
+        resultMerger.mergeResults(this, results);
+    }
 }

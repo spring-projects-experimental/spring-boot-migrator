@@ -75,7 +75,7 @@ public class ImportSpringXmlConfigXmlToJavaConfigurationActionTest {
         ProjectContext ctx = TestProjectContext.buildProjectContext()
             .withProjectRoot(projectRootDirectory)
             .withMavenRootBuildFileSource(buildFileSource)
-            .addProjectResource(Path.of("src/main/resources/my-xml/nicebeans.xml"), xmlSample)
+            .withProjectResource(Path.of("src/main/resources/my-xml/nicebeans.xml"), xmlSample)
             .build();
         
         ImportSpringXmlConfigAction action = new ImportSpringXmlConfigAction();
@@ -146,8 +146,8 @@ public class ImportSpringXmlConfigXmlToJavaConfigurationActionTest {
                 "\n" + 
                 "</project>"
             )
-            .addProjectResource(Path.of("src/main/resources/my-xml/nicebeans.xml"), xmlSample)
-            .addProjectResource(Path.of("src/main/resources/my-xml/favabeans.xml"), xmlSample2)
+            .withProjectResource(Path.of("src/main/resources/my-xml/nicebeans.xml"), xmlSample)
+            .withProjectResource(Path.of("src/main/resources/my-xml/favabeans.xml"), xmlSample2)
             .build();
         
         ImportSpringXmlConfigAction action = new ImportSpringXmlConfigAction();
