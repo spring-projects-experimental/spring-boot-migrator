@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenSettings;
-import org.sonatype.plexus.components.cipher.PlexusCipher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
@@ -81,7 +80,7 @@ class MavenPasswordDecrypterTest {
         MavenPlexusContainerFactory containerFactory = new MavenPlexusContainerFactory();
         PlexusContainer plexusContainer = containerFactory.create();
         SecDispatcher plexusCipher = plexusContainer.lookup(SecDispatcher.class);
-        sut.decryptMavenServerPasswords2(plexusCipher, mavenSettings, mavenSecurityFilePath);
+        sut.decryptMavenServerPasswords(plexusCipher, mavenSettings, mavenSecurityFilePath);
         // password has been decrypted
         assertThat(mavenSettings.getServers().getServers().get(0).getPassword()).isEqualTo(DECRYPTED_PASSWORD);
     }
