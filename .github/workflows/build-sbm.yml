@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - "**"
-    paths:
-      - "!sbm-support-rewrite/**"
+    paths-ignore:
+      - "sbm-support-rewrite/**"
 jobs:
   build:
     runs-on: ubuntu-latest
