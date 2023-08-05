@@ -21,8 +21,7 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
-import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
-import org.sonatype.plexus.components.cipher.PlexusCipher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
@@ -56,9 +55,8 @@ public class RewriteMavenSettingsInitializer {
     }
 
     public MavenSettings initializeMavenSettings(ExecutionContext executionContext, Resource mavenSettingsFile, Path securitySettingsFilePath) {
-        PlexusCipher plexusCipher = null;
         try {
-            plexusCipher = containerFactory.create().lookup(PlexusCipher.class);
+            SecDispatcher plexusCipher = containerFactory.create().lookup(SecDispatcher.class);
             Parser.Input input = new Parser.Input(ResourceUtil.getPath(mavenSettingsFile), () -> ResourceUtil.getInputStream(mavenSettingsFile));
             MavenSettings mavenSettings = MavenSettings.parse(input, executionContext);
             if(securitySettingsFilePath != null && securitySettingsFilePath.toFile().exists()) {
