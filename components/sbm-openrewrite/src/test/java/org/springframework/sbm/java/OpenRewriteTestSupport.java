@@ -274,7 +274,7 @@ public class OpenRewriteTestSupport {
         }
 
         @Override
-        protected TreeVisitor<?, ExecutionContext> getVisitor() {
+        public TreeVisitor<?, ExecutionContext> getVisitor() {
             return visitor;
         }
 
