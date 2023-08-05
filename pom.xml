@@ -78,6 +78,13 @@
         </repository>
     </repositories>
 
+    <modules>
+        <!-- <module>components/sbm-utils</module> -->
+        <module>components/sbm-openrewrite</module>
+        <module>components/sbm-core</module>
+        <module>components/test-helper</module>
+        <module>components/recipe-test-support</module>
+    </modules>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -263,13 +270,6 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
-    <modules>
-        <module>components/sbm-openrewrite</module>
-        <module>components/sbm-core</module>
-        <module>components/test-helper</module>
-        <module>components/recipe-test-support</module>
-        <module>components/sbm-utils</module>
-    </modules>
     <build>
         <finalName>${jar.name}</finalName>
         <plugins>
