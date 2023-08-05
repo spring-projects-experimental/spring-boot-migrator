@@ -16,6 +16,7 @@
 package org.springframework.sbm.support.openrewrite.java;
 
 import org.openrewrite.*;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.JavaPrinter;
@@ -27,6 +28,7 @@ import org.openrewrite.marker.SearchResult;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class CodeCommentTest {
 
@@ -42,8 +44,8 @@ public class CodeCommentTest {
         J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnitFromString(javaCode);
         FindAnnotations findAnnotations = new FindAnnotations("@java.lang.Deprecated", false);
 
-        List<J.CompilationUnit> cus = List.of(compilationUnit);
-        RecipeRun recipeRun = findAnnotations.run(cus);
+        List<SourceFile> cus = List.of(compilationUnit);
+        RecipeRun recipeRun = findAnnotations.run(new InMemoryLargeSourceSet(cus), new InMemoryExecutionContext(t -> fail(t)));
 
         String markerText = """
                 /*
@@ -53,7 +55,7 @@ public class CodeCommentTest {
                 here --> */
                 """;
 
-        J.CompilationUnit cu = (J.CompilationUnit) recipeRun.getResults().get(0).getAfter();
+        J.CompilationUnit cu = (J.CompilationUnit) recipeRun.getChangeset().getAllResults().get(0).getAfter();
 
         JavaPrinter<ExecutionContext> javaPrinter = new JavaPrinter<>() {
             @Override

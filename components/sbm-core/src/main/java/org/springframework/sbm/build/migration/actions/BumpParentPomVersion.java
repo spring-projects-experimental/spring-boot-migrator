@@ -22,7 +22,7 @@ import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Slf4j
 public class BumpParentPomVersion extends AbstractAction {

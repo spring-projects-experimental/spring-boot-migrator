@@ -11,6 +11,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <jar.name>spring-boot-migrator</jar.name>
+        <openrewrite.version>8.1.8</openrewrite.version>
+        <spring-boot.version>3.1.1</spring-boot.version>
         <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
@@ -239,9 +241,9 @@
             <version>2.0.6</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.sbm</groupId>
+            <groupId>org.springframework.experimental</groupId>
             <artifactId>sbm-support-rewrite</artifactId>
-            <version>${sbm-support-rewrite.version}</version>
+            <version>0.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <modules>

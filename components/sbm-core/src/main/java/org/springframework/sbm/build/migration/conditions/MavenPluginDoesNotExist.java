@@ -20,7 +20,7 @@ import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.Setter;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 public class MavenPluginDoesNotExist implements Condition {
     @Setter

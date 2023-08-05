@@ -15,7 +15,10 @@
  */
 package org.springframework.sbm.support.openrewrite.java;
 
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.RecipeRun;
+import org.openrewrite.Result;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(MockitoExtension.class)
 class RemoveAnnotationVisitorTest {
@@ -90,9 +94,10 @@ class RemoveAnnotationVisitorTest {
         J.CompilationUnit result = cu;
         for (J.MethodDeclaration md : methodDeclarationList) {
             RemoveAnnotationVisitor sut1 = new RemoveAnnotationVisitor(md, "javax.ejb.TransactionAttribute");
-            RecipeRun run = new GenericOpenRewriteRecipe(() -> sut1).run(List.of(result));
-            if (!run.getResults().isEmpty()) {
-                result = (J.CompilationUnit) run.getResults().get(0).getAfter();
+            RecipeRun run = new GenericOpenRewriteRecipe(() -> sut1).run(new InMemoryLargeSourceSet(List.of(result)), new InMemoryExecutionContext(t -> fail(t)));
+            List<Result> allResults = run.getChangeset().getAllResults();
+            if (!allResults.isEmpty()) {
+                result = (J.CompilationUnit) allResults.get(0).getAfter();
             }
         }
 
@@ -133,9 +138,9 @@ class RemoveAnnotationVisitorTest {
         J.CompilationUnit result = cu;
         for (J.VariableDeclarations vd : variableDeclarations) {
             RemoveAnnotationVisitor sut1 = new RemoveAnnotationVisitor(vd, "javax.ejb.EJB");
-            RecipeRun run = new GenericOpenRewriteRecipe(() -> sut1).run(List.of(result));
-            if (!run.getResults().isEmpty()) {
-                result = (J.CompilationUnit) run.getResults().get(0).getAfter();
+            RecipeRun run = new GenericOpenRewriteRecipe(() -> sut1).run(new InMemoryLargeSourceSet(List.of(result)), new InMemoryExecutionContext(t -> fail(t)));
+            if (!run.getChangeset().getAllResults().isEmpty()) {
+                result = (J.CompilationUnit) run.getChangeset().getAllResults().get(0).getAfter();
             }
         }
 

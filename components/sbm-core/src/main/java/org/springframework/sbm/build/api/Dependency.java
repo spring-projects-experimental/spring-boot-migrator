@@ -19,7 +19,7 @@ import io.micrometer.core.lang.Nullable;
 import lombok.*;
 import org.openrewrite.semver.LatestRelease;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

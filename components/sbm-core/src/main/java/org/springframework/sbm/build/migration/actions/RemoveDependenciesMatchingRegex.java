@@ -23,8 +23,8 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import lombok.*;
 import org.springframework.sbm.engine.recipe.MultiModuleAwareAction;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -23,7 +23,7 @@ import lombok.Setter;
 import org.springframework.sbm.engine.recipe.MultiModuleAwareAction;
 import org.springframework.sbm.engine.recipe.MultiModuleHandler;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 @Getter
 @SuperBuilder

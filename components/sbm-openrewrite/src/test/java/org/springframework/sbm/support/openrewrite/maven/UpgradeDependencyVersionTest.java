@@ -17,7 +17,10 @@ package org.springframework.sbm.support.openrewrite.maven;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.RecipeRun;
+import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.UpgradeParentVersion;
 import org.openrewrite.xml.tree.Xml;
@@ -25,6 +28,7 @@ import org.openrewrite.xml.tree.Xml;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class UpgradeDependencyVersionTest {
 
@@ -52,14 +56,21 @@ public class UpgradeDependencyVersionTest {
                         "    </properties>\n" +
                         "</project>";
 
-        Xml.Document maven = MavenParser.builder()
+        SourceFile maven = MavenParser.builder()
                 .build()
                 .parse(pomXml)
+                .toList()
                 .get(0);
 
-        RecipeRun recipeRun = new UpgradeParentVersion("org.springframework.boot", "spring-boot-starter-parent", "2.5.6", null).run(List.of(maven));
+        RecipeRun recipeRun = new UpgradeParentVersion(
+                "org.springframework.boot",
+                "spring-boot-starter-parent",
+                "2.5.6",
+                null,
+                List.of()
+        ).run(new InMemoryLargeSourceSet(List.of(maven)), new InMemoryExecutionContext(t -> fail(t)));
 
-        assertThat(recipeRun.getResults().get(0).getAfter().printAll()).isEqualTo(
+        assertThat(recipeRun.getChangeset().getAllResults().get(0).getAfter().printAll()).isEqualTo(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
                 "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +

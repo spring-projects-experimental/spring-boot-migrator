@@ -37,6 +37,13 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Pattern;
 
+/**
+ * FIXME: This Recipe was broken with OR 8.1.x upgrade. Do we fix and keep it?
+ * In some cases a new version is added but the older version tag is not removed.
+ * In other cases the dropwizard dependency was upghraded to its recent version.
+ * Is this expected?
+ */
+
 @Slf4j
 public class UpgradeUnmanagedSpringProject extends Recipe {
 
@@ -53,6 +60,16 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     public UpgradeUnmanagedSpringProject() {
     }
 
+    @Override
+    public String getDisplayName() {
+        return "Upgrade unmanaged spring project";
+    }
+
+    @Override
+    public String getDescription() {
+        return getDisplayName();
+    }
+
     public UpgradeUnmanagedSpringProject(String newVersion, String versionPattern) {
 
         this.newVersion = newVersion;
@@ -67,7 +84,10 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         this.oldVersionPattern = Pattern.compile(versionPattern);
     }
 
-    @Override
+    // FIXME: What happens to getApplicableTest()
+    // [Rewrite8 migration] Method `Recipe#getApplicableTest(..)` is deprecated and needs to be converted to a `ScanningRecipe`. Or you can use `Precondition#check()` if it is meant to use a single-source applicability test. please follow the migration guide here: https://docs.openrewrite.org/changelog/8-1-2-release
+    // [Rewrite8 migration] Method `Recipe#getApplicableTest(..)` is deprecated and needs to be converted to a `ScanningRecipe`. Or you can use `Precondition#check()` if it is meant to use a single-source applicability test. please follow the migration guide here: https://docs.openrewrite.org/changelog/8-1-2-release
+    // [Rewrite8 migration] Method `Recipe#getApplicableTest(..)` is deprecated and needs to be converted to a `ScanningRecipe`. Or you can use `Precondition#check()` if it is meant to use a single-source applicability test. please follow the migration guide here: https://docs.openrewrite.org/changelog/8-1-2-release
     protected TreeVisitor<?, ExecutionContext> getApplicableTest() {
         return new MavenIsoVisitor<>() {
             @Override
@@ -100,11 +120,6 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                 return oldVersionPattern.matcher(version).matches();
             }
         };
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Upgrade unmanaged spring project";
     }
 
     public synchronized Map<String, String> getDependenciesMap(ExecutionContext ctx) {
@@ -149,7 +164,8 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                     }
                     if (versionValue.startsWith("${")) {
                         String propertyName = versionValue.substring(2, versionValue.length() - 1);
-                        version.ifPresent(xml -> doAfterVisit(new ChangePropertyValue(propertyName, dependencyVersion, true, true)));
+                        ChangePropertyValue visitor = new ChangePropertyValue(propertyName, dependencyVersion, true, true);
+                        version.ifPresent(xml -> doAfterVisit(visitor.getVisitor()));
                     } else {
                         version.ifPresent(xml -> doAfterVisit(new ChangeTagValueVisitor(xml, dependencyVersion)));
                     }

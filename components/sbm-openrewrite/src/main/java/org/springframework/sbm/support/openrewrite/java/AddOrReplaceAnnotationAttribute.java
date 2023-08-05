@@ -33,9 +33,9 @@ public class AddOrReplaceAnnotationAttribute extends JavaIsoVisitor<ExecutionCon
     private final String attribute;
     private final Object value;
     private final Class valueType;
-    private final Supplier<JavaParser> javaParserSupplier;
+    private final Supplier<JavaParser.Builder> javaParserSupplier;
 
-    public AddOrReplaceAnnotationAttribute(Supplier<JavaParser> javaParserSupplier, J.Annotation targetAnnotation, String attribute, Object value, Class valueType) {
+    public AddOrReplaceAnnotationAttribute(Supplier<JavaParser.Builder> javaParserSupplier, J.Annotation targetAnnotation, String attribute, Object value, Class valueType) {
         this.targetAnnotation = targetAnnotation;
         this.attribute = attribute.trim();
         this.value = value;
@@ -49,7 +49,7 @@ public class AddOrReplaceAnnotationAttribute extends JavaIsoVisitor<ExecutionCon
         this.attribute = attribute.trim();
         this.value = value;
         this.valueType = valueType;
-        javaParserSupplier = () -> JavaParser.fromJavaVersion().build();
+        javaParserSupplier = () -> JavaParser.fromJavaVersion();
     }
 
     @Override
@@ -59,9 +59,10 @@ public class AddOrReplaceAnnotationAttribute extends JavaIsoVisitor<ExecutionCon
         }
 
         String templateString = renderTemplateString(annotation);
-
-        SourceTemplate<J, JavaCoordinates> template = JavaTemplate.builder(() -> getCursor(), templateString).javaParser(javaParserSupplier).build();
-        return annotation.withTemplate(template, annotation.getCoordinates().replace());
+        SourceTemplate<J, JavaCoordinates> template = JavaTemplate.builder(templateString)
+                .javaParser(javaParserSupplier.get())
+                .build();
+        return template.apply(getCursor(), annotation.getCoordinates().replace());
     }
 
     private String renderTemplateString(J.Annotation annotation) {

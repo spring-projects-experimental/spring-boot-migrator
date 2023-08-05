@@ -28,8 +28,14 @@ public class ErrorClass extends org.openrewrite.Recipe {
     }
 
     @Override
+    public String getDescription() {
+        return getDisplayName();
+    }
+
+    // FIXME: OR8.1 - visit() was removed
+//    @Override
     protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
         ctx.getOnError().accept(new RuntimeException("A problem happened whilst visiting"));
-        return super.visit(before, ctx);
+        return null; // super.visit(before, ctx);
     }
 }
