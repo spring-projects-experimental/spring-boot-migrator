@@ -44,7 +44,7 @@ public class AddMavenPlugin extends Recipe {
 	private final OpenRewriteMavenPlugin plugin;
 
 	@Override
-	protected TreeVisitor<?, ExecutionContext> getVisitor() {
+	public TreeVisitor<?, ExecutionContext> getVisitor() {
 		return new AddPluginVisitor();
 	}
 

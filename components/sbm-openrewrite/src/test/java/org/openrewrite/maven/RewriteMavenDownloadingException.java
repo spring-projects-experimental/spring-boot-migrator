@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.engine.recipe;
+package org.openrewrite.maven;
 
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.SourceFile;
+import lombok.Getter;
+import org.openrewrite.maven.tree.GroupArtifactVersion;
 
-import java.util.List;
+/**
+ * @author Fabian Krüger
+ */
+public class RewriteMavenDownloadingException extends RuntimeException {
+    @Getter
+    private final GroupArtifactVersion gav;
 
-public class ErrorClass extends org.openrewrite.Recipe {
-
-    @Override
-    public String getDisplayName() {
-        return "NAME";
-    }
-
-    @Override
-    protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
-        ctx.getOnError().accept(new RuntimeException("A problem happened whilst visiting"));
-        return super.visit(before, ctx);
+    public RewriteMavenDownloadingException(String formatted, Object o, GroupArtifactVersion gav) {
+        super(formatted);
+        this.gav = gav;
     }
 }

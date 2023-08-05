@@ -38,8 +38,13 @@ public class FindCompilationUnitContainingType extends Recipe {
     }
 
     @Override
-    protected @NotNull TreeVisitor<?, ExecutionContext> getVisitor() {
-        return new JavaIsoVisitor<>() {
+    public String getDescription() {
+        return getDisplayName();
+    }
+
+    @Override
+    public @NotNull TreeVisitor<?, ExecutionContext> getVisitor() {
+        return new JavaIsoVisitor<ExecutionContext>() {
             public J.CompilationUnit visitCompilationUnit(J.CompilationUnit cu, ExecutionContext executionContext) {
                 J.CompilationUnit compilationUnit = super.visitCompilationUnit(cu, executionContext);
                 boolean compilationUnitContainsType = compilationUnit.getClasses().stream()

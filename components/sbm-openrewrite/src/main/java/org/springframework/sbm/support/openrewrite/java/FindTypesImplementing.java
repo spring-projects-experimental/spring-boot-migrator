@@ -37,7 +37,17 @@ public class FindTypesImplementing extends Recipe {
 
     private final UUID id = Tree.randomId();
 
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    @Override
+    public String getDisplayName() {
+        return "Find types implementing ";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Find types implementing";
+    }
+
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new JavaIsoVisitor<ExecutionContext>() {
             @Override
             public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
@@ -62,10 +72,5 @@ public class FindTypesImplementing extends Recipe {
                 .filter(fqn -> !fqns.contains(fqn.getFullyQualifiedName()))
                 .findFirst()
                 .isEmpty();
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Find types implementing ";
     }
 }
