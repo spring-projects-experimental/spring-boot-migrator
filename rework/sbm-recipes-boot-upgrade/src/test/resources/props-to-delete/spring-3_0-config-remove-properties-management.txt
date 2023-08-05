@@ -1,8 +1,0 @@
-input:
-some.other="prop"
-management.endpoint.jolokia.config="abc"
-management.endpoint.jolokia.enabled=true
-management.metrics.graphql.autotime.percentiles=100
-management.metrics.graphql.autotime.percentiles-histogram=20
-expected:
-some.other="prop"
