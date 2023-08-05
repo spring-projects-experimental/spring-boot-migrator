@@ -1,9 +1,0 @@
-- name: boot-2.4-2.5-datasource-initializer
-  description: Replace deprecated spring.datasource.* properties
-  condition:
-    type: org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_CreateDatasourceInitializerCondition
-  actions:
-    - type: org.springframework.sbm.boot.upgrade_24_25.actions.Boot_24_25_CreateDatasourceInitializerAction
-      description: Replace deprecated spring.datasource.* properties
-      condition:
-        type: org.springframework.sbm.boot.upgrade_24_25.conditions.Boot_24_25_CreateDatasourceInitializerCondition
