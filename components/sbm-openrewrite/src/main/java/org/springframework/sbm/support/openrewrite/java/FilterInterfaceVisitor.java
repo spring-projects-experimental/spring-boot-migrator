@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,18 @@ public class FilterInterfaceVisitor extends Recipe {
 
     private final UUID id = Tree.randomId();
 
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    @Override
+    public String getDisplayName() {
+        return "Filter interfaces";
+    }
+
+
+    @Override
+    public String getDescription() {
+        return getDisplayName();
+    }
+
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new JavaIsoVisitor<ExecutionContext>() {
             @Override
             public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
@@ -41,10 +52,5 @@ public class FilterInterfaceVisitor extends Recipe {
                 return a;
             }
         };
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Filter interfaces";
     }
 }

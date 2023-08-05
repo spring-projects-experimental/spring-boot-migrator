@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,38 +15,39 @@
  */
 package org.springframework.sbm.openrewrite;
 
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.Recipe;
-import org.openrewrite.RecipeRun;
+import org.openrewrite.*;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MavenRefactoringTestHelper {
     public static void verifyChange(String pomXml, String refactoredPomXml, MavenVisitor visitor) {
         RecipeRun recipeRun = applyVisitor(pomXml, visitor);
-        assertEquals(refactoredPomXml, recipeRun.getResults().iterator().next().getAfter().printAll());
+        assertEquals(refactoredPomXml, recipeRun.getChangeset().getAllResults().iterator().next().getAfter().printAll());
     }
 
     public static void verifyChange(String pomXml, String refactoredPomXml, Recipe recipe) {
         RecipeRun recipeRun = applyRecipe(pomXml, recipe);
-        assertEquals(refactoredPomXml, recipeRun.getResults().iterator().next().getAfter().printAll());
+        assertEquals(refactoredPomXml, recipeRun.getChangeset().getAllResults().iterator().next().getAfter().printAll());
     }
 
     public static void verifyNoChange(String pomXml, String refactoredPomXml, MavenVisitor visitor) {
         RecipeRun recipeRun = applyVisitor(pomXml, visitor);
-        assertThat(recipeRun.getResults()).isEmpty();
+        assertThat(recipeRun.getChangeset().getAllResults()).isEmpty();
     }
 
     private static RecipeRun applyRecipe(String pomXml, Recipe recipe) {
-        List<Xml.Document> documents = MavenParser.builder().build().parse(pomXml);
-        return recipe.run(documents);
+        Stream<SourceFile> documents = MavenParser.builder().build().parse(pomXml);
+        return recipe.run(new InMemoryLargeSourceSet(documents.toList()), new InMemoryExecutionContext(t -> fail(t)));
     }
 
     private static RecipeRun applyVisitor(String pomXml, MavenVisitor<ExecutionContext> visitor) {
@@ -56,6 +57,6 @@ public class MavenRefactoringTestHelper {
 
     public static void verifyNoChange(String pomXml, Recipe recipe) {
         RecipeRun recipeRun = applyRecipe(pomXml, recipe);
-        assertThat(recipeRun.getResults()).isEmpty();
+        assertThat(recipeRun.getChangeset().getAllResults()).isEmpty();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  */
 package org.springframework.sbm.support.openrewrite.recipes;
 
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.RecipeRun;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.OpenRewriteApiTest;
@@ -24,6 +26,7 @@ import org.springframework.sbm.java.OpenRewriteTestSupport;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ChangeTypeTest {
 
@@ -48,8 +51,8 @@ public class ChangeTypeTest {
 
         J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(javaSource, "javax:javaee-api:8.0", "org.springframework:spring-web:5.3.7", "com.google.code.findbugs:jsr305:3.0.2");
 
-        RecipeRun recipeRun = changeType.run(List.of(compilationUnit));
-        assertThat(recipeRun.getResults().get(0).getAfter().printAll()).isEqualTo(
+        RecipeRun recipeRun = changeType.run(new InMemoryLargeSourceSet(List.of(compilationUnit)), new InMemoryExecutionContext(t -> fail(t)));
+        assertThat(recipeRun.getChangeset().getAllResults().get(0).getAfter().printAll()).isEqualTo(
                 "import org.springframework.http.HttpStatus;\n" +
                 "\n" +
                 "public class TestController {\n" +

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  */
 package org.springframework.sbm.support.openrewrite.api;
 
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.RecipeRun;
+import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.RemoveUnusedImports;
@@ -24,6 +27,7 @@ import org.openrewrite.java.tree.J;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class RemoveUnusedImportsTest {
     @Test
@@ -56,12 +60,12 @@ public class RemoveUnusedImportsTest {
                         "    public void notSupported() {}\n" +
                         "}";
 
-        List<J.CompilationUnit> compilationUnits = OpenRewriteTestSupport.createCompilationUnitsFromStrings(List.of("javax.ejb:javax.ejb-api:3.2", "org.springframework.boot:spring-boot-starter-data-jpa:2.4.2"), javaCode);
+        List<SourceFile> compilationUnits = OpenRewriteTestSupport.createCompilationUnitsAsSourceFileFromStrings(List.of("javax.ejb:javax.ejb-api:3.2", "org.springframework.boot:spring-boot-starter-data-jpa:2.4.2"), javaCode);
 
         RemoveUnusedImports sut = new RemoveUnusedImports();
-        RecipeRun run = sut.run(compilationUnits);
+        RecipeRun run = sut.run(new InMemoryLargeSourceSet(compilationUnits), new InMemoryExecutionContext(t -> fail(t)));
 
-        assertThat(run.getResults().get(0).getAfter().printAll()).isEqualTo(expected);
+        assertThat(run.getChangeset().getAllResults().get(0).getAfter().printAll()).isEqualTo(expected);
 
     }
 }

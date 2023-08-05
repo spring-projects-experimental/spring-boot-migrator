@@ -38,7 +38,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;

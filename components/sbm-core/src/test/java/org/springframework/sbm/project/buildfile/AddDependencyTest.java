@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public class AddDependencyTest {
     @Test
     void whenDependencyIsAdded_thenJavaParserTypeCacheGetsUpdated() {
         // simple ProjectContext
-        String javaSourceCode = "import javax.validation.constraints.Email; class Y {@Email String email;}";
+        String javaSourceCode = "import jakarta.validation.constraints.Email; class Y {@Email String email;}";
         ProjectContext context = TestProjectContext
                 .buildProjectContext(eventPublisher, rewriteJavaParser)
                 .withJavaSource("src/main/java", javaSourceCode)
@@ -124,7 +124,7 @@ public class AddDependencyTest {
         //rewriteJavaParser.getJavaParser().parse(javaSourceCode);
         context.getApplicationModules().getRootModule().getMainJavaSourceSet().addJavaSource(TestProjectContext.getDefaultProjectRoot(),
                                                                                                   Path.of("src/main/java"),
-                                                                                                  "import javax.validation.constraints.Email; class X {@Email String email;}");
+                                                                                                  "import jakarta.validation.constraints.Email; class X {@Email String email;}");
 
         // The Email annotation can now be resolved
         HashMap<Object, JavaType> typeCacheAfter = retrieveTypeCache(rewriteJavaParser.getJavaParser());
