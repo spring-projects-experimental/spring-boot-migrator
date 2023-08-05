@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,14 @@ public class ErrorClass extends org.openrewrite.Recipe {
     }
 
     @Override
+    public String getDescription() {
+        return getDisplayName();
+    }
+
+    // FIXME: OR8.1 - visit() was removed
+//    @Override
     protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
         ctx.getOnError().accept(new RuntimeException("A problem happened whilst visiting"));
-        return super.visit(before, ctx);
+        return null; // super.visit(before, ctx);
     }
 }

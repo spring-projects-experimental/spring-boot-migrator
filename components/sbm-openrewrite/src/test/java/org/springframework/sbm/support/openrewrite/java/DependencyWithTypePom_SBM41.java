@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 package org.springframework.sbm.support.openrewrite.java;
 
 import org.junit.jupiter.api.Test;
+import org.openrewrite.SourceFile;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public class DependencyWithTypePom_SBM41 {
 
@@ -57,7 +59,7 @@ public class DependencyWithTypePom_SBM41 {
                         "    </dependencies>\n" +
                         "</project>";
 
-        List<Xml.Document> mavenList = MavenParser.builder()
+        Stream<SourceFile> mavenList = MavenParser.builder()
                 .build()
                 .parse(pomXml);
 

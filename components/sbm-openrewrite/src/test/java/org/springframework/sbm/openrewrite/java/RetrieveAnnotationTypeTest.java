@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class RetrieveAnnotationTypeTest {
                 .classpath(classpathFiles)
                 .build();
 
-        List<J.Annotation> leadingAnnotations = javaParser.parse(javaSource).get(0).getClasses().get(0).getLeadingAnnotations();
+        List<J.Annotation> leadingAnnotations = javaParser.parse(javaSource).map(J.CompilationUnit.class::cast).toList().get(0).getClasses().get(0).getLeadingAnnotations();
         JavaType.Class type = JavaType.Class.class.cast(leadingAnnotations.get(0).getType());
         assertThat(type.getFullyQualifiedName()).isEqualTo("javax.ejb.Stateless");
     }
