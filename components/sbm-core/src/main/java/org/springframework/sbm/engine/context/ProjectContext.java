@@ -15,21 +15,26 @@
  */
 package org.springframework.sbm.engine.context;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.Recipe;
+import org.openrewrite.Result;
+import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.build.api.ApplicationModules;
-import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.RootBuildFileFilter;
 import org.springframework.sbm.build.filter.BuildFileProjectResourceFilter;
+import org.springframework.sbm.engine.recipe.OpenRewriteSourceFilesFinder;
+import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
 import org.springframework.sbm.java.api.ProjectJavaSources;
 import org.springframework.sbm.java.impl.ProjectJavaSourcesImpl;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -46,14 +51,16 @@ public class ProjectContext {
     private String revision;
     private final JavaParser javaParser;
     private final ExecutionContext executionContext;
+    private final RewriteMigrationResultMerger resultMerger;
 
-    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParser javaParser, ExecutionContext executionContext) {
+    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParser javaParser, ExecutionContext executionContext, RewriteMigrationResultMerger resultMerger) {
         this.projectRootDirectory = projectRootDirectory.toAbsolutePath();
         this.projectResources = projectResources;
         this.javaRefactoringFactory = javaRefactoringFactory;
         this.basePackageCalculator = basePackageCalculator;
         this.javaParser = javaParser;
         this.executionContext = executionContext;
+        this.resultMerger = resultMerger;
     }
 
     public ProjectResourceSet getProjectResources() {

@@ -119,6 +119,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     RewritePlainTextParser.class,
                     RewriteMavenParser.class,
                     MavenSettingsInitializer.class,
+                    RewriteMigrationResultMerger.class,
                     RewriteMavenArtifactDownloader.class,
                     JavaProvenanceMarkerFactory.class,
                     MavenConfigHandler.class,

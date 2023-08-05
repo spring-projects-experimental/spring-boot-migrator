@@ -34,10 +34,6 @@ public class OpenRewriteDeclarativeRecipeAdapter extends AbstractAction {
     @JsonIgnore
     @Setter
     private RewriteRecipeLoader rewriteRecipeLoader;
-    @JsonIgnore
-    @Autowired
-    @Setter
-    private RewriteRecipeRunner rewriteRecipeRunner;
 
     public OpenRewriteDeclarativeRecipeAdapter() {
         super(builder());
@@ -51,6 +47,6 @@ public class OpenRewriteDeclarativeRecipeAdapter extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
         Recipe recipe = rewriteRecipeLoader.createRecipe(openRewriteRecipe);
-        rewriteRecipeRunner.run(context, recipe);
+        context.apply(recipe);
     }
 }

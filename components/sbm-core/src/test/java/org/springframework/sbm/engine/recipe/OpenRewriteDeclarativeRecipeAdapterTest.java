@@ -31,9 +31,6 @@ public class OpenRewriteDeclarativeRecipeAdapterTest {
     @Mock
     RewriteRecipeLoader rewriteRecipeLoader;
 
-    @Mock
-    RewriteRecipeRunner rewriteRecipeRunner;
-
     @InjectMocks
     OpenRewriteDeclarativeRecipeAdapter sut;
 
@@ -41,14 +38,13 @@ public class OpenRewriteDeclarativeRecipeAdapterTest {
     void testApply() {
         String recipeDeclaration = "name: some-recipe";
         sut.setOpenRewriteRecipe(recipeDeclaration);
-
         org.openrewrite.Recipe recipe = mock(org.openrewrite.Recipe.class);
         when(rewriteRecipeLoader.createRecipe(recipeDeclaration)).thenReturn(recipe);
         ProjectContext context = mock(ProjectContext.class);
 
         sut.apply(context);
 
-        verify(rewriteRecipeRunner).run(context, recipe);
+        verify(context).apply(recipe);
     }
 
 
