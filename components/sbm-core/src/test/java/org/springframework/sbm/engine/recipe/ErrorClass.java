@@ -15,11 +15,6 @@
  */
 package org.springframework.sbm.engine.recipe;
 
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.SourceFile;
-
-import java.util.List;
-
 public class ErrorClass extends org.openrewrite.Recipe {
 
     @Override
@@ -28,8 +23,19 @@ public class ErrorClass extends org.openrewrite.Recipe {
     }
 
     @Override
-    protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
-        ctx.getOnError().accept(new RuntimeException("A problem happened whilst visiting"));
-        return super.visit(before, ctx);
+    public String getDescription() {
+        return getDisplayName();
     }
+
+    // FIXME: OR8.1 getVisitor() removed
+//    @Override
+//    public TreeVisitor<?, ExecutionContext> getVisitor() {
+//        ctx.getOnError().accept(new RuntimeException("A problem happened whilst visiting"));
+//        return super.getVisitor();
+//    }
+//
+//    protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
+//        ctx.getOnError().accept(new RuntimeException("A problem happened whilst visiting"));
+//        return super.visit(before, ctx);
+//    }
 }
