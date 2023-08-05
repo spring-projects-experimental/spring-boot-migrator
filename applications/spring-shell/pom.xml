@@ -164,7 +164,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.1.2</version>
                 <!-- Necessary to have test resource projects on the classpath-->
                 <configuration>
                     <classesDirectory>${project.build.outputDirectory}</classesDirectory>

@@ -35,10 +35,12 @@ public class MigrateJaxRsAnnotationsRecipeIntegrationTest extends IntegrationTes
     private final String expectedJavaSource =
             """
                     package com.example.jee.app;
-
+                    
+                    import org.springframework.http.HttpStatus;
+                    import org.springframework.http.HttpStatus.Series;
                     import org.springframework.http.MediaType;
                     import org.springframework.web.bind.annotation.*;
-
+                    
                     import org.springframework.web.bind.annotation.PathVariable;
                     import org.springframework.web.bind.annotation.RequestParam;
                     
@@ -62,6 +64,10 @@ public class MigrateJaxRsAnnotationsRecipeIntegrationTest extends IntegrationTes
                         public String getHelloWorldXML(@PathVariable("name") String name) throws Exception {
                             System.out.println("name: " + name);
                             return "<xml>Hello "+name+"</xml>";
+                        }
+                        
+                        private boolean isResponseStatusSuccessful(HttpStatus.Series family) {
+                            return family == Series.SUCCESSFUL;
                         }
 
                     }

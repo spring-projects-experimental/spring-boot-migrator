@@ -25,7 +25,6 @@ import org.springframework.sbm.build.migration.conditions.NoExactDependencyExist
 import org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.RewriteRecipeLoader;
-import org.springframework.sbm.engine.recipe.RewriteRecipeRunner;
 import org.springframework.sbm.java.JavaRecipeAction;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.java.migration.actions.ReplaceTypeAction;
@@ -50,7 +49,7 @@ public class MigrateJaxRsRecipe {
     private final Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
 
     @Bean
-    public Recipe jaxRs(RewriteRecipeLoader rewriteRecipeLoader, RewriteRecipeRunner rewriteRecipeRunner) {
+    public Recipe jaxRs(RewriteRecipeLoader rewriteRecipeLoader) {
         return Recipe.builder()
                 .name("migrate-jax-rs")
                 .order(60)
@@ -137,7 +136,6 @@ public class MigrateJaxRsRecipe {
                                         .condition(HasAnnotation.builder().annotation("org.springframework.web.bind.annotation.RequestParam").build())
                                         .description("Adds required=false to all @RequestParam annotations")
                                         .rewriteRecipeLoader(rewriteRecipeLoader)
-                                        .rewriteRecipeRunner(rewriteRecipeRunner)
                                         .openRewriteRecipe(
                                                 """
                                                 type: specs.openrewrite.org/v1beta/recipe

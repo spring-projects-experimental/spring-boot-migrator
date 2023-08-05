@@ -19,10 +19,23 @@ import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.JavaTemplate;
 import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
+import org.springframework.sbm.java.migration.recipes.openrewrite.ReplaceConstantWithAnotherConstant;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SwapFamilyForSeries extends Recipe {
 
     public SwapFamilyForSeries() {
+        Map<String, String> fieldsMapping = new HashMap<>();
+        fieldsMapping.put("INFORMATIONAL", "INFORMATIONAL");
+        fieldsMapping.put("SUCCESSFUL", "SUCCESSFUL");
+        fieldsMapping.put("REDIRECTION", "REDIRECTION");
+        fieldsMapping.put("CLIENT_ERROR", "CLIENT_ERROR");
+        fieldsMapping.put("SERVER_ERROR", "SERVER_ERROR");
+        fieldsMapping.forEach(
+                (key, value) -> doNext(new ReplaceConstantWithAnotherConstant("javax.ws.rs.core.Response.Status.Family." + key,"org.springframework.http.HttpStatus.Series." + value))
+        );
 
         // All constants seem to match on both types - let ChangeType take care of type changing for field accesses
         doNext(new RewriteMethodInvocation(

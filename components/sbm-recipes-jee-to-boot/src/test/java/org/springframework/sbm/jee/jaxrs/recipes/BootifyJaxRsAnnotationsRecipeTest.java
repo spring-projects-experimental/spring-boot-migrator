@@ -15,17 +15,15 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
-import org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter;
-import org.springframework.sbm.java.impl.RewriteJavaParser;
-import org.springframework.sbm.project.resource.SbmApplicationProperties;
-import org.springframework.sbm.test.RecipeTestSupport;
+import org.junit.jupiter.api.Test;
 import org.springframework.sbm.build.migration.actions.AddDependencies;
+import org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.java.JavaRecipeAction;
 import org.springframework.sbm.java.migration.actions.ReplaceTypeAction;
 import org.springframework.sbm.jee.jaxrs.MigrateJaxRsRecipe;
 import org.springframework.sbm.jee.jaxrs.actions.ConvertJaxRsAnnotations;
-import org.junit.jupiter.api.Test;
+import org.springframework.sbm.test.RecipeTestSupport;
 
 import java.util.Optional;
 
@@ -34,7 +32,7 @@ public class BootifyJaxRsAnnotationsRecipeTest {
     @Test
     void test() {
 
-        Recipe jaxRsRecipe = new MigrateJaxRsRecipe().jaxRs(null, null);
+        Recipe jaxRsRecipe = new MigrateJaxRsRecipe().jaxRs(null);
         Optional<Recipe> recipe = Optional.of(jaxRsRecipe);
         RecipeTestSupport.assertThatRecipeExists(recipe);
         RecipeTestSupport.assertThatRecipeHasActions(recipe,

@@ -2,9 +2,11 @@ package com.example.jee.app;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
 @Path("/")
 public class PersonController {
@@ -34,6 +36,10 @@ public class PersonController {
     public String getHelloWorldXML(@PathParam("name") String name) throws Exception {
         System.out.println("name: " + name);
         return "<xml>Hello "+name+"</xml>";
+    }
+
+    private boolean isResponseStatusSuccessful(Response.Status.Family family) {
+        return family == SUCCESSFUL;
     }
 
 }

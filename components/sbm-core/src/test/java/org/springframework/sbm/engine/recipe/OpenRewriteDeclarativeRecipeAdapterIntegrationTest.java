@@ -32,7 +32,6 @@ import org.springframework.validation.beanvalidation.CustomValidatorBean;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = {
         RecipeParser.class,
@@ -43,7 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         ActionDeserializerRegistry.class,
         DefaultActionDeserializer.class,
         RewriteMigrationResultMerger.class,
-        RewriteRecipeRunner.class,
         RewriteSourceFileWrapper.class,
         CustomValidatorBean.class,
         RewriteExecutionContext.class,

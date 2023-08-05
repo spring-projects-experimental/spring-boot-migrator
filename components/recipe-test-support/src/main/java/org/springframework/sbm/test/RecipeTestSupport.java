@@ -69,7 +69,6 @@ public class RecipeTestSupport {
             DefaultActionDeserializer.class,
             RewriteJavaSearchActionDeserializer.class,
             RewriteRecipeLoader.class,
-            RewriteRecipeRunner.class,
             RewriteMigrationResultMerger.class,
             RewriteSourceFileWrapper.class,
             SbmRecipeLoader.class,
