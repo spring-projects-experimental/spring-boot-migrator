@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.springframework.sbm</groupId>
         <artifactId>spring-boot-migrator</artifactId>
-        <version>0.15.0</version>
+        <version>0.15.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -32,27 +32,27 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-recipes-spring-framework</artifactId>
-            <version>0.15.0</version>
+            <version>0.15.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-recipes-jee-to-boot</artifactId>
-            <version>0.15.0</version>
+            <version>0.15.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-core</artifactId>
-            <version>0.15.0</version>
+            <version>0.15.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-recipes-mule-to-boot</artifactId>
-            <version>0.15.0</version>
+            <version>0.15.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-recipes-spring-cloud</artifactId>
-            <version>0.15.0</version>
+            <version>0.15.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>test-helper</artifactId>
-            <version>0.15.0</version>
+            <version>0.15.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -117,12 +117,12 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-support-weblogic</artifactId>
-            <version>0.15.0</version>
+            <version>0.15.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-recipes-boot-upgrade</artifactId>
-            <version>0.15.0</version>
+            <version>0.15.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
