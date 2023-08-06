@@ -21,8 +21,6 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.JavaCoordinates;
-import org.openrewrite.template.SourceTemplate;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -59,10 +57,10 @@ public class AddOrReplaceAnnotationAttribute extends JavaIsoVisitor<ExecutionCon
         }
 
         String templateString = renderTemplateString(annotation);
-        SourceTemplate<J, JavaCoordinates> template = JavaTemplate.builder(templateString)
-                .javaParser(javaParserSupplier.get())
+        JavaTemplate template = JavaTemplate.builder(() -> getCursor().getParent(), templateString)
+                .javaParser(() -> javaParserSupplier.get().build())
                 .build();
-        return template.apply(getCursor(), annotation.getCoordinates().replace());
+        return template.withTemplate(annotation, annotation.getCoordinates().replace(), new Object[]{});
     }
 
     private String renderTemplateString(J.Annotation annotation) {

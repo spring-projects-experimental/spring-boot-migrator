@@ -15,12 +15,12 @@
  */
 package org.springframework.sbm.support.openrewrite.java;
 
-import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaCoordinates;
 
 import java.util.Comparator;
 import java.util.function.Supplier;
@@ -53,9 +53,12 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext p) {
         J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, p);
         if (target.getId().equals(cd.getId()) && !targetVisited) {
-            JavaTemplate template = getJavaTemplate(p, snippet, imports);
+            JavaTemplate template = JavaTemplate.builder(() -> getCursor().getParent(), snippet)
+                    .imports(imports)
+                    .build();
             Stream.of(imports).forEach(i -> maybeAddImport(i, null, false));
-            cd = template.apply(getCursor(), cd.getCoordinates().addAnnotation((o1, o2) -> 0));
+            JavaCoordinates coordinates = cd.getCoordinates().addAnnotation((o1, o2) -> 0);
+            cd = cd.withTemplate(template, coordinates);
             targetVisited = true;
         }
         return cd;
@@ -65,12 +68,13 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration methodDecl, ExecutionContext p) {
         J.MethodDeclaration md = super.visitMethodDeclaration(methodDecl, p);
         if (target.getId().equals(md.getId()) && !targetVisited) {
-            JavaTemplate template = getJavaTemplate(p, snippet, imports);
+            JavaTemplate template = JavaTemplate.builder(() -> getCursor().getParent(), snippet)
+                            .imports(imports)
+                            .build();
             Stream.of(imports).forEach(i -> {
                 maybeAddImport(i, null, false);
-//                maybeAddImport(i)
             });
-            md = template.apply(snippet, getCursor(), md.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
+            md = md.withTemplate(template, md.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
             targetVisited = true;
         }
         return md;
@@ -80,9 +84,9 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     public J.VariableDeclarations visitVariableDeclarations(J.VariableDeclarations multiVariable, ExecutionContext p) {
         J.VariableDeclarations vd = super.visitVariableDeclarations(multiVariable, p);
         if (target.getId().equals(vd.getId()) && !targetVisited) {
-            JavaTemplate template = getJavaTemplate(p, snippet, imports);
+            JavaTemplate template = JavaTemplate.builder(() -> getCursor().getParent(), snippet).imports(imports).build();
             Stream.of(imports).forEach(i -> maybeAddImport(i, null, false));
-            vd = template.apply(getCursor(), vd.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
+            vd = vd.withTemplate(template, vd.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
             targetVisited = true;
         }
         return vd;
@@ -93,15 +97,6 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
         result[0] = annotationImport;
         System.arraycopy(otherImports, 0, result, 1, otherImports.length);
         return result;
-    }
-
-    @NotNull
-    private JavaTemplate getJavaTemplate(ExecutionContext p, String snippet, String... imports) {
-        // FIXME: #7 javaParser must be recreated to update typesInUse in SourceSet
-        return JavaTemplate.builder(snippet)
-                .imports(imports)
-                .javaParser(javaParserSupplier.get())
-                .build();
     }
 
 }
