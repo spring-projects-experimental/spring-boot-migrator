@@ -1391,23 +1391,19 @@
 
           change: |-
             The `fork` attribute of `spring-boot:run` and `spring-boot:start` that was deprecated in Spring Boot 2.7 has been removed.
-
+            Hence, we should replace with `process-exec-maven-plugin`.
           affected: |-
             Actually, we don't know if the scanned application is really affected by this change.
             But we found a dependency matching regex `org\.springframework\.boot\:spring-boot-starter\:.*`.
             This indicates that the scanned application might be affected.
           remediation:
             description: |-
-              [IMPORTANT]
-              ====
-              This section has been automatically generated from the https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#running-your-application-in-the-maven-process[Spring Boot 3.0 Migration Guide^, role="ext-link"]. +
-              **Please consider contributing to issue https://github.com/spring-projects-experimental/spring-boot-migrator/issues/666[#666^, role="ext-link"]**
-              ====
+              Add the process-exec-maven-plugin in pom.xml under plugin section, for more details, please go through the link https://github.com/bazaarvoice/maven-process-plugin[Maven Process Plugin^, role="ext-link"]. +
           projects:
             - spring-boot
           gitHubIssue: 666
-        #  contributors:
-        #    - Your Name[@your-gh-handle]
+          contributors:
+            - "Mahendra Rao[@bsmahi]"
 
 
         #
