@@ -8,31 +8,29 @@
     <packaging>pom</packaging>
 
     <properties>
+        <jar.name>spring-boot-migrator</jar.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <jar.name>spring-boot-migrator</jar.name>
         <openrewrite.version>8.1.8</openrewrite.version>
-        <spring-boot.version>3.1.1</spring-boot.version>
+        <spring-boot.version>3.1.2</spring-boot.version>
         <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java.version>17</java.version>
-        <spring-shell.version>2.1.10</spring-shell.version>
-        <openrewrite.version>8.1.8</openrewrite.version>
-        <openrewrite.spring.version>4.32.0</openrewrite.spring.version>
-        <rewrite-migrate-java.version>1.17.0</rewrite-migrate-java.version>
-        <spring-boot.version>3.1.1</spring-boot.version>
-        <progressbar.version>0.9.5</progressbar.version>
-        <testcontainers.version>1.19.0</testcontainers.version>
-        <maven-invoker.version>3.2.0</maven-invoker.version>
+        <!--        <spring-shell.version>2.1.10</spring-shell.version>-->
+        <openrewrite.spring.version>5.0.5</openrewrite.spring.version>
+        <rewrite-migrate-java.version>2.0.6</rewrite-migrate-java.version>
+        <!--        <progressbar.version>0.9.5</progressbar.version>-->
+        <!--        <testcontainers.version>1.17.6</testcontainers.version>-->
+                <maven-invoker.version>3.2.0</maven-invoker.version>
         <shrinkwrap.resolvers.version>3.1.4</shrinkwrap.resolvers.version>
         <lombok.version>1.18.24</lombok.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
         <snakeyaml.version>1.33</snakeyaml.version>
-        <sbm-support-rewrite.version>0.1.0-SNAPSHOT</sbm-support-rewrite.version>
+        <sbm-support-rewrite.version>0.1.ß-SNAPSHOT</sbm-support-rewrite.version>
         <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
     </properties>
 
@@ -206,7 +204,7 @@
                 <version>${rewrite-migrate-java.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.xml.bind</groupId>
+                <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>2.3.1</version>
             </dependency>
