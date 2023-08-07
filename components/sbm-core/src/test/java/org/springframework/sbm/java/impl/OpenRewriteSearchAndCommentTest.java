@@ -34,6 +34,7 @@ class OpenRewriteSearchAndCommentTest {
 
         String javaSource1 =
                 """
+                import java.lang.Deprecated;
                 public class SomeTest {
                     @Deprecated public void test() {}
                 }
@@ -63,6 +64,7 @@ class OpenRewriteSearchAndCommentTest {
         assertThat(projectContext.getProjectJavaSources().list().get(1).print()).isEqualTo(javaSource2);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print()).isEqualTo(
                 """
+                import java.lang.Deprecated;
                 public class SomeTest {
                    \s
                 /*
