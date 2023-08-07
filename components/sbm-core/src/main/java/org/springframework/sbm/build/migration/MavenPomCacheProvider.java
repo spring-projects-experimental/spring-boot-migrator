@@ -21,7 +21,7 @@ import org.openrewrite.maven.cache.MavenPomCache;
 import org.openrewrite.maven.cache.RocksdbMavenPomCache;
 import org.springframework.sbm.engine.annotations.StatefulComponent;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.nio.file.Path;
 
 @StatefulComponent
