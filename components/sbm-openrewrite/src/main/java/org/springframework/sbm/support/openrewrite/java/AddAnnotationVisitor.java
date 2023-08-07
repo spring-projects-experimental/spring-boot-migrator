@@ -53,12 +53,12 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext p) {
         J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, p);
         if (target.getId().equals(cd.getId()) && !targetVisited) {
-            JavaTemplate template = JavaTemplate.builder(() -> getCursor().getParent(), snippet)
+            JavaTemplate template = JavaTemplate.builder(snippet)
                     .imports(imports)
                     .build();
             Stream.of(imports).forEach(i -> maybeAddImport(i, null, false));
             JavaCoordinates coordinates = cd.getCoordinates().addAnnotation((o1, o2) -> 0);
-            cd = cd.withTemplate(template, coordinates);
+            cd = template.apply(getCursor(), coordinates);
             targetVisited = true;
         }
         return cd;
@@ -68,13 +68,13 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration methodDecl, ExecutionContext p) {
         J.MethodDeclaration md = super.visitMethodDeclaration(methodDecl, p);
         if (target.getId().equals(md.getId()) && !targetVisited) {
-            JavaTemplate template = JavaTemplate.builder(() -> getCursor().getParent(), snippet)
+            JavaTemplate template = JavaTemplate.builder(snippet)
                             .imports(imports)
                             .build();
             Stream.of(imports).forEach(i -> {
                 maybeAddImport(i, null, false);
             });
-            md = md.withTemplate(template, md.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
+            md = template.apply(getCursor(), md.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
             targetVisited = true;
         }
         return md;
@@ -84,9 +84,9 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     public J.VariableDeclarations visitVariableDeclarations(J.VariableDeclarations multiVariable, ExecutionContext p) {
         J.VariableDeclarations vd = super.visitVariableDeclarations(multiVariable, p);
         if (target.getId().equals(vd.getId()) && !targetVisited) {
-            JavaTemplate template = JavaTemplate.builder(() -> getCursor().getParent(), snippet).imports(imports).build();
+            JavaTemplate template = JavaTemplate.builder(snippet).imports(imports).build();
             Stream.of(imports).forEach(i -> maybeAddImport(i, null, false));
-            vd = vd.withTemplate(template, vd.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
+            vd = template.apply(getCursor(), vd.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
             targetVisited = true;
         }
         return vd;

@@ -9,10 +9,11 @@
     <packaging>pom</packaging>
 
     <properties>
+        <jar.name>spring-boot-migrator</jar.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <openrewrite.version>8.1.8</openrewrite.version>
-        <spring-boot.version>3.1.1</spring-boot.version>
+        <spring-boot.version>3.1.2</spring-boot.version>
         <jar.name>spring-boot-migrator</jar.name>
         <!--        <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>-->
         <maven.compiler.target>17</maven.compiler.target>
@@ -87,6 +88,28 @@
     </modules>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-http</artifactId>
+                <version>3.5.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-transport-http</artifactId>
+                <version>1.9.14</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-api</artifactId>
+                <version>1.9.14</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-impl</artifactId>
+                <version>1.9.14</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
@@ -241,7 +264,7 @@
                 <type>pom</type>
             </dependency>
             <dependency>
-                <groupId>javax.xml.bind</groupId>
+                <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>2.3.1</version>
             </dependency>
