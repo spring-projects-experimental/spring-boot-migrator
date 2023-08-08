@@ -36,7 +36,6 @@ import org.openrewrite.xml.tree.Xml;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.scopes.ScanScope;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.*;
