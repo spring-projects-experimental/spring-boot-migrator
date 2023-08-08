@@ -22,6 +22,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.AbstractRewriteMojo;
@@ -64,7 +65,16 @@ public class RewriteProjectParser {
     private final ParserSettings parserSettings;
     private final ParsingEventListener parsingEventListener;
     private final ApplicationEventPublisher eventPublisher;
+    private final ProjectScanner scanner;
 
+
+    public RewriteProjectParsingResult parse(Path baseDir) {
+        // FIXME: Take ignorePatterns from application properties
+        Set<String> ignorePatterns = Set.of("**/target/**");
+        List<Resource> resources = scanner.scan(baseDir, ignorePatterns);
+        // FIXME: Take ExecutionContext type from application properties
+        return this.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
+    }
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
