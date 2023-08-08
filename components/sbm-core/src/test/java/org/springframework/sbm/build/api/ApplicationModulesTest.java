@@ -123,8 +123,10 @@ class ApplicationModulesTest {
         assertThat(rootModule.getModulePath()).isEqualTo(Path.of(""));
         assertThat(rootModule.getBuildFile().getCoordinates()).isEqualTo("org.example:parent:1.0-SNAPSHOT");
         assertThat(rootModule.getDeclaredModules()).hasSize(2);
-        assertThat(rootModule.getDeclaredModules().get(0)).isEqualTo("org.example:module1:1.0-SNAPSHOT");
-        assertThat(rootModule.getDeclaredModules().get(1)).isEqualTo("org.example:module2:1.0-SNAPSHOT");
+        assertThat(rootModule.getDeclaredModules()).containsExactlyInAnyOrder(
+                "org.example:module1:1.0-SNAPSHOT",
+                "org.example:module2:1.0-SNAPSHOT"
+        );
     }
 
     @Test

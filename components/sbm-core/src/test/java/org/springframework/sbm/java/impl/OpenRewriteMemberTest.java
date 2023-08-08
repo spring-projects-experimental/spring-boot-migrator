@@ -86,7 +86,7 @@ class OpenRewriteMemberTest {
                         "}";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.0.Final")
+                .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
                 .withJavaSources(sourceCode)
                 .build();
 
