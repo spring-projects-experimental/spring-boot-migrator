@@ -109,13 +109,14 @@ public class MavenBuildFileRefactoring<T extends SourceFile> {
                 .collect(Collectors.toList());
 
         // parse buildfiles
-        Stream<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInputs, null, executionContext)
+        List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInputs, null, executionContext)
                 .filter(Xml.Document.class::isInstance)
-                .map(Xml.Document.class::cast);
+                .map(Xml.Document.class::cast)
+                .toList();
 
         // replace new model in build files
         newMavenFiles.forEach(mf -> {
-                    replaceModelInBuildFile(projectResources, buildFilesWithIndex, newMavenFiles.toList(), mf);
+                    replaceModelInBuildFile(projectResources, buildFilesWithIndex, newMavenFiles, mf);
                 });
     }
 
