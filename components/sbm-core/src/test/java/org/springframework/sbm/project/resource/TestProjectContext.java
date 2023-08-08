@@ -502,6 +502,10 @@ public class TestProjectContext {
                             <artifactId>dummy-root</artifactId>
                             <version>0.1.0-SNAPSHOT</version>
                             <packaging>jar</packaging>
+                            <properties>
+                                 <maven.compiler.target>17</maven.compiler.target>
+                                 <maven.compiler.source>17</maven.compiler.source>
+                            </properties>
                         {{dependencies}}
                         </project>
                         """;
@@ -513,10 +517,12 @@ public class TestProjectContext {
                 resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
             }
 
-            try {
-                projectRoot = Files.createTempDirectory(Path.of(System.getProperty("java.io.tmpdir")), "");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if(projectRoot.equals(DEFAULT_PROJECT_ROOT)) {
+                try {
+                    projectRoot = Files.createTempDirectory(Path.of(System.getProperty("java.io.tmpdir")), "");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             // create resource map with fully qualified paths
