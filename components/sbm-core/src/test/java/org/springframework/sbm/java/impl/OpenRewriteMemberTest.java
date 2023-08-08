@@ -86,17 +86,17 @@ class OpenRewriteMemberTest {
                         "}";
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0")
+                .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.0.Final")
                 .withJavaSources(sourceCode)
                 .build();
 
         JavaSource javaSource = projectContext.getProjectJavaSources().findJavaSourceDeclaringType("com.foo.Class1").get();
-        javaSource.getTypes().get(0).getMembers().get(0).addAnnotation("org.junit.jupiter.api.BeforeEach");
+        javaSource.getTypes().get(0).getMembers().get(0).addAnnotation("javax.validation.constraints.Min");
 
         assertThat(javaSource.getImports()).hasSize(1);
-        assertThat(javaSource.hasImportStartingWith("org.junit.jupiter.api.BeforeEach")).isTrue();
-        assertThat(javaSource.getTypes().get(0).getMembers().get(0).getAnnotation("org.junit.jupiter.api.BeforeEach")).isNotNull();
-        assertThat(javaSource.getTypes().get(0).getMembers().get(1).getAnnotation("org.junit.jupiter.api.BeforeEach")).isNull();
+        assertThat(javaSource.hasImportStartingWith("javax.validation.constraints.Min")).isTrue();
+        assertThat(javaSource.getTypes().get(0).getMembers().get(0).getAnnotation("javax.validation.constraints.Min")).isNotNull();
+        assertThat(javaSource.getTypes().get(0).getMembers().get(1).getAnnotation("javax.validation.constraints.Min")).isNull();
     }
 
     @Test
