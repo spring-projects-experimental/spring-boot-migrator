@@ -39,7 +39,10 @@ import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -66,6 +69,8 @@ public class RewriteMavenProjectParser {
     private final ParsingEventListener parsingListener;
     private final MavenExecutor mavenRunner;
     private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
+    private final ScanScope scanScope;
+    private final ConfigurableListableBeanFactory beanFactory;
 
     /**
      * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
@@ -102,6 +107,8 @@ public class RewriteMavenProjectParser {
     }
 
     private RewriteProjectParsingResult parseInternal(Path baseDir, ExecutionContext executionContext, PlexusContainer plexusContainer) {
+        clearScanScopedBeans();
+
         AtomicReference<RewriteProjectParsingResult> parsingResult = new AtomicReference<>();
         mavenRunner.onProjectSucceededEvent(
                 baseDir,
@@ -120,6 +127,10 @@ public class RewriteMavenProjectParser {
                 }
         );
         return parsingResult.get();
+    }
+
+    private void clearScanScopedBeans() {
+        scanScope.clear(beanFactory);
     }
 
     private List<SourceFile> parseSourceFiles(MavenMojoProjectParser rewriteProjectParser, List<MavenProject> mavenProjects, List<NamedStyles> styles, ExecutionContext executionContext) {

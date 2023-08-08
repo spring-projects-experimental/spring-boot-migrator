@@ -41,6 +41,7 @@
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-utils</artifactId>
             <version>0.15.2-SNAPSHOT</version>
+            <version>0.15.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
