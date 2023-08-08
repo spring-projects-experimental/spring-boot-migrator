@@ -19,6 +19,8 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class HasMemberAnnotationTest {
@@ -26,22 +28,24 @@ class HasMemberAnnotationTest {
     @Test
     void testIsApplicableTRUE() {
         String sourceCode =
-                "" +
-                        "import org.junit.jupiter.api.Test; " +
-                        "                                   " +
-                        "class AnnotatedClass {             " +
-                        "   @Test                           " +
-                        "   private int var1;" +
-                        "}                                  " +
-                        "";
+                """
+                import javax.validation.constraints.Min;
+                class AnnotatedClass {
+                   @Min(8)
+                   private int var1;
+                }
+                """;
 
+        Path baseDir = Path.of("./../../sbm-support-rewrite/testcode/maven-projects/failing");
         ProjectContext context = TestProjectContext.buildProjectContext()
+                        .withProjectRoot(baseDir)
                         .withJavaSources(sourceCode)
-                        .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0")
+                        .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
+//                        .buildAndSerializeProjectContext(baseDir);
                         .build();
 
         HasMemberAnnotation sut = new HasMemberAnnotation();
-        sut.setAnnotation("org.junit.jupiter.api.Test");
+        sut.setAnnotation("javax.validation.constraints.Min");
 
         assertThat(sut.evaluate(context)).isTrue();
     }
