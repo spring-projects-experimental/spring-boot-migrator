@@ -561,11 +561,12 @@ public class TestProjectContext {
                                                                                     javaParser,
                                                                                     executionContext);
              */
+
+            // Writing to filesystem and parsing again changes th eresource order
             writeResources(projectRoot, scannedResources);
 
             ProjectContextInitializer projectContextInitializer = createProjectContextInitializer();
-
-
+            
             // create ProjectContext
             ProjectContext projectContext = projectContextInitializer.initProjectContext(projectRoot, scannedResources);
 
