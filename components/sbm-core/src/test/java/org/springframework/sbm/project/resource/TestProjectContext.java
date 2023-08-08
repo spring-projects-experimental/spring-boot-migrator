@@ -16,6 +16,7 @@
 package org.springframework.sbm.project.resource;
 
 import freemarker.template.Configuration;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
@@ -40,6 +41,7 @@ import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -178,12 +180,22 @@ import static org.mockito.Mockito.when;
  */
 public class TestProjectContext {
 
-    private static final Path DEFAULT_PROJECT_ROOT = Path
-            .of(".")
-            .resolve("target")
-            .resolve("dummy-test-path")
-            .normalize()
-            .toAbsolutePath();
+    private static final Path DEFAULT_PROJECT_ROOT = createProjectRoot();
+
+    private static Path createProjectRoot() {
+        try {
+            Path tempDirectory = Files.createTempDirectory(Path.of(System.getProperty("java.io.tmpdir")), "");
+            return tempDirectory;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+//            Path
+//            .of(".")
+//            .resolve("target")
+//            .resolve("dummy-test-path")
+//            .normalize()
+//            .toAbsolutePath();
 
     private static final String DEFAULT_PACKAGE_NAME = "not.found";
 
@@ -563,6 +575,11 @@ public class TestProjectContext {
              */
 
             // Writing to filesystem and parsing again changes th eresource order
+            try {
+                FileUtils.cleanDirectory(projectRoot.toFile());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             writeResources(projectRoot, scannedResources);
 
             ProjectContextInitializer projectContextInitializer = createProjectContextInitializer();
