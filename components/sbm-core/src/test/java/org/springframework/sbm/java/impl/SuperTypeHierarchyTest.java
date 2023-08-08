@@ -22,6 +22,8 @@ import org.springframework.sbm.java.api.SuperTypeHierarchyNode;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SuperTypeHierarchyTest {
@@ -55,7 +57,7 @@ public class SuperTypeHierarchyTest {
                 .build()
                 .getProjectJavaSources();
 
-        JavaSource papaya = javaSourceSet.list().get(5);
+        JavaSource papaya = javaSourceSet.findJavaSourceDeclaringType("Papaya3").get();
         SuperTypeHierarchy sut = new SuperTypeHierarchy(papaya.getTypes().get(0));
 
         assertThat(sut.getRoot().getNode().getFullyQualifiedName()).isEqualTo("Papaya3");
