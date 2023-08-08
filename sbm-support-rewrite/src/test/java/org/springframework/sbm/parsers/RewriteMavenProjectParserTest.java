@@ -16,7 +16,6 @@
 package org.springframework.sbm.parsers;
 
 import org.intellij.lang.annotations.Language;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,16 +44,15 @@ import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.style.Autodetect;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.events.DefaultParsingEventListener;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -263,7 +261,8 @@ class RewriteMavenProjectParserTest {
                 new StyleDetector(),
                 parserSettings,
                 mock(ParsingEventListener.class),
-                mock(ApplicationEventPublisher.class)
+                mock(ApplicationEventPublisher.class),
+                new ProjectScanner(new DefaultResourceLoader())
         );
 
         Set<String> ignoredPatters = Set.of();

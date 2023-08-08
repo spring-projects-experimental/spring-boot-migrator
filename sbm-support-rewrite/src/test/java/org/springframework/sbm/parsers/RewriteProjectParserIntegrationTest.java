@@ -19,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.java.tree.J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -75,6 +76,17 @@ public class RewriteProjectParserIntegrationTest {
         assertThat(startedParsingEvent.resources()).isSameAs(resources);
         assertThat(finishedParsingEvent).isNotNull();
         assertThat(finishedParsingEvent.sourceFiles()).isSameAs(parsingResult.sourceFiles());
+    }
+
+    @org.junit.jupiter.api.Test
+    @org.junit.jupiter.api.DisplayName("testFailingProject")
+    // FIXME: Succeeds with RewriteMavenProjectParser
+    void testFailingProject() {
+        Path baseDir = Path.of("./testcode/maven-projects/failing");
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir);
+        assertThat(parsingResult.sourceFiles().get(1)).isInstanceOf(J.CompilationUnit.class);
+        J.CompilationUnit cu = (J.CompilationUnit) parsingResult.sourceFiles().get(1);
+        assertThat(cu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
     }
 
     @TestConfiguration
