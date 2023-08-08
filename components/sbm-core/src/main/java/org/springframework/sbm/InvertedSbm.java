@@ -38,7 +38,7 @@ import java.util.Set;
 /**
  * @author Fabian Krüger
  */
-@SpringBootApplication
+//@SpringBootApplication
 public class InvertedSbm implements CommandLineRunner {
 
     public static void main(String[] args) {
