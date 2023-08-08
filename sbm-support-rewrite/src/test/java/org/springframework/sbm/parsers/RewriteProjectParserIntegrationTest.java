@@ -56,6 +56,9 @@ public class RewriteProjectParserIntegrationTest {
     @Test
     @DisplayName("Should publish parsing events")
     void shouldPublishParsingEvents() {
+        // remove events recorded in other tests
+        capturedEvents.clear();
+
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-1");
         List<Resource> resources = projectScanner.scan(baseDir, Set.of("**/target/**", "**/*.adoc"));
         ExecutionContext ctx = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
