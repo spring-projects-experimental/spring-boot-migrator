@@ -70,7 +70,7 @@ public class RewriteProjectParser {
 
     public RewriteProjectParsingResult parse(Path baseDir) {
         // FIXME: Take ignorePatterns from application properties
-        Set<String> ignorePatterns = Set.of("**/target/**");
+        Set<String> ignorePatterns = Set.of("**/.git/**");
         List<Resource> resources = scanner.scan(baseDir, ignorePatterns);
         // FIXME: Take ExecutionContext type from application properties
         return this.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
@@ -153,7 +153,7 @@ public class RewriteProjectParser {
     }
 
     private void withMavenSession(Path baseDir, Consumer<MavenSession> consumer) {
-        mavenExecutor.onProjectSucceededEvent(baseDir, List.of("clean", "install"), event -> consumer.accept(event.getSession()));
+        mavenExecutor.onProjectSucceededEvent(baseDir, List.of("clean", "package"), event -> consumer.accept(event.getSession()));
     }
 
     @org.jetbrains.annotations.Nullable
