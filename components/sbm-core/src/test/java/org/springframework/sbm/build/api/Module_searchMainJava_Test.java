@@ -49,6 +49,10 @@ public class Module_searchMainJava_Test {
                     <groupId>com.acme</groupId>
                     <artifactId>application</artifactId>
                     <version>0.0.1-SNAPSHOT</version>
+                    <properties>
+                         <maven.compiler.target>17</maven.compiler.target>
+                         <maven.compiler.source>17</maven.compiler.source>
+                    </properties>
                 </project>
                 """;
 
