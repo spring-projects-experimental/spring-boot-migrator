@@ -56,7 +56,7 @@ public class JavaRefactoringImpl extends JavaGlobalRefactoringImpl implements Ja
 
     @Override
     public void refactor(RewriteSourceFileHolder<J.CompilationUnit> resourceWrapper, Recipe... recipes) {
-        Stream.of(recipes).forEach(r -> refactor(resourceWrapper, r));
+        Stream.of(recipes).forEach(r -> runRecipe(List.of(resourceWrapper.getSourceFile()), r));
     }
 
     @Override
