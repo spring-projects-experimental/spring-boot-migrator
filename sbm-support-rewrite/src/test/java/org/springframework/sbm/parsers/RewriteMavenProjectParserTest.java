@@ -275,7 +275,7 @@ class RewriteMavenProjectParserTest {
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
                 new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
                 new BuildFileParser(parserSettings),
-                new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
+                new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods, new JavaParserBuilder()),
                 new StyleDetector(),
                 parserSettings,
                 mock(ParsingEventListener.class),

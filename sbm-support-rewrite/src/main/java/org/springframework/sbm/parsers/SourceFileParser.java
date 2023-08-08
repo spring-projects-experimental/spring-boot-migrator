@@ -46,6 +46,7 @@ class SourceFileParser {
     private final MavenModelReader modelReader;
     private final ParserSettings parserSettings;
     private final MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods;
+    private final JavaParserBuilder javaParserBuilderHolder;
 
     public Stream<SourceFile> parseOtherSourceFiles(
             Path baseDir,
@@ -89,6 +90,9 @@ class SourceFileParser {
         JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder = JavaParser.fromJavaVersion()
                 .styles(styles)
                 .logCompilationWarningsAndErrors(false);
+
+        javaParserBuilderHolder.setBuilder(javaParserBuilder);
+
         Set<Path> pathsToOtherModules = pathsToOtherMavenProjects(resources, moduleBuildFile);
         ResourceParser rp = new ResourceParser(
                 baseDir,
