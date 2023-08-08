@@ -18,7 +18,6 @@ package org.springframework.sbm.scopes.annotations;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.sbm.engine.context.ProjectContext;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -29,8 +28,8 @@ import java.lang.annotation.Target;
  * Annotation to mark beans for executionScope.
  *
  * The `executionScope` starts with
- * - the evaluation of conditions in {@link org.springframework.sbm.engine.commands.ApplicableRecipeListCommand#execute(ProjectContext)}
- * - or with a recipe-run in {@link org.springframework.sbm.engine.commands.ApplicableRecipeListCommand#execute(ProjectContext)}
+ * - the evaluation of conditions
+ * - or with a recipe-run
  *
  * The `executionScope` ends with
  * - the end of recipe-run
