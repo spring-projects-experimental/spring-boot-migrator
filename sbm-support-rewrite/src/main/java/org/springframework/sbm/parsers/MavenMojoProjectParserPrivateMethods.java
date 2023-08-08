@@ -16,6 +16,7 @@
 package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.model.Build;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
@@ -53,6 +54,7 @@ import java.util.stream.Stream;
 /**
  * @author Fabian Krüger
  */
+@Slf4j
 @RequiredArgsConstructor
 class MavenMojoProjectParserPrivateMethods {
 
@@ -101,7 +103,7 @@ class MavenMojoProjectParserPrivateMethods {
         if (method == null) {
             throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted(methodName, MavenMojoProjectParser.class.getName()));
         }
-
+        log.debug("Starting reflective call to %s.%s()".formatted(mavenMojoProjectParser.getClass().getName(), method.getName()));
         Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser,
                 mavenProject,
                 javaParserBuilder,
