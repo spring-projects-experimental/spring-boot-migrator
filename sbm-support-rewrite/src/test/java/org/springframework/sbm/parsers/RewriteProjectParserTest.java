@@ -26,8 +26,10 @@ import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 
@@ -103,7 +105,9 @@ class RewriteProjectParserTest {
                 new StyleDetector(),
                 parserSettings,
                 mock(ParsingEventListener.class),
-                mock(ApplicationEventPublisher.class)
+                mock(ApplicationEventPublisher.class),
+                new ScanScope(),
+                mock(ConfigurableListableBeanFactory.class)
         );
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         List<String> parsedFiles = new ArrayList<>();

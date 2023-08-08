@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.engine.commands;
 
-import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -41,7 +40,6 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
     private final ApplicationEventPublisher eventPublisher;
     private final PathScanner pathScanner;
     private final PreconditionVerifier preconditionVerifier;
-    private final ConfigurableListableBeanFactory beanFactory;
 
     @Deprecated
     public ScanCommand(ProjectRootPathResolver projectRootPathResolver, ProjectContextInitializer projectContextInitializer, ApplicationEventPublisher eventPublisher, PathScanner pathScanner, PreconditionVerifier preconditionVerifier, ConfigurableListableBeanFactory beanFactory) {
@@ -51,17 +49,9 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
         this.eventPublisher = eventPublisher;
         this.pathScanner = pathScanner;
         this.preconditionVerifier = preconditionVerifier;
-        this.beanFactory = beanFactory;
     }
 
-
-    @Autowired
-    private ScanScope scanScope;
-
     public ProjectContext execute(String... arguments) {
-        // initialize the(!) ExecutionContext
-        // It will be available through DI in all objects involved while this method runs (scoped to recipe run)
-        scanScope.clear(beanFactory);
 
         Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
 

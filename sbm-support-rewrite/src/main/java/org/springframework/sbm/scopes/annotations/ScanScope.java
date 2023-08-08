@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * from the scope.
  *
  * The `scanScope` starts with
- * - the scan of a given application in {@link org.springframework.sbm.engine.commands.ScanCommand}
+ * - parsing a given application
  *
  * The `scanScope` ends with
  * - a new scan

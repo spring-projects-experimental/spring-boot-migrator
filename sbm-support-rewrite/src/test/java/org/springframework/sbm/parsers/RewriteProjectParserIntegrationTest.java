@@ -103,7 +103,7 @@ public class RewriteProjectParserIntegrationTest {
     @Issue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/875")
     void parseCheckstyle() {
         Path baseDir = getMavenProject("checkstyle");
-        List<Resource> resources = projectScanner.scan(baseDir, Set.of());
+        List<Resource> resources = projectScanner.scan(baseDir);
         RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
