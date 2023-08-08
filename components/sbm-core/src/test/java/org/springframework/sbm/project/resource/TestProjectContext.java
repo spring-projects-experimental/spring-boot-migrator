@@ -517,13 +517,13 @@ public class TestProjectContext {
                 resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
             }
 
-            if(projectRoot.equals(DEFAULT_PROJECT_ROOT)) {
-                try {
-                    projectRoot = Files.createTempDirectory(Path.of(System.getProperty("java.io.tmpdir")), "");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+//            if(projectRoot.equals(DEFAULT_PROJECT_ROOT)) {
+//                try {
+//                    projectRoot = Files.createTempDirectory(Path.of(System.getProperty("java.io.tmpdir")), "");
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
 
             // create resource map with fully qualified paths
             Map<Path, String> resourcesWithAbsolutePaths = new LinkedHashMap<>();
@@ -566,7 +566,7 @@ public class TestProjectContext {
             writeResources(projectRoot, scannedResources);
 
             ProjectContextInitializer projectContextInitializer = createProjectContextInitializer();
-            
+
             // create ProjectContext
             ProjectContext projectContext = projectContextInitializer.initProjectContext(projectRoot, scannedResources);
 
