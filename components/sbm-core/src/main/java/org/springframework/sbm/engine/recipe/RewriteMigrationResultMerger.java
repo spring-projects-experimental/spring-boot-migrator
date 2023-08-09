@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.sbm.common.filter.AbsolutePathResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
@@ -85,11 +86,13 @@ public class RewriteMigrationResultMerger {
 
     private void handleModified(ProjectResourceSet resourceSet, SourceFile after) {
         Path absoluteProjectDir = resourceSet.list().get(0).getAbsoluteProjectDir();
-        Path path = absoluteProjectDir.resolve(after.getSourcePath());
-        Optional<RewriteSourceFileHolder<? extends SourceFile>> match = new AbsolutePathResourceFinder(path).apply(resourceSet);
-        RewriteSourceFileHolder<? extends SourceFile> modifiableProjectResource = surceFileWrapper.wrapRewriteSourceFiles(absoluteProjectDir, List.of(after)).get(0);
+        Path resolve = absoluteProjectDir.resolve(after.getSourcePath());
+        Optional<RewriteSourceFileHolder<? extends SourceFile>> modifiedResource = new AbsolutePathResourceFinder(resolve).apply(resourceSet);
+        if(modifiedResource.isEmpty()) {
+            throw new IllegalStateException("Could not find resource matching path '%s'".formatted(resolve));
+        }
         // TODO: handle situations where resource is not rewriteSourceFileHolder -> use predicates for known types to reuse, alternatively using the ProjectContextBuiltEvent might help
-        replaceWrappedResource(modifiableProjectResource, after);
+        replaceWrappedResource(modifiedResource.get(), after);
     }
 
     private void handleModified(ProjectContext context, SourceFile after) {
