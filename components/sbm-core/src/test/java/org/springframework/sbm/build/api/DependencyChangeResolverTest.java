@@ -118,7 +118,14 @@ public class DependencyChangeResolverTest {
         when(buildFile.getEffectiveDependencies())
                 .thenReturn(Set.of(existingDependency));
 
-        when(buildFile.getDeclaredDependencies(any()))
+        when(buildFile.getDeclaredDependencies(
+                None,
+                Compile,
+                Provided,
+                Runtime,
+                Test,
+                System
+        ))
                 .thenReturn(Collections.emptyList());
 
         Pair<List<Dependency>, Optional<Dependency>> pair =
@@ -150,7 +157,14 @@ public class DependencyChangeResolverTest {
         when(buildFile.getEffectiveDependencies())
                 .thenReturn(Set.of(existingDependency));
 
-        when(buildFile.getDeclaredDependencies(any()))
+        when(buildFile.getDeclaredDependencies(
+                None,
+                Compile,
+                Provided,
+                Runtime,
+                Test,
+                System
+        ))
                 .thenReturn(List.of(existingDependency));
 
         Pair<List<Dependency>, Optional<Dependency>> pair =
