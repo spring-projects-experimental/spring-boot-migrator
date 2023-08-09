@@ -49,6 +49,10 @@ public class Module_searchTestJava_Test {
                     <groupId>com.acme</groupId>
                     <artifactId>application</artifactId>
                     <version>0.0.1-SNAPSHOT</version>
+                    <properties>
+                        <maven.compiler.target>1.8</maven.compiler.target>
+                        <maven.compiler.source>1.8</maven.compiler.source>
+                    </properties>
                 </project>
                 """;
 
@@ -161,6 +165,10 @@ public class Module_searchTestJava_Test {
                         <relativePath>../</relativePath>
                     </parent>
                     <artifactId>application</artifactId>
+                    <properties>
+                        <maven.compiler.target>1.8</maven.compiler.target>
+                        <maven.compiler.source>1.8</maven.compiler.source>
+                    </properties>
                     <dependencies>
                         <dependency>
                             <groupId>com.acme</groupId>
