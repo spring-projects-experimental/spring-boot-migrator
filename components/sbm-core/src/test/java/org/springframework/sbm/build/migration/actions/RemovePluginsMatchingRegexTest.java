@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.build.migration.actions;
 
+import org.intellij.lang.annotations.Language;
 import org.springframework.sbm.engine.recipe.Action;
 import org.junit.jupiter.api.Test;
 
@@ -24,123 +25,140 @@ class RemovePluginsMatchingRegexTest {
 
     @Test
     void apply() {
+        @Language("xml")
         String given =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
-                        "\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "    <groupId>org.mule.examples</groupId>\n" +
-                        "    <artifactId>hello-world</artifactId>\n" +
-                        "    <version>2.1.5-SNAPSHOT</version>\n" +
-                        "    <packaging>jar</packaging>\n" +
-                        "    <name>hello-world</name>\n" +
-                        "\n" +
-                        "    <properties>\n" +
-                        "        <mule.maven.plugin.version>3.5.3</mule.maven.plugin.version>\n" +
-                        "        <munit.version>2.2.4</munit.version>\n" +
-                        "        <app.runtime>4.1.5</app.runtime>\n" +
-                        "        <http.connector.version>1.5.4</http.connector.version>\n" +
-                        "        <sockets.connector.version>1.1.5</sockets.connector.version>\n" +
-                        "        <maven.compiler.target>11</maven.compiler.target>\n" +
-                        "        <maven.compiler.source>11</maven.compiler.source>\n" +
-                        "    </properties>\n" +
-                        "    <build>\n" +
-                        "        <plugins>\n" +
-                        "            <plugin>\n" +
-                        "                <groupId>org.springframework.boot</groupId>\n" +
-                        "                <artifactId>spring-boot-maven-plugin</artifactId>\n" +
-                        "                <version>${spring-boot.version}</version>\n" +
-                        "                <executions>\n" +
-                        "                    <execution>\n" +
-                        "                        <configuration>\n" +
-                        "                            <mainClass>org.springframework.sbm.SpringShellApplication</mainClass>\n" +
-                        "                        </configuration>\n" +
-                        "                        <goals>\n" +
-                        "                            <goal>repackage</goal>\n" +
-                        "                        </goals>\n" +
-                        "                    </execution>\n" +
-                        "                </executions>\n" +
-                        "            </plugin>" +
-                        "            <plugin>\n" +
-                        "                <groupId>org.mule.tools.maven</groupId>\n" +
-                        "                <artifactId>mule-maven-plugin</artifactId>\n" +
-                        "                <version>${mule.maven.plugin.version}</version>\n" +
-                        "                <extensions>true</extensions>\n" +
-                        "                <configuration>\n" +
-                        "                    <classifier>mule-application-example</classifier>\n" +
-                        "                </configuration>\n" +
-                        "            </plugin>\n" +
-                        "            <plugin>\n" +
-                        "                <groupId>com.mulesoft.munit.tools</groupId>\n" +
-                        "                <artifactId>munit-maven-plugin</artifactId>\n" +
-                        "                <version>${munit.version}</version>\n" +
-                        "                <executions>\n" +
-                        "                    <execution>\n" +
-                        "                        <id>test</id>\n" +
-                        "                        <phase>test</phase>\n" +
-                        "                        <goals>\n" +
-                        "                            <goal>test</goal>\n" +
-                        "                            <goal>coverage-report</goal>\n" +
-                        "                        </goals>\n" +
-                        "                    </execution>\n" +
-                        "                </executions>\n" +
-                        "                <configuration>\n" +
-                        "                    <coverage>\n" +
-                        "                        <runCoverage>true</runCoverage>\n" +
-                        "                        <formats>\n" +
-                        "                            <format>html</format>\n" +
-                        "                        </formats>\n" +
-                        "                    </coverage>\n" +
-                        "                    <runtimeVersion>${app.runtime}</runtimeVersion>\n" +
-                        "                    <dynamicPorts>\n" +
-                        "                        <dynamicPort>http.port</dynamicPort>\n" +
-                        "                    </dynamicPorts>\n" +
-                        "                </configuration>\n" +
-                        "            </plugin>\n" +
-                        "        </plugins>\n" +
-                        "    </build>\n" +
-                        "</project>\n";
+                """
+                <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>org.mule.examples</groupId>
+                    <artifactId>hello-world</artifactId>
+                    <version>2.1.5-SNAPSHOT</version>
+                    <packaging>jar</packaging>
+                    <name>hello-world</name>
+                    <properties>
+                        <mule.maven.plugin.version>2.1</mule.maven.plugin.version>
+                        <munit.version>2.1.0</munit.version>
+                        <app.runtime>4.1.5</app.runtime>
+                        <http.connector.version>1.5.4</http.connector.version>
+                        <sockets.connector.version>1.1.5</sockets.connector.version>
+                        <maven.compiler.target>11</maven.compiler.target>
+                        <maven.compiler.source>11</maven.compiler.source>
+                        <spring-boot.version>3.1.2</spring-boot.version>
+                    </properties>
+                    <pluginRepositories>
+                        <pluginRepository>
+                            <name>Mule Releases</name>
+                            <id>mule-releases</id>
+                            <url>https://repository.mulesoft.org/releases/</url>
+                        </pluginRepository>
+                    </pluginRepositories>
+                    <repositories>
+                        <repository>
+                            <name>Mule Releases</name>
+                            <id>mule-releases</id>
+                            <url>https://repository.mulesoft.org/releases/</url>
+                        </repository>
+                    </repositories>
+                    <build>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-maven-plugin</artifactId>
+                                <version>${spring-boot.version}</version>
+                                <executions>
+                                    <execution>
+                                        <configuration>
+                                            <mainClass>org.springframework.sbm.SpringShellApplication</mainClass>
+                                        </configuration>
+                                        <goals>
+                                            <goal>repackage</goal>
+                                        </goals>
+                                    </execution>
+                                </executions>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.mule.tools.maven</groupId>
+                                <artifactId>mule-maven-plugin</artifactId>
+                                <version>${mule.maven.plugin.version}</version>
+                                <extensions>true</extensions>
+                                <configuration>
+                                    <classifier>mule-application-example</classifier>
+                                </configuration>
+                            </plugin>
+                            <plugin>
+                                <groupId>com.mulesoft.munit.tools</groupId>
+                                <artifactId>munit-maven-plugin</artifactId>
+                                <version>${munit.version}</version>
+                                <executions>
+                                    <execution>
+                                        <id>test</id>
+                                        <phase>test</phase>
+                                        <goals>
+                                            <goal>test</goal>
+                                            <goal>coverage-report</goal>
+                                        </goals>
+                                    </execution>
+                                </executions>
+                                <configuration>
+                                    <coverage>
+                                        <runCoverage>true</runCoverage>
+                                        <formats>
+                                            <format>html</format>
+                                        </formats>
+                                    </coverage>
+                                    <runtimeVersion>${app.runtime}</runtimeVersion>
+                                    <dynamicPorts>
+                                        <dynamicPort>http.port</dynamicPort>
+                                    </dynamicPorts>
+                                </configuration>
+                            </plugin>
+                        </plugins>
+                    </build>
+                </project>
+                """;
 
         String expected =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
-                        "\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "    <groupId>org.mule.examples</groupId>\n" +
-                        "    <artifactId>hello-world</artifactId>\n" +
-                        "    <version>2.1.5-SNAPSHOT</version>\n" +
-                        "    <packaging>jar</packaging>\n" +
-                        "    <name>hello-world</name>\n" +
-                        "\n" +
-                        "    <properties>\n" +
-                        "        <mule.maven.plugin.version>3.5.3</mule.maven.plugin.version>\n" +
-                        "        <munit.version>2.2.4</munit.version>\n" +
-                        "        <app.runtime>4.1.5</app.runtime>\n" +
-                        "        <http.connector.version>1.5.4</http.connector.version>\n" +
-                        "        <sockets.connector.version>1.1.5</sockets.connector.version>\n" +
-                        "        <maven.compiler.target>11</maven.compiler.target>\n" +
-                        "        <maven.compiler.source>11</maven.compiler.source>\n" +
-                        "    </properties>\n" +
-                        "    <build>\n" +
-                        "        <plugins>\n" +
-                        "            <plugin>\n" +
-                        "                <groupId>org.springframework.boot</groupId>\n" +
-                        "                <artifactId>spring-boot-maven-plugin</artifactId>\n" +
-                        "                <version>${spring-boot.version}</version>\n" +
-                        "                <executions>\n" +
-                        "                    <execution>\n" +
-                        "                        <configuration>\n" +
-                        "                            <mainClass>org.springframework.sbm.SpringShellApplication</mainClass>\n" +
-                        "                        </configuration>\n" +
-                        "                        <goals>\n" +
-                        "                            <goal>repackage</goal>\n" +
-                        "                        </goals>\n" +
-                        "                    </execution>\n" +
-                        "                </executions>\n" +
-                        "            </plugin>\n" +
-                        "        </plugins>\n" +
-                        "    </build>\n" +
-                        "</project>\n";
+                """
+                <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>org.mule.examples</groupId>
+                    <artifactId>hello-world</artifactId>
+                    <version>2.1.5-SNAPSHOT</version>
+                    <packaging>jar</packaging>
+                    <name>hello-world</name>
+                    <properties>
+                        <mule.maven.plugin.version>3.5.3</mule.maven.plugin.version>
+                        <munit.version>2.2.4</munit.version>
+                        <app.runtime>4.1.5</app.runtime>
+                        <http.connector.version>1.5.4</http.connector.version>
+                        <sockets.connector.version>1.1.5</sockets.connector.version>
+                        <maven.compiler.target>11</maven.compiler.target>
+                        <maven.compiler.source>11</maven.compiler.source>
+                        <spring-boot.version>3.1.2</spring-boot.version>
+                    </properties>
+                    <build>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-maven-plugin</artifactId>
+                                <version>${spring-boot.version}</version>
+                                <executions>
+                                    <execution>
+                                        <configuration>
+                                            <mainClass>org.springframework.sbm.SpringShellApplication</mainClass>
+                                        </configuration>
+                                        <goals>
+                                            <goal>repackage</goal>
+                                        </goals>
+                                    </execution>
+                                </executions>
+                            </plugin>
+                        </plugins>
+                    </build>
+                </project>
+                """;
 
         List<String> regex = List.of("com\\.mulesoft\\.munit\\.tools\\:.*", "org\\.mule\\.tools\\..*");
         Action sut = new RemovePluginsMatchingRegex(regex);
