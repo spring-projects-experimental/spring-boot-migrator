@@ -131,6 +131,10 @@ public class Module_searchMainJava_Test {
                     <artifactId>parent</artifactId>
                     <version>0.0.1-SNAPSHOT</version>
                     <packaging>pom</packaging>
+                    <properties>
+                        <maven.compiler.target>17</maven.compiler.target>
+                        <maven.compiler.source>17</maven.compiler.source>
+                    </properties>
                     <modules>
                         <module>application</module>
                         <module>component</module>
