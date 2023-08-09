@@ -18,6 +18,8 @@ package org.springframework.sbm.java.migration.actions;
 import org.springframework.sbm.test.JavaMigrationActionTestSupport;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 class RemoveTypeAnnotationActionTest {
 
     @Test
@@ -37,19 +39,42 @@ class RemoveTypeAnnotationActionTest {
 
     @Test
     void removeMultipleTypeAnnotation() {
-        String source =
-                "import org.junit.jupiter.api.Disabled;\n" +
-                        "@Disabled\n" +
-                        "@Disabled(\"Because it is not enabled\")\n" +
-                        "@Disabled\n" +
-                        "public class DisabledTest {}";
+        String annotation =
+                """
+                package com.acme;
+                import java.lang.annotation.Repeatable;
+                @Repeatable(MultiAnnotations.class)
+                public @interface MultiAnnotation {
+                    
+                }             
+                """;
 
-        String expected = "public class DisabledTest {}";
+        String multiAnnotation =
+                """
+                package com.acme;
+                public @interface MultiAnnotations {
+                    MultiAnnotation[] value();
+                }
+                """;
+
+        String source =
+                """
+                import com.acme.MultiAnnotation;
+                @MultiAnnotation
+                @MultiAnnotation
+                @MultiAnnotation
+                public class DisabledTest {}
+                """;
+
+        String expected =
+                """
+                public class DisabledTest {}
+                """;
 
         RemoveTypeAnnotationAction sut = new RemoveTypeAnnotationAction();
-        sut.setAnnotation("org.junit.jupiter.api.Disabled");
+        sut.setAnnotation("com.acme.MultiAnnotation");
 
-        JavaMigrationActionTestSupport.verify(source, expected, sut, "org.junit.jupiter:junit-jupiter-api:5.7.0");
+        JavaMigrationActionTestSupport.verify(List.of(multiAnnotation, annotation, source), List.of(multiAnnotation, annotation, expected), sut);
     }
 
 }
