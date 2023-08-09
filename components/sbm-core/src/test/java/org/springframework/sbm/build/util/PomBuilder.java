@@ -131,9 +131,15 @@ public class PomBuilder {
 			sb.append("    <packaging>").append(packaging).append("</packaging>").append("\n");
 		}
 
-		if(!properties.isEmpty()){
-			sb.append(buildProperties(properties));
-		}
+        if(properties.isEmpty()) {
+            sb.append(  """
+                        <properties>
+                            <maven.compiler.target>1.8</maven.compiler.target>
+                            <maven.compiler.source>1.8</maven.compiler.source>
+                        </properties>
+                        """);
+        }
+        sb.append(buildProperties(properties));
 
         if (modules != null && !modules.isEmpty()) {
             sb.append("    <modules>").append("\n");
@@ -155,13 +161,17 @@ public class PomBuilder {
     }
 
 	String buildProperties(Map<String, String> properties) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("    ").append("<properties>").append("\n");
-		String props = properties.entrySet().stream().map(entry -> "    " + "    " + "<" + entry.getKey() + ">"
-				+ entry.getValue() + "</" + entry.getKey() + ">").collect(Collectors.joining("\n"));
-		builder.append(props).append("\n");
-		builder.append("    ").append("</properties>").append("\n");
-		return builder.toString();
+        if(!properties.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("    ").append("<properties>").append("\n");
+            String props = properties.entrySet().stream().map(entry -> "    " + "    " + "<" + entry.getKey() + ">"
+                    + entry.getValue() + "</" + entry.getKey() + ">").collect(Collectors.joining("\n"));
+            builder.append(props).append("\n");
+            builder.append("    ").append("</properties>").append("\n");
+            return builder.toString();
+        } else {
+            return "";
+        }
 	}
 
     String renderDependencies(Map<Scope, org.openrewrite.maven.tree.Dependency> dependencies) {
