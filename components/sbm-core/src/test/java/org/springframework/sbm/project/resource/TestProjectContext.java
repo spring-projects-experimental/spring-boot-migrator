@@ -17,6 +17,7 @@ package org.springframework.sbm.project.resource;
 
 import freemarker.template.Configuration;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
@@ -185,7 +186,11 @@ public class TestProjectContext {
     private static Path createProjectRoot() {
         try {
             Path tempDirectory = Files.createTempDirectory(Path.of(System.getProperty("java.io.tmpdir")), "");
-            return tempDirectory;
+            Path sbm = tempDirectory.resolve("sbm");
+//            FileUtils.cleanDirectory(sbm.toFile());
+            Path randDir = sbm.resolve(RandomStringUtils.randomAlphanumeric(5));
+            FileUtils.forceMkdir(randDir.toFile());
+            return randDir;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -474,7 +479,20 @@ public class TestProjectContext {
         public Builder withDummyRootBuildFile() {
             if (containsAnyPomXml() || !dependencies.isEmpty())
                 throw new IllegalArgumentException("ProjectContext already contains pom.xml files.");
-            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" + "    <modelVersion>4.0.0</modelVersion>\n" + "    <groupId>com.example</groupId>\n" + "    <artifactId>dummy-root</artifactId>\n" + "    <version>0.1.0-SNAPSHOT</version>\n" + "    <packaging>jar</packaging>\n" + "</project>\n";
+            String xml = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                        <modelVersion>4.0.0</modelVersion>
+                        <groupId>com.example</groupId>
+                        <artifactId>dummy-root</artifactId>
+                        <version>0.1.0-SNAPSHOT</version>
+                        <packaging>jar</packaging>
+                        <properties>
+                            <maven.compiler.target>1.8</maven.compiler.target>
+                            <maven.compiler.source>1.8</maven.compiler.source>
+                        </properties>
+                    </project>
+                    """;
             resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
             return this;
         }
