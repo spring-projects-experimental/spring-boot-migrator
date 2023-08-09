@@ -251,8 +251,9 @@ public class ExecutionScopeArchFitTest {
         String executionContextIdAfterConditions = ExecutionContext.class.cast(getCacheSnapshot(executionScope).get("scopedTarget.executionContext")).getMessage("executionContextId");
         assertThat(executionContextIdInCondition).isEqualTo(executionContextIdAfterConditions);
         // scan runtime scope didn't change
-        assertThat(getCacheSnapshot(scanScope)).hasSize(1);
+        assertThat(getCacheSnapshot(scanScope)).hasSize(2);
         assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.projectMetadata");
+        assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.javaParserBuilder");
         // and no new ProjectMetadata was created
         assertThat(testRecorder.getMetadataCreations()).hasSize(1);
         // ProjectMetadata unchanged
@@ -275,8 +276,9 @@ public class ExecutionScopeArchFitTest {
         assertThat(executionContextIdInAction).isEqualTo(executionContextIdInCondition);
         assertThat(executionContextIdInAction).isEqualTo(executionContextIdAfterConditions);
         // scanScope unchanged
-        assertThat(getCacheSnapshot(scanScope)).hasSize(1);
+        assertThat(getCacheSnapshot(scanScope)).hasSize(2);
         assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.projectMetadata");
+        assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.javaParserBuilder");
         ProjectMetadata projectMetadataAfterRecipe = ProjectMetadata.class.cast(getCacheSnapshot(
                 scanScope).get("scopedTarget.projectMetadata"));
         // ProjectMetadata unchanged

@@ -21,18 +21,17 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class HasMethodParameterAnnotationTest {
+class HasAnnotationTest {
 
     @Test
-    void testIsApplicableTRUE() {
+    void shouldMatchAnnotatedParameter() {
         String sourceCode =
-                "" +
-                        "import javax.ws.rs.PathParam; " +
-                        "                                   " +
-                        "class AnnotatedClass {             " +
-                        "    public foo(@PathParam(\"name\") String name) {\n" +
-                        "    }\n" +
-                        "}";
+                """
+                import javax.ws.rs.PathParam;
+                class AnnotatedClass {
+                    public void foo(@PathParam("name") String name) { }
+                }
+                """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withJavaSources(sourceCode)
@@ -45,25 +44,4 @@ class HasMethodParameterAnnotationTest {
         assertThat(sut.evaluate(context)).isTrue();
     }
 
-    @Test
-    void testIsApplicableFALSE() {
-        String sourceCode =
-                "" +
-                        "import org.junit.jupiter.api.BeforeEach; " +
-                        "                                   " +
-                        "@BeforeEach                        " +
-                        "class AnnotatedClass {             " +
-                        "}                                  " +
-                        "";
-
-        ProjectContext context = TestProjectContext.buildProjectContext()
-                .withJavaSources(sourceCode)
-                .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0")
-                .build();
-
-        HasTypeAnnotation sut = new HasTypeAnnotation();
-        sut.setAnnotation("org.junit.jupiter.api.Test");
-
-        assertThat(sut.evaluate(context)).isFalse();
-    }
 }

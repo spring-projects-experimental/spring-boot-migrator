@@ -149,6 +149,10 @@ public class Module_searchMainJava_Test {
                         <version>0.0.1-SNAPSHOT</version>
                         <relativePath>../</relativePath>
                     </parent>
+                    <properties>
+                        <maven.compiler.target>1.8</maven.compiler.target>
+                        <maven.compiler.source>1.8</maven.compiler.source>
+                    </properties>
                     <artifactId>component</artifactId>
                 </project>
                 """;
