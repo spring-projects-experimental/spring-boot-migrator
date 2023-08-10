@@ -21,9 +21,9 @@ import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.Parser;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
 import org.springframework.context.event.EventListener;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class DependenciesChangedEventHandler {
     private final ProjectContextHolder projectContextHolder;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
 
     @EventListener
@@ -53,7 +53,7 @@ public class DependenciesChangedEventHandler {
 
             Path projectRootDirectory = projectContextHolder.getProjectContext().getProjectRootDirectory();
 
-            Stream<SourceFile> parsedCompilationUnits = javaParser.parseInputs(compilationUnits, null, executionContext);
+            Stream<SourceFile> parsedCompilationUnits = javaParserBuilder.build().parseInputs(compilationUnits, null, executionContext);
             // ((J.VariableDeclarations)parsedCompilationUnits.get(0).getClasses().get(0).getBody().getStatements().get(0)).getLeadingAnnotations().get(0).getType()
             parsedCompilationUnits
                     .filter(J.CompilationUnit.class::isInstance)
@@ -63,6 +63,8 @@ public class DependenciesChangedEventHandler {
                                 .filter(js -> js.getResource().getAbsolutePath().equals(projectRootDirectory.resolve(cu.getSourcePath()).normalize()))
                                 .forEach(js -> js.getResource().replaceWith(cu));
                     });
+        } else {
+            throw new IllegalStateException("Could not get ProjectContext from ProjectContextHolder.");
         }
     }
 }

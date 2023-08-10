@@ -16,7 +16,6 @@
 package org.springframework.sbm.java.impl;
 
 import org.openrewrite.*;
-import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.java.*;
 import org.openrewrite.java.format.WrappingAndBraces;
 import org.openrewrite.java.tree.*;
@@ -24,7 +23,6 @@ import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.java.search.DeclaresMethod;
@@ -156,6 +154,9 @@ public class OpenRewriteType implements Type {
             @Override
             public ClassDeclaration visitClassDeclaration(ClassDeclaration classDecl, ExecutionContext executionContext) {
                 ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
+                J.CompilationUnit cu = getCursor().dropParentUntil(J.CompilationUnit.class::isInstance).getValue();
+                checkTypeAvailability(cu, requiredImports);
+
                 JavaTemplate template = JavaTemplate
                         .builder(methodTemplate)
                         .javaParser(javaParserBuilder)
@@ -167,6 +168,16 @@ public class OpenRewriteType implements Type {
             }
         }));
         this.apply(new WrappingAndBraces());
+    }
+
+    private void checkTypeAvailability(J.CompilationUnit cd, Set<String> requiredImports) {
+        List<String> missingTypes = cd.getTypesInUse().getTypesInUse().stream()
+                .map(JavaType::toString)
+                .filter(t -> !requiredImports.contains(t))
+                .toList();
+        if(!missingTypes.isEmpty()) {
+            throw new IllegalArgumentException("These types %s are not available to in compilation unit %s".formatted(missingTypes, cd.getSourcePath()));
+        }
     }
 
 
