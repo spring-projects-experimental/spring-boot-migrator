@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 
 @Component
 @ScanScope
+@Deprecated
 public class RewriteJavaParser implements JavaParser {
 
     private final SbmApplicationProperties sbmApplicationProperties;

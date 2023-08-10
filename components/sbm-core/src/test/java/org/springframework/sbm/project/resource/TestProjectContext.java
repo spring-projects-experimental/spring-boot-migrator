@@ -384,6 +384,9 @@ public class TestProjectContext {
             if (sourcePathDir.isAbsolute()) {
                 throw new IllegalArgumentException("Source path must be relative to project root dir.");
             }
+            if(sourcePathDir.toString().endsWith(".java")) {
+                throw new IllegalArgumentException("The provided path '%s' should only be the source path, e.g. 'src/main/'java'. Package and filename will be calculated from provided source code.".formatted(sourcePathDir));
+            }
             String fqName = JavaSourceUtil.retrieveFullyQualifiedClassFileName(sourceCode);
             Path sourcePath = sourcePathDir.resolve(fqName);
             this.resourcesWithRelativePaths.put(sourcePath, sourceCode);

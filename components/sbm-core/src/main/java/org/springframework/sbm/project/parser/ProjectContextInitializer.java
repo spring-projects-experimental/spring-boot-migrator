@@ -21,6 +21,7 @@ import org.openrewrite.SourceFile;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
+import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.git.Commit;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
@@ -41,6 +42,7 @@ public class ProjectContextInitializer {
     private final GitSupport gitSupport;
     private final RewriteSourceFileWrapper rewriteSourceFileWrapper;
     private final ExecutionContext executionContext;
+    private final ProjectContextHolder projectContextHolder;
 
     public ProjectContext initProjectContext(Path projectDir, List<Resource> resources) {
         final Path absoluteProjectDir = projectDir.toAbsolutePath().normalize();
@@ -54,7 +56,7 @@ public class ProjectContextInitializer {
         ProjectContext projectContext = projectContextFactory.createProjectContext(projectDir, projectResourceSet);
 
         storeGitCommitHash(projectDir, projectContext);
-
+        projectContextHolder.setProjectContext(projectContext);
         return projectContext;
     }
 
