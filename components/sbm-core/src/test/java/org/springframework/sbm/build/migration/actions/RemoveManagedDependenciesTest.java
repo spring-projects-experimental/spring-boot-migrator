@@ -43,7 +43,7 @@ public class RemoveManagedDependenciesTest {
                 .verify(projectContext -> assertThat(projectContext.getBuildFile()
                                                              .getDeclaredDependencies()
                                                              .stream()
-                                                             .map(Dependency::getCoordinates)
+                                                             .map(Dependency::getGav)
                                                              .anyMatch(hibernateCoordinates::equals)).isFalse()
                 );
 
@@ -64,7 +64,7 @@ public class RemoveManagedDependenciesTest {
         assertThat(projectContext.getBuildFile()
                 .getDeclaredDependencies()
                 .stream()
-                .map(Dependency::getCoordinates)
+                .map(Dependency::getGav)
                 .anyMatch(hibernateCoordinates::equals)
         ).isFalse();
     }
@@ -90,7 +90,7 @@ public class RemoveManagedDependenciesTest {
                     // dependency to older hibernate was removed
                     assertThat(declaredDependencies
                                        .get(0)
-                                       .getCoordinates())
+                                       .getGav())
                             .isEqualTo(springBootDataJpaCoordinates);
                 });
     }
@@ -117,11 +117,11 @@ public class RemoveManagedDependenciesTest {
                     assertThat(declaredDependencies.size()).isEqualTo(2);
                     assertThat(declaredDependencies
                                        .get(0)
-                                       .getCoordinates())
+                                       .getGav())
                             .isEqualTo(hibernateCoordinates);
                     assertThat(declaredDependencies
                                        .get(1)
-                                       .getCoordinates())
+                                       .getGav())
                             .isEqualTo(springBootDataJpaCoordinates);
                 });
     }

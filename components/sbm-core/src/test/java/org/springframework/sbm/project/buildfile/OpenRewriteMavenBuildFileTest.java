@@ -94,7 +94,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .get(0)
                 .getBuildFile();
 
-        assertThat(buildFile.getRequestedDependencies().get(0).getCoordinates()).isEqualTo("javax.validation:validation-api:2.0.1.Final");
+        assertThat(buildFile.getRequestedDependencies().get(0).getGav()).isEqualTo("javax.validation:validation-api:2.0.1.Final");
     }
 
     @Nested
@@ -1078,7 +1078,7 @@ public class OpenRewriteMavenBuildFileTest {
         private Dependency findDependencyByCoordinate(List<Dependency> dependenciesEffectiveInModule1, String anObject) {
             return dependenciesEffectiveInModule1
                     .stream()
-                    .filter(d -> d.getCoordinates().equals(anObject))
+                    .filter(d -> d.getGav().equals(anObject))
                     .findFirst()
                     .get();
         }

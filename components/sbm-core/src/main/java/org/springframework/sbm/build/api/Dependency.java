@@ -99,7 +99,7 @@ public class Dependency {
     /**
      * @return the dependency coordinates as {@code 'groupId:artifactId:version'}
      */
-    public String getCoordinates() {
+    public String getGav() {
         return getGroupId() + ":" + getArtifactId() + ":" + getVersion();
     }
 

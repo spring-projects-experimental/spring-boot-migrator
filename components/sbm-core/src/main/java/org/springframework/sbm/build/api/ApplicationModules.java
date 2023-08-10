@@ -17,14 +17,12 @@ package org.springframework.sbm.build.api;
 
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.Scope;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -165,11 +163,34 @@ public class ApplicationModules {
 
     private boolean noOtherPomDependsOn(BuildFile buildFile) {
         return !this.modules.stream()
-                .anyMatch(module -> module.getBuildFile().getRequestedDependencies().stream().anyMatch(d -> d.getCoordinates().equals(buildFile.getCoordinates())));
+                .anyMatch(module -> module.getBuildFile().getRequestedDependencies().stream().anyMatch(d -> d.getGav().equals(buildFile.getCoordinates())));
     }
 
     public boolean isSingleModuleApplication() {
         return modules.size() == 1;
     }
 
+    /**
+     * Find all modules with a declared dependency on the module with given GAV.
+     * @return modules that have a dependency to the given module and the scope of this dependency.
+     */
+    public Map<Scope, List<Module>> findModulesWithDeclaredDependencyTo(String gav) {
+        Map<Scope, List<Module>> dependantModules = new HashMap<>();
+        for (Module m : this.modules) {
+            Optional<Dependency> declaredDependency = m.getBuildFile().findDeclaredDependency(gav);
+            if (declaredDependency.isPresent()) {
+                Dependency dependency = declaredDependency.get();
+                String scopeStr = dependency.getScope();
+                Scope scope = scopeStr != null ? Scope.valueOf(scopeStr) : Scope.Compile;
+                if(dependantModules.containsKey(scope)) {
+                    dependantModules.get(scope).add(m);
+                } else {
+                    List<Module> modules = new ArrayList<>();
+                    modules.add(m);
+                    dependantModules.put(scope, modules);
+                }
+            }
+        }
+        return dependantModules;
+    }
 }

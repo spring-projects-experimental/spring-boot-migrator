@@ -31,7 +31,7 @@ public class SpringManagedDependenciesTest {
         assertThat(SpringManagedDependencies.by("org.springframework.boot", "spring-boot-starter", "2.7.4",
                                                 executionContext)
                                      .stream()
-                                     .map(Dependency::getCoordinates)
+                                     .map(Dependency::getGav)
                                      .anyMatch(jakartaCoordinates::equals)
         ).isTrue();
     }
