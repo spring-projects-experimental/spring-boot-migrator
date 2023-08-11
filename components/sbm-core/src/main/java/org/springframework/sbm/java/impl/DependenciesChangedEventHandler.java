@@ -15,32 +15,11 @@
  */
 package org.springframework.sbm.java.impl;
 
-import org.jetbrains.annotations.NotNull;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.SourceFile;
-import org.springframework.sbm.build.api.DependenciesChangedEvent;
-import org.springframework.sbm.build.api.Module;
-import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.context.ProjectContextHolder;
 import lombok.RequiredArgsConstructor;
-import org.openrewrite.Parser;
-import org.openrewrite.java.tree.J;
 import org.springframework.context.event.EventListener;
-import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.sbm.build.api.BuildFile;
+import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.stereotype.Component;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Handles {@link DependenciesChangedEvent}s.
@@ -53,13 +32,9 @@ import java.util.stream.Stream;
 public class DependenciesChangedEventHandler {
     private final DependencyChangeHandler dependencyChangedHandler;
 
-    private final ProjectContextHolder projectContextHolder;
-    private final JavaParserBuilder javaParserBuilder;
-    private final ExecutionContext executionContext;
-
     @EventListener
     public void onDependenciesChanged(DependenciesChangedEvent event) {
-        dependencyChangedHandler.handleDependencyChanges(event.getOpenRewriteMavenBuildFile(), event.getResolvedDependencies());
+        dependencyChangedHandler.handleDependencyChanges(event.openRewriteMavenBuildFile(), event.resolvedDependencies());
     }
 }
 

@@ -15,9 +15,12 @@
  */
 package org.springframework.sbm.build.api;
 
-import lombok.Getter;
+import org.openrewrite.maven.tree.Scope;
+import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Event published when new dependencies were added to a {@link BuildFile}.
@@ -25,7 +28,5 @@ import java.util.List;
  *
  * @author Fabian Krueger
  */
-@Getter
-public record DependenciesChangedEvent(
-        org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile openRewriteMavenBuildFile, java.util.Map<org.openrewrite.maven.tree.Scope, List<org.openrewrite.maven.tree.ResolvedDependency>> resolvedDependencies) {
+public record DependenciesChangedEvent(OpenRewriteMavenBuildFile openRewriteMavenBuildFile, Map<Scope, List<Path>> resolvedDependencies) {
 }

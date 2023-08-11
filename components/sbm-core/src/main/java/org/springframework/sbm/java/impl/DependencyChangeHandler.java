@@ -19,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
-import org.openrewrite.SourceFile;
-import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
@@ -30,18 +28,14 @@ import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Fabian Krüger
@@ -60,7 +54,7 @@ public class DependencyChangeHandler {
      *
      * @return
      */
-    public List<J.CompilationUnit> handleDependencyChanges(OpenRewriteMavenBuildFile currentBuildFile, Map<Scope, List<ResolvedDependency>> effectiveDependencies) {
+    public List<J.CompilationUnit> handleDependencyChanges(OpenRewriteMavenBuildFile currentBuildFile, Map<Scope, List<Path>> effectiveDependencies) {
 
         // parse current module
         Map<Scope, List<ResolvedDependency>> compileAndTestDependencies = boilDownEffectiveDependenciesToCompileAndTestScope(effectiveDependencies);

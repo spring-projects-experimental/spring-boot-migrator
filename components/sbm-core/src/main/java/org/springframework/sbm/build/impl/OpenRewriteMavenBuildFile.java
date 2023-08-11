@@ -60,9 +60,10 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     private final ApplicationEventPublisher eventPublisher;
     private final PluginRepositoryHandler pluginRepositoryHandler = new PluginRepositoryHandler();
 	private final MavenBuildFileRefactoring<Xml.Document> refactoring;
+    private final RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader;
 
-    public OpenRewriteMavenBuildFile(Path projectRootDirectory, SourceFile maven, ApplicationEventPublisher eventPublisher, ExecutionContext executionContext, MavenBuildFileRefactoring refactoring) {
-        this(projectRootDirectory, cast(maven), eventPublisher, executionContext, refactoring);
+    public OpenRewriteMavenBuildFile(Path projectRootDirectory, SourceFile maven, ApplicationEventPublisher eventPublisher, ExecutionContext executionContext, MavenBuildFileRefactoring refactoring, RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader) {
+        this(projectRootDirectory, cast(maven), eventPublisher, executionContext, refactoring, rewriteMavenArtifactDownloader);
     }
 
     private static Xml.Document cast(SourceFile maven) {
@@ -152,11 +153,12 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                                      Xml.Document sourceFile,
                                      ApplicationEventPublisher eventPublisher,
                                      ExecutionContext executionContext,
-                                     MavenBuildFileRefactoring<Xml.Document> refactoring) {
+                                     MavenBuildFileRefactoring<Xml.Document> refactoring, RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader) {
         super(absoluteProjectPath, sourceFile);
         this.eventPublisher = eventPublisher;
         this.executionContext = executionContext;
         this.refactoring = refactoring;
+        this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
     }
 
     public void apply(Recipe recipe) {
@@ -181,7 +183,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public void addDependency(Dependency dependency) {
         if (!containsDependency(dependency)) {
             addDependencyInner(dependency);
-            eventPublisher.publishEvent(new DependenciesChangedEvent(this, getResolvedDependenciesPaths()));
+            eventPublisher.publishEvent(new DependenciesChangedEvent(this, getResolvedDependenciesMap()));
         }
     }
 
@@ -205,7 +207,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     @Override
     public void addDependencies(List<Dependency> dependencies) {
         addDependenciesInner(dependencies);
-        eventPublisher.publishEvent(new DependenciesChangedEvent(this, getResolvedDependenciesPaths()));
+        eventPublisher.publishEvent(new DependenciesChangedEvent(this, getResolvedDependenciesMap()));
     }
 
     /**
@@ -389,8 +391,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     @Override
     public void removeDependencies(List<Dependency> dependencies) {
         removeDependenciesInner(dependencies);
-
-        eventPublisher.publishEvent(new DependenciesChangedEvent(this, getResolvedDependenciesPaths()));
+        eventPublisher.publishEvent(new DependenciesChangedEvent(this, getResolvedDependenciesMap()));
     }
 
     /**
@@ -405,13 +406,13 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .filter(c -> Arrays.stream(regex).anyMatch(r -> c.getGav().matches(r)))
                 .collect(Collectors.toList());
         removeDependenciesInner(dependenciesMatching);
-        eventPublisher.publishEvent(new DependenciesChangedEvent(this, getResolvedDependenciesPaths()));
+        eventPublisher.publishEvent(new DependenciesChangedEvent(this, getResolvedDependenciesMap()));
     }
 
     @Override
     public void addToDependencyManagement(Dependency dependency) {
         addToDependencyManagementInner(dependency);
-        eventPublisher.publishEvent(new DependenciesChangedEvent(this, getResolvedDependenciesPaths()));
+        eventPublisher.publishEvent(new DependenciesChangedEvent(this, getResolvedDependenciesMap()));
     }
 
     private org.springframework.sbm.build.api.Dependency mapDependency(org.openrewrite.maven.tree.Dependency d) {
@@ -604,9 +605,21 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     // collect declared dependencies (jar/pom)
     // resolve classpath according to list of jar/pom
 
-    @Override
-    public Map<Scope, List<ResolvedDependency>> getResolvedDependenciesPaths() {
-        return getPom().getDependencies();
+    public Map<Scope, List<Path>> getResolvedDependenciesMap() {
+        Map<Scope, List<Path>> dependenciesMap = new HashMap<>();
+        Arrays.stream(Scope.values()).forEach(scope -> {
+            List<Path> paths = getPom().getDependencies().get(scope)
+                    .stream()
+                    .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
+                    .collect(Collectors.toList());
+            dependenciesMap.put(scope, paths);
+        });
+        return dependenciesMap;
+//        return getPom().getDependencies().get(Scope.Provided).stream()
+////                .filter(this::filterProjectDependencies)
+//                .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
+//                .collect(Collectors.toList());
+//        return getPom().getDependencies();
     }
 
     @Override
@@ -657,12 +670,17 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         return List.of(getAbsolutePath().getParent().resolve(RESOURCE_TEST_FOLDER));
     }
 
-    @Override
     public List<Path> getClasspath() {
         List<Path> classpath = new ArrayList<>();
         classpath.add(getSourceFile().getSourcePath().toAbsolutePath().getParent().resolve("target/classes"));
         classpath.addAll(getResolvedDependenciesPaths());
         return classpath;
+    }
+
+    @Override
+    public List<Path> getResolvedDependenciesPaths() {
+        List<Path> dependenciesPaths = getResolvedDependenciesMap().values().stream().flatMap(List::stream).toList();
+        return dependenciesPaths;
     }
 
     @Override

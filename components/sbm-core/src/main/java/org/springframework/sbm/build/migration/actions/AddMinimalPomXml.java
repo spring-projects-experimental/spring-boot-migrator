@@ -22,13 +22,13 @@ import lombok.Setter;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
-import org.openrewrite.xml.tree.Xml;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
@@ -57,6 +57,10 @@ public class AddMinimalPomXml extends AbstractAction {
     @JsonIgnore
     private ExecutionContext executionContext;
 
+    @Autowired
+    @JsonIgnore
+    private RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader;
+
     @Override
     public void apply(ProjectContext context) {
         String projectDir = context.getProjectRootDirectory().toString();
@@ -81,7 +85,7 @@ public class AddMinimalPomXml extends AbstractAction {
         OpenRewriteMavenBuildFile rewriteMavenBuildFile = new OpenRewriteMavenBuildFile(
                 context.getProjectRootDirectory(),
                 maven, getEventPublisher(), executionContext,
-                mavenBuildFileRefactoringFactory.createRefactoring());
+                mavenBuildFileRefactoringFactory.createRefactoring(), rewriteMavenArtifactDownloader);
         context.getProjectResources().add(rewriteMavenBuildFile);
     }
 }

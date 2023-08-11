@@ -98,7 +98,7 @@ public interface BuildFile extends ProjectResource {
 
     void addToDependencyManagementInner(Dependency dependency);
 
-    Map<Scope, List<ResolvedDependency>> getResolvedDependenciesPaths();
+    List<Path> getResolvedDependenciesPaths();
 
     boolean hasPlugin(Plugin plugin);
 
