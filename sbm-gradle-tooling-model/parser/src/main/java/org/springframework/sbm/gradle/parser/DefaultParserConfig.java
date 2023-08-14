@@ -21,6 +21,7 @@ import java.util.List;
 
 public class DefaultParserConfig implements ParseConfig {
 
+    private final List<String> activeStyles = new ArrayList<>();
     private final List<String> exclusions = new ArrayList<>();
     private final List<String> plainTextMasks = new ArrayList<>();
 
@@ -61,6 +62,11 @@ public class DefaultParserConfig implements ParseConfig {
     @Override
     public int getSizeThresholdMb() {
         return sizeThresholdMb;
+    }
+
+    @Override
+    public List<String> getActiveStyles() {
+        return activeStyles;
     }
 
 }

@@ -135,10 +135,10 @@ public class GradleProjectDataImpl implements Serializable {
                 final SourceSet sourceSet = (SourceSet)var3.next();
                 sourceSetData.add(new JavaSourceSetDataImpl(
                         sourceSet.getName(),
+                        sourceSet.getAllSource().getFiles(),
                         sourceSet.getResources().getSourceDirectories().getFiles(),
                         sourceSet.getAllJava().getFiles(),
                         sourceSet.getOutput().getClassesDirs().getFiles(),
-                        sourceSet.getCompileClasspath().getFiles(),
                         sourceSet.getCompileClasspath().getFiles(),
                         javaSourceSetImplementationClasspath(project, sourceSet),
                         sourceSetJavaVersion(project, sourceSet)

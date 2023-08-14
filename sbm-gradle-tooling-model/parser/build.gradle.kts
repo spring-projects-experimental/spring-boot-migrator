@@ -1,5 +1,7 @@
 plugins {
-    id("org.openrewrite.build.language-library")
+    id("java")
+    id("nebula.maven-resolved-dependencies") version "18.4.0"
+    id("com.gradle.plugin-publish") version "1.1.0"
 }
 
 group = "org.springframework.sbm.gradle.tooling"

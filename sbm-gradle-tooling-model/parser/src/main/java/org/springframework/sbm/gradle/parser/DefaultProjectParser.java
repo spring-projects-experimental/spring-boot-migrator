@@ -164,9 +164,13 @@ class DefaultProjectParser {
         return environment;
     }
 
+    public List<String> getActiveStyles() {
+        return new ArrayList<>(parserConfig.getActiveStyles());
+    }
+
     private List<NamedStyles> getStyles() {
-//        if (styles == null) {
-//            styles = environment().activateStyles(getActiveStyles());
+        if (styles == null) {
+            styles = environment().activateStyles(getActiveStyles());
 //            File checkstyleConfig = extension.getCheckstyleConfigFile();
 //            if (checkstyleConfig != null && checkstyleConfig.exists()) {
 //                try {
@@ -175,7 +179,7 @@ class DefaultProjectParser {
 //                    logger.warn("Unable to parse Checkstyle configuration", e);
 //                }
 //            }
-//        }
+        }
         return styles;
     }
 

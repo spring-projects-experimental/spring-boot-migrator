@@ -25,4 +25,6 @@ public interface ParseConfig {
 
     int getSizeThresholdMb();
 
+    List<String> getActiveStyles();
+
 }
