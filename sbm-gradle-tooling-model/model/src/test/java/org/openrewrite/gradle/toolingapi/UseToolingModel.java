@@ -18,6 +18,7 @@ package org.openrewrite.gradle.toolingapi;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.gradle.ProjectInfo;
+import org.springframework.sbm.gradle.tooling.GradleProjectData;
 import org.springframework.sbm.gradle.tooling.GradleProjectParser;
 import org.springframework.sbm.gradle.tooling.ModelBuilder;
 
@@ -27,12 +28,30 @@ import java.util.stream.Collectors;
 
 public class UseToolingModel {
     public static void main(String[] args) {
-        GradleProjectParser parser = new GradleProjectParser();
+//        GradleProjectParser parser = new GradleProjectParser();
+//
+//        List<SourceFile> cus = parser.parse(new File("sample"), new File("sample/build.gradle"), new InMemoryExecutionContext(e -> e.printStackTrace())).collect(Collectors.toList());
+//        System.out.println(cus.size());
+//
+//        cus = parser.parse(new File("demo"), new File("demo/build.gradle.kts"), new InMemoryExecutionContext(e -> e.printStackTrace())).collect(Collectors.toList());
+//        System.out.println(cus.size());
 
-        List<SourceFile> cus = parser.parse(new File("sample"), new File("sample/build.gradle"), new InMemoryExecutionContext(e -> e.printStackTrace())).collect(Collectors.toList());
-        System.out.println(cus.size());
+        GradleProjectData projectData = ModelBuilder.forProjectDirectory(new File("sample"), new File("sample/build.gradle"), GradleProjectData.class);
+        System.out.println(projectData.getBuildDir());
+        System.out.println(projectData.getBuildscriptClasspath());
+        System.out.println(projectData.getBuildscriptFile());
+        System.out.println(projectData.getGradleSettings());
+        System.out.println(projectData.getProjectDir());
+        System.out.println(projectData.getGradleVersion());
+        System.out.println(projectData.getJavaSourceSets());
+        System.out.println(projectData.getKotlinSourceSets());
+        System.out.println(projectData.getProperties());
+        System.out.println(projectData.getRootProjectDir());
+        System.out.println(projectData.getSettingsBuildscriptFile());
+        System.out.println(projectData.getSettingsClasspath());
+        System.out.println(projectData.getMavenRepositories());
+        System.out.println(projectData.getPlugins());
 
-        cus = parser.parse(new File("demo"), new File("demo/build.gradle.kts"), new InMemoryExecutionContext(e -> e.printStackTrace())).collect(Collectors.toList());
-        System.out.println(cus.size());
+
     }
 }

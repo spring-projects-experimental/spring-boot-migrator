@@ -33,6 +33,7 @@ public class ToolingApiSbmModelPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
+        registry.register(new GradleProjectDataBuilder());
         registry.register(new ProjectInfoBuilder());
     }
 
@@ -45,6 +46,18 @@ public class ToolingApiSbmModelPlugin implements Plugin<Project> {
         @Override
         public Object buildAll(String modelName, Project project) {
             return ProjectInfoImpl.from(ProjectInfo.from(project));
+        }
+    }
+
+    private static class GradleProjectDataBuilder implements ToolingModelBuilder {
+        @Override
+        public boolean canBuild(String modelName) {
+            return modelName.equals(GradleProjectData.class.getName());
+        }
+
+        @Override
+        public Object buildAll(String modelName, Project project) {
+            return GradleProjectDataImpl.from(project);
         }
     }
 
