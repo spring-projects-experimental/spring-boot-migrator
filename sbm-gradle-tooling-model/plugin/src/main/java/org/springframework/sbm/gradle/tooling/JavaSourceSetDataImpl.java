@@ -19,11 +19,12 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Collection;
 
 @AllArgsConstructor
 @Value
-public class JavaSourceSetDataImpl implements JavaSourceSetData {
+public class JavaSourceSetDataImpl implements JavaSourceSetData, Serializable {
     private final String name;
     private final Collection<File> sources;
     private final Collection<File> sourceDirectories;

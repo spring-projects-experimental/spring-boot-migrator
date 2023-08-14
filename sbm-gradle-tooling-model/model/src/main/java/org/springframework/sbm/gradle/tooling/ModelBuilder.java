@@ -18,7 +18,6 @@ package org.springframework.sbm.gradle.tooling;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector;
-import org.openrewrite.internal.lang.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ModelBuilder {
-    public static <T> T forProjectDirectory(File projectDir, @Nullable File buildFile, Class<T> modelClass) {
+    public static <T> T forProjectDirectory(File projectDir, File buildFile, Class<T> modelClass) {
         DefaultGradleConnector connector = (DefaultGradleConnector) GradleConnector.newConnector();
         if (Files.exists(projectDir.toPath().resolve("gradle/wrapper/gradle-wrapper.properties"))) {
             connector.useBuildDistribution();

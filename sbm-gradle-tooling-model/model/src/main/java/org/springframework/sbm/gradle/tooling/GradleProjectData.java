@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.gradle.tooling;
 
-import org.openrewrite.gradle.marker.GradleSettings;
 import org.openrewrite.gradle.toolingapi.GradleProject;
+import org.openrewrite.gradle.toolingapi.GradleSettings;
 
 import java.io.File;
 import java.util.Collection;

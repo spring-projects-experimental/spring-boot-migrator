@@ -18,9 +18,11 @@ package org.springframework.sbm.gradle.tooling;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
+import java.io.Serializable;
+
 @AllArgsConstructor
 @Value
-public class JavaVersionDataImpl implements JavaVersionData {
+public class JavaVersionDataImpl implements JavaVersionData, Serializable {
     private String createdBy;
     private String vmVendor;
     private String sourceCompatibility;

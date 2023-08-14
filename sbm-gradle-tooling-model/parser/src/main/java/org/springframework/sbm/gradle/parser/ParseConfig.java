@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.gradle.tooling;
+package org.springframework.sbm.gradle.parser;
 
-import java.io.File;
-import java.util.Collection;
+import java.util.List;
 
-public interface JavaSourceSetData {
-    String getName();
+public interface ParseConfig {
 
-    Collection<File> getSources();
+    List<String> getExclusions();
 
-    Collection<File> getSourceDirectories();
+    List<String> getPlainTextMasks();
 
-    Collection<File> getJava();
+    int getSizeThresholdMb();
 
-    Collection<File> getClassesDirs();
-
-    Collection<File> getCompileClasspath();
-
-    Collection<File> getImplementationClasspath();
-
-    JavaVersionData getJavaVersionData();
 }

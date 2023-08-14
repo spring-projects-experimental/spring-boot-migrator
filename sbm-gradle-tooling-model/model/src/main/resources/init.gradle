@@ -31,7 +31,6 @@ initscript {
         classpath 'org.springframework.sbm.gradle.tooling:plugin:latest.integration'
         classpath 'org.springframework.sbm.gradle.tooling:model:latest.integration'
         classpath 'org.openrewrite.gradle.tooling:model:latest.integration'
-        classpath 'org.openrewrite:plugin:latest.integration'
         classpath 'org.openrewrite:rewrite-maven:latest.integration'
         classpath gradleApi()
     }

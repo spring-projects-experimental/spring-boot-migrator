@@ -15,27 +15,13 @@
  */
 package org.openrewrite.gradle.toolingapi;
 
-import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.SourceFile;
-import org.openrewrite.gradle.ProjectInfo;
 import org.springframework.sbm.gradle.tooling.GradleProjectData;
-import org.springframework.sbm.gradle.tooling.GradleProjectParser;
 import org.springframework.sbm.gradle.tooling.ModelBuilder;
 
 import java.io.File;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class UseToolingModel {
     public static void main(String[] args) {
-//        GradleProjectParser parser = new GradleProjectParser();
-//
-//        List<SourceFile> cus = parser.parse(new File("sample"), new File("sample/build.gradle"), new InMemoryExecutionContext(e -> e.printStackTrace())).collect(Collectors.toList());
-//        System.out.println(cus.size());
-//
-//        cus = parser.parse(new File("demo"), new File("demo/build.gradle.kts"), new InMemoryExecutionContext(e -> e.printStackTrace())).collect(Collectors.toList());
-//        System.out.println(cus.size());
-
         GradleProjectData projectData = ModelBuilder.forProjectDirectory(new File("sample"), new File("sample/build.gradle"), GradleProjectData.class);
         System.out.println(projectData.getBuildDir());
         System.out.println(projectData.getBuildscriptClasspath());

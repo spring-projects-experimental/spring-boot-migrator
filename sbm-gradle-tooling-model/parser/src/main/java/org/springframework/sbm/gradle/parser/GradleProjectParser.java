@@ -13,25 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.gradle.tooling;
+package org.springframework.sbm.gradle.parser;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
-import org.openrewrite.gradle.DefaultRewriteExtension;
-import org.openrewrite.gradle.ProjectInfo;
-import org.openrewrite.gradle.isolated.DefaultProjectParser;
-import org.openrewrite.internal.lang.Nullable;
+import org.springframework.sbm.gradle.tooling.GradleProjectData;
+import org.springframework.sbm.gradle.tooling.ModelBuilder;
 
 import java.io.File;
 import java.util.stream.Stream;
 
 public class GradleProjectParser {
 
-    public Stream<SourceFile> parse(File projectDir, @Nullable File buildFile, ExecutionContext ctx) {
-        ProjectInfo projectInfo = ModelBuilder.forProjectDirectory(projectDir, buildFile, ProjectInfo.class);
-        DefaultProjectParser gradlePluginParser = new DefaultProjectParser(projectInfo, new DefaultRewriteExtension(projectInfo));
-        return gradlePluginParser.parse(ctx);
+    public static Stream<SourceFile> parse(File projectDir, File buildFile, ExecutionContext context, ParseConfig config) {
+        GradleProjectData project = ModelBuilder.forProjectDirectory(projectDir, buildFile, GradleProjectData.class);
+        return new DefaultProjectParser(project, config).parse(context);
     }
-
-
 }

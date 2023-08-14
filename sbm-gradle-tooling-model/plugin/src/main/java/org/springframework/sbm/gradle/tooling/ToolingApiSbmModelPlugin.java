@@ -19,7 +19,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.tooling.provider.model.ToolingModelBuilder;
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry;
-import org.openrewrite.gradle.ProjectInfo;
 
 import javax.inject.Inject;
 
@@ -34,19 +33,6 @@ public class ToolingApiSbmModelPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         registry.register(new GradleProjectDataBuilder());
-        registry.register(new ProjectInfoBuilder());
-    }
-
-    private static class ProjectInfoBuilder implements ToolingModelBuilder {
-        @Override
-        public boolean canBuild(String modelName) {
-            return modelName.equals(ProjectInfo.class.getName());
-        }
-
-        @Override
-        public Object buildAll(String modelName, Project project) {
-            return ProjectInfoImpl.from(ProjectInfo.from(project));
-        }
     }
 
     private static class GradleProjectDataBuilder implements ToolingModelBuilder {

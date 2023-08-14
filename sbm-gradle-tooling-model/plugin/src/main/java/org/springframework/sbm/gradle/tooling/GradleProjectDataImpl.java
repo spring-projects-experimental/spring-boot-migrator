@@ -31,12 +31,13 @@ import org.openrewrite.gradle.marker.*;
 import org.openrewrite.maven.tree.MavenRepository;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor
-public class GradleProjectDataImpl {
+public class GradleProjectDataImpl implements Serializable {
 
     private static Class<?>[] SUPPORTED_GRADLE_PROPERTY_VALUE_TYPES =new Class<?>[] {
             Number.class,
@@ -64,7 +65,7 @@ public class GradleProjectDataImpl {
     private final File buildscriptFile;
     private final File settingsBuildscriptFile;
     private final Map<String, ?> properties;
-    private final Collection<JavaSourceSetDataImpl> sourceSets;
+    private final Collection<JavaSourceSetDataImpl> javaSourceSets;
     private final boolean multiPlatformKotlinProject;
     private final Collection<KotlinSourceSetDataImpl> kotlinSourceSets;
     private final Collection<File> buildscriptClasspath;
