@@ -20,6 +20,7 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.OmniParser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.config.Environment;
+import org.openrewrite.gradle.GradleParser;
 import org.openrewrite.gradle.marker.GradleProject;
 import org.openrewrite.gradle.marker.GradleSettings;
 import org.openrewrite.groovy.GroovyParser;
@@ -29,11 +30,17 @@ import org.openrewrite.java.internal.JavaTypeCache;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.marker.JavaVersion;
+import org.openrewrite.json.JsonParser;
 import org.openrewrite.kotlin.KotlinParser;
 import org.openrewrite.marker.*;
 import org.openrewrite.marker.ci.BuildEnvironment;
+import org.openrewrite.properties.PropertiesParser;
+import org.openrewrite.protobuf.ProtoParser;
 import org.openrewrite.style.NamedStyles;
+import org.openrewrite.text.PlainTextParser;
 import org.openrewrite.tree.ParseError;
+import org.openrewrite.xml.XmlParser;
+import org.openrewrite.yaml.YamlParser;
 import org.springframework.sbm.gradle.tooling.GradleProjectData;
 import org.springframework.sbm.gradle.tooling.JavaSourceSetData;
 import org.springframework.sbm.gradle.tooling.KotlinSourceSetData;
@@ -207,11 +214,28 @@ class DefaultProjectParser {
     }
 
     private OmniParser omniParser(Set<Path> alreadyParsed) {
+        List<Path> buildScriptClasspath = project.getBuildscriptClasspath().stream().map(f -> f.toPath()).collect(toList());
+        List<Path> settingsClasspath = project.getSettingsClasspath().stream().map(f -> f.toPath()).collect(toList());
         return OmniParser.builder()
                 .plainTextMasks(pathMatchers(baseDir, parserConfig.getPlainTextMasks()))
                 .exclusionMatchers(pathMatchers(baseDir, mergeExclusions(project, baseDir, parserConfig)))
                 .exclusions(alreadyParsed)
                 .sizeThresholdMb(parserConfig.getSizeThresholdMb())
+                .parsers(
+                        GradleParser.builder()
+                                .groovyParser(GroovyParser.builder()
+                                        .styles(styles)
+                                        .logCompilationWarningsAndErrors(false))
+                                .buildscriptClasspath(buildScriptClasspath)
+                                .settingsClasspath(settingsClasspath)
+                                .build(),
+                        new JsonParser(),
+                        new XmlParser(),
+                        new YamlParser(),
+                        new PropertiesParser(),
+                        new ProtoParser(),
+                        new PlainTextParser()
+                )
                 .build();
     }
 
