@@ -422,7 +422,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .version(d.getVersion())
                 .scope(d.getScope())
                 .type(d.getType());
-        if (!d.getExclusions().isEmpty()) {
+        if (d.getExclusions() != null && !d.getExclusions().isEmpty()) {
             dependencyBuilder.exclusions(d.getExclusions().stream()
                     .map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build())
                     .collect(Collectors.toList()));
@@ -605,14 +605,18 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     // collect declared dependencies (jar/pom)
     // resolve classpath according to list of jar/pom
 
-    public Map<Scope, List<Path>> getResolvedDependenciesMap() {
-        Map<Scope, List<Path>> dependenciesMap = new HashMap<>();
+    @Override
+    public Map<Scope, Set<Path>> getResolvedDependenciesMap() {
+        Map<Scope, Set<Path>> dependenciesMap = new HashMap<>();
         Arrays.stream(Scope.values()).forEach(scope -> {
-            List<Path> paths = getPom().getDependencies().get(scope)
-                    .stream()
-                    .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
-                    .collect(Collectors.toList());
-            dependenciesMap.put(scope, paths);
+            List<ResolvedDependency> resolvedDependencies = getPom().getDependencies().get(scope);
+            if(resolvedDependencies != null) {
+                Set<Path> paths = resolvedDependencies
+                        .stream()
+                        .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
+                        .collect(Collectors.toSet());
+                dependenciesMap.put(scope, paths);
+            }
         });
         return dependenciesMap;
 //        return getPom().getDependencies().get(Scope.Provided).stream()
@@ -679,7 +683,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public List<Path> getResolvedDependenciesPaths() {
-        List<Path> dependenciesPaths = getResolvedDependenciesMap().values().stream().flatMap(List::stream).toList();
+        List<Path> dependenciesPaths = getResolvedDependenciesMap().values().stream().flatMap(Set::stream).toList();
         return dependenciesPaths;
     }
 
