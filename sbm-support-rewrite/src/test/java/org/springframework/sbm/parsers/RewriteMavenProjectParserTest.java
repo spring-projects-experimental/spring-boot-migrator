@@ -92,13 +92,15 @@ class RewriteMavenProjectParserTest {
     void beforeEach() {
         beanFactory = mock(ConfigurableListableBeanFactory.class);
         scanScope = mock(ScanScope.class);
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
         sut = new RewriteMavenProjectParser(
                 plexusContainerFactory,
                 new DefaultParsingEventListener(mock(ApplicationEventPublisher.class)),
                 new MavenExecutor(requestFactory, plexusContainerFactory),
                 new MavenMojoProjectParserFactory(parserSettings),
                 scanScope,
-                beanFactory
+                beanFactory,
+                executionContext
         );
     }
 
