@@ -36,17 +36,13 @@ import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.java.impl.DependencyChangeHandler;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -1434,7 +1430,7 @@ public class OpenRewriteMavenBuildFileTest {
 
         assertEventPublished(eventPublisher, argumentCaptor, DependenciesChangedEvent.class, 1);
 
-        Map<Scope, List<Path>> resolvedDependencies = argumentCaptor.getValue().resolvedDependencies();
+        Map<Scope, Set<Path>> resolvedDependencies = argumentCaptor.getValue().resolvedDependencies();
         assertThat(resolvedDependencies).hasSize(1);
         Path pathInMavenRepo = Path.of("org/slf4j/slf4j-api/1.7.32/slf4j-api-1.7.32.jar");
         assertThat(resolvedDependencies.get(0)).endsWith(pathInMavenRepo);

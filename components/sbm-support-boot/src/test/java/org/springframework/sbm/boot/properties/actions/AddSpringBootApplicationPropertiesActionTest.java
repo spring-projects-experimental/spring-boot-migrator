@@ -18,7 +18,7 @@ package org.springframework.sbm.boot.properties.actions;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

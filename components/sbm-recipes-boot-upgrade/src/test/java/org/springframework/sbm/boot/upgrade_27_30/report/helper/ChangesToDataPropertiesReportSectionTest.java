@@ -21,7 +21,7 @@ import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMa
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportTestSupport;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 

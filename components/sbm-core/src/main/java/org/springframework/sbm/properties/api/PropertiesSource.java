@@ -17,7 +17,6 @@ package org.springframework.sbm.properties.api;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.properties.migration.recipes.AddProperty;
 import lombok.extern.slf4j.Slf4j;

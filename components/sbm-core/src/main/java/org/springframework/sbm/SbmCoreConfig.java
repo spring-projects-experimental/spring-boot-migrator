@@ -20,7 +20,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.scopes.annotations.ScanScope;
 
 import java.util.function.Supplier;

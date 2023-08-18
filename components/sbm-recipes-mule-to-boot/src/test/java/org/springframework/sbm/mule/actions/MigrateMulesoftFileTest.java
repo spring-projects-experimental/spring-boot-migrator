@@ -18,7 +18,7 @@ package org.springframework.sbm.mule.actions;
 import org.springframework.sbm.common.filter.AbsolutePathResourceFinder;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import freemarker.cache.FileTemplateLoader;

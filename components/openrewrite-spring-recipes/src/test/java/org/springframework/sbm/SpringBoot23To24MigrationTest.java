@@ -27,7 +27,7 @@ import org.springframework.sbm.boot.properties.search.SpringBootApplicationPrope
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.UserInteractions;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import org.springframework.sbm.spring.migration.actions.InitDataSourceAfterJpaInitAction;
 import org.springframework.sbm.test.ProjectContextFileSystemTestSupport;

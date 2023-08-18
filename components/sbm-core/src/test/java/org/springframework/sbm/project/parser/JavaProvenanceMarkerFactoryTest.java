@@ -24,7 +24,7 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 
 import java.nio.file.Path;
 import java.util.List;

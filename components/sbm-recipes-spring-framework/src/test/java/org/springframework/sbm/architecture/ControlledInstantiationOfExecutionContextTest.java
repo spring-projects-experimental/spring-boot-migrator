@@ -23,7 +23,7 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import org.openrewrite.ExecutionContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.scopes.ScopeConfiguration;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;

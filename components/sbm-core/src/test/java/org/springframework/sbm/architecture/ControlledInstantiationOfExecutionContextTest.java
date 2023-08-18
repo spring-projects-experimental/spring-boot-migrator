@@ -27,7 +27,7 @@ import org.openrewrite.ExecutionContext;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.sbm.SbmCoreConfig;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.scopes.ScopeConfiguration;
 
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBe;
