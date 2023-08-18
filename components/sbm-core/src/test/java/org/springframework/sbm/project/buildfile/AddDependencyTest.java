@@ -64,6 +64,8 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -190,6 +192,11 @@ public class AddDependencyTest {
                 true
         ).run(new InMemoryLargeSourceSet(List.of(cu)), executionContext);
 
+        Set<String> typesInUse = ((J.CompilationUnit) recipeRun.getChangeset().getAllResults().get(0).getAfter()).getTypesInUse().getTypesInUse().stream()
+                .map(t -> ((JavaType.Class)t).getFullyQualifiedName())
+                .collect(Collectors.toSet());
+        assertThat(typesInUse).containsExactlyInAnyOrder("java.lang.String", "javax.validation.constraints.Email");
+
         SourceFile sourceFile2 = javaParser
                 .parse(
                         """
@@ -205,7 +212,6 @@ public class AddDependencyTest {
         J.CompilationUnit cu2 = (J.CompilationUnit) sourceFile2;
         List<String> types2 = cu2.getTypesInUse().getTypesInUse().stream().map(t -> ((JavaType.Class) t).getFullyQualifiedName()).toList();
         assertThat(types2).containsExactlyInAnyOrder("java.lang.String", "javax.validation.constraints.Email");
-
     }
 
     /**
