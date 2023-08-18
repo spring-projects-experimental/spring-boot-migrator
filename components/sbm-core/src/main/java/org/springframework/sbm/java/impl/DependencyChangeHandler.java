@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
+import org.openrewrite.SourceFile;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
@@ -26,16 +27,20 @@ import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
+import org.springframework.sbm.build.api.ApplicationModules;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
+import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.sbm.utils.JavaHelper;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Fabian Krüger
@@ -54,20 +59,86 @@ public class DependencyChangeHandler {
      *
      * @return
      */
-    public List<J.CompilationUnit> handleDependencyChanges(OpenRewriteMavenBuildFile currentBuildFile, Map<Scope, List<Path>> effectiveDependencies) {
+    public void handleDependencyChanges(OpenRewriteMavenBuildFile currentBuildFile) {
+        ProjectContext projectContext = projectContextHolder.getProjectContext();
+        // create a mapping dependency -> dependant module information
+        Map<String, List<DependingModuleInfo>> dependencyModuleMap = createDependencyToModuleMappings(projectContext.getApplicationModules());
+        // track recompiled sources
+        List<SourceFile> recompiledClasses = new ArrayList<>();
+        // get current module
+        Module module = getModuleForBuildFile(currentBuildFile, projectContext);
+        // recompile module
+        List<SourceFile> recompiledModuleClasses = recompileModuleClasses(module);
+        recompiledClasses.addAll(recompiledModuleClasses);
+        // recompile directly or transitively affected modules
+        List<SourceFile> recompiledClassesFromAffectedModules = recompileAffectedModules(dependencyModuleMap, module);
+        recompiledClasses.addAll(recompiledClassesFromAffectedModules);
+        // update the wrapped SourceFiles
+        updateSourceFileHolder(projectContext, recompiledClasses);
+    }
 
-        // parse current module
-        Map<Scope, List<ResolvedDependency>> compileAndTestDependencies = boilDownEffectiveDependenciesToCompileAndTestScope(effectiveDependencies);
-        Module currentModule = projectContextHolder.getProjectContext().getApplicationModules().findModule(currentBuildFile.getGav())
-                .orElseThrow(() -> new IllegalStateException("Could not find matching module for build file with GAV: '%s'".formatted(currentBuildFile.getGav())));
+    private static Module getModuleForBuildFile(OpenRewriteMavenBuildFile currentBuildFile, ProjectContext projectContext) {
+        return projectContext.getApplicationModules().findModule(currentBuildFile.getGav()).orElseThrow(() -> new IllegalStateException("Could not find Module for given build file %s".formatted(currentBuildFile.getSourcePath())));
+    }
 
-        List<J.CompilationUnit> mainSources = compileModuleSources(currentModule.getMainJavaSourceSet().list(), compileAndTestDependencies.get(Scope.Compile));
-        List<J.CompilationUnit> testSources = compileModuleSources(currentModule.getTestJavaSourceSet().list(), compileAndTestDependencies.get(Scope.Test));
+    private Map<String, List<DependingModuleInfo>> createDependencyToModuleMappings(ApplicationModules applicationModules) {
+        Map<String, List<DependingModuleInfo>> map = new HashMap<>();
+        for(Module m : applicationModules.list()) {
+            m.getBuildFile().getDeclaredDependencies().forEach(d -> {
+                String scope = JavaHelper.uppercaseFirstChar(d.getEffectiveScope().toLowerCase());
+                DependingModuleInfo moduleInfo = new DependingModuleInfo(d.getGav(), Scope.valueOf(scope), m);
+                map.computeIfAbsent(d.getGav(), k -> new ArrayList<>()).add(moduleInfo);
+            });
+        }
+        return map;
+    }
 
-        List<J.CompilationUnit> recompiledSources = new ArrayList<>();
-        recompiledSources.addAll(mainSources);
-        recompiledSources.addAll(testSources);
-        return recompiledSources;
+    private void updateSourceFileHolder(ProjectContext projectContext, List<SourceFile> recompiledClasses) {
+        List<String> recompiledClassesPaths = recompiledClasses.stream()
+                .map(c -> projectContext.getProjectRootDirectory().resolve(c.getSourcePath().toString()))
+                .map(Path::toString)
+                .toList();
+
+        projectContext.getProjectResources().stream()
+                .forEach(r -> {
+                    if(recompiledClassesPaths.contains(r.getAbsolutePath().toString())) {
+                        int i = recompiledClassesPaths.indexOf(r.getAbsolutePath().toString());
+                        SourceFile sourceFile = recompiledClasses.get(i);
+                        r.replaceWith(sourceFile);
+                    }
+                });
+    }
+
+    private List<SourceFile> recompileAffectedModules(Map<String, List<DependingModuleInfo>> dependencyModuleMap, Module module) {
+        List<SourceFile> recompiledSourceFiles = new ArrayList<>();
+        recursivelyRecompileAffectedModules(dependencyModuleMap, module, recompiledSourceFiles);
+        return recompiledSourceFiles;
+    }
+
+    private void recursivelyRecompileAffectedModules(Map<String, List<DependingModuleInfo>> dependencyModuleMap, Module module, List<SourceFile> recompiledSourceFiles) {
+        List<DependingModuleInfo> affectedModules = dependencyModuleMap.getOrDefault(module.getBuildFile().getGav(), List.of());
+        affectedModules.forEach(affectedModuleInfo -> {
+            Module affectedModule = affectedModuleInfo.module();
+            recompiledSourceFiles.addAll(recompileModuleClasses(affectedModule));
+            recursivelyRecompileAffectedModules(dependencyModuleMap, affectedModule, recompiledSourceFiles);
+        });
+    }
+
+    private List<SourceFile> recompileModuleClasses(Module module) {
+        Map<Scope, Set<Path>> resolvedDependenciesMap = module.getBuildFile().getResolvedDependenciesMap();
+        Map<Scope, Set<Path>> scopeListMap = flattenToCompileAndTestScope(resolvedDependenciesMap);
+        List<Parser.Input> mainSources = module.getMainJavaSourceSet().list().stream()
+                .map(ja -> new Parser.Input(ja.getAbsolutePath(), () -> new ByteArrayInputStream(ja.print().getBytes())))
+                .toList();
+        List<SourceFile> main = javaParserBuilder.classpath(scopeListMap.get(Scope.Compile)).build().parseInputs(mainSources, module.getProjectRootDir(), executionContext).toList();
+        List<Parser.Input> testSources = module.getTestJavaSourceSet().list().stream()
+                .map(ja -> new Parser.Input(ja.getAbsolutePath(), () -> new ByteArrayInputStream(ja.print().getBytes())))
+                .toList();
+        List<SourceFile> test = javaParserBuilder.classpath(scopeListMap.get(Scope.Test)).build().parseInputs(testSources, module.getProjectRootDir(), executionContext).toList();
+        List<SourceFile> result = new ArrayList<>();
+        result.addAll(main);
+        result.addAll(test);
+        return result;
     }
 
     void otherCode() {
@@ -179,9 +250,23 @@ public class DependencyChangeHandler {
         return mainJavaSources;
     }
 
-    private Map<Scope, List<ResolvedDependency>> boilDownToCompileAndTestScope(Map<Scope, List<ResolvedDependency>> resolvedDependencies) {
-        List<ResolvedDependency> resolvedDependencies1 = resolvedDependencies.get(Scope.Compile);
+    private Map<Scope, Set<Path>> flattenToCompileAndTestScope(Map<Scope, Set<Path>> resolvedDependencies) {
+        Map<Scope, Set<Path>> boiled = new HashMap<>();
+        Arrays.stream(Scope.values())
+                .forEach(scope -> {
+                    Set<Path> paths = resolvedDependencies.get(scope);
+                    if(paths != null) {
+                        if(scope.isInClasspathOf(Scope.Compile)) {
+                            boiled.computeIfAbsent(Scope.Compile, k -> new HashSet<>()).addAll(paths);
+                        }
+                        if(scope.isInClasspathOf(Scope.Test)) {
+                            boiled.computeIfAbsent(Scope.Test, k -> new HashSet<>()).addAll(paths);
+                        }
+                    }
+                });
+        return boiled;
+    }
 
-        return null;
+    private record DependingModuleInfo(String gav, Scope scope, Module module) {
     }
 }

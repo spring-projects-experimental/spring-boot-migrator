@@ -34,7 +34,7 @@ public class DependenciesChangedEventHandler {
 
     @EventListener
     public void onDependenciesChanged(DependenciesChangedEvent event) {
-        dependencyChangedHandler.handleDependencyChanges(event.openRewriteMavenBuildFile(), event.resolvedDependencies());
+        dependencyChangedHandler.handleDependencyChanges(event.openRewriteMavenBuildFile());
     }
 }
 

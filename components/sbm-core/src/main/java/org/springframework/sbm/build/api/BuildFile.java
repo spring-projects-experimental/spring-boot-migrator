@@ -100,6 +100,8 @@ public interface BuildFile extends ProjectResource {
 
     List<Path> getResolvedDependenciesPaths();
 
+    Map<Scope, Set<Path>> getResolvedDependenciesMap();
+
     boolean hasPlugin(Plugin plugin);
 
     void addPlugin(Plugin plugin);

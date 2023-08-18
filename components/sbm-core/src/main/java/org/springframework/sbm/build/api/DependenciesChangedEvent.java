@@ -21,6 +21,7 @@ import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Event published when new dependencies were added to a {@link BuildFile}.
@@ -28,5 +29,5 @@ import java.util.Map;
  *
  * @author Fabian Krueger
  */
-public record DependenciesChangedEvent(OpenRewriteMavenBuildFile openRewriteMavenBuildFile, Map<Scope, List<Path>> resolvedDependencies) {
+public record DependenciesChangedEvent(OpenRewriteMavenBuildFile openRewriteMavenBuildFile, Map<Scope, Set<Path>> resolvedDependencies) {
 }

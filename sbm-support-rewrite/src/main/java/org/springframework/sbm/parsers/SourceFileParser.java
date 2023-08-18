@@ -91,7 +91,7 @@ class SourceFileParser {
                 .styles(styles)
                 .logCompilationWarningsAndErrors(false);
 
-        javaParserBuilderHolder.setBuilder(javaParserBuilder);
+        javaParserBuilderHolder.setDelegate(javaParserBuilder);
 
         Set<Path> pathsToOtherModules = pathsToOtherMavenProjects(resources, moduleBuildFile);
         ResourceParser rp = new ResourceParser(

@@ -17,6 +17,7 @@ package org.springframework.sbm.build.api;
 
 import io.micrometer.core.lang.Nullable;
 import lombok.*;
+import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.semver.LatestRelease;
 
 import jakarta.validation.constraints.NotNull;
@@ -124,5 +125,9 @@ public class Dependency {
         } else {
             throw new IllegalArgumentException("Expected dependency in format groupid:artifactid[:version], but it is: " + coordinate);
         }
+    }
+
+    public String getEffectiveScope() {
+        return scope == null ? Scope.Compile.name() : scope;
     }
 }
