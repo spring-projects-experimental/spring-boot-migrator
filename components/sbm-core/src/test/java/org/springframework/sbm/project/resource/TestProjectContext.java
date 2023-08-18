@@ -21,6 +21,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
+import org.openrewrite.java.JavaParser;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -236,7 +237,7 @@ public class TestProjectContext {
      *
      * @param eventPublisher the eventPublisher to use
      */
-    public static Builder buildProjectContext(ApplicationEventPublisher eventPublisher, RewriteJavaParser rewriteJavaParser) {
+    public static Builder buildProjectContext(ApplicationEventPublisher eventPublisher, JavaParser rewriteJavaParser) {
         return new Builder(DEFAULT_PROJECT_ROOT, eventPublisher, rewriteJavaParser);
     }
 
@@ -276,7 +277,7 @@ public class TestProjectContext {
 
     public static class Builder {
         @Deprecated
-        private RewriteJavaParser javaParser;
+        private JavaParser javaParser;
         private ConfigurableListableBeanFactory beanFactory;
         private Path projectRoot;
         private List<ProjectResourceWrapper> resourceWrapperList = new ArrayList<>();
@@ -299,7 +300,7 @@ public class TestProjectContext {
             this.eventPublisher = eventPublisher;
         }
 
-        public Builder(Path defaultProjectRoot, ApplicationEventPublisher eventPublisher, RewriteJavaParser rewriteJavaParser) {
+        public Builder(Path defaultProjectRoot, ApplicationEventPublisher eventPublisher, JavaParser rewriteJavaParser) {
             this(defaultProjectRoot, eventPublisher);
             this.javaParser = rewriteJavaParser;
         }
