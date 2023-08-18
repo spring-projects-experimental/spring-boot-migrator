@@ -34,8 +34,6 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     private final String snippet;
     private final String[] imports;
     private final Supplier<JavaParser.Builder> javaParserSupplier;
-    // ugly, just because UUID of elemnts stay same now and can't be used as criteria leading to multiple visits of the same .
-    private boolean targetVisited;
 
     public AddAnnotationVisitor(JavaParser.Builder javaParserSupplier, J target, String snippet, String annotationImport, String... otherImports) {
         this(() -> javaParserSupplier, target, snippet, annotationImport, otherImports);
@@ -52,14 +50,13 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
 
     public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext p) {
         J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, p);
-        if (target.getId().equals(cd.getId()) && !targetVisited) {
+        if (target.getId().equals(cd.getId())) {
             JavaTemplate template = JavaTemplate.builder(snippet)
                     .imports(imports)
                     .build();
             Stream.of(imports).forEach(i -> maybeAddImport(i, null, false));
             JavaCoordinates coordinates = cd.getCoordinates().addAnnotation((o1, o2) -> 0);
             cd = template.apply(getCursor(), coordinates);
-            targetVisited = true;
         }
         return cd;
     }
@@ -67,7 +64,7 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
 
     public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration methodDecl, ExecutionContext p) {
         J.MethodDeclaration md = super.visitMethodDeclaration(methodDecl, p);
-        if (target.getId().equals(md.getId()) && !targetVisited) {
+        if (target.getId().equals(md.getId())) {
             JavaTemplate template = JavaTemplate.builder(snippet)
                             .imports(imports)
                             .build();
@@ -75,7 +72,6 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
                 maybeAddImport(i, null, false);
             });
             md = template.apply(getCursor(), md.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
-            targetVisited = true;
         }
         return md;
     }
@@ -83,11 +79,10 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     @Override
     public J.VariableDeclarations visitVariableDeclarations(J.VariableDeclarations multiVariable, ExecutionContext p) {
         J.VariableDeclarations vd = super.visitVariableDeclarations(multiVariable, p);
-        if (target.getId().equals(vd.getId()) && !targetVisited) {
-            JavaTemplate template = JavaTemplate.builder(snippet).imports(imports).build();
+        if (target.getId().equals(vd.getId())) {
+            JavaTemplate template = JavaTemplate.builder(snippet).javaParser(javaParserSupplier.get()).imports(imports).build();
             Stream.of(imports).forEach(i -> maybeAddImport(i, null, false));
             vd = template.apply(getCursor(), vd.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
-            targetVisited = true;
         }
         return vd;
     }
