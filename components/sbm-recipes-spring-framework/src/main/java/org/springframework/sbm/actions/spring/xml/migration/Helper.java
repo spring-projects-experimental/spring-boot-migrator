@@ -34,6 +34,12 @@ import static java.util.Arrays.stream;
 
 @Component // FIXME: no member, all methods can be static (?) -> no component
 class Helper {
+
+    /**
+     * @deprecated
+     * Use org.springframework.sbm.utils.JavaHelper instead
+     */
+    @Deprecated()
     static String lowercaseFirstChar(String name) {
         return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
