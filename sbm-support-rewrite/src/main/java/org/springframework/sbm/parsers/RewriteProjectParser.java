@@ -69,8 +69,7 @@ public class RewriteProjectParser {
 
 
     public RewriteProjectParsingResult parse(Path baseDir) {
-        // FIXME: Take ignorePatterns from application properties
-        Set<String> ignorePatterns = Set.of("**/.git/**");
+        Set<String> ignorePatterns = parserSettings.getIgnoredPathPatterns();
         List<Resource> resources = scanner.scan(baseDir, ignorePatterns);
         // FIXME: Take ExecutionContext type from application properties
         return this.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
