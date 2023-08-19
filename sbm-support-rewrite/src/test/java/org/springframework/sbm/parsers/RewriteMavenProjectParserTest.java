@@ -277,7 +277,7 @@ class RewriteMavenProjectParserTest {
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
                 new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
                 new BuildFileParser(parserSettings),
-                new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods, new JavaParserBuilder()),
+                new SourceFileParser(parserSettings, mavenMojoParserPrivateMethods, new JavaParserBuilder()),
                 new StyleDetector(),
                 parserSettings,
                 mock(ParsingEventListener.class),
@@ -352,7 +352,7 @@ class RewriteMavenProjectParserTest {
                 .isSameAs(
                         ParsingExecutionContextView.view(resultingExecutionContext).getCharset()
                 );
-        assertThat(ParsingExecutionContextView.view(resultingExecutionContext).getCharset()).isEqualTo(Charset.defaultCharset());
+        assertThat(ParsingExecutionContextView.view(resultingExecutionContext).getCharset()).isEqualTo(Charset.forName("UTF-8"));
 
         // 4
         assertThat(

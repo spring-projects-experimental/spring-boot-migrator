@@ -43,7 +43,6 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 class SourceFileParser {
 
-    private final MavenModelReader modelReader;
     private final ParserSettings parserSettings;
     private final MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods;
     private final JavaParserBuilder javaParserBuilderHolder;
@@ -52,7 +51,6 @@ class SourceFileParser {
             Path baseDir,
             SortedProjects mavenProject,
             Map<Path, Xml.Document> pathToDocumentMap,
-            List<Resource> sortedBuildFileList,
             List<Resource> resources,
             Map<Path, List<Marker>> provenanceMarkers,
             List<NamedStyles> styles,
