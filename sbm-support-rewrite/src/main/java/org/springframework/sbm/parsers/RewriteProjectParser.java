@@ -66,13 +66,13 @@ public class RewriteProjectParser {
     private final ParsingEventListener parsingEventListener;
     private final ApplicationEventPublisher eventPublisher;
     private final ProjectScanner scanner;
+    private final ExecutionContext executionContext;
 
 
     public RewriteProjectParsingResult parse(Path baseDir) {
         Set<String> ignorePatterns = parserSettings.getIgnoredPathPatterns();
         List<Resource> resources = scanner.scan(baseDir, ignorePatterns);
-        // FIXME: Take ExecutionContext type from application properties
-        return this.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
+        return this.parse(baseDir, resources, executionContext);
     }
 
     /**
