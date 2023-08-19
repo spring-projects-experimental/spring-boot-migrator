@@ -102,6 +102,12 @@ public interface BuildFile extends ProjectResource {
 
     Map<Scope, Set<Path>> getResolvedDependenciesMap();
 
+    /**
+     * Returns the classpath for given {@code scope}.
+     * target/classes and target/test-classes are included.
+     */
+    Set<Path> getClasspath(Scope scope);
+
     boolean hasPlugin(Plugin plugin);
 
     void addPlugin(Plugin plugin);

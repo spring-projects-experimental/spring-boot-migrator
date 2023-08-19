@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
+import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
@@ -130,7 +131,10 @@ public class DependencyChangeHandler {
         List<Parser.Input> mainSources = module.getMainJavaSourceSet().list().stream()
                 .map(ja -> new Parser.Input(ja.getAbsolutePath(), () -> new ByteArrayInputStream(ja.print().getBytes())))
                 .toList();
-        List<SourceFile> main = javaParserBuilder.classpath(scopeListMap.get(Scope.Compile)).build().parseInputs(mainSources, module.getProjectRootDir(), executionContext).toList();
+        // FIXME: reuse logic from parser here. it must be guaranteed that markers are added
+        Set<Path> compileClasspath = scopeListMap.get(Scope.Compile);
+        List<SourceFile> main = javaParserBuilder.classpath(compileClasspath).build().parseInputs(mainSources, module.getProjectRootDir(), executionContext).toList();
+        JavaSourceSet javaSourceSet = module.getMainJavaSourceSet().list().get(0).getResource().getSourceFile().getMarkers().findFirst(JavaSourceSet.class).get();
         List<Parser.Input> testSources = module.getTestJavaSourceSet().list().stream()
                 .map(ja -> new Parser.Input(ja.getAbsolutePath(), () -> new ByteArrayInputStream(ja.print().getBytes())))
                 .toList();

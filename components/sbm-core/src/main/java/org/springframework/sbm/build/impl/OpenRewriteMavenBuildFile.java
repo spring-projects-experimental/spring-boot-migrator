@@ -627,6 +627,17 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     @Override
+    public Set<Path> getClasspath(Scope scope) {
+        Map<Scope, Set<Path>> resolvedDependenciesMap = getResolvedDependenciesMap();
+        Set<Path> classpath = resolvedDependenciesMap.entrySet().stream()
+                .filter(e -> e.getKey().isInClasspathOf(scope))
+                .map(e -> e.getValue())
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+        return classpath;
+    }
+
+    @Override
     public boolean hasPlugin(Plugin plugin) {
         // TODO: [FK] discuss how to handle conditions. This code is exactly the same as in #AddMavenPluginVisitor.pluginDefinitionExists(Maven.Pom pom) which is private and the test would repeat the test for AddMavenPluginVisitor
         Xml.Document sourceFile = getSourceFile();
@@ -892,6 +903,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 						plugin.getArtifactId().equals(artifactId))
 				.findAny();
 	}
+
+    @Override
+    public String getGav() {
+        return getPom().getPom().getGav().toString();
+    }
 
     private String resolve(String expression) {
         return getPom().getPom().getValue(expression);

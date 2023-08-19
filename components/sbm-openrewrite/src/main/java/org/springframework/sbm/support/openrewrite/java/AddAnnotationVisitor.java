@@ -23,6 +23,7 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaCoordinates;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
