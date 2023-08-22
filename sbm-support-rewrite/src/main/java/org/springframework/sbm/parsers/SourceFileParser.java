@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-class SourceFileParser {
+public class SourceFileParser {
 
     private final ParserSettings parserSettings;
     private final MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods;

@@ -111,10 +111,6 @@ public class RewriteProjectParser {
         // TODO: where to retrieve styles from? --> see AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
         List<NamedStyles> styles = List.of();
 
-        // retrieve all pom files from all modules in the active reactor build
-        // TODO: Move this to a build file sort and filter component, for now it could use Maven's DefaultGraphBuilder
-        //       this requires File to be used and thus binds the component to file access.
-
         AtomicReference<RewriteProjectParsingResult> atomicReference = new AtomicReference<>();
 
         withMavenSession(baseDir, mavenSession -> {

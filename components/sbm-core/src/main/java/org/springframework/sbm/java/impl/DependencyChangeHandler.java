@@ -35,6 +35,8 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.sbm.parsers.SortedProjects;
+import org.springframework.sbm.parsers.SourceFileParser;
 import org.springframework.sbm.utils.JavaHelper;
 import org.springframework.stereotype.Component;
 
@@ -53,6 +55,7 @@ public class DependencyChangeHandler {
     private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
 
+    private SourceFileParser sourceFileParser;
     /**
      * Handle changes of the dependency list in {@code currentBuildFile}.
      * First the affected java sources in the module of the {@code currentBuildFile} are recompiled.
@@ -61,6 +64,17 @@ public class DependencyChangeHandler {
      * @return
      */
     public void handleDependencyChanges(OpenRewriteMavenBuildFile currentBuildFile) {
+        SortedProjects sortedProjects = new SortedProjects();
+        sourceFileParser.parseOtherSourceFiles(
+                currentBuildFile.getAbsoluteProjectDir(),
+                sortedProjects,
+                pathToDocumentMap,
+                resources,
+                provenanceMarkers,
+                styles,
+                executionContext
+            );
+
         ProjectContext projectContext = projectContextHolder.getProjectContext();
         // create a mapping dependency -> dependant module information
         Map<String, List<DependingModuleInfo>> dependencyModuleMap = createDependencyToModuleMappings(projectContext.getApplicationModules());
