@@ -233,11 +233,6 @@
                         <doclint>accessibility,html,reference,syntax</doclint>
                         <show>package</show>
                         <quiet>true</quiet>
-                        <links>
-                            <link>https://docs.spring.io/spring-boot/docs/${spring-boot.version}/api/</link>
-                            <link>https://docs.spring.io/spring/docs/${spring.version}/javadoc-api/</link>
-                            <link>https://docs.oracle.com/en/java/javase/17/docs/api/</link>
-                        </links>
                     </configuration>
                 </plugin>
             </plugins>
