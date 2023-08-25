@@ -9,11 +9,11 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
 @Path("/")
+@Produces("application/json")
 public class PersonController {
 
     @POST
     @Path("/json/{name}")
-    @Produces("application/json")
     @Consumes("application/json")
     public String getHelloWorldJSON(@PathParam("name") String name) throws Exception {
         System.out.println("name: " + name);

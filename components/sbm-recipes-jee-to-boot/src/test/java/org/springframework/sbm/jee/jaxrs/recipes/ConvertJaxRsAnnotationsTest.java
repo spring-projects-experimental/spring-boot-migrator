@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-public class ConvertJaxRsAnnotationsest {
+public class ConvertJaxRsAnnotationsTest {
 
     private final static String SPRING_VERSION = "5.3.13";
 
@@ -73,7 +73,8 @@ public class ConvertJaxRsAnnotationsest {
                 .withJavaSources(restControllerCode)
                 .withBuildFileHavingDependencies(
                         "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
-                        "org.springframework:spring-core:"+SPRING_VERSION
+                        "org.springframework:spring-core:"+SPRING_VERSION,
+                        "org.springframework:spring-web:"+SPRING_VERSION
                 )
                 .build();
 
@@ -94,20 +95,20 @@ public class ConvertJaxRsAnnotationsest {
                 import com.example.jeerest.Movie;
                 import com.example.jeerest.MoviesBean;
                 import org.springframework.beans.factory.annotation.Autowired;
+                import org.springframework.web.bind.annotation.RequestMapping;
+                import org.springframework.web.bind.annotation.RequestMethod;
                 import org.springframework.web.bind.annotation.RestController;
                 
                 import javax.ws.rs.DELETE;
                 import javax.ws.rs.PUT;
                 import javax.ws.rs.PathParam;
-                import javax.ws.rs.Produces;
                 import javax.ws.rs.QueryParam;
                 import javax.ws.rs.core.MediaType;
                 import java.util.List;
                 
                 
-                @Produces({"application/json"})
                 @RestController
-                @RequestMapping(value = "movies")
+                @RequestMapping(value = "movies", produces = {"application/json"})
                 public class MoviesRest {
                 
                     @RequestMapping(value = "{id}", method = RequestMethod.GET)
@@ -119,15 +120,120 @@ public class ConvertJaxRsAnnotationsest {
                     public List<Movie> getMovies(@QueryParam("first") Integer first, @QueryParam("max") Integer max,
                                                  @QueryParam("field") String field, @QueryParam("searchTerm") String searchTerm) {
                         return service.getMovies(first, max, field, searchTerm);
-                    }                
+                    }
                 }
                 """;
 
         assertThat(context.getProjectJavaSources().list().get(0).print()).isEqualTo(
                 expected
         );
-
-
     }
 
+    @Test
+    void classAnnotatedWithProducesAndConsumes() {
+        @Language("java")
+        String restControllerCode = """
+                package com.example.jeerest.rest;
+                
+                import javax.ws.rs.Consumes;
+                import javax.ws.rs.Path;
+                import javax.ws.rs.Produces;
+                                
+                @Path("movies")
+                @Consumes("application/x-www-form-urlencoded")
+                @Produces("application/json")
+                public class MoviesRest {
+                }
+                """;
+
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .withJavaSources(restControllerCode)
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-core:"+SPRING_VERSION,
+                        "org.springframework:spring-web:"+SPRING_VERSION
+                )
+                .build();
+
+        ConvertJaxRsAnnotations convertJaxRsAnnotations = ConvertJaxRsAnnotations
+                .builder()
+                .condition(HasTypeAnnotation.builder().annotation("javax.ws.rs.Path").build())
+                .description("Convert JAX-RS annotations into Spring Boot annotations.")
+                .build();
+
+        convertJaxRsAnnotations.apply(context);
+
+
+        @Language("java")
+        String expected =
+                """
+                package com.example.jeerest.rest;
+                
+                import org.springframework.web.bind.annotation.RequestMapping;
+                import org.springframework.web.bind.annotation.RestController;
+                
+                
+                @RestController
+                @RequestMapping(value = "movies", consumes = "application/x-www-form-urlencoded", produces = "application/json")
+                public class MoviesRest {
+                }
+                """;
+
+        assertThat(context.getProjectJavaSources().list().get(0).print()).isEqualTo(
+                expected
+        );
+    }
+
+    @Test
+    void classAnnotatedWithConsumes() {
+        @Language("java")
+        String restControllerCode = """
+                package com.example.jeerest.rest;
+                
+                import javax.ws.rs.Consumes;
+                import javax.ws.rs.Path;
+                                
+                @Path("movies")
+                @Consumes("application/x-www-form-urlencoded")
+                public class MoviesRest {
+                }
+                """;
+
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .withJavaSources(restControllerCode)
+                .withBuildFileHavingDependencies(
+                        "org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:1.0.1.Final",
+                        "org.springframework:spring-core:"+SPRING_VERSION,
+                        "org.springframework:spring-web:"+SPRING_VERSION
+                )
+                .build();
+
+        ConvertJaxRsAnnotations convertJaxRsAnnotations = ConvertJaxRsAnnotations
+                .builder()
+                .condition(HasTypeAnnotation.builder().annotation("javax.ws.rs.Path").build())
+                .description("Convert JAX-RS annotations into Spring Boot annotations.")
+                .build();
+
+        convertJaxRsAnnotations.apply(context);
+
+
+        @Language("java")
+        String expected =
+                """
+                package com.example.jeerest.rest;
+                
+                import org.springframework.web.bind.annotation.RequestMapping;
+                import org.springframework.web.bind.annotation.RestController;
+                
+                
+                @RestController
+                @RequestMapping(value = "movies", consumes = "application/x-www-form-urlencoded")
+                public class MoviesRest {
+                }
+                """;
+
+        assertThat(context.getProjectJavaSources().list().get(0).print()).isEqualTo(
+                expected
+        );
+    }
 }
