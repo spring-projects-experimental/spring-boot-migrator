@@ -44,11 +44,12 @@ public class MigrateJaxRsAnnotationsRecipeIntegrationTest extends IntegrationTes
                     import org.springframework.web.bind.annotation.PathVariable;
                     import org.springframework.web.bind.annotation.RequestParam;
                     
+
                     @RestController
-                    @RequestMapping(value = "/")
+                    @RequestMapping(value = "/", produces = "application/json")
                     public class PersonController {
 
-                        @RequestMapping(value = "/json/{name}", produces = "application/json", consumes = "application/json", method = RequestMethod.POST)
+                        @RequestMapping(value = "/json/{name}", consumes = "application/json", method = RequestMethod.POST)
                         public String getHelloWorldJSON(@PathVariable("name") String name) throws Exception {
                             System.out.println("name: " + name);
                             return "{\\"Hello\\":\\"" + name + "\\"";
