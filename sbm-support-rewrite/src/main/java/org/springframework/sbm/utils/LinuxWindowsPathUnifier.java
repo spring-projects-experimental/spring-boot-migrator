@@ -20,6 +20,11 @@ import org.springframework.util.StringUtils;
 
 import java.nio.file.Path;
 
+/**
+ * Utility class helping with different OS {@link Path}s.
+ *
+ * @author fkrueger
+ */
 public class LinuxWindowsPathUnifier {
 
     public String unifyPath(Path path) {
