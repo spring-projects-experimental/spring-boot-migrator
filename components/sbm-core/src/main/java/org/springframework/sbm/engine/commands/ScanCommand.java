@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.engine.commands;
 
-import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -41,7 +40,6 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
     private final ApplicationEventPublisher eventPublisher;
     private final PathScanner pathScanner;
     private final PreconditionVerifier preconditionVerifier;
-    private final ConfigurableListableBeanFactory beanFactory;
 
     @Deprecated
     public ScanCommand(ProjectRootPathResolver projectRootPathResolver, ProjectContextInitializer projectContextInitializer, ApplicationEventPublisher eventPublisher, PathScanner pathScanner, PreconditionVerifier preconditionVerifier, ConfigurableListableBeanFactory beanFactory) {
@@ -51,17 +49,9 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
         this.eventPublisher = eventPublisher;
         this.pathScanner = pathScanner;
         this.preconditionVerifier = preconditionVerifier;
-        this.beanFactory = beanFactory;
     }
 
-
-    @Autowired
-    private ScanScope scanScope;
-
     public ProjectContext execute(String... arguments) {
-        // initialize the(!) ExecutionContext
-        // It will be available through DI in all objects involved while this method runs (scoped to recipe run)
-        scanScope.clear(beanFactory);
 
         Path projectRoot = projectRootPathResolver.getProjectRootOrDefault(arguments[0]);
 

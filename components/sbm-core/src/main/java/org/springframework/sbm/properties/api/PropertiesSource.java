@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package org.springframework.sbm.properties.api;
 
 import org.openrewrite.ExecutionContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.properties.migration.recipes.AddProperty;
 import lombok.extern.slf4j.Slf4j;
@@ -99,7 +99,7 @@ public class PropertiesSource extends RewriteSourceFileHolder<Properties.File> {
 
     private void apply(Recipe r) {
         File rewriteResource = getSourceFile();
-        List<Result> results = r.run(List.of(rewriteResource), executionContext).getResults();
+        List<Result> results = r.run(new InMemoryLargeSourceSet(List.of(rewriteResource)), executionContext).getChangeset().getAllResults();
         if (!results.isEmpty()) {
             replaceWith(getSourceFile().getClass().cast(results.get(0).getAfter()));
         }

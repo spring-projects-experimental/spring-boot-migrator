@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.springframework.sbm.search.recipe.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.java.JavaParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.engine.recipe.DisplayDescription;
@@ -29,6 +31,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.openrewrite.Recipe;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -76,7 +80,11 @@ public class OpenRewriteJavaSearchAction extends FrameworkSupportAction {
 
 
     public void apply(ProjectContext context) {
-        OpenRewriteRecipeJavaSearch recipeJavaSearch = new OpenRewriteRecipeJavaSearch((compilationUnits -> rewriteRecipe.run(compilationUnits).getResults()), javaParser,
+        OpenRewriteRecipeJavaSearch recipeJavaSearch = new OpenRewriteRecipeJavaSearch((compilationUnits -> {
+            List<SourceFile> sourceFiles = compilationUnits.stream().map(SourceFile.class::cast).toList();
+            InMemoryLargeSourceSet largeSourceSet = new InMemoryLargeSourceSet(sourceFiles);
+            return rewriteRecipe.run(largeSourceSet, executionContext).getChangeset().getAllResults();
+        }), javaParser,
                                                                                        executionContext);
         recipeJavaSearch.commentFindings(context.getProjectJavaSources().list(), commentText);
     }

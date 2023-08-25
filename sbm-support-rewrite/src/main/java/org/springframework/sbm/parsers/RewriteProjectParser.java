@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.AbstractRewriteMojo;
@@ -64,7 +65,15 @@ public class RewriteProjectParser {
     private final ParserSettings parserSettings;
     private final ParsingEventListener parsingEventListener;
     private final ApplicationEventPublisher eventPublisher;
+    private final ProjectScanner scanner;
+    private final ExecutionContext executionContext;
 
+
+    public RewriteProjectParsingResult parse(Path baseDir) {
+        Set<String> ignorePatterns = parserSettings.getIgnoredPathPatterns();
+        List<Resource> resources = scanner.scan(baseDir, ignorePatterns);
+        return this.parse(baseDir, resources, executionContext);
+    }
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
@@ -102,10 +111,6 @@ public class RewriteProjectParser {
         // TODO: where to retrieve styles from? --> see AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
         List<NamedStyles> styles = List.of();
 
-        // retrieve all pom files from all modules in the active reactor build
-        // TODO: Move this to a build file sort and filter component, for now it could use Maven's DefaultGraphBuilder
-        //       this requires File to be used and thus binds the component to file access.
-
         AtomicReference<RewriteProjectParsingResult> atomicReference = new AtomicReference<>();
 
         withMavenSession(baseDir, mavenSession -> {
@@ -126,7 +131,7 @@ public class RewriteProjectParser {
                     .toList();
             // 128 : 131
             log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
-            Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(baseDir, mavenInfos, resourceToDocumentMap, mavenInfos.getResources(), resources, provenanceMarkers, styles, executionContext);
+            Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(baseDir, mavenInfos, resourceToDocumentMap, mavenInfos.getResources(), provenanceMarkers, styles, executionContext);
             List<SourceFile> list = sourceFilesStream.toList();
 //        List<SourceFile> sourceFilesWithoutPoms = sourceFilesStream.filter(sf -> resourceToDocumentMap.keySet().contains(baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize())).toList();
             List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();
@@ -143,7 +148,7 @@ public class RewriteProjectParser {
     }
 
     private void withMavenSession(Path baseDir, Consumer<MavenSession> consumer) {
-        mavenExecutor.onProjectSucceededEvent(baseDir, List.of("clean", "install"), event -> consumer.accept(event.getSession()));
+        mavenExecutor.onProjectSucceededEvent(baseDir, List.of("clean", "package"), event -> consumer.accept(event.getSession()));
     }
 
     @org.jetbrains.annotations.Nullable

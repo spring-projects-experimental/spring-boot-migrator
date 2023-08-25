@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.tree.J;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 
 import java.io.ByteArrayOutputStream;
@@ -48,7 +48,7 @@ public class RewriteJavaParserTest {
         ExecutionContext executionContext = new RewriteExecutionContext((t) -> t.printStackTrace());
         RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(sbmApplicationProperties, executionContext);
         sysOutBuffer.reset();
-        List<J.CompilationUnit> parsed = rewriteJavaParser.parse(executionContext, "public class Broken Class {}");
+        List<J.CompilationUnit> parsed = rewriteJavaParser.parse(executionContext, "public class Broken Class {}").map(J.CompilationUnit.class::cast).toList();
 
         String out = sysOutBuffer.toString();
         System.setOut(realSysOut);

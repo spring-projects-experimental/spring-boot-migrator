@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,11 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,7 @@ class OpenRewriteSearchAndCommentTest {
 
         String javaSource1 =
                 """
+                import java.lang.Deprecated;
                 public class SomeTest {
                     @Deprecated public void test() {}
                 }
@@ -52,7 +55,7 @@ class OpenRewriteSearchAndCommentTest {
         String markerText = "marker text";
 
         JavaParser javaParser = new RewriteJavaParser(new SbmApplicationProperties(), executionContext);
-        OpenRewriteRecipeJavaSearch sut = new OpenRewriteRecipeJavaSearch(compilationUnits -> new FindAnnotations("@java.lang.Deprecated", false).run(compilationUnits).getResults(), javaParser,
+        OpenRewriteRecipeJavaSearch sut = new OpenRewriteRecipeJavaSearch(compilationUnits -> new FindAnnotations("@java.lang.Deprecated", false).run(new InMemoryLargeSourceSet(compilationUnits.stream().map(SourceFile.class::cast).toList()), executionContext).getChangeset().getAllResults(), javaParser,
                                                                           executionContext);
 
         sut.commentFindings(projectContext.getProjectJavaSources().list(), markerText);
@@ -61,6 +64,7 @@ class OpenRewriteSearchAndCommentTest {
         assertThat(projectContext.getProjectJavaSources().list().get(1).print()).isEqualTo(javaSource2);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print()).isEqualTo(
                 """
+                import java.lang.Deprecated;
                 public class SomeTest {
                    \s
                 /*

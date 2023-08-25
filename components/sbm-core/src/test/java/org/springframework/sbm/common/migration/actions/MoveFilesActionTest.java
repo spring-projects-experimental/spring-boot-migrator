@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,11 +38,11 @@ class MoveFilesActionTest {
         Path projectRoot = TestProjectContext.getDefaultProjectRoot();
 
         // file 1
-        String someFilePath = Path.of("src/main/resources/a/SomeFile.foo").toString();
+        String someFilePath = Path.of("src/main/resources/a/SomeFile.properties").toString();
         String fileContent1 = "file content";
 
         // file 2
-        String anotherFilePath = Path.of("src/main/resources/b/AnotherFile.foo").toString();
+        String anotherFilePath = Path.of("src/main/resources/b/AnotherFile.properties").toString();
         String fileContent2 = "file content 2";
 
         // target dir
@@ -54,22 +54,22 @@ class MoveFilesActionTest {
                 .withProjectResource(anotherFilePath, fileContent2)
                 .build();
 
-        ProjectResource someFile = projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/SomeFile.foo")).get(0);
-        ProjectResource anotherFile = projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/AnotherFile.foo")).get(0);
+        ProjectResource someFile = projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/SomeFile.properties")).get(0);
+        ProjectResource anotherFile = projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/AnotherFile.properties")).get(0);
 
         verifyPrecondition(someFile, projectRoot.resolve(someFilePath), fileContent1);
         verifyPrecondition(anotherFile, projectRoot.resolve(anotherFilePath), fileContent2);
 
         MoveFilesAction sut = new MoveFilesAction();
-        sut.setFromPattern("/**/*File.foo");
+        sut.setFromPattern("/**/*File.properties");
         sut.setToDir(target);
 
         sut.apply(projectContext);
 
-        verifyResult(projectContext, target.resolve("SomeFile.foo"), "/**/src/main/resources/new-location/SomeFile.foo", someFile);
-        verifyResult(projectContext, target.resolve("AnotherFile.foo"), "/**/src/main/resources/new-location/AnotherFile.foo", anotherFile);
-        assertThat(projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/a/SomeFile.foo"))).isEmpty();
-        assertThat(projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/b/AnotherFile.foo"))).isEmpty();
+        verifyResult(projectContext, target.resolve("SomeFile.properties"), "/**/src/main/resources/new-location/SomeFile.properties", someFile);
+        verifyResult(projectContext, target.resolve("AnotherFile.properties"), "/**/src/main/resources/new-location/AnotherFile.properties", anotherFile);
+        assertThat(projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/a/SomeFile.properties"))).isEmpty();
+        assertThat(projectContext.search(new PathPatternMatchingProjectResourceFinder("/**/src/main/resources/b/AnotherFile.properties"))).isEmpty();
     }
 
     private void verifyResult(ProjectContext projectContext, Path newPath, String pattern, ProjectResource resource) {

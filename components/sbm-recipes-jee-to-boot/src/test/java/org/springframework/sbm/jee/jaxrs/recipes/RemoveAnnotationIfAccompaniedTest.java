@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ class RemoveAnnotationIfAccompaniedTest {
     void givenBothAnnotationsArePresentOnTheFirstMethodParameterAndPrecededByAnotherOne_thenTheAnnotationIsRemoved() {
         String sourceCode = """                
                 import org.springframework.web.bind.annotation.RequestParam;
-                import javax.validation.constraints.NotNull;
+                import jakarta.validation.constraints.NotNull;
                 import javax.ws.rs.DefaultValue;
                                 
                 class ControllerClass {
@@ -93,7 +93,7 @@ class RemoveAnnotationIfAccompaniedTest {
 
         String expected = """
                 import org.springframework.web.bind.annotation.RequestParam;
-                import javax.validation.constraints.NotNull;
+                import jakarta.validation.constraints.NotNull;
                                 
                 class ControllerClass {
                     public String test(@NotNull @RequestParam(value = "q") String searchString) {

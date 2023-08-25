@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.sbm.build.api;
 
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,6 @@ class Module_contains_Test {
         String rootPom = PomBuilder
                 .buildPom("com.example:parent:1.0")
                 .packaging("jar")
-                .withModules("module1", "module2")
                 .build();
 
         String javaClass = """
@@ -68,7 +66,7 @@ class Module_contains_Test {
         String rootPom = PomBuilder
                 .buildPom("com.example:parent:1.0")
                 .packaging("pom")
-                .withModules("module1", "module2")
+                .withModules("module1", "module2", "module1/module-in-module1")
                 .build();
 
         String module1Pom = PomBuilder

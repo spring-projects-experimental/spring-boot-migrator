@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.sbm.build.api;
 
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.maven.tree.Scope;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -124,8 +126,10 @@ class ApplicationModulesTest {
         assertThat(rootModule.getModulePath()).isEqualTo(Path.of(""));
         assertThat(rootModule.getBuildFile().getCoordinates()).isEqualTo("org.example:parent:1.0-SNAPSHOT");
         assertThat(rootModule.getDeclaredModules()).hasSize(2);
-        assertThat(rootModule.getDeclaredModules().get(0)).isEqualTo("org.example:module1:1.0-SNAPSHOT");
-        assertThat(rootModule.getDeclaredModules().get(1)).isEqualTo("org.example:module2:1.0-SNAPSHOT");
+        assertThat(rootModule.getDeclaredModules()).containsExactlyInAnyOrder(
+                "org.example:module1:1.0-SNAPSHOT",
+                "org.example:module2:1.0-SNAPSHOT"
+        );
     }
 
     @Test
@@ -161,6 +165,13 @@ class ApplicationModulesTest {
         Module applicationModule = sut.getTopmostApplicationModules().get(0);
         assertThat(applicationModule.getModulePath()).isEqualTo(Path.of("module1"));
         assertThat(applicationModule.getBuildFile().getCoordinates()).isEqualTo("org.example:module1:1.0-SNAPSHOT");
+    }
+    
+    @Test
+    @DisplayName("should return depending modules")
+    void shouldReturnDependingModules() {
+        Map<Scope, List<Module>> modulesWithDeclaredDependencyTo = sut.findModulesWithDeclaredDependencyTo("com.example:module2:1.0-SNAPSHOT");
+        assertThat(modulesWithDeclaredDependencyTo.containsKey(Scope.Compile)).isTrue();
     }
 
     // TODO: add test for getTopmostApplicationModules with packaging != jar

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,16 @@ package org.springframework.sbm.build.impl;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
+import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.xml.XmlParser;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Class to parse Maven build files.
@@ -35,7 +38,7 @@ import java.util.List;
  * all settings from {@code settings.xml} are respected.
  */
 @Component
-public class RewriteMavenParser implements Parser<Xml.Document> {
+public class RewriteMavenParser implements Parser {
 
     private MavenParser parser;
     private final MavenSettingsInitializer mavenSettingsInitializer;
@@ -67,12 +70,12 @@ public class RewriteMavenParser implements Parser<Xml.Document> {
     }
 
     @Override
-    public List<Xml.Document> parse(String... sources) {
+    public Stream<SourceFile> parse(String... sources) {
         return parser.parse(sources);
     }
 
     @Override
-    public List<Xml.Document> parse(ExecutionContext ctx, String... sources) {
+    public Stream<SourceFile> parse(ExecutionContext ctx, String... sources) {
         mavenSettingsInitializer.initializeMavenSettings(ctx);
         return parser.parse(ctx, sources);
     }
@@ -83,7 +86,7 @@ public class RewriteMavenParser implements Parser<Xml.Document> {
      * @param ctx        the ExecutionContext,
      */
     @Override
-    public List<Xml.Document> parseInputs(Iterable<Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
+    public Stream<SourceFile> parseInputs(Iterable<Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
         if (relativeTo != null) {
             initMavenParser(ctx, relativeTo);
         } else {

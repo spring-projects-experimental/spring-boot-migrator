@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 package org.springframework.sbm.build.impl;
 
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.SourceFile;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
-import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.openrewrite.Recipe;
@@ -44,13 +45,13 @@ public class JavaSourceSetImpl implements JavaSourceSet {
     private final Path sourceSetRoot;
     private final JavaRefactoringFactory javaRefactoringFactory;
     private final BasePackageCalculator basePackageCalculator;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
     private ExecutionContext executionContext;
 
-    public JavaSourceSetImpl(ProjectResourceSet projectResourceSet, Path projectRootDir, Path modulePath, Path mainJavaPath, JavaRefactoringFactory javaRefactoringFactory, BasePackageCalculator basePackageCalculator, JavaParser javaParser, ExecutionContext executionContext) {
+    public JavaSourceSetImpl(ProjectResourceSet projectResourceSet, Path projectRootDir, Path modulePath, Path mainJavaPath, JavaRefactoringFactory javaRefactoringFactory, BasePackageCalculator basePackageCalculator, JavaParserBuilder javaParser, ExecutionContext executionContext) {
         this.projectResourceSet = projectResourceSet;
         this.basePackageCalculator = basePackageCalculator;
-        this.javaParser = javaParser;
+        this.javaParserBuilder = javaParser;
         this.executionContext = executionContext;
         this.sourceSetRoot = projectRootDir.resolve(modulePath).resolve(mainJavaPath);
         this.filter = (r) -> {
@@ -65,18 +66,15 @@ public class JavaSourceSetImpl implements JavaSourceSet {
     @Override
     @Deprecated(forRemoval = true)
     public JavaSource addJavaSource(Path projectRoot, Path sourceFolder, String sourceCode, String packageName) {
-        // FIXME: #7 JavaParser
-        JavaParser javaParser = JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
-//        javaParser.reset();
-        List<J.CompilationUnit> compilationUnits = javaParser.parse(sourceCode);
-        J.CompilationUnit parsedCompilationUnit = compilationUnits.get(0);
+        Stream<SourceFile> compilationUnits = javaParserBuilder.build().parse(sourceCode);
+        J.CompilationUnit parsedCompilationUnit = (J.CompilationUnit) compilationUnits.toList().get(0);
         String sourceFileName = parsedCompilationUnit.getSourcePath().toString();
         Path sourceFilePath = sourceFolder.resolve(sourceFileName);
         if (Files.exists(sourceFilePath)) {
             throw new RuntimeException("The Java class you tried to add already lives here: '" + sourceFilePath + "'.");
         } else {
             J.CompilationUnit compilationUnit = parsedCompilationUnit.withSourcePath(sourceFilePath);
-            OpenRewriteJavaSource addedSource = new OpenRewriteJavaSource(projectRoot, compilationUnit, javaRefactoringFactory.createRefactoring(compilationUnit), javaParser, executionContext);
+            OpenRewriteJavaSource addedSource = new OpenRewriteJavaSource(projectRoot, compilationUnit, javaRefactoringFactory.createRefactoring(compilationUnit), javaParserBuilder, executionContext);
             addedSource.markChanged();
             projectResourceSet.add(addedSource);
             return addedSource;
@@ -86,18 +84,19 @@ public class JavaSourceSetImpl implements JavaSourceSet {
     @Override
     public List<JavaSource> addJavaSource(Path projectRoot, Path sourceFolder, String... sourceCodes) {
         // FIXME: #7 JavaParser
-        javaParser.reset();
+        javaParserBuilder.build().reset();
 
-        List<J.CompilationUnit> compilationUnits = javaParser.parse(sourceCodes);
+        Stream<SourceFile> compilationUnits = javaParserBuilder.build().parse(sourceCodes);
 
         List<JavaSource> addedSources = new ArrayList<>();
 
-        for (J.CompilationUnit cu : compilationUnits) {
+        for (SourceFile sf : compilationUnits.toList()) {
+            J.CompilationUnit cu = (J.CompilationUnit) sf;
             String sourceFileName = cu.getSourcePath().toString();
             Path sourceFilePath = sourceFolder.resolve(sourceFileName);
             if(!Files.exists(sourceFilePath)) {
                 J.CompilationUnit compilationUnit = cu.withSourcePath(sourceFilePath);
-                OpenRewriteJavaSource addedSource = new OpenRewriteJavaSource(projectRoot, compilationUnit, javaRefactoringFactory.createRefactoring(compilationUnit), javaParser, executionContext);
+                OpenRewriteJavaSource addedSource = new OpenRewriteJavaSource(projectRoot, compilationUnit, javaRefactoringFactory.createRefactoring(compilationUnit), javaParserBuilder, executionContext);
                 addedSource.markChanged();
                 projectResourceSet.add(addedSource);
                 addedSources.add(addedSource);

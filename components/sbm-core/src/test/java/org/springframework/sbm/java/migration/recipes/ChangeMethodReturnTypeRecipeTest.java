@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,13 @@ class ChangeMethodReturnTypeRecipeTest {
     @Test
     void recipeTest() {
         String javaSource1 =
-                "public class Service {\n" +
-                "    public Integer foo() {\n" +
-                "        return 1L;\n" +
-                "    }\n" +
-                "}";
+                """
+                public class Service {
+                    public Integer foo() {
+                        return (int) 1L;
+                    }
+                }
+                """;
         String javaSource2 =
                 "public class Client {\n" +
                 "    public void call() {\n" +
@@ -47,14 +49,16 @@ class ChangeMethodReturnTypeRecipeTest {
         ChangeMethodReturnTypeRecipe sut = new ChangeMethodReturnTypeRecipe(md -> true, returnTypeExpr, imports);
         projectJavaSources.apply(sut);
 
-        assertThat(projectJavaSources.list().get(0).print()).isEqualTo(
-                "public class Service {\n" +
-                "    public Long foo() {\n" +
-                "        return 1L;\n" +
-                "    }\n" +
-                "}"
+        assertThat(projectJavaSources.findJavaSourceDeclaringType("Service").get().print()).isEqualTo(
+                """
+                 public class Service {
+                     public Long foo() {
+                         return (int) 1L;
+                     }
+                 }
+                 """
         );
-        assertThat(projectJavaSources.list().get(1).print()).isEqualTo(
+        assertThat(projectJavaSources.findJavaSourceDeclaringType("Client").get().print()).isEqualTo(
                 "public class Client {\n" +
                 "    public Long call() {\n" +
                 "        Integer foo = new Service().foo();\n" + // FIXME: Recipe should attempt to modify type on caller side

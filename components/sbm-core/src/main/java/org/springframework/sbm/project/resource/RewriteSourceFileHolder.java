@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.springframework.sbm.project.resource;
 
 import lombok.Getter;
 import org.openrewrite.SourceFile;
+import org.openrewrite.internal.lang.Nullable;
 
 import java.nio.file.Path;
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
     private T sourceFile;
     @Getter
     final private Path absoluteProjectDir;
+    private SourceFile sourceFile2;
 
     /**
      * @param absoluteProjectDir the absolute path to project root
@@ -89,18 +91,17 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
      *
      * @param fixedSourceFile the new source file
      */
-    public void replaceWith(T fixedSourceFile) {
+    public void replaceWith(@Nullable SourceFile fixedSourceFile) {
         if (sourceFile != null && !sourceFile.printAll().equals(fixedSourceFile.printAll())) {
             markChanged();
         }
-        sourceFile = fixedSourceFile;
+        sourceFile = (T) fixedSourceFile;
     }
 
     public void markChanged() {
         this.isChanged = true;
     }
 
-    // FIXME: questionable convenience method
     public UUID getId() {
         return this.getSourceFile().getId();
     }
@@ -113,5 +114,4 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
     public String toString() {
         return getAbsolutePath().toString();
     }
-
 }

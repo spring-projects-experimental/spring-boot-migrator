@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.*;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.maven.tree.MavenResolutionResult;
@@ -27,6 +28,7 @@ import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
+import javax.print.Doc;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class provides a facade to apply OpenRewrite {@code Recipe}s and {@code Visitor}s to the project Maven build files.
@@ -106,11 +109,13 @@ public class MavenBuildFileRefactoring<T extends SourceFile> {
                 .collect(Collectors.toList());
 
         // parse buildfiles
-        List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInputs, null, executionContext);
+        List<Xml.Document> newMavenFiles = mavenParser.parseInputs(parserInputs, null, executionContext)
+                .filter(Xml.Document.class::isInstance)
+                .map(Xml.Document.class::cast)
+                .toList();
 
         // replace new model in build files
-        newMavenFiles.stream()
-                .forEach(mf -> {
+        newMavenFiles.forEach(mf -> {
                     replaceModelInBuildFile(projectResources, buildFilesWithIndex, newMavenFiles, mf);
                 });
     }
@@ -151,12 +156,17 @@ public class MavenBuildFileRefactoring<T extends SourceFile> {
     }
 
     private List<Result> executeRecipe(Recipe recipe) {
-        List<Result> results = recipe.run(getDocumentsWrappedInOpenRewriteMavenBuildFile(), executionContext).getResults();
+        List<SourceFile> documentsWrappedInOpenRewriteMavenBuildFile = getDocumentsWrappedInOpenRewriteMavenBuildFile()
+                .stream()
+                .filter(SourceFile.class::isInstance)
+                .map(SourceFile.class::cast)
+                .toList();
+        List<Result> results = recipe.run(new InMemoryLargeSourceSet(documentsWrappedInOpenRewriteMavenBuildFile), executionContext).getChangeset().getAllResults();
         return results;
     }
 
     private List<Result> executeRecipe(Recipe recipe, RewriteSourceFileHolder<Xml.Document> resource) {
-        List<Result> results = recipe.run(List.of(resource.getSourceFile()), executionContext).getResults();
+        List<Result> results = recipe.run(new InMemoryLargeSourceSet(List.of(resource.getSourceFile())), executionContext).getChangeset().getAllResults();
         return results;
     }
 

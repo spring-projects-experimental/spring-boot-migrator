@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  */
 package org.springframework.sbm.support.openrewrite.java;
 
-import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaCoordinates;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -33,13 +34,13 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     private final J target;
     private final String snippet;
     private final String[] imports;
-    private final Supplier<JavaParser> javaParserSupplier;
+    private final Supplier<JavaParser.Builder> javaParserSupplier;
 
-    public AddAnnotationVisitor(JavaParser javaParserSupplier, J target, String snippet, String annotationImport, String... otherImports) {
+    public AddAnnotationVisitor(JavaParser.Builder javaParserSupplier, J target, String snippet, String annotationImport, String... otherImports) {
         this(() -> javaParserSupplier, target, snippet, annotationImport, otherImports);
     }
 
-    public AddAnnotationVisitor(Supplier<JavaParser> javaParserSupplier, J target, String snippet, String annotationImport, String... otherImports) {
+    public AddAnnotationVisitor(Supplier<JavaParser.Builder> javaParserSupplier, J target, String snippet, String annotationImport, String... otherImports) {
         this.target = target;
         this.snippet = snippet;
         this.imports = otherImports == null
@@ -51,10 +52,12 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext p) {
         J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, p);
         if (target.getId().equals(cd.getId())) {
-            JavaTemplate template = getJavaTemplate(p, snippet, imports);
-            // FIXME: #7 Moving this line from above getTemplate() fixed BootifyAnnotatedServletsIntegrationTest ?!
-            Stream.of(imports).forEach(i -> maybeAddImport(i));
-            cd = cd.withTemplate(template, cd.getCoordinates().addAnnotation((o1, o2) -> 0));
+            JavaTemplate template = JavaTemplate.builder(snippet)
+                    .imports(imports)
+                    .build();
+            Stream.of(imports).forEach(i -> maybeAddImport(i, null, false));
+            JavaCoordinates coordinates = cd.getCoordinates().addAnnotation((o1, o2) -> 0);
+            cd = template.apply(getCursor(), coordinates);
         }
         return cd;
     }
@@ -63,9 +66,13 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration methodDecl, ExecutionContext p) {
         J.MethodDeclaration md = super.visitMethodDeclaration(methodDecl, p);
         if (target.getId().equals(md.getId())) {
-            JavaTemplate template = getJavaTemplate(p, snippet, imports);
-            Stream.of(imports).forEach(i -> maybeAddImport(i));
-            md = md.withTemplate(template, md.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
+            JavaTemplate template = JavaTemplate.builder(snippet)
+                            .imports(imports)
+                            .build();
+            Stream.of(imports).forEach(i -> {
+                maybeAddImport(i, null, false);
+            });
+            md = template.apply(getCursor(), md.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
         }
         return md;
     }
@@ -73,10 +80,10 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     @Override
     public J.VariableDeclarations visitVariableDeclarations(J.VariableDeclarations multiVariable, ExecutionContext p) {
         J.VariableDeclarations vd = super.visitVariableDeclarations(multiVariable, p);
-        if (target == vd) {
-            JavaTemplate template = getJavaTemplate(p, snippet, imports);
-            Stream.of(imports).forEach(i -> maybeAddImport(i));
-            vd = vd.withTemplate(template, vd.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
+        if (target.getId().equals(vd.getId())) {
+            JavaTemplate template = JavaTemplate.builder(snippet).javaParser(javaParserSupplier.get()).imports(imports).build();
+            Stream.of(imports).forEach(i -> maybeAddImport(i, null, false));
+            vd = template.apply(getCursor(), vd.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
         }
         return vd;
     }
@@ -86,15 +93,6 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
         result[0] = annotationImport;
         System.arraycopy(otherImports, 0, result, 1, otherImports.length);
         return result;
-    }
-
-    @NotNull
-    private JavaTemplate getJavaTemplate(ExecutionContext p, String snippet, String... imports) {
-        // FIXME: #7 javaParser must be recreated to update typesInUse in SourceSet
-        return JavaTemplate.builder(() -> getCursor(), snippet)
-                .imports(imports)
-                .javaParser(javaParserSupplier)
-                .build();
     }
 
 }

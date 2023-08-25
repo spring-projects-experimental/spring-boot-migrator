@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 package org.springframework.sbm.build.api;
 
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.springframework.sbm.build.impl.JavaSourceSetImpl;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.common.util.Verify;
+import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
@@ -55,8 +56,9 @@ public class Module {
     private final ProjectResourceSet projectResourceSet;
     private final JavaRefactoringFactory javaRefactoringFactory;
     private final BasePackageCalculator basePackageCalculator;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
+    private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
 
     public JavaSourceLocation getBaseJavaSourceLocation() {
         return getMainJavaSourceSet().getJavaSourceLocation();
@@ -69,7 +71,7 @@ public class Module {
     public JavaSourceSet getTestJavaSourceSet() {
         Path testJavaPath = Path.of("src/test/java");
         // FIXME: #7 JavaParser
-        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, testJavaPath, javaRefactoringFactory, basePackageCalculator, javaParser,
+        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, testJavaPath, javaRefactoringFactory, basePackageCalculator, javaParserBuilder,
                                      executionContext);
     }
 
@@ -86,7 +88,7 @@ public class Module {
     public JavaSourceSet getMainJavaSourceSet() {
         Path mainJavaPath = Path.of("src/main/java");
 //        return new JavaSourceSetImpl(projectResourceSet, projectRootDir.resolve(modulePath).resolve(mainJavaPath), javaRefactoringFactory);
-        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, mainJavaPath, javaRefactoringFactory, basePackageCalculator, javaParser,
+        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, mainJavaPath, javaRefactoringFactory, basePackageCalculator, javaParserBuilder,
                                      executionContext);
     }
 
@@ -130,8 +132,18 @@ public class Module {
         if (!modulesMarker.isEmpty()) {
             return modulesMarker
                     .stream()
-                    .map(m -> new Module(m.getPom().getGav().toString(), this.buildFile, projectRootDir, modulePath,
-                                         projectResourceSet, javaRefactoringFactory, basePackageCalculator, javaParser, executionContext))
+                    .map(m -> new Module(
+                            m.getPom().getGav().toString(),
+                            this.buildFile,
+                            projectRootDir,
+                            modulePath,
+                            projectResourceSet,
+                            javaRefactoringFactory,
+                            basePackageCalculator,
+                            javaParserBuilder,
+                            executionContext,
+                            rewriteMigrationResultMerger)
+                    )
                     .collect(Collectors.toList());
         } else {
             return new ArrayList<>();
@@ -144,7 +156,7 @@ public class Module {
 
     public <T> T search(ProjectResourceFinder<T> finder) {
         List<RewriteSourceFileHolder<? extends SourceFile>> resources = getModuleResources();
-        ProjectResourceSet filteredProjectResourceSet = new ProjectResourceSet(resources);
+        ProjectResourceSet filteredProjectResourceSet = new ProjectResourceSet(resources, executionContext);
         return finder.apply(filteredProjectResourceSet);
     }
 
@@ -216,6 +228,7 @@ public class Module {
         private final Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate;
 
         public ImmutableFilteringProjectResourceSet(ProjectResourceSet projectResourceSet, Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate) {
+            super(projectResourceSet.list(), executionContext);
             this.projectResourceSet = projectResourceSet;
             this.predicate = predicate;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,18 +24,34 @@ import java.util.function.Supplier;
 public class GenericOpenRewriteRecipe<V extends TreeVisitor<?, ExecutionContext>> extends Recipe {
 
     private final Supplier<V> visitorSupplier;
+    private final String description;
+
+    public GenericOpenRewriteRecipe() {
+        description = null;
+        visitorSupplier = null;
+    }
+
+    public GenericOpenRewriteRecipe(String description, Supplier<V> visitor) {
+        this.visitorSupplier = visitor;
+        this.description = description;
+    }
 
     public GenericOpenRewriteRecipe(Supplier<V> visitor) {
-        this.visitorSupplier = visitor;
+        this("Executing visitor %s".formatted(visitor.get().getClass()), visitor);
     }
 
     @Override
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return visitorSupplier.get();
     }
 
     @Override
     public String getDisplayName() {
         return visitorSupplier != null ? visitorSupplier.get().getClass().getSimpleName() : "???";
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 }

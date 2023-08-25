@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,7 +156,12 @@ public class VisitorUtils {
         }
 
         @Override
-        protected TreeVisitor<?, ExecutionContext> getVisitor() {
+        public String getDescription() {
+            return getDisplayName();
+        }
+
+        @Override
+        public TreeVisitor<?, ExecutionContext> getVisitor() {
             return new JavaIsoVisitor<ExecutionContext>() {
 
                 @Override
@@ -169,7 +174,8 @@ public class VisitorUtils {
                             removeMarker(expression, marker);
                             MethodDeclaration method = getCursor().firstEnclosing(MethodDeclaration.class);
                             if (method != null) {
-                                doAfterVisit(new ChangeMethodReturnTypeRecipe(m -> m.getId().equals(method.getId()), marker.getExpression(), marker.getImports()));
+                                ChangeMethodReturnTypeRecipe changeMethodReturnTypeRecipe = new ChangeMethodReturnTypeRecipe(m -> m.getId().equals(method.getId()), marker.getExpression(), marker.getImports());
+                                doAfterVisit(changeMethodReturnTypeRecipe.getVisitor());
                             }
                         }
                     }

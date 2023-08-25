@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,32 +33,44 @@ public class MultiModulePlayground {
     public class GivenTwoModuleReactorBuild {
 
         private static final String rootPom =
-                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                        "    <artifactId>parent</artifactId>\n" +
-                        "    <groupId>com.example.foo</groupId>\n" +
-                        "    <version>0.1.0-SNAPSHOT</version>\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "    <packaging>pom</packaging>" +
-                        "    <modules>\n" +
-                        "        <module>module1</module>" +
-                        "    </modules>\n" +
-                        "</project>";
+                """
+                        <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <artifactId>parent</artifactId>
+                            <groupId>com.example.foo</groupId>
+                            <version>0.1.0-SNAPSHOT</version>
+                            <modelVersion>4.0.0</modelVersion>
+                            <packaging>pom</packaging>
+                            <properties>
+                                <maven.compiler.target>1.8</maven.compiler.target>
+                                <maven.compiler.source>1.8</maven.compiler.source>
+                            </properties>
+                            <modules>
+                                <module>module1</module>
+                            </modules>
+                        </project>
+                        """;
 
         private static final String childPom =
-                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                        "    <parent>\n" +
-                        "        <artifactId>parent</artifactId>\n" +
-                        "        <groupId>com.example.foo</groupId>\n" +
-                        "        <version>0.1.0-SNAPSHOT</version>\n" +
-                        "        <relativePath>../pom.xml</relativePath>\n" +
-                        "    </parent>\n" +
-                        "    <artifactId>child</artifactId>\n" +
-                        "    <modelVersion>4.0.0</modelVersion>" +
-                        "</project>";
+                """
+                        <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <parent>
+                                <artifactId>parent</artifactId>
+                                <groupId>com.example.foo</groupId>
+                                <version>0.1.0-SNAPSHOT</version>
+                                <relativePath>../pom.xml</relativePath>
+                            </parent>
+                            <artifactId>child</artifactId>
+                            <modelVersion>4.0.0</modelVersion>
+                            <properties>
+                                <maven.compiler.target>1.8</maven.compiler.target>
+                                <maven.compiler.source>1.8</maven.compiler.source>
+                            </properties>
+                        </project>
+                        """;
 
         private static final String javaCode = "public class Foo {}";
 

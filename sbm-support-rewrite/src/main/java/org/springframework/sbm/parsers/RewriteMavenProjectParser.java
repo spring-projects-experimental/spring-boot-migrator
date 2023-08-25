@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,10 @@ package org.springframework.sbm.parsers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
-import org.apache.maven.execution.*;
-import org.apache.maven.graph.DefaultProjectDependencyGraph;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
-import org.apache.maven.project.*;
-import org.apache.maven.rtinfo.RuntimeInformation;
-import org.apache.maven.settings.crypto.SettingsDecrypter;
-import org.codehaus.plexus.*;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.PlexusContainer;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
@@ -39,7 +34,9 @@ import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -66,6 +63,9 @@ public class RewriteMavenProjectParser {
     private final ParsingEventListener parsingListener;
     private final MavenExecutor mavenRunner;
     private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
+    private final ScanScope scanScope;
+    private final ConfigurableListableBeanFactory beanFactory;
+    private final ExecutionContext executionContext;
 
     /**
      * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
@@ -74,9 +74,6 @@ public class RewriteMavenProjectParser {
      * if you need to pass in different settings
      */
     public RewriteProjectParsingResult parse(Path baseDir) {
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {
-            throw new RuntimeException(t);
-        });
         ParsingExecutionContextView.view(executionContext).setParsingListener(parsingListener);
         return parse(baseDir, executionContext);
     }
@@ -102,6 +99,8 @@ public class RewriteMavenProjectParser {
     }
 
     private RewriteProjectParsingResult parseInternal(Path baseDir, ExecutionContext executionContext, PlexusContainer plexusContainer) {
+        clearScanScopedBeans();
+
         AtomicReference<RewriteProjectParsingResult> parsingResult = new AtomicReference<>();
         mavenRunner.onProjectSucceededEvent(
                 baseDir,
@@ -120,6 +119,10 @@ public class RewriteMavenProjectParser {
                 }
         );
         return parsingResult.get();
+    }
+
+    private void clearScanScopedBeans() {
+        scanScope.clear(beanFactory);
     }
 
     private List<SourceFile> parseSourceFiles(MavenMojoProjectParser rewriteProjectParser, List<MavenProject> mavenProjects, List<NamedStyles> styles, ExecutionContext executionContext) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,16 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.*;
 import org.openrewrite.java.*;
 import org.openrewrite.java.format.WrappingAndBraces;
 import org.openrewrite.java.tree.*;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.project.resource.SbmApplicationProperties;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.extern.slf4j.Slf4j;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.Recipe;
 import org.openrewrite.java.search.DeclaresMethod;
 import org.openrewrite.java.tree.J.ClassDeclaration;
 import org.openrewrite.java.tree.JavaType.Class;
@@ -52,15 +51,15 @@ public class OpenRewriteType implements Type {
     private final JavaRefactoring refactoring;
     private final ClassDeclaration classDeclaration;
     private final ExecutionContext executionContext;
-    private JavaParser javaParser;
+    private JavaParserBuilder javaParserBuilder;
 
-    public OpenRewriteType(ClassDeclaration classDeclaration, RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring, ExecutionContext executionContext, JavaParser javaParser) {
+    public OpenRewriteType(ClassDeclaration classDeclaration, RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring, ExecutionContext executionContext, JavaParserBuilder javaParserBuilder) {
         this.classDeclId = classDeclaration.getId();
         this.classDeclaration = classDeclaration;
         this.rewriteSourceFileHolder = rewriteSourceFileHolder;
         this.refactoring = refactoring;
         this.executionContext = executionContext;
-        this.javaParser = javaParser;
+        this.javaParserBuilder = javaParserBuilder;
     }
 
     public List<OpenRewriteMember> getMembers() {
@@ -71,7 +70,7 @@ public class OpenRewriteType implements Type {
 
     private Stream<OpenRewriteMember> createMembers(JavaRefactoring refactoring, J.VariableDeclarations variableDecls) {
         return variableDecls.getVariables().stream()
-                .map(namedVar -> new OpenRewriteMember(variableDecls, namedVar, rewriteSourceFileHolder, refactoring, javaParser));
+                .map(namedVar -> new OpenRewriteMember(variableDecls, namedVar, rewriteSourceFileHolder, refactoring, javaParserBuilder));
     }
 
     @Override
@@ -92,20 +91,20 @@ public class OpenRewriteType implements Type {
     @Override
     public List<Annotation> findAnnotations(String annotation) {
         return findORAnnotations(annotation).stream()
-                .map(a -> Wrappers.wrap(a, refactoring, javaParser)).collect(Collectors.toList());
+                .map(a -> Wrappers.wrap(a, refactoring, javaParserBuilder)).collect(Collectors.toList());
     }
 
     @Override
     public List<Annotation> getAnnotations() {
         return getClassDeclaration().getLeadingAnnotations().stream()
-                .map(a -> new OpenRewriteAnnotation(a, refactoring, javaParser))
+                .map(a -> new OpenRewriteAnnotation(a, refactoring, javaParserBuilder))
                 .collect(Collectors.toList());
     }
 
     @Override
     public void addAnnotation(String fqName) {
         // FIXME: Hack, JavaParser should have latest classpath
-        Supplier<JavaParser> javaParserSupplier = () -> javaParser;
+        Supplier<JavaParser.Builder> javaParserSupplier = () -> javaParserBuilder;
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
         AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserSupplier, getClassDeclaration(), snippet, fqName);
         refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
@@ -114,8 +113,7 @@ public class OpenRewriteType implements Type {
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
         // FIXME: #7 JavaParser does not update typesInUse
-        Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
-        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserSupplier, getClassDeclaration(), snippet, annotationImport, otherImports);
+        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserBuilder, getClassDeclaration(), snippet, annotationImport, otherImports);
         Recipe recipe = new GenericOpenRewriteRecipe<>(() -> addAnnotationVisitor);
         refactoring.refactor(rewriteSourceFileHolder, recipe);
     }
@@ -131,22 +129,22 @@ public class OpenRewriteType implements Type {
     // FIXME: reuse
     public void removeAnnotation(String fqName) {
         // TODO: See if RemoveAnnotationVisitor can be replaced with OpenRewrite's version
-        Recipe removeAnnotationRecipe = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(getClassDeclaration(), fqName))
-                .doNext(new RemoveUnusedImports());
+        Recipe removeAnnotationRecipe = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(getClassDeclaration(), fqName));
         refactoring.refactor(rewriteSourceFileHolder, removeAnnotationRecipe);
+        refactoring.refactor(rewriteSourceFileHolder, new RemoveUnusedImports());
     }
 
     @Override
     public void removeAnnotation(Annotation annotation) {
-        Recipe removeAnnotationRecipe = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(getClassDeclaration(), annotation.getFullyQualifiedName()))
-                .doNext(new RemoveUnusedImports());
+        Recipe removeAnnotationRecipe = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(getClassDeclaration(), annotation.getFullyQualifiedName()));
         refactoring.refactor(rewriteSourceFileHolder, removeAnnotationRecipe);
+        refactoring.refactor(rewriteSourceFileHolder, new RemoveUnusedImports());
     }
 
     @Override
     public List<Method> getMethods() {
         return Utils.getMethods(getClassDeclaration()).stream()
-                .map(m -> new OpenRewriteMethod(rewriteSourceFileHolder, m, refactoring, javaParser, executionContext))
+                .map(m -> new OpenRewriteMethod(rewriteSourceFileHolder, m, refactoring, javaParserBuilder, executionContext))
                 .collect(Collectors.toList());
     }
 
@@ -154,24 +152,34 @@ public class OpenRewriteType implements Type {
     public void addMethod(String methodTemplate, Set<String> requiredImports) {
         this.apply(new GenericOpenRewriteRecipe<>(() -> new JavaIsoVisitor<ExecutionContext>() {
             @Override
-            public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
-                // FIXME: #7 hack, get JavaParser as SpringBean with access to classpath
-                // TODO: 786
-                javaParser = new RewriteJavaParser(new SbmApplicationProperties(), executionContext);
-                javaParser.setClasspath(ClasspathRegistry.getInstance().getCurrentDependencies());
+            public ClassDeclaration visitClassDeclaration(ClassDeclaration classDecl, ExecutionContext executionContext) {
+                ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
+                J.CompilationUnit cu = getCursor().dropParentUntil(J.CompilationUnit.class::isInstance).getValue();
+                checkTypeAvailability(cu, requiredImports);
 
-                J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
                 JavaTemplate template = JavaTemplate
-                        .builder(() -> getCursor().getParent(), methodTemplate)
-                        .javaParser(() -> javaParser)
+                        .builder(methodTemplate)
+                        .javaParser(javaParserBuilder)
                         .imports(requiredImports.toArray(new String[0]))
                         .build();
                 requiredImports.forEach(this::maybeAddImport);
-                cd = cd.withTemplate(template, cd.getBody().getCoordinates().lastStatement());
+                cd = template.apply(getCursor(), cd.getBody().getCoordinates().lastStatement());
                 return cd;
             }
-        }).doNext(new WrappingAndBraces()));
+        }));
+        this.apply(new WrappingAndBraces());
     }
+
+    private void checkTypeAvailability(J.CompilationUnit cd, Set<String> requiredImports) {
+        List<String> missingTypes = cd.getTypesInUse().getTypesInUse().stream()
+                .map(JavaType::toString)
+                .filter(t -> !requiredImports.contains(t))
+                .toList();
+        if(!missingTypes.isEmpty()) {
+            throw new IllegalArgumentException("These types %s are not available to in compilation unit %s".formatted(missingTypes, cd.getSourcePath()));
+        }
+    }
+
 
     private List<J.Annotation> findORAnnotations(String annotation) {
         return getClassDeclaration().getLeadingAnnotations()
@@ -195,8 +203,7 @@ public class OpenRewriteType implements Type {
 
     @Override
     public boolean isTypeOf(String fqName) {
-        Class targetType = JavaType.Class.build(fqName);
-        return targetType.isAssignableFrom(getClassDeclaration().getType());
+        return classDeclaration.getType().isAssignableTo(fqName);
     }
 
     @Override
@@ -261,7 +268,7 @@ public class OpenRewriteType implements Type {
                 .findFirst()
                 .orElseThrow();
         return Optional.of(new OpenRewriteType(classDeclaration, modifiableCompilationUnit, refactoring,
-                                               executionContext, javaParser));
+                                               executionContext, javaParserBuilder));
     }
 
     @Override
@@ -338,15 +345,16 @@ public class OpenRewriteType implements Type {
                 JavaType javaType = JavaType.buildType(type);
                 String className = ((JavaType.FullyQualified) javaType).getClassName();
 
-                JavaTemplate javaTemplate = JavaTemplate.builder(() -> getCursor().getParent(), "@Autowired\n" + visibility.getVisibilityName() + " " + className + " " + name + ";")
+                JavaTemplate javaTemplate = JavaTemplate.builder("@Autowired\n" + visibility.getVisibilityName() + " " + className + " " + name + ";")
                         .imports(type, "org.springframework.beans.factory.annotation.Autowired")
-                        .javaParser(() -> javaParser)
+                        .javaParser(javaParserBuilder)
                         .build();
 
                 maybeAddImport(type);
                 maybeAddImport("org.springframework.beans.factory.annotation.Autowired");
 
-                cd = cd.withTemplate(javaTemplate, cd.getBody().getCoordinates().firstStatement());
+
+                cd = javaTemplate.apply(getCursor().getParent(), cd.getBody().getCoordinates().firstStatement());
                 return cd;
             }
         };

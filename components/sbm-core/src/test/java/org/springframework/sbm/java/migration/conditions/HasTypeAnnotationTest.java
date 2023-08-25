@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.java.migration.conditions;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
@@ -23,47 +26,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class HasTypeAnnotationTest {
 
-    @Test
-    void testIsApplicableTRUE() {
+    @ParameterizedTest
+    @CsvSource({
+            "org.springframework.context.annotation.Configuration, true",
+            "org.springframework.context.annotation.DependsOn, false",
+    })
+    void testIsApplicableTRUE(String searched, boolean expected) {
         String sourceCode =
-                "" +
-                        "import org.junit.jupiter.api.Test; " +
-                        "                                   " +
-                        "@Test                              " +
-                        "class AnnotatedClass {             " +
-                        "}                                  " +
-                        "";
+                """
+                import org.springframework.context.annotation.Configuration;
+                @Configuration
+                class AnnotatedClass {
+                }
+                """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withJavaSources(sourceCode)
-                .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0")
+                .withBuildFileHavingDependencies("org.springframework:spring-context:6.0.1")
                 .build();
 
         HasTypeAnnotation sut = new HasTypeAnnotation();
-        sut.setAnnotation("org.junit.jupiter.api.Test");
-
-        assertThat(sut.evaluate(context)).isTrue();
-    }
-
-    @Test
-    void testIsApplicableFALSE() {
-        String sourceCode =
-                "" +
-                        "import org.junit.jupiter.api.BeforeEach; " +
-                        "                                   " +
-                        "@BeforeEach                        " +
-                        "class AnnotatedClass {             " +
-                        "}                                  " +
-                        "";
-
-        ProjectContext context = TestProjectContext.buildProjectContext()
-                .withJavaSources(sourceCode)
-                .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0")
-                .build();
-
-        HasTypeAnnotation sut = new HasTypeAnnotation();
-        sut.setAnnotation("org.junit.jupiter.api.Test");
-
-        assertThat(sut.evaluate(context)).isFalse();
+        sut.setAnnotation(searched);
+        assertThat(sut.evaluate(context)).isEqualTo(expected);
     }
 }

@@ -16,7 +16,6 @@
         <rewrite.version>8.1.6</rewrite.version>
         <rewrite-maven-plugin.version>5.3.2</rewrite-maven-plugin.version>
         <rewrite-spring.version>5.0.5</rewrite-spring.version>
-        <sbm.version>0.15.0-SNAPSHOT</sbm.version>
         <maven.version>3.9.1</maven.version>
         <maven-resolver.version>1.9.7</maven-resolver.version>
         <maven-wagon-http.version>3.5.3</maven-wagon-http.version>
@@ -129,6 +128,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
+            <artifactId>maven-resolver-provider</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
             <version>${maven.version}</version>
         </dependency>
@@ -235,7 +239,7 @@
                     <execution>
                         <phase>validate</phase>
                         <goals>
-                            <goal>format</goal>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -243,7 +247,7 @@
                     <properties>
                         <owner>the original author or authors.</owner>
                         <email />
-                        <year>2022</year>
+                        <year>2023</year>
                     </properties>
                     <licenseSets>
                         <licenseSet>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.events.StartedScanningProjectResourceEvent;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
@@ -107,9 +107,7 @@ class ResourceParserTest {
         Path filePath = Path.of("some-file-parsed-by-plaintext.txt");
         String fileContent = "";
         Parser.Input pi = new Parser.Input(filePath, () -> new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8)));
-        List<PlainText> parsedResources = sut.parseInputs(List.of(
-                pi
-        ), null, ctx);
+        List<PlainText> parsedResources = sut.parseInputs(List.of(pi), null, ctx).map(PlainText.class::cast).toList();
         latch.await(50, TimeUnit.MILLISECONDS);
         assertThat(parsedInput.get()).isSameAs(pi);
         assertThat(parsedSourceFile.get()).isSameAs(parsedResources.get(0));

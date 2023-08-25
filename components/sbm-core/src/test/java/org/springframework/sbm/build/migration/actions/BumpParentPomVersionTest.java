@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,19 +53,22 @@ class BumpParentPomVersionTest {
     @Test
     void bumpVersion() {
         String pomXml =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
-                        "  <modelVersion>4.0.0</modelVersion>\n" +
-                        "  <parent>\n" +
-                        "    <groupId>org.springframework.boot</groupId>\n" +
-                        "    <artifactId>spring-boot-starter-parent</artifactId>\n" +
-                        "    <version>2.6.0</version>\n" +
-                        "  </parent>\n" +
-                        "  <groupId>com.example</groupId>\n" +
-                        "  <artifactId>artifact</artifactId>\n" +
-                        "  <version>1.0.0</version>\n" +
-                        "</project>";
+                """
+                <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                  <modelVersion>4.0.0</modelVersion>
+                  <parent>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-parent</artifactId>
+                    <version>2.6.12</version>
+                    <relativePath/>
+                  </parent>
+                  <groupId>com.example</groupId>
+                  <artifactId>artifact</artifactId>
+                  <version>1.0.0</version>
+                </project>
+                """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
@@ -85,30 +88,30 @@ class BumpParentPomVersionTest {
     void bumpVersionToMilestoneVersion() {
         String pomXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
-                "  <modelVersion>4.0.0</modelVersion>\n" +
-                "  <parent>\n" +
-                "    <groupId>org.springframework.boot</groupId>\n" +
-                "    <artifactId>spring-boot-starter-parent</artifactId>\n" +
-                "    <version>2.7.0</version>\n" +
-                "  </parent>\n" +
-                "  <groupId>com.example</groupId>\n" +
-                "  <artifactId>artifact</artifactId>\n" +
-                "  <version>1.0.0</version>\n" +
-                "  <repositories>\n" +
-                "    <repository>\n" +
-                "      <id>spring-milestone</id>\n" +
-                "      <name>spring-milestone</name>" +
-                "      <url>https://repo.spring.io/milestone</url>\n" +
-                "    </repository>\n" +
-                "    <repository>\n" +
-                "      <id>jcenter</id>\n" +
-                "      <name>jcenter</name>\n" +
-                "      <url>https://jcenter.bintray.com</url>\n" +
-                "    </repository>" +
-                "  </repositories>\n" +
-                "</project>";
+                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                        "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
+                        "  <modelVersion>4.0.0</modelVersion>\n" +
+                        "  <parent>\n" +
+                        "    <groupId>org.springframework.boot</groupId>\n" +
+                        "    <artifactId>spring-boot-starter-parent</artifactId>\n" +
+                        "    <version>2.7.0</version>\n" +
+                        "  </parent>\n" +
+                        "  <groupId>com.example</groupId>\n" +
+                        "  <artifactId>artifact</artifactId>\n" +
+                        "  <version>1.0.0</version>\n" +
+                        "  <repositories>\n" +
+                        "    <repository>\n" +
+                        "      <id>spring-milestone</id>\n" +
+                        "      <name>spring-milestone</name>" +
+                        "      <url>https://repo.spring.io/milestone</url>\n" +
+                        "    </repository>\n" +
+                        "    <repository>\n" +
+                        "      <id>jcenter</id>\n" +
+                        "      <name>jcenter</name>\n" +
+                        "      <url>https://jcenter.bintray.com</url>\n" +
+                        "    </repository>" +
+                        "  </repositories>\n" +
+                        "</project>";
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)

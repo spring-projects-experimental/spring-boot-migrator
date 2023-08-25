@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.java.tree.J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -55,6 +56,9 @@ public class RewriteProjectParserIntegrationTest {
     @Test
     @DisplayName("Should publish parsing events")
     void shouldPublishParsingEvents() {
+        // remove events recorded in other tests
+        capturedEvents.clear();
+
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-1");
         List<Resource> resources = projectScanner.scan(baseDir, Set.of("**/target/**", "**/*.adoc"));
         ExecutionContext ctx = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
@@ -75,6 +79,17 @@ public class RewriteProjectParserIntegrationTest {
         assertThat(startedParsingEvent.resources()).isSameAs(resources);
         assertThat(finishedParsingEvent).isNotNull();
         assertThat(finishedParsingEvent.sourceFiles()).isSameAs(parsingResult.sourceFiles());
+    }
+
+    @org.junit.jupiter.api.Test
+    @org.junit.jupiter.api.DisplayName("testFailingProject")
+    // FIXME: Succeeds with RewriteMavenProjectParser
+    void testFailingProject() {
+        Path baseDir = Path.of("./testcode/maven-projects/failing");
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir);
+        assertThat(parsingResult.sourceFiles().get(1)).isInstanceOf(J.CompilationUnit.class);
+        J.CompilationUnit cu = (J.CompilationUnit) parsingResult.sourceFiles().get(1);
+        assertThat(cu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
     }
 
     @TestConfiguration

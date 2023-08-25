@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 package org.springframework.sbm.project.resource;
 
 import freemarker.template.Configuration;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
+import org.openrewrite.java.JavaParser;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,11 +39,14 @@ import org.springframework.sbm.project.parser.PathScanner;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import org.springframework.sbm.test.SpringBeanProvider;
 import org.springframework.sbm.test.TestProjectContextInfo;
+import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -176,12 +182,26 @@ import static org.mockito.Mockito.when;
  */
 public class TestProjectContext {
 
-    private static final Path DEFAULT_PROJECT_ROOT = Path
-            .of(".")
-            .resolve("target")
-            .resolve("dummy-test-path")
-            .normalize()
-            .toAbsolutePath();
+    private static final Path DEFAULT_PROJECT_ROOT = createProjectRoot();
+
+    private static Path createProjectRoot() {
+        try {
+            Path tempDirectory = Files.createTempDirectory(Path.of(System.getProperty("java.io.tmpdir")), "");
+            Path sbm = tempDirectory.resolve("sbm");
+//            FileUtils.cleanDirectory(sbm.toFile());
+            Path randDir = sbm.resolve(RandomStringUtils.randomAlphanumeric(5));
+            FileUtils.forceMkdir(randDir.toFile());
+            return randDir;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+//            Path
+//            .of(".")
+//            .resolve("target")
+//            .resolve("dummy-test-path")
+//            .normalize()
+//            .toAbsolutePath();
 
     private static final String DEFAULT_PACKAGE_NAME = "not.found";
 
@@ -217,7 +237,7 @@ public class TestProjectContext {
      *
      * @param eventPublisher the eventPublisher to use
      */
-    public static Builder buildProjectContext(ApplicationEventPublisher eventPublisher, RewriteJavaParser rewriteJavaParser) {
+    public static Builder buildProjectContext(ApplicationEventPublisher eventPublisher, JavaParser rewriteJavaParser) {
         return new Builder(DEFAULT_PROJECT_ROOT, eventPublisher, rewriteJavaParser);
     }
 
@@ -257,7 +277,7 @@ public class TestProjectContext {
 
     public static class Builder {
         @Deprecated
-        private RewriteJavaParser javaParser;
+        private JavaParser javaParser;
         private ConfigurableListableBeanFactory beanFactory;
         private Path projectRoot;
         private List<ProjectResourceWrapper> resourceWrapperList = new ArrayList<>();
@@ -280,7 +300,7 @@ public class TestProjectContext {
             this.eventPublisher = eventPublisher;
         }
 
-        public Builder(Path defaultProjectRoot, ApplicationEventPublisher eventPublisher, RewriteJavaParser rewriteJavaParser) {
+        public Builder(Path defaultProjectRoot, ApplicationEventPublisher eventPublisher, JavaParser rewriteJavaParser) {
             this(defaultProjectRoot, eventPublisher);
             this.javaParser = rewriteJavaParser;
         }
@@ -364,6 +384,9 @@ public class TestProjectContext {
         public Builder withJavaSource(Path sourcePathDir, String sourceCode) {
             if (sourcePathDir.isAbsolute()) {
                 throw new IllegalArgumentException("Source path must be relative to project root dir.");
+            }
+            if(sourcePathDir.toString().endsWith(".java")) {
+                throw new IllegalArgumentException("The provided path '%s' should only be the source path, e.g. 'src/main/'java'. Package and filename will be calculated from provided source code.".formatted(sourcePathDir));
             }
             String fqName = JavaSourceUtil.retrieveFullyQualifiedClassFileName(sourceCode);
             Path sourcePath = sourcePathDir.resolve(fqName);
@@ -460,7 +483,20 @@ public class TestProjectContext {
         public Builder withDummyRootBuildFile() {
             if (containsAnyPomXml() || !dependencies.isEmpty())
                 throw new IllegalArgumentException("ProjectContext already contains pom.xml files.");
-            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" + "    <modelVersion>4.0.0</modelVersion>\n" + "    <groupId>com.example</groupId>\n" + "    <artifactId>dummy-root</artifactId>\n" + "    <version>0.1.0-SNAPSHOT</version>\n" + "    <packaging>jar</packaging>\n" + "</project>\n";
+            String xml = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                        <modelVersion>4.0.0</modelVersion>
+                        <groupId>com.example</groupId>
+                        <artifactId>dummy-root</artifactId>
+                        <version>0.1.0-SNAPSHOT</version>
+                        <packaging>jar</packaging>
+                        <properties>
+                            <maven.compiler.target>1.8</maven.compiler.target>
+                            <maven.compiler.source>1.8</maven.compiler.source>
+                        </properties>
+                    </project>
+                    """;
             resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
             return this;
         }
@@ -468,11 +504,15 @@ public class TestProjectContext {
         /**
          * Serializes the built {@code ProjectContext} to {@code targetDir} and returns it.
          */
-        public ProjectContext serializeProjectContext(Path targetDir) {
+        public ProjectContext buildAndSerializeProjectContext(Path targetDir) {
             withProjectRoot(targetDir);
 
             ProjectContext projectContext = build();
 
+            return serializeProjectContext(projectContext);
+        }
+
+        private ProjectContext serializeProjectContext(ProjectContext projectContext) {
             ProjectContextSerializer serializer = new ProjectContextSerializer(
                     new ProjectResourceSetSerializer(new ProjectResourceSerializer()));
             projectContext.getProjectResources().stream().forEach(r -> r.markChanged());
@@ -496,6 +536,10 @@ public class TestProjectContext {
                             <artifactId>dummy-root</artifactId>
                             <version>0.1.0-SNAPSHOT</version>
                             <packaging>jar</packaging>
+                            <properties>
+                                 <maven.compiler.target>17</maven.compiler.target>
+                                 <maven.compiler.source>17</maven.compiler.source>
+                            </properties>
                         {{dependencies}}
                         </project>
                         """;
@@ -507,6 +551,13 @@ public class TestProjectContext {
                 resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
             }
 
+//            if(projectRoot.equals(DEFAULT_PROJECT_ROOT)) {
+//                try {
+//                    projectRoot = Files.createTempDirectory(Path.of(System.getProperty("java.io.tmpdir")), "");
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
 
             // create resource map with fully qualified paths
             Map<Path, String> resourcesWithAbsolutePaths = new LinkedHashMap<>();
@@ -544,6 +595,15 @@ public class TestProjectContext {
                                                                                     javaParser,
                                                                                     executionContext);
              */
+
+            // Writing to filesystem and parsing again changes th eresource order
+            try {
+                FileUtils.cleanDirectory(projectRoot.toFile());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            writeResources(projectRoot, scannedResources);
+
             ProjectContextInitializer projectContextInitializer = createProjectContextInitializer();
 
             // create ProjectContext
@@ -558,6 +618,21 @@ public class TestProjectContext {
             }
 
             return projectContext;
+        }
+
+        private void writeResources(Path projectRoot, List<Resource> scannedResources) {
+            scannedResources.stream()
+                    .forEach(r -> {
+                        try {
+                            Path path = ResourceUtil.getPath(r);
+                            if(!path.getParent().toFile().exists()) {
+                                Files.createDirectories(path.getParent());
+                            }
+                            Files.writeString(path, ResourceUtil.getContent(r));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
         }
 
         private void orderByOrderAnnotationValue(List<ProjectResourceWrapper> resourceWrapperList) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openrewrite.maven.spring;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +37,13 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Pattern;
 
+/**
+ * FIXME: This Recipe was broken with OR 8.1.x upgrade. Do we fix and keep it?
+ * In some cases a new version is added but the older version tag is not removed.
+ * In other cases the dropwizard dependency was upghraded to its recent version.
+ * Is this expected?
+ */
+
 @Slf4j
 public class UpgradeUnmanagedSpringProject extends Recipe {
 
@@ -54,6 +60,16 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
     public UpgradeUnmanagedSpringProject() {
     }
 
+    @Override
+    public String getDisplayName() {
+        return "Upgrade unmanaged spring project";
+    }
+
+    @Override
+    public String getDescription() {
+        return getDisplayName();
+    }
+
     public UpgradeUnmanagedSpringProject(String newVersion, String versionPattern) {
 
         this.newVersion = newVersion;
@@ -68,7 +84,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         this.oldVersionPattern = Pattern.compile(versionPattern);
     }
 
-    @Override
+    // FIXME: What happens to getApplicableTest()
     protected TreeVisitor<?, ExecutionContext> getApplicableTest() {
         return new MavenIsoVisitor<>() {
             @Override
@@ -103,11 +119,6 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         };
     }
 
-    @Override
-    public String getDisplayName() {
-        return "Upgrade unmanaged spring project";
-    }
-
     public synchronized Map<String, String> getDependenciesMap(ExecutionContext ctx) {
         if (springBootDependenciesMap == null) {
             springBootDependenciesMap = buildDependencyMap(ctx);
@@ -115,7 +126,7 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
         return springBootDependenciesMap;
     }
     @Override
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new MavenIsoVisitor<>() {
             @Override
             public Xml.Tag visitTag(Xml.Tag tag, ExecutionContext executionContext) {
@@ -150,7 +161,8 @@ public class UpgradeUnmanagedSpringProject extends Recipe {
                     }
                     if (versionValue.startsWith("${")) {
                         String propertyName = versionValue.substring(2, versionValue.length() - 1);
-                        version.ifPresent(xml -> doAfterVisit(new ChangePropertyValue(propertyName, dependencyVersion, true, true)));
+                        ChangePropertyValue visitor = new ChangePropertyValue(propertyName, dependencyVersion, true, true);
+                        version.ifPresent(xml -> doAfterVisit(visitor.getVisitor()));
                     } else {
                         version.ifPresent(xml -> doAfterVisit(new ChangeTagValueVisitor(xml, dependencyVersion)));
                     }

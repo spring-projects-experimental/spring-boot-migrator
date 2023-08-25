@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ import freemarker.template.Template;
 import lombok.Setter;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
-import org.openrewrite.xml.tree.Xml;
+import org.openrewrite.SourceFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
@@ -56,6 +57,10 @@ public class AddMinimalPomXml extends AbstractAction {
     @JsonIgnore
     private ExecutionContext executionContext;
 
+    @Autowired
+    @JsonIgnore
+    private RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader;
+
     @Override
     public void apply(ProjectContext context) {
         String projectDir = context.getProjectRootDirectory().toString();
@@ -75,12 +80,12 @@ public class AddMinimalPomXml extends AbstractAction {
 
         String src = writer.toString();
         Parser.Input input = new Parser.Input(Path.of("pom.xml"), () -> new ByteArrayInputStream(src.getBytes(StandardCharsets.UTF_8)));
-        Xml.Document maven = rewriteMavenParser
-                .parseInputs(List.of(input), null, executionContext).get(0);
+        SourceFile maven = rewriteMavenParser
+                .parseInputs(List.of(input), null, executionContext).toList().get(0);
         OpenRewriteMavenBuildFile rewriteMavenBuildFile = new OpenRewriteMavenBuildFile(
                 context.getProjectRootDirectory(),
                 maven, getEventPublisher(), executionContext,
-                mavenBuildFileRefactoringFactory.createRefactoring());
+                mavenBuildFileRefactoringFactory.createRefactoring(), rewriteMavenArtifactDownloader);
         context.getProjectResources().add(rewriteMavenBuildFile);
     }
 }

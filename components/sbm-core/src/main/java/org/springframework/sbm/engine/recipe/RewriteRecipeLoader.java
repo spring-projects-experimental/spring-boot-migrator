@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.sbm.engine.recipe;
 
 import org.jetbrains.annotations.NotNull;
+import org.openrewrite.Contributor;
 import org.openrewrite.config.DeclarativeRecipe;
 import org.openrewrite.config.Environment;
 import org.openrewrite.config.YamlResourceLoader;
@@ -53,7 +53,7 @@ public class RewriteRecipeLoader implements RecipeLoader {
     @NotNull
     private List<org.openrewrite.Recipe> loadRewriteRecipes() {
         Environment environment = Environment.builder()
-                .scanRuntimeClasspath()
+                .scanRuntimeClasspath("org.rewrite")
                 .build();
         return environment.listRecipes().stream().collect(Collectors.toList());
     }
@@ -78,10 +78,10 @@ public class RewriteRecipeLoader implements RecipeLoader {
     }
 
     private void initializeRecipe(DeclarativeRecipe recipe) {
-        Method initialize = ReflectionUtils.findMethod(DeclarativeRecipe.class, "initialize", Collection.class);
+        Method initialize = ReflectionUtils.findMethod(DeclarativeRecipe.class, "initialize", Collection.class, Map.class);
         ReflectionUtils.makeAccessible(initialize);
         try {
-            initialize.invoke(recipe, List.of(recipe));
+            initialize.invoke(recipe, List.of(recipe), Map.of());
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {

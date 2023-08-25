@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.xml.parser;
 
+import org.openrewrite.SourceFile;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.xml.XmlParser;
@@ -47,14 +48,14 @@ public class RewriteXmlParser extends XmlParser {
 
     public List<RewriteSourceFileHolder<Xml.Document>> parse(List<Path> xmlFiles, Path projectDir, ExecutionContext executionContext) {
         return delegatingParser.parse(xmlFiles, projectDir, executionContext)
-                .stream()
+                .map(Xml.Document.class::cast)
                 .map(pt -> wrapRewriteSourceFile(projectDir, pt))
 //                .map(plainText -> addMarkers(projectDir, rewriteProjectResources, plainText))
                 .collect(Collectors.toList());
     }
 
     public RewriteSourceFileHolder<Xml.Document> parse(Path projectDir, Path sourcePath, String xml) {
-        Xml.Document parse = delegatingParser.parse(xml).get(0).withSourcePath(sourcePath);
+        Xml.Document parse = delegatingParser.parse(xml).toList().get(0).withSourcePath(sourcePath);
         return wrapRewriteSourceFile(projectDir, parse);
     }
 

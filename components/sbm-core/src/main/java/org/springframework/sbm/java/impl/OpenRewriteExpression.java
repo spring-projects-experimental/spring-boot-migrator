@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,18 @@ import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import lombok.Getter;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 
 @Getter
 public class OpenRewriteExpression implements org.springframework.sbm.java.api.Expression {
 
     private final Expression wrapped;
     private final JavaRefactoring refactoring;
-
-    public OpenRewriteExpression(Expression e, JavaRefactoring refactoring) {
+    private final JavaParserBuilder javaParserBuilder;
+    public OpenRewriteExpression(Expression e, JavaRefactoring refactoring, JavaParserBuilder javaParserBuilder) {
         this.wrapped = e;
         this.refactoring = refactoring;
+        this.javaParserBuilder = javaParserBuilder;
     }
 
     @Override
@@ -105,7 +107,7 @@ public class OpenRewriteExpression implements org.springframework.sbm.java.api.E
         if (wrapped.getClass().isAssignableFrom(J.Assignment.class)) {
             J.Assignment assign = (J.Assignment) wrapped;
             Expression elem = assign.getAssignment();
-            return Wrappers.wrap(elem, refactoring);
+            return Wrappers.wrap(elem, refactoring, javaParserBuilder);
         }
         // TODO: throw Exception or return Optional.empty()
         return null;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@ package org.springframework.sbm.java.migration.recipes.openrewrite;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import org.openrewrite.*;
+import org.openrewrite.Cursor;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.Option;
+import org.openrewrite.Recipe;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.JavaVisitor;
-import org.openrewrite.java.search.UsesType;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
@@ -47,10 +49,11 @@ public class ReplaceConstantWithAnotherConstant extends Recipe {
         return "Replace constant with another constant, adding/removing import on class if needed.";
     }
 
-    @Override
-    protected TreeVisitor<?, ExecutionContext> getSingleSourceApplicableTest() {
-        return new UsesType<>(existingFullyQualifiedConstantName.substring(0,existingFullyQualifiedConstantName.lastIndexOf('.')));
-    }
+    // FIXME: OR8.1
+//    @Override
+//    protected TreeVisitor<?, ExecutionContext> getSingleSourceApplicableTest() {
+//        return new UsesType<>(existingFullyQualifiedConstantName.substring(0,existingFullyQualifiedConstantName.lastIndexOf('.')));
+//    }
 
     @Override
     public JavaVisitor<ExecutionContext> getVisitor() {
@@ -79,11 +82,14 @@ public class ReplaceConstantWithAnotherConstant extends Recipe {
                     maybeRemoveImport(existingOwningType.substring(0, existingOwningType.indexOf('$')));
                 }
                 maybeAddImport(owningType, false);
-                return fieldAccess
-                        .withTemplate(
-                                JavaTemplate.builder(this::getCursor, template).imports(owningType).build(),
-                                fieldAccess.getCoordinates().replace())
+
+                return JavaTemplate
+                        .builder(template)
+                        .imports(owningType)
+                        .build()
+                        .apply(getCursor(), fieldAccess.getCoordinates().replace())
                         .withPrefix(fieldAccess.getPrefix());
+
             }
             return super.visitFieldAccess(fieldAccess, executionContext);
         }
@@ -93,12 +99,15 @@ public class ReplaceConstantWithAnotherConstant extends Recipe {
             if (isConstant(ident.getFieldType()) && !isVariableDeclaration()) {
                 maybeRemoveImport(existingOwningType);
                 maybeAddImport(owningType, false);
-                return ident
-                        .withTemplate(
-                                JavaTemplate.builder(this::getCursor, template).imports(owningType).build(),
-                                ident.getCoordinates().replace())
+
+                return JavaTemplate
+                        .builder(template)
+                        .imports(owningType)
+                        .build()
+                        .apply(getCursor(), ident.getCoordinates().replace())
                         .withPrefix(ident.getPrefix());
             }
+
             return super.visitIdentifier(ident, executionContext);
         }
 

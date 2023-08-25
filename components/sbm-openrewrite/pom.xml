@@ -71,10 +71,6 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap.resolver</groupId>
-            <artifactId>shrinkwrap-resolver-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.shrinkwrap.resolver</groupId>
             <artifactId>shrinkwrap-resolver-spi</artifactId>
         </dependency>
         <dependency>
@@ -94,6 +90,24 @@
             <artifactId>shrinkwrap-resolver-bom</artifactId>
             <type>pom</type>
         </dependency>
+
+        <!-- FIXME: OR8.1 ClassNotFoundException: org.eclipse.aether.spi.synccontext.SyncContextFactory -->
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-api</artifactId>
+            <version>1.9.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-impl</artifactId>
+            <version>1.9.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-spi</artifactId>
+            <version>1.9.7</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>test-helper</artifactId>

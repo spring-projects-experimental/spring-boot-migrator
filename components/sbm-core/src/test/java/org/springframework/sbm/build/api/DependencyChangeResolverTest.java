@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.openrewrite.maven.tree.Scope;
+import org.springframework.boot.BootstrapRegistry;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 
 import java.util.Collections;
@@ -30,6 +32,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
+import static org.openrewrite.maven.tree.Scope.*;
 
 @ExtendWith(MockitoExtension.class)
 public class DependencyChangeResolverTest {
@@ -79,7 +82,12 @@ public class DependencyChangeResolverTest {
         when(buildFile.getEffectiveDependencies())
                 .thenReturn(Set.of(existingDependency));
 
-        when(buildFile.getDeclaredDependencies(any()))
+        when(buildFile.getDeclaredDependencies(None,
+                Compile,
+                Provided,
+                Runtime,
+                Test,
+                System))
                 .thenReturn(Collections.emptyList());
 
         Pair<List<Dependency>, Optional<Dependency>> pair =
@@ -110,7 +118,14 @@ public class DependencyChangeResolverTest {
         when(buildFile.getEffectiveDependencies())
                 .thenReturn(Set.of(existingDependency));
 
-        when(buildFile.getDeclaredDependencies(any()))
+        when(buildFile.getDeclaredDependencies(
+                None,
+                Compile,
+                Provided,
+                Runtime,
+                Test,
+                System
+        ))
                 .thenReturn(Collections.emptyList());
 
         Pair<List<Dependency>, Optional<Dependency>> pair =
@@ -142,7 +157,14 @@ public class DependencyChangeResolverTest {
         when(buildFile.getEffectiveDependencies())
                 .thenReturn(Set.of(existingDependency));
 
-        when(buildFile.getDeclaredDependencies(any()))
+        when(buildFile.getDeclaredDependencies(
+                None,
+                Compile,
+                Provided,
+                Runtime,
+                Test,
+                System
+        ))
                 .thenReturn(List.of(existingDependency));
 
         Pair<List<Dependency>, Optional<Dependency>> pair =

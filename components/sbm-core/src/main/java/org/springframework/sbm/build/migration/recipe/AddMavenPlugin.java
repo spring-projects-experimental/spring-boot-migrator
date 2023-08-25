@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class AddMavenPlugin extends Recipe {
 	private final OpenRewriteMavenPlugin plugin;
 
 	@Override
-	protected TreeVisitor<?, ExecutionContext> getVisitor() {
+	public TreeVisitor<?, ExecutionContext> getVisitor() {
 		return new AddPluginVisitor();
 	}
 
@@ -174,6 +174,11 @@ public class AddMavenPlugin extends Recipe {
 	@Override
 	public String getDisplayName() {
 		return "Add Maven Plugin";
+	}
+
+	@Override
+	public String getDescription() {
+		return getDisplayName();
 	}
 
 }

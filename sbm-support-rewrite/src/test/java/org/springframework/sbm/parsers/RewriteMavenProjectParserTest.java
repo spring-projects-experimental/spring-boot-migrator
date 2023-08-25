@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mockito;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
@@ -44,17 +45,18 @@ import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.style.Autodetect;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.events.DefaultParsingEventListener;
+import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -80,13 +82,27 @@ class RewriteMavenProjectParserTest {
             new MavenConfigFileParser()
     );
     MavenPlexusContainer plexusContainerFactory = new MavenPlexusContainer();
-    private final ParserSettings parserSettings = new ParserSettings();
-    private final RewriteMavenProjectParser sut = new RewriteMavenProjectParser(
-            plexusContainerFactory,
-            new DefaultParsingEventListener(mock(ApplicationEventPublisher.class)),
-            new MavenExecutor(requestFactory, plexusContainerFactory),
-            new MavenMojoProjectParserFactory(parserSettings)
-    );
+    private ParserSettings parserSettings = new ParserSettings();
+    private RewriteMavenProjectParser sut;
+    private ConfigurableListableBeanFactory beanFactory;
+    private ScanScope scanScope;
+
+
+    @BeforeEach
+    void beforeEach() {
+        beanFactory = mock(ConfigurableListableBeanFactory.class);
+        scanScope = mock(ScanScope.class);
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
+        sut = new RewriteMavenProjectParser(
+                plexusContainerFactory,
+                new DefaultParsingEventListener(mock(ApplicationEventPublisher.class)),
+                new MavenExecutor(requestFactory, plexusContainerFactory),
+                new MavenMojoProjectParserFactory(parserSettings),
+                scanScope,
+                beanFactory,
+                executionContext
+        );
+    }
 
     @Test
     @DisplayName("Parsing Simplistic Maven Project ")
@@ -216,6 +232,8 @@ class RewriteMavenProjectParserTest {
 
         verifyExecutionContext(parsingResult);
 
+        Mockito.verify(scanScope).clear(beanFactory);
+
         // TODO: Add test that uses Maven settings and encrypted passwords
     }
 
@@ -259,11 +277,12 @@ class RewriteMavenProjectParserTest {
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
                 new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
                 new BuildFileParser(parserSettings),
-                new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
+                new SourceFileParser(parserSettings, mavenMojoParserPrivateMethods, new JavaParserBuilder()),
                 new StyleDetector(),
                 parserSettings,
                 mock(ParsingEventListener.class),
-                mock(ApplicationEventPublisher.class)
+                mock(ApplicationEventPublisher.class),
+                new ProjectScanner(new DefaultResourceLoader())
         );
 
         Set<String> ignoredPatters = Set.of();
@@ -333,7 +352,7 @@ class RewriteMavenProjectParserTest {
                 .isSameAs(
                         ParsingExecutionContextView.view(resultingExecutionContext).getCharset()
                 );
-        assertThat(ParsingExecutionContextView.view(resultingExecutionContext).getCharset()).isEqualTo(Charset.defaultCharset());
+        assertThat(ParsingExecutionContextView.view(resultingExecutionContext).getCharset()).isEqualTo(Charset.forName("UTF-8"));
 
         // 4
         assertThat(

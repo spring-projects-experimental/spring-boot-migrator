@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,24 @@
  */
 package org.springframework.sbm.project.resource;
 
+import lombok.RequiredArgsConstructor;
+import org.openrewrite.ExecutionContext;
+import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
 @Component
+@RequiredArgsConstructor
 public class ProjectResourceSetHolder {
     private ProjectResourceSet projectResourceSet;
+    private final ExecutionContext executionContext;
+
     public void setProjectResourceSet(ProjectResourceSet projectResourceSet) {
         this.projectResourceSet = projectResourceSet;
     }
 
     public ProjectResourceSet getProjectResourceSet() {
-        return projectResourceSet == null ? new ProjectResourceSet(new ArrayList<>()) : projectResourceSet;
+        return projectResourceSet == null ? new ProjectResourceSet(new ArrayList<>(), executionContext) : projectResourceSet;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class OpenRewriteRecipeJavaSearch {
 
                     PrintOutputCapture<Integer> outputCapture = new PrintOutputCapture(executionContext);
                     ((JavaPrinter) javaPrinter).visit((J.CompilationUnit) result.getAfter(), outputCapture);
-                    J.CompilationUnit compilationUnit = javaParser.parse(outputCapture.out.toString()).get(0).withSourcePath(result.getBefore().getSourcePath());
+                    J.CompilationUnit compilationUnit = javaParser.parse(outputCapture.out.toString()).toList().get(0).withSourcePath(result.getBefore().getSourcePath());
                     affectedJavaSource.getResource().replaceWith(compilationUnit);
                 });
     }

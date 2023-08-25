@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeMethodName;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.Statement;
@@ -30,6 +29,7 @@ import org.springframework.sbm.java.api.Method;
 import org.springframework.sbm.java.api.MethodParam;
 import org.springframework.sbm.java.api.Visibility;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -51,15 +50,15 @@ public class OpenRewriteMethod implements Method {
     private final RewriteSourceFileHolder<J.CompilationUnit> sourceFile;
 
     private final JavaRefactoring refactoring;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
 
     public OpenRewriteMethod(
-            RewriteSourceFileHolder<J.CompilationUnit> sourceFile, J.MethodDeclaration methodDecl, JavaRefactoring refactoring, JavaParser javaParser, ExecutionContext executionContext) {
+            RewriteSourceFileHolder<J.CompilationUnit> sourceFile, J.MethodDeclaration methodDecl, JavaRefactoring refactoring, JavaParserBuilder javaParser, ExecutionContext executionContext) {
         this.sourceFile = sourceFile;
         methodDeclId = methodDecl.getId();
         this.refactoring = refactoring;
-        this.javaParser = javaParser;
+        this.javaParserBuilder = javaParser;
         this.executionContext = executionContext;
     }
 
@@ -70,7 +69,7 @@ public class OpenRewriteMethod implements Method {
             return List.of();
         }
         return typeParameters.stream()
-                .map(p -> new OpenRewriteMethodParam(sourceFile, p, refactoring, javaParser, executionContext))
+                .map(p -> new OpenRewriteMethodParam(sourceFile, p, refactoring, javaParserBuilder, executionContext))
                 .collect(Collectors.toList());
     }
 
@@ -78,7 +77,7 @@ public class OpenRewriteMethod implements Method {
     public List<Annotation> getAnnotations() {
         return getMethodDecl().getLeadingAnnotations()
                 .stream()
-                .map(a -> new OpenRewriteAnnotation(a, refactoring, javaParser))
+                .map(a -> new OpenRewriteAnnotation(a, refactoring, javaParserBuilder))
                 .collect(Collectors.toList());
     }
 
@@ -111,8 +110,7 @@ public class OpenRewriteMethod implements Method {
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
         // FIXME: #7 requires a fresh instance of JavaParser to update typesInUse
         Recipe visitor = new GenericOpenRewriteRecipe<>(() -> {
-            Supplier<JavaParser> javaParserSupplier = () -> JavaParser.fromJavaVersion().classpath(ClasspathRegistry.getInstance().getCurrentDependencies()).build();
-            return new AddAnnotationVisitor(javaParserSupplier, getMethodDecl(), snippet, annotationImport, otherImports);
+            return new AddAnnotationVisitor(javaParserBuilder, getMethodDecl(), snippet, annotationImport, otherImports);
         });
         refactoring.refactor(sourceFile, visitor);
     }

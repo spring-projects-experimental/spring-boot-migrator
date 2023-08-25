@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 package org.springframework.sbm.java.impl;
 
 import org.openrewrite.*;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.java.*;
 import org.openrewrite.java.search.FindAnnotations;
 import org.openrewrite.java.search.FindReferencedTypes;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.Marker;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.ReplaceLiteralVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
@@ -39,13 +41,13 @@ import java.util.stream.Collectors;
 public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.CompilationUnit> implements JavaSource {
 
     private final JavaRefactoring refactoring;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
     private ExecutionContext executionContext;
 
-    public OpenRewriteJavaSource(Path absoluteProjectPath, J.CompilationUnit compilationUnit, JavaRefactoring refactoring, JavaParser javaParser, ExecutionContext executionContext) {
+    public OpenRewriteJavaSource(Path absoluteProjectPath, J.CompilationUnit compilationUnit, JavaRefactoring refactoring, JavaParserBuilder javaParserBuilder, ExecutionContext executionContext) {
         super(absoluteProjectPath, compilationUnit);
         this.refactoring = refactoring;
-        this.javaParser = javaParser;
+        this.javaParserBuilder = javaParserBuilder;
         this.executionContext = executionContext;
     }
 
@@ -66,7 +68,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
     @Override
     public List<OpenRewriteType> getTypes() {
         return getCompilationUnit().getClasses().stream()
-                .map(cd -> new OpenRewriteType(cd, getResource(), refactoring, executionContext, javaParser))
+                .map(cd -> new OpenRewriteType(cd, getResource(), refactoring, executionContext, javaParserBuilder))
                 .collect(Collectors.toList());
     }
 
@@ -146,7 +148,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
             annotation = "@" + annotation;
         }
         FindAnnotations findAnnotation = new FindAnnotations(annotation, true);
-        List<Result> results = findAnnotation.run(List.of(getCompilationUnit())).getResults();
+        List<Result> results = findAnnotation.run(new InMemoryLargeSourceSet(List.of(getCompilationUnit())), executionContext).getChangeset().getAllResults();
         return !results.isEmpty();
     }
 
@@ -157,9 +159,11 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
 
     @Override
     public List<Annotation> getAnnotations(String fqName, Expression scope) {
-        return FindAnnotations.find(((OpenRewriteExpression) scope).getWrapped(), fqName).stream()
-                .map(e -> Wrappers.wrap(e, refactoring, javaParser))
-                .collect(Collectors.toList());
+        return FindAnnotations.find(((OpenRewriteExpression) scope).getWrapped(), fqName)
+                .stream()
+                .map(e -> Wrappers.wrap(e, refactoring, javaParserBuilder))
+                .collect(Collectors.toList()
+                );
     }
 
     @Override

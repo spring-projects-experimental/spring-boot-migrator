@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class RemoveManagedDependenciesTest {
                 .verify(projectContext -> assertThat(projectContext.getBuildFile()
                                                              .getDeclaredDependencies()
                                                              .stream()
-                                                             .map(Dependency::getCoordinates)
+                                                             .map(Dependency::getGav)
                                                              .anyMatch(hibernateCoordinates::equals)).isFalse()
                 );
 
@@ -64,7 +64,7 @@ public class RemoveManagedDependenciesTest {
         assertThat(projectContext.getBuildFile()
                 .getDeclaredDependencies()
                 .stream()
-                .map(Dependency::getCoordinates)
+                .map(Dependency::getGav)
                 .anyMatch(hibernateCoordinates::equals)
         ).isFalse();
     }
@@ -90,7 +90,7 @@ public class RemoveManagedDependenciesTest {
                     // dependency to older hibernate was removed
                     assertThat(declaredDependencies
                                        .get(0)
-                                       .getCoordinates())
+                                       .getGav())
                             .isEqualTo(springBootDataJpaCoordinates);
                 });
     }
@@ -117,11 +117,11 @@ public class RemoveManagedDependenciesTest {
                     assertThat(declaredDependencies.size()).isEqualTo(2);
                     assertThat(declaredDependencies
                                        .get(0)
-                                       .getCoordinates())
+                                       .getGav())
                             .isEqualTo(hibernateCoordinates);
                     assertThat(declaredDependencies
                                        .get(1)
-                                       .getCoordinates())
+                                       .getGav())
                             .isEqualTo(springBootDataJpaCoordinates);
                 });
     }

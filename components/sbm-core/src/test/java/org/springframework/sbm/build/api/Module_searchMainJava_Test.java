@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.sbm.build.api;
 
 import org.intellij.lang.annotations.Language;
@@ -50,6 +49,10 @@ public class Module_searchMainJava_Test {
                     <groupId>com.acme</groupId>
                     <artifactId>application</artifactId>
                     <version>0.0.1-SNAPSHOT</version>
+                    <properties>
+                         <maven.compiler.target>17</maven.compiler.target>
+                         <maven.compiler.source>17</maven.compiler.source>
+                    </properties>
                 </project>
                 """;
 
@@ -128,6 +131,10 @@ public class Module_searchMainJava_Test {
                     <artifactId>parent</artifactId>
                     <version>0.0.1-SNAPSHOT</version>
                     <packaging>pom</packaging>
+                    <properties>
+                        <maven.compiler.target>17</maven.compiler.target>
+                        <maven.compiler.source>17</maven.compiler.source>
+                    </properties>
                     <modules>
                         <module>application</module>
                         <module>component</module>
@@ -146,6 +153,10 @@ public class Module_searchMainJava_Test {
                         <version>0.0.1-SNAPSHOT</version>
                         <relativePath>../</relativePath>
                     </parent>
+                    <properties>
+                        <maven.compiler.target>1.8</maven.compiler.target>
+                        <maven.compiler.source>1.8</maven.compiler.source>
+                    </properties>
                     <artifactId>component</artifactId>
                 </project>
                 """;

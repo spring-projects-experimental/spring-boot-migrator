@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ class SubTypeHierarchyTest {
                 .build()
                 .getProjectJavaSources();
 
-        JavaSource javaSource = javaSourceSet.list().get(0);
+        JavaSource javaSource = javaSourceSet.findJavaSourceDeclaringType("a.Foo8").get();
 
         SubTypeHierarchy subTypeHierarchy = new SubTypeHierarchy(javaSource.getTypes().get(0), javaSourceSet);
 
@@ -120,7 +120,7 @@ class SubTypeHierarchyTest {
                 .build()
                 .getProjectJavaSources();
 
-        FindCompilationUnitContainingType findCompilationUnitContainingType = new FindCompilationUnitContainingType(JavaType.Class.build("Bar2"));
+        FindCompilationUnitContainingType findCompilationUnitContainingType = new FindCompilationUnitContainingType((JavaType.FullyQualified) JavaType.buildType("Bar2"));
 
         List<RewriteSourceFileHolder<J.CompilationUnit>> result = (List<RewriteSourceFileHolder<J.CompilationUnit>>) projectJavaSources.find(findCompilationUnitContainingType);
 

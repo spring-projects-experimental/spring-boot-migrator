@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,17 @@
  */
 package org.springframework.sbm.java.impl;
 
-import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.java.api.Annotation;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.util.Assert;
 
 public class Wrappers {
 
-    public static org.springframework.sbm.java.api.Expression wrap(Expression e, JavaRefactoring refactoring) {
-        return new OpenRewriteExpression(e, refactoring);
+    public static org.springframework.sbm.java.api.Expression wrap(Expression e, JavaRefactoring refactoring, JavaParserBuilder javaParserBuilder) {
+        return new OpenRewriteExpression(e, refactoring, javaParserBuilder);
     }
 
     public static Expression unwrap(org.springframework.sbm.java.api.Expression e) {
@@ -33,8 +33,8 @@ public class Wrappers {
         return ((OpenRewriteExpression) e).getWrapped();
     }
 
-    public static Annotation wrap(J.Annotation a, JavaRefactoring refactoring, JavaParser javaParser) {
-        return new OpenRewriteAnnotation(a, refactoring, javaParser);
+    public static Annotation wrap(J.Annotation a, JavaRefactoring refactoring, JavaParserBuilder javaParserBuilder) {
+        return new OpenRewriteAnnotation(a, refactoring, javaParserBuilder);
     }
 
     public static J.Annotation unwrap(Annotation annotation) {

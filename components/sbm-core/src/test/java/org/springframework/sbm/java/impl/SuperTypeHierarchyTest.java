@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import org.springframework.sbm.java.api.SuperTypeHierarchy;
 import org.springframework.sbm.java.api.SuperTypeHierarchyNode;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,7 +57,7 @@ public class SuperTypeHierarchyTest {
                 .build()
                 .getProjectJavaSources();
 
-        JavaSource papaya = javaSourceSet.list().get(5);
+        JavaSource papaya = javaSourceSet.findJavaSourceDeclaringType("Papaya3").get();
         SuperTypeHierarchy sut = new SuperTypeHierarchy(papaya.getTypes().get(0));
 
         assertThat(sut.getRoot().getNode().getFullyQualifiedName()).isEqualTo("Papaya3");

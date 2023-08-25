@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@
  */
 package org.springframework.sbm.build.api;
 
+import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 
 import org.springframework.sbm.project.resource.ProjectResource;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -98,11 +100,17 @@ public interface BuildFile extends ProjectResource {
 
     List<Path> getResolvedDependenciesPaths();
 
+    Map<Scope, Set<Path>> getResolvedDependenciesMap();
+
+    /**
+     * Returns the classpath for given {@code scope}.
+     * target/classes and target/test-classes are included.
+     */
+    Set<Path> getClasspath(Scope scope);
+
     boolean hasPlugin(Plugin plugin);
 
     void addPlugin(Plugin plugin);
-
-    List<Path> getClasspath();
 
     List<Path> getSourceFolders();
 
@@ -176,4 +184,21 @@ public interface BuildFile extends ProjectResource {
 
 	Optional<Plugin> findPlugin(String groupId, String artifactId);
 
+    /**
+     * Returns GAV of  groupId:artifactId:version of this build file.
+     */
+    default String getGav() {
+        return getGroupId() + ":" + getArtifactId() + ":" + getVersion();
+    }
+
+    /**
+     * Searches for the dependency matching the given gav.
+     */
+    Optional<Dependency> findDeclaredDependency(String gav);
+
+    /**
+     * Returns the declared dependency matching the given gav and throw exception if it doesn't exist.
+     * @throws IllegalStateException when no dependency with given gav exists.
+     */
+    Dependency getDeclaredDependency(String gav);
 }

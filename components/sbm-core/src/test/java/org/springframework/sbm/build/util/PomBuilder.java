@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.sbm.build.util;
 
 import org.springframework.sbm.project.parser.DependencyHelper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,7 +35,7 @@ public class PomBuilder {
         private String parent;
         private String artifactId;
 		private Map<String, String> properties = new HashMap<>();
-		private Map<Scope, org.openrewrite.maven.tree.Dependency> dependencies = new LinkedHashMap<Scope, Dependency>();
+		private Map<Scope, Set<Dependency>> dependencies = new LinkedHashMap<>();
 		private List<Plugin> plugins = new ArrayList<>();
 
     	private DependencyHelper dependencyHelper = new DependencyHelper();
@@ -89,6 +83,7 @@ public class PomBuilder {
      * @param moduleArtifactNames one or more module artifactIds
      */
     public PomBuilder withModules(String... moduleArtifactNames) {
+        this.packaging = "pom";
         this.modules = Arrays.asList(moduleArtifactNames);
         if(this.modules.stream().anyMatch(m -> m.contains(":"))) throw new RuntimeException("Found ':' in artifact name but artifact names of modules must not be provided as coordinate.");
         return this;
@@ -132,9 +127,15 @@ public class PomBuilder {
 			sb.append("    <packaging>").append(packaging).append("</packaging>").append("\n");
 		}
 
-		if(!properties.isEmpty()){
-			sb.append(buildProperties(properties));
-		}
+        if(properties.isEmpty()) {
+            sb.append(  """
+                        <properties>
+                            <maven.compiler.target>1.8</maven.compiler.target>
+                            <maven.compiler.source>1.8</maven.compiler.source>
+                        </properties>
+                        """);
+        }
+        sb.append(buildProperties(properties));
 
         if (modules != null && !modules.isEmpty()) {
             sb.append("    <modules>").append("\n");
@@ -156,20 +157,24 @@ public class PomBuilder {
     }
 
 	String buildProperties(Map<String, String> properties) {
-		StringBuilder builder = new StringBuilder();
-		builder.append("    ").append("<properties>").append("\n");
-		String props = properties.entrySet().stream().map(entry -> "    " + "    " + "<" + entry.getKey() + ">"
-				+ entry.getValue() + "</" + entry.getKey() + ">").collect(Collectors.joining("\n"));
-		builder.append(props).append("\n");
-		builder.append("    ").append("</properties>").append("\n");
-		return builder.toString();
+        if(!properties.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("    ").append("<properties>").append("\n");
+            String props = properties.entrySet().stream().map(entry -> "    " + "    " + "<" + entry.getKey() + ">"
+                    + entry.getValue() + "</" + entry.getKey() + ">").collect(Collectors.joining("\n"));
+            builder.append(props).append("\n");
+            builder.append("    ").append("</properties>").append("\n");
+            return builder.toString();
+        } else {
+            return "";
+        }
 	}
 
-    String renderDependencies(Map<Scope, org.openrewrite.maven.tree.Dependency> dependencies) {
+    String renderDependencies(Map<Scope, Set<org.openrewrite.maven.tree.Dependency>> dependencies) {
         StringBuilder dependenciesSection = new StringBuilder();
         dependenciesSection.append("    ").append("<dependencies>").append("\n");
         dependencies.entrySet().forEach(e -> {
-            renderDependency(dependenciesSection, e.getKey(), e.getValue());
+            e.getValue().forEach(dep -> renderDependency(dependenciesSection, e.getKey(), dep));
         });
         dependenciesSection.append("    ").append("</dependencies>").append("\n");
         String dependenciesText = dependenciesSection.toString();
@@ -252,21 +257,21 @@ public class PomBuilder {
     public PomBuilder unscopedDependencies(String... coordinates) {
         dependencyHelper.mapCoordinatesToDependencies(Arrays.asList(coordinates))
                 .stream()
-                .forEach(c -> this.dependencies.put(Scope.None, c));
+                .forEach(dep -> this.dependencies.computeIfAbsent(Scope.None, r -> new HashSet<>()).add(dep));
         return this;
     }
 
     public PomBuilder compileScopeDependencies(String... coordinates) {
         dependencyHelper.mapCoordinatesToDependencies(Arrays.asList(coordinates))
                 .stream()
-                .forEach(c -> this.dependencies.put(Scope.Compile, c));
+                .forEach(dep -> this.dependencies.computeIfAbsent(Scope.Compile, r -> new HashSet<>()).add(dep));
         return this;
     }
 
     public PomBuilder testScopeDependencies(String... coordinates) {
         dependencyHelper.mapCoordinatesToDependencies(Arrays.asList(coordinates))
                 .stream()
-                .forEach(c -> this.dependencies.put(Scope.Test, c));
+                .forEach(dep -> this.dependencies.computeIfAbsent(Scope.Test, r -> new HashSet<>()).add(dep));
         return this;
     }
 

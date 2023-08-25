@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.java.api.ProjectJavaSources;
 import org.springframework.sbm.java.exceptions.UnresolvedTypeException;
+import org.springframework.sbm.parsers.ParsingException;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.util.List;
@@ -109,13 +110,10 @@ class ProjectJavaSourcesImplTest {
                 }
                 """;
 
-        ProjectJavaSources javaSource = TestProjectContext.buildProjectContext()
-                .withJavaSources(sourceCode)
-                .build()
-                .getProjectJavaSources();
 
-        assertThrows(UnresolvedTypeException.class, () ->
-                javaSource.findTypesImplementing("a.b.c.K"));
+        assertThrows(ParsingException.class, () ->
+            TestProjectContext.buildProjectContext().withJavaSources(sourceCode).build()
+        ).getMessage().contains("src/main/java/a/b/c/SomeClass.java:[2,13] cannot find symbol");
 
     }
 }

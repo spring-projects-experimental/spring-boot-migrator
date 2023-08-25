@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ package org.springframework.sbm.java.impl;
 import org.springframework.sbm.java.api.Annotation;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.internal.lang.Nullable;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.VariableDeclarations.NamedVariable;
 import org.openrewrite.java.tree.JavaType;
@@ -47,23 +47,23 @@ public class OpenRewriteMember implements Member {
     private final NamedVariable namedVar;
 
     private final JavaRefactoring refactoring;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
 
     public OpenRewriteMember(
             J.VariableDeclarations variableDecls, NamedVariable namedVar,
-            RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring, JavaParser javaParser) {
+            RewriteSourceFileHolder<J.CompilationUnit> rewriteSourceFileHolder, JavaRefactoring refactoring, JavaParserBuilder javaParser) {
         this.variableDeclId = variableDecls.getId();
         this.namedVar = namedVar;
         this.rewriteSourceFileHolder = rewriteSourceFileHolder;
         this.refactoring = refactoring;
-        this.javaParser = javaParser;
+        this.javaParserBuilder = javaParser;
     }
 
     @Override
     public List<Annotation> getAnnotations() {
         return getVariableDeclarations().getLeadingAnnotations()
                 .stream()
-                .map(la -> new OpenRewriteAnnotation(la, refactoring, javaParser))
+                .map(la -> new OpenRewriteAnnotation(la, refactoring, javaParserBuilder))
                 .collect(Collectors.toList());
     }
 
@@ -95,7 +95,7 @@ public class OpenRewriteMember implements Member {
 
                 })
                 .findFirst()
-                .map(a -> Wrappers.wrap(a, refactoring, javaParser))
+                .map(a -> Wrappers.wrap(a, refactoring, javaParserBuilder))
                 .orElse(null);
     }
 
@@ -110,13 +110,13 @@ public class OpenRewriteMember implements Member {
     @Override
     public void addAnnotation(String fqName) {
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
-        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> javaParser, getVariableDeclarations(), snippet, fqName);
+        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> javaParserBuilder, getVariableDeclarations(), snippet, fqName);
         refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
     }
 
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
-        AddAnnotationVisitor visitor = new AddAnnotationVisitor(() -> javaParser, getVariableDeclarations(), snippet, annotationImport, otherImports);
+        AddAnnotationVisitor visitor = new AddAnnotationVisitor(() -> javaParserBuilder, getVariableDeclarations(), snippet, annotationImport, otherImports);
         refactoring.refactor(rewriteSourceFileHolder, visitor);
     }
 

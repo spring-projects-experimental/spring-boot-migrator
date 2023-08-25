@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,9 @@ import org.openrewrite.maven.MavenSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.sbm.RewriteParserConfig;
 import org.springframework.sbm.build.impl.MavenSettingsInitializer;
-import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
@@ -41,7 +42,10 @@ import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
+import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
+import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.project.parser.*;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
 import org.springframework.sbm.project.resource.ProjectResourceWrapperRegistry;
@@ -52,6 +56,7 @@ import org.springframework.sbm.scopes.*;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
+import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -110,7 +115,9 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     JavaRefactoringFactoryImpl.class,
                     BasePackageCalculator.class,
                     RewriteJavaParser.class,
-                    MavenProjectParser.class,
+                    JavaParserBuilder.class,
+                    RewriteParserConfig.class,
+                    RewriteProjectParser.class,
                     ResourceParser.class,
                     RewriteJsonParser.class,
                     RewriteXmlParser.class,
@@ -155,8 +162,10 @@ public class ExecutionScopeArchFitTest {
     ExecutionScope executionScope;
     @Autowired
     private TestRecorder testRecorder;
+    // Having this bean mocked turns off GIT repo creation
     @MockBean
     private GitSupport gitSupport;
+    // Having this bean mocked prevents writing to disk
     @MockBean
     private ProjectContextSerializer contextSerializer;
     @MockBean
@@ -184,10 +193,10 @@ public class ExecutionScopeArchFitTest {
         // An ExecutionContext instance is created during this step and will be added to - executionScope
 
         // fixture
-        String s = "target/dummy-path";
-        Path projectRoot = Path.of(s);
+        String s = "testcode/scope-test";
+        Path projectRoot = Path.of(s).toAbsolutePath().normalize();
         when(projectRootPathResolver.getProjectRootOrDefault(s)).thenReturn(projectRoot);
-        when(pathScanner.scan(projectRoot)).thenReturn(List.of());
+        when(pathScanner.scan(projectRoot)).thenReturn(List.of(new FileSystemResource(projectRoot.resolve("pom.xml"))));
 
         // execute command
         ProjectContext projectContext = scanCommand.execute(s);
@@ -237,8 +246,9 @@ public class ExecutionScopeArchFitTest {
         String executionContextIdAfterConditions = ExecutionContext.class.cast(getCacheSnapshot(executionScope).get("scopedTarget.executionContext")).getMessage("executionContextId");
         assertThat(executionContextIdInCondition).isEqualTo(executionContextIdAfterConditions);
         // scan runtime scope didn't change
-        assertThat(getCacheSnapshot(scanScope)).hasSize(1);
+        assertThat(getCacheSnapshot(scanScope)).hasSize(2);
         assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.projectMetadata");
+        assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.javaParserBuilder");
         // and no new ProjectMetadata was created
         assertThat(testRecorder.getMetadataCreations()).hasSize(1);
         // ProjectMetadata unchanged
@@ -261,8 +271,9 @@ public class ExecutionScopeArchFitTest {
         assertThat(executionContextIdInAction).isEqualTo(executionContextIdInCondition);
         assertThat(executionContextIdInAction).isEqualTo(executionContextIdAfterConditions);
         // scanScope unchanged
-        assertThat(getCacheSnapshot(scanScope)).hasSize(1);
+        assertThat(getCacheSnapshot(scanScope)).hasSize(2);
         assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.projectMetadata");
+        assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.javaParserBuilder");
         ProjectMetadata projectMetadataAfterRecipe = ProjectMetadata.class.cast(getCacheSnapshot(
                 scanScope).get("scopedTarget.projectMetadata"));
         // ProjectMetadata unchanged
@@ -322,95 +333,6 @@ public class ExecutionScopeArchFitTest {
             this.executionContextIdInAction = executionContextId;
         }
     }
-
-//    /**
-//     * Bean definitions required for the test
-//     */
-//    @Configuration
-//    static class ExecutionScopeArchFitTestContext {
-//
-//        /**
-//         * Recipe for test.
-//         * It contains a condition and an action which allows observing scope behaviour during conditon evaluation and running recipes.
-//         */
-//        @Bean
-//        Recipe testRecipe() {
-//            return Recipe
-//                    .builder()
-//                    .name(ExecutionScopeArchFitTest.TEST_RECIPE_NAME)
-//                    .condition(recipeCondition())
-//                    .action(recipeAction())
-//                    .build();
-//        }
-//
-//        /**
-//         *
-//         */
-//        @Bean
-//        Action recipeAction() {
-//            return new AbstractAction() {
-//                @Autowired
-//                private ExecutionContext executionContext;
-//                @Autowired
-//                private ExecutionScopeArchFitTest.TestRecorder testRecorder;
-//
-//                @Override
-//                public void apply(ProjectContext context) {
-//                    String executionContextId = (String) executionContext.getMessage("executionContextId");
-//                    testRecorder.executionContextInAction(executionContext);
-//                    testRecorder.executionContextIdInAction(executionContextId);
-//                }
-//            };
-//        }
-//
-//        @Bean
-//        Condition recipeCondition() {
-//            return new Condition() {
-//                @Autowired
-//                private ExecutionContext executionContext;
-//                @Autowired
-//                private ExecutionScopeArchFitTest.TestRecorder testRecorder;
-//
-//                @Override
-//                public String getDescription() {
-//                    return "Dummy test condition";
-//                }
-//
-//                @Override
-//                public boolean evaluate(ProjectContext context) {
-//                    String executionContextId = (String) executionContext.getMessage("executionContextId");
-//                    testRecorder.executionContextInCondition(executionContext);
-//                    testRecorder.executionContextIdInCondition(executionContextId);
-//                    return true;
-//                }
-//            };
-//        }
-//
-//        @Bean
-//        @org.springframework.sbm.scopeplayground.annotations.ScanScope
-//        ProjectMetadata projectMetadata() {
-//            ProjectMetadata projectMetadata = new ProjectMetadata();
-//            testRecorder().projectMetadataCreated(projectMetadata);
-//            return projectMetadata;
-//        }
-//
-//        @Bean
-//        @org.springframework.sbm.scopeplayground.annotations.ExecutionScope
-//        ExecutionContext executionContext(ProjectMetadata projectMetadata) {
-//            String id = UUID.randomUUID().toString();
-//            RewriteExecutionContext rewriteExecutionContext = new RewriteExecutionContext();
-//            rewriteExecutionContext.putMessage("executionContextId", id);
-//            testRecorder().executionContextCreated(id);
-//            rewriteExecutionContext.putMessage("org.openrewrite.maven.settings", projectMetadata.getMavenSettings());
-//            return rewriteExecutionContext;
-//        }
-//
-//        @Bean
-//        ExecutionScopeArchFitTest.TestRecorder testRecorder() {
-//            return new TestRecorder();
-//        }
-//
-//    }
 
 }
 

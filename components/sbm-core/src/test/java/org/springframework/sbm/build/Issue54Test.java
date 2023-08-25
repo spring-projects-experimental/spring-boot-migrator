@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ public class Issue54Test {
                         </project>
                         """;
 
-        List<Xml.Document> poms = MavenParser.builder().build().parse(pomA, pomB);
+        List<Xml.Document> poms = MavenParser.builder().build().parse(pomA, pomB).map(Xml.Document.class::cast).toList();
 
         assertThat(
                 poms.get(1).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getProperties().get("boolean-variable")
@@ -142,7 +142,7 @@ public class Issue54Test {
                 </project>
                 """;
 
-        List<Xml.Document> poms = MavenParser.builder().build().parse(pomA, pomB);
+        List<Xml.Document> poms = MavenParser.builder().build().parse(pomA, pomB).map(Xml.Document.class::cast).toList();
 
         assertThat(poms
                            .get(1)
