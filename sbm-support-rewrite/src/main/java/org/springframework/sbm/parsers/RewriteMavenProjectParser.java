@@ -61,7 +61,8 @@ import static java.util.stream.Collectors.toList;
 public class RewriteMavenProjectParser {
 
 
-    public static final Collection<String> EXCLUSIONS = Set.of("**/.DS_Store", ".DS_Store");
+    /** Constant <code>EXCLUSIONS</code> */
+    private static final Collection<String> EXCLUSIONS = Set.of("**/.DS_Store", ".DS_Store");
     private final MavenPlexusContainer mavenPlexusContainer;
     private final ParsingEventListener parsingListener;
     private final MavenExecutor mavenRunner;
