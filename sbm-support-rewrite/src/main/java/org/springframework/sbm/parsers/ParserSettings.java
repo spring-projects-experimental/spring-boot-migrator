@@ -20,15 +20,17 @@ import org.apache.commons.logging.Log;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
+ * ConfigurationProperties with prefix {@code parser}.
+ *
  * @author Fabian Krüger
  */
 @Component
-@Getter
 @Setter
 @Builder
 @AllArgsConstructor
@@ -37,8 +39,14 @@ import java.util.Set;
 public class ParserSettings {
 
     private String loggerClass;
+    /**
+     * Defines if pom files get cached or if they are always downloaded.
+     */
     private boolean pomCacheEnabled = true;
-    private String pomCacheDirectory;
+    /**
+     *
+     */
+    private Path pomCacheDirectory;
     private boolean skipMavenParsing = false;
     private Set<String> exclusions = new HashSet<>();
     private Set<String> plainTextMasks = new HashSet<>();
@@ -47,4 +55,55 @@ public class ParserSettings {
     private boolean failOnInvalidActiveRecipes = false;
     private List<String> activeProfiles = List.of("default");
     private Set<String> ignoredPathPatterns = new HashSet<>();
+
+    /**
+     * @return fully qualified classname of the logger to use.
+     */
+    public String getLoggerClass() {
+        return loggerClass;
+    }
+
+    public void setLoggerClass(String loggerClass) {
+        this.loggerClass = loggerClass;
+    }
+
+    public boolean isPomCacheEnabled() {
+        return pomCacheEnabled;
+    }
+
+    public Path getPomCacheDirectory() {
+        return pomCacheDirectory;
+    }
+
+    public boolean isSkipMavenParsing() {
+        return skipMavenParsing;
+    }
+
+    public Set<String> getExclusions() {
+        return exclusions;
+    }
+
+    public Set<String> getPlainTextMasks() {
+        return plainTextMasks;
+    }
+
+    public int getSizeThresholdMb() {
+        return sizeThresholdMb;
+    }
+
+    public boolean isRunPerSubmodule() {
+        return runPerSubmodule;
+    }
+
+    public boolean isFailOnInvalidActiveRecipes() {
+        return failOnInvalidActiveRecipes;
+    }
+
+    public List<String> getActiveProfiles() {
+        return activeProfiles;
+    }
+
+    public Set<String> getIgnoredPathPatterns() {
+        return ignoredPathPatterns;
+    }
 }
