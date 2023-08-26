@@ -71,8 +71,6 @@ public class RewriteMavenProjectParser {
     /**
      * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
      * It uses default settings for configuration.
-     * Use {@link #parse(Path, boolean, String, boolean, Collection, Collection, int, boolean, ExecutionContext)}
-     * if you need to pass in different settings
      */
     public RewriteProjectParsingResult parse(Path baseDir) {
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> {

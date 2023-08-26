@@ -66,7 +66,6 @@ import java.util.stream.Stream;
  *  RecipeRun recipeRun = recipes.get(0).run(ast, ctx);
  *  }
  * </pre>
- * </p>
  *
  * @see RewriteMavenProjectParser
  * @see org.springframework.sbm.recipes.RewriteRecipeDiscovery
@@ -107,7 +106,7 @@ public class RewriteProjectParser {
      * processMainSources()
      * processTestSources()
      *
-     * @see {@link MavenMojoProjectParser#listSourceFiles(MavenProject, List, ExecutionContext)}
+     * @see MavenMojoProjectParser#listSourceFiles(MavenProject, List, ExecutionContext)
      */
     public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources, ExecutionContext executionContext) {
         if (!givenBaseDir.isAbsolute()) {
