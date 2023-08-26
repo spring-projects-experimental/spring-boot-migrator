@@ -26,6 +26,11 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
+ * Helper class
+ *
+ * TODO: Make class independant to Maven and find better name.
+ * TODO: Can this class be used to transport build information from Maven and Gradle to reuse functionality?
+ *
  * @author Fabian Krüger
  */
 public class SortedProjects {

@@ -22,12 +22,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Exception thrown if {@link MavenExecutor} had errors during execution.
+ *
  * @author Fabian Krüger
  */
-public class ParsingException extends RuntimeException {
+public class MavenExecutionResultException extends RuntimeException {
+
     @Getter
     private final List<Throwable> exceptions;
-    public ParsingException(String message, List<Throwable> exceptions) {
+
+    public MavenExecutionResultException(String message, List<Throwable> exceptions) {
         super(buildMessage(message, exceptions));
         this.exceptions = exceptions;
     }
