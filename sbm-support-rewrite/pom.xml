@@ -183,7 +183,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-cipher</artifactId>
@@ -483,42 +482,6 @@ limitations under the License.
                     </snapshots>
                 </repository>
             </repositories>
-        </profile>
-        <profile>
-            <id>artifactory</id>
-            <properties>
-                <maven.test.skip>true</maven.test.skip>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jfrog.buildinfo</groupId>
-                        <artifactId>artifactory-maven-plugin</artifactId>
-                        <version>${artifactory-maven-plugin.version}</version>
-                        <inherited>false</inherited>
-                        <executions>
-                            <execution>
-                                <id>deploy-to-artifactory</id>
-                                <goals>
-                                    <goal>publish</goal>
-                                </goals>
-                                <configuration>
-                                    <publisher>
-                                        <contextUrl>https://repo.spring.io</contextUrl>
-                                        <username>${env.ARTIFACTORY_USERNAME}</username>
-                                        <password>${env.ARTIFACTORY_PASSWORD}</password>
-                                        <repoKey>libs-milestone-local</repoKey>
-                                        <snapshotRepoKey>libs-snapshot-local</snapshotRepoKey>
-                                    </publisher>
-                                    <buildInfo>
-                                        <buildName>CI build for Spring Boot Migrator Support OpenRewrite ${project.version}</buildName>
-                                    </buildInfo>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>
