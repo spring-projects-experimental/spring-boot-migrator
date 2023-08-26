@@ -350,7 +350,6 @@ limitations under the License.
                     </licenseSets>
                 </configuration>
             </plugin>
-
 <!--            <plugin>-->
 <!--                <groupId>org.apache.maven.plugins</groupId>-->
 <!--                <artifactId>maven-surefire-plugin</artifactId>-->
