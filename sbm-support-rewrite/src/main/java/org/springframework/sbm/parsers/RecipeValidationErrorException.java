@@ -16,9 +16,11 @@
 package org.springframework.sbm.parsers;
 
 /**
+ * Thrown when recipe validation failed during discovery.
+ *
  * @author Fabian Krüger
  */
-public class InvalidRecipesException extends RuntimeException {
-    public InvalidRecipesException(String s) {
+public class RecipeValidationErrorException extends RuntimeException {
+    public RecipeValidationErrorException(String s) {
     }
 }
