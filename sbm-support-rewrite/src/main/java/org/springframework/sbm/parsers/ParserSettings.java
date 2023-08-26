@@ -46,7 +46,7 @@ public class ParserSettings {
     /**
      *
      */
-    private Path pomCacheDirectory;
+    private String pomCacheDirectory;
     private boolean skipMavenParsing = false;
     private Set<String> exclusions = new HashSet<>();
     private Set<String> plainTextMasks = new HashSet<>();
@@ -71,7 +71,7 @@ public class ParserSettings {
         return pomCacheEnabled;
     }
 
-    public Path getPomCacheDirectory() {
+    public String getPomCacheDirectory() {
         return pomCacheDirectory;
     }
 
