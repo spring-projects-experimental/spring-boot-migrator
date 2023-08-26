@@ -1,13 +1,10 @@
-name: Compatibility Build
+name: Release Integration
 
 on:
   workflow_run:
-    workflows:
-      - Build
-    types:
-      - completed
-    branches:
-      - parser-integration-build-main
+    workflows: ["Build"]
+    types: ["completed"]
+    branches: ["parser-integration-build-main"]
 
 jobs:
   integration:
