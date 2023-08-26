@@ -34,6 +34,11 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+/**
+ * Wrapper for OpenRewrite {@link MavenArtifactDownloader}.
+ *
+ * @author fkrueger
+ */
 @Slf4j
 @Component
 public class RewriteMavenArtifactDownloader extends MavenArtifactDownloader {

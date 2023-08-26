@@ -97,7 +97,7 @@ class MavenExecutor {
             Maven maven = plexusContainer.lookup(Maven.class);
             MavenExecutionResult execute = maven.execute(request);
             if (execute.hasExceptions()) {
-                throw new ParsingException("Maven could not run %s on project '%s'".formatted(request.getGoals(), request.getBaseDirectory()), execute.getExceptions());
+                throw new MavenExecutionResultException("Maven could not run %s on project '%s'".formatted(request.getGoals(), request.getBaseDirectory()), execute.getExceptions());
             }
         } catch (ComponentLookupException e) {
             throw new RuntimeException(e);

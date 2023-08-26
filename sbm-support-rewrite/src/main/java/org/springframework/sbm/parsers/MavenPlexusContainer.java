@@ -25,12 +25,9 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 
-/**
- * @author Fabian Krüger
- */
 @Component
 @Lazy
-public class MavenPlexusContainer {
+class MavenPlexusContainer {
 
     public GraphBuilder lookup(Class<GraphBuilder> aClass) {
         try {

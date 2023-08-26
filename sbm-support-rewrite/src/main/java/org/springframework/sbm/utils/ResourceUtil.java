@@ -23,6 +23,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * Utility class for {@link Resource}s.
+ *
+ * @author fkrueger
+ */
 public class ResourceUtil {
     public ResourceUtil() {
     }

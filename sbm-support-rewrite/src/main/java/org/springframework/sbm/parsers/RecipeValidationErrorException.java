@@ -15,24 +15,12 @@
  */
 package org.springframework.sbm.parsers;
 
-import lombok.Getter;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
+ * Thrown when recipe validation failed during discovery.
+ *
  * @author Fabian Krüger
  */
-public class ParsingException extends RuntimeException {
-    @Getter
-    private final List<Throwable> exceptions;
-    public ParsingException(String message, List<Throwable> exceptions) {
-        super(buildMessage(message, exceptions));
-        this.exceptions = exceptions;
-    }
-
-    private static String buildMessage(String message, List<Throwable> exceptions) {
-        return message + "\n" + exceptions.stream().map(t -> ExceptionUtils.getStackTrace(t)).collect(Collectors.joining("\n"));
+public class RecipeValidationErrorException extends RuntimeException {
+    public RecipeValidationErrorException(String s) {
     }
 }

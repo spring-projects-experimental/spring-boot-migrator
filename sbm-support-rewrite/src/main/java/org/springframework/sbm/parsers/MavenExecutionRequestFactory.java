@@ -41,8 +41,8 @@ import java.util.Properties;
 class MavenExecutionRequestFactory {
 
     private final MavenConfigFileParser mavenConfigFileParser;
-    public static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toString();
-    public static final List<String> MAVEN_GOALS = List.of("clean", "package");// "dependency:resolve";
+    private static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toString();
+    private static final List<String> MAVEN_GOALS = List.of("clean", "package");// "dependency:resolve";
 
     public MavenExecutionRequest createMavenExecutionRequest(PlexusContainer plexusContainer, Path baseDir) {
         try {

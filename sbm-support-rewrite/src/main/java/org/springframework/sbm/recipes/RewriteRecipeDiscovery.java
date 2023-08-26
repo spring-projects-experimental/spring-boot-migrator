@@ -28,7 +28,7 @@ import org.openrewrite.config.RecipeDescriptor;
 import org.openrewrite.config.ResourceLoader;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.AbstractRewriteMojo;
-import org.springframework.sbm.parsers.InvalidRecipesException;
+import org.springframework.sbm.parsers.RecipeValidationErrorException;
 import org.springframework.sbm.parsers.ParserSettings;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +42,8 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 /**
+ * <p>RewriteRecipeDiscovery class.</p>
+ *
  * @author Fabian Krüger
  */
 @Slf4j
@@ -88,7 +90,7 @@ public class RewriteRecipeDiscovery {
                     "Recipe validation error in " + failedValidation.getProperty() + ": " +
                             failedValidation.getMessage(), failedValidation.getException()));
             if (parserSettings.isFailOnInvalidActiveRecipes()) {
-                throw new InvalidRecipesException("Recipe validation errors detected as part of one or more activeRecipe(s). Please check error logs.");
+                throw new RecipeValidationErrorException("Recipe validation errors detected as part of one or more activeRecipe(s). Please check error logs.");
             } else {
                 log.error("Recipe validation errors detected as part of one or more activeRecipe(s). Execution will continue regardless.");
             }
@@ -126,7 +128,7 @@ public class RewriteRecipeDiscovery {
                     "Recipe validation error in " + failedValidation.getProperty() + ": " +
                             failedValidation.getMessage(), failedValidation.getException()));
             if (parserSettings.isFailOnInvalidActiveRecipes()) {
-                throw new InvalidRecipesException("Recipe validation errors detected as part of one or more activeRecipe(s). Please check error logs.");
+                throw new RecipeValidationErrorException("Recipe validation errors detected as part of one or more activeRecipe(s). Please check error logs.");
             } else {
                 log.error("Recipe validation errors detected as part of one or more activeRecipe(s). Execution will continue regardless.");
             }

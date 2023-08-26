@@ -51,6 +51,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.events.DefaultParsingEventListener;
+import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -95,7 +96,7 @@ class RewriteMavenProjectParserTest {
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
         sut = new RewriteMavenProjectParser(
                 plexusContainerFactory,
-                new DefaultParsingEventListener(mock(ApplicationEventPublisher.class)),
+                new RewriteParsingEventListenerAdapter(mock(ApplicationEventPublisher.class)),
                 new MavenExecutor(requestFactory, plexusContainerFactory),
                 new MavenMojoProjectParserFactory(parserSettings),
                 scanScope,

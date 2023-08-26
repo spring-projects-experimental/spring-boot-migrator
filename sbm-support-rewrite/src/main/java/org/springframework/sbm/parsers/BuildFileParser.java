@@ -54,7 +54,7 @@ class BuildFileParser {
     private final ParserSettings parserSettings;
 
     /**
-     * Parse a list of Maven Pom files to a Map of {@code Path} and their parsed {@Xml.Document}s.
+     * Parse a list of Maven Pom files to a Map of {@code Path} and their parsed {@link Xml.Document}s.
      * The {@link Xml.Document}s are marked with {@link org.openrewrite.maven.tree.MavenResolutionResult} and the provided provenance markers.
      * Reimplements {@link org.openrewrite.maven.MavenMojoProjectParser#parseMaven(List, Map, ExecutionContext)}.
      *
@@ -62,8 +62,8 @@ class BuildFileParser {
      * @param buildFiles the list of resources for relevant pom files.
      * @param activeProfiles teh active Maven profiles
      * @param executionContext the ExecutionContext to use
+*    * @param skipMavenParsing skip parsing Maven files
      * @param provenanceMarkers the map of markers to be added
-     * @param
      */
     public Map<Path, Xml.Document>  parseBuildFiles(
             Path baseDir,
