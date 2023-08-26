@@ -29,4 +29,4 @@ jobs:
           GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
           GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
         working-directory: ./sbm-support-rewrite
-        run: ./mvnw -B -Pspring-repos
+        run: ./mvn -B -Pspring-repos
