@@ -59,7 +59,7 @@ class ParserSettingsTest {
         @Test
         @DisplayName("valid pomCacheDirectory")
         void validPomCacheDirectory() {
-            assertThat(parserSettings.getPomCacheDirectory()).isEqualTo(Path.of("some/dir"));
+            assertThat(parserSettings.getPomCacheDirectory()).isEqualTo("some/dir");
         }
 
         @Test
