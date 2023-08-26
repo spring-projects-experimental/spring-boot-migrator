@@ -1,0 +1,32 @@
+name: Release Integration
+
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types: ["completed"]
+#    branches: ["parser-integration-build-main"]
+
+jobs:
+  integration:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check out sources
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: 'maven'
+
+      - name: Build with Maven
+        env:
+          GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
+          GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
+          GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
+        working-directory: ./sbm-support-rewrite
+        run: ./mvnw -B -Pspring-repos

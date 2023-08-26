@@ -1,4 +1,4 @@
-name: Build sbm-utils
+name: Build
 on:
   push:
     branches:

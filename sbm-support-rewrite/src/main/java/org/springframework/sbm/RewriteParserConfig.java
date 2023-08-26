@@ -33,6 +33,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
+ * Module configuration.
+ *
  * @author Fabian Krüger
  */
 @SpringBootApplication

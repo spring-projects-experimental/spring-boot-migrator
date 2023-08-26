@@ -48,6 +48,28 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
+ * Project parser parsing resources under a given {@link Path} to OpenRewrite abstract syntax tree.
+ * The implementation aims to produce the exact same result as the build tool plugins provided by OpenRewrite.
+ * The AST is provided as {@code List<}{@link SourceFile}{@code >}.
+ *
+ * <p>
+ * This dummy code shows how the AST can be used to run OpenRewrite recipes:
+ *
+ * <pre>{@code
+ *  Path projectBaseDir = ...
+ *  RewriteProjectParser parser = ...
+ *  RewriteRecipeDiscovery discovery = ...
+ *  RewriteProjectParsingResult parsingResult = parser.parse(projectBaseDir);
+ *  List<SourceFile> ast = parsingResult.sourceFiles();
+ *  ExecutionContext ctx = parsingResult.executionContext();
+ *  List<Recipe> recipes = discovery.discoverRecipes();
+ *  RecipeRun recipeRun = recipes.get(0).run(ast, ctx);
+ *  }
+ * </pre>
+ *
+ * @see RewriteMavenProjectParser
+ * @see org.springframework.sbm.recipes.RewriteRecipeDiscovery
+ *
  * @author Fabian Krüger
  */
 @Slf4j
@@ -84,7 +106,7 @@ public class RewriteProjectParser {
      * processMainSources()
      * processTestSources()
      *
-     * @see {@link MavenMojoProjectParser#listSourceFiles(MavenProject, List, ExecutionContext)}
+     * @see MavenMojoProjectParser#listSourceFiles(MavenProject, List, ExecutionContext)
      */
     public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources, ExecutionContext executionContext) {
         if (!givenBaseDir.isAbsolute()) {

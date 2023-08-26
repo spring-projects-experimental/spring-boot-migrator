@@ -40,79 +40,113 @@ import java.util.stream.Stream;
 @Component
 class MavenConfigFileParser {
 
-    public static final char ALTERNATE_POM_FILE = 'f';
+    /** Constant <code>ALTERNATE_POM_FILE='f'</code> */
+    private static final char ALTERNATE_POM_FILE = 'f';
 
-    public static final char BATCH_MODE = 'B';
+    /** Constant <code>BATCH_MODE='B'</code> */
+    private static final char BATCH_MODE = 'B';
 
-    public static final char SET_USER_PROPERTY = 'D';
+    /** Constant <code>SET_USER_PROPERTY='D'</code> */
+    private static final char SET_USER_PROPERTY = 'D';
 
     /**
      * @deprecated Use {@link #SET_USER_PROPERTY}
      */
     @Deprecated
-    public static final char SET_SYSTEM_PROPERTY = SET_USER_PROPERTY;
+    private static final char SET_SYSTEM_PROPERTY = SET_USER_PROPERTY;
 
-    public static final char OFFLINE = 'o';
+    /** Constant <code>OFFLINE='o'</code> */
+    private static final char OFFLINE = 'o';
 
-    public static final char QUIET = 'q';
+    /** Constant <code>QUIET='q'</code> */
+    private static final char QUIET = 'q';
 
-    public static final char DEBUG = 'X';
+    /** Constant <code>DEBUG='X'</code> */
+    private static final char DEBUG = 'X';
 
-    public static final char ERRORS = 'e';
+    /** Constant <code>ERRORS='e'</code> */
+    private static final char ERRORS = 'e';
 
-    public static final char HELP = 'h';
+    /** Constant <code>HELP='h'</code> */
+    private static final char HELP = 'h';
 
-    public static final char VERSION = 'v';
+    /** Constant <code>VERSION='v'</code> */
+    private static final char VERSION = 'v';
 
-    public static final char SHOW_VERSION = 'V';
+    /** Constant <code>SHOW_VERSION='V'</code> */
+    private static final char SHOW_VERSION = 'V';
 
-    public static final char NON_RECURSIVE = 'N';
+    /** Constant <code>NON_RECURSIVE='N'</code> */
+    private static final char NON_RECURSIVE = 'N';
 
-    public static final char UPDATE_SNAPSHOTS = 'U';
+    /** Constant <code>UPDATE_SNAPSHOTS='U'</code> */
+    private static final char UPDATE_SNAPSHOTS = 'U';
 
-    public static final char ACTIVATE_PROFILES = 'P';
+    /** Constant <code>ACTIVATE_PROFILES='P'</code> */
+    private static final char ACTIVATE_PROFILES = 'P';
 
-    public static final String SUPRESS_SNAPSHOT_UPDATES = "nsu";
+    /** Constant <code>SUPRESS_SNAPSHOT_UPDATES="nsu"</code> */
+    private static final String SUPRESS_SNAPSHOT_UPDATES = "nsu";
 
-    public static final char CHECKSUM_FAILURE_POLICY = 'C';
+    /** Constant <code>CHECKSUM_FAILURE_POLICY='C'</code> */
+    private static final char CHECKSUM_FAILURE_POLICY = 'C';
 
-    public static final char CHECKSUM_WARNING_POLICY = 'c';
+    /** Constant <code>CHECKSUM_WARNING_POLICY='c'</code> */
+    private static final char CHECKSUM_WARNING_POLICY = 'c';
 
-    public static final char ALTERNATE_USER_SETTINGS = 's';
+    /** Constant <code>ALTERNATE_USER_SETTINGS='s'</code> */
+    private static final char ALTERNATE_USER_SETTINGS = 's';
 
-    public static final String ALTERNATE_GLOBAL_SETTINGS = "gs";
+    /** Constant <code>ALTERNATE_GLOBAL_SETTINGS="gs"</code> */
+    private static final String ALTERNATE_GLOBAL_SETTINGS = "gs";
 
-    public static final char ALTERNATE_USER_TOOLCHAINS = 't';
+    /** Constant <code>ALTERNATE_USER_TOOLCHAINS='t'</code> */
+    private static final char ALTERNATE_USER_TOOLCHAINS = 't';
 
-    public static final String ALTERNATE_GLOBAL_TOOLCHAINS = "gt";
+    /** Constant <code>ALTERNATE_GLOBAL_TOOLCHAINS="gt"</code> */
+    private static final String ALTERNATE_GLOBAL_TOOLCHAINS = "gt";
 
-    public static final String FAIL_FAST = "ff";
+    /** Constant <code>FAIL_FAST="ff"</code> */
+    private static final String FAIL_FAST = "ff";
 
-    public static final String FAIL_AT_END = "fae";
+    /** Constant <code>FAIL_AT_END="fae"</code> */
+    private static final String FAIL_AT_END = "fae";
 
-    public static final String FAIL_NEVER = "fn";
+    /** Constant <code>FAIL_NEVER="fn"</code> */
+    private static final String FAIL_NEVER = "fn";
 
-    public static final String RESUME_FROM = "rf";
+    /** Constant <code>RESUME_FROM="rf"</code> */
+    private static final String RESUME_FROM = "rf";
 
-    public static final String PROJECT_LIST = "pl";
+    /** Constant <code>PROJECT_LIST="pl"</code> */
+    private static final String PROJECT_LIST = "pl";
 
-    public static final String ALSO_MAKE = "am";
+    /** Constant <code>ALSO_MAKE="am"</code> */
+    private static final String ALSO_MAKE = "am";
 
-    public static final String ALSO_MAKE_DEPENDENTS = "amd";
+    /** Constant <code>ALSO_MAKE_DEPENDENTS="amd"</code> */
+    private static final String ALSO_MAKE_DEPENDENTS = "amd";
 
-    public static final String LOG_FILE = "l";
+    /** Constant <code>LOG_FILE="l"</code> */
+    private static final String LOG_FILE = "l";
 
-    public static final String ENCRYPT_MASTER_PASSWORD = "emp";
+    /** Constant <code>ENCRYPT_MASTER_PASSWORD="emp"</code> */
+    private static final String ENCRYPT_MASTER_PASSWORD = "emp";
 
-    public static final String ENCRYPT_PASSWORD = "ep";
+    /** Constant <code>ENCRYPT_PASSWORD="ep"</code> */
+    private static final String ENCRYPT_PASSWORD = "ep";
 
-    public static final String THREADS = "T";
+    /** Constant <code>THREADS="T"</code> */
+    private static final String THREADS = "T";
 
-    public static final String BUILDER = "b";
+    /** Constant <code>BUILDER="b"</code> */
+    private static final String BUILDER = "b";
 
-    public static final String NO_TRANSFER_PROGRESS = "ntp";
+    /** Constant <code>NO_TRANSFER_PROGRESS="ntp"</code> */
+    private static final String NO_TRANSFER_PROGRESS = "ntp";
 
-    public static final String COLOR = "color";
+    /** Constant <code>COLOR="color"</code> */
+    private static final String COLOR = "color";
     private static final String MVN_MAVEN_CONFIG = ".mvn/maven.config";
     public List<String> getActivatedProfiles(Path baseDir) {
         File configFile = baseDir.resolve(MVN_MAVEN_CONFIG).toFile();
