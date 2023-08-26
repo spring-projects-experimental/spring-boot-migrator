@@ -16,6 +16,7 @@
 package org.springframework.sbm.parsers.events;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.tree.ParsingEventListener;
@@ -23,16 +24,20 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 /**
+ * Adapter listening to OpenRewrite ParsingEvents and publishing them as Spring application events.
+ *
  * @author Fabian Krüger
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
-public class DefaultParsingEventListener implements ParsingEventListener {
+public class RewriteParsingEventListenerAdapter implements ParsingEventListener {
 
     private final ApplicationEventPublisher eventPublisher;
+
     @Override
     public void parsed(Parser.Input input, SourceFile sourceFile) {
+        log.debug("Parsed %s to %s".formatted(input.getPath(), sourceFile.getSourcePath()));
         eventPublisher.publishEvent(new ParsedResourceEvent(input, sourceFile));
-        System.out.println("Parsed " + input.getPath().toString() + " to " + sourceFile.getSourcePath());
     }
 }
