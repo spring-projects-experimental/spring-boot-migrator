@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: ["Build"]
     types: ["completed"]
-#    branches: ["parser-integration-build-main"]
+    branches: ["main"]
 
 jobs:
   integration:
