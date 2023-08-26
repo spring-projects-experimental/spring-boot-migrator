@@ -17,8 +17,8 @@ jobs:
       - name: setup-java
         uses: actions/setup-java@v2
         with:
-          distribution: zulu
+          distribution: 'zulu'
           java-version: 17
-          cache: maven
+          cache: 'maven'
       - name: build-project
         run: mvn --batch-mode clean install
