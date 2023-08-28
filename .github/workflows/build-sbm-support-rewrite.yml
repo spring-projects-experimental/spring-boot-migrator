@@ -36,6 +36,7 @@ jobs:
         run: |
           jfrog mvnc \
             --server-id-deploy spring-snapshot \
+            --server-url https.//repo.spring.io \
             --repo-deploy-releases release \
             --repo-deploy-snapshots snapshot
           echo JFROG_CLI_BUILD_NAME=sbm-support-rewrite >> $GITHUB_ENV
