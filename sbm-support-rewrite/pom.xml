@@ -7,7 +7,7 @@
     <artifactId>sbm-support-rewrite</artifactId>
 
     <name>Spring Boot Migrator OpenRewrite Support</name>
-    <description>Parse projects and run OpenRewrite recipes without build tool plugin</description>
+    <description>Parse projects and run OpenRewrite recipes without a build tool plugin</description>
     <url>https://github.com/spring-projects-experimental/spring-boot-migrator/sbm-support-rewrite</url>
 
     <organization>
