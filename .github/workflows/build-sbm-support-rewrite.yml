@@ -26,13 +26,15 @@ jobs:
       - name: Maven Build
         run: mvn --batch-mode clean package
 
-      - name: Setupt JFro CLI
+      - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v3
+        with:
+          version: 2.46.2
         env:
           JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
       - name: Deploy to Artifactory
         run: |
-          jfrog rt mvnc \
+          jfrog mvnc \
             --server-id-deploy repo.spring.io \
             --repo-deploy-releases release \
             --repo-deploy-snapshots snapshot
@@ -42,5 +44,5 @@ jobs:
         env:
           DISABLE_SAMPLES: true
         run: |
-          jfrog rt mvn clean install -B -DskipTests -Pci
-          jfrog rt build-publish
+          jfrog mvn clean install -B -Pci -DskipTests 
+          jfrog build-publish
