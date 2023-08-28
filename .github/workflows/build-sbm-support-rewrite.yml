@@ -42,5 +42,5 @@ jobs:
         env:
           DISABLE_SAMPLES: true
         run: |
-          jfrog rt mvn clean install -B -DskipTests
+          jfrog rt mvn clean install -B -DskipTests -Pci
           jfrog rt build-publish
