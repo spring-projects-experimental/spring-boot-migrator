@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.springframework.experimental</groupId>
@@ -43,7 +44,8 @@
     </developers>
 
     <scm>
-        <developerConnection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git
+        </developerConnection>
         <connection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator</connection>
         <url>https://github.com/spring-projects-experimental/spring-boot-migrator/sbm-support-openrewrite</url>
         <tag>0.1.0-SNAPSHOT</tag>
@@ -249,14 +251,14 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>repackage</id>-->
-<!--                        <goals>-->
-<!--                            <goal>repackage</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
+                <!--                <executions>-->
+                <!--                    <execution>-->
+                <!--                        <id>repackage</id>-->
+                <!--                        <goals>-->
+                <!--                            <goal>repackage</goal>-->
+                <!--                        </goals>-->
+                <!--                    </execution>-->
+                <!--                </executions>-->
                 <configuration>
                     <excludes>
                         <exclude>
@@ -293,7 +295,7 @@
                 <configuration>
                     <properties>
                         <owner>the original author or authors.</owner>
-                        <email />
+                        <email/>
                         <year>2022</year>
                     </properties>
                     <licenseSets>
@@ -347,16 +349,16 @@ limitations under the License.
                     </licenseSets>
                 </configuration>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-surefire-plugin</artifactId>-->
-<!--                <version>3.1.2</version>-->
-<!--                <configuration>-->
-<!--                    <excludes>-->
-<!--                        <exclude />-->
-<!--                    </excludes>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-surefire-plugin</artifactId>-->
+            <!--                <version>3.1.2</version>-->
+            <!--                <configuration>-->
+            <!--                    <excludes>-->
+            <!--                        <exclude />-->
+            <!--                    </excludes>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -435,6 +437,22 @@ limitations under the License.
                     </plugin>
                 </plugins>
             </build>
+            <repositories>
+                <repository>
+                    <id>spring-milestone</id>
+                    <url>https://repo.spring.io/milestone</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>spring-snapshot</id>
+                    <url>https://repo.spring.io/snapshot</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                </repository>
+            </repositories>
         </profile>
     </profiles>
 </project>
