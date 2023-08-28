@@ -12,13 +12,25 @@ jobs:
       run:
         working-directory: sbm-support-rewrite
     steps:
-      - name: build-sbm-support-rewrite
+
+      - name: Checkout
         uses: actions/checkout@v3
-      - name: setup-java
+
+      - name: Setup Java
         uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
           java-version: 17
           cache: 'maven'
-      - name: build-project
-        run: mvn --batch-mode clean install
+
+      - name: Maven Build
+        run: mvn --batch-mode clean package
+
+      - name: Deploy to Artifactory
+        env:
+          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+          GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
+          GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
+          GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
+        run: mvn -B deploy -Pci,artifactory
