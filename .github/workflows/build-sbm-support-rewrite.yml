@@ -26,11 +26,21 @@ jobs:
       - name: Maven Build
         run: mvn --batch-mode clean package
 
-      - name: Deploy to Artifactory
+      - name: Setupt JFro CLI
+        uses: jfrog/setup-jfrog-cli@v3
         env:
-          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
-          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-          GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
-          GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
-          GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
-        run: mvn -B deploy -Pci,artifactory
+          JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
+      - name: Deploy to Artifactory
+        run: |
+          jfrog rt mvnc \
+            --server-id-deploy repo.spring.io \
+            --repo-deploy-releases release \
+            --repo-deploy-snapshots snapshot
+          echo JFROG_CLI_BUILD_NAME=sbm-support-rewrite >> $GITHUB_ENV
+          echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
+      - name: Build and Publish
+        env:
+          DISABLE_SAMPLES: true
+        run: |
+          jfrog rt mvn clean install -B -DskipTests
+          jfrog rt build-publish
