@@ -421,7 +421,6 @@ limitations under the License.
                 <version>3.0.0</version>
                 <configuration>
                     <releaseProfiles>sonatype</releaseProfiles>
-<!--                    <autoVersionSubmodules>true</autoVersionSubmodules>-->
                     <pushChanges>false</pushChanges>
                     <tagNameFormat>@{project.version}</tagNameFormat>
                     <localCheckout>true</localCheckout>
