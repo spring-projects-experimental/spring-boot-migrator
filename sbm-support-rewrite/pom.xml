@@ -371,20 +371,6 @@ limitations under the License.
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
-<!--                <configuration>-->
-<!--                    <archive>-->
-<!--                        <manifestEntries>-->
-<!--                            <Implementation-Title>${project.name}</Implementation-Title>-->
-<!--                            <Implementation-Version>${project.version}</Implementation-Version>-->
-<!--                            <Automatic-Module-Name>org.springframework.sbm.rewrite</Automatic-Module-Name>-->
-<!--                        </manifestEntries>-->
-<!--                    </archive>-->
-<!--                </configuration>-->
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
                 <version>1.4.1</version>
