@@ -36,7 +36,7 @@ jobs:
           MAVEN_REPO_URL: https://repo.spring.io/libs-snapshot-local
       # This command adds a new server configuration to the JFrog CLI
       - run: |
-          jf rt ping
+          jf rt ping --url=https://repo.spring.io/libs-snapshot-local
 #          export SERVER_ID="repo.spring.io"
 #          jf c add $SERVER_ID --url=https://repo.spring.io/libs-snapshot-local --access-token=${{ secrets.JF_ARTIFACTORY_SPRING }} --interactive=false
 #
