@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junitpioneer.jupiter.Issue;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
@@ -298,6 +299,16 @@ class RewriteMavenProjectParserTest {
         parsingResult.sourceFiles().stream()
                 .map(SourceFile::getSourcePath)
                 .forEach(System.out::println);
+    }
+
+    @Test
+    @DisplayName("parseCheckstyle")
+    @Issue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/875")
+    void parseCheckstyle() {
+        Path baseDir = getProject("checkstyle");
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir);
+        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
+        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
     }
 
     private static void verifyExecutionContext(RewriteProjectParsingResult parsingResult) {
