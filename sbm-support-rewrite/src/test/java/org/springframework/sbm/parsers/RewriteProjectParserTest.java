@@ -19,6 +19,7 @@ import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junitpioneer.jupiter.Issue;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
@@ -124,5 +125,4 @@ class RewriteProjectParserTest {
         RewriteProjectParsingResult parsingResult = projectParser.parse(basePath, resources, executionContext);
         assertThat(parsingResult.sourceFiles()).hasSize(2);
     }
-
 }
