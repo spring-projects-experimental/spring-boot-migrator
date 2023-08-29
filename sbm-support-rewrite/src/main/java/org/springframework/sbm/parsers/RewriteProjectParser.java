@@ -27,6 +27,7 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.AbstractRewriteMojo;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenMojoProjectParser;
+import org.openrewrite.maven.cache.MavenPomCache;
 import org.openrewrite.maven.tree.MavenRepository;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
@@ -90,7 +91,6 @@ public class RewriteProjectParser {
     private final ApplicationEventPublisher eventPublisher;
     private final ScanScope scanScope;
     private final ConfigurableListableBeanFactory beanFactory;
-
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
