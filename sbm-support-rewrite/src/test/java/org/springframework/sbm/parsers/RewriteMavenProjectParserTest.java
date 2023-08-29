@@ -234,7 +234,7 @@ class RewriteMavenProjectParserTest {
     @DisplayName("Parse multi-module-1")
     void parseMultiModule1_withIntegratedParser() {
         ExecutionContext ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
-        Path baseDir = getProject("multi-module-1");
+        Path baseDir = getMavenProject("multi-module-1");
         parserSettings.setExclusions(Set.of("README.adoc"));
         RewriteProjectParsingResult parsingResult = sut.parse(
                 baseDir,
@@ -245,7 +245,7 @@ class RewriteMavenProjectParserTest {
 
     @Test
     void parseMultiModule1_WithCustomParser() {
-        Path baseDir = getProject("multi-module-1");
+        Path baseDir = getMavenProject("multi-module-1");
         ExecutionContext ctx;
         ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
         MavenModelReader mavenModelReader = new MavenModelReader();
@@ -305,7 +305,7 @@ class RewriteMavenProjectParserTest {
     @DisplayName("parseCheckstyle")
     @Issue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/875")
     void parseCheckstyle() {
-        Path baseDir = getProject("checkstyle");
+        Path baseDir = getMavenProject("checkstyle");
         RewriteProjectParsingResult parsingResult = sut.parse(baseDir);
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
@@ -470,7 +470,7 @@ class RewriteMavenProjectParserTest {
         }
     }
 
-    private Path getProject(String s) {
+    private Path getMavenProject(String s) {
         return Path.of("./testcode/maven-projects/").resolve(s).toAbsolutePath().normalize();
     }
 
