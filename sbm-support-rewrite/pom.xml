@@ -456,6 +456,16 @@ limitations under the License.
                     </releases>
                 </repository>
             </repositories>
+            <distributionManagement>
+                <repository>
+                    <id>repo.spring.io</id>
+                    <url>https://repo.spring.io/snapshot</url>
+                    <layout>default</layout>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                </repository>
+            </distributionManagement>
         </profile>
     </profiles>
 </project>
