@@ -108,13 +108,14 @@ public class SourceFileParser {
         List<SourceFile> testSources = parseTestSources(baseDir, mavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
 
         // 171:175
-        Stream<SourceFile> parsedResourceFiles = rp.parse(baseDir.resolve(moduleBuildFile.getSourcePath()).resolve("src/main/resources"), alreadyParsed )
+        Stream<SourceFile> parsedResourceFiles = rp.parse(baseDir.resolve(moduleBuildFile.getSourcePath()).getParent(), alreadyParsed )
                 // FIXME: handle generated sources
                 .map(mavenMojoProjectParserPrivateMethods.addProvenance(baseDir, provenanceMarkers, null));
 
         // 157:169
         List<SourceFile> resourceSourceFiles = mergeAndFilterExcluded(baseDir, parserSettings.getExclusions(), mainSources, testSources);
-        sourceFiles.addAll(parsedResourceFiles.toList());
+        List<SourceFile> resourceFilesList = parsedResourceFiles.toList();
+        sourceFiles.addAll(resourceFilesList);
         sourceFiles.addAll(resourceSourceFiles);
 
         return sourceFiles;
