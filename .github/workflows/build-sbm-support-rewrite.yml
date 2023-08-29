@@ -36,20 +36,21 @@ jobs:
           MAVEN_REPO_URL: https://repo.spring.io/libs-snapshot-local
       # This command adds a new server configuration to the JFrog CLI
       - run: |
-          export SERVER_ID="repo.spring.io"
-          jf c add $SERVER_ID --url=https://repo.spring.io/libs-snapshot-local --access-token=${{ secrets.JF_ARTIFACTORY_SPRING }} --interactive=false          
-
-      - name: Deploy to Artifactory
-        run: |
-          jfrog mvnc \
-            --server-id-deploy $SERVER_ID \
-            --repo-deploy-releases release \
-            --repo-deploy-snapshots snapshot
-          echo JFROG_CLI_BUILD_NAME=sbm-support-rewrite >> $GITHUB_ENV
-          echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
-      - name: Build and Publish
-        env:
-          DISABLE_SAMPLES: true
-        run: |
-          jfrog mvn clean install --repo=repo.spring.io
-          jfrog build-publish
+          jf show s repo.spring.io
+#          export SERVER_ID="repo.spring.io"
+#          jf c add $SERVER_ID --url=https://repo.spring.io/libs-snapshot-local --access-token=${{ secrets.JF_ARTIFACTORY_SPRING }} --interactive=false
+#
+#      - name: Deploy to Artifactory
+#        run: |
+#          jfrog mvnc \
+#            --server-id-deploy $SERVER_ID \
+#            --repo-deploy-releases release \
+#            --repo-deploy-snapshots snapshot
+#          echo JFROG_CLI_BUILD_NAME=sbm-support-rewrite >> $GITHUB_ENV
+#          echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
+#      - name: Build and Publish
+#        env:
+#          DISABLE_SAMPLES: true
+#        run: |
+#          jfrog mvn clean install --repo=repo.spring.io
+#          jfrog build-publish
