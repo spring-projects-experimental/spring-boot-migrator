@@ -44,5 +44,5 @@ jobs:
         env:
           DISABLE_SAMPLES: true
         run: |
-          jfrog mvn clean install -B -Pci,spring -DskipTests -DaltSnapshotDeploymentRepository=repo.spring.io::default::https://repo.spring.io/libs-snapshot-local
+          jfrog mvn -B -Pci,spring -DskipTests -DaltSnapshotDeploymentRepository=repo.spring.io::default::https://repo.spring.io/libs-snapshot-local  clean install
           jfrog build-publish
