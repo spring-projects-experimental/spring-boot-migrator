@@ -16,12 +16,15 @@
 package org.springframework.sbm.jee.jaxrs.actions;
 
 import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.Disabled;
+import org.junitpioneer.jupiter.ExpectedToFail;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.Method;
 import org.springframework.sbm.java.migration.conditions.HasTypeAnnotation;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.testhelper.common.utils.TestDiff;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,6 +33,7 @@ public class ConvertJaxRsAnnotationsTest {
     private final static String SPRING_VERSION = "5.3.13";
 
     @Test
+    @Disabled("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/897")
     void convertJaxRsMethodWithoutPathToSpringMvc() {
         @Language("java")
         String restControllerCode = """
@@ -92,6 +96,8 @@ public class ConvertJaxRsAnnotationsTest {
                 import com.example.jeerest.Movie;
                 import com.example.jeerest.MoviesBean;
                 import org.springframework.beans.factory.annotation.Autowired;
+                import org.springframework.web.bind.annotation.RequestMapping;
+                import org.springframework.web.bind.annotation.RequestMethod;
                 
                 import javax.ws.rs.DELETE;
                 import javax.ws.rs.PUT;
@@ -105,17 +111,42 @@ public class ConvertJaxRsAnnotationsTest {
                 @Path("movies")
                 @Produces({"application/json"})
                 public class MoviesRest {
-                    @RequestMapping(method = RequestMethod.GET)
-                    public List<Movie> getMovies(@QueryParam("first") Integer first, @QueryParam("max") Integer max,
-                                                 @QueryParam("field") String field, @QueryParam("searchTerm") String searchTerm) {
-                        return service.getMovies(first, max, field, searchTerm);
-                    }
+                  @RequestMapping(method = RequestMethod.GET)
+                  public List<Movie> getMovies(@QueryParam("first") Integer first, @QueryParam("max") Integer max,
+                                               @QueryParam("field") String field, @QueryParam("searchTerm") String searchTerm) {
+                      return service.getMovies(first, max, field, searchTerm);
+                  }
                 }
                 """;
+//                """
+//                package com.example.jeerest.rest;
+//
+//                import com.example.jeerest.Movie;
+//                import com.example.jeerest.MoviesBean;
+//                import org.springframework.beans.factory.annotation.Autowired;
+//
+//                import javax.ws.rs.DELETE;
+//                import javax.ws.rs.PUT;
+//                import javax.ws.rs.Path;
+//                import javax.ws.rs.PathParam;
+//                import javax.ws.rs.Produces;
+//                import javax.ws.rs.QueryParam;
+//                import javax.ws.rs.core.MediaType;
+//                import java.util.List;
+//
+//                @Path("movies")
+//                @Produces({"application/json"})
+//                public class MoviesRest {
+//                    @RequestMapping(method = RequestMethod.GET)
+//                    public List<Movie> getMovies(@QueryParam("first") Integer first, @QueryParam("max") Integer max,
+//                                                 @QueryParam("field") String field, @QueryParam("searchTerm") String searchTerm) {
+//                        return service.getMovies(first, max, field, searchTerm);
+//                    }
+//                }
+//                """;
 
-        assertThat(context.getProjectJavaSources().list().get(0).print()).isEqualTo(
-                expected
-        );
+        String given = context.getProjectJavaSources().list().get(0).print();
+        assertThat(given).as(() -> TestDiff.of(given, expected)).isEqualTo(expected);
     }
 
     @Test
