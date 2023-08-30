@@ -288,7 +288,7 @@
                     <execution>
                         <phase>validate</phase>
                         <goals>
-                            <goal>format</goal>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
