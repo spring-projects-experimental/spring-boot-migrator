@@ -80,6 +80,43 @@ The `OpenRewriteProjectParser` aims to provide the exact same parsing capabiliti
 
 This allows parsing a given project to it's OpenRewrite AST representation and then provide the AST to OR recipes and visitors to run OpenRewrite recipes without requiring a build plugin.
 
+## Configuration
+
+### Maven Pom Cache
+OpenRewrite downloads Maven Pom files to resolve dependencies.
+These pom files get cached and these cache implementations exist:
+
+- InMemoryMavenPomCache
+- RocksdbMavenPomCache
+- CompositeMavenPomCache
+
+#### Pom Cache Properties
+
+|===
+|Name |Description |Default Value
+
+|`parser.isPomCacheEnabled`
+|If the flag is set to false, only the default, in-memory cache is used.
+|`false`
+
+|`parser.pomCacheDirectory`
+|Defines the cache dir for RocksdbMavenPomCache when `parser.isPomCacheEnabled` is `true`
+|`~/.rewrite-cache`
+|===
+
+#### Custom Pom Cache
+Users could provide a custom `MavenPomCache` implementation by overwriting the bean definition in `RewriteMavenPomCacheConfig.mavenPomCache()`.
+
+[source,java]
+....
+@Bean
+@Primary
+public MavenPomCache mavenPomCache() {
+    return new CustomMavenPomCache();
+}
+....
+
+
 ## Running OpenRewrite recipes
 
 ### Scan the codebase

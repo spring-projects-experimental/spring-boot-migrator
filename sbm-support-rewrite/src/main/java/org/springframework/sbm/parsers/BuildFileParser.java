@@ -51,7 +51,6 @@ import static java.util.Collections.emptyList;
 @RequiredArgsConstructor
 class BuildFileParser {
 
-    private final ParserSettings parserSettings;
     private final MavenPomCache mavenPomCache;
 
     /**
@@ -95,13 +94,6 @@ class BuildFileParser {
 
         // 385 : 387
         initializeMavenSettings(executionContext);
-
-        // 389 : 393
-        if (parserSettings.isPomCacheEnabled()) {
-            //The default pom cache is enabled as a two-layer cache L1 == in-memory and L2 == RocksDb
-            //If the flag is set to false, only the default, in-memory cache is used.
-            MavenExecutionContextView.view(executionContext).setPomCache(mavenPomCache);
-        }
 
         // 395 : 398
 
