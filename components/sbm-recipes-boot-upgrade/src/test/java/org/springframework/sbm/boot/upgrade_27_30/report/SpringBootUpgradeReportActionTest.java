@@ -218,8 +218,8 @@ class SpringBootUpgradeReportActionTest {
             // verify title and some elements to verify the HTML was rendered
             assertThat(pageAsText.contains("Spring Boot 3 Upgrade Report")).isTrue();
             assertThat(h2Headers).containsExactly(
-                    "1. Introduction",
-                    "2. Relevant Changes"
+                    "Introduction",
+                    "Relevant Changes"
             );
             assertThat(h3Headers).anySatisfy(e -> e.matches("2\\.\\d Changes to Data Properties"));
             assertThat(h3Headers).anySatisfy(e -> e.matches("2\\.\\d Logging Date Format"));
