@@ -49,6 +49,9 @@ public class RewriteProjectParserIntegrationTest {
     @Autowired
     ProjectScanner projectScanner;
 
+    @Autowired
+    ParserSettings parserSettings;
+
     private static List<ParsedResourceEvent> capturedEvents = new ArrayList<>();
     private static StartedParsingProjectEvent startedParsingEvent;
     private static FinishedParsingProjectEvent finishedParsingEvent;
@@ -57,7 +60,8 @@ public class RewriteProjectParserIntegrationTest {
     @DisplayName("Should publish parsing events")
     void shouldPublishParsingEvents() {
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-1");
-        List<Resource> resources = projectScanner.scan(baseDir, Set.of("**/target/**", "**/*.adoc"));
+        parserSettings.setIgnoredPathPatterns(Set.of("**/target/**", "**/*.adoc"));
+        List<Resource> resources = projectScanner.scan(baseDir);
         ExecutionContext ctx = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
 
         RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, ctx);

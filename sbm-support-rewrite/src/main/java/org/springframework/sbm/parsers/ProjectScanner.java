@@ -40,8 +40,9 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 class ProjectScanner {
     private final ResourceLoader resourceLoader;
+    private final ParserSettings parserSettings;
 
-    public List<Resource> scan(Path baseDir, Set<String> ignoredPatters) {
+    public List<Resource> scan(Path baseDir) {
         if(!baseDir.isAbsolute()) {
             baseDir = baseDir.toAbsolutePath().normalize();
         }
@@ -54,7 +55,7 @@ class ProjectScanner {
         try {
             Resource[] resources = ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(pattern);
 
-            List<PathMatcher> pathMatchers = ignoredPatters.stream()
+            List<PathMatcher> pathMatchers = parserSettings.getIgnoredPathPatterns().stream()
                     .map(p -> p.startsWith("glob:") ? p : "glob:" + p)
                     .map(baseDir.getFileSystem()::getPathMatcher)
                     .toList();
