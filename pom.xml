@@ -13,7 +13,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <openrewrite.version>8.1.8</openrewrite.version>
         <spring-boot.version>3.1.2</spring-boot.version>
-        <jar.name>spring-boot-migrator</jar.name>
         <!--        <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>-->
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
@@ -31,7 +30,7 @@
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
 <!--        <snakeyaml.version>1.33</snakeyaml.version>-->
-        <sbm-support-rewrite.version>0.0.1-SNAPSHOT</sbm-support-rewrite.version>
+        <sbm-support-rewrite.version>0.1.0-SNAPSHOT</sbm-support-rewrite.version>
         <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
     </properties>
 
@@ -278,6 +277,17 @@
                 <version>4.3.4</version>
                 <scope>compile</scope>
             </dependency>
+            <dependency>
+                <groupId>org.junit-pioneer</groupId>
+                <artifactId>junit-pioneer</artifactId>
+                <version>2.0.1</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.spring.asciidoctor.backends</groupId>
+                <artifactId>spring-asciidoctor-backends</artifactId>
+                <version>${spring-asciidoctor-backends.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -340,7 +350,7 @@
                     <connectionUrl>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</connectionUrl>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>@{project.version}</tagNameFormat>
-                    <!--                    <releaseProfiles>release</releaseProfiles>-->
+<!--                    <releaseProfiles>release</releaseProfiles>-->
                 </configuration>
             </plugin>
 
@@ -450,7 +460,7 @@ limitations under the License.
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
-                <version>2.2.2</version>
+                <version>2.2.4</version>
                 <executions>
                     <execution>
                         <id>generate-html-documentation</id>
@@ -468,7 +478,7 @@ limitations under the License.
                     <dependency>
                         <groupId>io.spring.asciidoctor.backends</groupId>
                         <artifactId>spring-asciidoctor-backends</artifactId>
-                        <version>0.0.5</version>
+                        <version>${spring-asciidoctor-backends.version}</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>org.asciidoctor</groupId>

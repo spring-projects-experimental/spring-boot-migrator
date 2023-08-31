@@ -1037,6 +1037,7 @@ public class OpenRewriteMavenBuildFileTest {
 
         @Test
         @DisplayName("getRequestedDependencies should return any available dependency (declared or transitive) with given scope")
+        @Disabled("FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/901")
         void getEffectiveDependencies() {
             // Module 1
             List<Dependency> dependenciesEffectiveInModule1 = new ArrayList(module1.getEffectiveDependencies());

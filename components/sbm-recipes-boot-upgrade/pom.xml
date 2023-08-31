@@ -31,7 +31,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
     </properties>
 
     <dependencies>
@@ -61,7 +60,6 @@
         <dependency>
             <groupId>io.spring.asciidoctor.backends</groupId>
             <artifactId>spring-asciidoctor-backends</artifactId>
-            <version>${spring-asciidoctor-backends.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite.recipe</groupId>
