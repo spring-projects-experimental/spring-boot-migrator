@@ -21,4 +21,4 @@ jobs:
           cache: 'maven'
 
       - name: Maven Build
-        run: mvn --batch-mode clean package
+        run: ./mvnw --batch-mode clean package
