@@ -36,7 +36,7 @@ import org.openrewrite.xml.tree.Xml;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.events.FinishedParsingProjectEvent;
+import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -168,7 +168,7 @@ public class RewriteProjectParser {
             resultingList.addAll(list);
             List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
 
-            eventPublisher.publishEvent(new FinishedParsingProjectEvent(sourceFiles));
+            eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
 
             atomicReference.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
         });

@@ -22,5 +22,5 @@ import java.util.List;
 /**
  * @author Fabian Krüger
  */
-public record FinishedParsingProjectEvent(List<SourceFile> sourceFiles) {
+public record SuccessfullyParsedProjectEvent(List<SourceFile> sourceFiles) {
 }
