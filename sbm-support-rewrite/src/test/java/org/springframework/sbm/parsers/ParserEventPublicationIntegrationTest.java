@@ -17,7 +17,6 @@ package org.springframework.sbm.parsers;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.Issue;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.events.FinishedParsingProjectEvent;
+import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 import org.springframework.sbm.parsers.events.ParsedResourceEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
 
@@ -53,7 +52,7 @@ public class ParserEventPublicationIntegrationTest {
 
     private static List<ParsedResourceEvent> capturedEvents = new ArrayList<>();
     private static StartedParsingProjectEvent startedParsingEvent;
-    private static FinishedParsingProjectEvent finishedParsingEvent;
+    private static SuccessfullyParsedProjectEvent finishedParsingEvent;
 
     @Test
     @DisplayName("Should publish parsing events")
@@ -100,8 +99,8 @@ public class ParserEventPublicationIntegrationTest {
             startedParsingEvent = event;
         }
 
-        @EventListener(FinishedParsingProjectEvent.class)
-        public void onFinishedParsingProjectEvent(FinishedParsingProjectEvent event) {
+        @EventListener(SuccessfullyParsedProjectEvent.class)
+        public void onFinishedParsingProjectEvent(SuccessfullyParsedProjectEvent event) {
             finishedParsingEvent = event;
         }
     }
