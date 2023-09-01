@@ -98,7 +98,6 @@ class RewriteMavenProjectParserTest {
                 new MavenMojoProjectParserFactory(parserSettings),
                 scanScope,
                 beanFactory,
-                parserSettings,
                 new InMemoryExecutionContext(t -> {throw new RuntimeException(t);})
         );
     }

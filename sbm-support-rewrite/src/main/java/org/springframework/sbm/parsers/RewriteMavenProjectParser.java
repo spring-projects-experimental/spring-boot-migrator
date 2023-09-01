@@ -61,15 +61,13 @@ public class RewriteMavenProjectParser {
     private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
     private final ScanScope scanScope;
     private final ConfigurableListableBeanFactory beanFactory;
+    private final ExecutionContext executionContext;
 
     /**
      * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
      * It uses default settings for configuration.
      */
     public RewriteProjectParsingResult parse(Path baseDir) {
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {
-            throw new RuntimeException(t);
-        });
         ParsingExecutionContextView.view(executionContext).setParsingListener(parsingListener);
         return parse(baseDir, executionContext);
     }
