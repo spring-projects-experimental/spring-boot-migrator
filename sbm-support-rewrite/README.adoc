@@ -30,6 +30,33 @@ RewriteProjectParser parser = new RewriteProjectParser();
 List<SourceFile> ast = parser.parse(baseDir, resources, ctx);
 ....
 
+### Listen to ParserEvents
+``ParserEvent``s get published during parsing.
+Especially when scanning large projects the parsing can take some time.
+The events can be used to provide progress information to users.
+
+* `StartedParsingProjectEvent` - Gets published when the parsing started
+* `ParsedResourceEvent` - Gets published  after every parsed pom or Java file
+* `SuccessfullyParsedProjectEvent` - Gets published when the parsing was successful
+
+[source,java]
+.....
+@EventListener(ParsedResourceEvent.class)
+public void onEvent(ParsedResourceEvent event) {
+    // handle event
+}
+
+@EventListener(StartedParsingProjectEvent.class)
+public void onStartedParsingProjectEvent(StartedParsingProjectEvent event) {
+    // handle event
+}
+
+@EventListener(SuccessfullyParsedProjectEvent.class)
+public void onSuccessfullyParsedProjectEvent(SuccessfullyParsedProjectEvent event) {
+    // handle event
+}
+.....
+
 ## Discover recipes
 [source,java]
 ....
@@ -78,6 +105,8 @@ List<Resource> resources = scanner.scan(projectRoot);
 ....
 
 ### Parse the scanned resources
+
+
 
 ### Discover recipes
 

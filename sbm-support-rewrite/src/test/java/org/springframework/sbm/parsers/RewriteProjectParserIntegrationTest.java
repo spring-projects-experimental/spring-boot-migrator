@@ -15,26 +15,16 @@
  */
 package org.springframework.sbm.parsers;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.Issue;
-import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.RewriteParserConfig;
-import org.springframework.sbm.parsers.events.FinishedParsingProjectEvent;
-import org.springframework.sbm.parsers.events.ParsedResourceEvent;
-import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
