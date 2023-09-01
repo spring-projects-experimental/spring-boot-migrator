@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - "**"
+    branches-ignore:
+      - "main"
     paths:
       - "sbm-support-rewrite/**"
 jobs:
