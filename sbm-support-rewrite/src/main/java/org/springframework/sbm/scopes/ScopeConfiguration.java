@@ -16,11 +16,13 @@
 package org.springframework.sbm.scopes;
 
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+
+import java.util.function.Supplier;
 
 /**
  * @author Fabian Krüger
@@ -44,11 +46,16 @@ public class ScopeConfiguration {
     }
 
     @Bean
+    Supplier<ExecutionContext> executionContextSupplier() {
+        return () -> new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
+    }
+
+    @Bean
     @org.springframework.sbm.scopes.annotations.ExecutionScope
-    ExecutionContext executionContext(ProjectMetadata projectMetadata) {
-        RewriteExecutionContext rewriteExecutionContext = new RewriteExecutionContext();
-        MavenExecutionContextView.view(rewriteExecutionContext).setMavenSettings(projectMetadata.getMavenSettings());
-        return rewriteExecutionContext;
+    ExecutionContext executionContext(ProjectMetadata projectMetadata, Supplier<ExecutionContext> executionContextSupplier) {
+        ExecutionContext executionContext = executionContextSupplier.get();
+        MavenExecutionContextView.view(executionContext).setMavenSettings(projectMetadata.getMavenSettings());
+        return executionContext;
     }
 
 }

@@ -16,10 +16,13 @@
 package org.springframework.sbm.parsers;
 
 import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junitpioneer.jupiter.Issue;
+import org.mockito.Mockito;
 import org.junitpioneer.jupiter.Issue;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
@@ -44,9 +47,12 @@ import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.style.Autodetect;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
+import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -78,13 +84,24 @@ class RewriteMavenProjectParserTest {
             new MavenConfigFileParser()
     );
     MavenPlexusContainer plexusContainerFactory = new MavenPlexusContainer();
-    private final ParserSettings parserSettings = new ParserSettings();
-    private final RewriteMavenProjectParser sut = new RewriteMavenProjectParser(
-            plexusContainerFactory,
-            new RewriteParsingEventListenerAdapter(mock(ApplicationEventPublisher.class)),
-            new MavenExecutor(requestFactory, plexusContainerFactory),
-            new MavenMojoProjectParserFactory(parserSettings)
-    );
+    private ParserSettings parserSettings = new ParserSettings();
+    private RewriteMavenProjectParser sut;
+    private ConfigurableListableBeanFactory beanFactory;
+    private ScanScope scanScope;
+
+    @BeforeEach
+    void beforeEach() {
+        beanFactory = mock(ConfigurableListableBeanFactory.class);
+        scanScope = mock(ScanScope.class);
+        sut = new RewriteMavenProjectParser(
+                plexusContainerFactory,
+                new RewriteParsingEventListenerAdapter(mock(ApplicationEventPublisher.class)),
+                new MavenExecutor(requestFactory, plexusContainerFactory),
+                new MavenMojoProjectParserFactory(parserSettings),
+                scanScope,
+                beanFactory
+        );
+    }
 
     @Test
     @DisplayName("Parsing Simplistic Maven Project ")
@@ -214,6 +231,8 @@ class RewriteMavenProjectParserTest {
 
         verifyExecutionContext(parsingResult);
 
+        Mockito.verify(scanScope).clear(beanFactory);
+
         // TODO: Add test that uses Maven settings and encrypted passwords
     }
 
@@ -251,7 +270,6 @@ class RewriteMavenProjectParserTest {
         MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
-        MavenPlexusContainer plexusContainerFactory = new MavenPlexusContainer();
 
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
@@ -261,15 +279,18 @@ class RewriteMavenProjectParserTest {
                 new StyleDetector(),
                 parserSettings,
                 mock(ParsingEventListener.class),
-                mock(ApplicationEventPublisher.class)
+                mock(ApplicationEventPublisher.class),
+                scanScope,
+                beanFactory
         );
 
         Set<String> ignoredPatters = Set.of();
-        ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader());
-        List<Resource> resources = projectScanner.scan(baseDir, ignoredPatters);
+        ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader(), parserSettings);
+        List<Resource> resources = projectScanner.scan(baseDir);
         RewriteProjectParsingResult parsingResult1 = rpp.parse(baseDir, resources, ctx);
 
         verifyMavenParser(parsingResult1);
+        Mockito.verify(scanScope).clear(beanFactory);
     }
 
     @Test
