@@ -47,7 +47,7 @@ public class SourceFileParser {
     private final MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods;
     private final JavaParserBuilder javaParserBuilderHolder;
 
-    public Stream<SourceFile> parseOtherSourceFiles(
+    public List<SourceFile> parseOtherSourceFiles(
             Path baseDir,
             SortedProjects mavenProject,
             Map<Path, Xml.Document> pathToDocumentMap,
@@ -69,7 +69,7 @@ public class SourceFileParser {
             parsedSourceFiles.addAll(sourceFiles);
         });
 
-        return parsedSourceFiles.stream();
+        return parsedSourceFiles;
     }
 
     /**

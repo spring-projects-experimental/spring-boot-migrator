@@ -33,10 +33,12 @@ import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.events.FinishedParsingProjectEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
+import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
@@ -87,6 +89,8 @@ public class RewriteProjectParser {
     private final ParserSettings parserSettings;
     private final ParsingEventListener parsingEventListener;
     private final ApplicationEventPublisher eventPublisher;
+    private final ScanScope scanScope;
+    private final ConfigurableListableBeanFactory beanFactory;
     private final ProjectScanner scanner;
     private final ExecutionContext executionContext;
 
@@ -118,6 +122,9 @@ public class RewriteProjectParser {
      * @see MavenMojoProjectParser#listSourceFiles(MavenProject, List, ExecutionContext)
      */
     public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources, ExecutionContext executionContext) {
+
+        clearScanScopedBeans();
+
         if (!givenBaseDir.isAbsolute()) {
             givenBaseDir = givenBaseDir.toAbsolutePath().normalize();
         }
@@ -153,8 +160,8 @@ public class RewriteProjectParser {
                     .toList();
             // 128 : 131
             log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
-            Stream<SourceFile> sourceFilesStream = sourceFileParser.parseOtherSourceFiles(baseDir, mavenInfos, resourceToDocumentMap, mavenInfos.getResources(), provenanceMarkers, styles, executionContext);
-            List<SourceFile> list = sourceFilesStream.toList();
+            List<SourceFile> list = sourceFileParser.parseOtherSourceFiles(baseDir, mavenInfos, resourceToDocumentMap, mavenInfos.getResources(), provenanceMarkers, styles, executionContext);
+
 //        List<SourceFile> sourceFilesWithoutPoms = sourceFilesStream.filter(sf -> resourceToDocumentMap.keySet().contains(baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize())).toList();
             List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();
             resultingList.addAll(parsedAndSortedBuildFileDocuments);
@@ -167,6 +174,10 @@ public class RewriteProjectParser {
         });
 
         return atomicReference.get();
+    }
+
+    private void clearScanScopedBeans() {
+        scanScope.clear(beanFactory);
     }
 
     private void withMavenSession(Path baseDir, Consumer<MavenSession> consumer) {

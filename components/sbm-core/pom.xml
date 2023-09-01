@@ -26,21 +26,10 @@
 
     <artifactId>sbm-core</artifactId>
 
-    <properties>
-        <java.version>17</java.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>sbm-openrewrite</artifactId>
-            <version>0.15.2-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.sbm</groupId>
-            <artifactId>sbm-utils</artifactId>
-            <version>0.15.2-SNAPSHOT</version>
             <version>0.15.2-SNAPSHOT</version>
         </dependency>
 

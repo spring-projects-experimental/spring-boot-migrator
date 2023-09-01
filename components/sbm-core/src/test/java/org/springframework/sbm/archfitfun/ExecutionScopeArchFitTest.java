@@ -18,6 +18,7 @@ package org.springframework.sbm.archfitfun;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.maven.MavenSettings;
@@ -52,7 +53,6 @@ import org.springframework.sbm.project.resource.ProjectResourceWrapperRegistry;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
-import org.springframework.sbm.scopes.*;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
@@ -77,8 +77,8 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
  * get removed from the scope.
  *
  * The `executionScope` starts with
- * - the evaluation of conditions in {@link org.springframework.sbm.engine.commands.ApplicableRecipeListCommand#execute(ProjectContext)}
- * - or with a recipe-run in {@link org.springframework.sbm.engine.commands.ApplicableRecipeListCommand#execute(ProjectContext)}
+ * - the evaluation of conditions in {@link ApplicableRecipeListCommand#execute(ProjectContext)}
+ * - or with a recipe-run in {@link ApplicableRecipeListCommand#execute(ProjectContext)}
  *
  * The `executionScope` ends with
  * - the end of recipe-run

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junitpioneer.jupiter.Issue;
 import org.mockito.Mockito;
 import org.junitpioneer.jupiter.Issue;
 import org.openrewrite.ExecutionContext;
@@ -54,6 +55,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.events.DefaultParsingEventListener;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.scopes.ScanScope;
+import org.springframework.sbm.scopes.ScanScope;
+import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -285,14 +288,18 @@ class RewriteMavenProjectParserTest {
                 mock(ParsingEventListener.class),
                 mock(ApplicationEventPublisher.class),
                 new ProjectScanner(new DefaultResourceLoader())
+                mock(ApplicationEventPublisher.class),
+                scanScope,
+                beanFactory
         );
 
         Set<String> ignoredPatters = Set.of();
-        ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader());
-        List<Resource> resources = projectScanner.scan(baseDir, ignoredPatters);
+        ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader(), parserSettings);
+        List<Resource> resources = projectScanner.scan(baseDir);
         RewriteProjectParsingResult parsingResult1 = rpp.parse(baseDir, resources, ctx);
 
         verifyMavenParser(parsingResult1);
+        Mockito.verify(scanScope).clear(beanFactory);
     }
 
     @Test

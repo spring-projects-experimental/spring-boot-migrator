@@ -1,8 +1,10 @@
-name: Build
+name: Build SBM Revamp
 on:
   push:
     branches:
-      - "**"
+      - "revamp/**"
+    branches-ignore:
+      - "main"
     paths:
       - "sbm-support-rewrite/**"
 jobs:
