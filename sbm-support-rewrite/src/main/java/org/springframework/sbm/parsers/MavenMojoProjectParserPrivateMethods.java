@@ -74,6 +74,9 @@ class MavenMojoProjectParserPrivateMethods {
         return invokeProcessMethod(baseDir, mavenProject, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processTestSources");
     }
 
+    /**
+     * See {@link MavenMojoProjectParser#processMainSources(MavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
+     */
     @NotNull
     private List<SourceFile> invokeProcessMethod(
             Path baseDir,
