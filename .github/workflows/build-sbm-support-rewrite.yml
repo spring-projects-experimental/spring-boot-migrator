@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - "revamp/**"
+      - "version/revamp"
     branches-ignore:
       - "main"
     paths:
