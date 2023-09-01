@@ -18,6 +18,7 @@ package org.springframework.sbm.parsers;
 import lombok.*;
 import org.apache.commons.logging.Log;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -43,12 +44,8 @@ public class ParserSettings {
      * Defines if pom files get cached or if they are always downloaded.
      */
     private boolean pomCacheEnabled = true;
-    /**
-     *
-     */
     private String pomCacheDirectory;
     private boolean skipMavenParsing = false;
-    private Set<String> exclusions = new HashSet<>();
     private Set<String> plainTextMasks = new HashSet<>();
     private int sizeThresholdMb = -1;
     private boolean runPerSubmodule = false;
@@ -77,10 +74,6 @@ public class ParserSettings {
 
     public boolean isSkipMavenParsing() {
         return skipMavenParsing;
-    }
-
-    public Set<String> getExclusions() {
-        return exclusions;
     }
 
     public Set<String> getPlainTextMasks() {

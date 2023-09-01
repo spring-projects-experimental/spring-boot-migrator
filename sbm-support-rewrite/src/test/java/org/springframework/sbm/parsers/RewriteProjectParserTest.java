@@ -93,12 +93,13 @@ class RewriteProjectParserTest {
     @Test
     @DisplayName("Parse complex Maven reactor project")
     void parseComplexMavenReactorProject2(@TempDir Path tempDir) {
+    @DisplayName("Parse simple Maven project")
+    void parseSimpleMavenProject(@TempDir Path tempDir) {
         Path basePath = tempDir;
         ParserSettings parserSettings = new ParserSettings();
         MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
-        MavenPlexusContainer containerFactory = new MavenPlexusContainer();
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
                 new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
@@ -115,21 +116,16 @@ class RewriteProjectParserTest {
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         List<String> parsedFiles = new ArrayList<>();
         ParsingExecutionContextView.view(executionContext).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                    .withLocale(Locale.US)
-                    .withZone(ZoneId.systemDefault());
-            String format = dateTimeFormatter.format(Instant.now());
-            System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
             parsedFiles.add(sourceFile.getSourcePath().toString());
         });
 
-        // TODO: Provide Scanner with excludes
-        // TODO: Make RewriteProjectParser publish ApplicationEvents
         List<Resource> resources = List.of(
                 new DummyResource(basePath.resolve("pom.xml"), pomXml),
                 new DummyResource(basePath.resolve("src/main/java/com/example/MyMain.java"), javaClass));
         ResourceUtil.write(basePath, resources);
+
         RewriteProjectParsingResult parsingResult = projectParser.parse(basePath, resources, executionContext);
+
         assertThat(parsingResult.sourceFiles()).hasSize(2);
     }
 }
