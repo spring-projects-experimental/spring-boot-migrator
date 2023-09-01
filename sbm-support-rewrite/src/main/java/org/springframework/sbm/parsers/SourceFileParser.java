@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -75,7 +76,15 @@ class SourceFileParser {
     /**
      * {@link org.openrewrite.maven.MavenMojoProjectParser#listSourceFiles(MavenProject, Xml.Document, List, List, ExecutionContext)}
      */
-    private List<SourceFile> parseModuleSourceFiles(List<Resource> resources, MavenProject mavenProject, Xml.Document moduleBuildFile, List<Marker> provenanceMarkers, List<NamedStyles> styles, ExecutionContext executionContext, Path baseDir) {
+    private List<SourceFile> parseModuleSourceFiles(
+            List<Resource> resources,
+            MavenProject mavenProject,
+            Xml.Document moduleBuildFile,
+            List<Marker> provenanceMarkers,
+            List<NamedStyles> styles,
+            ExecutionContext executionContext,
+            Path baseDir)
+    {
         List<SourceFile> sourceFiles = new ArrayList<>();
         // 146:149: get source encoding from maven
         // TDOD:
@@ -88,6 +97,7 @@ class SourceFileParser {
         JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder = JavaParser.fromJavaVersion()
                 .styles(styles)
                 .logCompilationWarningsAndErrors(false);
+
         Set<Path> pathsToOtherModules = pathsToOtherMavenProjects(resources, moduleBuildFile);
         ResourceParser rp = new ResourceParser(
                 baseDir,
@@ -169,6 +179,7 @@ class SourceFileParser {
      * }
      */
     private Set<Path> pathsToOtherMavenProjects(List<Resource> resources, Xml.Document moduleBuildFile) {
+        // FIXME:
         // filter build files
         // create relative paths to all other build files
         // return result

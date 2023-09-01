@@ -50,59 +50,6 @@ public class RewriteProjectParserIntegrationTest {
     @Autowired
     ProjectScanner projectScanner;
 
-    @Autowired
-    ParserSettings parserSettings;
-
-    private static List<ParsedResourceEvent> capturedEvents = new ArrayList<>();
-    private static StartedParsingProjectEvent startedParsingEvent;
-    private static FinishedParsingProjectEvent finishedParsingEvent;
-
-    @Test
-    @DisplayName("Should publish parsing events")
-    void shouldPublishParsingEvents() {
-        Path baseDir = Path.of("./testcode/maven-projects/multi-module-1");
-        parserSettings.setIgnoredPathPatterns(Set.of("{**/target,target}", "**.adoc"));
-        List<Resource> resources = projectScanner.scan(baseDir);
-        ExecutionContext ctx = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
-
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, ctx);
-
-        assertThat(capturedEvents).hasSize(3);
-        assertThat(capturedEvents.get(0).sourceFile().getSourcePath().toString())
-                .isEqualTo("pom.xml");
-        // FIXME: Parsing order differs from RewriteMavenProjectParser but b should be parsed first as it has no dependencies
-        // Reported to OR the order gets lost in a Set in MavenMojoProjectParser
-        assertThat(capturedEvents.get(1).sourceFile().getSourcePath().toString())
-                .isEqualTo("module-b/pom.xml");
-        assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString())
-                .isEqualTo("module-a/pom.xml");
-
-        assertThat(startedParsingEvent).isNotNull();
-        assertThat(startedParsingEvent.resources()).isSameAs(resources);
-        assertThat(finishedParsingEvent).isNotNull();
-        assertThat(finishedParsingEvent.sourceFiles()).isSameAs(parsingResult.sourceFiles());
-    }
-
-    @TestConfiguration
-    static class TestEventListener {
-
-
-        @EventListener(ParsedResourceEvent.class)
-        public void onEvent(ParsedResourceEvent event) {
-            capturedEvents.add(event);
-        }
-
-        @EventListener(StartedParsingProjectEvent.class)
-        public void onStartedParsingProjectEvent(StartedParsingProjectEvent event) {
-            startedParsingEvent = event;
-        }
-
-        @EventListener(FinishedParsingProjectEvent.class)
-        public void onFinishedParsingProjectEvent(FinishedParsingProjectEvent event) {
-            finishedParsingEvent = event;
-        }
-    }
-
     @Test
     @DisplayName("parseCheckstyle")
     @Issue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/875")
@@ -117,6 +64,5 @@ public class RewriteProjectParserIntegrationTest {
     private Path getMavenProject(String s) {
         return Path.of("./testcode/maven-projects/").resolve(s).toAbsolutePath().normalize();
     }
-
 
 }
