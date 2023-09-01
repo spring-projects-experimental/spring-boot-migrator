@@ -46,7 +46,6 @@ public class ParserSettings {
     private boolean pomCacheEnabled = true;
     private String pomCacheDirectory;
     private boolean skipMavenParsing = false;
-    private Set<String> exclusions = new HashSet<>();
     private Set<String> plainTextMasks = new HashSet<>();
     private int sizeThresholdMb = -1;
     private boolean runPerSubmodule = false;
@@ -75,10 +74,6 @@ public class ParserSettings {
 
     public boolean isSkipMavenParsing() {
         return skipMavenParsing;
-    }
-
-    public Set<String> getExclusions() {
-        return exclusions;
     }
 
     public Set<String> getPlainTextMasks() {

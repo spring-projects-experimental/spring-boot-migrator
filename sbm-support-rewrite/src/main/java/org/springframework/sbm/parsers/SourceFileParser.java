@@ -92,7 +92,7 @@ class SourceFileParser {
         ResourceParser rp = new ResourceParser(
                 baseDir,
                 new Slf4jToMavenLoggerAdapter(log),
-                parserSettings.getExclusions(),
+                parserSettings.getIgnoredPathPatterns(),
                 parserSettings.getPlainTextMasks(),
                 parserSettings.getSizeThresholdMb(),
                 pathsToOtherModules,
@@ -111,7 +111,7 @@ class SourceFileParser {
                 .map(mavenMojoProjectParserPrivateMethods.addProvenance(baseDir, provenanceMarkers, null));
 
         // 157:169
-        List<SourceFile> resourceSourceFiles = mergeAndFilterExcluded(baseDir, parserSettings.getExclusions(), mainSources, testSources);
+        List<SourceFile> resourceSourceFiles = mergeAndFilterExcluded(baseDir, parserSettings.getIgnoredPathPatterns(), mainSources, testSources);
         List<SourceFile> resourceFilesList = parsedResourceFiles.toList();
         sourceFiles.addAll(resourceFilesList);
         sourceFiles.addAll(resourceSourceFiles);

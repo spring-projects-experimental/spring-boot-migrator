@@ -59,10 +59,9 @@ public class RewriteProjectParserIntegrationTest {
 
     @Test
     @DisplayName("Should publish parsing events")
-    @Disabled("FIXME https://github.com/spring-projects-experimental/spring-boot-migrator/issues/902")
     void shouldPublishParsingEvents() {
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-1");
-        parserSettings.setIgnoredPathPatterns(Set.of("**/target/**", "**/*.adoc"));
+        parserSettings.setIgnoredPathPatterns(Set.of("{**/target,target}", "**.adoc"));
         List<Resource> resources = projectScanner.scan(baseDir);
         ExecutionContext ctx = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
 

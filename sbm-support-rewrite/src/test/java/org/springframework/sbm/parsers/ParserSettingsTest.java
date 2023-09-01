@@ -69,12 +69,6 @@ class ParserSettingsTest {
         }
 
         @Test
-        @DisplayName("valid exclusions")
-        void validExclusions() {
-            assertThat(parserSettings.getExclusions()).containsExactlyInAnyOrder("foo", "bar/*");
-        }
-
-        @Test
         @DisplayName("valid plainTextMasks")
         void validPlainTextMasks() {
             assertThat(parserSettings.getPlainTextMasks()).containsExactlyInAnyOrder("*.txt", "*.md");

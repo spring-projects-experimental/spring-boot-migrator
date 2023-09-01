@@ -55,10 +55,6 @@ import static java.util.stream.Collectors.toList;
 @Component
 @RequiredArgsConstructor
 public class RewriteMavenProjectParser {
-
-
-    /** Constant <code>EXCLUSIONS</code> */
-    private static final Collection<String> EXCLUSIONS = Set.of("**/.DS_Store", ".DS_Store");
     private final MavenPlexusContainer mavenPlexusContainer;
     private final ParsingEventListener parsingListener;
     private final MavenExecutor mavenRunner;
@@ -78,20 +74,8 @@ public class RewriteMavenProjectParser {
         return parse(baseDir, executionContext);
     }
 
-    public RewriteProjectParsingResult parse(Path baseDir, ExecutionContext executionContext) {
-        boolean pomCacheEnabled = true;
-        String pomCacheDirectory = "pom-cache";
-        boolean skipMavenParsing = false;
-        Collection<String> plainTextMasks = Set.of();
-        int sizeThreshold = -1;
-        boolean runPerSubmodule = false;
-
-        return parse(baseDir, EXCLUSIONS, executionContext);
-    }
-
-
     @NotNull
-    public RewriteProjectParsingResult parse(Path baseDir, Collection<String> exclusions, ExecutionContext executionContext) {
+    public RewriteProjectParsingResult parse(Path baseDir, ExecutionContext executionContext) {
         final Path absoluteBaseDir = getAbsolutePath(baseDir);
         PlexusContainer plexusContainer = mavenPlexusContainer.get();
         RewriteProjectParsingResult parsingResult = parseInternal(absoluteBaseDir, executionContext, plexusContainer);
@@ -135,14 +119,6 @@ public class RewriteMavenProjectParser {
         } catch (DependencyResolutionRequiredException | MojoExecutionException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @NotNull
-    private static Collection<String> getAllExclusions(Collection<String> exclusions) {
-        Collection<String> allExclusions = new HashSet<>();
-        allExclusions.addAll(EXCLUSIONS);
-        allExclusions.addAll(exclusions);
-        return allExclusions;
     }
 
     @NotNull
