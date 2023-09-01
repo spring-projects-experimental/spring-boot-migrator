@@ -101,6 +101,7 @@ class SourceFileParser {
 
         // 155:156: parse main and test sources
         Set<Path> alreadyParsed = new HashSet<>();
+        alreadyParsed.add(baseDir.resolve(moduleBuildFile.getSourcePath()));
         List<SourceFile> mainSources = parseMainSources(baseDir, mavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
         List<SourceFile> testSources = parseTestSources(baseDir, mavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
 

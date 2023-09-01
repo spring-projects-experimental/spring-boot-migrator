@@ -90,9 +90,8 @@ class RewriteProjectParserTest {
                 """;
 
     @Test
-    @DisplayName("Parse complex Maven reactor project")
-    @Disabled("FIXME https://github.com/spring-projects-experimental/spring-boot-migrator/issues/902")
-    void parseComplexMavenReactorProject2(@TempDir Path tempDir) {
+    @DisplayName("Parse simple Maven project")
+    void parseSimpleMavenProject(@TempDir Path tempDir) {
         Path basePath = tempDir;
         ParserSettings parserSettings = new ParserSettings();
         MavenModelReader mavenModelReader = new MavenModelReader();
