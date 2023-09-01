@@ -2,7 +2,7 @@ name: Build SBM Revamp
 on:
   push:
     branches:
-      - "**"
+      - "revamp/**"
     branches-ignore:
       - "main"
     paths:
