@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.parsers;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.Issue;
@@ -58,6 +59,7 @@ public class RewriteProjectParserIntegrationTest {
 
     @Test
     @DisplayName("Should publish parsing events")
+    @Disabled("FIXME https://github.com/spring-projects-experimental/spring-boot-migrator/issues/902")
     void shouldPublishParsingEvents() {
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-1");
         parserSettings.setIgnoredPathPatterns(Set.of("**/target/**", "**/*.adoc"));

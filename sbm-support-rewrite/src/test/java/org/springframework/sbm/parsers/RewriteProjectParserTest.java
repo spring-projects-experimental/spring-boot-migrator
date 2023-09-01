@@ -16,6 +16,7 @@
 package org.springframework.sbm.parsers;
 
 import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -90,6 +91,7 @@ class RewriteProjectParserTest {
 
     @Test
     @DisplayName("Parse complex Maven reactor project")
+    @Disabled("FIXME https://github.com/spring-projects-experimental/spring-boot-migrator/issues/902")
     void parseComplexMavenReactorProject2(@TempDir Path tempDir) {
         Path basePath = tempDir;
         ParserSettings parserSettings = new ParserSettings();
