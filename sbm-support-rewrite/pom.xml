@@ -123,11 +123,6 @@
             <version>${rewrite.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.openrewrite.recipe</groupId>
-            <artifactId>rewrite-spring</artifactId>
-            <version>${rewrite-spring.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-xml</artifactId>
             <version>${rewrite.version}</version>
