@@ -28,6 +28,7 @@
         <maven-resolver.version>1.9.7</maven-resolver.version>
         <maven-wagon-http.version>3.5.3</maven-wagon-http.version>
         <artifactory-maven-plugin.version>3.5.1</artifactory-maven-plugin.version>
+        <plexus-cypher.version>1.8</plexus-cypher.version>
     </properties>
 
     <developers>
@@ -185,7 +186,7 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-cipher</artifactId>
-            <version>1.8</version>
+            <version>${plexus-cypher.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
