@@ -51,8 +51,6 @@ import static java.util.Collections.emptyList;
 @RequiredArgsConstructor
 class BuildFileParser {
 
-    private final MavenPomCache mavenPomCache;
-
     /**
      * Parse a list of Maven Pom files to a Map of {@code Path} and their parsed {@link Xml.Document}s.
      * The {@link Xml.Document}s are marked with {@link org.openrewrite.maven.tree.MavenResolutionResult} and the provided provenance markers.

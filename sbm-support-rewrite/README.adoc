@@ -84,11 +84,12 @@ This allows parsing a given project to it's OpenRewrite AST representation and t
 
 ### Maven Pom Cache
 OpenRewrite downloads Maven Pom files to resolve dependencies.
-These pom files get cached and these cache implementations exist:
+The pom files get cached and the cache depends on the system.
 
-- InMemoryMavenPomCache
-- RocksdbMavenPomCache
-- CompositeMavenPomCache
+- 32-Bit systems use the `InMemoryPomCache`.
+- 64-Bit systems use the `RocksdbMavenPomCache`.
+
+####
 
 #### Pom Cache Properties
 

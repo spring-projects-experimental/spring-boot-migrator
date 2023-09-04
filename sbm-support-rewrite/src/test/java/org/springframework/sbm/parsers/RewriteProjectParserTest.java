@@ -93,8 +93,8 @@ class RewriteProjectParserTest {
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
                 new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
-                new BuildFileParser(parserSettings),
-                new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
+                new BuildFileParser(),
+                new SourceFileParser(mavenModelReader, parserProperties, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
                 parserSettings,
                 mock(ParsingEventListener.class),

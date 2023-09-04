@@ -105,7 +105,7 @@ class BuildFileParserTest {
                         </project>
                         """;
 
-        private final BuildFileParser sut = new BuildFileParser(new InMemoryMavenPomCache());
+        private final BuildFileParser sut = new BuildFileParser();
 
         @Test
         void filterAndSortBuildFiles_shouldReturnSortedListOfFilteredBuildFiles() {

@@ -38,7 +38,7 @@ import org.openrewrite.marker.OperatingSystemProvenance;
 import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
-import org.openrewrite.maven.cache.CompositeMavenPomCache;
+import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
@@ -272,8 +272,8 @@ class RewriteMavenProjectParserTest {
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
                 new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
-                new BuildFileParser(parserSettings),
-                new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
+                new BuildFileParser(),
+                new SourceFileParser(mavenModelReader, parserProperties, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
                 parserSettings,
                 mock(ParsingEventListener.class),
@@ -399,10 +399,9 @@ class RewriteMavenProjectParserTest {
         // 8
         assertThat(
                 messages.get("org.openrewrite.maven.pomCache")
-        ).isSameAs(
-                MavenExecutionContextView.view(resultingExecutionContext).getPomCache()
-        );
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
+        ).isNull();
+        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(InMemoryMavenPomCache.class);
+//        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
 
         // 9
         // FIXME:   This fails sometimes when multiple tests are run together. The resolution time has been 0 and null
