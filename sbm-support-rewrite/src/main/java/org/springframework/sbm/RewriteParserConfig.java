@@ -16,29 +16,18 @@
 package org.springframework.sbm;
 
 import lombok.extern.slf4j.Slf4j;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.Recipe;
-import org.openrewrite.RecipeRun;
-import org.openrewrite.SourceFile;
-import org.openrewrite.internal.InMemoryLargeSourceSet;
-import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.cache.CompositeMavenPomCache;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.MavenPomCache;
 import org.openrewrite.maven.cache.RocksdbMavenPomCache;
-import org.openrewrite.xml.tree.Xml;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.sbm.parsers.ParserProperties;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.util.List;
 
 
 /**
@@ -74,7 +63,6 @@ public class RewriteParserConfig {
                 }
             }
         }
-        MavenExecutionContextView.view(executionContext).setPomCache(mavenPomCache);
         return mavenPomCache;
     }
 }

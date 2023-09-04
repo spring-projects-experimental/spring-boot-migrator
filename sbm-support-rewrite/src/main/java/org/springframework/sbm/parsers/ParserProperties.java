@@ -25,6 +25,7 @@ import java.util.Set;
 
 /**
  * ConfigurationProperties with prefix {@code parser}.
+ * Defaults coming from {@code META-INF/sbm-support-rewrite.properties}
  *
  * @author Fabian Krüger
  */
@@ -46,13 +47,6 @@ public class ParserSettings {
     private boolean failOnInvalidActiveRecipes = false;
     private List<String> activeProfiles = List.of("default");
     private Set<String> ignoredPathPatterns = new HashSet<>();
-
-    /**
-     * @return fully qualified classname of the logger to use.
-     */
-    public String getLoggerClass() {
-        return loggerClass;
-    }
 
     public void setLoggerClass(String loggerClass) {
         this.loggerClass = loggerClass;
