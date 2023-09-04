@@ -30,6 +30,9 @@
         <artifactory-maven-plugin.version>3.5.1</artifactory-maven-plugin.version>
         <plexus-cypher.version>1.8</plexus-cypher.version>
         <maven-invoker.version>3.2.0</maven-invoker.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
+        <junit-pioneer.version>2.0.1</junit-pioneer.version>
+        <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
     </properties>
 
     <developers>
@@ -207,7 +210,7 @@
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
+            <version>${jaxb-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -217,7 +220,7 @@
         <dependency>
             <groupId>org.junit-pioneer</groupId>
             <artifactId>junit-pioneer</artifactId>
-            <version>2.0.1</version>
+            <version>${junit-pioneer.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -248,14 +251,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
-                <!--                <executions>-->
-                <!--                    <execution>-->
-                <!--                        <id>repackage</id>-->
-                <!--                        <goals>-->
-                <!--                            <goal>repackage</goal>-->
-                <!--                        </goals>-->
-                <!--                    </execution>-->
-                <!--                </executions>-->
                 <configuration>
                     <excludes>
                         <exclude>
@@ -268,7 +263,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M7</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.junit.jupiter</groupId>
