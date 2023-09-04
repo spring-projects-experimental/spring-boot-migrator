@@ -33,7 +33,6 @@
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <junit-pioneer.version>2.0.1</junit-pioneer.version>
         <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
-        <spring-boot-maven-plugin.version></spring-boot-maven-plugin.version>
     </properties>
 
     <developers>
@@ -248,19 +247,6 @@
         </pluginManagement>
 
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot-maven-plugin.version}</version>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
