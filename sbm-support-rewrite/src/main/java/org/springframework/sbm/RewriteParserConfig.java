@@ -33,10 +33,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.sbm.parsers.*;
-import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
+import org.springframework.sbm.parsers.ParserProperties;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

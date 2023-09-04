@@ -357,9 +357,9 @@ class RewriteMavenProjectParserTest {
         assertThat(
                 messages.get("org.openrewrite.parser.charset")
         )
-                .isSameAs(
-                        ParsingExecutionContextView.view(resultingExecutionContext).getCharset()
-                );
+        .isSameAs(
+                ParsingExecutionContextView.view(resultingExecutionContext).getCharset()
+        );
         assertThat(ParsingExecutionContextView.view(resultingExecutionContext).getCharset()).isEqualTo(Charset.defaultCharset());
 
         // 4

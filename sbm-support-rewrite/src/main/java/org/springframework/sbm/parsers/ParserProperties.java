@@ -16,12 +16,9 @@
 package org.springframework.sbm.parsers;
 
 import lombok.*;
-import org.apache.commons.logging.Log;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,10 +37,7 @@ import java.util.Set;
 public class ParserSettings {
 
     private String loggerClass;
-    /**
-     * Defines if pom files get cached or if they are always downloaded.
-     */
-    private boolean pomCacheEnabled = true;
+    private boolean pomCacheEnabled = false;
     private String pomCacheDirectory;
     private boolean skipMavenParsing = false;
     private Set<String> plainTextMasks = new HashSet<>();

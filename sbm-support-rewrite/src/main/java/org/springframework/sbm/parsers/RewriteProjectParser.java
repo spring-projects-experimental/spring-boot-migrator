@@ -27,7 +27,6 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.AbstractRewriteMojo;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenMojoProjectParser;
-import org.openrewrite.maven.cache.MavenPomCache;
 import org.openrewrite.maven.tree.MavenRepository;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
