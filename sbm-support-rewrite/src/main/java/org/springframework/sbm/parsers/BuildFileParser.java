@@ -81,6 +81,7 @@ class BuildFileParser {
         Assert.isTrue(resourcesWithoutProvenanceMarker.isEmpty(), "No provenance marker provided for these pom files %s".formatted(resourcesWithoutProvenanceMarker.stream().map(r -> ResourceUtil.getPath(r).toAbsolutePath()).toList()));
 
         if(skipMavenParsing) {
+            log.info("Maven parsing skipped [parser.skipMavenParsing=true].");
             return Map.of();
         }
 
