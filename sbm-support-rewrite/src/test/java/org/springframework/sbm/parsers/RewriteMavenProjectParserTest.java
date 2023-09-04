@@ -82,7 +82,7 @@ class RewriteMavenProjectParserTest {
             new MavenConfigFileParser()
     );
     MavenPlexusContainer plexusContainer = new MavenPlexusContainer();
-    private ParserSettings parserSettings = new ParserSettings();
+    private ParserProperties parserProperties = new ParserProperties();
     private RewriteMavenProjectParser sut;
     private ConfigurableListableBeanFactory beanFactory;
     private ScanScope scanScope;
@@ -95,7 +95,7 @@ class RewriteMavenProjectParserTest {
                 plexusContainer,
                 new RewriteParsingEventListenerAdapter(mock(ApplicationEventPublisher.class)),
                 new MavenExecutor(requestFactory, plexusContainer),
-                new MavenMojoProjectParserFactory(parserSettings),
+                new MavenMojoProjectParserFactory(parserProperties),
                 scanScope,
                 beanFactory,
                 new InMemoryExecutionContext(t -> {throw new RuntimeException(t);})
@@ -164,7 +164,7 @@ class RewriteMavenProjectParserTest {
         );
         ResourceUtil.write(tempDir, resources);
 
-        parserSettings.setIgnoredPathPatterns(Set.of("**/testcode/**", "testcode/**", ".rewrite-cache/**"));
+        parserProperties.setIgnoredPathPatterns(Set.of("**/testcode/**", "testcode/**", ".rewrite-cache/**"));
         // call SUT
         RewriteProjectParsingResult parsingResult = sut.parse(
                 tempDir,
@@ -240,7 +240,7 @@ class RewriteMavenProjectParserTest {
     @Disabled("https://github.com/openrewrite/rewrite/issues/3409")
     void shouldParseMavenConfigProject() {
         Path baseDir = Path.of("./testcode/maven-projects/maven-config").toAbsolutePath().normalize();
-        parserSettings.setIgnoredPathPatterns(Set.of(".mvn"));
+        parserProperties.setIgnoredPathPatterns(Set.of(".mvn"));
         RewriteProjectParsingResult parsingResult = sut.parse(
                 baseDir,
                 new InMemoryExecutionContext(t -> fail(t.getMessage()))
@@ -253,7 +253,7 @@ class RewriteMavenProjectParserTest {
     void parseMultiModule1_withIntegratedParser() {
         ExecutionContext ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
         Path baseDir = getMavenProject("multi-module-1");
-        parserSettings.setIgnoredPathPatterns(Set.of("README.adoc"));
+        parserProperties.setIgnoredPathPatterns(Set.of("README.adoc"));
         RewriteProjectParsingResult parsingResult = sut.parse(
                 baseDir,
                 ctx);
@@ -266,7 +266,7 @@ class RewriteMavenProjectParserTest {
         ExecutionContext ctx;
         ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
         MavenModelReader mavenModelReader = new MavenModelReader();
-        MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
+        MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserProperties);
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
 
         RewriteProjectParser rpp = new RewriteProjectParser(
@@ -275,7 +275,7 @@ class RewriteMavenProjectParserTest {
                 new BuildFileParser(),
                 new SourceFileParser(mavenModelReader, parserProperties, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
-                parserSettings,
+                parserProperties,
                 mock(ParsingEventListener.class),
                 mock(ApplicationEventPublisher.class),
                 scanScope,
@@ -283,7 +283,7 @@ class RewriteMavenProjectParserTest {
         );
 
         Set<String> ignoredPatters = Set.of();
-        ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader(), parserSettings);
+        ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader(), parserProperties);
         List<Resource> resources = projectScanner.scan(baseDir);
         RewriteProjectParsingResult parsingResult1 = rpp.parse(baseDir, resources, ctx);
 
@@ -309,7 +309,7 @@ class RewriteMavenProjectParserTest {
             System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
             parsedFiles.add(sourceFile.getSourcePath().toString());
         });
-        parserSettings.setIgnoredPathPatterns(Set.of("**/testcode/**", ".rewrite/**", "internal/**"));
+        parserProperties.setIgnoredPathPatterns(Set.of("**/testcode/**", ".rewrite/**", "internal/**"));
         RewriteProjectParsingResult parsingResult = projectParser.parse(
                 projectRoot,
                 executionContext

@@ -270,6 +270,6 @@ class RewriteRecipeDiscoveryTest {
 
     @NotNull
     private static RewriteRecipeDiscovery buildRecipeDiscovery() {
-        return new RewriteRecipeDiscovery(new ParserSettings());
+        return new RewriteRecipeDiscovery(new ParserProperties());
     }
 }

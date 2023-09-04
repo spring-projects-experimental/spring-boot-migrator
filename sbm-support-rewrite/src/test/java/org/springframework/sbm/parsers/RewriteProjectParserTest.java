@@ -86,9 +86,9 @@ class RewriteProjectParserTest {
     @DisplayName("Parse simple Maven project")
     void parseSimpleMavenProject(@TempDir Path tempDir) {
         Path basePath = tempDir;
-        ParserSettings parserSettings = new ParserSettings();
+        ParserProperties parserProperties = new ParserProperties();
         MavenModelReader mavenModelReader = new MavenModelReader();
-        MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
+        MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserProperties);
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
@@ -96,7 +96,7 @@ class RewriteProjectParserTest {
                 new BuildFileParser(),
                 new SourceFileParser(mavenModelReader, parserProperties, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
-                parserSettings,
+                parserProperties,
                 mock(ParsingEventListener.class),
                 mock(ApplicationEventPublisher.class),
                 new ScanScope(),

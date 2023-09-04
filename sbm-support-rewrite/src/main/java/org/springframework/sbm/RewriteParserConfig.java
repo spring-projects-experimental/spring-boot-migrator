@@ -41,16 +41,16 @@ public class RewriteParserConfig {
 
     @Bean
     @ConditionalOnMissingBean(MavenPomCache.class)
-    MavenPomCache mavenPomCache(ExecutionContext executionContext, ParserSettings parserSettings) {
+    MavenPomCache mavenPomCache(ParserProperties parserProperties) {
         MavenPomCache mavenPomCache = new InMemoryMavenPomCache();
-        if (parserSettings.isPomCacheEnabled()) {
-            if (!"32".equals(System.getProperty("sun.arch.data.model", "64"))) {
+        if (parserProperties.isPomCacheEnabled()) {
+            if (!"64".equals(System.getProperty("sun.arch.data.model", "64"))) {
                 log.warn("parser.isPomCacheEnabled was set to true but RocksdbMavenPomCache is not supported on 32-bit JVM. falling back to InMemoryMavenPomCache");
             } else {
                 try {
                     mavenPomCache = new CompositeMavenPomCache(
                             new InMemoryMavenPomCache(),
-                            new RocksdbMavenPomCache(Path.of(parserSettings.getPomCacheDirectory()))
+                            new RocksdbMavenPomCache(Path.of(parserProperties.getPomCacheDirectory()))
                     );
                 } catch (Exception e) {
                     log.warn("Unable to initialize RocksdbMavenPomCache, falling back to InMemoryMavenPomCache");

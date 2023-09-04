@@ -35,7 +35,8 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @ConfigurationProperties(prefix = "parser")
-public class ParserSettings {
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+public class ParserProperties {
 
     private String loggerClass;
     private boolean pomCacheEnabled = false;
