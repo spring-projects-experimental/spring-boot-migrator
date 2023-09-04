@@ -48,7 +48,7 @@ public class ParserEventPublicationIntegrationTest {
     ProjectScanner projectScanner;
 
     @Autowired
-    ParserSettings parserSettings;
+    ParserProperties parserProperties;
 
     private static List<ParsedResourceEvent> capturedEvents = new ArrayList<>();
     private static StartedParsingProjectEvent startedParsingEvent;
@@ -58,7 +58,7 @@ public class ParserEventPublicationIntegrationTest {
     @DisplayName("Should publish parsing events")
     void shouldPublishParsingEvents() {
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-events");
-        parserSettings.setIgnoredPathPatterns(Set.of("{**/target,target}", "**.adoc"));
+        parserProperties.setIgnoredPathPatterns(Set.of("{**/target,target}", "**.adoc"));
         List<Resource> resources = projectScanner.scan(baseDir);
         ExecutionContext ctx = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
 

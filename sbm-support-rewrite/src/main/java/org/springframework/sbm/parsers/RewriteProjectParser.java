@@ -85,12 +85,11 @@ public class RewriteProjectParser {
     private final BuildFileParser buildFileParser;
     private final SourceFileParser sourceFileParser;
     private final StyleDetector styleDetector;
-    private final ParserSettings parserSettings;
+    private final ParserProperties parserProperties;
     private final ParsingEventListener parsingEventListener;
     private final ApplicationEventPublisher eventPublisher;
     private final ScanScope scanScope;
     private final ConfigurableListableBeanFactory beanFactory;
-
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
@@ -147,7 +146,7 @@ public class RewriteProjectParser {
             Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, mavenInfos);
 
             // 127: parse build files
-            Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, mavenInfos.getResources(), mavenInfos.getActiveProfiles(), executionContext, parserSettings.isSkipMavenParsing(), provenanceMarkers);
+            Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, mavenInfos.getResources(), mavenInfos.getActiveProfiles(), executionContext, parserProperties.isSkipMavenParsing(), provenanceMarkers);
 
             List<SourceFile> parsedAndSortedBuildFileDocuments = mavenInfos.getResources().stream()
                     .map(r -> resourceToDocumentMap.get(ResourceUtil.getPath(r)))

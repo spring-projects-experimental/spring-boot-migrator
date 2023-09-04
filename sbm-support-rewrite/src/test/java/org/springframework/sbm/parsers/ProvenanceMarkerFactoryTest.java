@@ -71,7 +71,7 @@ class ProvenanceMarkerFactoryTest {
             // create sut using a factory
             RuntimeInformation runtimeInformation = new DefaultRuntimeInformation();
             SettingsDecrypter settingsDecrypter = null;
-            MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(new ParserSettings());
+            MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(new ParserProperties());
             MavenMojoProjectParser sut = mavenMojoProjectParserFactory.create(baseDir, runtimeInformation, settingsDecrypter);
 
             // the sut requires a MavenProject, let's retrieve it from Maven

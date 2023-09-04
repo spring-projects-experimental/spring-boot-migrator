@@ -51,8 +51,6 @@ import static java.util.Collections.emptyList;
 @RequiredArgsConstructor
 class BuildFileParser {
 
-    private final ParserSettings parserSettings;
-
     /**
      * Parse a list of Maven Pom files to a Map of {@code Path} and their parsed {@link Xml.Document}s.
      * The {@link Xml.Document}s are marked with {@link org.openrewrite.maven.tree.MavenResolutionResult} and the provided provenance markers.
@@ -81,6 +79,7 @@ class BuildFileParser {
         Assert.isTrue(resourcesWithoutProvenanceMarker.isEmpty(), "No provenance marker provided for these pom files %s".formatted(resourcesWithoutProvenanceMarker.stream().map(r -> ResourceUtil.getPath(r).toAbsolutePath()).toList()));
 
         if(skipMavenParsing) {
+            log.info("Maven parsing skipped [parser.skipMavenParsing=true].");
             return Map.of();
         }
 
@@ -94,14 +93,6 @@ class BuildFileParser {
 
         // 385 : 387
         initializeMavenSettings(executionContext);
-
-        // 389 : 393
-        if (parserSettings.isPomCacheEnabled()) {
-            //The default pom cache is enabled as a two-layer cache L1 == in-memory and L2 == RocksDb
-            //If the flag is set to false, only the default, in-memory cache is used.
-            MavenPomCache pomCache = getPomCache();
-            MavenExecutionContextView.view(executionContext).setPomCache(pomCache);
-        }
 
         // 395 : 398
 
@@ -166,39 +157,6 @@ class BuildFileParser {
                 .map(p -> new Parser.Input(ResourceUtil.getPath(p), () -> ResourceUtil.getInputStream(p)))
                 .toList();
         return mavenParserBuilder.build().parseInputs(pomFileInputs, baseDir, executionContext).toList();
-    }
-
-    /**
-     * {@link MavenMojoProjectParser##getPomCache()}
-     */
-    private static MavenPomCache getPomCache() {
-//        if (pomCache == null) {
-//            if (isJvm64Bit()) {
-//                try {
-//                    if (pomCacheDirectory == null) {
-//                        //Default directory in the RocksdbMavenPomCache is ".rewrite-cache"
-//                        pomCache = new CompositeMavenPomCache(
-//                                new InMemoryMavenPomCache(),
-//                                new RocksdbMavenPomCache(Paths.get(System.getProperty("user.home")))
-//                        );
-//                    } else {
-//                        pomCache = new CompositeMavenPomCache(
-//                                new InMemoryMavenPomCache(),
-//                                new RocksdbMavenPomCache(Paths.get(pomCacheDirectory))
-//                        );
-//                    }
-//                } catch (Exception e) {
-//                    logger.warn("Unable to initialize RocksdbMavenPomCache, falling back to InMemoryMavenPomCache");
-//                    logger.debug(e);
-//                }
-//            } else {
-//                logger.warn("RocksdbMavenPomCache is not supported on 32-bit JVM. falling back to InMemoryMavenPomCache");
-//            }
-//        }
-//        if (pomCache == null) {
-            MavenPomCache pomCache = new InMemoryMavenPomCache();
-//        }
-        return pomCache;
     }
 
     private void initializeMavenSettings(ExecutionContext executionContext) {

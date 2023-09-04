@@ -39,19 +39,19 @@ import java.util.List;
 @RequiredArgsConstructor
 class MavenMojoProjectParserFactory {
 
-    private final ParserSettings parserSettings;
+    private final ParserProperties parserProperties;
 
     public MavenMojoProjectParser create(Path baseDir, List<MavenProject> mavenProjects, PlexusContainer plexusContainer, MavenSession session) {
         return buildMavenMojoProjectParser(
                 baseDir,
                 mavenProjects,
-                parserSettings.isPomCacheEnabled(),
-                parserSettings.getPomCacheDirectory(),
-                parserSettings.isSkipMavenParsing(),
-                parserSettings.getIgnoredPathPatterns(),
-                parserSettings.getPlainTextMasks(),
-                parserSettings.getSizeThresholdMb(),
-                parserSettings.isRunPerSubmodule(),
+                parserProperties.isPomCacheEnabled(),
+                parserProperties.getPomCacheDirectory(),
+                parserProperties.isSkipMavenParsing(),
+                parserProperties.getIgnoredPathPatterns(),
+                parserProperties.getPlainTextMasks(),
+                parserProperties.getSizeThresholdMb(),
+                parserProperties.isRunPerSubmodule(),
                 plexusContainer,
                 session);
     }
@@ -98,16 +98,16 @@ class MavenMojoProjectParserFactory {
         return new MavenMojoProjectParser(
                 new Slf4jToMavenLoggerAdapter(log),
                 baseDir,
-                parserSettings.isPomCacheEnabled(),
-                parserSettings.getPomCacheDirectory(),
+                parserProperties.isPomCacheEnabled(),
+                parserProperties.getPomCacheDirectory(),
                 runtimeInformation,
-                parserSettings.isSkipMavenParsing(),
-                parserSettings.getIgnoredPathPatterns(),
-                parserSettings.getPlainTextMasks(),
-                parserSettings.getSizeThresholdMb(),
+                parserProperties.isSkipMavenParsing(),
+                parserProperties.getIgnoredPathPatterns(),
+                parserProperties.getPlainTextMasks(),
+                parserProperties.getSizeThresholdMb(),
                 null,
                 settingsDecrypter,
-                parserSettings.isRunPerSubmodule()
+                parserProperties.isRunPerSubmodule()
         );
     }
 }
