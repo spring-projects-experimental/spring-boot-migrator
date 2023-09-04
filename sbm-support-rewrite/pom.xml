@@ -29,6 +29,7 @@
         <maven-wagon-http.version>3.5.3</maven-wagon-http.version>
         <artifactory-maven-plugin.version>3.5.1</artifactory-maven-plugin.version>
         <plexus-cypher.version>1.8</plexus-cypher.version>
+        <maven-invoker.version>3.2.0</maven-invoker.version>
     </properties>
 
     <developers>
@@ -201,7 +202,7 @@
         <dependency>
             <groupId>org.apache.maven.shared</groupId>
             <artifactId>maven-invoker</artifactId>
-            <version>3.2.0</version>
+            <version>${maven-invoker.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.xml.bind</groupId>
