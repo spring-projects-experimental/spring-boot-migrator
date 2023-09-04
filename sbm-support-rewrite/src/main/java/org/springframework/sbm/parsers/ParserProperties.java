@@ -31,14 +31,10 @@ import java.util.Set;
  */
 @Component
 @Setter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 @ConfigurationProperties(prefix = "parser")
-@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class ParserProperties {
 
-    private String loggerClass;
     private boolean pomCacheEnabled = false;
     private String pomCacheDirectory;
     private boolean skipMavenParsing = false;
@@ -48,10 +44,6 @@ public class ParserProperties {
     private boolean failOnInvalidActiveRecipes = false;
     private List<String> activeProfiles = List.of("default");
     private Set<String> ignoredPathPatterns = new HashSet<>();
-
-    public void setLoggerClass(String loggerClass) {
-        this.loggerClass = loggerClass;
-    }
 
     public boolean isPomCacheEnabled() {
         return pomCacheEnabled;
