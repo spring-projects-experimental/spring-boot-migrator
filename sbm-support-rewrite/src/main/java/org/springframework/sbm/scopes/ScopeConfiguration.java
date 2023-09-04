@@ -18,6 +18,7 @@ package org.springframework.sbm.scopes;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.maven.MavenExecutionContextView;
+import org.openrewrite.maven.cache.MavenPomCache;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -54,9 +55,11 @@ public class ScopeConfiguration {
 
     @Bean
     @org.springframework.sbm.scopes.annotations.ExecutionScope
-    ExecutionContext executionContext(ProjectMetadata projectMetadata, Supplier<ExecutionContext> executionContextSupplier) {
+    ExecutionContext executionContext(ProjectMetadata projectMetadata, Supplier<ExecutionContext> executionContextSupplier, MavenPomCache mavenPomCache) {
         ExecutionContext executionContext = executionContextSupplier.get();
-        MavenExecutionContextView.view(executionContext).setMavenSettings(projectMetadata.getMavenSettings());
+        MavenExecutionContextView contextView = MavenExecutionContextView.view(executionContext);
+        contextView.setMavenSettings(projectMetadata.getMavenSettings());
+        contextView.setPomCache(mavenPomCache);
         return executionContext;
     }
 

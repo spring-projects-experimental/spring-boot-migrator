@@ -16,11 +16,9 @@
 package org.springframework.sbm.parsers;
 
 import org.intellij.lang.annotations.Language;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junitpioneer.jupiter.Issue;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
@@ -36,13 +34,8 @@ import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -91,22 +84,20 @@ class RewriteProjectParserTest {
                 """;
 
     @Test
-    @DisplayName("Parse complex Maven reactor project")
-    void parseComplexMavenReactorProject2(@TempDir Path tempDir) {
     @DisplayName("Parse simple Maven project")
     void parseSimpleMavenProject(@TempDir Path tempDir) {
         Path basePath = tempDir;
-        ParserSettings parserSettings = new ParserSettings();
+        ParserProperties parserProperties = new ParserProperties();
         MavenModelReader mavenModelReader = new MavenModelReader();
-        MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
+        MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserProperties);
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
                 new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
-                new BuildFileParser(parserSettings),
+                new BuildFileParser(),
                 new SourceFileParser(parserSettings, mavenMojoParserPrivateMethods, new JavaParserBuilder()),
                 new StyleDetector(),
-                parserSettings,
+                parserProperties,
                 mock(ParsingEventListener.class),
                 mock(ApplicationEventPublisher.class),
                 new ProjectScanner(new DefaultResourceLoader()),

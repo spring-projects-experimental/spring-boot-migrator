@@ -33,7 +33,6 @@ import org.springframework.stereotype.Component;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -44,7 +43,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class SourceFileParser {
 
-    private final ParserSettings parserSettings;
+    private final ParserProperties parserProperties;
     private final MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods;
     private final JavaParserBuilder javaParserBuilderHolder;
 
@@ -104,9 +103,9 @@ public class SourceFileParser {
         ResourceParser rp = new ResourceParser(
                 baseDir,
                 new Slf4jToMavenLoggerAdapter(log),
-                parserSettings.getIgnoredPathPatterns(),
-                parserSettings.getPlainTextMasks(),
-                parserSettings.getSizeThresholdMb(),
+                parserProperties.getIgnoredPathPatterns(),
+                parserProperties.getPlainTextMasks(),
+                parserProperties.getSizeThresholdMb(),
                 pathsToOtherModules,
                 javaParserBuilder.clone()
         );
@@ -123,7 +122,7 @@ public class SourceFileParser {
                 .map(mavenMojoProjectParserPrivateMethods.addProvenance(baseDir, provenanceMarkers, null));
 
         // 157:169
-        List<SourceFile> resourceSourceFiles = mergeAndFilterExcluded(baseDir, parserSettings.getIgnoredPathPatterns(), mainSources, testSources);
+        List<SourceFile> resourceSourceFiles = mergeAndFilterExcluded(baseDir, parserProperties.getIgnoredPathPatterns(), mainSources, testSources);
         List<SourceFile> resourceFilesList = parsedResourceFiles.toList();
         sourceFiles.addAll(resourceFilesList);
         sourceFiles.addAll(resourceSourceFiles);

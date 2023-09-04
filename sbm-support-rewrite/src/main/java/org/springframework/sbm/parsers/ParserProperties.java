@@ -16,18 +16,16 @@
 package org.springframework.sbm.parsers;
 
 import lombok.*;
-import org.apache.commons.logging.Log;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
  * ConfigurationProperties with prefix {@code parser}.
+ * Defaults coming from {@code META-INF/sbm-support-rewrite.properties}
  *
  * @author Fabian Krüger
  */
@@ -37,13 +35,11 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @ConfigurationProperties(prefix = "parser")
-public class ParserSettings {
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+public class ParserProperties {
 
     private String loggerClass;
-    /**
-     * Defines if pom files get cached or if they are always downloaded.
-     */
-    private boolean pomCacheEnabled = true;
+    private boolean pomCacheEnabled = false;
     private String pomCacheDirectory;
     private boolean skipMavenParsing = false;
     private Set<String> plainTextMasks = new HashSet<>();
@@ -52,13 +48,6 @@ public class ParserSettings {
     private boolean failOnInvalidActiveRecipes = false;
     private List<String> activeProfiles = List.of("default");
     private Set<String> ignoredPathPatterns = new HashSet<>();
-
-    /**
-     * @return fully qualified classname of the logger to use.
-     */
-    public String getLoggerClass() {
-        return loggerClass;
-    }
 
     public void setLoggerClass(String loggerClass) {
         this.loggerClass = loggerClass;

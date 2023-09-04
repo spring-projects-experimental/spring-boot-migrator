@@ -25,6 +25,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.MavenExecutionContextView;
+import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.tree.*;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
@@ -104,7 +105,7 @@ class BuildFileParserTest {
                         </project>
                         """;
 
-        private final BuildFileParser sut = new BuildFileParser(new ParserSettings());
+        private final BuildFileParser sut = new BuildFileParser();
 
         @Test
         void filterAndSortBuildFiles_shouldReturnSortedListOfFilteredBuildFiles() {
