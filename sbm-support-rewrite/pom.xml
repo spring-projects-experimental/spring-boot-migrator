@@ -387,7 +387,7 @@ limitations under the License.
     </build>
     <profiles>
         <profile>
-            <id>delombokify</id>
+            <id>delombok</id>
         </profile>
         <profile>
             <id>artifactory</id>
