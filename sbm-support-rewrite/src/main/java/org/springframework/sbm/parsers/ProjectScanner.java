@@ -48,8 +48,7 @@ class ProjectScanner {
         if(!baseDir.toFile().exists()) {
             throw new IllegalArgumentException("Provided path does not exist: " + baseDir);
         }
-        Path absoluteRootPath = baseDir.toAbsolutePath();
-        String unifiedPath = new LinuxWindowsPathUnifier().unifyPath(absoluteRootPath.toString() + "/**");
+        String unifiedPath = new LinuxWindowsPathUnifier().unifyPath(baseDir.toString() + "/**");
         String pattern = "file:" + unifiedPath;
         try {
             Resource[] resources = ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(pattern);
