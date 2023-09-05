@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.scopes;
+package org.springframework.sbm.parsers;
+
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.core.io.ResourceLoader;
 
 /**
- * Scope implementation for beans marked with {@link org.springframework.sbm.scopes.annotations.ScanScope}.
- *
  * @author Fabian Krüger
  */
-public class ScanScope extends AbstractBaseScope {
-
-    public final static String SCOPE_NAME = "scanScope";
-
+@AutoConfiguration(after = RewriteParserConfig.class)
+@Import(RewriteParserConfig.class)
+public class ScannerConfiguration {
+    @Bean
+    ProjectScanner projectScanner(ResourceLoader resourceLoader, ParserProperties parserProperties) {
+        return new ProjectScanner(resourceLoader, parserProperties);
+    }
 }

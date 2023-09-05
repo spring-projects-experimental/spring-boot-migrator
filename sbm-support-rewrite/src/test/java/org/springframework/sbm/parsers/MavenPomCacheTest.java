@@ -22,10 +22,12 @@ import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.MavenPomCache;
 import org.openrewrite.maven.cache.RocksdbMavenPomCache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.sbm.scopes.ScopeConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -46,7 +48,7 @@ public class MavenPomCacheTest {
     class GivenA64BitSystem {
 
         @Nested
-        @SpringBootTest(properties = {"parser.pomCacheEnabled=true", "parser.pomCacheDirectory=target"})
+        @SpringBootTest(classes = {RewriteParserConfig.class, ScopeConfiguration.class}, properties = {"parser.pomCacheEnabled=true", "parser.pomCacheDirectory=target"})
         @DirtiesContext
         class WhenPomCacheIsEnabledIsTrue {
 
@@ -74,7 +76,7 @@ public class MavenPomCacheTest {
         }
 
         @Nested
-        @SpringBootTest(properties = {"parser.pomCacheEnabled=false"})
+        @SpringBootTest(classes = RewriteParserConfig.class, properties = {"parser.pomCacheEnabled=false"})
         @DirtiesContext
         class WhenPomCacheIsEnabledIsFalse {
 
@@ -92,7 +94,7 @@ public class MavenPomCacheTest {
 
     @Nested
     @DirtiesContext
-    @SpringBootTest(properties = {"parser.pomCacheEnabled=true"})
+    @SpringBootTest(classes = RewriteParserConfig.class, properties = {"parser.pomCacheEnabled=true"})
     @SetSystemProperty(key = "sun.arch.data.model", value = "32")
     class GivenA32BitSystem {
 
@@ -108,8 +110,8 @@ public class MavenPomCacheTest {
 
     @Nested
     @DirtiesContext
-    @Import(CustomCacheConfig.class)
-    @SpringBootTest(properties = {"parser.pomCacheEnabled=true"})
+    @Import(GivenCustomCacheProvided.CustomCacheConfig.class)
+    @SpringBootTest(classes = RewriteParserConfig.class, properties = {"parser.pomCacheEnabled=true", "customCache=true"})
     class GivenCustomCacheProvided {
 
         @Autowired
@@ -120,17 +122,20 @@ public class MavenPomCacheTest {
         void shouldUseTheProvidedPomCache() {
             assertThat(mavenPomCache).isInstanceOf(CustomPomCache.class);
         }
+
+        @TestConfiguration
+        @ConditionalOnProperty(value = "customCache", havingValue = "true")
+        static class CustomCacheConfig {
+            // Provide custom MavenPomCache as bean
+            // Should overwrite the existing MavenPomCache
+            @Bean
+            public MavenPomCache mavenPomCache() {
+                return new CustomPomCache();
+            }
+        }
+
+        static  class CustomPomCache extends InMemoryMavenPomCache {}
     }
+
 }
 
-@TestConfiguration
-class CustomCacheConfig {
-    // Provide custom MavenPomCache as bean
-    // Should overwrite the existing MavenPomCache
-    @Bean
-    public MavenPomCache mavenPomCache() {
-        return new CustomPomCache();
-    }
-}
-
-class CustomPomCache extends InMemoryMavenPomCache {}

@@ -31,14 +31,11 @@
  */
 package org.springframework.sbm.scopes;
 
-import org.springframework.stereotype.Component;
-
 /**
  * Scope implementation for beans marked with {@link org.springframework.sbm.scopes.annotations.ExecutionScope}.
  *
  * @author Fabian Krüger
  */
-@Component
 public class ExecutionScope extends AbstractBaseScope {
 
     public final static String SCOPE_NAME = "executionScope";

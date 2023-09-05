@@ -1,0 +1,3 @@
+org.springframework.sbm.scopes.ScopeConfiguration
+org.springframework.sbm.parsers.RewriteParserConfig
+org.springframework.sbm.parsers.ScannerConfiguration

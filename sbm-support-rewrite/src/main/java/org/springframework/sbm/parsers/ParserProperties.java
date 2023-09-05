@@ -17,6 +17,7 @@ package org.springframework.sbm.parsers;
 
 import lombok.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.PathMatcher;
@@ -30,12 +31,10 @@ import java.util.Set;
  *
  * @author Fabian Krüger
  */
-@Component
 @ConfigurationProperties(prefix = "parser")
+@Getter
+@Setter
 public class ParserProperties {
-
-    public ParserProperties() {
-    }
 
     /**
      * Whether to skip parsing maven pom files
@@ -84,76 +83,4 @@ public class ParserProperties {
      */
     private Set<String> ignoredPathPatterns = new HashSet<>();
 
-    public boolean isPomCacheEnabled() {
-        return pomCacheEnabled;
-    }
-
-    public String getPomCacheDirectory() {
-        return pomCacheDirectory;
-    }
-
-    public boolean isSkipMavenParsing() {
-        return skipMavenParsing;
-    }
-
-    public Set<String> getPlainTextMasks() {
-        return plainTextMasks;
-    }
-
-    public int getSizeThresholdMb() {
-        return sizeThresholdMb;
-    }
-
-    public boolean isRunPerSubmodule() {
-        return runPerSubmodule;
-    }
-
-    public boolean isFailOnInvalidActiveRecipes() {
-        return failOnInvalidActiveRecipes;
-    }
-
-    public List<String> getActiveProfiles() {
-        return activeProfiles;
-    }
-
-    public Set<String> getIgnoredPathPatterns() {
-        return ignoredPathPatterns;
-    }
-
-
-    public void setSkipMavenParsing(boolean skipMavenParsing) {
-        this.skipMavenParsing = skipMavenParsing;
-    }
-
-    public void setPomCacheEnabled(boolean pomCacheEnabled) {
-        this.pomCacheEnabled = pomCacheEnabled;
-    }
-
-    public void setPomCacheDirectory(String pomCacheDirectory) {
-        this.pomCacheDirectory = pomCacheDirectory;
-    }
-
-    public void setPlainTextMasks(Set<String> plainTextMasks) {
-        this.plainTextMasks = plainTextMasks;
-    }
-
-    public void setSizeThresholdMb(int sizeThresholdMb) {
-        this.sizeThresholdMb = sizeThresholdMb;
-    }
-
-    public void setRunPerSubmodule(boolean runPerSubmodule) {
-        this.runPerSubmodule = runPerSubmodule;
-    }
-
-    public void setFailOnInvalidActiveRecipes(boolean failOnInvalidActiveRecipes) {
-        this.failOnInvalidActiveRecipes = failOnInvalidActiveRecipes;
-    }
-
-    public void setActiveProfiles(List<String> activeProfiles) {
-        this.activeProfiles = activeProfiles;
-    }
-
-    public void setIgnoredPathPatterns(Set<String> ignoredPathPatterns) {
-        this.ignoredPathPatterns = ignoredPathPatterns;
-    }
 }

@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-@SpringBootTest
+@SpringBootTest(classes = {ScannerConfiguration.class, ParserEventPublicationIntegrationTest.TestEventListener.class})
 public class ParserEventPublicationIntegrationTest {
 
     @Autowired

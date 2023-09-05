@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-@SpringBootTest
+@SpringBootTest(classes = {RewriteParserConfig.class, RewriteMavenProjectParserIntegrationTest.TestEventListener.class})
 public class RewriteMavenProjectParserIntegrationTest {
 
     @Autowired

@@ -17,11 +17,11 @@ package org.springframework.sbm.parsers;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.Issue;
 import org.openrewrite.InMemoryExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.scopes.ScopeConfiguration;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-@SpringBootTest
+@SpringBootTest(classes = {ScannerConfiguration.class})
 public class RewriteProjectParserIntegrationTest {
 
     @Autowired
@@ -42,7 +42,6 @@ public class RewriteProjectParserIntegrationTest {
 
     @Test
     @DisplayName("parseCheckstyle")
-    @Issue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/875")
     void parseCheckstyle() {
         Path baseDir = getMavenProject("checkstyle");
         List<Resource> resources = projectScanner.scan(baseDir);

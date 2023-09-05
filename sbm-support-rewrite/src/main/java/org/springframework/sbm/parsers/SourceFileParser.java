@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -97,7 +98,8 @@ class SourceFileParser {
                 .styles(styles)
                 .logCompilationWarningsAndErrors(false);
 
-        Set<Path> pathsToOtherModules = pathsToOtherMavenProjects(resources, moduleBuildFile);
+        Path buildFilePath = mavenProject.getBasedir().toPath().resolve(moduleBuildFile.getSourcePath());
+        Set<Path> pathsToOtherModules = pathsToOtherMavenProjects(mavenProject, buildFilePath);
         ResourceParser rp = new ResourceParser(
                 baseDir,
                 new Slf4jToMavenLoggerAdapter(log),
@@ -177,11 +179,14 @@ class SourceFileParser {
      * .collect(Collectors.toSet());
      * }
      */
-    private Set<Path> pathsToOtherMavenProjects(List<Resource> resources, Xml.Document moduleBuildFile) {
+    private Set<Path> pathsToOtherMavenProjects(MavenProject mavenProject, Path moduleBuildFile) {
+        return mavenProject.getCollectedProjects().stream()
+                .filter(p -> !p.getFile().toPath().equals(moduleBuildFile))
+                .map(p -> p.getFile().toPath()).collect(Collectors.toSet());
         // FIXME:
         // filter build files
         // create relative paths to all other build files
         // return result
-        return Set.of();
+//        return Set.of();
     }
 }
