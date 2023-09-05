@@ -19,6 +19,7 @@ import lombok.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.PathMatcher;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,14 +36,51 @@ import java.util.Set;
 @ConfigurationProperties(prefix = "parser")
 public class ParserProperties {
 
-    private boolean pomCacheEnabled = false;
-    private String pomCacheDirectory;
+    /**
+     * Whether to skip parsing maven pom files
+     */
     private boolean skipMavenParsing = false;
+
+    /**
+     * Enable {@link org.openrewrite.maven.cache.RocksdbMavenPomCache} on 64-Bit system
+     */
+    private boolean pomCacheEnabled = false;
+
+    /**
+     * Directory used by {@link org.openrewrite.maven.cache.RocksdbMavenPomCache} when {@link ParserProperties#pomCacheEnabled} is {@code true}
+     */
+    private String pomCacheDirectory;
+
+    /**
+     * Comma-separated list of patterns used to create {@link PathMatcher}s
+     * The pattern should not contain a leading {@code glob:}
+     */
     private Set<String> plainTextMasks = new HashSet<>();
+
+    /**
+     * Project resources exceeding this threshold will not be parsed and provided as {@link org.openrewrite.quark.Quark}s
+     */
     private int sizeThresholdMb = -1;
+
+    /**
+     * Whether only the current Maven module will be parsed
+     */
     private boolean runPerSubmodule = false;
+
+    /**
+     * Whether the discovery should fail on invalid active recipes.
+     * TODO: Move to 'discovery' prefix
+     */
     private boolean failOnInvalidActiveRecipes = false;
+
+    /**
+     * Comma-separated list of active Maven profiles
+     */
     private List<String> activeProfiles = List.of("default");
+
+    /**
+     * Comma-separated list of patterns used to create {@link PathMatcher}s to exclude paths from being parsed.
+     */
     private Set<String> ignoredPathPatterns = new HashSet<>();
 
     public boolean isPomCacheEnabled() {
