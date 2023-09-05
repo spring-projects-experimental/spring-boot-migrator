@@ -31,10 +31,11 @@ import java.util.Set;
  * @author Fabian Krüger
  */
 @Component
-@Setter
-@NoArgsConstructor
 @ConfigurationProperties(prefix = "parser")
 public class ParserProperties {
+
+    public ParserProperties() {
+    }
 
     /**
      * Whether to skip parsing maven pom files
@@ -42,23 +43,23 @@ public class ParserProperties {
     private boolean skipMavenParsing = false;
 
     /**
-     * Enable {@link org.openrewrite.maven.cache.RocksdbMavenPomCache} on 64-Bit system
+     * Enable org.openrewrite.maven.cache.RocksdbMavenPomCache on 64-Bit system
      */
     private boolean pomCacheEnabled = false;
 
     /**
-     * Directory used by {@link org.openrewrite.maven.cache.RocksdbMavenPomCache} when {@link ParserProperties#pomCacheEnabled} is {@code true}
+     * Directory used by RocksdbMavenPomCache when pomCacheEnabled is true
      */
     private String pomCacheDirectory;
 
     /**
-     * Comma-separated list of patterns used to create {@link PathMatcher}s
-     * The pattern should not contain a leading {@code glob:}
+     * Comma-separated list of patterns used to create PathMatcher
+     * The pattern should not contain a leading 'glob:'
      */
     private Set<String> plainTextMasks = new HashSet<>();
 
     /**
-     * Project resources exceeding this threshold will not be parsed and provided as {@link org.openrewrite.quark.Quark}s
+     * Project resources exceeding this threshold will not be parsed and provided as org.openrewrite.quark.Quark
      */
     private int sizeThresholdMb = -1;
 
@@ -71,7 +72,7 @@ public class ParserProperties {
      * Whether the discovery should fail on invalid active recipes.
      * TODO: Move to 'discovery' prefix
      */
-    private boolean failOnInvalidActiveRecipes = false;
+    private boolean failOnInvalidActiveRecipes = true;
 
     /**
      * Comma-separated list of active Maven profiles
@@ -79,7 +80,7 @@ public class ParserProperties {
     private List<String> activeProfiles = List.of("default");
 
     /**
-     * Comma-separated list of patterns used to create {@link PathMatcher}s to exclude paths from being parsed.
+     * Comma-separated list of patterns used to create PathMatcher to exclude paths from being parsed.
      */
     private Set<String> ignoredPathPatterns = new HashSet<>();
 
@@ -117,5 +118,42 @@ public class ParserProperties {
 
     public Set<String> getIgnoredPathPatterns() {
         return ignoredPathPatterns;
+    }
+
+
+    public void setSkipMavenParsing(boolean skipMavenParsing) {
+        this.skipMavenParsing = skipMavenParsing;
+    }
+
+    public void setPomCacheEnabled(boolean pomCacheEnabled) {
+        this.pomCacheEnabled = pomCacheEnabled;
+    }
+
+    public void setPomCacheDirectory(String pomCacheDirectory) {
+        this.pomCacheDirectory = pomCacheDirectory;
+    }
+
+    public void setPlainTextMasks(Set<String> plainTextMasks) {
+        this.plainTextMasks = plainTextMasks;
+    }
+
+    public void setSizeThresholdMb(int sizeThresholdMb) {
+        this.sizeThresholdMb = sizeThresholdMb;
+    }
+
+    public void setRunPerSubmodule(boolean runPerSubmodule) {
+        this.runPerSubmodule = runPerSubmodule;
+    }
+
+    public void setFailOnInvalidActiveRecipes(boolean failOnInvalidActiveRecipes) {
+        this.failOnInvalidActiveRecipes = failOnInvalidActiveRecipes;
+    }
+
+    public void setActiveProfiles(List<String> activeProfiles) {
+        this.activeProfiles = activeProfiles;
+    }
+
+    public void setIgnoredPathPatterns(Set<String> ignoredPathPatterns) {
+        this.ignoredPathPatterns = ignoredPathPatterns;
     }
 }
