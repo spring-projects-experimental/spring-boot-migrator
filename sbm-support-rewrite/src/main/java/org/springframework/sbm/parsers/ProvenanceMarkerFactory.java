@@ -32,7 +32,6 @@ import java.util.*;
 /**
  * @author Fabian Krüger
  */
-@Component
 @RequiredArgsConstructor
 class ProvenanceMarkerFactory {
 

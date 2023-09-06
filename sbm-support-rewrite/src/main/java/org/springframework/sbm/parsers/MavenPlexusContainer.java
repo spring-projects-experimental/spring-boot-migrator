@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 
-@Component
 @Lazy
 class MavenPlexusContainer {
 

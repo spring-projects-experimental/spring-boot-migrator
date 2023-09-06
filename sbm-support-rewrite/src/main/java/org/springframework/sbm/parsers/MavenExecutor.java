@@ -34,7 +34,6 @@ import java.util.function.Consumer;
  * @author Fabian Krüger
  */
 @Slf4j
-@Component
 @RequiredArgsConstructor
 class MavenExecutor {
 

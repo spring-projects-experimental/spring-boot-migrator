@@ -47,7 +47,6 @@ import static java.util.Collections.emptyList;
  * @author Fabian Krüger
  */
 @Slf4j
-@Component
 @RequiredArgsConstructor
 class BuildFileParser {
 

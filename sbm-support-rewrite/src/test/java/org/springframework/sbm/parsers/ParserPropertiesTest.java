@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ParserPropertiesTest {
 
     @Nested
-    @SpringBootTest
+    @SpringBootTest(classes = {RewriteParserConfiguration.class})
     public class GivenDefaultProperties {
 
         @Autowired
@@ -68,7 +68,7 @@ class ParserPropertiesTest {
         @Test
         @DisplayName("parser.runPerSubmodule")
         void validRunPerSubmodule() {
-            assertThat(parserProperties.isRunPerSubmodule()).isTrue();
+            assertThat(parserProperties.isRunPerSubmodule()).isFalse();
         }
 
         @Test

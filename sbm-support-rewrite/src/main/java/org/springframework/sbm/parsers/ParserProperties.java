@@ -17,8 +17,10 @@ package org.springframework.sbm.parsers;
 
 import lombok.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.PathMatcher;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,55 +31,56 @@ import java.util.Set;
  *
  * @author Fabian Krüger
  */
-@Component
-@Setter
-@NoArgsConstructor
 @ConfigurationProperties(prefix = "parser")
+@Getter
+@Setter
 public class ParserProperties {
 
-    private boolean pomCacheEnabled = false;
-    private String pomCacheDirectory;
+    /**
+     * Whether to skip parsing maven pom files
+     */
     private boolean skipMavenParsing = false;
+
+    /**
+     * Enable org.openrewrite.maven.cache.RocksdbMavenPomCache on 64-Bit system
+     */
+    private boolean pomCacheEnabled = false;
+
+    /**
+     * Directory used by RocksdbMavenPomCache when pomCacheEnabled is true
+     */
+    private String pomCacheDirectory;
+
+    /**
+     * Comma-separated list of patterns used to create PathMatcher
+     * The pattern should not contain a leading 'glob:'
+     */
     private Set<String> plainTextMasks = new HashSet<>();
+
+    /**
+     * Project resources exceeding this threshold will not be parsed and provided as org.openrewrite.quark.Quark
+     */
     private int sizeThresholdMb = -1;
+
+    /**
+     * Whether only the current Maven module will be parsed
+     */
     private boolean runPerSubmodule = false;
-    private boolean failOnInvalidActiveRecipes = false;
+
+    /**
+     * Whether the discovery should fail on invalid active recipes.
+     * TODO: Move to 'discovery' prefix
+     */
+    private boolean failOnInvalidActiveRecipes = true;
+
+    /**
+     * Comma-separated list of active Maven profiles
+     */
     private List<String> activeProfiles = List.of("default");
+
+    /**
+     * Comma-separated list of patterns used to create PathMatcher to exclude paths from being parsed.
+     */
     private Set<String> ignoredPathPatterns = new HashSet<>();
 
-    public boolean isPomCacheEnabled() {
-        return pomCacheEnabled;
-    }
-
-    public String getPomCacheDirectory() {
-        return pomCacheDirectory;
-    }
-
-    public boolean isSkipMavenParsing() {
-        return skipMavenParsing;
-    }
-
-    public Set<String> getPlainTextMasks() {
-        return plainTextMasks;
-    }
-
-    public int getSizeThresholdMb() {
-        return sizeThresholdMb;
-    }
-
-    public boolean isRunPerSubmodule() {
-        return runPerSubmodule;
-    }
-
-    public boolean isFailOnInvalidActiveRecipes() {
-        return failOnInvalidActiveRecipes;
-    }
-
-    public List<String> getActiveProfiles() {
-        return activeProfiles;
-    }
-
-    public Set<String> getIgnoredPathPatterns() {
-        return ignoredPathPatterns;
-    }
 }
