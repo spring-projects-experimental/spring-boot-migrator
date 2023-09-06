@@ -27,12 +27,13 @@
         <maven.version>3.9.1</maven.version>
         <maven-resolver.version>1.9.7</maven-resolver.version>
         <maven-wagon-http.version>3.5.3</maven-wagon-http.version>
-        <artifactory-maven-plugin.version>3.5.1</artifactory-maven-plugin.version>
+        <artifactory-maven-plugin.version>3.6.1</artifactory-maven-plugin.version>
         <plexus-cypher.version>1.8</plexus-cypher.version>
         <maven-invoker.version>3.2.0</maven-invoker.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <junit-pioneer.version>2.0.1</junit-pioneer.version>
         <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     </properties>
 
     <developers>
@@ -255,15 +256,21 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                            <version>1.18.28</version>
                         </path>
                         <path>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
+                            <version>${spring-boot.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

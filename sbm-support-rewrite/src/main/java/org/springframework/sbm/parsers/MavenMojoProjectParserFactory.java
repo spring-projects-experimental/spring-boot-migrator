@@ -35,7 +35,6 @@ import java.util.List;
  * @author Fabian Krüger
  */
 @Slf4j
-@Component
 @RequiredArgsConstructor
 class MavenMojoProjectParserFactory {
 

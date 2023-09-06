@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 /**
  * @author Fabian Krüger
  */
-@Component
+
 class StyleDetector {
     public List<SourceFile> sourcesWithAutoDetectedStyles(Stream<SourceFile> sourceFilesStream) {
         OpenedRewriteMojo m = new OpenedRewriteMojo();

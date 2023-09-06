@@ -53,7 +53,6 @@ import java.util.stream.Stream;
 /**
  * @author Fabian Krüger
  */
-@Component
 @RequiredArgsConstructor
 class MavenMojoProjectParserPrivateMethods {
 

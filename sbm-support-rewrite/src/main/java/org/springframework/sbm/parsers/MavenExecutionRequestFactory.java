@@ -36,7 +36,6 @@ import java.util.Properties;
 /**
  * @author Fabian Krüger
  */
-@Component
 @RequiredArgsConstructor
 class MavenExecutionRequestFactory {
 

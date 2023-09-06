@@ -40,7 +40,6 @@ import java.util.function.Consumer;
  * @author fkrueger
  */
 @Slf4j
-@Component
 public class RewriteMavenArtifactDownloader extends MavenArtifactDownloader {
 
     public RewriteMavenArtifactDownloader() {

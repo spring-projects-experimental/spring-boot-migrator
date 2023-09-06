@@ -35,8 +35,8 @@ import java.util.stream.Stream;
  * @author Fabian Krüger
  */
 @Slf4j
-@Component
 @RequiredArgsConstructor
+public
 class ProjectScanner {
     private final ResourceLoader resourceLoader;
     private final ParserProperties parserProperties;

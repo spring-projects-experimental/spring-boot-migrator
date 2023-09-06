@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.boot.autoconfigure;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.io.ResourceLoader;
 
 /**
  * @author Fabian Krüger
  */
-@AutoConfiguration(after = RewriteParserConfig.class)
-@Import(RewriteParserConfig.class)
-public class ScannerConfiguration {
-    @Bean
-    ProjectScanner projectScanner(ResourceLoader resourceLoader, ParserProperties parserProperties) {
-        return new ProjectScanner(resourceLoader, parserProperties);
-    }
+@AutoConfiguration
+@Import(DiscoveryConfiguration.class)
+public class SbmSupportRewriteConfiguration {
 }

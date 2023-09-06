@@ -34,7 +34,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.sbm.boot.autoconfigure.ParserPropertiesPostProcessor;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.scopes.ScanScope;
-import org.springframework.sbm.scopes.ScopeConfiguration;
+import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -50,7 +50,7 @@ import java.nio.file.Path;
 @AutoConfiguration(after = ScopeConfiguration.class)
 @EnableConfigurationProperties(ParserProperties.class)
 @Import({ScanScope.class, ScopeConfiguration.class})
-public class RewriteParserConfig {
+public class RewriteParserConfiguration {
 
     @Autowired
     private ParserProperties parserProperties;

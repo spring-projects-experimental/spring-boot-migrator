@@ -37,7 +37,6 @@ import java.util.stream.Stream;
  *
  * @author Fabian Krüger
  */
-@Component
 class MavenConfigFileParser {
 
     /** Constant <code>ALTERNATE_POM_FILE='f'</code> */

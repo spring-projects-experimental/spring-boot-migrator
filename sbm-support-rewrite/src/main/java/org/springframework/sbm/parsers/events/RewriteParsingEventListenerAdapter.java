@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
  * @author Fabian Krüger
  */
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class RewriteParsingEventListenerAdapter implements ParsingEventListener {
 

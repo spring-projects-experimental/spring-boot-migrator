@@ -1,3 +1,4 @@
-org.springframework.sbm.scopes.ScopeConfiguration
-org.springframework.sbm.parsers.RewriteParserConfig
-org.springframework.sbm.parsers.ScannerConfiguration
+org.springframework.sbm.boot.autoconfigure.ScopeConfiguration
+org.springframework.sbm.parsers.RewriteParserConfiguration
+org.springframework.sbm.boot.autoconfigure.ScannerConfiguration
+org.springframework.sbm.boot.autoconfigure.DiscoveryConfiguration

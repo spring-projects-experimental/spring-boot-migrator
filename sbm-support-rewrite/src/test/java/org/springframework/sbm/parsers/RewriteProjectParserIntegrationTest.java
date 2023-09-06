@@ -21,7 +21,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.scopes.ScopeConfiguration;
+import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 
 import java.nio.file.Path;
 import java.util.List;

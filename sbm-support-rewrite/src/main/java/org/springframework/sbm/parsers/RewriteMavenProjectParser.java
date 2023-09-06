@@ -52,7 +52,6 @@ import static java.util.stream.Collectors.toList;
  * @author Fabian Krüger
  */
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class RewriteMavenProjectParser {
     private final MavenPlexusContainer mavenPlexusContainer;

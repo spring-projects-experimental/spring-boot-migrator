@@ -40,7 +40,7 @@ import java.util.stream.Stream;
  * @author Fabian Krüger
  */
 @Slf4j
-@Component
+
 @RequiredArgsConstructor
 class SourceFileParser {
 

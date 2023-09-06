@@ -27,7 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.sbm.scopes.ScopeConfiguration;
+import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -48,7 +48,7 @@ public class MavenPomCacheTest {
     class GivenA64BitSystem {
 
         @Nested
-        @SpringBootTest(classes = {RewriteParserConfig.class, ScopeConfiguration.class}, properties = {"parser.pomCacheEnabled=true", "parser.pomCacheDirectory=target"})
+        @SpringBootTest(classes = {RewriteParserConfiguration.class, ScopeConfiguration.class}, properties = {"parser.pomCacheEnabled=true", "parser.pomCacheDirectory=target"})
         @DirtiesContext
         class WhenPomCacheIsEnabledIsTrue {
 
@@ -76,7 +76,7 @@ public class MavenPomCacheTest {
         }
 
         @Nested
-        @SpringBootTest(classes = RewriteParserConfig.class, properties = {"parser.pomCacheEnabled=false"})
+        @SpringBootTest(classes = RewriteParserConfiguration.class, properties = {"parser.pomCacheEnabled=false"})
         @DirtiesContext
         class WhenPomCacheIsEnabledIsFalse {
 
@@ -94,7 +94,7 @@ public class MavenPomCacheTest {
 
     @Nested
     @DirtiesContext
-    @SpringBootTest(classes = RewriteParserConfig.class, properties = {"parser.pomCacheEnabled=true"})
+    @SpringBootTest(classes = RewriteParserConfiguration.class, properties = {"parser.pomCacheEnabled=true"})
     @SetSystemProperty(key = "sun.arch.data.model", value = "32")
     class GivenA32BitSystem {
 
@@ -111,7 +111,7 @@ public class MavenPomCacheTest {
     @Nested
     @DirtiesContext
     @Import(GivenCustomCacheProvided.CustomCacheConfig.class)
-    @SpringBootTest(classes = RewriteParserConfig.class, properties = {"parser.pomCacheEnabled=true", "customCache=true"})
+    @SpringBootTest(classes = RewriteParserConfiguration.class, properties = {"parser.pomCacheEnabled=true", "customCache=true"})
     class GivenCustomCacheProvided {
 
         @Autowired
