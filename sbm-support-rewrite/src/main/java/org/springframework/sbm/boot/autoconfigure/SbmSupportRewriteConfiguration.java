@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.scopes;
+package org.springframework.sbm.boot.autoconfigure;
+
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.context.annotation.Import;
 
 /**
- * Scope implementation for beans marked with {@link org.springframework.sbm.scopes.annotations.ScanScope}.
- *
  * @author Fabian Krüger
  */
-public class ScanScope extends AbstractBaseScope {
-
-    public final static String SCOPE_NAME = "scanScope";
-
+@AutoConfiguration
+@Import(DiscoveryConfiguration.class)
+public class SbmSupportRewriteConfiguration {
 }

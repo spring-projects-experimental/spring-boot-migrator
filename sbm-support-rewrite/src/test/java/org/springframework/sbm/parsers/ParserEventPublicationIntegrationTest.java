@@ -24,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 import org.springframework.sbm.parsers.events.ParsedResourceEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
@@ -38,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-@SpringBootTest
+@SpringBootTest(classes = {ScannerConfiguration.class, ParserEventPublicationIntegrationTest.TestEventListener.class})
 public class ParserEventPublicationIntegrationTest {
 
     @Autowired

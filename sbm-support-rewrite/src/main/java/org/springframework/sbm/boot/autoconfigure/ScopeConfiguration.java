@@ -13,23 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.scopes;
+package org.springframework.sbm.boot.autoconfigure;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.cache.MavenPomCache;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.sbm.scopes.ExecutionScope;
+import org.springframework.sbm.scopes.ProjectMetadata;
+import org.springframework.sbm.scopes.ScanScope;
 
 import java.util.function.Supplier;
 
 /**
  * @author Fabian Krüger
  */
-@Configuration
+@AutoConfiguration
 public class ScopeConfiguration {
+
+
+    @Bean
+    ExecutionScope executionScope() {
+        return new ExecutionScope();
+    }
+
+    @Bean
+    ScanScope scanScope() {
+        return new ScanScope();
+    }
+
     /**
      * Register {@link ScanScope} and {@link ExecutionScope}.
      */
@@ -52,7 +68,7 @@ public class ScopeConfiguration {
     }
 
     @Bean
-    @org.springframework.sbm.scopes.annotations.ExecutionScope
+    @org.springframework.sbm.scopes.annotations.ScanScope
     ExecutionContext executionContext(ProjectMetadata projectMetadata, Supplier<ExecutionContext> executionContextSupplier, MavenPomCache mavenPomCache) {
         ExecutionContext executionContext = executionContextSupplier.get();
         MavenExecutionContextView contextView = MavenExecutionContextView.view(executionContext);

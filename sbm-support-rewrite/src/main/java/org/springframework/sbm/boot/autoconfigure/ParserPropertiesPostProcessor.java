@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm;
+package org.springframework.sbm.boot.autoconfigure;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
@@ -30,7 +30,6 @@ import java.io.IOException;
 /**
  * Add default values from 'sbm-support-rewrite.properties' to environment.
  */
-@Component
 public class ParserPropertiesPostProcessor implements EnvironmentPostProcessor {
 
     private final PropertiesPropertySourceLoader loader = new PropertiesPropertySourceLoader();
