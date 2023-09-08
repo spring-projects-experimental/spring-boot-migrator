@@ -17,10 +17,7 @@ package org.springframework.sbm.parsers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.maven.cache.CompositeMavenPomCache;
-import org.openrewrite.maven.cache.InMemoryMavenPomCache;
-import org.openrewrite.maven.cache.MavenPomCache;
-import org.openrewrite.maven.cache.RocksdbMavenPomCache;
+import org.openrewrite.maven.cache.*;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.tree.ParsingEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +30,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.sbm.boot.autoconfigure.ParserPropertiesPostProcessor;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
+import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.function.Consumer;
 
 
 /**
@@ -96,8 +96,21 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
-    MavenArtifactDownloader artifactDownloader() {
-        return new RewriteMavenArtifactDownloader();
+    @ConditionalOnMissingBean(MavenArtifactCache.class)
+    MavenArtifactCache mavenArtifactCache() {
+        return new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository")).orElse(
+                new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".rewrite", "cache", "artifacts"))
+        );
+    }
+
+    @Bean
+    Consumer<Throwable> artifactDownloaderErrorConsumer() {
+        return (t) -> {throw new RuntimeException(t);};
+    }
+
+    @Bean
+    MavenArtifactDownloader artifactDownloader(MavenArtifactCache mavenArtifactCache, ProjectMetadata projectMetadata, Consumer<Throwable> artifactDownloaderErrorConsumer) {
+        return new RewriteMavenArtifactDownloader(mavenArtifactCache, projectMetadata.getMavenSettings(), artifactDownloaderErrorConsumer);
     }
 
     @Bean
