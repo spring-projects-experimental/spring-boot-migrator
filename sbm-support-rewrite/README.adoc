@@ -1,39 +1,90 @@
 # sbm-support-rewrite
 these components
 
-The `sbm-support-rewrite` module provides these components
+The `sbm-support-rewrite` project provides Spring beans classes to parse a given project to an OpenRewrite abstract syntax tree (AST) which can then be used to run OpenRewrite recipes that were discovered on the classpath.
 
-- `ProjectScanner` - to scan a project to a list of `Resource`s
-- `RewriteProjectParser` - to parse the list of `Resource`s that belong to the build to OpenRewrite's AST representation
-- `RecipeDiscovery` - to provide access to recipes found at possible locations (Jar, classpath, ...)
+- `RewriteProjectParser` - parses a project to OpenRewrite's AST representation
+- `RecipeDiscovery` - provides access to discovered recipes
 
-## Parse a project
+## Getting started
 
-Use ProjectScanner to scan a given baseDir
+### Adding the dependency
+Currently only SNAPSHOT releases are available from https://repo.spring.io.
+To access these, a repository must be added.
+
+[source,xml]
+.....
+<repositories>
+    <repository>
+        <id>spring-snapshot</id>
+        <url>https://repo.spring.io/snapshot</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+    </repository>
+</repositories>
+.....
+
+Then the dependency can be retrieved.
+
+[source,xml]
+.....
+<dependency>
+    <groupId>org.springframwork.experimental</groupId>
+    <artifactId>sbm-support-rewrite</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+</dependency>
+.....
+
+### Parse a project
+
+`RewriteProjectParser` is provided as Spring bean and can be injected into components.
+
+[source,java]
+.....
+@Autowired
+private RewriteProjectParser parser;
+.....
+
+The provided `parse(Path)` method can be used to parse a project under a given `Path` to OpenRewrite AST.
+
+[source,java]
+.....
+Path baseDir = ...
+List<SourceFile> ast = parser.parse(baseDir);
+.....
+
+### ExecutionContext
+
+OpenRewrite's `ExecutionContext` is populated during parsing and the settings can be important for recipes executed later.
+The `ExecutionContext` is provided as scoped Spring bean.
+It has the same scope as the parsing and a new instance is automatically created with every parse.
+
+NOTE: The ExecutionContext should be injected and should not be created programmatically.
+
+### Discover and run recipes
+
+OpenRewrite recipes can be discovered from classpath with `RewriteRecipeDiscovery` which is provided as Spring bean.
+
 [source,java]
 ....
-Path baseDir = Path.of("...").toAbsolutePath.normalize();
-List<Resource> resources = projectScanner.scan(baseDir);
+@Autowired
+RewriteRecipeDiscovery discovery;
+
+@Autowired
+ExecutionContext ctx;
+...
+Recipe recipe = discovery.getRecipe("org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1");
+RecipeRun recipe = recipe.run(new InMemoryLargeSourceSet(ast), ctx));
 ....
 
-Create ExecutionContext, it will be populated with messages during the parsing.
-These messages are important for other recipes
-[source,java]
-....
-ExecutionContext ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
-....
-
-The RewriteParser parses a given baseDir to ORs AST
-[source,java]
-....
-RewriteProjectParser parser = new RewriteProjectParser();
-List<SourceFile> ast = parser.parse(baseDir, resources, ctx);
-....
 
 ### Listen to ParserEvents
+
 ``ParserEvent``s get published during parsing.
-Especially when scanning large projects the parsing can take some time.
 The events can be used to provide progress information to users.
+This is especially useful when parsing large projects where parsing can take some time.
+
 
 * `StartedParsingProjectEvent` - Gets published when the parsing started
 * `ParsedResourceEvent` - Gets published  after every parsed pom or Java file
@@ -42,45 +93,49 @@ The events can be used to provide progress information to users.
 [source,java]
 .....
 @EventListener(ParsedResourceEvent.class)
-public void onEvent(ParsedResourceEvent event) {
-    // handle event
-}
-
-@EventListener(StartedParsingProjectEvent.class)
-public void onStartedParsingProjectEvent(StartedParsingProjectEvent event) {
-    // handle event
-}
-
-@EventListener(SuccessfullyParsedProjectEvent.class)
-public void onSuccessfullyParsedProjectEvent(SuccessfullyParsedProjectEvent event) {
-    // handle event
+public void onParsedResourceEvent(ParsedResourceEvent event) {
+    Parser.Input input = event.input();
+    SourceFile sourceFile = event.sourceFile();
+    log("parsed %s to %s".formatted(input.getRelativePath(), sourceFile.getClass().getName()));
 }
 .....
 
-## Discover recipes
-[source,java]
-....
-RecipeDiscovery discovery = new RewriteRecipeDiscovery();
-List<String> activeRecipes = ...
-List<Recipe> recipes = discovery.discoverFilteredRecipes(activeRecipes, properties);
-....
-
-## Run recipes
-[source,java]
-....
-RecipeRun result = recipes.get(0).run(ast, ctx);
-....
-
-
-## Handle Recipe Result
-
-
-
-The `OpenRewriteProjectParser` aims to provide the exact same parsing capabilities as the parsing in `rewrite-maven-plugin` and `rewrite-gradle-plugin`.
-
-This allows parsing a given project to it's OpenRewrite AST representation and then provide the AST to OR recipes and visitors to run OpenRewrite recipes without requiring a build plugin.
-
 ## Configuration
+
+Some behaviour can be configured through application properties or by providing custom Spring beans.
+
+### Maven Artifact Cache
+OpenRewrite uses a `MavenArtifactCache` to store downloaded jar dependencies.
+The provided `MavenArtifactCache` bean tries to retrieve jars from local Maven cache `~/.m2/repository` first.
+If the dependency doesn't exist it is searched under `~/.rewrite/cache/artifacts` and if it doesn't exist it is downloaded to this dir.
+
+[source,java]
+.....
+@Bean
+MavenArtifactCache mavenArtifactCache() {
+    Path userHome = Path.of(System.getProperty("user.home"));
+    Path localMavenRepo = userHome.resolve(".m2/repository");
+    Path localRewriteRepo = userHome.resolve(".rewrite/cache/artifacts");
+    return new LocalMavenArtifactCache(localMavenRepo)
+                .orElse(localRewriteRepo));
+}
+.....
+
+#### Custom Maven Artifact Cache
+
+The provided cache configuration can be replaced with a custom bean.
+
+[source,java]
+.....
+@Bean
+MavenArtifactCache mavenArtifactCache() {
+    return new CustomMavenArtifactCache();
+}
+
+.....
+
+
+
 
 ### Maven Pom Cache
 OpenRewrite downloads Maven Pom files to resolve dependencies.
@@ -89,7 +144,6 @@ The pom files get cached and the cache depends on the system.
 - 32-Bit systems use the `InMemoryPomCache`.
 - 64-Bit systems use the `RocksdbMavenPomCache`.
 
-####
 
 #### Pom Cache Properties
 
@@ -106,99 +160,18 @@ The pom files get cached and the cache depends on the system.
 |===
 
 #### Custom Pom Cache
-Users could provide a custom `MavenPomCache` implementation by overwriting the bean definition in `RewriteMavenPomCacheConfig.mavenPomCache()`.
+A custom `MavenPomCache` implementation can be provided through a custom Spring bean declaration.
 
 [source,java]
-....
+.....
 @Bean
-@Primary
 public MavenPomCache mavenPomCache() {
     return new CustomMavenPomCache();
 }
-....
+.....
 
 
-## Running OpenRewrite recipes
-
-### Scan the codebase
-
-The `RewriteProjectParser` uses Spring's `Resource` abstraction to abstract from file system.
-This allows testing without file access among other things.
-The `ProjectScanner` allows to scan all resources under a  given `Path`.
-
-[source,java]
-....
-@Component
-
-public class ProjectScannerClient {
-    public List<Resource> scan(Path baseDir) {
-
-    }
-}
-@Autowired
-private ProjectScanner scanner;
-
-List<Resource> resources = scanner.scan(projectRoot);
-
-....
-
-### Parse the scanned resources
-
-
-
-### Discover recipes
-
-### Run recipe
-
-
-
-
-[source,java]
-....
-import org.openrewrite.InMemoryExecutionContext;import org.openrewrite.LargeSourceSet;
-import org.openrewrite.Recipe;
-import org.openrewrite.internal.InMemoryLargeSourceSet
-import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
-import java.util.List;import java.util.Optional;
-
-@Component
-@RequiredArgsConstructor
-public class MyTool {
-
-    // The parser is a Spring bean
-    private final RewriteProjectParser parser;
-    // RecipeDiscovery is a Spring bean
-    private final RewriteRecipeDiscovery recipeDiscovery;
-    // ProjectScanner is a Spring bean
-    private final ProjectScanner projectScanner;
-
-    public RecipeResult runRecipe(Path baseDir, String recipeName) {
-        ExecutionContext ctx = new InMemoryExecutionContext();
-        List<Resource> resources = projectScanner.scan(baseDir);
-        List<SourceFile> ast = parser.parse(baseDir, resources, ctx);
-        Xml.Document rootPom = findRootPom(ast);
-        recipeDiscovery.discoverFilteredRecipe(rootPom, recipeName)
-            .ifPresent(recipe -> recipe.run(new InMemoryLargeSourceSet(ast), ctx));
-    }
-}
-....
-
-[plantuml,"class-design","svg"]
-....
-class RewriteProjectParser {
-    parse(..)
-}
-
-class MavenProjectParser {
-
-}
-
-MavenProjectParser ..> BuildFileParser
-BuildFileParser ..> RewriteMavenMojoProjectParser
-
-class GradleProjectParser {
-}
-....
+## Example
 
 Example code showing how to apply OpenRewrite's UpgradeSpringBoot_3_1 recipe
 
@@ -220,9 +193,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
-/**
- * @author Fabian Krüger
- */
 @SpringBootApplication
 public class BootUpgrade implements CommandLineRunner {
     public static void main(String[] args) {
