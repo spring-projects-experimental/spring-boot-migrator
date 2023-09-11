@@ -17,7 +17,7 @@ package org.springframework.sbm.java.refactoring;
 
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;

@@ -30,12 +30,17 @@ public class GenericOpenRewriteRecipe<V extends TreeVisitor<?, ExecutionContext>
     }
 
     @Override
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return visitorSupplier.get();
     }
 
     @Override
     public String getDisplayName() {
         return visitorSupplier != null ? visitorSupplier.get().getClass().getSimpleName() : "???";
+    }
+
+    @Override
+    public String getDescription() {
+        return getDisplayName();
     }
 }

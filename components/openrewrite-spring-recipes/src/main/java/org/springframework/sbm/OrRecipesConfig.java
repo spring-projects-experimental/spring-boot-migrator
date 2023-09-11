@@ -19,14 +19,13 @@ import org.openrewrite.maven.AddPluginDependency;
 import org.openrewrite.maven.UpdateMavenModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.migration.conditions.AnyDeclaredDependencyExistMatchingRegex;
 import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.spring.migration.actions.OpenRewriteRecipeAdapterAction;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;

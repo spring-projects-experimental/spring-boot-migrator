@@ -26,7 +26,7 @@ import org.openrewrite.marker.RecipesThatMadeChanges;
 import org.openrewrite.marker.SearchResult;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.Arrays;
 import java.util.List;

@@ -29,7 +29,7 @@ import org.openrewrite.Recipe;
 import org.openrewrite.java.search.DeclaresMethod;
 import org.openrewrite.java.tree.J.ClassDeclaration;
 import org.openrewrite.java.tree.JavaType.Class;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.FindCompilationUnitContainingType;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;

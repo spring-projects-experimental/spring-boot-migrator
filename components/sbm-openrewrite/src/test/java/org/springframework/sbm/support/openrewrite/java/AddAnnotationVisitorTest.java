@@ -20,7 +20,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.RecipeRun;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.List;
 

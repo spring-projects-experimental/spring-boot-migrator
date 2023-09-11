@@ -18,7 +18,7 @@ package org.springframework.sbm.jee.ejb.actions;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;

@@ -21,7 +21,6 @@ import org.openrewrite.RecipeRun;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.List;
 
