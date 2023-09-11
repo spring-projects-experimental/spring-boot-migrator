@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.sbm.RewriteParserConfig;
+import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
@@ -44,7 +44,7 @@ import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.sbm.parsers.RewriteParserConfiguration;
 import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.parser.*;
@@ -53,6 +53,10 @@ import org.springframework.sbm.project.resource.ProjectResourceWrapperRegistry;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
+import org.springframework.sbm.scopes.AbstractBaseScope;
+import org.springframework.sbm.scopes.ExecutionScope;
+import org.springframework.sbm.scopes.ProjectMetadata;
+import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
@@ -114,8 +118,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     JavaRefactoringFactoryImpl.class,
                     BasePackageCalculator.class,
                     RewriteJavaParser.class,
-                    JavaParserBuilder.class,
-                    RewriteParserConfig.class,
+                    RewriteParserConfiguration.class,
                     RewriteProjectParser.class,
                     ResourceParser.class,
                     RewriteJsonParser.class,
