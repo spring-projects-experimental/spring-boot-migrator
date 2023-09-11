@@ -38,7 +38,7 @@ public class BuildFileResourceWrapper implements ProjectResourceWrapper<OpenRewr
 
     private final MavenBuildFileRefactoringFactory mavenBuildFileRefactoringFactory;
     private final ExecutionContext executionContext;
-    private final RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader;
+    private final RewriteMavenArtifactDownloader artifactDownloader;
 
     @Override
     public boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
@@ -55,7 +55,8 @@ public class BuildFileResourceWrapper implements ProjectResourceWrapper<OpenRewr
                 eventPublisher,
                 executionContext,
                 refactoring,
-                rewriteMavenArtifactDownloader);
+                artifactDownloader
+        );
     }
 
 }

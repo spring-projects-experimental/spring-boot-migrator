@@ -18,7 +18,6 @@ package org.springframework.sbm.archfitfun;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.maven.MavenSettings;
@@ -26,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
@@ -40,11 +40,12 @@ import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.precondition.PreconditionVerifier;
 import org.springframework.sbm.engine.recipe.*;
-import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
-import org.springframework.sbm.parsers.RewriteProjectParser;
+import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.parsers.RewriteParserConfiguration;
+import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.parser.*;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
@@ -59,7 +60,6 @@ import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
-import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -117,7 +117,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     ProjectResourceSetHolder.class,
                     JavaRefactoringFactoryImpl.class,
                     BasePackageCalculator.class,
-                    RewriteJavaParser.class,
+                    JavaParserBuilder.class,
                     RewriteParserConfiguration.class,
                     RewriteProjectParser.class,
                     ResourceParser.class,
@@ -143,12 +143,11 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     ApplicableRecipeListCommand.class,
                     ApplicableRecipesListHolder.class,
                     SbmRecipeLoader.class,
-//                    SbmRecipeLoader.class,
-                    ExecutionScopeArchFitTestContext.class
+                    ExecutionScopeArchFitTestContext.class,
+                    SbmSupportRewriteConfiguration.class
             },
             properties = "spring.main.allow-bean-definition-overriding=true"
 )
-//@Import(ExecutionScopeArchFitTestContext.class)
 public class ExecutionScopeArchFitTest {
     public static final String TEST_RECIPE_NAME = "dummy-recipe";
 

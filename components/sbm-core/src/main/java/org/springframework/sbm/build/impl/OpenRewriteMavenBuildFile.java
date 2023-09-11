@@ -61,6 +61,24 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     private final PluginRepositoryHandler pluginRepositoryHandler = new PluginRepositoryHandler();
 	private final MavenBuildFileRefactoring<Xml.Document> refactoring;
     private final RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader;
+    public static final Path JAVA_SOURCE_FOLDER = Path.of("src/main/java");
+    public static final Path JAVA_TEST_SOURCE_FOLDER = Path.of("src/test/java");
+    private static final Path RESOURCE_FOLDER = Path.of("src/main/resources");
+    private static final Path RESOURCE_TEST_FOLDER = Path.of("src/test/resources");
+    private final ExecutionContext executionContext;
+
+    public OpenRewriteMavenBuildFile(Path absoluteProjectPath,
+                                     Xml.Document sourceFile,
+                                     ApplicationEventPublisher eventPublisher,
+                                     ExecutionContext executionContext,
+                                     MavenBuildFileRefactoring refactoring,
+                                     RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader) {
+        super(absoluteProjectPath, sourceFile);
+        this.eventPublisher = eventPublisher;
+        this.executionContext = executionContext;
+        this.refactoring = refactoring;
+        this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
+    }
 
     public OpenRewriteMavenBuildFile(Path projectRootDirectory, SourceFile maven, ApplicationEventPublisher eventPublisher, ExecutionContext executionContext, MavenBuildFileRefactoring refactoring, RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader) {
         this(projectRootDirectory, cast(maven), eventPublisher, executionContext, refactoring, rewriteMavenArtifactDownloader);
@@ -138,26 +156,6 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
             return getDisplayName();
         }
 
-    }
-
-    public static final Path JAVA_SOURCE_FOLDER = Path.of("src/main/java");
-    public static final Path JAVA_TEST_SOURCE_FOLDER = Path.of("src/test/java");
-    private static final Path RESOURCE_FOLDER = Path.of("src/main/resources");
-    private static final Path RESOURCE_TEST_FOLDER = Path.of("src/test/resources");
-
-    private final ExecutionContext executionContext;
-
-
-    public OpenRewriteMavenBuildFile(Path absoluteProjectPath,
-                                     Xml.Document sourceFile,
-                                     ApplicationEventPublisher eventPublisher,
-                                     ExecutionContext executionContext,
-                                     MavenBuildFileRefactoring<Xml.Document> refactoring, RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader) {
-        super(absoluteProjectPath, sourceFile);
-        this.eventPublisher = eventPublisher;
-        this.executionContext = executionContext;
-        this.refactoring = refactoring;
-        this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
     }
 
     public void apply(Recipe recipe) {

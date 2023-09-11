@@ -23,6 +23,8 @@ import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.project.parser.DependencyHelper;
 import org.springframework.sbm.project.resource.*;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +60,8 @@ public class ProjectContextFactory {
         projectResourceSet.list().forEach(pr -> {
             Optional<ProjectResourceWrapper> wrapper = resourceWrapperRegistry.findWrapper(pr);
             if (wrapper.isPresent()) {
-                projectResourceSet.replace(pr.getAbsolutePath(), wrapper.get().wrapRewriteSourceFileHolder(pr));
+                RewriteSourceFileHolder newResource = wrapper.get().wrapRewriteSourceFileHolder(pr);
+                projectResourceSet.replace(pr.getAbsolutePath(), newResource);
             }
         });
     }
