@@ -52,41 +52,41 @@ class RewriteProjectParserTest {
 
     @Language("xml")
     String pomXml = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>org.example</groupId>
-                    <artifactId>root-project</artifactId>
-                    <version>1.0.0</version>
-                    <properties>
-                        <maven.compiler.target>17</maven.compiler.target>
-                        <maven.compiler.source>17</maven.compiler.source>
-                    </properties>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-starter</artifactId>
-                            <version>3.1.1</version>
-                        </dependency>
-                    </dependencies>
-                </project>
-                """;
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                <modelVersion>4.0.0</modelVersion>
+                <groupId>org.example</groupId>
+                <artifactId>root-project</artifactId>
+                <version>1.0.0</version>
+                <properties>
+                    <maven.compiler.target>17</maven.compiler.target>
+                    <maven.compiler.source>17</maven.compiler.source>
+                </properties>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter</artifactId>
+                        <version>3.1.1</version>
+                    </dependency>
+                </dependencies>
+            </project>
+            """;
 
     @Language("java")
     String javaClass = """
-                package com.example;
-                import org.springframework.boot.SpringApplication;
-                import org.springframework.boot.autoconfigure.SpringBootApplication;
-                                            
-                @SpringBootApplication
-                public class MyMain {
-                    public static void main(String[] args){
-                        SpringApplication.run(MyMain.class, args);
-                    }
+            package com.example;
+            import org.springframework.boot.SpringApplication;
+            import org.springframework.boot.autoconfigure.SpringBootApplication;
+                                        
+            @SpringBootApplication
+            public class MyMain {
+                public static void main(String[] args){
+                    SpringApplication.run(MyMain.class, args);
                 }
-                """;
+            }
+            """;
 
     @Test
     @DisplayName("Parse simple Maven project")
@@ -97,7 +97,9 @@ class RewriteProjectParserTest {
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserProperties);
         MavenArtifactCache mavenArtifactCache = new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository"));
         @Nullable MavenSettings mavenSettings = null;
-        Consumer<Throwable> onError = (t) -> {throw new RuntimeException(t);};
+        Consumer<Throwable> onError = (t) -> {
+            throw new RuntimeException(t);
+        };
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader(mavenArtifactCache, mavenSettings, onError));
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
@@ -113,9 +115,14 @@ class RewriteProjectParserTest {
         );
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         List<String> parsedFiles = new ArrayList<>();
-        ParsingExecutionContextView.view(executionContext).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
-            parsedFiles.add(sourceFile.getSourcePath().toString());
-        });
+        ParsingExecutionContextView.view(executionContext).setParsingListener(
+                    new ParsingEventListener() {
+                        @Override
+                        public void parsed(Parser.Input input, SourceFile sourceFile) {
+                            parsedFiles.add(sourceFile.getSourcePath().toString());
+                        }
+                    }
+                );
 
         List<Resource> resources = List.of(
                 new DummyResource(basePath.resolve("pom.xml"), pomXml),

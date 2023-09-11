@@ -288,6 +288,24 @@
                 </dependencies>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.16.0</version>
+<!--                <configuration>-->
+<!--                    <properties>-->
+<!--                        <property>-->
+<!--                            <name>manchu.version</name>-->
+<!--                            <dependencies>-->
+<!--                                <dependency>-->
+<!--                                    <groupId>com.foo.bar</groupId>-->
+<!--                                    <artifactId>manchu-wibble</artifactId>-->
+<!--                                </dependency>-->
+<!--                            </dependencies>-->
+<!--                        </property>-->
+<!--                    </properties>-->
+<!--                </configuration>-->
+            </plugin>
+            <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <version>4.1</version>
