@@ -315,14 +315,18 @@ class RewriteMavenProjectParserTest {
         RewriteMavenProjectParser projectParser = sut;
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         List<String> parsedFiles = new ArrayList<>();
-        ParsingExecutionContextView.view(executionContext).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                    .withLocale(Locale.US)
-                    .withZone(ZoneId.systemDefault());
-            String format = dateTimeFormatter.format(Instant.now());
-            System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
-            parsedFiles.add(sourceFile.getSourcePath().toString());
+        ParsingExecutionContextView.view(executionContext).setParsingListener(new ParsingEventListener() {
+            @Override
+            public void parsed(Parser.Input input, SourceFile sourceFile) {
+                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                        .withLocale(Locale.US)
+                        .withZone(ZoneId.systemDefault());
+                String format = dateTimeFormatter.format(Instant.now());
+                System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
+                parsedFiles.add(sourceFile.getSourcePath().toString());
+            }
         });
+
         parserProperties.setIgnoredPathPatterns(Set.of("**/testcode/**", ".rewrite/**", "internal/**"));
         RewriteProjectParsingResult parsingResult = projectParser.parse(
                 projectRoot,
