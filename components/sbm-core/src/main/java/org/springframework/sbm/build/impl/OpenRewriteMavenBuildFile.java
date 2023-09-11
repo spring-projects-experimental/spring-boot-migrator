@@ -38,7 +38,7 @@ import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyManagement;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;

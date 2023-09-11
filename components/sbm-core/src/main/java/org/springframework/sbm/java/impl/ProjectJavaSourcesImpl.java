@@ -31,7 +31,7 @@ import org.springframework.sbm.java.filter.JavaSourceListFilter;
 import org.springframework.sbm.java.refactoring.JavaGlobalRefactoring;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.ArrayList;
 import java.util.List;

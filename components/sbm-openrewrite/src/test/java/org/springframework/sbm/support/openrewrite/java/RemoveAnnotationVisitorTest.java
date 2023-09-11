@@ -17,11 +17,11 @@ package org.springframework.sbm.support.openrewrite.java;
 
 import org.openrewrite.RecipeRun;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
-import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openrewrite.java.tree.J;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.List;
 import java.util.stream.Collectors;

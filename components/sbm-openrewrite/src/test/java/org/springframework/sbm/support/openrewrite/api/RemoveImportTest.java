@@ -17,7 +17,7 @@ package org.springframework.sbm.support.openrewrite.api;
 
 import org.openrewrite.RecipeRun;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
-import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.tree.J;

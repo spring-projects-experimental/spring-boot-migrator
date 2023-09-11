@@ -31,7 +31,7 @@ import org.springframework.sbm.java.api.MethodParam;
 import org.springframework.sbm.java.api.Visibility;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 

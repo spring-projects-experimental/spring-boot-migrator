@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
@@ -52,7 +53,6 @@ import org.springframework.sbm.project.resource.*;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.springframework.sbm.scopes.ExecutionScope;
 import org.springframework.sbm.scopes.ScanScope;
-import org.springframework.sbm.scopes.ScopeConfiguration;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.util.FileSystemUtils;
 

@@ -25,7 +25,7 @@ import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.spring.migration.actions.OpenRewriteRecipeAdapterAction;
-import org.springframework.sbm.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
