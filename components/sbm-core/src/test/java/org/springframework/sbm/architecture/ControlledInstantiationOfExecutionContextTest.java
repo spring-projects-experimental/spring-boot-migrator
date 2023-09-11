@@ -24,6 +24,8 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import org.openrewrite.ExecutionContext;
+import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
+import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.sbm.SbmCoreConfig;

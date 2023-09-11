@@ -17,15 +17,11 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.TreeVisitor;
-import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.search.UsesType;
-import org.openrewrite.java.spring.boot3.RemoveConstructorBindingAnnotation;
 import org.openrewrite.java.tree.J;
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.recipe.OpenRewriteSourceFilesFinder;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 

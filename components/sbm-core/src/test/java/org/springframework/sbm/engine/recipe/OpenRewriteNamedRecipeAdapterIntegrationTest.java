@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
@@ -26,7 +27,6 @@ import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.scopes.ExecutionScope;
 import org.springframework.sbm.scopes.ScanScope;
-import org.springframework.sbm.scopes.ScopeConfiguration;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
 import java.io.IOException;
