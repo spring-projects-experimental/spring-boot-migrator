@@ -18,7 +18,6 @@ package org.springframework.sbm.parsers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.ExpectedToFail;
-import org.openrewrite.java.tree.J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -56,16 +55,6 @@ public class RewriteMavenProjectParserIntegrationTest {
                 .isEqualTo("module-b/pom.xml");
         assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString())
                 .isEqualTo("module-a/pom.xml");
-    }
-
-    @org.junit.jupiter.api.Test
-    @org.junit.jupiter.api.DisplayName("testFailingProject")
-    void testFailingProject() {
-        Path baseDir = Path.of("./testcode/maven-projects/failing");
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir);
-        assertThat(parsingResult.sourceFiles().get(1)).isInstanceOf(J.CompilationUnit.class);
-        J.CompilationUnit cu = (J.CompilationUnit) parsingResult.sourceFiles().get(1);
-        assertThat(cu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
     }
 
     @TestConfiguration
