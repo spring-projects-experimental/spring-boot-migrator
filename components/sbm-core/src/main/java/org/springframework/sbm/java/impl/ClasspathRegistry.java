@@ -16,6 +16,7 @@
 package org.springframework.sbm.java.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.springframework.sbm.build.api.BuildFile;
@@ -33,6 +34,7 @@ import java.util.stream.Stream;
  * Currently, the classpath contains all dependencies in all scopes and for all modules
  */
 @Slf4j
+@Deprecated(forRemoval = true)
 public class ClasspathRegistry {
 
 	private static final DependencyHelper dependencyHelper = new DependencyHelper();
@@ -49,6 +51,7 @@ public class ClasspathRegistry {
 	 */
 	private final ConcurrentSkipListMap<ResolvedDependency, Path> currentDependencies = new ConcurrentSkipListMap<ResolvedDependency, Path>(
 			Comparator.comparing(r -> r.getGav().toString()));
+	private DependencyHelper artifactDownloader;
 
 	private ClasspathRegistry() {
 	}
@@ -145,7 +148,8 @@ public class ClasspathRegistry {
 
 	private void initDependency(ResolvedDependency d, Map<ResolvedDependency, Path>... maps) {
 		if(isExternalDependency(d)) {
-			Path dependencyPath = new RewriteMavenArtifactDownloader().downloadArtifact(d);
+			Path localM2 = Path.of(System.getProperty("user.home")).resolve(".m2/repository");
+			Path dependencyPath = new RewriteMavenArtifactDownloader(new LocalMavenArtifactCache(localM2), null, t -> {throw new RuntimeException(t);}).downloadArtifact(d);
 			if(dependencyPath != null) {
 				Stream.of(maps).forEach(m -> m.put(d, dependencyPath));
 			} else {

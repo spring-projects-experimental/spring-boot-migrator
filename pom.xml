@@ -241,7 +241,7 @@
         <dependency>
             <groupId>org.springframework.experimental</groupId>
             <artifactId>sbm-support-rewrite</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>${sbm-support-rewrite.version}</version>
         </dependency>
     </dependencies>
     <modules>

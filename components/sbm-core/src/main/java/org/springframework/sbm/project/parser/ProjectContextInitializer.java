@@ -24,6 +24,7 @@ import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.git.Commit;
 import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -38,7 +39,7 @@ import java.util.Optional;
 public class ProjectContextInitializer {
 
     private final ProjectContextFactory projectContextFactory;
-    private final MavenProjectParser mavenProjectParser;
+    private final RewriteProjectParser mavenProjectParser;
     private final GitSupport gitSupport;
     private final RewriteSourceFileWrapper rewriteSourceFileWrapper;
     private final ExecutionContext executionContext;
@@ -49,7 +50,7 @@ public class ProjectContextInitializer {
         // TODO: remove git initialization, handled by precondition check
         initializeGitRepoIfNoneExists(absoluteProjectDir);
 
-        List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources);
+        List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources, executionContext).sourceFiles();
         List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = rewriteSourceFileWrapper.wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);
 
         ProjectResourceSet projectResourceSet = new ProjectResourceSet(rewriteSourceFileHolders, executionContext);
