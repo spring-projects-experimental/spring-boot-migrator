@@ -33,7 +33,6 @@ public class JavaSourceProjectResourceWrapper implements ProjectResourceWrapper<
 
     private final JavaRefactoringFactory javaRefactoringFactory;
     private final JavaParserBuilder javaParserBuilder;
-
     private final ExecutionContext executionContext;
 
     @Override
