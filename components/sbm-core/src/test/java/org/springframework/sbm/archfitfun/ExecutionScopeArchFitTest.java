@@ -60,7 +60,6 @@ import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
-import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
