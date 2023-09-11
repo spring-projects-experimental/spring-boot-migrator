@@ -31,7 +31,7 @@
         <plexus-cypher.version>1.8</plexus-cypher.version>
         <maven-invoker.version>3.2.0</maven-invoker.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
-        <junit-pioneer.version>2.0.1</junit-pioneer.version>
+        <junit-pioneer.version>2.1.0</junit-pioneer.version>
         <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     </properties>
