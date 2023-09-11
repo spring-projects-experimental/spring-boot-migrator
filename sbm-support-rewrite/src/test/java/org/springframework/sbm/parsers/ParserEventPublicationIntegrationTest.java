@@ -26,7 +26,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
-import org.springframework.sbm.parsers.events.ParsedResourceEvent;
+import org.springframework.sbm.parsers.events.FinishedParsingResourceEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
 
 import java.nio.file.Path;
@@ -51,7 +51,7 @@ public class ParserEventPublicationIntegrationTest {
     @Autowired
     ParserProperties parserProperties;
 
-    private static List<ParsedResourceEvent> capturedEvents = new ArrayList<>();
+    private static List<FinishedParsingResourceEvent> capturedEvents = new ArrayList<>();
     private static StartedParsingProjectEvent startedParsingEvent;
     private static SuccessfullyParsedProjectEvent finishedParsingEvent;
 
@@ -90,8 +90,8 @@ public class ParserEventPublicationIntegrationTest {
     static class TestEventListener {
 
 
-        @EventListener(ParsedResourceEvent.class)
-        public void onEvent(ParsedResourceEvent event) {
+        @EventListener(FinishedParsingResourceEvent.class)
+        public void onEvent(FinishedParsingResourceEvent event) {
             capturedEvents.add(event);
         }
 

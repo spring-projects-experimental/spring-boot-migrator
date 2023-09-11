@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.event.EventListener;
-import org.springframework.sbm.parsers.events.ParsedResourceEvent;
+import org.springframework.sbm.parsers.events.FinishedParsingResourceEvent;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class RewriteMavenProjectParserIntegrationTest {
     @Autowired
     private RewriteMavenProjectParser sut;
 
-    private static List<ParsedResourceEvent> capturedEvents = new ArrayList<>();
+    private static List<FinishedParsingResourceEvent> capturedEvents = new ArrayList<>();
 
     @Test
     @ExpectedToFail("Parsing order of pom files is not correct, see https://github.com/openrewrite/rewrite-maven-plugin/pull/601")
@@ -59,8 +59,8 @@ public class RewriteMavenProjectParserIntegrationTest {
 
     @TestConfiguration
     static class TestEventListener {
-        @EventListener(ParsedResourceEvent.class)
-        public void onEvent(ParsedResourceEvent event) {
+        @EventListener(FinishedParsingResourceEvent.class)
+        public void onEvent(FinishedParsingResourceEvent event) {
             capturedEvents.add(event);
         }
     }
