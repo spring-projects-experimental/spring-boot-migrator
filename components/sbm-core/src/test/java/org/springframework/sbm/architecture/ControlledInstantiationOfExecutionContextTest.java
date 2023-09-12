@@ -50,6 +50,8 @@ public class ControlledInstantiationOfExecutionContextTest {
                     .andShould()
                             .notBe(classWithPermissionToCreateExecutionContext)
                     .andShould()
+                        .notBe(SbmCoreConfig.class)
+                    .andShould()
                         .notBe(RewriteExecutionContext.class)
             ;
 }
