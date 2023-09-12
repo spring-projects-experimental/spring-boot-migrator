@@ -26,7 +26,7 @@
         <sbm.version>0.15.0-SNAPSHOT</sbm.version>
         <rewrite-maven-plugin.version>5.3.2</rewrite-maven-plugin.version>
         <maven.version>3.9.1</maven.version>
-        <maven-resolver.version>1.9.7</maven-resolver.version>
+        <maven-resolver.version>1.9.13</maven-resolver.version>
         <maven-wagon-http.version>3.5.3</maven-wagon-http.version>
         <artifactory-maven-plugin.version>3.6.1</artifactory-maven-plugin.version>
         <plexus-cypher.version>1.8</plexus-cypher.version>
@@ -165,6 +165,11 @@
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-connector-basic</artifactId>
+            <version>${maven-resolver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-impl</artifactId>
             <version>${maven-resolver.version}</version>
         </dependency>
         <dependency>
