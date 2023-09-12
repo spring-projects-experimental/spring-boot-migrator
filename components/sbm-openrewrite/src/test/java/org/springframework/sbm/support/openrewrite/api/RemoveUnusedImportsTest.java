@@ -33,32 +33,36 @@ public class RemoveUnusedImportsTest {
     @Test
     void removeUnusedImports() {
         String javaCode =
-                "import org.springframework.transaction.annotation.Propagation;\n" +
-                        "import org.springframework.transaction.annotation.Transactional;\n" +
-                        "\n" +
-                        "import javax.ejb.TransactionAttributeType;\n" +
-                        "\n" +
-                        "\n" +
-                        "@Transactional(propagation = Propagation.REQUIRES_NEW)\n" +
-                        "public class TransactionalService {\n" +
-                        "   public void requiresNewFromType() {}\n" +
-                        "\n" +
-                        "    @Transactional(propagation = Propagation.NOT_SUPPORTED)\n" +
-                        "    public void notSupported() {}\n" +
-                        "}";
+                """
+                import org.springframework.transaction.annotation.Propagation;
+                import org.springframework.transaction.annotation.Transactional;
+                                
+                import javax.ejb.TransactionAttributeType;
+                                
+                                
+                @Transactional(propagation = Propagation.REQUIRES_NEW)
+                public class TransactionalService {
+                   public void requiresNewFromType() {}
+                                
+                    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+                    public void notSupported() {}
+                }        
+                """;
 
         String expected =
-                "import org.springframework.transaction.annotation.Propagation;\n" +
-                        "import org.springframework.transaction.annotation.Transactional;\n" +
-                        "\n" +
-                        "\n" +
-                        "@Transactional(propagation = Propagation.REQUIRES_NEW)\n" +
-                        "public class TransactionalService {\n" +
-                        "   public void requiresNewFromType() {}\n" +
-                        "\n" +
-                        "    @Transactional(propagation = Propagation.NOT_SUPPORTED)\n" +
-                        "    public void notSupported() {}\n" +
-                        "}";
+                """
+                import org.springframework.transaction.annotation.Propagation;
+                import org.springframework.transaction.annotation.Transactional;
+                
+                
+                @Transactional(propagation = Propagation.REQUIRES_NEW)
+                public class TransactionalService {
+                   public void requiresNewFromType() {}
+                
+                    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+                    public void notSupported() {}
+                }                
+                """;
 
         List<SourceFile> compilationUnits = OpenRewriteTestSupport.createCompilationUnitsAsSourceFileFromStrings(List.of("javax.ejb:javax.ejb-api:3.2", "org.springframework.boot:spring-boot-starter-data-jpa:2.4.2"), javaCode);
 
