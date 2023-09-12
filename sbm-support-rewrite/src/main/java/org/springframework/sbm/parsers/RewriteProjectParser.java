@@ -135,7 +135,9 @@ public class RewriteProjectParser {
         AtomicReference<RewriteProjectParsingResult> atomicReference = new AtomicReference<>();
 
         withMavenSession(baseDir, mavenSession -> {
+            // Get the ordered list of projects
             List<MavenProject> sortedProjectsList = mavenSession.getProjectDependencyGraph().getSortedProjects();
+            // SortedProjects makes downstream components independent of Maven classes
             SortedProjects mavenInfos = new SortedProjects(resources, sortedProjectsList, List.of("default"));
 
 //            List<Resource> sortedBuildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
@@ -150,6 +152,7 @@ public class RewriteProjectParser {
                     .map(r -> resourceToDocumentMap.get(ResourceUtil.getPath(r)))
                     .map(SourceFile.class::cast)
                     .toList();
+
             // 128 : 131
             log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
             List<SourceFile> list = sourceFileParser.parseOtherSourceFiles(baseDir, mavenInfos, resourceToDocumentMap, mavenInfos.getResources(), provenanceMarkers, styles, executionContext);
@@ -173,7 +176,9 @@ public class RewriteProjectParser {
     }
 
     private void withMavenSession(Path baseDir, Consumer<MavenSession> consumer) {
-        mavenExecutor.onProjectSucceededEvent(baseDir, List.of("clean", "install"), event -> consumer.accept(event.getSession()));
+        List<String> goals = List.of("clean", "install");
+        log.debug("Successfully finished goals %s".formatted(goals));
+        mavenExecutor.onProjectSucceededEvent(baseDir, goals, event -> consumer.accept(event.getSession()));
     }
 
     @org.jetbrains.annotations.Nullable

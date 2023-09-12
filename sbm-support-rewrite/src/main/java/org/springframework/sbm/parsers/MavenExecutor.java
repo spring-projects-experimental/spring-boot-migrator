@@ -70,7 +70,7 @@ class MavenExecutor {
             @Override
             public void mojoSucceeded(ExecutionEvent event) {
                 super.mojoSucceeded(event);
-                System.out.println("Mojo succeeded: " + event.getMojoExecution().getGoal());
+                log.info("Mojo succeeded: " + event.getMojoExecution().getGoal());
             }
 
             @Override

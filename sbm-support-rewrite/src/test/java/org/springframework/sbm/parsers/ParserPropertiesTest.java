@@ -36,57 +36,57 @@ class ParserPropertiesTest {
 
         @Test
         @DisplayName("parser.pomCacheEnabled")
-        void validPomCacheEnabled() {
+        void defaultPomCacheEnabled() {
             assertThat(parserProperties.isPomCacheEnabled()).isFalse();
         }
 
 
         @Test
         @DisplayName("parser.pomCacheDirectory")
-        void validPomCacheDirectory() {
+        void defaultPomCacheDirectory() {
             assertThat(parserProperties.getPomCacheDirectory()).isEqualTo("~/.rewrite-cache");
         }
 
         @Test
         @DisplayName("parser.skipMavenParsing")
-        void validSkipMavenParsing() {
+        void defaultSkipMavenParsing() {
             assertThat(parserProperties.isSkipMavenParsing()).isFalse();
         }
 
         @Test
         @DisplayName("parser.plainTextMasks")
-        void validPlainTextMasks() {
+        void defaultPlainTextMasks() {
             assertThat(parserProperties.getPlainTextMasks()).containsExactlyInAnyOrder("*.txt");
         }
 
         @Test
         @DisplayName("parser.sizeThresholdMb")
-        void validSizeThresholdMb() {
+        void defaultSizeThresholdMb() {
             assertThat(parserProperties.getSizeThresholdMb()).isEqualTo(10);
         }
 
         @Test
         @DisplayName("parser.runPerSubmodule")
-        void validRunPerSubmodule() {
+        void defaultRunPerSubmodule() {
             assertThat(parserProperties.isRunPerSubmodule()).isFalse();
         }
 
         @Test
         @DisplayName("parser.failOnInvalidActiveRecipes")
-        void validFailOnInvalidActiveRecipes() {
+        void defaultFailOnInvalidActiveRecipes() {
             assertThat(parserProperties.isFailOnInvalidActiveRecipes()).isTrue();
         }
 
         @Test
         @DisplayName("parser.activeProfiles")
-        void validActiveProfiles() {
+        void defaultActiveProfiles() {
             assertThat(parserProperties.getActiveProfiles()).containsExactlyInAnyOrder("default");
         }
 
         @Test
         @DisplayName("parser.ignoredPathPatterns")
-        void validIgnoredPathPatterns() {
-            assertThat(parserProperties.getIgnoredPathPatterns()).containsExactlyInAnyOrder("**.idea","**.git");
+        void defaultIgnoredPathPatterns() {
+            assertThat(parserProperties.getIgnoredPathPatterns()).containsExactlyInAnyOrder("target/**", "**.git", "**/target/**", "**.idea");
         }
 
     }
