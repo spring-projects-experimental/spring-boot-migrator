@@ -37,39 +37,6 @@
             <artifactId>sbm-support-rewrite</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-core</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-maven</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-yaml</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-properties</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-java</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-java-11</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-java-17</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.rocksdb</groupId>-->
-<!--            <artifactId>rocksdbjni</artifactId>-->
-<!--            <version>7.1.2</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
