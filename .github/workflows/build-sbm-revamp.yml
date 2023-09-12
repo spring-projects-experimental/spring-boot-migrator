@@ -1,4 +1,4 @@
-name: Build SBM Legacy
+name: Build SBM Revamp
 on:
   push:
     branches:
