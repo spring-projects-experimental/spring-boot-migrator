@@ -15,21 +15,16 @@
  */
 package org.springframework.sbm.java;
 
-import org.assertj.core.api.Assertions;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.openrewrite.*;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
+import org.springframework.sbm.java.util.JavaSourceUtil;
+import org.springframework.sbm.testhelper.common.utils.TestDiff;
+import org.assertj.core.api.Assertions;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.maven.cache.LocalMavenArtifactCache;
-import org.openrewrite.maven.tree.Dependency;
-import org.openrewrite.maven.tree.GroupArtifactVersion;
-import org.openrewrite.maven.tree.ResolvedDependency;
-import org.openrewrite.maven.tree.ResolvedGroupArtifactVersion;
-import org.openrewrite.maven.utilities.MavenArtifactDownloader;
-import org.springframework.sbm.java.util.JavaSourceUtil;
-import org.springframework.sbm.testhelper.common.utils.TestDiff;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -41,7 +36,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.AssertionsKt.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 public class OpenRewriteTestSupport {
@@ -240,30 +235,16 @@ public class OpenRewriteTestSupport {
     }
 
     /**
-     * Retrieve the <code>Path</code>s of jars for given gav
+     * Retrieve the <code>Path</code>s of jars for given classpath
      *
-     * @param gav in 'groupId:artifactId:version' format
+     * @param classpath in 'groupId:artifactId:version' format
      */
-    public static List<Path> getClasspathFiles(String... gav) {
-        if (gav.length == 0) return List.of();
-        Path localM2 = Path.of(System.getProperty("user.home")).resolve(".m2/repository").normalize().toAbsolutePath();
-        MavenArtifactDownloader mavenArtifactDownloader = new MavenArtifactDownloader(new LocalMavenArtifactCache(localM2), null, t -> {
-            throw new RuntimeException(t);
-        });
-        return Arrays.stream(gav)
-                .map(g -> g.split(":"))
-                .map(g -> ResolvedDependency.builder()
-                        .gav(new ResolvedGroupArtifactVersion(null, g[0], g[1], g.length == 3 ? g[2] : null, null))
-                        .requested(Dependency.builder()
-                                .gav(new GroupArtifactVersion(g[0], g[1], g.length == 3 ? g[2] : null))
-                                .build()
-                        )
-                        .build()
-                )
-                .map(g -> {
-                    return mavenArtifactDownloader.downloadArtifact(g);
-                })
-                .toList();
+    public static List<Path> getClasspathFiles(String... classpath) {
+        if (classpath.length == 0) return List.of();
+        File[] as = org.jboss.shrinkwrap.resolver.api.maven.Maven.resolver().resolve(classpath).withTransitivity().as(File.class);
+        return Arrays.stream(as)
+                .map(File::toPath)
+                .collect(Collectors.toList());
     }
 
     private static <P> RecipeRun refactor(J.CompilationUnit given, JavaVisitor<ExecutionContext> visitor) {
