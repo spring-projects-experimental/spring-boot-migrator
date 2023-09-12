@@ -45,66 +45,66 @@ class Slf4jToMavenLoggerAdapter implements Log {
 
     @Override
     public void debug(Throwable throwable) {
-
+        log.debug("", throwable);
     }
 
     @Override
     public boolean isInfoEnabled() {
-        return false;
+        return log.isInfoEnabled();
     }
 
     @Override
     public void info(CharSequence charSequence) {
-
+        log.info(charSequence.toString());
     }
 
     @Override
     public void info(CharSequence charSequence, Throwable throwable) {
-
+        log.info(charSequence.toString(), throwable);
     }
 
     @Override
     public void info(Throwable throwable) {
-
+        log.info("", throwable);
     }
 
     @Override
     public boolean isWarnEnabled() {
-        return false;
+        return log.isWarnEnabled();
     }
 
     @Override
     public void warn(CharSequence charSequence) {
-
+        log.warn(charSequence.toString());
     }
 
     @Override
     public void warn(CharSequence charSequence, Throwable throwable) {
-
+        log.warn(charSequence.toString(), throwable);
     }
 
     @Override
     public void warn(Throwable throwable) {
-
+        log.warn("", throwable);
     }
 
     @Override
     public boolean isErrorEnabled() {
-        return false;
+        return log.isErrorEnabled();
     }
 
     @Override
     public void error(CharSequence charSequence) {
-
+        log.error(charSequence.toString());
     }
 
     @Override
     public void error(CharSequence charSequence, Throwable throwable) {
-
+        log.error(charSequence.toString(), throwable);
     }
 
     @Override
     public void error(Throwable throwable) {
-
+        log.error("", throwable);
     }
 }
