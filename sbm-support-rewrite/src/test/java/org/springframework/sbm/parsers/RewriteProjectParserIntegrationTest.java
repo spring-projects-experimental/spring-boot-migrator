@@ -62,6 +62,17 @@ public class RewriteProjectParserIntegrationTest {
         assertThat(parsingResult.sourceFiles()).hasSize(4);
     }
 
+    @Test
+    @DisplayName("parseResources")
+    void parseResources() {
+        Path baseDir = getMavenProject("resources");
+        List<Resource> resources = projectScanner.scan(baseDir);
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {
+            throw new RuntimeException(t);
+        }));
+        assertThat(parsingResult.sourceFiles()).hasSize(4);
+    }
+
     private Path getMavenProject(String s) {
         return Path.of("./testcode/maven-projects/").resolve(s).toAbsolutePath().normalize();
     }
