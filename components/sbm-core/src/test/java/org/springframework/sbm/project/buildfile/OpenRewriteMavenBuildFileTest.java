@@ -35,6 +35,7 @@ import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -530,7 +531,7 @@ public class OpenRewriteMavenBuildFileTest {
                 )
                 .withJavaSource("src/main/java",
                        """
-                        import javax.validation.constraints.Email;
+                        import jakarta.validation.constraints.Email;
                         public class Cat {
                             @Email
                             private String email;
@@ -563,7 +564,7 @@ public class OpenRewriteMavenBuildFileTest {
         assertThat(fireEvent.getResolvedDependencies().get(0).toString()).endsWith("javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar");
 
         // call DependenciesChangedEventHandler to trigger recompile
-        RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(new SbmApplicationProperties(), executionContext);
+        JavaParserBuilder rewriteJavaParser = new JavaParserBuilder();
         ProjectContextHolder projectContextHolder = new ProjectContextHolder();
         projectContextHolder.setProjectContext(context);
         DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, rewriteJavaParser, executionContext);

@@ -44,7 +44,7 @@ public class AddMavenPlugin extends Recipe {
 	private final OpenRewriteMavenPlugin plugin;
 
 	@Override
-	protected TreeVisitor<?, ExecutionContext> getVisitor() {
+	public TreeVisitor<?, ExecutionContext> getVisitor() {
 		return new AddPluginVisitor();
 	}
 
@@ -174,6 +174,11 @@ public class AddMavenPlugin extends Recipe {
 	@Override
 	public String getDisplayName() {
 		return "Add Maven Plugin";
+	}
+
+	@Override
+	public String getDescription() {
+		return getDisplayName();
 	}
 
 }

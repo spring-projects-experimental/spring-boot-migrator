@@ -28,7 +28,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.sbm.engine.recipe.MultiModuleAwareAction;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

@@ -15,26 +15,27 @@
  */
 package org.springframework.sbm.engine.context;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
-import org.openrewrite.Result;
+import org.openrewrite.RecipeRun;
 import org.openrewrite.SourceFile;
-import org.openrewrite.java.JavaParser;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.sbm.build.api.ApplicationModules;
-import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Module;
+import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.RootBuildFileFilter;
 import org.springframework.sbm.build.filter.BuildFileProjectResourceFilter;
-import org.springframework.sbm.engine.recipe.OpenRewriteSourceFilesFinder;
 import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
 import org.springframework.sbm.java.api.ProjectJavaSources;
 import org.springframework.sbm.java.impl.ProjectJavaSourcesImpl;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -49,18 +50,18 @@ public class ProjectContext {
     private BasePackageCalculator basePackageCalculator;
     private final ProjectResourceSet projectResources;
     private String revision;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
-    private final RewriteMigrationResultMerger resultMerger;
+    private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
 
-    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParser javaParser, ExecutionContext executionContext, RewriteMigrationResultMerger resultMerger) {
+    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParserBuilder javaParserBuilder, ExecutionContext executionContext, RewriteMigrationResultMerger rewriteMigrationResultMerger) {
         this.projectRootDirectory = projectRootDirectory.toAbsolutePath();
         this.projectResources = projectResources;
         this.javaRefactoringFactory = javaRefactoringFactory;
         this.basePackageCalculator = basePackageCalculator;
-        this.javaParser = javaParser;
+        this.javaParserBuilder = javaParserBuilder;
         this.executionContext = executionContext;
-        this.resultMerger = resultMerger;
+        this.rewriteMigrationResultMerger = rewriteMigrationResultMerger;
     }
 
     public ProjectResourceSet getProjectResources() {
@@ -68,8 +69,7 @@ public class ProjectContext {
     }
 
     /**
-     * @deprecated
-     * Use {@link #getApplicationModules()} instead.
+     * @deprecated Use {@link #getApplicationModules()} instead.
      * TODO: Make method private
      */
     @Deprecated(forRemoval = false)
@@ -82,7 +82,18 @@ public class ProjectContext {
     private Module mapToModule(BuildFile buildFile) {
         String buildFileName = "";
         Path modulePath = projectRootDirectory.relativize(buildFile.getAbsolutePath().getParent());
-        return new Module(buildFileName, buildFile, projectRootDirectory, modulePath, getProjectResources(), javaRefactoringFactory, basePackageCalculator, javaParser, executionContext);
+        return new Module(
+                buildFileName,
+                buildFile,
+                projectRootDirectory,
+                modulePath,
+                getProjectResources(),
+                javaRefactoringFactory,
+                basePackageCalculator,
+                javaParserBuilder,
+                executionContext,
+                rewriteMigrationResultMerger
+        );
     }
 
     /**
@@ -91,7 +102,7 @@ public class ProjectContext {
      * Use {@link #getApplicationModules()} instead of getBuildFile()
      * If one would want to retrieve the root build file use:
      * {@link #getApplicationModules()} and then call to get root module using: {@link ApplicationModules#getRootModule()}
-     * */
+     */
     @Deprecated(forRemoval = true)
     public BuildFile getBuildFile() {
         return search(new RootBuildFileFilter());
@@ -110,9 +121,32 @@ public class ProjectContext {
         return new ApplicationModules(getModules());
     }
 
-    public void apply(Recipe recipe) {
-        List<? extends SourceFile> rewriteSourceFiles = this.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(rewriteSourceFiles, executionContext).getResults();
-        resultMerger.mergeResults(this, results);
+    public void apply(Recipe upgradeBootRecipe) {
+        List<SourceFile> ast = projectResources.stream()
+                .map(RewriteSourceFileHolder::getSourceFile)
+                .map(SourceFile.class::cast)
+                .toList();
+
+        RecipeRun recipeRun = upgradeBootRecipe.run(new InMemoryLargeSourceSet(ast), executionContext);
+        rewriteMigrationResultMerger.mergeResults(this, recipeRun.getChangeset().getAllResults());
+//        recipeRun.getChangeset().getAllResults().stream()
+//                .forEach(r -> {
+//
+////                    if(r.getAfter() == null) {
+////                        // deleted
+////                        RewriteSourceFileHolder<? extends SourceFile> rsfh = findResourceByPath(r.getBefore().getSourcePath());
+////
+////                        rsfh.replaceWith(r.getBefore());
+////                        rsfh.delete();
+////                    } else if(r.getBefore() == null) {
+////                        // added
+////                        RewriteSourceFileWrapper
+////                    } else {
+////                        projectResources.stream().filter(res -> res.getSourcePath().toString().equals(r.getAfter().getSourcePath().toString()))
+////                                .findFirst()
+////                                .get()
+////                                .replaceWith(r.getAfter());
+////                    }
+//                });
     }
 }

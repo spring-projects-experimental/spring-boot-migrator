@@ -49,7 +49,7 @@ public class RetrieveAnnotationTypeTest {
                 .classpath(classpathFiles)
                 .build();
 
-        List<J.Annotation> leadingAnnotations = javaParser.parse(javaSource).get(0).getClasses().get(0).getLeadingAnnotations();
+        List<J.Annotation> leadingAnnotations = javaParser.parse(javaSource).map(J.CompilationUnit.class::cast).toList().get(0).getClasses().get(0).getLeadingAnnotations();
         JavaType.Class type = JavaType.Class.class.cast(leadingAnnotations.get(0).getType());
         assertThat(type.getFullyQualifiedName()).isEqualTo("javax.ejb.Stateless");
     }

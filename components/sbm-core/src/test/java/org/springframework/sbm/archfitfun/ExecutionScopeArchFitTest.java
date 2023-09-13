@@ -18,7 +18,6 @@ package org.springframework.sbm.archfitfun;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.maven.MavenSettings;
@@ -26,9 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.sbm.build.impl.MavenSettingsInitializer;
-import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
@@ -41,9 +40,10 @@ import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.precondition.PreconditionVerifier;
 import org.springframework.sbm.engine.recipe.*;
-import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
+import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.parsers.RewriteParserConfiguration;
 import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
@@ -117,7 +117,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     ProjectResourceSetHolder.class,
                     JavaRefactoringFactoryImpl.class,
                     BasePackageCalculator.class,
-                    RewriteJavaParser.class,
+                    JavaParserBuilder.class,
                     RewriteParserConfiguration.class,
                     RewriteProjectParser.class,
                     ResourceParser.class,
@@ -143,12 +143,11 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     ApplicableRecipeListCommand.class,
                     ApplicableRecipesListHolder.class,
                     SbmRecipeLoader.class,
-//                    SbmRecipeLoader.class,
-                    ExecutionScopeArchFitTestContext.class
+                    ExecutionScopeArchFitTestContext.class,
+                    SbmSupportRewriteConfiguration.class
             },
             properties = "spring.main.allow-bean-definition-overriding=true"
 )
-//@Import(ExecutionScopeArchFitTestContext.class)
 public class ExecutionScopeArchFitTest {
     public static final String TEST_RECIPE_NAME = "dummy-recipe";
 
@@ -185,8 +184,8 @@ public class ExecutionScopeArchFitTest {
     void scanEvaluateConditionsApplyRecipe() {
         // --- APPLICATION STARTUP
         // All scopes empty before first scan command
-        Assertions.assertThat(getCacheSnapshot(scanScope)).isEmpty();
-        Assertions.assertThat(getCacheSnapshot(executionScope)).isEmpty();
+        assertThat(getCacheSnapshot(scanScope)).isEmpty();
+        assertThat(getCacheSnapshot(executionScope)).isEmpty();
 
         // ---- SCAN ----
         // The scan/parse is the first command
@@ -208,7 +207,7 @@ public class ExecutionScopeArchFitTest {
         assertThat(testRecorder.getExecutionContextCreations()).hasSize(1);
         String executionContextIdAfterScan = testRecorder.getExecutionContextCreations().get(0);
         // and is now in executionScope
-        Assertions.assertThat(getCacheSnapshot(executionScope)).hasSize(1);
+        assertThat(getCacheSnapshot(executionScope)).hasSize(1);
         ExecutionContext executionContextInExecutionScope = (ExecutionContext) getCacheSnapshot(
                 executionScope).get("scopedTarget.executionContext");
         String executionContextIdInExecutionScope = executionContextInExecutionScope.getMessage("executionContextId");
@@ -216,7 +215,7 @@ public class ExecutionScopeArchFitTest {
         // they are the same instance
         assertThat(executionContextIdInExecutionScope).isEqualTo(executionContextIdRecorded);
         // One ProjectMetadata creation recorded
-        Assertions.assertThat(testRecorder.getMetadataCreations()).hasSize(1);
+        assertThat(testRecorder.getMetadataCreations()).hasSize(1);
         // get created Metadata
         ProjectMetadata metadataCreationIdRecorded = testRecorder.getMetadataCreations().get(0);
         // and Metadata from scanScope
@@ -248,10 +247,11 @@ public class ExecutionScopeArchFitTest {
         String executionContextIdAfterConditions = ExecutionContext.class.cast(getCacheSnapshot(executionScope).get("scopedTarget.executionContext")).getMessage("executionContextId");
         assertThat(executionContextIdInCondition).isEqualTo(executionContextIdAfterConditions);
         // scan runtime scope didn't change
-        Assertions.assertThat(getCacheSnapshot(scanScope)).hasSize(1);
-        Assertions.assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.projectMetadata");
+        assertThat(getCacheSnapshot(scanScope)).hasSize(2);
+        assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.projectMetadata");
+        assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.javaParserBuilder");
         // and no new ProjectMetadata was created
-        Assertions.assertThat(testRecorder.getMetadataCreations()).hasSize(1);
+        assertThat(testRecorder.getMetadataCreations()).hasSize(1);
         // ProjectMetadata unchanged
         ProjectMetadata projectMetadataAfterConditions = ProjectMetadata.class.cast(getCacheSnapshot(
                 scanScope).get("scopedTarget.projectMetadata"));
@@ -263,7 +263,7 @@ public class ExecutionScopeArchFitTest {
 
         // assertions
         // executionScope is empty after applying the recipe
-        Assertions.assertThat(getCacheSnapshot(executionScope)).isEmpty();
+        assertThat(getCacheSnapshot(executionScope)).isEmpty();
         // No new ExecutionContext was created
         assertThat(testRecorder.getExecutionContextCreations()).hasSize(1);
         // the ExecutionContext that was injected into ApplyCommand is the same that was injected in ApplicableRecipeListCommand
@@ -272,8 +272,9 @@ public class ExecutionScopeArchFitTest {
         assertThat(executionContextIdInAction).isEqualTo(executionContextIdInCondition);
         assertThat(executionContextIdInAction).isEqualTo(executionContextIdAfterConditions);
         // scanScope unchanged
-        Assertions.assertThat(getCacheSnapshot(scanScope)).hasSize(1);
-        Assertions.assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.projectMetadata");
+        assertThat(getCacheSnapshot(scanScope)).hasSize(2);
+        assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.projectMetadata");
+        assertThat(getCacheSnapshot(scanScope)).containsKey("scopedTarget.javaParserBuilder");
         ProjectMetadata projectMetadataAfterRecipe = ProjectMetadata.class.cast(getCacheSnapshot(
                 scanScope).get("scopedTarget.projectMetadata"));
         // ProjectMetadata unchanged

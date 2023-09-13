@@ -75,7 +75,7 @@ class SubTypeHierarchyTest {
                 .build()
                 .getProjectJavaSources();
 
-        JavaSource javaSource = javaSourceSet.list().get(0);
+        JavaSource javaSource = javaSourceSet.findJavaSourceDeclaringType("a.Foo8").get();
 
         SubTypeHierarchy subTypeHierarchy = new SubTypeHierarchy(javaSource.getTypes().get(0), javaSourceSet);
 
@@ -120,7 +120,7 @@ class SubTypeHierarchyTest {
                 .build()
                 .getProjectJavaSources();
 
-        FindCompilationUnitContainingType findCompilationUnitContainingType = new FindCompilationUnitContainingType(JavaType.Class.build("Bar2"));
+        FindCompilationUnitContainingType findCompilationUnitContainingType = new FindCompilationUnitContainingType((JavaType.FullyQualified) JavaType.buildType("Bar2"));
 
         List<RewriteSourceFileHolder<J.CompilationUnit>> result = (List<RewriteSourceFileHolder<J.CompilationUnit>>) projectJavaSources.find(findCompilationUnitContainingType);
 

@@ -24,7 +24,7 @@ import lombok.Builder;
 import lombok.Setter;
 import org.springframework.sbm.engine.recipe.Condition;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 @Setter

@@ -32,7 +32,11 @@ public class AbstractBaseScope implements Scope {
     private final Map<String, Object> scopedBeans = new ConcurrentHashMap<>();
 
     public void clear(ConfigurableListableBeanFactory beanFactory) {
-        scopedBeans.keySet().stream().forEach(beanName -> beanFactory.destroyScopedBean(beanName));
+        log.trace("Clearing %d beans from scope %s.".formatted(scopedBeans.keySet().size(), this.getClass().getName()));
+        scopedBeans.keySet().stream().forEach(beanName -> {
+            beanFactory.destroyScopedBean(beanName);
+            log.trace("Removed bean '%s' from scan scope.".formatted(beanName));
+        });
     }
 
     public Object get(String name, ObjectFactory<?> objectFactory) {

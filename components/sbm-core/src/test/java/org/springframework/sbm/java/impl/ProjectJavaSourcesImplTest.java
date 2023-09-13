@@ -17,10 +17,9 @@ package org.springframework.sbm.java.impl;
 
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSourceAndType;
-import org.springframework.sbm.java.api.ProjectJavaSources;
-import org.springframework.sbm.java.exceptions.UnresolvedTypeException;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.util.List;
@@ -109,13 +108,10 @@ class ProjectJavaSourcesImplTest {
                 }
                 """;
 
-        ProjectJavaSources javaSource = TestProjectContext.buildProjectContext()
-                .withJavaSources(sourceCode)
-                .build()
-                .getProjectJavaSources();
 
-        assertThrows(UnresolvedTypeException.class, () ->
-                javaSource.findTypesImplementing("a.b.c.K"));
+        assertThrows(UnsatisfiedDependencyException.class, () ->
+            TestProjectContext.buildProjectContext().withJavaSources(sourceCode).build()
+        ).getMessage().contains("src/main/java/a/b/c/SomeClass.java:[2,13] cannot find symbol");
 
     }
 }

@@ -132,6 +132,6 @@ class PluginRepositoryHandlerTest {
 
     private Xml.Document getSourceFile(@Language("xml") String xml) {
 
-        return mavenParser.parse(xml).get(0);
+        return mavenParser.parse(xml).map(Xml.Document.class::cast).toList().get(0);
     }
 }

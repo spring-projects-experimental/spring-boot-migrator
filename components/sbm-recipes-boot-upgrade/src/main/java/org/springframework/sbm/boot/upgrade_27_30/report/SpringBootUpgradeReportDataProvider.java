@@ -18,7 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.stereotype.Component;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;

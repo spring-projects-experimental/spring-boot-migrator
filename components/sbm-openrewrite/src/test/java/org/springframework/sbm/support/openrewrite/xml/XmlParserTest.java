@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.support.openrewrite.xml;
 
+import org.openrewrite.SourceFile;
 import org.springframework.sbm.GitHubIssue;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,7 +61,7 @@ public class XmlParserTest {
                         "    </body>\n" +
                         "</html>\n";
 
-        List<Xml.Document> documents = new XmlParser().parseInputs(
+        Stream<SourceFile> documents = new XmlParser().parseInputs(
                 List.of(new Parser.Input(Path.of("./foo.xhtml").toAbsolutePath(), () -> new ByteArrayInputStream(xhtml.getBytes(StandardCharsets.UTF_8)))),
                 Path.of(".").toAbsolutePath(),
                 new InMemoryExecutionContext((e) -> e.printStackTrace()));

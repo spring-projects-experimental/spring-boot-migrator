@@ -35,7 +35,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.sbm.build.impl.MavenSettingsInitializer;
-import org.springframework.sbm.build.impl.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.build.migration.MavenPomCacheProvider;
 import org.springframework.sbm.engine.commands.ScanCommand;
@@ -48,6 +47,7 @@ import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
+import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.*;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
@@ -64,6 +64,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.*;
+import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 
 @SpringBootTest(classes = {
         ProjectContextInitializer.class,
@@ -84,7 +85,7 @@ import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.
         RewriteJsonParser.class,
         ResourceParser.class,
         RewritePropertiesParser.class,
-        MavenProjectParser.class,
+        RewriteProjectParser.class,
         RewriteMavenParser.class,
         MavenSettingsInitializer.class,
         RewriteXmlParser.class,
@@ -222,7 +223,7 @@ class ProjectContextInitializerTest {
                 """;
 
         MavenParser mavenParser = MavenParser.builder().build();
-        List<Xml.Document> parsedPomFiles = mavenParser.parse(parentPom, module1Pom, module2Pom);
+        List<Xml.Document> parsedPomFiles = mavenParser.parse(parentPom, module1Pom, module2Pom).map(Xml.Document.class::cast).toList();
         MavenResolutionResult parentPomMarker = parsedPomFiles.get(0).getMarkers().findFirst(MavenResolutionResult.class).get();
         assertThat(parentPomMarker.getDependencies().get(Scope.Provided)).isEmpty();
         assertThat(parentPomMarker.getDependencies().get(Scope.Runtime)).isEmpty();

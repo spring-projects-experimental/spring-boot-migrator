@@ -28,9 +28,9 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Condition;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;

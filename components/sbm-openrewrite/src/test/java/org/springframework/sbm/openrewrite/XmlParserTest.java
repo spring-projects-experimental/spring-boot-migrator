@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
+import org.openrewrite.SourceFile;
 import org.openrewrite.xml.XmlParser;
 import org.openrewrite.xml.tree.Xml;
 
@@ -61,7 +62,7 @@ public class XmlParserTest {
 
         XmlParser xmlParser = new XmlParser();
         Iterable<Parser.Input> inputs = Stream.of(new Parser.Input(Path.of("dummy-dir/index.xhtml").toAbsolutePath(), () -> new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)))).collect(Collectors.toList());
-        List<Xml.Document> parse = xmlParser.parseInputs(inputs, null, new InMemoryExecutionContext((t) -> t.printStackTrace()));
-        System.out.println(parse.get(0).printAll());
+        Stream<SourceFile> parse = xmlParser.parseInputs(inputs, null, new InMemoryExecutionContext((t) -> t.printStackTrace()));
+        System.out.println(parse.toList().get(0).printAll());
     }
 }

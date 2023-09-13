@@ -177,7 +177,7 @@ public class AddOrUpdateDependencyManagement extends MavenVisitor<ExecutionConte
         List<Content> content = _content == null ? new ArrayList<>() : new ArrayList<>(_content);
         content.add(child);
         parent = parent.withContent(content);
-        doAfterVisit(new AutoFormat());
+        doAfterVisit(new AutoFormat().getVisitor());
         return parent;
     }
 

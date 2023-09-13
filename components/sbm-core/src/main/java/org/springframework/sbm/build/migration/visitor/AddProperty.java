@@ -52,7 +52,7 @@ public final class AddProperty extends Recipe {
         return "Changes the specified Maven project property value leaving the key intact.";
     }
 
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new AddPropertyVisitor();
     }
 

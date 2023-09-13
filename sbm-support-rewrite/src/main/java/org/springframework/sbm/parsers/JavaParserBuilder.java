@@ -13,23 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.engine.recipe;
+package org.springframework.sbm.parsers;
 
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.SourceFile;
+import lombok.Getter;
+import lombok.Setter;
+import org.openrewrite.java.JavaParser;
+import org.springframework.sbm.scopes.annotations.ScanScope;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.function.Supplier;
 
-public class ErrorClass extends org.openrewrite.Recipe {
+/**
+ * @author Fabian Krüger
+ */
+@Component
+@ScanScope
+public class JavaParserBuilder extends JavaParser.Builder{
 
-    @Override
-    public String getDisplayName() {
-        return "NAME";
+    @Getter
+    @Setter
+    private JavaParser.Builder builder;
+
+    public Supplier<JavaParser.Builder> getSupplier() {
+        return () -> builder;
     }
 
     @Override
-    protected List<SourceFile> visit(List<SourceFile> before, ExecutionContext ctx) {
-        ctx.getOnError().accept(new RuntimeException("A problem happened whilst visiting"));
-        return super.visit(before, ctx);
+    public JavaParser build() {
+        return builder.build();
     }
 }

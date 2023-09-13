@@ -22,7 +22,6 @@ import org.openrewrite.maven.cache.MavenPomCache;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.sbm.scopes.ExecutionScope;
 import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.sbm.scopes.ScanScope;

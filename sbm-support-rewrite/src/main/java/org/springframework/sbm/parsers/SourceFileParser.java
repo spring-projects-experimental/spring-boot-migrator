@@ -57,7 +57,7 @@ class SourceFileParser {
             List<NamedStyles> styles,
             ExecutionContext executionContext) {
 
-        List<SourceFile> parsedSourceFiles = new ArrayList<>();
+        Set<SourceFile> parsedSourceFiles = new LinkedHashSet<>();
 
         mavenProject.getSortedProjects().forEach(currentMavenProject -> {
             Resource moduleBuildFileResource = mavenProject.getMatchingBuildFileResource(currentMavenProject);
@@ -70,7 +70,7 @@ class SourceFileParser {
             parsedSourceFiles.addAll(sourceFiles);
         });
 
-        return parsedSourceFiles;
+        return new ArrayList<>(parsedSourceFiles);
     }
 
     /**
@@ -99,6 +99,7 @@ class SourceFileParser {
                 .logCompilationWarningsAndErrors(false);
 
         Path buildFilePath = mavenProject.getBasedir().toPath().resolve(moduleBuildFile.getSourcePath());
+        // these paths will be ignored by ResourceParser
         Set<Path> pathsToOtherModules = pathsToOtherMavenProjects(mavenProject, buildFilePath);
         ResourceParser rp = new ResourceParser(
                 baseDir,
@@ -116,6 +117,7 @@ class SourceFileParser {
         List<SourceFile> mainSources = parseMainSources(baseDir, mavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
         List<SourceFile> testSources = parseTestSources(baseDir, mavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
 
+        alreadyParsed.addAll(pathsToOtherModules);
         // 171:175
         Stream<SourceFile> parsedResourceFiles = rp.parse(baseDir.resolve(moduleBuildFile.getSourcePath()).getParent(), alreadyParsed )
                 // FIXME: handle generated sources

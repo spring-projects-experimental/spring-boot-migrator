@@ -24,9 +24,20 @@ import java.util.function.Supplier;
 public class GenericOpenRewriteRecipe<V extends TreeVisitor<?, ExecutionContext>> extends Recipe {
 
     private final Supplier<V> visitorSupplier;
+    private final String description;
+
+    public GenericOpenRewriteRecipe() {
+        description = null;
+        visitorSupplier = null;
+    }
+
+    public GenericOpenRewriteRecipe(String description, Supplier<V> visitor) {
+        this.visitorSupplier = visitor;
+        this.description = description;
+    }
 
     public GenericOpenRewriteRecipe(Supplier<V> visitor) {
-        this.visitorSupplier = visitor;
+        this("Executing visitor %s".formatted(visitor.get().getClass()), visitor);
     }
 
     @Override
@@ -41,6 +52,6 @@ public class GenericOpenRewriteRecipe<V extends TreeVisitor<?, ExecutionContext>
 
     @Override
     public String getDescription() {
-        return getDisplayName();
+        return description;
     }
 }

@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.scopes.annotations.ScanScope;
 
 import java.util.function.Supplier;
 
@@ -30,6 +31,7 @@ import java.util.function.Supplier;
 @Configuration
 public class SbmCoreConfig {
     @Bean
+    @ScanScope
     @Primary
     Supplier<ExecutionContext> executionContextSupplier() {
         return () -> new RewriteExecutionContext();

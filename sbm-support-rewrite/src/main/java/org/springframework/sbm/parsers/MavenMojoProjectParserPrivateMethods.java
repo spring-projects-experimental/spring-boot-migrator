@@ -16,7 +16,7 @@
 package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.maven.model.Build;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
 import org.apache.maven.settings.crypto.DefaultSettingsDecrypter;
@@ -28,18 +28,14 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.maven.ResourceParser;
-import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.ResolvedDependency;
-import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.xml.tree.Xml;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -53,6 +49,7 @@ import java.util.stream.Stream;
 /**
  * @author Fabian Krüger
  */
+@Slf4j
 @RequiredArgsConstructor
 class MavenMojoProjectParserPrivateMethods {
 
@@ -101,7 +98,7 @@ class MavenMojoProjectParserPrivateMethods {
         if (method == null) {
             throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted(methodName, MavenMojoProjectParser.class.getName()));
         }
-
+        log.debug("Starting reflective call to %s.%s()".formatted(mavenMojoProjectParser.getClass().getName(), method.getName()));
         Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser,
                 mavenProject,
                 javaParserBuilder,
