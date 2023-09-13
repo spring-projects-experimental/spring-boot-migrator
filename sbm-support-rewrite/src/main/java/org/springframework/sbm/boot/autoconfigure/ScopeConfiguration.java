@@ -58,6 +58,7 @@ public class ScopeConfiguration {
     }
 
     @Bean
+    @org.springframework.sbm.scopes.annotations.ScanScope
     ProjectMetadata projectMetadata() {
         return new ProjectMetadata();
     }

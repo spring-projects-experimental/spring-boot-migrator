@@ -101,7 +101,7 @@ public class ExecutionScopeArchFitTestContext {
     }
 
     @Bean
-    @org.springframework.sbm.scopes.annotations.ExecutionScope
+    @org.springframework.sbm.scopes.annotations.ScanScope
     ExecutionContext executionContext(ProjectMetadata projectMetadata) {
         String id = UUID.randomUUID().toString();
         RewriteExecutionContext rewriteExecutionContext = new RewriteExecutionContext();
