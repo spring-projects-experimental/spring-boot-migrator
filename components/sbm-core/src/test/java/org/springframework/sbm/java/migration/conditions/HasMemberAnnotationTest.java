@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.java.migration.conditions;
 
+import org.openrewrite.java.marker.JavaSourceSet;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
@@ -36,13 +37,13 @@ class HasMemberAnnotationTest {
                 }
                 """;
 
-        Path baseDir = Path.of("./../../sbm-support-rewrite/testcode/maven-projects/failing");
         ProjectContext context = TestProjectContext.buildProjectContext()
-                        .withProjectRoot(baseDir)
                         .withJavaSources(sourceCode)
                         .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
-//                        .buildAndSerializeProjectContext(baseDir);
                         .build();
+
+        boolean isTypeResolved = context.getProjectJavaSources().list().get(0).getResource().getSourceFile().getMarkers().findFirst(JavaSourceSet.class).get().getClasspath().stream().map(fq -> fq.getFullyQualifiedName()).anyMatch(fq -> fq.startsWith("javax.validation"));
+        assertThat(isTypeResolved).isTrue();
 
         HasMemberAnnotation sut = new HasMemberAnnotation();
         sut.setAnnotation("javax.validation.constraints.Min");
