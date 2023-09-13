@@ -102,14 +102,14 @@ public class SourceFileParser {
 
         Path buildFilePath = mavenProject.getBasedir().toPath().resolve(moduleBuildFile.getSourcePath());
         // these paths will be ignored by ResourceParser
-        Set<Path> pathsToOtherModules = pathsToOtherMavenProjects(mavenProject, buildFilePath);
+        Set<Path> skipResourceScanDirs = pathsToOtherMavenProjects(mavenProject, buildFilePath);
         ResourceParser rp = new ResourceParser(
                 baseDir,
                 new Slf4jToMavenLoggerAdapter(log),
                 parserProperties.getIgnoredPathPatterns(),
                 parserProperties.getPlainTextMasks(),
                 parserProperties.getSizeThresholdMb(),
-                pathsToOtherModules,
+                skipResourceScanDirs,
                 javaParserBuilder.clone()
         );
 
@@ -119,7 +119,7 @@ public class SourceFileParser {
         List<SourceFile> mainSources = parseMainSources(baseDir, mavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
         List<SourceFile> testSources = parseTestSources(baseDir, mavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
 
-        alreadyParsed.addAll(pathsToOtherModules);
+        alreadyParsed.addAll(skipResourceScanDirs);
         // 171:175
         Stream<SourceFile> parsedResourceFiles = rp.parse(baseDir.resolve(moduleBuildFile.getSourcePath()).getParent(), alreadyParsed )
                 // FIXME: handle generated sources
@@ -186,7 +186,8 @@ public class SourceFileParser {
     private Set<Path> pathsToOtherMavenProjects(MavenProject mavenProject, Path moduleBuildFile) {
         return mavenProject.getCollectedProjects().stream()
                 .filter(p -> !p.getFile().toPath().equals(moduleBuildFile))
-                .map(p -> p.getFile().toPath()).collect(Collectors.toSet());
+                .map(p -> p.getFile().toPath().getParent())
+                .collect(Collectors.toSet());
         // FIXME:
         // filter build files
         // create relative paths to all other build files
