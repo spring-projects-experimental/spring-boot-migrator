@@ -37,69 +37,10 @@
             <artifactId>sbm-support-rewrite</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-core</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-maven</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-yaml</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-properties</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-java</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-java-11</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.openrewrite</groupId>-->
-<!--            <artifactId>rewrite-java-17</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.rocksdb</groupId>-->
-<!--            <artifactId>rocksdbjni</artifactId>-->
-<!--            <version>7.1.2</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.jboss.shrinkwrap.resolver</groupId>
-            <artifactId>shrinkwrap-resolver-depchain</artifactId>
-            <version>${shrinkwrap.resolvers.version}</version>
-            <type>pom</type>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- FIXME: OR8.1 ClassNotFoundException: org.eclipse.aether.spi.synccontext.SyncContextFactory -->
-        <dependency>
-            <groupId>org.apache.maven.resolver</groupId>
-            <artifactId>maven-resolver-api</artifactId>
-            <version>1.9.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.resolver</groupId>
-            <artifactId>maven-resolver-impl</artifactId>
-            <version>1.9.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.resolver</groupId>
-            <artifactId>maven-resolver-spi</artifactId>
-            <version>1.9.7</version>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>test-helper</artifactId>
