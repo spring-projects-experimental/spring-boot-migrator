@@ -15,16 +15,16 @@
  */
 package org.springframework.sbm.java;
 
+import org.assertj.core.api.Assertions;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.openrewrite.*;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
-import org.springframework.sbm.java.util.JavaSourceUtil;
-import org.springframework.sbm.testhelper.common.utils.TestDiff;
-import org.assertj.core.api.Assertions;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.tree.J;
+import org.springframework.sbm.java.util.JavaSourceUtil;
+import org.springframework.sbm.testhelper.common.utils.TestDiff;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -35,8 +35,6 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.fail;
 
 
 public class OpenRewriteTestSupport {
@@ -251,7 +249,7 @@ public class OpenRewriteTestSupport {
         GenericOpenRewriteTestRecipe<JavaVisitor<ExecutionContext>> recipe = new GenericOpenRewriteTestRecipe<>(visitor);
         return recipe.run(
                 new InMemoryLargeSourceSet(List.of(given)),
-                new InMemoryExecutionContext(t -> fail(t))
+                new InMemoryExecutionContext(t -> Assertions.fail(t.getMessage()))
         );
     }
 
