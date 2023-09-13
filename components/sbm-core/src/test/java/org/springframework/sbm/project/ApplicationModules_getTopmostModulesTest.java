@@ -42,6 +42,7 @@ class ApplicationModules_getTopmostModulesTest {
                                 <groupId>org.springframework.boot</groupId>
                                 <artifactId>spring-boot-starter-parent</artifactId>
                                 <version>2.5.6</version>
+                                <relativePath/>
                             </parent>
                             <groupId>com.example.sbm</groupId>
                             <artifactId>parent</artifactId>
