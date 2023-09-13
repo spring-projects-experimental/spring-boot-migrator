@@ -241,7 +241,7 @@ public class OpenRewriteTestSupport {
      */
     public static List<Path> getClasspathFiles(String... classpath) {
         if (classpath.length == 0) return List.of();
-        File[] as = org.jboss.shrinkwrap.resolver.api.maven.Maven.resolver().resolve(classpath).withTransitivity().as(File.class);
+        File[] as = Maven.resolver().resolve(classpath).withTransitivity().as(File.class);
         return Arrays.stream(as)
                 .map(File::toPath)
                 .collect(Collectors.toList());
