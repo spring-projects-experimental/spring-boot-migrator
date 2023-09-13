@@ -224,7 +224,11 @@ public class Module_searchTestResources_Test {
 
             AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-            context.getApplicationModules().findModule("com.acme:application:0.0.1-SNAPSHOT").get().searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+            context.getApplicationModules()
+                    .findModule("com.acme:application:0.0.1-SNAPSHOT").get()
+                    // Search in resources of module
+                    .searchTestResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
+                // and no resources should exist
                 assertThat(projectResourceSet.list()).isEmpty();
                 wasCalled.set(true);
                 return null;

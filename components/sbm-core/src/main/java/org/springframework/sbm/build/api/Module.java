@@ -194,7 +194,10 @@ public class Module {
     }
 
     public <T> T searchTestResources(ProjectResourceFinder<T> finder) {
-        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getTestResourceSet().getAbsolutePath().toAbsolutePath().normalize()));
+        Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate = (RewriteSourceFileHolder<? extends SourceFile> r) -> {
+            return r.getAbsolutePath().normalize().startsWith(getTestResourceSet().getAbsolutePath().toAbsolutePath().normalize());
+        };
+        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, predicate);
         return finder.apply(resourceSet);
     }
 
