@@ -16,6 +16,7 @@
 package org.springframework.sbm.java;
 
 import org.assertj.core.api.Assertions;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.openrewrite.*;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.java.JavaIsoVisitor;
