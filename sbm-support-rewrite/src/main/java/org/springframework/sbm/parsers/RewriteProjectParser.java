@@ -120,8 +120,7 @@ public class RewriteProjectParser {
      * @see MavenMojoProjectParser#listSourceFiles(MavenProject, List, ExecutionContext)
      */
     public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources, ExecutionContext executionContext) {
-
-        clearScanScopedBeans();
+        scanScope.clear(beanFactory);
 
         if (!givenBaseDir.isAbsolute()) {
             givenBaseDir = givenBaseDir.toAbsolutePath().normalize();
@@ -175,10 +174,6 @@ public class RewriteProjectParser {
         });
 
         return atomicReference.get();
-    }
-
-    private void clearScanScopedBeans() {
-        scanScope.clear(beanFactory);
     }
 
     private void withMavenSession(Path baseDir, Consumer<MavenSession> consumer) {
