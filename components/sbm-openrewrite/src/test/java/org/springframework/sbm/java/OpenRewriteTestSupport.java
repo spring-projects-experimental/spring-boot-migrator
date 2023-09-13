@@ -23,6 +23,8 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
+import org.openrewrite.maven.tree.Dependency;
+import org.openrewrite.maven.tree.GroupArtifactVersion;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.ResolvedGroupArtifactVersion;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
@@ -250,9 +252,12 @@ public class OpenRewriteTestSupport {
         });
         return Arrays.stream(gav)
                 .map(g -> g.split(":"))
-                .map(g -> new ResolvedGroupArtifactVersion(null, g[0], g[1], g.length == 3 ? g[2] : null, null))
                 .map(g -> ResolvedDependency.builder()
-                        .gav(g)
+                        .gav(new ResolvedGroupArtifactVersion(null, g[0], g[1], g.length == 3 ? g[2] : null, null))
+                        .requested(Dependency.builder()
+                                .gav(new GroupArtifactVersion(g[0], g[1], g.length == 3 ? g[2] : null))
+                                .build()
+                        )
                         .build()
                 )
                 .map(g -> {
