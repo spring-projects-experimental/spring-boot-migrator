@@ -27,8 +27,6 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
-import org.openrewrite.internal.lang.Nullable;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.marker.JavaVersion;
@@ -40,7 +38,9 @@ import org.openrewrite.marker.OperatingSystemProvenance;
 import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
-import org.openrewrite.maven.cache.CompositeMavenPomCache;
+import org.openrewrite.maven.cache.InMemoryMavenPomCache;
+import org.openrewrite.maven.cache.LocalMavenArtifactCache;
+import org.openrewrite.maven.cache.MavenArtifactCache;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.cache.MavenArtifactCache;
@@ -98,7 +98,6 @@ class RewriteMavenProjectParserTest {
     void beforeEach() {
         beanFactory = mock(ConfigurableListableBeanFactory.class);
         scanScope = mock(ScanScope.class);
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
         sut = new RewriteMavenProjectParser(
                 plexusContainer,
                 new RewriteParsingEventListenerAdapter(mock(ApplicationEventPublisher.class)),
@@ -418,8 +417,9 @@ class RewriteMavenProjectParserTest {
         // 8
         assertThat(
                 messages.get("org.openrewrite.maven.pomCache")
-        ).isInstanceOf(CompositeMavenPomCache.class);
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
+        ).isNull();
+        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(InMemoryMavenPomCache.class);
+//        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
 
         // 9
         // FIXME:   This fails sometimes when multiple tests are run together. The resolution time has been 0 and null

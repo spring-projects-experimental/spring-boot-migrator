@@ -234,6 +234,11 @@
             <artifactId>sbm-support-rewrite</artifactId>
             <version>${sbm-support-rewrite.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.experimental</groupId>
+            <artifactId>sbm-support-rewrite</artifactId>
+            <version>${sbm-support-rewrite.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>${jar.name}</finalName>

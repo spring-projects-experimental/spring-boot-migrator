@@ -59,10 +59,6 @@ public class AddMinimalPomXml extends AbstractAction {
 
     @Autowired
     @JsonIgnore
-    private RewriteMavenArtifactDownloader rewriteMavenArtifactDownloader;
-
-    @Autowired
-    @JsonIgnore
     private RewriteMavenArtifactDownloader artifactDownloader;
 
     @Override
@@ -90,7 +86,7 @@ public class AddMinimalPomXml extends AbstractAction {
                 context.getProjectRootDirectory(),
                 maven, getEventPublisher(), executionContext,
                 mavenBuildFileRefactoringFactory.createRefactoring(),
-                rewriteMavenArtifactDownloader
+                artifactDownloader
         );
         context.getProjectResources().add(rewriteMavenBuildFile);
     }

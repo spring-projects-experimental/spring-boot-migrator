@@ -682,13 +682,6 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         return List.of(getAbsolutePath().getParent().resolve(RESOURCE_TEST_FOLDER));
     }
 
-    public List<Path> getClasspath() {
-        List<Path> classpath = new ArrayList<>();
-        classpath.add(getSourceFile().getSourcePath().toAbsolutePath().getParent().resolve("target/classes"));
-        classpath.addAll(getResolvedDependenciesPaths());
-        return classpath;
-    }
-
     @Override
     public List<Path> getResolvedDependenciesPaths() {
         List<Path> dependenciesPaths = getResolvedDependenciesMap().values().stream().flatMap(Set::stream).toList();

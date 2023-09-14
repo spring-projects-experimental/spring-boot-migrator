@@ -94,6 +94,7 @@ class RewriteProjectParserTest {
     void parseSimpleMavenProject(@TempDir Path tempDir) {
         Path basePath = tempDir;
         ParserProperties parserProperties = new ParserProperties();
+        MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserProperties);
         MavenArtifactCache mavenArtifactCache = new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository"));
         @Nullable MavenSettings mavenSettings = null;
@@ -127,6 +128,8 @@ class RewriteProjectParserTest {
                     }
                 );
 
+        // TODO: Provide Scanner with excludes
+        // TODO: Make RewriteProjectParser publish ApplicationEvents
         List<Resource> resources = List.of(
                 new DummyResource(basePath.resolve("pom.xml"), pomXml),
                 new DummyResource(basePath.resolve("src/main/java/com/example/MyMain.java"), javaClass));

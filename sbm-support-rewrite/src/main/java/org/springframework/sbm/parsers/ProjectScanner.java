@@ -40,8 +40,7 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @RequiredArgsConstructor
-public
-class ProjectScanner {
+public class ProjectScanner {
     private final ResourceLoader resourceLoader;
     private final ParserProperties parserProperties;
 

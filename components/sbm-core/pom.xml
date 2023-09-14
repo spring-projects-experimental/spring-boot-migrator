@@ -26,6 +26,10 @@
 
     <artifactId>sbm-core</artifactId>
 
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.sbm</groupId>
