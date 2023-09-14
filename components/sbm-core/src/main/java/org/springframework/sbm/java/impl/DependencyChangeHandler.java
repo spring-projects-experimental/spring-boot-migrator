@@ -64,16 +64,17 @@ public class DependencyChangeHandler {
      * @return
      */
     public void handleDependencyChanges(OpenRewriteMavenBuildFile currentBuildFile) {
-        SortedProjects sortedProjects = new SortedProjects();
-        sourceFileParser.parseOtherSourceFiles(
-                currentBuildFile.getAbsoluteProjectDir(),
-                sortedProjects,
-                pathToDocumentMap,
-                resources,
-                provenanceMarkers,
-                styles,
-                executionContext
-            );
+        // TODO: use parser component here
+//        SortedProjects sortedProjects = new SortedProjects();
+//        sourceFileParser.parseOtherSourceFiles(
+//                currentBuildFile.getAbsoluteProjectDir(),
+//                sortedProjects,
+//                pathToDocumentMap,
+//                resources,
+//                provenanceMarkers,
+//                styles,
+//                executionContext
+//            );
 
         ProjectContext projectContext = projectContextHolder.getProjectContext();
         // create a mapping dependency -> dependant module information
