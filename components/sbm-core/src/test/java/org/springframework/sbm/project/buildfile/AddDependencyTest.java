@@ -34,8 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.sbm.RewriteParserConfig;
 import org.springframework.sbm.SbmCoreConfig;
+import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
@@ -55,7 +55,6 @@ import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.scopes.ExecutionScope;
 import org.springframework.sbm.scopes.ScanScope;
-import org.springframework.sbm.scopes.ScopeConfiguration;
 import org.springframework.sbm.test.TestProjectContextInfo;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -72,7 +71,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SpringBootTest(classes = {
         SbmCoreConfig.class,
-        RewriteParserConfig.class,
         ScopeConfiguration.class,
         ExecutionScope.class,
         ScanScope.class,

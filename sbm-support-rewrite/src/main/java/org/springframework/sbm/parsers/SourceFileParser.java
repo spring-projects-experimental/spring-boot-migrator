@@ -28,7 +28,6 @@ import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -46,7 +45,7 @@ public class SourceFileParser {
 
     private final ParserProperties parserProperties;
     private final MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods;
-    private final JavaParserBuilder javaParserBuilderHolder;
+    private final JavaParserBuilder javaParserBuilder;
 
     public List<SourceFile> parseOtherSourceFiles(
             Path baseDir,
@@ -97,8 +96,6 @@ public class SourceFileParser {
         JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder = JavaParser.fromJavaVersion()
                 .styles(styles)
                 .logCompilationWarningsAndErrors(false);
-
-        javaParserBuilderHolder.setDelegate(javaParserBuilder);
 
         Path buildFilePath = mavenProject.getBasedir().toPath().resolve(moduleBuildFile.getSourcePath());
         // these paths will be ignored by ResourceParser
