@@ -33,17 +33,12 @@ public class GenericOpenRewriteRecipe<V extends TreeVisitor<?, ExecutionContext>
     public GenericOpenRewriteRecipe() {
         description = null;
         visitorSupplier = null;
+        recipes = new ArrayList<>();
     }
 
     public GenericOpenRewriteRecipe(String description, Supplier<V> visitor) {
         this.visitorSupplier = visitor;
         this.description = description;
-        this.recipes = new ArrayList<>();
-    }
-
-    public GenericOpenRewriteRecipe() {
-        description = null;
-        visitorSupplier = null;
         this.recipes = new ArrayList<>();
     }
 

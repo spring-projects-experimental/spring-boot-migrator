@@ -188,10 +188,5 @@ public class SourceFileParser {
                 .filter(p -> !p.getFile().toPath().equals(moduleBuildFile))
                 .map(p -> p.getFile().toPath().getParent())
                 .collect(Collectors.toSet());
-        // FIXME:
-        // filter build files
-        // create relative paths to all other build files
-        // return result
-        return Set.of();
     }
 }

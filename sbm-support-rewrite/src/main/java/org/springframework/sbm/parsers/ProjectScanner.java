@@ -45,27 +45,27 @@ class ProjectScanner {
     private final ResourceLoader resourceLoader;
     private final ParserProperties parserProperties;
 
-    public List<Resource> scan(Path givenBaseDir) {
-        if(!givenBaseDir.isAbsolute()) {
-            givenBaseDir = givenBaseDir.toAbsolutePath().normalize();
+    public List<Resource> scan(Path baseDir) {
+        if(!baseDir.isAbsolute()) {
+            baseDir = baseDir.toAbsolutePath().normalize();
         }
-        if(!givenBaseDir.toFile().exists()) {
-            throw new IllegalArgumentException("Provided path does not exist: " + givenBaseDir);
+        if(!baseDir.toFile().exists()) {
+            throw new IllegalArgumentException("Provided path does not exist: " + baseDir);
         }
-        final Path baseDir = givenBaseDir;
-        String unifiedPath = new LinuxWindowsPathUnifier().unifyPath(baseDir.toString() + "/**");
+        Path absoluteRootPath = baseDir.toAbsolutePath();
+        String unifiedPath = new LinuxWindowsPathUnifier().unifyPath(absoluteRootPath.toString() + "/**");
         String pattern = "file:" + unifiedPath;
         try {
             Resource[] resources = ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(pattern);
 
-            log.debug("Scanned %d resources in dir: '%s'".formatted(resources.length, baseDir.toString()));
+            log.debug("Scanned %d resources in dir: '%s'".formatted(resources.length, absoluteRootPath.toString()));
 
-            List<Resource> resultingResources = filterIgnoredResources(baseDir, resources);
+            List<Resource> resultingResources = filterIgnoredResources(absoluteRootPath, resources);
 
             int numResulting = resultingResources.size();
             int numIgnored = resources.length - numResulting;
             log.debug("Scan returns %s resources, %d resources were ignored.".formatted(numResulting, numIgnored));
-            log.trace("Resources resulting from scan: %s".formatted(resultingResources.stream().map(r -> baseDir.relativize(ResourceUtil.getPath(r)).toString()).collect(Collectors.joining(", "))));
+            log.trace("Resources resulting from scan: %s".formatted(resultingResources.stream().map(r -> absoluteRootPath.relativize(ResourceUtil.getPath(r)).toString()).collect(Collectors.joining(", "))));
 
             return resultingResources;
         } catch (IOException e) {
@@ -99,11 +99,14 @@ class ProjectScanner {
                 .filter(matcher -> {
                     Path resourcePath = ResourceUtil.getPath(r);
                     boolean matches = matcher.matches(resourcePath);
+                    if(matches && log.isInfoEnabled()) {
+                       log.info("Resource '%s' matches ignore pattern '%s'".formatted(resourcePath, matcher));
+                    }
                     return matches;
                 })
                 .findFirst();
         if(isIgnored.isPresent() && log.isInfoEnabled()) {
-            log.info("Ignoring resource '%s'.".formatted(baseDir.relativize(ResourceUtil.getPath(r))));
+            log.info("Ignoring scanned resource '%s'.".formatted(baseDir.relativize(ResourceUtil.getPath(r))));
         }
         return isIgnored.isEmpty();
     }

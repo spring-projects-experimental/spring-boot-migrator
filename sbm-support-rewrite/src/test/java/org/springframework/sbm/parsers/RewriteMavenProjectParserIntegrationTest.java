@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.event.EventListener;
+import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 import org.springframework.sbm.parsers.events.FinishedParsingResourceEvent;
 
 import java.nio.file.Path;
@@ -33,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-@SpringBootTest(classes = {RewriteParserConfiguration.class, RewriteMavenProjectParserIntegrationTest.TestEventListener.class})
+@SpringBootTest(classes = {ScannerConfiguration.class, RewriteMavenProjectParserIntegrationTest.TestEventListener.class})
 public class RewriteMavenProjectParserIntegrationTest {
 
     @Autowired

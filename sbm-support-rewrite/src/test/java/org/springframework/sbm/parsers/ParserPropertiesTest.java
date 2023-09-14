@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ParserPropertiesTest {
 
     @Nested
-    @SpringBootTest(classes = {RewriteParserConfiguration.class})
+    @SpringBootTest(classes = {ScannerConfiguration.class})
     public class GivenDefaultProperties {
 
         @Autowired

@@ -95,7 +95,7 @@ public class RewriteProjectParser {
 
     public RewriteProjectParsingResult parse(Path baseDir) {
         Set<String> ignorePatterns = parserProperties.getIgnoredPathPatterns();
-        List<Resource> resources = scanner.scan(baseDir, ignorePatterns);
+        List<Resource> resources = scanner.scan(baseDir);
         return this.parse(baseDir, resources, executionContext);
     }
 

@@ -28,6 +28,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.marker.JavaVersion;
@@ -39,6 +40,7 @@ import org.openrewrite.marker.OperatingSystemProvenance;
 import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
+import org.openrewrite.maven.cache.CompositeMavenPomCache;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.cache.MavenArtifactCache;
@@ -54,9 +56,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.events.DefaultParsingEventListener;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
-import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -107,8 +107,6 @@ class RewriteMavenProjectParserTest {
                 scanScope,
                 beanFactory,
                 new InMemoryExecutionContext(t -> {throw new RuntimeException(t);})
-                beanFactory,
-                executionContext
         );
     }
 
@@ -175,6 +173,8 @@ class RewriteMavenProjectParserTest {
         ResourceUtil.write(tempDir, resources);
 
         parserProperties.setIgnoredPathPatterns(Set.of("**/testcode/**", "testcode/**", ".rewrite-cache/**"));
+        parserProperties.setPomCacheEnabled(true); // org.openrewrite.maven.pomCache will be CompositeMavenPomCache
+
         // call SUT
         RewriteProjectParsingResult parsingResult = sut.parse(
                 tempDir,
@@ -275,25 +275,26 @@ class RewriteMavenProjectParserTest {
         Path baseDir = getMavenProject("multi-module-1");
         ExecutionContext ctx;
         ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
-        MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserProperties);
         MavenArtifactCache mavenArtifactCache = new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository"));
         @Nullable MavenSettings mavenSettings = null;
         Consumer<Throwable> onError = (t) -> {throw new RuntimeException(t);};
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader(mavenArtifactCache, mavenSettings, onError));
 
+        JavaParserBuilder javaParserBuilder = new JavaParserBuilder();
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
                 new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
                 new BuildFileParser(),
-                new SourceFileParser(mavenModelReader, parserProperties, mavenMojoParserPrivateMethods),
+                new SourceFileParser(parserProperties, mavenMojoParserPrivateMethods, javaParserBuilder),
                 new StyleDetector(),
                 parserProperties,
                 mock(ParsingEventListener.class),
-                new ProjectScanner(new DefaultResourceLoader()),
                 mock(ApplicationEventPublisher.class),
                 scanScope,
-                beanFactory
+                beanFactory,
+                new ProjectScanner(new DefaultResourceLoader(), parserProperties),
+                ctx
         );
 
         Set<String> ignoredPatters = Set.of();
@@ -417,9 +418,7 @@ class RewriteMavenProjectParserTest {
         // 8
         assertThat(
                 messages.get("org.openrewrite.maven.pomCache")
-        ).isSameAs(
-                MavenExecutionContextView.view(resultingExecutionContext).getPomCache()
-        );
+        ).isInstanceOf(CompositeMavenPomCache.class);
         assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
 
         // 9

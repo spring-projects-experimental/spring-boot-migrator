@@ -26,11 +26,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.Charset;
 import java.util.Collection;
 
-/**
- * @author Fabian Krüger
- */
-@Component
-@ScanScope
+
 public class JavaParserBuilder extends JavaParser.Builder{
 
     @Getter

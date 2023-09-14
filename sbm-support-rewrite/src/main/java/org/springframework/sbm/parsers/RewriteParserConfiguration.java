@@ -81,8 +81,14 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
-    ProvenanceMarkerFactory provenanceMarkerFactory(MavenMojoProjectParserFactory orojectParserFactory) {
-        return new ProvenanceMarkerFactory(orojectParserFactory);
+    ProvenanceMarkerFactory provenanceMarkerFactory(MavenMojoProjectParserFactory projectParserFactory) {
+        return new ProvenanceMarkerFactory(projectParserFactory);
+    }
+
+    @Bean
+    @org.springframework.sbm.scopes.annotations.ScanScope
+    JavaParserBuilder javaParserBuilder() {
+        return new JavaParserBuilder();
     }
 
     @Bean
@@ -119,8 +125,8 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
-    SourceFileParser sourceFileParser(MavenModelReader modelReader, MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods) {
-        return new SourceFileParser(modelReader, parserProperties, mavenMojoProjectParserPrivateMethods);
+    SourceFileParser sourceFileParser(MavenModelReader modelReader, MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods, JavaParserBuilder javaParserBuilder) {
+        return new SourceFileParser(parserProperties, mavenMojoProjectParserPrivateMethods, javaParserBuilder);
     }
 
     @Bean
@@ -152,23 +158,27 @@ public class RewriteParserConfiguration {
             ProvenanceMarkerFactory provenanceMarkerFactory,
             BuildFileParser buildFileParser,
             SourceFileParser sourceFileParser,
-            StyleDetector styleDeteector,
+            StyleDetector styleDetector,
             ParserProperties parserProperties,
             ParsingEventListener parsingEventListener,
             ApplicationEventPublisher eventPublisher,
             ScanScope scanScope,
-            ConfigurableListableBeanFactory beanFactory) {
+            ConfigurableListableBeanFactory beanFactory,
+            ProjectScanner projectScanner,
+            ExecutionContext executionContext) {
         return new RewriteProjectParser(
                 mavenExecutor,
                 provenanceMarkerFactory,
                 buildFileParser,
                 sourceFileParser,
-                styleDeteector,
+                styleDetector,
                 parserProperties,
                 parsingEventListener,
                 eventPublisher,
                 scanScope,
-                beanFactory);
+                beanFactory,
+                projectScanner,
+                executionContext);
     }
 
     @Bean

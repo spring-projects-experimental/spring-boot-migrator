@@ -15,17 +15,26 @@
  */
 package org.springframework.sbm.parsers;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.tree.J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
+import org.springframework.sbm.parsers.events.FinishedParsingResourceEvent;
+import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
+import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,11 +51,11 @@ public class RewriteProjectParserIntegrationTest {
     ProjectScanner projectScanner;
 
     @Autowired
-    ParserSettings parserSettings;
+    ParserProperties parserProperties;
 
-    private static List<ParsedResourceEvent> capturedEvents = new ArrayList<>();
+    private static List<FinishedParsingResourceEvent> capturedEvents = new ArrayList<>();
     private static StartedParsingProjectEvent startedParsingEvent;
-    private static FinishedParsingProjectEvent finishedParsingEvent;
+    private static SuccessfullyParsedProjectEvent finishedParsingEvent;
 
     @Test
     @DisplayName("Should publish parsing events")
@@ -56,7 +65,7 @@ public class RewriteProjectParserIntegrationTest {
         capturedEvents.clear();
 
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-1");
-        parserSettings.setIgnoredPathPatterns(Set.of("**/target/**", "**/*.adoc"));
+        parserProperties.setIgnoredPathPatterns(Set.of("**/target/**", "**/*.adoc"));
         List<Resource> resources = projectScanner.scan(baseDir);
         ExecutionContext ctx = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
 
@@ -88,13 +97,12 @@ public class RewriteProjectParserIntegrationTest {
         J.CompilationUnit cu = (J.CompilationUnit) parsingResult.sourceFiles().get(1);
         assertThat(cu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
     }
-
     @TestConfiguration
     static class TestEventListener {
 
 
-        @EventListener(ParsedResourceEvent.class)
-        public void onEvent(ParsedResourceEvent event) {
+        @EventListener(FinishedParsingResourceEvent.class)
+        public void onEvent(FinishedParsingResourceEvent event) {
             capturedEvents.add(event);
         }
 
@@ -103,11 +111,12 @@ public class RewriteProjectParserIntegrationTest {
             startedParsingEvent = event;
         }
 
-        @EventListener(FinishedParsingProjectEvent.class)
-        public void onFinishedParsingProjectEvent(FinishedParsingProjectEvent event) {
+        @EventListener(SuccessfullyParsedProjectEvent.class)
+        public void onFinishedParsingProjectEvent(SuccessfullyParsedProjectEvent event) {
             finishedParsingEvent = event;
         }
     }
+
 
     @Test
     @DisplayName("parseCheckstyle")

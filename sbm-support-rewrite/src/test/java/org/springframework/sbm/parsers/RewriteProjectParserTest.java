@@ -94,7 +94,6 @@ class RewriteProjectParserTest {
     void parseSimpleMavenProject(@TempDir Path tempDir) {
         Path basePath = tempDir;
         ParserProperties parserProperties = new ParserProperties();
-        MavenModelReader mavenModelReader = new MavenModelReader();
         MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserProperties);
         MavenArtifactCache mavenArtifactCache = new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository"));
         @Nullable MavenSettings mavenSettings = null;
@@ -102,20 +101,22 @@ class RewriteProjectParserTest {
             throw new RuntimeException(t);
         };
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader(mavenArtifactCache, mavenSettings, onError));
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
                 new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
                 new BuildFileParser(),
-                new SourceFileParser(parserSettings, mavenMojoParserPrivateMethods, new JavaParserBuilder()),
+                new SourceFileParser(parserProperties, mavenMojoParserPrivateMethods, new JavaParserBuilder()),
                 new StyleDetector(),
                 parserProperties,
                 mock(ParsingEventListener.class),
                 mock(ApplicationEventPublisher.class),
-                new ProjectScanner(new DefaultResourceLoader()),
                 new ScanScope(),
-                mock(ConfigurableListableBeanFactory.class)
+                mock(ConfigurableListableBeanFactory.class),
+                new ProjectScanner(new DefaultResourceLoader(), parserProperties),
+                executionContext
         );
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
+
         List<String> parsedFiles = new ArrayList<>();
         ParsingExecutionContextView.view(executionContext).setParsingListener(
                     new ParsingEventListener() {
