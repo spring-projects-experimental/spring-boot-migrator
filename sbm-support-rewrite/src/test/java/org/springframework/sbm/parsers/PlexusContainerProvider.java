@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.scopes;
+package org.springframework.sbm.parsers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Scope implementation for beans marked with {@link org.springframework.sbm.scopes.annotations.ExecutionScope}.
- *
  * @author Fabian Krüger
  */
 @Component
-public class ExecutionScope extends AbstractBaseScope {
-
-    public final static String SCOPE_NAME = "executionScope";
+@RequiredArgsConstructor
+public class PlexusContainerProvider {
+    private final MavenPlexusContainerFactory containerFactory;
 
 }

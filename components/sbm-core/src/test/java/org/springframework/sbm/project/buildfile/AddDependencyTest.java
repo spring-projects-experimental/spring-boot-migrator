@@ -523,7 +523,7 @@ public class AddDependencyTest {
         //javaParser.getJavaParser().parse(javaSourceCode);
         context.getApplicationModules().getRootModule().getMainJavaSourceSet().addJavaSource(TestProjectContext.getDefaultProjectRoot(),
                 Path.of("src/main/java"),
-                "import jakarta.validation.constraints.Email; class X {@Email String email;}");
+                "import javax.validation.constraints.Email; class X {@Email String email;}");
 
         // The Email annotation can now be resolved
         HashMap<Object, JavaType> typeCacheAfter = retrieveTypeCache(javaParser);

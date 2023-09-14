@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * Decrypt Maven Server passwords.
- * <p>
+ *
  * Requires access to Maven security settings file (~/.settings-security.xml) to decrypt the server passwords provided in
  * the server settings in Maven settings file (~/.m2/settings.xml) which are provided with {@link MavenSettings}.
  *
