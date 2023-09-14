@@ -28,7 +28,6 @@ public class GenericOpenRewriteRecipe<V extends TreeVisitor<?, ExecutionContext>
 
     private final Supplier<V> visitorSupplier;
     private final String description;
-    private final String description;
     private final List<Recipe> recipes;
 
     public GenericOpenRewriteRecipe(String description, Supplier<V> visitor) {
@@ -40,15 +39,9 @@ public class GenericOpenRewriteRecipe<V extends TreeVisitor<?, ExecutionContext>
     public GenericOpenRewriteRecipe() {
         description = null;
         visitorSupplier = null;
+        this.recipes = new ArrayList<>();
     }
 
-    public GenericOpenRewriteRecipe(String description, Supplier<V> visitor) {
-        this.visitorSupplier = visitor;
-        this.description = description;
-    }
-
-    public GenericOpenRewriteRecipe(Supplier<V> visitor) {
-        this("Executing visitor %s".formatted(visitor.get().getClass()), visitor);
     public GenericOpenRewriteRecipe(Supplier<V> visitor) {
         this("Executing visitor %s".formatted(visitor.get().getClass()), visitor);
     }
