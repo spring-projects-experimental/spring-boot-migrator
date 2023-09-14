@@ -434,6 +434,14 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     }
 
     private org.springframework.sbm.build.api.Dependency mapDependency(Scope scope, ResolvedDependency d) {
+        List<GroupArtifact> dependencyExclusions = d.getRequested().getExclusions();
+        List<Dependency> exclusions = new ArrayList<>();
+        if(dependencyExclusions != null) {
+            exclusions = dependencyExclusions.stream()
+                            .map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build())
+                            .collect(Collectors.toList());
+        }
+
         return new Dependency(
                 d.getGroupId(),
                 d.getArtifactId(),
@@ -441,10 +449,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 d.getType(),
                 scope.name().toLowerCase(),
                 d.getClassifier(),
-                d.getRequested().getExclusions()
-                        .stream()
-                        .map(e -> Dependency.builder().groupId(e.getGroupId()).artifactId(e.getArtifactId()).build())
-                        .collect(Collectors.toList())
+                exclusions
         );
     }
 
