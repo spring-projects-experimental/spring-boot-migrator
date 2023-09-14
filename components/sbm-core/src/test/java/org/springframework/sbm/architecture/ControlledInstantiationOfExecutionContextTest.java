@@ -21,17 +21,11 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
-import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.SbmCoreConfig;
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.sbm.SbmCoreConfig;
 import org.springframework.sbm.parsers.RewriteExecutionContext;
-import org.springframework.sbm.scopes.ScopeConfiguration;
 
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBe;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
