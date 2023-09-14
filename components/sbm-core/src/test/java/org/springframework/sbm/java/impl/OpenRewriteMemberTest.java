@@ -15,12 +15,16 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.java.marker.JavaSourceSet;
+import org.openrewrite.java.tree.JavaType;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -78,25 +82,44 @@ class OpenRewriteMemberTest {
 
     @Test
     void testAddMemberAnnotation() {
-        final String sourceCode =
-                "package com.foo;\n" +
-                        "public class Class1 {\n" +
-                        "   private String var1;\n" +
-                        "   private String var2;\n" +
-                        "}";
-
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
-                .withJavaSources(sourceCode)
+                .withJavaSources(
+                        """
+                        package com.foo;
+                        public class Class1 {
+                           private String var1;
+                           private String var2;
+                        }
+                        """
+                )
                 .build();
 
+        // find Class1
         JavaSource javaSource = projectContext.getProjectJavaSources().findJavaSourceDeclaringType("com.foo.Class1").get();
-        javaSource.getTypes().get(0).getMembers().get(0).addAnnotation("javax.validation.constraints.Min");
 
+        // Precondition: javax.validation.constraints.Min on classpath
+        List<String> classpath = javaSource.getResource().getSourceFile()
+                .getMarkers()
+                .findFirst(JavaSourceSet.class)
+                .get()
+                .getClasspath()
+                .stream()
+                .map(JavaType.FullyQualified::getFullyQualifiedName)
+                .toList();
+
+        String minAnnotation = "javax.validation.constraints.Min";
+
+        assertThat(classpath).contains(minAnnotation);
+
+        // add annotation
+        javaSource.getTypes().get(0).getMembers().get(0).addAnnotation(minAnnotation);
+
+        // correct import added
         assertThat(javaSource.getImports()).hasSize(1);
-        assertThat(javaSource.hasImportStartingWith("javax.validation.constraints.Min")).isTrue();
-        assertThat(javaSource.getTypes().get(0).getMembers().get(0).getAnnotation("javax.validation.constraints.Min")).isNotNull();
-        assertThat(javaSource.getTypes().get(0).getMembers().get(1).getAnnotation("javax.validation.constraints.Min")).isNull();
+        assertThat(javaSource.hasImportStartingWith(minAnnotation)).isTrue();
+        assertThat(javaSource.getTypes().get(0).getMembers().get(0).getAnnotation(minAnnotation)).isNotNull();
+        assertThat(javaSource.getTypes().get(0).getMembers().get(1).getAnnotation(minAnnotation)).isNull();
     }
 
     @Test
