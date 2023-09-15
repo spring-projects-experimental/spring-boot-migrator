@@ -80,7 +80,7 @@ class BumpParentPomVersionTest {
         sut.setToVersion("2.7.0");
         sut.apply(context);
 
-        assertThat(context.getBuildFile().getParentPomDeclaration().get().getVersion()).isEqualTo("2.7.0");
+        assertThat(context.getApplicationModules().getRootModule().getBuildFile().getParentPomDeclaration().get().getVersion()).isEqualTo("2.7.0");
     }
 
     @Test
