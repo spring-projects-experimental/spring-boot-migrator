@@ -177,11 +177,11 @@ public class ApplicationModules {
     public Map<Scope, List<Module>> findModulesWithDeclaredDependencyTo(String gav) {
         Map<Scope, List<Module>> dependantModules = new HashMap<>();
         for (Module m : this.modules) {
-            Optional<Dependency> declaredDependency = m.getBuildFile().findDeclaredDependency(gav);
+            Optional<Dependency> declaredDependency = m.getBuildFile().findRequestedDependency(gav);
             if (declaredDependency.isPresent()) {
                 Dependency dependency = declaredDependency.get();
                 String scopeStr = dependency.getScope();
-                Scope scope = scopeStr != null ? Scope.valueOf(scopeStr) : Scope.Compile;
+                Scope scope = scopeStr != null ? Scope.valueOf(uppercaseFirstChar(scopeStr)) : Scope.Compile;
                 if(dependantModules.containsKey(scope)) {
                     dependantModules.get(scope).add(m);
                 } else {
@@ -192,5 +192,11 @@ public class ApplicationModules {
             }
         }
         return dependantModules;
+    }
+
+    // TODO: provide in common util class
+    String uppercaseFirstChar(String name) {
+        if (name.isEmpty()) return name;
+        return Character.toUpperCase(name.charAt(0)) + name.substring(1);
     }
 }

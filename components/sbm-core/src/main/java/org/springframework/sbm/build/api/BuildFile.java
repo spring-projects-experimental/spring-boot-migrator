@@ -43,6 +43,11 @@ public interface BuildFile extends ProjectResource {
     List<Dependency> getRequestedDependencies();
 
     /**
+     * Searches for a requested dependency matching the given GAV.
+     */
+    Optional<Dependency> findRequestedDependency(String gav);
+
+    /**
      * Returns any available dependency (declared or transitive) with given scope.
      */
     Set<Dependency> getEffectiveDependencies(Scope scope);
@@ -201,4 +206,5 @@ public interface BuildFile extends ProjectResource {
      * @throws IllegalStateException when no dependency with given gav exists.
      */
     Dependency getDeclaredDependency(String gav);
+
 }

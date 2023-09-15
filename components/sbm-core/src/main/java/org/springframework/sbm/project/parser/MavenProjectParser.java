@@ -38,6 +38,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.events.*;
+import org.springframework.sbm.parsers.RewriteMavenProjectParser;
 import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.stereotype.Component;
@@ -71,10 +72,10 @@ public class MavenProjectParser {
     private final MavenConfigHandler mavenConfigHandler;
     private final ProjectMetadata projectMetadata;
     private final ExecutionContext executionContext;
-    private final RewriteProjectParser parser;
+    private final RewriteMavenProjectParser parser;
 
     public List<SourceFile> parse(Path projectDirectory, List<Resource> resources) {
-        return parser.parse(projectDirectory, resources, executionContext).sourceFiles();
+        return parser.parse(projectDirectory).sourceFiles();
     }
 
 

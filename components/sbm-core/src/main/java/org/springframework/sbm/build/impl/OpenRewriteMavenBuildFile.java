@@ -346,6 +346,13 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Optional<Dependency> findRequestedDependency(String gav) {
+        return getRequestedDependencies().stream()
+                .filter(d -> d.getGav().equals(gav))
+                .findFirst();
+    }
+
     /**
      * {@inheritDoc}
      *

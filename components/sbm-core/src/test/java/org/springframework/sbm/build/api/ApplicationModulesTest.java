@@ -170,7 +170,7 @@ class ApplicationModulesTest {
     @Test
     @DisplayName("should return depending modules")
     void shouldReturnDependingModules() {
-        Map<Scope, List<Module>> modulesWithDeclaredDependencyTo = sut.findModulesWithDeclaredDependencyTo("com.example:module2:1.0-SNAPSHOT");
+        Map<Scope, List<Module>> modulesWithDeclaredDependencyTo = sut.findModulesWithDeclaredDependencyTo("org.example:module2:1.0-SNAPSHOT");
         assertThat(modulesWithDeclaredDependencyTo.containsKey(Scope.Compile)).isTrue();
     }
 
