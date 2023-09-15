@@ -39,9 +39,7 @@ import org.openrewrite.marker.OperatingSystemProvenance;
 import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
-import org.openrewrite.maven.cache.InMemoryMavenPomCache;
-import org.openrewrite.maven.cache.LocalMavenArtifactCache;
-import org.openrewrite.maven.cache.MavenArtifactCache;
+import org.openrewrite.maven.cache.*;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.cache.MavenArtifactCache;
@@ -418,8 +416,8 @@ class RewriteMavenProjectParserTest {
         // 8
         assertThat(
                 messages.get("org.openrewrite.maven.pomCache")
-        ).isNull();
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(InMemoryMavenPomCache.class);
+        ).isInstanceOf(CompositeMavenPomCache.class);
+        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
 //        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
 
         // 9
