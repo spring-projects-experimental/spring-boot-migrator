@@ -336,7 +336,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>3.0.0-M7</version>
+                <version>3.0.1</version>
                 <configuration>
                     <connectionUrl>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</connectionUrl>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
