@@ -16,6 +16,8 @@
 package org.springframework.sbm.java.migration.conditions;
 
 import org.openrewrite.java.marker.JavaSourceSet;
+import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaType;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
@@ -42,11 +44,18 @@ class HasMemberAnnotationTest {
                         .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
                         .build();
 
-        boolean isTypeResolved = context.getProjectJavaSources().list().get(0).getResource().getSourceFile().getMarkers().findFirst(JavaSourceSet.class).get().getClasspath().stream().map(fq -> fq.getFullyQualifiedName()).anyMatch(fq -> fq.startsWith("javax.validation"));
+        J.CompilationUnit sourceFile = context.getProjectJavaSources().list().get(0).getResource().getSourceFile();
+        boolean isTypeResolved = sourceFile.getMarkers().findFirst(JavaSourceSet.class).get().getClasspath().stream().map(fq -> fq.getFullyQualifiedName()).anyMatch(fq -> fq.startsWith("javax.validation"));
         assertThat(isTypeResolved).isTrue();
 
+
+        String annotation = "javax.validation.constraints.Min";
         HasMemberAnnotation sut = new HasMemberAnnotation();
-        sut.setAnnotation("javax.validation.constraints.Min");
+        sut.setAnnotation(annotation);
+
+        boolean isTypeInUse = sourceFile.getTypesInUse().getTypesInUse().stream()
+                .anyMatch(t -> ((JavaType.FullyQualified)t).getFullyQualifiedName().equals(annotation));
+        assertThat(isTypeInUse).isTrue();
 
         assertThat(sut.evaluate(context)).isTrue();
     }
