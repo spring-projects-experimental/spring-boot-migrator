@@ -20,6 +20,7 @@ import org.openrewrite.java.tree.JavaType;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -113,13 +114,18 @@ class OpenRewriteMemberTest {
         assertThat(classpath).contains(minAnnotation);
 
         // add annotation
-        javaSource.getTypes().get(0).getMembers().get(0).addAnnotation(minAnnotation);
+        Type type = javaSource.getTypes().get(0);
+        type.getMembers().get(0).addAnnotation(minAnnotation);
+
+        boolean isTypeInUse = ((OpenRewriteJavaSource)javaSource).getSourceFile().getTypesInUse().getTypesInUse().stream()
+                .anyMatch(t -> ((JavaType.FullyQualified)t).getFullyQualifiedName().equals(minAnnotation));
+        assertThat(isTypeInUse).isTrue();
 
         // correct import added
         assertThat(javaSource.getImports()).hasSize(1);
         assertThat(javaSource.hasImportStartingWith(minAnnotation)).isTrue();
-        assertThat(javaSource.getTypes().get(0).getMembers().get(0).getAnnotation(minAnnotation)).isNotNull();
-        assertThat(javaSource.getTypes().get(0).getMembers().get(1).getAnnotation(minAnnotation)).isNull();
+        assertThat(type.getMembers().get(0).getAnnotation(minAnnotation)).isNotNull();
+        assertThat(type.getMembers().get(1).getAnnotation(minAnnotation)).isNull();
     }
 
     @Test
