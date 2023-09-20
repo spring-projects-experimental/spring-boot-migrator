@@ -385,6 +385,7 @@ limitations under the License.
                                 <!-- @formatter:on -->
                             </inlineHeader>
                             <excludes>
+                                <exclude>sbm-support-rewrite/**</exclude>
                                 <exclude>**/demo/**</exclude>
                                 <exclude>**/.sdkmanrc</exclude>
                                 <exclude>**/*.adoc</exclude>
