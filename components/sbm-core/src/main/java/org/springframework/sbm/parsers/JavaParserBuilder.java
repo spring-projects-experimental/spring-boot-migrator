@@ -13,21 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build.api;
+package org.springframework.sbm.parsers;
 
-import org.openrewrite.maven.tree.Scope;
-import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
+import lombok.Getter;
+import lombok.Setter;
+import org.openrewrite.java.JavaParser;
+import org.springframework.sbm.scopes.annotations.ScanScope;
+import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.function.Supplier;
 
 /**
- * Event published when new dependencies were added to a {@link BuildFile}.
- * A listener can then use the information to recompile affected java source files.
- *
- * @author Fabian Krueger
+ * @author Fabian Krüger
  */
-public record DependenciesChangedEvent(OpenRewriteMavenBuildFile openRewriteMavenBuildFile, Map<Scope, Set<Path>> resolvedDependencies) {
+@Component
+@ScanScope
+public class JavaParserBuilder extends JavaParser.Builder{
+
+    @Getter
+    @Setter
+    private JavaParser.Builder builder;
+
+    public Supplier<JavaParser.Builder> getSupplier() {
+        return () -> builder;
+    }
+
+    @Override
+    public JavaParser build() {
+        return builder.build();
+    }
 }

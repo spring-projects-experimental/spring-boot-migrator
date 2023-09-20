@@ -23,7 +23,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.tree.J;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 
 import java.io.ByteArrayOutputStream;

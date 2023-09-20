@@ -13,7 +13,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <openrewrite.version>8.1.8</openrewrite.version>
         <spring-boot.version>3.1.2</spring-boot.version>
-        <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>
+        <!--        <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>-->
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
@@ -29,7 +29,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
-        <snakeyaml.version>1.33</snakeyaml.version>
+<!--        <snakeyaml.version>1.33</snakeyaml.version>-->
         <sbm-support-rewrite.version>0.1.0-SNAPSHOT</sbm-support-rewrite.version>
         <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
     </properties>
@@ -38,7 +38,7 @@
         <developerConnection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</developerConnection>
         <connection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator</connection>
         <url>https://github.com/spring-projects-experimental/spring-boot-migrator</url>
-        <tag>0.15.0</tag>
+        <tag>0.15.1</tag>
     </scm>
 
     <!--	<scm>-->
@@ -48,12 +48,34 @@
     <!--		<tag>HEAD</tag>-->
     <!--	</scm>-->
 
+    <modules>
+        <!-- <module>components/sbm-utils</module> -->
+        <module>components/sbm-openrewrite</module>
+        <module>components/sbm-core</module>
+        <module>components/test-helper</module>
+        <module>components/recipe-test-support</module>
+    </modules>
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${snakeyaml.version}</version>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-http</artifactId>
+                <version>3.5.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-transport-http</artifactId>
+                <version>1.9.14</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-api</artifactId>
+                <version>1.9.14</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.resolver</groupId>
+                <artifactId>maven-resolver-impl</artifactId>
+                <version>1.9.14</version>
             </dependency>
 
             <dependency>
@@ -80,12 +102,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.springframework.sbm</groupId>
-                <artifactId>recipe-test-support</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
@@ -108,36 +124,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.shell</groupId>-->
-<!--                <artifactId>spring-shell-dependencies</artifactId>-->
-<!--                <version>${spring-shell.version}</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>me.tongfei</groupId>-->
-<!--                <artifactId>progressbar</artifactId>-->
-<!--                <version>${progressbar.version}</version>-->
-<!--            </dependency>-->
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers</artifactId>
-                <version>${testcontainers.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
             <dependency>
                 <groupId>org.apache.maven.shared</groupId>
                 <artifactId>maven-invoker</artifactId>
                 <version>${maven-invoker.version}</version>
             </dependency>
-            <!-- openrewrite -->
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-core</artifactId>
@@ -243,24 +234,12 @@
             <artifactId>sbm-support-rewrite</artifactId>
             <version>${sbm-support-rewrite.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.experimental</groupId>
+            <artifactId>sbm-support-rewrite</artifactId>
+            <version>${sbm-support-rewrite.version}</version>
+        </dependency>
     </dependencies>
-    <modules>
-<!--        <module>applications/spring-shell</module>-->
-<!--        <module>components/openrewrite-spring-recipes</module>-->
-<!--        <module>components/sbm-recipes-spring-cloud</module>-->
-<!--        <module>components/sbm-recipes-spring-framework</module>-->
-<!--        <module>components/sbm-recipes-mule-to-boot</module>-->
-<!--        <module>components/sbm-support-weblogic</module>-->
-        <module>components/sbm-openrewrite</module>
-        <module>components/test-helper</module>
-        <module>components/recipe-test-support</module>
-        <module>components/sbm-core</module>
-<!--        <module>components/sbm-support-boot</module>-->
-<!--        <module>components/sbm-support-jee</module>-->
-<!--        <module>components/sbm-recipes-jee-to-boot</module>-->
-<!--        <module>components/sbm-recipes-boot-upgrade</module>-->
-<!--        <module>applications/spring-boot-upgrade</module>-->
-    </modules>
     <build>
         <finalName>${jar.name}</finalName>
         <plugins>
@@ -385,6 +364,7 @@ limitations under the License.
                                 <!-- @formatter:on -->
                             </inlineHeader>
                             <excludes>
+                                <exclude>sbm-support-rewrite/**</exclude>
                                 <exclude>**/demo/**</exclude>
                                 <exclude>**/.sdkmanrc</exclude>
                                 <exclude>**/*.adoc</exclude>

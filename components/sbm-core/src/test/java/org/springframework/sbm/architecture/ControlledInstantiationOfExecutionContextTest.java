@@ -25,7 +25,8 @@ import com.tngtech.archunit.lang.ArchRule;
 import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.SbmCoreConfig;
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.java.OpenRewriteTestSupport;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 
 import static com.tngtech.archunit.lang.conditions.ArchConditions.notBe;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
@@ -47,12 +48,12 @@ public class ControlledInstantiationOfExecutionContextTest {
                                             ))
                             )
                     )
-                    .andShould()
-                            .notBe(classWithPermissionToCreateExecutionContext)
-                    .andShould()
-                        .notBe(SbmCoreConfig.class)
-                    .andShould()
-                        .notBe(RewriteExecutionContext.class)
+                    .andShould(
+                        notBe(classWithPermissionToCreateExecutionContext)
+                        .and(notBe(SbmCoreConfig.class))
+                        .and(notBe(RewriteExecutionContext.class))
+                        .and(notBe(OpenRewriteTestSupport.class))
+                    );
             ;
 }
 

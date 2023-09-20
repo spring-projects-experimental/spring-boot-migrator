@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build.api;
-
-import org.openrewrite.maven.tree.Scope;
-import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+package org.springframework.sbm.utils;
 
 /**
- * Event published when new dependencies were added to a {@link BuildFile}.
- * A listener can then use the information to recompile affected java source files.
- *
- * @author Fabian Krueger
+ * @author Fabian Krüger
  */
-public record DependenciesChangedEvent(OpenRewriteMavenBuildFile openRewriteMavenBuildFile, Map<Scope, Set<Path>> resolvedDependencies) {
+public class JavaHelper {
+    public static String lowercaseFirstChar(String name) {
+        return Character.toLowerCase(name.charAt(0)) + name.substring(1);
+    }
+
+    public static String uppercaseFirstChar(String name) {
+        if(name.isEmpty()) return name;
+        return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    }
 }

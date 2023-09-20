@@ -22,6 +22,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.AbstractRewriteMojo;
@@ -88,6 +89,15 @@ public class RewriteProjectParser {
     private final ApplicationEventPublisher eventPublisher;
     private final ScanScope scanScope;
     private final ConfigurableListableBeanFactory beanFactory;
+    private final ProjectScanner scanner;
+    private final ExecutionContext executionContext;
+
+
+    public RewriteProjectParsingResult parse(Path baseDir) {
+        Set<String> ignorePatterns = parserProperties.getIgnoredPathPatterns();
+        List<Resource> resources = scanner.scan(baseDir);
+        return this.parse(baseDir, resources, executionContext);
+    }
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
@@ -126,10 +136,6 @@ public class RewriteProjectParser {
         // TODO: See ConfigurableRewriteMojo#getPlainTextMasks()
         // TODO: where to retrieve styles from? --> see AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
         List<NamedStyles> styles = List.of();
-
-        // retrieve all pom files from all modules in the active reactor build
-        // TODO: Move this to a build file sort and filter component, for now it could use Maven's DefaultGraphBuilder
-        //       this requires File to be used and thus binds the component to file access.
 
         AtomicReference<RewriteProjectParsingResult> atomicReference = new AtomicReference<>();
 
@@ -171,7 +177,7 @@ public class RewriteProjectParser {
     }
 
     private void withMavenSession(Path baseDir, Consumer<MavenSession> consumer) {
-        List<String> goals = List.of("clean", "install");
+        List<String> goals = List.of("clean", "package");
         log.debug("Successfully finished goals %s".formatted(goals));
         mavenExecutor.onProjectSucceededEvent(baseDir, goals, event -> consumer.accept(event.getSession()));
     }

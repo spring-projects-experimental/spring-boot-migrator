@@ -19,7 +19,7 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.java.JavaParser;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;

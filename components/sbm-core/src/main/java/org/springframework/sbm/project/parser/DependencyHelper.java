@@ -22,6 +22,7 @@ import org.openrewrite.maven.cache.ReadOnlyLocalMavenArtifactCache;
 import org.openrewrite.maven.internal.MavenParsingException;
 import org.openrewrite.maven.tree.*;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +31,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Component
 public class DependencyHelper {
 
     public List<Path> downloadArtifacts(Consumer<Throwable> errorHandler, Set<ResolvedDependency> dependencies) {

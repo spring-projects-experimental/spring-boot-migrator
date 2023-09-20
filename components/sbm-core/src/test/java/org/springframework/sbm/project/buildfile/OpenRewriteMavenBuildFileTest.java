@@ -21,6 +21,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.maven.tree.Scope;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.build.api.BuildFile;
@@ -33,18 +34,15 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
+import org.springframework.sbm.java.impl.DependencyChangeHandler;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,7 +92,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .get(0)
                 .getBuildFile();
 
-        assertThat(buildFile.getRequestedDependencies().get(0).getCoordinates()).isEqualTo("javax.validation:validation-api:2.0.1.Final");
+        assertThat(buildFile.getRequestedDependencies().get(0).getGav()).isEqualTo("javax.validation:validation-api:2.0.1.Final");
     }
 
     @Nested
@@ -361,6 +359,8 @@ public class OpenRewriteMavenBuildFileTest {
         BuildFile sut = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile();
 
         List<Path> dependenciesPaths = sut.getResolvedDependenciesPaths();
@@ -413,6 +413,8 @@ public class OpenRewriteMavenBuildFileTest {
         BuildFile sut = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile();
 
         List<String> unifiedPaths = sut.getResolvedDependenciesPaths().stream()
@@ -540,7 +542,7 @@ public class OpenRewriteMavenBuildFileTest {
                 )
                 .build();
 
-        BuildFile buildFile = context.getBuildFile();
+        BuildFile buildFile = context.getApplicationModules().getRootModule().getBuildFile();
 
         Member member = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);
 
@@ -561,13 +563,13 @@ public class OpenRewriteMavenBuildFileTest {
         assertEventPublished(eventPublisher, argumentCaptor, event, 1);
 
         DependenciesChangedEvent fireEvent = argumentCaptor.getValue();
-        assertThat(fireEvent.getResolvedDependencies().get(0).toString()).endsWith("javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar");
+        assertThat(fireEvent.resolvedDependencies().get(0).toString()).endsWith("javax/validation/validation-api/2.0.1.Final/validation-api-2.0.1.Final.jar");
 
         // call DependenciesChangedEventHandler to trigger recompile
         JavaParserBuilder rewriteJavaParser = new JavaParserBuilder();
         ProjectContextHolder projectContextHolder = new ProjectContextHolder();
         projectContextHolder.setProjectContext(context);
-        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(projectContextHolder, rewriteJavaParser, executionContext);
+        DependenciesChangedEventHandler handler = new DependenciesChangedEventHandler(new DependencyChangeHandler(projectContextHolder, rewriteJavaParser, executionContext));
         handler.onDependenciesChanged(fireEvent);
 
         Member member2 = context.getProjectJavaSources().list().get(0).getTypes().get(0).getMembers().get(0);
@@ -600,6 +602,8 @@ public class OpenRewriteMavenBuildFileTest {
         BuildFile sut = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile();
 
         assertThat(sut.hasDeclaredDependencyMatchingRegex("javax\\.transaction.*")).isTrue();
@@ -631,6 +635,8 @@ public class OpenRewriteMavenBuildFileTest {
         BuildFile sut = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile();
 
         sut.addDependency(Dependency.builder()
@@ -670,6 +676,8 @@ public class OpenRewriteMavenBuildFileTest {
         BuildFile sut = TestProjectContext.buildProjectContext(eventPublisher)
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile();
 
         Dependency dependency = Dependency.builder()
@@ -691,8 +699,8 @@ public class OpenRewriteMavenBuildFileTest {
         // Don't know about a better way, see https://github.com/mockito/mockito/issues/565
         assertEventPublished(eventPublisher, argumentCaptor, DependenciesChangedEvent.class, 1);
 
-        assertThat(argumentCaptor.getValue().getResolvedDependencies()).hasSize(1);
-        assertThat(argumentCaptor.getValue().getResolvedDependencies().get(0).toString()).endsWith("org/apiguardian/apiguardian-api/1.1.0/apiguardian-api-1.1.0.jar");
+        assertThat(argumentCaptor.getValue().resolvedDependencies()).hasSize(1);
+        assertThat(argumentCaptor.getValue().resolvedDependencies().get(0).toString()).endsWith("org/apiguardian/apiguardian-api/1.1.0/apiguardian-api-1.1.0.jar");
     }
 
     private void assertEventPublished(ApplicationEventPublisher eventPublisher, ArgumentCaptor<DependenciesChangedEvent> argumentCaptor, Class<?> eventClass, int times) {
@@ -724,6 +732,8 @@ public class OpenRewriteMavenBuildFileTest {
         BuildFile sut = TestProjectContext.buildProjectContext(eventPublisher)
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile();
 
         sut.addDependencies(List.of(
@@ -817,7 +827,7 @@ public class OpenRewriteMavenBuildFileTest {
                         "  </dependencies> \n" +
                         "</project>\n";
 
-        BuildFile sut = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile sut = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
 
         sut.removeDependencies(List.of(
                 Dependency.builder()
@@ -1079,7 +1089,7 @@ public class OpenRewriteMavenBuildFileTest {
         private Dependency findDependencyByCoordinate(List<Dependency> dependenciesEffectiveInModule1, String anObject) {
             return dependenciesEffectiveInModule1
                     .stream()
-                    .filter(d -> d.getCoordinates().equals(anObject))
+                    .filter(d -> d.getGav().equals(anObject))
                     .findFirst()
                     .get();
         }
@@ -1138,7 +1148,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .withMavenRootBuildFileSource(pomSource)
                 .build();
 
-        List<Dependency> dependencies = build.getBuildFile().getRequestedDependencies();
+        List<Dependency> dependencies = build.getApplicationModules().getRootModule().getBuildFile().getRequestedDependencies();
 
         assertThat(dependencies).hasSize(4);
 
@@ -1218,7 +1228,8 @@ public class OpenRewriteMavenBuildFileTest {
                 .withMavenRootBuildFileSource(pomSource)
                 .build();
 
-        List<Dependency> dependencies = build.getBuildFile().getDeclaredDependencies();
+        List<Dependency> dependencies = build.getApplicationModules()
+                .getRootModule().getBuildFile().getDeclaredDependencies();
 
         assertThat(dependencies).hasSize(4);
 
@@ -1276,6 +1287,8 @@ public class OpenRewriteMavenBuildFileTest {
         BuildFile sut = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile();
         assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(2);
@@ -1332,7 +1345,7 @@ public class OpenRewriteMavenBuildFileTest {
 
         long beforeCreatingContext = System.currentTimeMillis();
 
-        BuildFile sut = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile sut = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
 
         sut.removeDependencies(List.of(
                 Dependency.builder()
@@ -1410,28 +1423,29 @@ public class OpenRewriteMavenBuildFileTest {
                 .build();
 
         // call sut
-        projectContext.getBuildFile().addDependency(addedDependency);
+        projectContext.getApplicationModules()
+                .getRootModule().getBuildFile().addDependency(addedDependency);
 
         // assert that DependenciesChangedEvent has been published with the list of dependencies
         ArgumentCaptor<DependenciesChangedEvent> argumentCaptor = ArgumentCaptor.forClass(DependenciesChangedEvent.class);
 
         assertEventPublished(eventPublisher, argumentCaptor, DependenciesChangedEvent.class, 1);
 
-        List<Path> resolvedDependencies = argumentCaptor.getValue().getResolvedDependencies();
+        Map<Scope, Set<Path>> resolvedDependencies = argumentCaptor.getValue().resolvedDependencies();
         assertThat(resolvedDependencies).hasSize(1);
         Path pathInMavenRepo = Path.of("org/slf4j/slf4j-api/1.7.32/slf4j-api-1.7.32.jar");
         assertThat(resolvedDependencies.get(0)).endsWith(pathInMavenRepo);
 
         // assert that the dependency has been added to <dependencies> in pom.xml
-        assertThat(projectContext.getBuildFile().print()).isEqualTo(expectedPomXmlSource);
+        assertThat(projectContext.getApplicationModules().getRootModule().getBuildFile().print()).isEqualTo(expectedPomXmlSource);
 
         // assert that resolved dependencies path contains added dependency
-        List<Path> resolvedDependenciesPaths = projectContext.getBuildFile().getResolvedDependenciesPaths();
+        List<Path> resolvedDependenciesPaths = projectContext.getApplicationModules().getRootModule().getBuildFile().getResolvedDependenciesPaths();
         assertThat(resolvedDependenciesPaths.get(0)).endsWith(pathInMavenRepo);
 
 
         // assert that dependency management contains dependency
-        Dependency retrievedDependency = projectContext.getBuildFile().getDeclaredDependencies().get(0);
+        Dependency retrievedDependency = projectContext.getApplicationModules().getRootModule().getBuildFile().getDeclaredDependencies().get(0);
         assertThat(retrievedDependency).isEqualTo(addedDependency);
         assertThat(addedDependency.getGroupId()).isEqualTo("org.slf4j");
         assertThat(addedDependency.getArtifactId()).isEqualTo("slf4j-api");
@@ -1472,7 +1486,7 @@ public class OpenRewriteMavenBuildFileTest {
         plugin.setGroupId("group.id");
         plugin.setArtifactId("some.artifact");
 
-        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
         buildFile.addPlugin(plugin);
         assertEquals(refactoredPomXml, buildFile.print());
     }
@@ -1515,7 +1529,7 @@ public class OpenRewriteMavenBuildFileTest {
         plugin.setGroupId("group.id");
         plugin.setArtifactId("some.artifact");
 
-        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
         buildFile.addPlugin(plugin);
         assertEquals(refactoredPomXml, buildFile.print());
     }
@@ -1562,7 +1576,7 @@ public class OpenRewriteMavenBuildFileTest {
         plugin.setGroupId("group.id");
         plugin.setArtifactId("some.artifact");
 
-        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
         buildFile.addPlugin(plugin);
         assertEquals(refactoredPomXml, buildFile.print());
     }
@@ -1613,7 +1627,7 @@ public class OpenRewriteMavenBuildFileTest {
         plugin.setGroupId("group.id");
         plugin.setArtifactId("some.artifact");
 
-        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
         buildFile.addPlugin(plugin);
         assertEquals(refactoredPomXml, buildFile.print());
     }
@@ -1660,7 +1674,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .version("5.6.2")
                 .build();
 
-        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(before).build().getBuildFile();
+        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(before).build().getApplicationModules().getRootModule().getBuildFile();
         buildFile.addToDependencyManagement(dependency);
         assertEquals(expected, buildFile.print());
     }
@@ -1715,7 +1729,7 @@ public class OpenRewriteMavenBuildFileTest {
 
         Dependency dependency = Dependency.builder().groupId("org.projectlombok").artifactId("lombok").version("1.18.12").build();
 
-        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(before).build().getBuildFile();
+        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(before).build().getApplicationModules().getRootModule().getBuildFile();
         buildFile.addToDependencyManagement(dependency);
         assertEquals(expected, buildFile.print());
     }
@@ -1773,7 +1787,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .build();
 
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(before).build().getBuildFile();
+        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(before).build().getApplicationModules().getRootModule().getBuildFile();
         buildFile.addToDependencyManagement(dependency);
         assertEquals(expected, buildFile.print());
     }
@@ -1830,7 +1844,7 @@ public class OpenRewriteMavenBuildFileTest {
                 .scope("test")
                 .build();
 
-        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(before).build().getBuildFile();
+        BuildFile buildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(before).build().getApplicationModules().getRootModule().getBuildFile();
         buildFile.addToDependencyManagement(dependency);
         assertEquals(expected, buildFile.print());
     }
@@ -1890,6 +1904,8 @@ public class OpenRewriteMavenBuildFileTest {
         BuildFile buildFile = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(before)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile();
 
         buildFile.addToDependencyManagement(dependency);
@@ -1924,6 +1940,8 @@ public class OpenRewriteMavenBuildFileTest {
         BuildFile buildFile = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(before)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile();
 
         assertThat(buildFile.getPackaging()).isEqualTo("war");
@@ -1956,6 +1974,8 @@ public class OpenRewriteMavenBuildFileTest {
         BuildFile buildFile = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile();
 
         OpenRewriteMavenPlugin plugin = OpenRewriteMavenPlugin.builder()
@@ -1985,6 +2005,8 @@ public class OpenRewriteMavenBuildFileTest {
         Optional<String> name = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile()
                 .getName();
 
@@ -2007,6 +2029,8 @@ public class OpenRewriteMavenBuildFileTest {
         Optional<String> name = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .build()
+                .getApplicationModules()
+                .getRootModule()
                 .getBuildFile()
                 .getName();
 
@@ -2067,7 +2091,7 @@ public class OpenRewriteMavenBuildFileTest {
                         "    </build>\n" +
                         "</project>";
 
-        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
 
         List<Plugin> plugins = openRewriteMavenBuildFile.getPlugins();
 
@@ -2127,7 +2151,7 @@ public class OpenRewriteMavenBuildFileTest {
 						"    </build>\n" +
 						"</project>";
 
-		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
 
 		Plugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
 				.stream()
@@ -2187,7 +2211,7 @@ public class OpenRewriteMavenBuildFileTest {
 						"    </build>\n" +
 						"</project>";
 
-		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
 
 		Plugin compilerPlugin = openRewriteMavenBuildFile.getPlugins()
 				.stream()
@@ -2252,7 +2276,7 @@ public class OpenRewriteMavenBuildFileTest {
 						"    </build>\n" +
 						"</project>";
 
-		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+		BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
 
 		openRewriteMavenBuildFile.deleteProperty("java.version");
 
@@ -2469,7 +2493,7 @@ public class OpenRewriteMavenBuildFileTest {
                         "    </build>\n" +
                         "</project>";
 
-        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
 
         openRewriteMavenBuildFile.removePluginsMatchingRegex("com\\.mulesoft\\..*");
 
@@ -2555,7 +2579,7 @@ public class OpenRewriteMavenBuildFileTest {
                         "    </build>\n" +
                         "</project>";
 
-        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
 
         openRewriteMavenBuildFile.removePlugins("com.mulesoft.munit.tools:munit-maven-plugin");
 
@@ -2607,7 +2631,7 @@ public class OpenRewriteMavenBuildFileTest {
                         "    </properties>\n" +
                         "</project>\n";
 
-        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
         assertThat(openRewriteMavenBuildFile.hasParent()).isTrue();
     }
 
@@ -2628,7 +2652,7 @@ public class OpenRewriteMavenBuildFileTest {
                         "    </properties>\n" +
                         "</project>\n";
 
-        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
         assertThat(openRewriteMavenBuildFile.hasParent()).isFalse();
     }
 
@@ -2655,7 +2679,7 @@ public class OpenRewriteMavenBuildFileTest {
                         "    </properties>\n" +
                         "</project>\n";
 
-        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
 
         assertThat(openRewriteMavenBuildFile.getParentPomDeclaration()).isNotEmpty();
         assertThat(openRewriteMavenBuildFile.getParentPomDeclaration().get().getGroupId()).isEqualTo("org.springframework.boot");
@@ -2687,7 +2711,7 @@ public class OpenRewriteMavenBuildFileTest {
                 </project>
                 """;
 
-        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getBuildFile();
+        BuildFile openRewriteMavenBuildFile = TestProjectContext.buildProjectContext().withMavenRootBuildFileSource(pomXml).build().getApplicationModules().getRootModule().getBuildFile();
 
         openRewriteMavenBuildFile.upgradeParentVersion("2.5.6");
 

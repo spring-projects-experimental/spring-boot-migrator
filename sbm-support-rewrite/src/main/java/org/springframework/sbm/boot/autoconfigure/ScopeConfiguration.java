@@ -20,6 +20,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.cache.MavenPomCache;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.sbm.scopes.ExecutionScope;
@@ -63,6 +64,7 @@ public class ScopeConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(name = "executionContextSupplier")
     Supplier<ExecutionContext> executionContextSupplier() {
         return () -> new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
     }

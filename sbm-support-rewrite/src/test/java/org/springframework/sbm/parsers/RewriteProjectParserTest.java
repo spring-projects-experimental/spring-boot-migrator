@@ -31,6 +31,7 @@ import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
@@ -101,19 +102,22 @@ class RewriteProjectParserTest {
             throw new RuntimeException(t);
         };
         MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader(mavenArtifactCache, mavenSettings, onError));
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
                 new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
                 new BuildFileParser(),
-                new SourceFileParser(mavenModelReader, parserProperties, mavenMojoParserPrivateMethods),
+                new SourceFileParser(parserProperties, mavenMojoParserPrivateMethods, new JavaParserBuilder()),
                 new StyleDetector(),
                 parserProperties,
                 mock(ParsingEventListener.class),
                 mock(ApplicationEventPublisher.class),
                 new ScanScope(),
-                mock(ConfigurableListableBeanFactory.class)
+                mock(ConfigurableListableBeanFactory.class),
+                new ProjectScanner(new DefaultResourceLoader(), parserProperties),
+                executionContext
         );
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
+
         List<String> parsedFiles = new ArrayList<>();
         ParsingExecutionContextView.view(executionContext).setParsingListener(
                     new ParsingEventListener() {
@@ -124,6 +128,8 @@ class RewriteProjectParserTest {
                     }
                 );
 
+        // TODO: Provide Scanner with excludes
+        // TODO: Make RewriteProjectParser publish ApplicationEvents
         List<Resource> resources = List.of(
                 new DummyResource(basePath.resolve("pom.xml"), pomXml),
                 new DummyResource(basePath.resolve("src/main/java/com/example/MyMain.java"), javaClass));

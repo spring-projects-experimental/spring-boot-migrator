@@ -38,6 +38,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.events.*;
+import org.springframework.sbm.parsers.RewriteMavenProjectParser;
 import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.stereotype.Component;

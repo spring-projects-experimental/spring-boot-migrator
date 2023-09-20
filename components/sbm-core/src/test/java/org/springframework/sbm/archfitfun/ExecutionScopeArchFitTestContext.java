@@ -24,7 +24,7 @@ import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.engine.recipe.Recipe;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.scopes.ProjectMetadata;
 
 import java.util.UUID;

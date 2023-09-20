@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.sccs;
 
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.test.ProjectContextFileSystemTestSupport;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;

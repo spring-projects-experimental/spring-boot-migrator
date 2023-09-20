@@ -30,7 +30,7 @@ import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.events.StartedScanningProjectResourceEvent;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;

@@ -28,7 +28,6 @@ import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -42,11 +41,11 @@ import java.util.stream.Stream;
 @Slf4j
 
 @RequiredArgsConstructor
-class SourceFileParser {
+public class SourceFileParser {
 
-    private final MavenModelReader modelReader;
     private final ParserProperties parserProperties;
     private final MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods;
+    private final JavaParserBuilder javaParserBuilder;
 
     public List<SourceFile> parseOtherSourceFiles(
             Path baseDir,
@@ -186,10 +185,5 @@ class SourceFileParser {
                 .filter(p -> !p.getFile().toPath().equals(moduleBuildFile))
                 .map(p -> p.getFile().toPath().getParent())
                 .collect(Collectors.toSet());
-        // FIXME:
-        // filter build files
-        // create relative paths to all other build files
-        // return result
-//        return Set.of();
     }
 }

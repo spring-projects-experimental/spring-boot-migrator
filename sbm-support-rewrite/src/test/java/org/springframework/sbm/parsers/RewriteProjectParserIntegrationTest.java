@@ -15,15 +15,22 @@
  */
 package org.springframework.sbm.parsers;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.java.tree.J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
+import org.springframework.sbm.parsers.events.FinishedParsingResourceEvent;
+import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
+import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
+import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +47,9 @@ public class RewriteProjectParserIntegrationTest {
     @Autowired
     ProjectScanner projectScanner;
 
+    @Autowired
+    RewriteMavenProjectParser mavenProjectParser;
+
     @Test
     @DisplayName("parseCheckstyle")
     void parseCheckstyle() {
@@ -49,7 +59,6 @@ public class RewriteProjectParserIntegrationTest {
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
     }
-
     @Test
     @DisplayName("parse4Modules")
     void parse4Modules() {
@@ -62,8 +71,16 @@ public class RewriteProjectParserIntegrationTest {
         assertThat(parsingResult.sourceFiles()).hasSize(4);
     }
 
-    @Autowired
-    RewriteMavenProjectParser mavenProjectParser;
+    @Test
+    @DisplayName("testFailingProject")
+        // FIXME: Succeeds with RewriteMavenProjectParser
+    void testFailingProject() {
+        Path baseDir = Path.of("./testcode/maven-projects/failing");
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir);
+        assertThat(parsingResult.sourceFiles().get(1)).isInstanceOf(J.CompilationUnit.class);
+        J.CompilationUnit cu = (J.CompilationUnit) parsingResult.sourceFiles().get(1);
+        assertThat(cu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
+    }
 
     @Test
     @DisplayName("parseResources")

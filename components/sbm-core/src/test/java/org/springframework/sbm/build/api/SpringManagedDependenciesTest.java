@@ -17,7 +17,7 @@ package org.springframework.sbm.build.api;
 
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +31,7 @@ public class SpringManagedDependenciesTest {
         assertThat(SpringManagedDependencies.by("org.springframework.boot", "spring-boot-starter", "2.7.4",
                                                 executionContext)
                                      .stream()
-                                     .map(Dependency::getCoordinates)
+                                     .map(Dependency::getGav)
                                      .anyMatch(jakartaCoordinates::equals)
         ).isTrue();
     }

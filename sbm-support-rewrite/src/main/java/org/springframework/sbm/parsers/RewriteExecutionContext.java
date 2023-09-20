@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.openrewrite;
+package org.springframework.sbm.parsers;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
 
 
 @Getter

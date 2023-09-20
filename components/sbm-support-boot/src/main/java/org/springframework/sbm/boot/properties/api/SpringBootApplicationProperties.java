@@ -23,7 +23,7 @@ import org.openrewrite.Tree;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.properties.tree.Properties.File;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.properties.api.PropertiesSource;
 import org.springframework.util.Assert;
 
