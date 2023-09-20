@@ -55,6 +55,7 @@
         <module>components/test-helper</module>
         <module>components/recipe-test-support</module>
         <module>components/sbm-support-boot</module>
+        <module>components/sbm-support-jee</module>
     </modules>
     <dependencyManagement>
         <dependencies>
