@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>sbm-support-rewrite-maven</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.version>3.9.1</maven.version>
+        <maven-resolver.version>1.9.7</maven-resolver.version>
+        <plexus-cypher.version>1.8</plexus-cypher.version>
+        <maven-wagon-http.version>3.5.3</maven-wagon-http.version>
+        <rewrite.version>8.5.1</rewrite.version>
+        <rewrite-maven-plugin.version>5.5.2</rewrite-maven-plugin.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-maven</artifactId>
+            <version>${rewrite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-java</artifactId>
+            <version>${rewrite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-json</artifactId>
+            <version>${rewrite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-yaml</artifactId>
+            <version>${rewrite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-hcl</artifactId>
+            <version>${rewrite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-protobuf</artifactId>
+            <version>${rewrite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-xml</artifactId>
+            <version>${rewrite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.maven</groupId>
+            <artifactId>rewrite-maven-plugin</artifactId>
+            <version>${rewrite-maven-plugin.version}</version>
+            <exclusions>
+                <!-- conflict -->
+                <exclusion>
+                    <groupId>io.micrometer</groupId>
+                    <artifactId>micrometer-core</artifactId>
+                </exclusion>
+                <!-- uses 8.5.0 -->
+                <exclusion>
+                    <groupId>org.openrewrite</groupId>
+                    <artifactId>rewrite-java</artifactId>
+                </exclusion>
+                <!-- uses 8.5.0 -->
+                <exclusion>
+                    <groupId>org.openrewrite</groupId>
+                    <artifactId>rewrite-hcl</artifactId>
+                </exclusion>
+                <!-- uses 8.5.0 -->
+                <exclusion>
+                    <groupId>org.openrewrite</groupId>
+                    <artifactId>rewrite-json</artifactId>
+                </exclusion>
+                <!-- uses 8.5.0 -->
+                <exclusion>
+                    <groupId>org.openrewrite</groupId>
+                    <artifactId>rewrite-maven</artifactId>
+                </exclusion>
+                <!-- uses 8.5.0 -->
+                <exclusion>
+                    <groupId>org.openrewrite</groupId>
+                    <artifactId>rewrite-protobuf</artifactId>
+                </exclusion>
+                <!-- uses 8.5.0 -->
+                <exclusion>
+                    <groupId>org.openrewrite</groupId>
+                    <artifactId>rewrite-properties</artifactId>
+                </exclusion>
+                <!-- uses 8.5.0 -->
+                <exclusion>
+                    <groupId>org.openrewrite</groupId>
+                    <artifactId>rewrite-xml</artifactId>
+                </exclusion>
+                <!-- uses 8.5.0 -->
+                <exclusion>
+                    <groupId>org.openrewrite</groupId>
+                    <artifactId>rewrite-yaml</artifactId>
+                </exclusion>
+                <!-- Python not supported -->
+                <exclusion>
+                    <groupId>org.openrewrite</groupId>
+                    <artifactId>rewrite-python</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-http</artifactId>
+            <version>${maven-wagon-http.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-transport-wagon</artifactId>
+            <version>${maven-resolver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-connector-basic</artifactId>
+            <version>${maven-resolver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-compat</artifactId>
+            <version>${maven.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>javax.annotation-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-embedder</artifactId>
+            <version>${maven.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.sonatype.plexus</groupId>
+                    <artifactId>plexus-cipher</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-cipher</artifactId>
+            <version>${plexus-cypher.version}</version>
+        </dependency>
+    </dependencies>
+</project>
