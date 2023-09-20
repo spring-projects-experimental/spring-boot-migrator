@@ -59,7 +59,7 @@ public interface Type {
 
     Annotation getAnnotation(String fqName);
 
-    void apply(Recipe r);
+    void apply(Recipe... r);
 
     boolean hasMethod(String methodPattern);
 

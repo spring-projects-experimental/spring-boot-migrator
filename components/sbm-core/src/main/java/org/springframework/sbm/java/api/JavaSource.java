@@ -59,7 +59,7 @@ public interface JavaSource extends ProjectResource {
      * <p>
      * Be careful if the given {@code Recipe} affects more than the wrapped compilation unit YOU MUST CALL {@link JavaSourceSet.apply(..)}
      */
-    void apply(Recipe recipe);
+    void apply(Recipe... recipe);
 
     /**
      * Retrieve the {@code Type} declared in this {@code JavaSource}.

@@ -18,21 +18,30 @@ package org.springframework.sbm.jee.jaxrs.recipes;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.Recipe;
 
+import java.util.List;
+
 /**
  * @author Vincent Botteman
  */
 public class ReplaceRequestParameterProperties extends Recipe {
     public ReplaceRequestParameterProperties() {
-        doNext(new CopyAnnotationAttribute(
-                "javax.ws.rs.DefaultValue", "value", "org.springframework.web.bind.annotation.RequestParam", "defaultValue")
+    }
+
+    @Override
+    public List<Recipe> getRecipeList() {
+        return List.of(
+                new CopyAnnotationAttribute("javax.ws.rs.DefaultValue", "value", "org.springframework.web.bind.annotation.RequestParam", "defaultValue"),
+                new RemoveAnnotationIfAccompanied("javax.ws.rs.DefaultValue", "org.springframework.web.bind.annotation.RequestParam")
         );
-        doNext(new RemoveAnnotationIfAccompanied(
-                "javax.ws.rs.DefaultValue", "org.springframework.web.bind.annotation.RequestParam"
-        ));
     }
 
     @Override
     public @NotNull String getDisplayName() {
         return "Migrate the properties of a request parameter: default value, ...";
+    }
+
+    @Override
+    public String getDescription() {
+        return getDisplayName();
     }
 }

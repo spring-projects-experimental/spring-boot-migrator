@@ -57,6 +57,7 @@
         <module>components/sbm-support-boot</module>
         <module>components/sbm-support-jee</module>
         <module>components/sbm-support-weblogic</module>
+        <module>components/sbm-recipes-jee-to-boot</module>
     </modules>
     <dependencyManagement>
         <dependencies>

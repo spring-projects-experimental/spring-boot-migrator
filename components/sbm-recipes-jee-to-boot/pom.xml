@@ -88,16 +88,20 @@
             <artifactId>aspectjweaver</artifactId>
         </dependency>
 
-        <!-- TODO: remove as these are (probably) only required in sbm-spport-jee -->
+        <!-- TODO: remove as these are (probably) only required in sbm-support-jee -->
+<!--        <dependency>-->
+<!--            <groupId>javax.xml.bind</groupId>-->
+<!--            <artifactId>jaxb-api</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.glassfish.jaxb</groupId>-->
+<!--            <artifactId>jaxb-runtime</artifactId>-->
+<!--        </dependency>-->
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-static-analysis</artifactId>
+            <version>1.0.7</version>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>test-helper</artifactId>
@@ -119,6 +123,7 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>recipe-test-support</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

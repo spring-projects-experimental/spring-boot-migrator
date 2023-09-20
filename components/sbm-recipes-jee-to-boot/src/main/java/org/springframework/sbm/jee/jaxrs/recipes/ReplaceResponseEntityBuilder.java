@@ -240,9 +240,18 @@ public class ReplaceResponseEntityBuilder extends Recipe {
 
     }
 
+    private void doNext(Recipe recipe) {
+        getRecipeList().add(recipe);
+    }
+
     @Override
     public String getDisplayName() {
         return "Replace references to JAX-RS ReplaceResponseEntityBuilder";
+    }
+
+    @Override
+    public String getDescription() {
+        return getDisplayName();
     }
 
 }

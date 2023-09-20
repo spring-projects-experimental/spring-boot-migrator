@@ -123,8 +123,8 @@ public class CompiledType implements Type {
     }
 
     @Override
-    public void apply(Recipe r) {
-
+    public void apply(Recipe... r) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

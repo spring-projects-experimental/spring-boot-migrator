@@ -56,11 +56,11 @@ public class SwapHttHeaders extends Recipe {
         doNext(new RewriteMethodInvocation(
                         methodInvocationMatcher("javax.ws.rs.core.HttpHeaders getDate()"),
                         (v, m, addImport) -> {
-                            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "new Date()")
+                            JavaTemplate template = JavaTemplate.builder("new Date()")
                                     .imports("java.util.Date")
                                     .build();
                             addImport.accept("java.util.Date");
-                            NewClass newMethod = (NewClass) m.withTemplate(template, m.getCoordinates().replace());
+                            NewClass newMethod = (NewClass) template.apply(v.getCursor(), m.getCoordinates().replace());
                             JavaType javaType = JavaType.buildType("org.springframework.http.HttpHeaders");
                             return newMethod.withArguments(List.of(
                                     m.withSelect(m.getSelect().withType(javaType))
@@ -75,9 +75,9 @@ public class SwapHttHeaders extends Recipe {
         doNext(new RewriteMethodInvocation(
                         methodInvocationMatcher("javax.ws.rs.core.HttpHeaders getHeaderString(java.lang.String)"),
                         (v, m, addImport) -> {
-                            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "String.join(\", \", #{any(org.springframework.http.HttpHeaders)}.get(#{any(java.lang.String)})")
+                            JavaTemplate template = JavaTemplate.builder("String.join(\", \", #{any(org.springframework.http.HttpHeaders)}.get(#{any(java.lang.String)})")
                                     .build();
-                            return m.withTemplate(template, m.getCoordinates().replace(), m.getSelect(), m.getArguments().get(0));
+                            return template.apply(v.getCursor(), m.getCoordinates().replace(), m.getSelect(), m.getArguments().get(0));
                         }
                 )
         );
@@ -114,9 +114,9 @@ public class SwapHttHeaders extends Recipe {
         // #getRequestHeader(String)
         doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.HttpHeaders getRequestHeader(java.lang.String)"),
                         (v, m, addImport) -> {
-                            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "#{any(org.springframework.http.HttpHeaders)}.get(#{any(java.lang.String)})")
+                            JavaTemplate template = JavaTemplate.builder("#{any(org.springframework.http.HttpHeaders)}.get(#{any(java.lang.String)})")
                                     .build();
-                            return m.withTemplate(template, m.getCoordinates().replace(), m.getSelect(), m.getArguments().get(0));
+                            return template.apply(v.getCursor(), m.getCoordinates().replace(), m.getSelect(), m.getArguments().get(0));
                         }
                 )
         );
@@ -125,7 +125,8 @@ public class SwapHttHeaders extends Recipe {
         doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.HttpHeaders getRequestHeaders()"),
                         (v, m, addImport) -> {
                             // Spring HttpHeaders is a MultiValueMap, hence just leave the expression and remove the call
-                            return m.withTemplate(JavaTemplate.builder(() -> v.getCursor(), "#{any(org.springframework.http.HttpHeaders)}").build(), m.getCoordinates().replace(), m.getSelect());
+                            JavaTemplate javaTemplate = JavaTemplate.builder("#{any(org.springframework.http.HttpHeaders)}").build();
+                            return javaTemplate.apply(v.getCursor(), m.getCoordinates().replace(), m.getSelect());
                         }
                 )
         );
@@ -133,9 +134,19 @@ public class SwapHttHeaders extends Recipe {
         doNext(new ChangeType("javax.ws.rs.core.HttpHeaders", "org.springframework.http.HttpHeaders", false));
     }
 
+    private void doNext(Recipe getAcceptLanguageAsLocales) {
+        // This might not work
+        getRecipeList().add(getAcceptLanguageAsLocales);
+    }
+
     @Override
     public String getDisplayName() {
         return "Swap JAX-RS HttpHeaders with Spring HttpHeaders";
+    }
+
+    @Override
+    public String getDescription() {
+        return getDisplayName();
     }
 
 }

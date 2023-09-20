@@ -133,7 +133,7 @@ class WebServiceDescriptor {
 
         JavaSource javaSource = generateEndpointSource(module, ops);
 
-        javaSource.apply(new OrderImports(false).doNext(new AutoFormat()));
+        javaSource.apply(new OrderImports(false), new AutoFormat());
 
         return javaSource;
     }
@@ -232,15 +232,17 @@ class WebServiceDescriptor {
     }
 
     public void removeJeeAnnotations() {
-        Recipe recipe = new RemoveAnnotation(WEB_SERVICE_ANNOTATION)
-                .doNext(new RemoveAnnotation(WEB_METHOD_ANNOTATION))
-                .doNext(new RemoveAnnotation(WEB_PARAM_ANNOTATION))
-                .doNext(new RemoveAnnotation(WEB_RESULT_ANNOTATION))
-                .doNext(new RemoveAnnotation(ONE_WAY_ANNOTATION));
+        Recipe[] recipes = {
+                new RemoveAnnotation(WEB_SERVICE_ANNOTATION),
+                new RemoveAnnotation(WEB_METHOD_ANNOTATION),
+                new RemoveAnnotation(WEB_PARAM_ANNOTATION),
+                new RemoveAnnotation(WEB_RESULT_ANNOTATION),
+                new RemoveAnnotation(ONE_WAY_ANNOTATION)
+        };
 
-        typeAnnotatedAsWebService.apply(recipe);
+        typeAnnotatedAsWebService.apply(recipes);
         if (endpointInterface != null) {
-            endpointInterface.apply(recipe);
+            endpointInterface.apply(recipes);
         }
     }
 

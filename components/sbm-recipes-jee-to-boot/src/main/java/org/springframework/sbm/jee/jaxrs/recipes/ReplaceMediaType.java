@@ -173,4 +173,9 @@ public class ReplaceMediaType extends Recipe {
         return "Replace JAX-RS MediaType with Spring MediaType";
     }
 
+    @Override
+    public String getDescription() {
+        return getDisplayName();
+    }
+
 }
