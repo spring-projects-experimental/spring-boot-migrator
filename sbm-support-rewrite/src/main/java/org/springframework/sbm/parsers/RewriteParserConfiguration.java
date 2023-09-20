@@ -48,7 +48,7 @@ import java.util.function.Consumer;
  * @author Fabian Krüger
  */
 @Slf4j
-@AutoConfiguration(after = {ScopeConfiguration.class, ScannerConfiguration.class})
+@AutoConfiguration(after = {ScopeConfiguration.class})
 @EnableConfigurationProperties(ParserProperties.class)
 @Import({ScanScope.class, ScopeConfiguration.class})
 public class RewriteParserConfiguration {
