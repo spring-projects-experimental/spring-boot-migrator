@@ -29,6 +29,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.sbm.boot.autoconfigure.ParserPropertiesPostProcessor;
+import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.sbm.scopes.ScanScope;
@@ -47,7 +48,7 @@ import java.util.function.Consumer;
  * @author Fabian Krüger
  */
 @Slf4j
-@AutoConfiguration(after = ScopeConfiguration.class)
+@AutoConfiguration(after = {ScopeConfiguration.class})
 @EnableConfigurationProperties(ParserProperties.class)
 @Import({ScanScope.class, ScopeConfiguration.class})
 public class RewriteParserConfiguration {

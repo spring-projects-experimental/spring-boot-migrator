@@ -19,42 +19,25 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Supplier;
 
 public class GenericOpenRewriteRecipe<V extends TreeVisitor<?, ExecutionContext>> extends Recipe {
 
     private final Supplier<V> visitorSupplier;
     private final String description;
-    private final List<Recipe> recipes;
 
     public GenericOpenRewriteRecipe() {
         description = null;
         visitorSupplier = null;
-        recipes = new ArrayList<>();
     }
 
     public GenericOpenRewriteRecipe(String description, Supplier<V> visitor) {
         this.visitorSupplier = visitor;
         this.description = description;
-        this.recipes = new ArrayList<>();
     }
 
     public GenericOpenRewriteRecipe(Supplier<V> visitor) {
         this("Executing visitor %s".formatted(visitor.get().getClass()), visitor);
-    }
-
-    public <V extends TreeVisitor<?, ExecutionContext>> GenericOpenRewriteRecipe(String description, Recipe... recipes) {
-        this.recipes = Arrays.stream(recipes).toList();
-        this.description = description;
-        this.visitorSupplier = null;
-    }
-
-    @Override
-    public List<Recipe> getRecipeList() {
-        return this.recipes;
     }
 
     @Override

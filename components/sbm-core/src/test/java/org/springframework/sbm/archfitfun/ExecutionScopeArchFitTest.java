@@ -18,7 +18,6 @@ package org.springframework.sbm.archfitfun;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.maven.MavenSettings;
@@ -33,7 +32,10 @@ import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.commands.ScanCommand;
-import org.springframework.sbm.engine.context.*;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.context.ProjectContextFactory;
+import org.springframework.sbm.engine.context.ProjectContextSerializer;
+import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.precondition.PreconditionVerifier;
@@ -100,13 +102,12 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
  * @author Fabian Krüger
  */
 @Slf4j
-@Disabled()
 @SpringBootTest(classes = {
-//                    ScanScope.class,
-//                    ExecutionScope.class,
+                    ScanScope.class,
+                    ExecutionScope.class,
                     ScanCommand.class,
                     ProjectRootPathResolver.class,
-//                    PathScanner.class,
+                    PathScanner.class,
                     SbmApplicationProperties.class,
                     ResourceHelper.class,
                     PreconditionVerifier.class,
@@ -114,21 +115,21 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     ProjectContextFactory.class,
                     ProjectResourceWrapperRegistry.class,
                     ProjectResourceSetHolder.class,
-                    ProjectContextHolder.class,
                     JavaRefactoringFactoryImpl.class,
                     BasePackageCalculator.class,
                     JavaParserBuilder.class,
-//                    RewriteParserConfiguration.class,
-//                    RewriteProjectParser.class,
-//                    ResourceParser.class,
-//                    RewriteJsonParser.class,
-//                    RewriteXmlParser.class,
-//                    RewriteYamlParser.class,
-//                    RewritePropertiesParser.class,
-//                    RewritePlainTextParser.class,
-//                    RewriteMavenParser.class,
+                    RewriteParserConfiguration.class,
+                    RewriteProjectParser.class,
+                    ResourceParser.class,
+                    RewriteJsonParser.class,
+                    RewriteXmlParser.class,
+                    RewriteYamlParser.class,
+                    RewritePropertiesParser.class,
+                    RewritePlainTextParser.class,
+                    RewriteMavenParser.class,
                     MavenSettingsInitializer.class,
                     RewriteMigrationResultMerger.class,
+                    RewriteMavenArtifactDownloader.class,
                     JavaProvenanceMarkerFactory.class,
                     MavenConfigHandler.class,
                     RewriteSourceFileWrapper.class,
@@ -145,9 +146,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     ExecutionScopeArchFitTestContext.class,
                     SbmSupportRewriteConfiguration.class
             },
-            properties = {
-                    "spring.main.allow-bean-definition-overriding=true", // required to provide custom ProjectMetadata
-                    "debug=true"}
+            properties = "spring.main.allow-bean-definition-overriding=true"
 )
 public class ExecutionScopeArchFitTest {
     public static final String TEST_RECIPE_NAME = "dummy-recipe";

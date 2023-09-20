@@ -533,7 +533,7 @@ public class OpenRewriteMavenBuildFileTest {
                 )
                 .withJavaSource("src/main/java",
                        """
-                        import javax.validation.constraints.Email;
+                        import jakarta.validation.constraints.Email;
                         public class Cat {
                             @Email
                             private String email;

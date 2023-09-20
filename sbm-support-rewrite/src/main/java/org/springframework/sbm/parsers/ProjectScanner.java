@@ -98,9 +98,6 @@ public class ProjectScanner {
                 .filter(matcher -> {
                     Path resourcePath = ResourceUtil.getPath(r);
                     boolean matches = matcher.matches(resourcePath);
-                    if(matches && log.isInfoEnabled()) {
-                       log.info("Resource '%s' matches ignore pattern '%s'".formatted(resourcePath, matcher));
-                    }
                     return matches;
                 })
                 .findFirst();

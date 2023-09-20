@@ -110,7 +110,7 @@ class ProjectJavaSourcesImplTest {
                 """;
 
 
-        assertThrows(MavenExecutionResultException.class, () ->
+        assertThrows(UnsatisfiedDependencyException.class, () ->
             TestProjectContext.buildProjectContext().withJavaSources(sourceCode).build()
         ).getMessage().contains("src/main/java/a/b/c/SomeClass.java:[2,13] cannot find symbol");
 

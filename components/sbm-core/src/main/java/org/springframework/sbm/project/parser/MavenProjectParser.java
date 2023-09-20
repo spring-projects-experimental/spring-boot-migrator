@@ -72,10 +72,10 @@ public class MavenProjectParser {
     private final MavenConfigHandler mavenConfigHandler;
     private final ProjectMetadata projectMetadata;
     private final ExecutionContext executionContext;
-    private final RewriteMavenProjectParser parser;
+    private final RewriteProjectParser parser;
 
     public List<SourceFile> parse(Path projectDirectory, List<Resource> resources) {
-        return parser.parse(projectDirectory).sourceFiles();
+        return parser.parse(projectDirectory, resources, executionContext).sourceFiles();
     }
 
 

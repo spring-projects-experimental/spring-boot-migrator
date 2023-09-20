@@ -290,7 +290,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                     } else {
                         // FIXME: scope test should also return compile!
                         return Arrays.stream(scopes).anyMatch(scope -> {
-                            String effectiveScope = d.getScope();
+                            String effectiveScope = d.getScope() == null ? "compile" : d.getScope();
                             return scope.toString().equalsIgnoreCase(effectiveScope);
                         });
                     }
@@ -306,9 +306,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     public List<Dependency> getRequestedDependencies() {
         List<org.openrewrite.maven.tree.Dependency> requestedDependencies = getPom().getPom().getRequestedDependencies();
         // FIXME: #7 use getPom().getDependencies() instead ?
-        return requestedDependencies.stream()
+        List<Dependency> declaredDependenciesWithEffectiveVersions = requestedDependencies.stream()
                 .map(this::mapDependency)
-                .peek(d -> {
+                .map(d -> {
                     if(d.getType() == null || d.getClassifier() == null || d.getVersion() == null) {
 
                         // resolve values for properties like ${my.artifactId} or ${dep.version}
@@ -339,11 +339,16 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
                         if(d.getScope() == null ) {
                             String s = resolveScope(resolvedGroupId, resolvedArtifactId, d.getType(), d.getClassifier());
+                            if(s == null) {
+                                s = "compile";
+                            }
                             d.setScope(s.toLowerCase());
                         }
                     }
+                    return d;
                 })
                 .collect(Collectors.toList());
+        return declaredDependenciesWithEffectiveVersions;
     }
 
     @Override
@@ -563,7 +568,9 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
     @Override
     public List<Dependency> getRequestedDependencyManagement() {
         MavenResolutionResult pom = getPom();
-        pom.getPom().getRequested();
+        if (pom.getPom().getRequested().getDependencyManagement() == null) {
+            return Collections.emptyList();
+        }
         return pom.getPom().getRequested().getDependencyManagement().stream()
                 .map(this::getDependency)
                 .distinct()
@@ -646,6 +653,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         return classpath;
     }
 
+    @NotNull
+    private boolean filterProjectDependencies(ResolvedDependency rd) {
+        return rd.getRepository() != null;
+    }
+
     @Override
     public boolean hasPlugin(Plugin plugin) {
         // TODO: [FK] discuss how to handle conditions. This code is exactly the same as in #AddMavenPluginVisitor.pluginDefinitionExists(Maven.Pom pom) which is private and the test would repeat the test for AddMavenPluginVisitor
@@ -653,7 +665,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         Optional<Xml.Tag> pluginDefinition = sourceFile.getRoot().getChildren("build").stream()
                 .flatMap(b -> b.getChildren("plugins").stream())
                 .flatMap(b -> b.getChildren("plugin").stream())
-                .filter(p -> !p.getChildren("groupId").isEmpty())
+                .filter(p -> p.getChildren("groupId") != null && !p.getChildren("groupId").isEmpty())
                 .filter(p -> {
                     List<? extends Content> groupId1 = p.getChildren("groupId").get(0).getContent();
                     if(groupId1 == null) {
@@ -724,7 +736,11 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public String getPackaging() {
-        return getPom().getPom().getPackaging();
+        String packaging = getPom().getPom().getPackaging();
+        if (packaging == null) {
+            packaging = "jar";
+        }
+        return packaging;
     }
 
     @Override
