@@ -13,7 +13,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <openrewrite.version>8.1.8</openrewrite.version>
         <spring-boot.version>3.1.2</spring-boot.version>
-        <!--        <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>-->
+        <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
@@ -29,7 +29,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
-<!--        <snakeyaml.version>1.33</snakeyaml.version>-->
+        <snakeyaml.version>1.33</snakeyaml.version>
         <sbm-support-rewrite.version>0.1.0-SNAPSHOT</sbm-support-rewrite.version>
         <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
     </properties>
