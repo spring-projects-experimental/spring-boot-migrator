@@ -37,7 +37,12 @@ public class SpringBeanDeclarationFinder extends Recipe {
     }
 
     @Override
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    public String getDescription() {
+        return getDisplayName();
+    }
+
+    @Override
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new JavaIsoVisitor<>() {
             @Override
             public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {

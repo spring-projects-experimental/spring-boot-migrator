@@ -17,6 +17,7 @@ package org.springframework.sbm.boot.properties.api;
 
 
 import org.junit.jupiter.api.Test;
+import org.openrewrite.SourceFile;
 import org.openrewrite.properties.PropertiesParser;
 import org.openrewrite.properties.tree.Properties;
 import org.springframework.sbm.parsers.RewriteExecutionContext;
@@ -39,10 +40,17 @@ class SpringBootApplicationPropertiesTest {
 
     @Test
     void parseExistingPropertiesTest() {
-        List<Properties.File> parse = new PropertiesParser().parse(
-                "foo=bar\n" +
-                        "bob=bill");
-        SpringBootApplicationProperties sut = new SpringBootApplicationProperties(Path.of("./projectDir").toAbsolutePath(), parse.get(0), new RewriteExecutionContext());
+        List<SourceFile> parse = new PropertiesParser()
+                .parse(
+                    """
+                    foo=bar
+                    bob=bill
+                    """
+                )
+                .toList();
+        Path absolutePath = Path.of("./projectDir").toAbsolutePath();
+        Properties.File propertiesFile = (Properties.File) parse.get(0);
+        SpringBootApplicationProperties sut = new SpringBootApplicationProperties(absolutePath, propertiesFile, new RewriteExecutionContext());
         assertThat(sut.getProperty("foo").get()).isEqualTo("bar");
         assertThat(sut.getProperty("bob").get()).isEqualTo("bill");
         assertThat(sut.getProperty("jane")).isEmpty();
