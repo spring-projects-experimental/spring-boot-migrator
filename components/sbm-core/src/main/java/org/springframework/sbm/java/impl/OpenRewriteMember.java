@@ -110,7 +110,6 @@ public class OpenRewriteMember implements Member {
     @Override
     public void addAnnotation(String fqName) {
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
-        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> javaParserBuilder, getVariableDeclarations(), snippet, fqName);
         AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> javaParserBuilder.getBuilder(), getVariableDeclarations(), snippet, fqName);
         refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
     }
