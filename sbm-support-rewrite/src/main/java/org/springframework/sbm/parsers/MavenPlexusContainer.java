@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.parsers;
 
+import jakarta.annotation.PostConstruct;
 import org.apache.maven.graph.GraphBuilder;
 import org.codehaus.plexus.*;
 import org.codehaus.plexus.classworlds.ClassWorld;
@@ -25,56 +26,57 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 
-@Lazy
 class MavenPlexusContainer {
+
+    private PlexusContainer plexusContainer;
+
+    public MavenPlexusContainer() {
+
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        plexusContainer = create();
+    }
 
     public GraphBuilder lookup(Class<GraphBuilder> aClass) {
         try {
-            return ContainerHolder.INSTANCE.lookup(aClass);
+            return plexusContainer.lookup(aClass);
         } catch (ComponentLookupException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static class ContainerHolder {
-        private static final PlexusContainer INSTANCE = create();
-        public static PlexusContainer create() {
-            try {
-                ClassLoader parent = null;
-                boolean isContainerAutoWiring = false;
-                String containerClassPathScanning = "on";
-                String containerComponentVisibility = PlexusConstants.GLOBAL_VISIBILITY;
-                URL overridingComponentsXml = null; //getClass().getClassLoader().getResource("META-INF/**/components.xml");
-
-                ContainerConfiguration configuration = new DefaultContainerConfiguration();
-                configuration.setAutoWiring(isContainerAutoWiring)
-                        .setClassPathScanning(containerClassPathScanning)
-                        .setComponentVisibility(containerComponentVisibility)
-                        .setContainerConfigurationURL(overridingComponentsXml);
-
-                // inspired from https://github.com/jenkinsci/lib-jenkins-maven-embedder/blob/master/src/main/java/hudson/maven/MavenEmbedderUtils.java#L141
-                ClassWorld classWorld = new ClassWorld();
-                ClassRealm classRealm = new ClassRealm(classWorld, "maven", PlexusContainer.class.getClassLoader());
-                ClassLoader effectiveParent = parent == null ? Thread.currentThread().getContextClassLoader() : parent;
-                ClassRealm parentRealm = new ClassRealm(classWorld, "maven-parent", effectiveParent);
-                classRealm.setParentRealm(parentRealm);
-                configuration.setRealm(classRealm);
-
-                configuration.setClassWorld(classWorld);
-                DefaultPlexusContainer container = new DefaultPlexusContainer(configuration);
-                container.setLookupRealm(classRealm);
-
-                return container;
-            } catch (PlexusContainerException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     @Deprecated
     public PlexusContainer get() {
-        return ContainerHolder.INSTANCE;
+        return plexusContainer;
     }
 
+    public PlexusContainer create() {
+        try {
+            ClassLoader parent = null;
+            boolean isContainerAutoWiring = false;
+            String containerClassPathScanning = PlexusConstants.SCANNING_ON;
+            String containerComponentVisibility = null; //PlexusConstants.GLOBAL_VISIBILITY;
+            URL overridingComponentsXml = null; //getClass().getClassLoader().getResource("META-INF/**/components.xml");
 
+            ContainerConfiguration configuration = new DefaultContainerConfiguration();
+            configuration.setAutoWiring(isContainerAutoWiring)
+                    .setClassPathScanning(containerClassPathScanning)
+                    .setComponentVisibility(containerComponentVisibility)
+                    .setContainerConfigurationURL(overridingComponentsXml);
+
+            // inspired from https://github.com/jenkinsci/lib-jenkins-maven-embedder/blob/master/src/main/java/hudson/maven/MavenEmbedderUtils.java#L141
+            ClassWorld classWorld = new ClassWorld();
+            ClassRealm classRealm = new ClassRealm(classWorld, "maven", PlexusContainer.class.getClassLoader());
+            ClassLoader effectiveParent = parent == null ? Thread.currentThread().getContextClassLoader() : parent;
+            ClassRealm parentRealm = new ClassRealm(classWorld, "maven-parent", effectiveParent);
+            classRealm.setParentRealm(parentRealm);
+            configuration.setRealm(classRealm);
+            configuration.setClassWorld(classWorld);
+            return new DefaultPlexusContainer(configuration);
+        } catch (PlexusContainerException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

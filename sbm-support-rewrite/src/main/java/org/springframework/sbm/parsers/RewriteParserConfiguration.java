@@ -28,6 +28,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.sbm.boot.autoconfigure.ParserPropertiesPostProcessor;
 import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
@@ -57,6 +58,7 @@ public class RewriteParserConfiguration {
     private ParserProperties parserProperties;
 
     @Bean
+    @Lazy
     MavenPlexusContainer plexusContainer() {
         return new MavenPlexusContainer();
     }
