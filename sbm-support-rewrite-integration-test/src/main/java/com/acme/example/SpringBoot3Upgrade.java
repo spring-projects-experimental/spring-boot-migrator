@@ -52,7 +52,7 @@ public class SpringBoot3Upgrade implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Path baseDir = Path.of(args[0]);
+        Path baseDir = Path.of("/Users/fkrueger/projects/sbm-projects/spring-restbucks");
         List<Resource> resources = scanner.scan(baseDir);
         InMemoryExecutionContext executionContext = new InMemoryExecutionContext();
         RewriteProjectParsingResult parsingResult = parser.parse(baseDir, resources, executionContext);

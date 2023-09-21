@@ -1,4 +1,3 @@
-/*
  * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
+ import org.springframework.sbm.parsers.ProjectScanner;
+ import org.springframework.sbm.parsers.RewriteProjectParser;
+ import org.springframework.sbm.parsers.RewriteProjectParsingResult;
 
-import java.nio.file.Path;
+ import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
