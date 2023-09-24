@@ -36,7 +36,12 @@ public class SecurityManagerUsagesFinder extends Recipe {
     }
 
     @Override
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    public String getDescription() {
+        return getDisplayName();
+    }
+
+    @Override
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new JavaIsoVisitor<>() {
             @Override
             public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext executionContext) {

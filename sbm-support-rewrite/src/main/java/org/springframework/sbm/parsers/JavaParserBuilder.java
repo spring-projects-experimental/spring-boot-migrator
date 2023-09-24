@@ -20,12 +20,9 @@ import lombok.Setter;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.internal.JavaTypeCache;
-import org.springframework.sbm.scopes.annotations.ScanScope;
-import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
 import java.util.Collection;
-
 
 public class JavaParserBuilder extends JavaParser.Builder{
 

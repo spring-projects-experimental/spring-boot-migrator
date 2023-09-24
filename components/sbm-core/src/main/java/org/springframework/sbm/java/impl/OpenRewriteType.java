@@ -295,7 +295,7 @@ public class OpenRewriteType implements Type {
     }
 
     @Override
-    public void apply(Recipe r) {
+    public void apply(Recipe... r) {
         refactoring.refactor(rewriteSourceFileHolder, r);
     }
 

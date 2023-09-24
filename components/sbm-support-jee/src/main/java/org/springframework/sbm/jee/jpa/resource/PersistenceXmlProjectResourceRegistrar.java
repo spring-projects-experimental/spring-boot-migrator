@@ -15,6 +15,8 @@
  */
 package org.springframework.sbm.jee.jpa.resource;
 
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.sbm.jee.jpa.api.PersistenceXml;
 import org.springframework.sbm.project.resource.ProjectResourceWrapper;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -32,6 +34,7 @@ import java.util.List;
 public class PersistenceXmlProjectResourceRegistrar implements ProjectResourceWrapper<RewriteSourceFileHolder<Xml.Document>> {
 
     public static final String PERSISTENCE_XML_PATH = "META-INF/persistence.xml";
+    private final ExecutionContext executionContext;
 
     @Override
     public boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
@@ -45,7 +48,7 @@ public class PersistenceXmlProjectResourceRegistrar implements ProjectResourceWr
     }
 
     private boolean hasPersistenceRootTag(Xml.Document xml) {
-        List<Result> results = new FindTags("/persistence").run(List.of(xml)).getResults();
+        List<Result> results = new FindTags("/persistence").run(new InMemoryLargeSourceSet(List.of(xml)), executionContext).getChangeset().getAllResults();
         return ! results.isEmpty();
     }
 

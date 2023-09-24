@@ -90,7 +90,7 @@ class RedeclaredDependenciesFinderTest {
         assertThat(matches).hasSize(1);
         RedeclaredDependency explicitDependency = matches.iterator().next();
         String explicitVersionDependencyCoordinates = "javax.validation:validation-api:1.1.0.Final";
-        assertThat(explicitDependency.getRedeclaredDependency().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
+        assertThat(explicitDependency.getRedeclaredDependency().getGav()).isEqualTo(explicitVersionDependencyCoordinates);
         assertThat(explicitDependency.getOriginalVersion()).isEqualTo("2.0.0.Final");
     }
 
@@ -152,7 +152,7 @@ class RedeclaredDependenciesFinderTest {
         assertThat(matches).hasSize(1);
         RedeclaredDependency explicitDependency = matches.iterator().next();
         String explicitVersionDependencyCoordinates =  "javax.validation:validation-api:2.0.0.Final";
-        assertThat(explicitDependency.getRedeclaredDependency().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
+        assertThat(explicitDependency.getRedeclaredDependency().getGav()).isEqualTo(explicitVersionDependencyCoordinates);
         assertThat(explicitDependency.getOriginalVersion()).isEqualTo("2.0.0.Final");
     }
 
@@ -231,7 +231,7 @@ class RedeclaredDependenciesFinderTest {
         assertThat(context.getApplicationModules().list()).hasSize(2);
         assertThat(matches).isNotEmpty();
         assertThat(matches).hasSize(1);
-        assertThat(matches.iterator().next().getRedeclaredDependency().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
+        assertThat(matches.iterator().next().getRedeclaredDependency().getGav()).isEqualTo(explicitVersionDependencyCoordinates);
     }
 
     @Test
@@ -350,8 +350,8 @@ class RedeclaredDependenciesFinderTest {
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(parentPomXml)
                 .withMavenBuildFileSource("module1", module1PomXml)
-                .serializeProjectContext(Path.of("./target/test"));
-//                .build();
+//                .serializeProjectContext(Path.of("./target/test"));
+                .build();
 
         RedeclaredDependenciesFinder finder = new RedeclaredDependenciesFinder(Set.of());
         Set<RedeclaredDependency> matches = finder.findMatches(context);
@@ -445,7 +445,7 @@ class RedeclaredDependenciesFinderTest {
         assertThat(matches).hasSize(1);
         RedeclaredDependency explicitDependency = matches.iterator().next();
         String explicitVersionDependencyCoordinates = "javax.validation:validation-api:1.1.0.Final";
-        assertThat(explicitDependency.getRedeclaredDependency().getCoordinates()).isEqualTo(explicitVersionDependencyCoordinates);
+        assertThat(explicitDependency.getRedeclaredDependency().getGav()).isEqualTo(explicitVersionDependencyCoordinates);
         assertThat(explicitDependency.getOriginalVersion()).isEqualTo("2.0.1.Final");
     }
 

@@ -52,7 +52,7 @@ public class HasSpringBootDependencyImport implements Condition {
     }
 
     private String resolveCoordinates(BuildFile buildFile, Dependency md) {
-        String coordinates = md.getCoordinates();
+        String coordinates = md.getGav();
         if (md.getVersion().startsWith("${")) {
             String version = buildFile.getProperty(md.getVersion().substring(2, md.getVersion().length() - 1));
             if (version != null) {

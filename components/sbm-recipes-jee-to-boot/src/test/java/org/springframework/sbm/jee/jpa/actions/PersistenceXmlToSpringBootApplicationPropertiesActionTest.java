@@ -76,7 +76,6 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
                     .withMavenRootBuildFileSource(parentPom)
                     .withProjectResource("pom1/pom.xml", pom1)
                     .withProjectResource("pom2/pom.xml", pom2)
-                    .addRegistrar(new PersistenceXmlProjectResourceRegistrar())
                     .build();
 
             MigratePersistenceXmlToApplicationPropertiesAction sut = new MigratePersistenceXmlToApplicationPropertiesAction();
@@ -142,7 +141,6 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
                     .withProjectResource("pom1/pom.xml", pom1)
                     .withProjectResource("pom2/pom.xml", pom2)
                     .withProjectResource("pom2/src/main/resources/META-INF/persistence.xml", persistenceXml)
-                    .addRegistrar(new PersistenceXmlProjectResourceRegistrar())
                     .build();
 
             assertThat(projectContext.search(new SpringBootApplicationPropertiesResourceListFilter())).isEmpty();
@@ -176,7 +174,7 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
                                     </persistence-unit>
                                 </persistence>
                                 """)
-                        .addRegistrar(new PersistenceXmlProjectResourceRegistrar()))
+                )
                 .actionUnderTest(new MigratePersistenceXmlToApplicationPropertiesAction())
                 .verify(context -> {
                     List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());

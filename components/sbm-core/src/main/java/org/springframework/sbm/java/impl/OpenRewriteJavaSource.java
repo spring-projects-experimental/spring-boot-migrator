@@ -171,7 +171,6 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
         refactoring.refactor(getResource(), new ReplaceLiteralVisitor<>(klass, t));
     }
 
-
     @Override
     public String toString() {
         return "OpenRewriteJavaSource(" + getAbsolutePath() + ")";
@@ -181,7 +180,7 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
      * {@inheritDoc}
      */
     @Override
-    public void apply(Recipe recipe) {
+    public void apply(Recipe... recipe) {
         refactoring.refactor(getResource(), recipe);
     }
 
