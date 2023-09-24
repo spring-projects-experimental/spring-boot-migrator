@@ -17,6 +17,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+        <shrinkwrap.resolvers.version>3.2.1</shrinkwrap.resolvers.version>
         <java.version>17</java.version>
         <!--        <spring-shell.version>2.1.10</spring-shell.version>-->
         <openrewrite.spring.version>5.0.5</openrewrite.spring.version>
