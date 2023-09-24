@@ -18,9 +18,9 @@ jobs:
           java-version: 17
           cache: 'maven'
 
-      - name: Build and Test sbm-openrewrite
+      - name: Build and test sbm-openrewrite
         working-directory: ./components/sbm-openrewrite
         run: mvn --batch-mode clean package
 
-      - name: Maven and Ignore Tests
+      - name: Build and ignore tests for all from sbm-core
         run: mvn -DskipTests --batch-mode --rf :sbm-core package
