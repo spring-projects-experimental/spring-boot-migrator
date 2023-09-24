@@ -57,6 +57,7 @@
         <dependency>
             <groupId>org.springframework.sbm</groupId>
             <artifactId>recipe-test-support</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

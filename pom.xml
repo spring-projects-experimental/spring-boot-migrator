@@ -58,6 +58,7 @@
         <module>components/sbm-support-jee</module>
         <module>components/sbm-support-weblogic</module>
         <module>components/sbm-recipes-jee-to-boot</module>
+        <module>components/sbm-recipes-spring-cloud</module>
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -232,11 +233,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <version>2.0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.experimental</groupId>
-            <artifactId>sbm-support-rewrite</artifactId>
-            <version>${sbm-support-rewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.experimental</groupId>
