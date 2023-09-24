@@ -16,6 +16,7 @@
 package org.springframework.sbm.parsers;
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.graph.GraphBuilder;
 import org.codehaus.plexus.*;
 import org.codehaus.plexus.classworlds.ClassWorld;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.URL;
 
+@Slf4j
 class MavenPlexusContainer {
 
     private PlexusContainer plexusContainer;
@@ -57,8 +59,8 @@ class MavenPlexusContainer {
             ClassLoader parent = null;
             boolean isContainerAutoWiring = false;
             String containerClassPathScanning = PlexusConstants.SCANNING_ON;
-            String containerComponentVisibility = null; //PlexusConstants.GLOBAL_VISIBILITY;
-            URL overridingComponentsXml = null; //getClass().getClassLoader().getResource("META-INF/**/components.xml");
+            String containerComponentVisibility = PlexusConstants.GLOBAL_VISIBILITY;
+            URL overridingComponentsXml = getClass().getClassLoader().getResource("META-INF/**/components.xml");
 
             ContainerConfiguration configuration = new DefaultContainerConfiguration();
             configuration.setAutoWiring(isContainerAutoWiring)
@@ -68,8 +70,11 @@ class MavenPlexusContainer {
 
             // inspired from https://github.com/jenkinsci/lib-jenkins-maven-embedder/blob/master/src/main/java/hudson/maven/MavenEmbedderUtils.java#L141
             ClassWorld classWorld = new ClassWorld();
+
+            log.debug("ClassLoader for Plexus ClassRealm: " + PlexusContainer.class.getClassLoader().getClass().getName());
             ClassRealm classRealm = new ClassRealm(classWorld, "maven", PlexusContainer.class.getClassLoader());
             ClassLoader effectiveParent = parent == null ? Thread.currentThread().getContextClassLoader() : parent;
+            log.debug("Effective parent: " + effectiveParent.getClass().getName());
             ClassRealm parentRealm = new ClassRealm(classWorld, "maven-parent", effectiveParent);
             classRealm.setParentRealm(parentRealm);
             configuration.setRealm(classRealm);
