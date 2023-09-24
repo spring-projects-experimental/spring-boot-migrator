@@ -23,6 +23,7 @@ import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 import org.springframework.sbm.java.migration.recipes.openrewrite.ReplaceConstantWithAnotherConstant;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -31,9 +32,11 @@ import static org.springframework.sbm.java.migration.recipes.RewriteMethodInvoca
 public class SwapStatusForHttpStatus extends Recipe {
 
     public SwapStatusForHttpStatus(Supplier<JavaParser> javaParserSupplier) {
-        // Switch JAX-RS Family to Spring HttpStatus.Series
-        doNext(new SwapFamilyForSeries());
 
+    }
+
+    @Override
+    public List<Recipe> getRecipeList() {
         Map<String, String> fieldsMapping = new HashMap<>();
         fieldsMapping.put("OK", "OK");
         fieldsMapping.put("ACCEPTED", "ACCEPTED");
@@ -79,39 +82,48 @@ public class SwapStatusForHttpStatus extends Recipe {
         fieldsMapping.put("UNSUPPORTED_MEDIA_TYPE", "UNSUPPORTED_MEDIA_TYPE");
         fieldsMapping.put("USE_PROXY", "USE_PROXY");
 
-        fieldsMapping.forEach(
-                (key, value) -> doNext(new ReplaceConstantWithAnotherConstant("javax.ws.rs.core.Response$Status." + key,"org.springframework.http.HttpStatus." + value))
+        fieldsMapping.forEach((key, value) -> new ReplaceConstantWithAnotherConstant("javax.ws.rs.core.Response$Status." + key, "org.springframework.http.HttpStatus." + value));
+
+        return List.of(
+                // Switch JAX-RS Family to Spring HttpStatus.Series
+                new SwapFamilyForSeries(),
+
+
+                // Instance methods
+                new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.StatusType getStatusCode()")
+                        .or(methodInvocationMatcher("javax.ws.rs.core.Response.Status getStatusCode()")),
+                        (v, m, addImport) -> {
+                            return m.withName(m.getName().withSimpleName("getValue"));
+                        }),
+
+                // Remove #toEnum() method calls - these shouldn't appear as we migrate both Jax-Rs Status and StatusType to the same HttpStatus
+                new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.StatusType toEnum()").or(methodInvocationMatcher("javax.ws.rs.core.Response.Status toEnum()")), (v, m, addImport) -> {
+                    JavaTemplate template = JavaTemplate.builder("#{any(org.springframework.http.HttpStatus)}").build();
+                    return template.apply(v.getCursor(), m.getCoordinates().replace(), m.getSelect());
+                }),
+
+                // Switch Family to Series
+                new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.StatusType getFamily()").or(methodInvocationMatcher("javax.ws.rs.core.Response.Status getFamily()")), (v, m, addImport) -> {
+                    return m.withName(m.getName().withSimpleName("series"));
+                }),
+
+                // getReasonPhrase() doesn't need to be migrated - same named method returning the same type
+
+                // Type reference replacement
+
+                new ChangeType("javax.ws.rs.core.Response$StatusType", "org.springframework.http.HttpStatus", false),
+                new ChangeType("javax.ws.rs.core.Response$Status", "org.springframework.http.HttpStatus", false)
         );
-
-        // Instance methods
-        doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.StatusType getStatusCode()")
-                .or(methodInvocationMatcher("javax.ws.rs.core.Response.Status getStatusCode()")),
-                (v, m, addImport) -> {
-                    return m.withName(m.getName().withSimpleName("getValue"));
-                }));
-
-        // Remove #toEnum() method calls - these shouldn't appear as we migrate both Jax-Rs Status and StatusType to the same HttpStatus
-        doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.StatusType toEnum()").or(methodInvocationMatcher("javax.ws.rs.core.Response.Status toEnum()")), (v, m, addImport) -> {
-            JavaTemplate template = JavaTemplate.builder(() -> v.getCursor(), "#{any(org.springframework.http.HttpStatus)}").build();
-            return m.withTemplate(template, m.getCoordinates().replace(), m.getSelect());
-        }));
-
-        // Switch Family to Series
-        doNext(new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response.StatusType getFamily()").or(methodInvocationMatcher("javax.ws.rs.core.Response.Status getFamily()")), (v, m, addImport) -> {
-            return m.withName(m.getName().withSimpleName("series"));
-        }));
-
-        // getReasonPhrase() doesn't need to be migrated - same named method returning the same type
-
-        // Type reference replacement
-
-        doNext(new ChangeType("javax.ws.rs.core.Response$StatusType", "org.springframework.http.HttpStatus", false));
-        doNext(new ChangeType("javax.ws.rs.core.Response$Status", "org.springframework.http.HttpStatus", false));
     }
 
     @Override
     public String getDisplayName() {
         return "Swap Jax-RS Status with Spring HttpStatus";
+    }
+
+    @Override
+    public String getDescription() {
+        return getDisplayName();
     }
 
 }
