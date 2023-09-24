@@ -249,7 +249,7 @@ public class OpenRewriteTestSupport {
         GenericOpenRewriteTestRecipe<JavaVisitor<ExecutionContext>> recipe = new GenericOpenRewriteTestRecipe<>(visitor);
         return recipe.run(
                 new InMemoryLargeSourceSet(List.of(given)),
-                new InMemoryExecutionContext(t -> fail(t))
+                new InMemoryExecutionContext(t -> Assertions.fail(t.getMessage()))
         );
     }
 
