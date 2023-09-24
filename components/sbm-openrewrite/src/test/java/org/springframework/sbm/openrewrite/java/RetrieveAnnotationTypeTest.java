@@ -33,10 +33,11 @@ public class RetrieveAnnotationTypeTest {
     @Test
     void retrieveAnnotation() {
         String javaSource =
-                "import javax.ejb.Stateless;\n" +
-                "@Stateless\n" +
-                "public class MyClass {" +
-                "}";
+                """
+                import javax.ejb.Stateless;
+                @Stateless
+                public class MyClass { }
+                """;
 
 //        String mavenRepo = System.getProperty("user.home") + "/.m2/repository";
 //        List<Path> paths = JavaParser.dependenciesFromClasspath("ejb-api");
