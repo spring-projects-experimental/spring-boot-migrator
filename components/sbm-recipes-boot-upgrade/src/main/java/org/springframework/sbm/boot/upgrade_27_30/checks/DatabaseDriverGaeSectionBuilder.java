@@ -44,7 +44,7 @@ public class DatabaseDriverGaeSectionBuilder implements Sbu30_PreconditionCheck,
         if(collect.isEmpty()) {
             return  new Sbu30_PreconditionCheckResult(PreconditionCheck.ResultState.PASSED, "No dependency to Google AppEngine's AppEngineDriver found.");
         } else {
-            String message = "Dependencies containing 'com.google.appengine.api.rdbms.AppEngineDriver' were found in these modules: '" + collect.stream().map(m -> m.getBuildFile().getCoordinates()).collect(Collectors.joining("', '")) + "'";
+            String message = "Dependencies containing 'com.google.appengine.api.rdbms.AppEngineDriver' were found in these modules: '" + collect.stream().map(m -> m.getBuildFile().getGav()).collect(Collectors.joining("', '")) + "'";
             return new Sbu30_PreconditionCheckResult(PreconditionCheck.ResultState.FAILED, message);
         }
     }

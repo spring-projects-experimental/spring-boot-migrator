@@ -59,6 +59,7 @@
         <module>components/sbm-support-weblogic</module>
         <module>components/sbm-recipes-jee-to-boot</module>
         <module>components/sbm-recipes-spring-cloud</module>
+        <module>components/sbm-recipes-boot-upgrade</module>
     </modules>
     <dependencyManagement>
         <dependencies>

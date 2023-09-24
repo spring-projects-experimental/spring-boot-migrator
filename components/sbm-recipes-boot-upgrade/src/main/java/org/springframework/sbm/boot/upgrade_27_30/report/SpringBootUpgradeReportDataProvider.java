@@ -42,7 +42,7 @@ public class SpringBootUpgradeReportDataProvider implements SpringBootUpgradeRep
                 .collect(Collectors.toSet());
         data.put("contributors", authors);
 
-        String scannedCoordinate = context.getApplicationModules().getRootModule().getBuildFile().getCoordinates();
+        String scannedCoordinate = context.getApplicationModules().getRootModule().getBuildFile().getGav();
         data.put("scannedCoordinate", scannedCoordinate);
 
         data.put("scannedProjectRoot", context.getProjectRootDirectory());

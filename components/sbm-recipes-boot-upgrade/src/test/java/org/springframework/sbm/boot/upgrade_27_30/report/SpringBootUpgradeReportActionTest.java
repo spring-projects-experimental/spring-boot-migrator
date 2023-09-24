@@ -201,7 +201,7 @@ class SpringBootUpgradeReportActionTest {
                 .withMavenRootBuildFileSource(pomSource)
                 .withProjectResource("src/main/resources/application.properties", "spring.data.foo=bar")
                 .withProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
-                .serializeProjectContext(tempDir);
+                .buildAndSerializeProjectContext(tempDir);
 
         RecipeIntegrationTestSupport.initializeProject(tempDir, "spring-upgrade-report")
                 .andApplyRecipe("sbu30-report");
