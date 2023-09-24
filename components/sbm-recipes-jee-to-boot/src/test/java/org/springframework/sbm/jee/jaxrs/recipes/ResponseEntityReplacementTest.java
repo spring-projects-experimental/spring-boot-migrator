@@ -38,10 +38,8 @@ public class ResponseEntityReplacementTest {
             new AbstractAction() {
                 @Override
                 public void apply(ProjectContext context) {
-                    Supplier<JavaParser> javaParserSupplier = () -> new RewriteJavaParser(new SbmApplicationProperties(),
-                                                                                          new RewriteExecutionContext());
                     context.getProjectJavaSources().apply(new SwapResponseWithResponseEntity());
-                    context.getProjectJavaSources().apply(new ReplaceMediaType(javaParserSupplier));
+                    context.getProjectJavaSources().apply(new ReplaceMediaType());
                 }
             };
 
