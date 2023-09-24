@@ -40,7 +40,7 @@ public class ResponseEntityReplacementTest {
                 public void apply(ProjectContext context) {
                     Supplier<JavaParser> javaParserSupplier = () -> new RewriteJavaParser(new SbmApplicationProperties(),
                                                                                           new RewriteExecutionContext());
-                    context.getProjectJavaSources().apply(new SwapResponseWithResponseEntity(javaParserSupplier));
+                    context.getProjectJavaSources().apply(new SwapResponseWithResponseEntity());
                     context.getProjectJavaSources().apply(new ReplaceMediaType(javaParserSupplier));
                 }
             };

@@ -35,17 +35,13 @@ import static org.springframework.sbm.java.migration.recipes.RewriteMethodInvoca
 
 public class SwapResponseWithResponseEntity extends Recipe {
 
-    private final Supplier<JavaParser> javaParserSupplier;
-
-    public SwapResponseWithResponseEntity(Supplier<JavaParser> javaParserSupplier) {
-        this.javaParserSupplier = javaParserSupplier;
-
+    public SwapResponseWithResponseEntity() {
     }
 
     @Override
     public List<Recipe> getRecipeList() {
         return List.of(
-                new SwapStatusForHttpStatus(javaParserSupplier),
+                new SwapStatusForHttpStatus(),
                 // #status(int)
                 new RewriteMethodInvocation(methodInvocationMatcher("javax.ws.rs.core.Response status(int)"), (v, m, addImport) -> {
                     String args = m.getArguments().stream().map(a -> "#{any()}").collect(Collectors.joining(", "));
