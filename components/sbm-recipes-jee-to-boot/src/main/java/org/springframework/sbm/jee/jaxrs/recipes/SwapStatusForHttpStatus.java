@@ -31,13 +31,10 @@ import static org.springframework.sbm.java.migration.recipes.RewriteMethodInvoca
 
 public class SwapStatusForHttpStatus extends Recipe {
 
-    public SwapStatusForHttpStatus(Supplier<JavaParser> javaParserSupplier) {
+    private final Map<String, String> fieldsMapping;
 
-    }
-
-    @Override
-    public List<Recipe> getRecipeList() {
-        Map<String, String> fieldsMapping = new HashMap<>();
+    public SwapStatusForHttpStatus() {
+        fieldsMapping = new HashMap<>();
         fieldsMapping.put("OK", "OK");
         fieldsMapping.put("ACCEPTED", "ACCEPTED");
         fieldsMapping.put("BAD_GATEWAY", "BAD_GATEWAY");
@@ -83,6 +80,10 @@ public class SwapStatusForHttpStatus extends Recipe {
         fieldsMapping.put("USE_PROXY", "USE_PROXY");
 
         fieldsMapping.forEach((key, value) -> new ReplaceConstantWithAnotherConstant("javax.ws.rs.core.Response$Status." + key, "org.springframework.http.HttpStatus." + value));
+    }
+
+    @Override
+    public List<Recipe> getRecipeList() {
 
         return List.of(
                 // Switch JAX-RS Family to Spring HttpStatus.Series
