@@ -1,8 +1,6 @@
 name: Build SBM Revamp
 on:
   push:
-    branches:
-      - "**"
     branches-ignore:
       - "main"
 jobs:
