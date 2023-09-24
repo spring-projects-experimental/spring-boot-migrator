@@ -21,6 +21,8 @@ import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.params.provider.Arguments;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Result;
+import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.properties.PropertiesParser;
 import org.openrewrite.properties.tree.Properties;
 import org.openrewrite.test.RewriteTest;
@@ -42,18 +44,18 @@ public class ConfigRecipeTestHelper {
 
     public static List<Result> runRecipeOnYaml(@Language("yml") String source, String recipeName) {
         InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
-        List<Yaml.Documents> document = new YamlParser().parse(source);
+        Stream<SourceFile> document = new YamlParser().parse(source);
         return RewriteTest
                 .fromRuntimeClasspath(recipeName)
-                .run(document, ctx).getResults();
+                .run(new InMemoryLargeSourceSet(document.toList()), ctx).getChangeset().getAllResults();
     }
 
     public static List<Result> runRecipeOnProperties(@Language("properties") String source, String recipeName) {
         InMemoryExecutionContext ctx = new InMemoryExecutionContext(Throwable::printStackTrace);
-        List<Properties.File> document = new PropertiesParser().parse(source);
+        List<SourceFile> document = new PropertiesParser().parse(source).toList();
         return RewriteTest
                 .fromRuntimeClasspath(recipeName)
-                .run(document, ctx).getResults();
+                .run(new InMemoryLargeSourceSet(document), ctx).getChangeset().getAllResults();
     }
 
     public static Pair<String, String> provideIO(String inputFilePath) throws IOException {

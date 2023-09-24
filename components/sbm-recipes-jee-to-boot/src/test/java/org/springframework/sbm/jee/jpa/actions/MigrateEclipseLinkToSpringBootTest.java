@@ -82,7 +82,7 @@ class MigrateEclipseLinkToSpringBootTest {
 
         sut.apply(projectContext);
 
-        assertThat(projectContext.getBuildFile().print()).isEqualTo(
+        assertThat(projectContext.getApplicationModules().getRootModule().getBuildFile().print()).isEqualTo(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
                 "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -152,7 +152,7 @@ class MigrateEclipseLinkToSpringBootTest {
 
         sut.apply(projectContext);
 
-        assertThat(projectContext.getBuildFile().print()).isEqualTo(
+        assertThat(projectContext.getApplicationModules().getRootModule().getBuildFile().print()).isEqualTo(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
                 "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -338,7 +338,6 @@ class MigrateEclipseLinkToSpringBootTest {
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withMavenRootBuildFileSource(pomXml)
                 .withProjectResource("src/main/resources/META-INF/persistence.xml", persistenceXml)
-                .addRegistrar(new PersistenceXmlProjectResourceRegistrar())
                 .build();
 
         sut.apply(projectContext);

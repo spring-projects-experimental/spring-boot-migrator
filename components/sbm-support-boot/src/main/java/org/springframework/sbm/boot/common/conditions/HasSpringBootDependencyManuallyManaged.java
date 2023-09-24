@@ -56,6 +56,6 @@ public class HasSpringBootDependencyManuallyManaged implements Condition {
 
     @NotNull
     private Predicate<Dependency> matchesSpringBootPattern() {
-        return k -> k.getCoordinates().matches("org\\.springframework\\.boot:.*:" + versionPattern);
+        return k -> k.getGav().matches("org\\.springframework\\.boot:.*:" + versionPattern);
     }
 }
