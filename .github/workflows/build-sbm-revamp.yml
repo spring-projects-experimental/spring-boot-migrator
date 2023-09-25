@@ -19,8 +19,8 @@ jobs:
           cache: 'maven'
 
       - name: sbm-support-rewrite (build + test)
-        working-directory: ./sbm-support-rewrite :sbm-support-rewrite
-        run: mvn --batch-mode clean package --projects
+        working-directory: sbm-support-rewrite
+        run: mvn --batch-mode clean package
 
       - name: clean
         run: mvn clean
