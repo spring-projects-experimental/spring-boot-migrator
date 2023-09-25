@@ -1,4 +1,4 @@
-name: Build SBM Revamp
+name: Build SBM Support Rewrite
 on:
   push:
     branches:
