@@ -25,6 +25,9 @@ jobs:
       - name: clean
         run: mvn clean
 
+      - name: spring-boot-migrator (pom)
+        run: mvn --batch-mode install --projects :spring-boot-migrator
+
       - name: test-helper (build + test)
         run: mvn --batch-mode install --projects :test-helper
 
