@@ -20,31 +20,31 @@ jobs:
 
       - name: sbm-support-rewrite (build + test)
         working-directory: sbm-support-rewrite
-        run: mvn --batch-mode clean package
+        run: mvn --batch-mode clean install
 
       - name: clean
         run: mvn clean
 
       - name: test-helper (build + test)
-        run: mvn --batch-mode package --projects :test-helper
+        run: mvn --batch-mode install --projects :test-helper
 
       - name: sbm-openrewrite (build + test)
-        run: mvn --batch-mode package --projects :test-helper, :sbm-openrewrite
+        run: mvn --batch-mode install --projects :sbm-openrewrite
 
       - name: sbm-core (build)
-        run: mvn -DskipTests --batch-mode package --projects :sbm-core
+        run: mvn -DskipTests --batch-mode install --projects :sbm-core
 
       - name: recipe-test-support (build)
-        run: mvn -DskipTests --batch-mode package --projects :recipe-test-support
+        run: mvn -DskipTests --batch-mode install --projects :recipe-test-support
 
       - name: sbm-support-boot (build)
-        run: mvn -DskipTests --batch-mode --projects :sbm-support-boot package
+        run: mvn -DskipTests --batch-mode install --projects :sbm-support-boot
 
       - name: sbm-support-jee (build)
-        run: mvn -DskipTests --batch-mode --projects :sbm-support-jee
+        run: mvn -DskipTests --batch-mode install --projects :sbm-support-jee
 
       - name: sbm-support-weblogic (build)
-        run: mvn -DskipTests --batch-mode --projects :sbm-support-weblogic
+        run: mvn -DskipTests --batch-mode install --projects :sbm-support-weblogic
 
       - name: sbm-recipes-jee-to-boot (build)
         run: mvn -DskipTests --batch-mode --projects :sbm-recipes-jee-to-boot
