@@ -18,8 +18,39 @@ jobs:
           java-version: 17
           cache: 'maven'
 
-      - name: Build and test sbm-openrewrite
-        run: mvn --batch-mode clean package --projects :test-helper,:sbm-openrewrite
+      - name: sbm-support-rewrite (build + test)
+        working-directory: ./sbm-support-rewrite :sbm-support-rewrite
+        run: mvn --batch-mode clean package --projects
 
-      - name: Build and ignore tests for all from sbm-core
-        run: mvn -DskipTests --batch-mode --rf :sbm-core package
+      - name: clean
+        run: mvn clean
+
+      - name: test-helper (build + test)
+        run: mvn --batch-mode package --projects :test-helper
+
+      - name: sbm-openrewrite (build + test)
+        run: mvn --batch-mode package --projects :test-helper, :sbm-openrewrite
+
+      - name: sbm-core (build)
+        run: mvn -DskipTests --batch-mode package --projects :sbm-core
+
+      - name: recipe-test-support (build)
+        run: mvn -DskipTests --batch-mode package --projects :recipe-test-support
+
+      - name: sbm-support-boot (build)
+        run: mvn -DskipTests --batch-mode --projects :sbm-support-boot package
+
+      - name: sbm-support-jee (build)
+        run: mvn -DskipTests --batch-mode --projects :sbm-support-jee
+
+      - name: sbm-support-weblogic (build)
+        run: mvn -DskipTests --batch-mode --projects :sbm-support-weblogic
+
+      - name: sbm-recipes-jee-to-boot (build)
+        run: mvn -DskipTests --batch-mode --projects :sbm-recipes-jee-to-boot
+
+      - name: sbm-recipes-spring-cloud (build)
+        run: mvn -DskipTests --batch-mode --projects :sbm-recipes-spring-cloud
+
+      - name: sbm-recipes-boot-upgrade (build)
+        run: mvn -DskipTests --batch-mode --projects :sbm-recipes-boot-upgrade
