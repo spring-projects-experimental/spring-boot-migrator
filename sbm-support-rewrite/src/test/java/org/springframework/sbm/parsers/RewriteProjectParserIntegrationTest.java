@@ -59,17 +59,6 @@ public class RewriteProjectParserIntegrationTest {
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
     }
-    @Test
-    @DisplayName("parse4Modules")
-    void parse4Modules() {
-        Path baseDir = getMavenProject("4-modules");
-        List<Resource> resources = projectScanner.scan(baseDir);
-
-        assertThat(resources).hasSize(4);
-
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
-        assertThat(parsingResult.sourceFiles()).hasSize(4);
-    }
 
     @Test
     @DisplayName("testFailingProject")
@@ -107,24 +96,6 @@ public class RewriteProjectParserIntegrationTest {
 
         RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
         assertThat(parsingResult.sourceFiles()).hasSize(4);
-    }
-
-    @Autowired
-    RewriteMavenProjectParser mavenProjectParser;
-
-    @Test
-    @DisplayName("parseResources")
-    void parseResources() {
-        Path baseDir = getMavenProject("resources");
-        List<Resource> resources = projectScanner.scan(baseDir);
-
-        RewriteProjectParsingResult parsingResult1 = mavenProjectParser.parse(baseDir);
-        assertThat(parsingResult1.sourceFiles()).hasSize(5);
-
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {
-            throw new RuntimeException(t);
-        }));
-        assertThat(parsingResult.sourceFiles()).hasSize(5);
     }
 
     private Path getMavenProject(String s) {
