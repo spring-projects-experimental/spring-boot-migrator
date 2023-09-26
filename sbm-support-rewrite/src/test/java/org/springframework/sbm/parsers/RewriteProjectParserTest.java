@@ -33,6 +33,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.maven.MavenProjectAnalyzer;
+import org.springframework.sbm.parsers.maven.MavenProvenanceMarkerFactory;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -105,7 +107,7 @@ class RewriteProjectParserTest {
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
-                new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
+                new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
                 new SourceFileParser(parserProperties, mavenMojoParserPrivateMethods, new JavaParserBuilder()),
                 new StyleDetector(),
@@ -115,7 +117,8 @@ class RewriteProjectParserTest {
                 new ScanScope(),
                 mock(ConfigurableListableBeanFactory.class),
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
-                executionContext
+                executionContext,
+                new MavenProjectAnalyzer()
         );
 
         List<String> parsedFiles = new ArrayList<>();

@@ -17,7 +17,6 @@ package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
 import org.apache.maven.settings.crypto.DefaultSettingsDecrypter;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +33,7 @@ import org.openrewrite.xml.tree.Xml;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
+import org.springframework.sbm.parsers.maven.MavenProject;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
@@ -57,10 +57,11 @@ class MavenMojoProjectParserPrivateMethods {
     private final MavenArtifactDownloader artifactDownloader;
 
     /**
-     * Calls {@link MavenMojoProjectParser#processMainSources(MavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
      */
     public List<SourceFile> processMainSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, MavenProject mavenProject) {
-        return invokeProcessMethod(baseDir, mavenProject, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processMainSources");
+        // FIXME: 945
+        return null;
+//        return invokeProcessMethod(baseDir, mavenProject, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processMainSources");
     }
 
     /**
@@ -76,7 +77,8 @@ class MavenMojoProjectParserPrivateMethods {
     @NotNull
     private List<SourceFile> invokeProcessMethod(
             Path baseDir,
-            MavenProject mavenProject, Xml.Document moduleBuildFile,
+            MavenProject mavenProject,
+            Xml.Document moduleBuildFile,
             JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
             ResourceParser rp,
             List<Marker> provenanceMarkers,
@@ -84,35 +86,37 @@ class MavenMojoProjectParserPrivateMethods {
             ExecutionContext executionContext,
             String methodName
     ) {
-        MavenMojoProjectParser mavenMojoProjectParser = createMavenMojoProjectParser(baseDir);
-        Method method = ReflectionUtils.findMethod(
-                MavenMojoProjectParser.class,
-                methodName,
-                MavenProject.class,
-                JavaParser.Builder.class,
-                ResourceParser.class,
-                List.class,
-                Set.class,
-                ExecutionContext.class);
-        ReflectionUtils.makeAccessible(method);
-        if (method == null) {
-            throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted(methodName, MavenMojoProjectParser.class.getName()));
-        }
-        log.debug("Starting reflective call to %s.%s()".formatted(mavenMojoProjectParser.getClass().getName(), method.getName()));
-        Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser,
-                mavenProject,
-                javaParserBuilder,
-                rp,
-                provenanceMarkers,
-                alreadyParsed,
-                executionContext
-        );
-        if (result instanceof Stream) {
-            List<SourceFile> sourceFiles = ((Stream<SourceFile>) result).toList();
-            return sourceFiles;
-        } else {
-            throw new RuntimeException("Could not cast result returned from MavenMojoParser#methodName to Stream<SourceFile>.");
-        }
+        // FIXME: #945
+        return null;
+//        MavenMojoProjectParser mavenMojoProjectParser = createMavenMojoProjectParser(baseDir);
+//        Method method = ReflectionUtils.findMethod(
+//                MavenMojoProjectParser.class,
+//                methodName,
+//                MavenProject.class,
+//                JavaParser.Builder.class,
+//                ResourceParser.class,
+//                List.class,
+//                Set.class,
+//                ExecutionContext.class);
+//        ReflectionUtils.makeAccessible(method);
+//        if (method == null) {
+//            throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted(methodName, MavenMojoProjectParser.class.getName()));
+//        }
+//        log.debug("Starting reflective call to %s.%s()".formatted(mavenMojoProjectParser.getClass().getName(), method.getName()));
+//        Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser,
+//                mavenProject,
+//                javaParserBuilder,
+//                rp,
+//                provenanceMarkers,
+//                alreadyParsed,
+//                executionContext
+//        );
+//        if (result instanceof Stream) {
+//            List<SourceFile> sourceFiles = ((Stream<SourceFile>) result).toList();
+//            return sourceFiles;
+//        } else {
+//            throw new RuntimeException("Could not cast result returned from MavenMojoParser#methodName to Stream<SourceFile>.");
+//        }
     }
 
 

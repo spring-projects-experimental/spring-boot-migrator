@@ -17,7 +17,6 @@ package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.maven.project.MavenProject;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
@@ -27,6 +26,7 @@ import org.openrewrite.maven.ResourceParser;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.maven.MavenProject;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
@@ -97,7 +97,7 @@ public class SourceFileParser {
                 .styles(styles)
                 .logCompilationWarningsAndErrors(false);
 
-        Path buildFilePath = mavenProject.getBasedir().toPath().resolve(moduleBuildFile.getSourcePath());
+        Path buildFilePath = mavenProject.getBasedir().resolve(moduleBuildFile.getSourcePath());
         // these paths will be ignored by ResourceParser
         Set<Path> skipResourceScanDirs = pathsToOtherMavenProjects(mavenProject, buildFilePath);
         ResourceParser rp = new ResourceParser(
@@ -154,7 +154,6 @@ public class SourceFileParser {
     }
 
     /**
-     * {@link MavenMojoProjectParser#processMainSources(MavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
      */
     private List<SourceFile> parseMainSources(Path baseDir, MavenProject mavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
         // MavenMojoProjectParser#processMainSources(..) takes MavenProject

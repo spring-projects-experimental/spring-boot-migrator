@@ -56,6 +56,8 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
+import org.springframework.sbm.parsers.maven.MavenProjectAnalyzer;
+import org.springframework.sbm.parsers.maven.MavenProvenanceMarkerFactory;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -282,7 +284,7 @@ class RewriteMavenProjectParserTest {
         JavaParserBuilder javaParserBuilder = new JavaParserBuilder();
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
-                new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
+                new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
                 new SourceFileParser(parserProperties, mavenMojoParserPrivateMethods, javaParserBuilder),
                 new StyleDetector(),
@@ -292,7 +294,8 @@ class RewriteMavenProjectParserTest {
                 scanScope,
                 beanFactory,
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
-                ctx
+                ctx,
+                new MavenProjectAnalyzer()
         );
 
         Set<String> ignoredPatters = Set.of();

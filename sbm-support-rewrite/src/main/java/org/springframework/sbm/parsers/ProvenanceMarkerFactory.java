@@ -23,8 +23,8 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.MavenMojoProjectParser;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.maven.MavenProvenanceMarkerFactory;
 import org.springframework.sbm.utils.ResourceUtil;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -35,7 +35,7 @@ import java.util.*;
 @RequiredArgsConstructor
 class ProvenanceMarkerFactory {
 
-    private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
+    private final MavenProvenanceMarkerFactory markerFactory;
 
     /**
      * Reuses {@link MavenMojoProjectParser#generateProvenance(MavenProject)} to create {@link Marker}s for pom files in
@@ -48,11 +48,11 @@ class ProvenanceMarkerFactory {
         RuntimeInformation runtimeInformation = new DefaultRuntimeInformation();
         SettingsDecrypter settingsDecrypter = null;
 
-        MavenMojoProjectParser helper = mavenMojoProjectParserFactory.create(baseDir, runtimeInformation, settingsDecrypter);
         Map<Path, List<Marker>> result = new HashMap<>();
 
         pomFileResources.getSortedProjects().forEach(mavenProject -> {
-            List<Marker> markers = helper.generateProvenance(mavenProject);
+            
+            List<Marker> markers = markerFactory.generateProvenance(mavenProject);
             Resource resource = pomFileResources.getMatchingBuildFileResource(mavenProject);
             Path path = ResourceUtil.getPath(resource);
             result.put(path, markers);

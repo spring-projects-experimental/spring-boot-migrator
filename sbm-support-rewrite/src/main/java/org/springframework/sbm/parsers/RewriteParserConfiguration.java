@@ -29,8 +29,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.sbm.boot.autoconfigure.ParserPropertiesPostProcessor;
-import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
+import org.springframework.sbm.parsers.maven.MavenProjectAnalyzer;
 import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
@@ -81,10 +81,10 @@ public class RewriteParserConfiguration {
         return new MavenMojoProjectParserFactory(parserProperties);
     }
 
-    @Bean
-    ProvenanceMarkerFactory provenanceMarkerFactory(MavenMojoProjectParserFactory projectParserFactory) {
-        return new ProvenanceMarkerFactory(projectParserFactory);
-    }
+//    @Bean
+//    ProvenanceMarkerFactory provenanceMarkerFactory(MavenMojoProjectParserFactory projectParserFactory) {
+//        return new ProvenanceMarkerFactory(projectParserFactory);
+//    }
 
     @Bean
     @org.springframework.sbm.scopes.annotations.ScanScope
@@ -154,6 +154,11 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
+    MavenProjectAnalyzer mavenProjectAnalyzer() {
+        return new MavenProjectAnalyzer();
+    }
+
+    @Bean
     RewriteProjectParser rewriteProjectParser(
             MavenExecutor mavenExecutor,
             ProvenanceMarkerFactory provenanceMarkerFactory,
@@ -166,7 +171,8 @@ public class RewriteParserConfiguration {
             ScanScope scanScope,
             ConfigurableListableBeanFactory beanFactory,
             ProjectScanner projectScanner,
-            ExecutionContext executionContext) {
+            ExecutionContext executionContext,
+            MavenProjectAnalyzer mavenProjectAnalyzer) {
         return new RewriteProjectParser(
                 mavenExecutor,
                 provenanceMarkerFactory,
@@ -179,7 +185,8 @@ public class RewriteParserConfiguration {
                 scanScope,
                 beanFactory,
                 projectScanner,
-                executionContext);
+                executionContext,
+                mavenProjectAnalyzer);
     }
 
     @Bean

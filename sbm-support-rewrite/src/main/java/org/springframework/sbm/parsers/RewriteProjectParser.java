@@ -20,9 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.AbstractRewriteMojo;
@@ -38,9 +36,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
+import org.springframework.sbm.parsers.maven.MavenProject;
+import org.springframework.sbm.parsers.maven.MavenProjectAnalyzer;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.utils.ResourceUtil;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
@@ -91,6 +90,7 @@ public class RewriteProjectParser {
     private final ConfigurableListableBeanFactory beanFactory;
     private final ProjectScanner scanner;
     private final ExecutionContext executionContext;
+    private final MavenProjectAnalyzer mavenProjectAnalyzer;
 
 
     public RewriteProjectParsingResult parse(Path baseDir) {
@@ -141,7 +141,10 @@ public class RewriteProjectParser {
 
         withMavenSession(baseDir, mavenSession -> {
             // Get the ordered list of projects
-            List<MavenProject> sortedProjectsList = mavenSession.getProjectDependencyGraph().getSortedProjects();
+            // TODO: #945 - replace with custom sorter
+            // TODO: #945 Replace MavenProject
+            mavenSession.getProjectDependencyGraph().getSortedProjects();
+            List<MavenProject> sortedProjectsList = mavenProjectAnalyzer.getSortedProjects(baseDir, resources); // mavenSession.getProjectDependencyGraph().getSortedProjects();
             // SortedProjects makes downstream components independent of Maven classes
             SortedProjects mavenInfos = new SortedProjects(resources, sortedProjectsList, List.of("default"));
 
@@ -190,18 +193,6 @@ public class RewriteProjectParser {
         Object o = ReflectionUtils.invokeMethod(sourcesWithAutoDetectedStylesMethod, dummyRewriteMojo, sourceFilesStream);
         List<SourceFile> sourceFiles = (List<SourceFile>) o;
         return sourceFiles;
-    }
-
-//    private Stream<SourceFile> parseToAst(Path baseDir, List<Resource> resources, List<NamedStyles> styles, ExecutionContext executionContext) throws DependencyResolutionRequiredException, MojoExecutionException {
-//        MavenProject mavenProject = createFakeMavenProjectForProvenance(baseDir, resources, executionContext);
-//        return super.listSourceFiles(mavenProject, styles, executionContext);
-//    }
-
-    private MavenProject createFakeMavenProjectForProvenance(Path baseDir, List<Resource> resources, ExecutionContext executionContext) {
-        MavenProject mavenProject = new MavenProject();
-        // Plugin compilerPlugin = mavenProject.getPlugin("org.apache.maven.plugins:maven-compiler-plugin");
-        mavenProject.setPluginArtifacts(Set.of());
-        return mavenProject;
     }
 
     /**

@@ -17,8 +17,8 @@ package org.springframework.sbm.parsers;
 
 import lombok.Getter;
 import org.apache.maven.model.Model;
-import org.apache.maven.project.MavenProject;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.maven.MavenProject;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.File;
