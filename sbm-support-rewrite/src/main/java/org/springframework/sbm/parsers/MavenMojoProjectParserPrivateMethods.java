@@ -75,6 +75,37 @@ class MavenMojoProjectParserPrivateMethods {
         alreadyParsed.addAll(mainJavaSources);
 
         log.info("[%s] Parsing source files".formatted(mavenProject));
+        // FIXME 945 classpath
+
+        /*
+        @Override
+        public Set<Path> getClasspath(Scope scope) {
+            Map<Scope, Set<Path>> resolvedDependenciesMap = getResolvedDependenciesMap();
+            Set<Path> classpath = resolvedDependenciesMap.entrySet().stream()
+                    .filter(e -> e.getKey().isInClasspathOf(scope))
+                    .map(e -> e.getValue())
+                    .flatMap(Set::stream)
+                    .collect(Collectors.toSet());
+            return classpath;
+        }
+
+        @Override
+        public Map<Scope, Set<Path>> getResolvedDependenciesMap() {
+            Map<Scope, Set<Path>> dependenciesMap = new HashMap<>();
+            Arrays.stream(Scope.values()).forEach(scope -> {
+                List<ResolvedDependency> resolvedDependencies = getPom().getDependencies().get(scope);
+                if(resolvedDependencies != null) {
+                    Set<Path> paths = resolvedDependencies
+                            .stream()
+                            .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
+                            .collect(Collectors.toSet());
+                    dependenciesMap.put(scope, paths);
+                }
+            });
+            return dependenciesMap;
+        }
+        */
+
         List<Path> dependencies = mavenProject.getCompileClasspathElements().stream()
                 .distinct()
                 .map(Paths::get)
@@ -111,8 +142,35 @@ class MavenMojoProjectParserPrivateMethods {
     /**
      * Calls {@link MavenMojoProjectParser#processTestSources(SbmMavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
      */
-    public List<SourceFile> processTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, SbmMavenProject sbmMavenProject, List<Resource> resources) {
-        return invokeProcessMethod(baseDir, sbmMavenProject, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processTestSources", resources);
+    public List<SourceFile> processTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, SbmMavenProject mavenProject, List<Resource> resources) {
+        List<Path> testDependencies = mavenProject.getTestClasspathElements();
+
+        javaParserBuilder.classpath(testDependencies);
+        JavaTypeCache typeCache = new JavaTypeCache();
+        javaParserBuilder.typeCache(typeCache);
+
+        List<Path> testJavaSources = listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getTestSourceDirectory()));
+        alreadyParsed.addAll(testJavaSources);
+
+        Stream<? extends SourceFile> cus = Stream.of(javaParserBuilder)
+                .map(JavaParser.Builder::build)
+                .flatMap(parser -> parser.parse(testJavaSources, baseDir, executionContext));
+
+        List<Marker> markers = new ArrayList<>(provenanceMarkers);
+        markers.add(sourceSet("test", testDependencies, typeCache));
+
+        Stream<SourceFile> parsedJava = cus.map(addProvenance(baseDir, markers, null));
+
+        log.debug("[%s] Scanned %d java source files in test scope.".formatted(mavenProject, testJavaSources.size()));
+        Stream<SourceFile> sourceFiles = parsedJava;
+
+        // Any resources parsed from "test/resources" should also have the test source set added to them.
+        int sourcesParsedBefore = alreadyParsed.size();
+        Stream<SourceFile> parsedResourceFiles = rp.parse(mavenProject.getBasedir().resolve("src/test/resources"), alreadyParsed)
+                .map(addProvenance(baseDir, markers, null));
+        log.debug("[%s] Scanned %d resource files in test scope.".formatted(mavenProject, (alreadyParsed.size() - sourcesParsedBefore)));
+        sourceFiles = Stream.concat(sourceFiles, parsedResourceFiles);
+        return sourceFiles.toList();
     }
 
     /**

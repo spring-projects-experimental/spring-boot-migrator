@@ -177,7 +177,7 @@ public class RewriteProjectParser {
 
         // 128 : 131
             log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
-            List<SourceFile> list = sourceFileParser.parseOtherSourceFiles(baseDir, mavenInfos, resourceToDocumentMap, mavenInfos.getResources(), provenanceMarkers, styles, executionContext);
+            List<SourceFile> list = sourceFileParser.parseOtherSourceFiles(baseDir, mavenInfos, resourceToDocumentMap, resources, provenanceMarkers, styles, executionContext);
 
 //        List<SourceFile> sourceFilesWithoutPoms = sourceFilesStream.filter(sf -> resourceToDocumentMap.keySet().contains(baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize())).toList();
             List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();

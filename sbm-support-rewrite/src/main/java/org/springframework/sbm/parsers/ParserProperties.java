@@ -81,6 +81,6 @@ public class ParserProperties {
     /**
      * Comma-separated list of patterns used to create PathMatcher to exclude paths from being parsed.
      */
-    private Set<String> ignoredPathPatterns = new HashSet<>();
+    private Set<String> ignoredPathPatterns = Set.of("**/target/**", "target/**");
 
 }

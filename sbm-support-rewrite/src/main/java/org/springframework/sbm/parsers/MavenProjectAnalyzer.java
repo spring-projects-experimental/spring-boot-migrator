@@ -144,7 +144,7 @@ public class MavenProjectAnalyzer {
                             return -1;
                         } else {
                             // default is order as given by reactorModels
-                            return Integer.compare(reactorModels.indexOf(e2.getKey()), reactorModels.indexOf(e1.getKey()));
+                            return Integer.compare(reactorModels.indexOf(e1.getKey()), reactorModels.indexOf(e2.getKey()));
                         }
                     }
                 })

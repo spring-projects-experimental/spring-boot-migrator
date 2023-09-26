@@ -123,14 +123,27 @@ public class SbmMavenProject {
     }
 
     public String getBuildDirectory() {
-        return pomModel.getBuild() != null ? pomModel.getBuild().getDirectory() : ResourceUtil.getPath(pomFile).getParent().resolve("target").toAbsolutePath().normalize().toString();
+        String s = pomModel.getBuild() != null ? pomModel.getBuild().getDirectory() : null;
+        return s == null ? ResourceUtil.getPath(pomFile).getParent().resolve("target").toAbsolutePath().normalize().toString() : s;
     }
 
     public String getSourceDirectory() {
-        return pomModel.getBuild() != null ? pomModel.getBuild().getSourceDirectory() : "src/main/java";
+        String s = pomModel.getBuild() != null ? pomModel.getBuild().getSourceDirectory() : null;
+        return s == null ? ResourceUtil.getPath(pomFile).getParent().resolve("src/main/java").toAbsolutePath().normalize().toString() : s;
     }
 
     public List<String> getCompileClasspathElements() {
+        // FIXME: 945 - implement method
         return List.of();
+    }
+
+    public List<Path> getTestClasspathElements() {
+        // FIXME: 945 - implement method
+        return List.of();
+    }
+
+    public String getTestSourceDirectory() {
+        String s = pomModel.getBuild() != null ? pomModel.getBuild().getSourceDirectory() : null;
+        return s == null ? ResourceUtil.getPath(pomFile).getParent().resolve("src/test/java").toAbsolutePath().normalize().toString() : s;
     }
 }

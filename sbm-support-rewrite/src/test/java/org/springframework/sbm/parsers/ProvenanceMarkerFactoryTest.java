@@ -16,6 +16,7 @@
 package org.springframework.sbm.parsers;
 
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
@@ -80,10 +81,10 @@ class ProvenanceMarkerFactoryTest {
             mavenExecutor.onProjectSucceededEvent(baseDir, List.of("clean", "package"), event -> {
 
                 // and then use the SbmMavenProject from the MavenSession
-                SbmMavenProject mavenModel = null; // FIXME: 945: event.getSession().getCurrentProject();
+                MavenProject mavenModel = event.getSession().getCurrentProject();
 
                 // to call the sut
-                List<Marker> markers = List.of(); // FIXME: 945: sut.generateProvenance(mavenModel);
+                List<Marker> markers = sut.generateProvenance(mavenModel);
 
                 // and assert markers
                 int numExpectedMarkers = 5;
