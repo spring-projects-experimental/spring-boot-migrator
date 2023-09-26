@@ -17,6 +17,9 @@ package org.springframework.sbm.parsers;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.maven.Maven;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.springframework.core.io.Resource;
@@ -24,9 +27,7 @@ import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 
 @Getter
@@ -119,5 +120,17 @@ public class SbmMavenProject {
     @Override
     public String toString() {
         return pomModel.getGroupId() == null ? pomModel.getParent().getGroupId() : pomModel.getGroupId() + ":" + pomModel.getArtifactId();
+    }
+
+    public String getBuildDirectory() {
+        return pomModel.getBuild() != null ? pomModel.getBuild().getDirectory() : ResourceUtil.getPath(pomFile).getParent().resolve("target").toAbsolutePath().normalize().toString();
+    }
+
+    public String getSourceDirectory() {
+        return pomModel.getBuild() != null ? pomModel.getBuild().getSourceDirectory() : "src/main/java";
+    }
+
+    public List<String> getCompileClasspathElements() {
+        return List.of();
     }
 }

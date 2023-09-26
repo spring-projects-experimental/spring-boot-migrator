@@ -24,9 +24,11 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.AbstractRewriteMojo;
+import org.openrewrite.maven.MavenDownloadingExceptions;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenMojoProjectParser;
-import org.openrewrite.maven.tree.MavenRepository;
+import org.openrewrite.maven.internal.MavenPomDownloader;
+import org.openrewrite.maven.tree.*;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
@@ -45,6 +47,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -135,7 +138,7 @@ public class RewriteProjectParser {
         // TODO: where to retrieve styles from? --> see AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
         List<NamedStyles> styles = List.of();
 
-        AtomicReference<RewriteProjectParsingResult> atomicReference = new AtomicReference<>();
+//        AtomicReference<RewriteProjectParsingResult> atomicReference = new AtomicReference<>();
 
 //        withMavenSession(baseDir, mavenSession -> {
             // Get the ordered list of projects
@@ -144,6 +147,7 @@ public class RewriteProjectParser {
 //            mavenSession.getProjectDependencyGraph().getSortedProjects();
 
             List<SbmMavenProject> sortedProjectsList = mavenProjectAnalyzer.getSortedProjects(baseDir, resources); // mavenSession.getProjectDependencyGraph().getSortedProjects();
+
             // SortedProjects makes downstream components independent of Maven classes
             // TODO: 945 Is SortedProjects still required?
             SortedProjects mavenInfos = new SortedProjects(resources, sortedProjectsList, List.of("default"));
@@ -161,7 +165,17 @@ public class RewriteProjectParser {
                     .map(SourceFile.class::cast)
                     .toList();
 
-            // 128 : 131
+            // FIXME: 945 - classpath required
+            Map<Path, Pom> projectPoms = resourceToDocumentMap.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            k -> k.getKey(),
+                            k -> k.getValue().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested()
+                    ));
+        try {
+            List<ResolvedDependency> resolvedDependencies = parsedAndSortedBuildFileDocuments.get(0).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().resolveDependencies(Scope.Compile, new MavenPomDownloader(projectPoms, executionContext), executionContext);
+
+
+        // 128 : 131
             log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
             List<SourceFile> list = sourceFileParser.parseOtherSourceFiles(baseDir, mavenInfos, resourceToDocumentMap, mavenInfos.getResources(), provenanceMarkers, styles, executionContext);
 
@@ -173,10 +187,12 @@ public class RewriteProjectParser {
 
             eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
 
-            atomicReference.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
+            return new RewriteProjectParsingResult(sourceFiles, executionContext);
+        } catch (MavenDownloadingExceptions e) {
+            throw new RuntimeException(e);
+        }
 //        });
 
-        return atomicReference.get();
     }
 
     private void withMavenSession(Path baseDir, Consumer<MavenSession> consumer) {
