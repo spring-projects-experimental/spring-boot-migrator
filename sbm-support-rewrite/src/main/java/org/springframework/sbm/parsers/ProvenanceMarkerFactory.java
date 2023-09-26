@@ -23,7 +23,6 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.MavenMojoProjectParser;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.maven.MavenProvenanceMarkerFactory;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
@@ -52,7 +51,7 @@ class ProvenanceMarkerFactory {
 
         pomFileResources.getSortedProjects().forEach(mavenProject -> {
             
-            List<Marker> markers = markerFactory.generateProvenance(mavenProject);
+            List<Marker> markers = markerFactory.generateProvenance(baseDir, mavenProject);
             Resource resource = pomFileResources.getMatchingBuildFileResource(mavenProject);
             Path path = ResourceUtil.getPath(resource);
             result.put(path, markers);

@@ -18,10 +18,8 @@ package org.springframework.sbm.parsers;
 import lombok.Getter;
 import org.apache.maven.model.Model;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.maven.MavenProject;
 import org.springframework.sbm.utils.ResourceUtil;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -36,14 +34,14 @@ import java.util.List;
 public class SortedProjects {
     private final List<Resource> resources;
     @Getter
-    private final List<MavenProject> sortedProjects;
+    private final List<SbmMavenProject> sortedProjects;
     @Getter
     private final List<String> activeProfiles;
 
 
 
     // FIXME: The relation between resource and project is brittle, if it's really needed we should validate in constructor
-    public SortedProjects(List<Resource> given, List<MavenProject> allProjects, List<String> activeProfiles) {
+    public SortedProjects(List<Resource> given, List<SbmMavenProject> allProjects, List<String> activeProfiles) {
         this.resources = given;
         this.sortedProjects = allProjects;
         this.activeProfiles = activeProfiles;
@@ -52,8 +50,7 @@ public class SortedProjects {
     public List<Resource> getResources() {
         return sortedProjects
                 .stream()
-                .map(MavenProject::getFile)
-                .map(File::toPath)
+                .map(SbmMavenProject::getPomFilePath)
                 .map(m -> this.findResourceWithPath(m, resources))
                 .toList();
     }
@@ -65,22 +62,23 @@ public class SortedProjects {
                 .orElseThrow(() -> new IllegalStateException("Could not find a resource in the list of resources that matches the path of pom '%s'".formatted(m.toString())));
     }
 
-    public Resource getMatchingBuildFileResource(MavenProject pom) {
+    public Resource getMatchingBuildFileResource(SbmMavenProject pom) {
         return resources.stream()
-                .filter(r -> ResourceUtil.getPath(r).equals(pom.getFile().toPath()))
+                .peek(r -> System.out.println(ResourceUtil.getPath(r).toString() + "  -   " + pom.getPomFilePath().toString()))
+                .filter(r -> ResourceUtil.getPath(r).toString().equals(pom.getPomFilePath().toString()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Could not find a resource in the list of resources that matches the path of MavenProject '%s'".formatted(pom.getFile().getPath().toString())));
+                .orElseThrow(() -> new IllegalStateException("Could not find a resource in the list of resources that matches the path of SbmMavenProject '%s'".formatted(pom.getPomFile().toString())));
     }
 
     private List<String> readActiveProfiles(Model topLevelModel) {
         return activeProfiles;
     }
 
-    public MavenProject getMavenProject(Resource r) {
+    public SbmMavenProject getMavenProject(Resource r) {
         Path path = ResourceUtil.getPath(r);
         return sortedProjects.stream()
                 .filter(p -> p.getFile().getPath().toString().equals(path.toString()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Could not find MavenProject for given resource '%s'".formatted(path)));
+                .orElseThrow(() -> new IllegalArgumentException("Could not find SbmMavenProject for given resource '%s'".formatted(path)));
     }
 }

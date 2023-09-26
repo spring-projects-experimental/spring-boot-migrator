@@ -22,9 +22,12 @@ import org.apache.maven.settings.crypto.DefaultSettingsDecrypter;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
+import org.openrewrite.Tree;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
+import org.openrewrite.marker.Generated;
 import org.openrewrite.marker.Marker;
+import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.maven.ResourceParser;
 import org.openrewrite.maven.tree.ResolvedDependency;
@@ -33,18 +36,11 @@ import org.openrewrite.xml.tree.Xml;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
-import org.springframework.sbm.parsers.maven.MavenProject;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Fabian Krüger
@@ -58,26 +54,26 @@ class MavenMojoProjectParserPrivateMethods {
 
     /**
      */
-    public List<SourceFile> processMainSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, MavenProject mavenProject) {
+    public List<SourceFile> processMainSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, SbmMavenProject sbmMavenProject) {
         // FIXME: 945
         return null;
-//        return invokeProcessMethod(baseDir, mavenProject, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processMainSources");
+//        return invokeProcessMethod(baseDir, sbmMavenProject, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processMainSources");
     }
 
     /**
-     * Calls {@link MavenMojoProjectParser#processTestSources(MavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
+     * Calls {@link MavenMojoProjectParser#processTestSources(SbmMavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
      */
-    public List<SourceFile> processTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser,?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, MavenProject mavenProject) {
-        return invokeProcessMethod(baseDir, mavenProject, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processTestSources");
+    public List<SourceFile> processTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser,?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, SbmMavenProject sbmMavenProject) {
+        return invokeProcessMethod(baseDir, sbmMavenProject, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processTestSources");
     }
 
     /**
-     * See {@link MavenMojoProjectParser#processMainSources(MavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
+     * See {@link MavenMojoProjectParser#processMainSources(SbmMavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
      */
     @NotNull
     private List<SourceFile> invokeProcessMethod(
             Path baseDir,
-            MavenProject mavenProject,
+            SbmMavenProject sbmMavenProject,
             Xml.Document moduleBuildFile,
             JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
             ResourceParser rp,
@@ -92,7 +88,7 @@ class MavenMojoProjectParserPrivateMethods {
 //        Method method = ReflectionUtils.findMethod(
 //                MavenMojoProjectParser.class,
 //                methodName,
-//                MavenProject.class,
+//                SbmMavenProject.class,
 //                JavaParser.Builder.class,
 //                ResourceParser.class,
 //                List.class,
@@ -104,7 +100,7 @@ class MavenMojoProjectParserPrivateMethods {
 //        }
 //        log.debug("Starting reflective call to %s.%s()".formatted(mavenMojoProjectParser.getClass().getName(), method.getName()));
 //        Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser,
-//                mavenProject,
+//                sbmMavenProject,
 //                javaParserBuilder,
 //                rp,
 //                provenanceMarkers,
@@ -120,18 +116,33 @@ class MavenMojoProjectParserPrivateMethods {
     }
 
 
+    // TODO: 945 keep but move to a better class
     /**
      * {@link MavenMojoProjectParser#addProvenance(Path, List, Collection)}
      */
     public <T extends SourceFile> UnaryOperator<T> addProvenance(Path baseDir, List<Marker> provenance, @Nullable Collection<Path> generatedSources) {
-        MavenMojoProjectParser mavenMojoProjectParser = createMavenMojoProjectParser(baseDir);
-        Method method = ReflectionUtils.findMethod(MavenMojoProjectParser.class, "addProvenance", Path.class, List.class, Collection.class);
-        ReflectionUtils.makeAccessible(method);
-        if(method == null) {
-            throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted("addProvenance", MavenMojoProjectParser.class.getName()));
-        }
-        Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser, baseDir, provenance, generatedSources);
-        return (UnaryOperator<T>) result;
+//        MavenMojoProjectParser mavenMojoProjectParser = createMavenMojoProjectParser(baseDir);
+//        Method method = ReflectionUtils.findMethod(MavenMojoProjectParser.class, "addProvenance", Path.class, List.class, Collection.class);
+//        ReflectionUtils.makeAccessible(method);
+//        if(method == null) {
+//            throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted("addProvenance", MavenMojoProjectParser.class.getName()));
+//        }
+//        Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser, baseDir, provenance, generatedSources);
+//        return (UnaryOperator<T>) result;
+        return (s) -> {
+            Markers markers = s.getMarkers();
+
+            Marker marker;
+            for(Iterator var5 = provenance.iterator(); var5.hasNext(); markers = markers.addIfAbsent(marker)) {
+                marker = (Marker)var5.next();
+            }
+
+            if (generatedSources != null && generatedSources.contains(baseDir.resolve(s.getSourcePath()))) {
+                markers = markers.addIfAbsent(new Generated(Tree.randomId()));
+            }
+
+            return (T) s.withMarkers(markers);
+        };
     }
 
     private MavenMojoProjectParser createMavenMojoProjectParser(Path baseDir) {

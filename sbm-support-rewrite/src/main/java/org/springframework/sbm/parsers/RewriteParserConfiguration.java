@@ -30,7 +30,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.sbm.boot.autoconfigure.ParserPropertiesPostProcessor;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
-import org.springframework.sbm.parsers.maven.MavenProjectAnalyzer;
 import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
@@ -48,9 +47,9 @@ import java.util.function.Consumer;
  * @author Fabian Krüger
  */
 @Slf4j
-@AutoConfiguration(after = {ScopeConfiguration.class})
+@AutoConfiguration(after = {MavenParserConfiguration.class, ScopeConfiguration.class})
 @EnableConfigurationProperties(ParserProperties.class)
-@Import({ScanScope.class, ScopeConfiguration.class})
+@Import({ScanScope.class, ScopeConfiguration.class, MavenParserConfiguration.class})
 public class RewriteParserConfiguration {
 
     @Autowired
@@ -61,20 +60,6 @@ public class RewriteParserConfiguration {
         return new MavenPlexusContainer();
     }
 
-    @Bean
-    MavenConfigFileParser configFileParser() {
-        return new MavenConfigFileParser();
-    }
-
-    @Bean
-    MavenExecutionRequestFactory requestFactory(MavenConfigFileParser configFileParser) {
-        return new MavenExecutionRequestFactory(configFileParser);
-    }
-
-    @Bean
-    MavenExecutor mavenExecutor(MavenExecutionRequestFactory requestFactory, MavenPlexusContainer plexusContainer) {
-        return new MavenExecutor(requestFactory, plexusContainer);
-    }
 
     @Bean
     MavenMojoProjectParserFactory projectParserFactory() {
@@ -97,10 +82,6 @@ public class RewriteParserConfiguration {
         return new BuildFileParser();
     }
 
-    @Bean
-    MavenModelReader modelReader() {
-        return new MavenModelReader();
-    }
 
     @Bean
     @ConditionalOnMissingBean(MavenArtifactCache.class)
@@ -120,14 +101,25 @@ public class RewriteParserConfiguration {
         return new RewriteMavenArtifactDownloader(mavenArtifactCache, projectMetadata.getMavenSettings(), artifactDownloaderErrorConsumer);
     }
 
+    // FIXME: 945 remove
     @Bean
     MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods(MavenMojoProjectParserFactory parserFactory, MavenArtifactDownloader artifactDownloader) {
         return new MavenMojoProjectParserPrivateMethods(parserFactory, artifactDownloader);
     }
 
     @Bean
-    SourceFileParser sourceFileParser(MavenModelReader modelReader, MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods, JavaParserBuilder javaParserBuilder) {
+    SourceFileParser sourceFileParser(JavaParserBuilder javaParserBuilder, MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods) {
         return new SourceFileParser(parserProperties, mavenMojoProjectParserPrivateMethods, javaParserBuilder);
+    }
+
+    @Bean
+    MavenProvenanceMarkerFactory mavenProvenanceMarkerFactory(MavenMojoProjectParserFactory mavenMojoProjectParserFactory) {
+        return new MavenProvenanceMarkerFactory();
+    }
+
+    @Bean
+    ProvenanceMarkerFactory provenanceMarkerFactory(MavenProvenanceMarkerFactory mavenPovenanceMarkerFactory) {
+        return new ProvenanceMarkerFactory(mavenPovenanceMarkerFactory);
     }
 
     @Bean

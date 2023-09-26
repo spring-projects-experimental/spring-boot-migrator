@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-package org.springframework.sbm.parsers.maven;
+package org.springframework.sbm.parsers;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.test.util.DummyResource;
+import org.springframework.sbm.utils.ResourceUtil;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,6 +41,167 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Fabian Krüger
  */
 class MavenProjectAnalyzerTest {
+
+    @Nested
+    class CompareWithMaven {
+        @Test
+        @DisplayName("compare MavenProject.getCollectedProjects()")
+        void compareMavenProjectGetCollectedProjects(@TempDir Path tmpDir) {
+            @Language("xml")
+            String parentPom =
+                    """
+                            <?xml version="1.0" encoding="UTF-8"?>
+                            <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                <modelVersion>4.0.0</modelVersion>
+                                <groupId>com.acme</groupId>
+                                <artifactId>parent</artifactId>
+                                <version>0.1.0-SNAPSHOT</version>
+                                <packaging>pom</packaging>
+                                <modules>
+                                    <module>module-a</module>
+                                    <module>module-b</module>
+                                    <module>parent-b</module>
+                                </modules>
+                            </project>
+                            """;
+
+            @Language("xml")
+            String moduleAPom =
+                    """
+                            <?xml version="1.0" encoding="UTF-8"?>
+                            <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                <modelVersion>4.0.0</modelVersion>
+                                <parent>
+                                    <groupId>com.acme</groupId>
+                                    <artifactId>parent</artifactId>
+                                    <version>0.1.0-SNAPSHOT</version>
+                                </parent>
+                                <artifactId>module-a</artifactId>
+                            </project>
+                            """;
+
+            @Language("xml")
+            String moduleBPom =
+                    """
+                            <?xml version="1.0" encoding="UTF-8"?>
+                            <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                <modelVersion>4.0.0</modelVersion>
+                                <parent>
+                                    <groupId>com.acme</groupId>
+                                    <artifactId>parent</artifactId>
+                                    <version>0.1.0-SNAPSHOT</version>
+                                </parent>
+                                <artifactId>module-b</artifactId>
+                                <dependencies>
+                                    <dependency>
+                                        <groupId>com.acme</groupId>
+                                        <artifactId>module-a</artifactId>
+                                        <version>${project.version}</version>
+                                    </dependency>
+                                </dependencies>
+                            </project>
+                            """;
+
+            @Language("xml")
+            String parentPomB =
+                    """
+                            <?xml version="1.0" encoding="UTF-8"?>
+                            <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                <modelVersion>4.0.0</modelVersion>
+                                <parent>
+                                    <groupId>com.acme</groupId>
+                                    <artifactId>parent</artifactId>
+                                    <version>0.1.0-SNAPSHOT</version>
+                                </parent>
+                                <artifactId>parent-b</artifactId>
+                                <packaging>pom</packaging>
+                                <modules>
+                                    <module>module-1</module>
+                                </modules>
+                            </project>
+                            """;
+
+            @Language("xml")
+            String module1Pom =
+                    """
+                            <?xml version="1.0" encoding="UTF-8"?>
+                            <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                                <modelVersion>4.0.0</modelVersion>
+                                <parent>
+                                    <groupId>com.acme</groupId>
+                                    <artifactId>parent-b</artifactId>
+                                    <version>0.1.0-SNAPSHOT</version>
+                                </parent>
+                                <artifactId>module-1</artifactId>
+                            </project>
+                            """;
+
+            Path baseDir = tmpDir;
+
+            List<Resource> resources = List.of(
+                    new DummyResource(baseDir.resolve("pom.xml"), parentPom),
+                    new DummyResource(baseDir.resolve("module-a/pom.xml"), moduleAPom),
+                    new DummyResource(baseDir.resolve("module-b/pom.xml"), moduleBPom),
+                    new DummyResource(baseDir.resolve("parent-b/pom.xml"), parentPomB),
+                    new DummyResource(baseDir.resolve("parent-b/module-1/pom.xml"), module1Pom)
+            );
+
+            MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
+            writeToDisk(baseDir, resources);
+            MavenSession mavenSession = startMavenSession(baseDir);
+
+            List<MavenProject> mavenSorted = mavenSession.getProjectDependencyGraph().getSortedProjects();
+            List<SbmMavenProject> sbmSorted = sut.getSortedProjects(baseDir, resources);
+
+            assertThat(mavenSorted).hasSize(5);
+            assertThat(mavenSorted.size()).isEqualTo(sbmSorted.size());
+
+            assertThat(mavenSorted.get(0).getGroupId()).isEqualTo("com.acme");
+            assertThat(mavenSorted.get(0).getGroupId()).isEqualTo(sbmSorted.get(0).getGroupId());
+
+            assertThat(mavenSorted.get(0).getArtifactId()).isEqualTo("parent");
+            assertThat(mavenSorted.get(0).getArtifactId()).isEqualTo(sbmSorted.get(0).getArtifactId());
+
+            assertThat(mavenSorted.get(0).getCollectedProjects()).hasSize(4);
+            assertThat(mavenSorted.get(0).getCollectedProjects().size()).isEqualTo(sbmSorted.get(0).getCollectedProjects().size());
+
+            List<String> projectsCollectedByMaven = mavenSorted.get(0).getCollectedProjects().stream().map(p -> p.getArtifactId()).toList();
+            assertThat(projectsCollectedByMaven).containsExactlyInAnyOrder(
+                    "module-a", "module-b", "module-1", "parent-b"
+            );
+
+            assertThat(sbmSorted.get(0).getCollectedProjects().stream().map(p -> p.getArtifactId()).toList()).hasSameElementsAs(projectsCollectedByMaven);
+        }
+
+        private void writeToDisk(Path baseDir, List<Resource> resources) {
+            resources.stream()
+                    .forEach(r -> {
+                                try {
+                                    Path resolve = ResourceUtil.getPath(r);
+                                    Files.createDirectories(resolve.getParent());
+                                    Files.writeString(resolve, ResourceUtil.getContent(r));
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                    );
+        }
+
+        private MavenSession startMavenSession(Path baseDir) {
+            List<String> goals = List.of("clean", "package");
+            MavenExecutor mavenExecutor = new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer());
+            AtomicReference<MavenSession> mavenSession = new AtomicReference<>();
+            mavenExecutor.onProjectSucceededEvent(baseDir, goals, event -> mavenSession.set(event.getSession()));
+            return mavenSession.get();
+        }
+
+    }
+
 
     /**
      * The simplest possible Maven project.
@@ -40,21 +211,21 @@ class MavenProjectAnalyzerTest {
     void projectWithSinglePom() {
         @Language("xml")
         String singlePom =
-            """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                <modelVersion>4.0.0</modelVersion>
-                <groupId>com.acme</groupId>
-                <version>0.1.0-SNAPSHOT</version>
-                <artifactId>example</artifactId>
-            </project>
-            """;
+                """
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <groupId>com.acme</groupId>
+                            <version>0.1.0-SNAPSHOT</version>
+                            <artifactId>example</artifactId>
+                        </project>
+                        """;
 
         List<Resource> resources = List.of(new DummyResource(Path.of("pom.xml"), singlePom));
         MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
         Path baseDir = Path.of(".").toAbsolutePath().normalize();
-        List<MavenProject> sortedProjects = sut.getSortedProjects(baseDir, resources);
+        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(baseDir, resources);
         assertThat(sortedProjects).hasSize(1);
     }
 
@@ -67,35 +238,35 @@ class MavenProjectAnalyzerTest {
         @Language("xml")
         String parentPom =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>com.acme</groupId>
-                    <artifactId>parent</artifactId>
-                    <version>0.1.0-SNAPSHOT</version>
-                    <packaging>pom</packaging>
-                    <modules>
-                        <module>example</module>
-                    </modules>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <groupId>com.acme</groupId>
+                            <artifactId>parent</artifactId>
+                            <version>0.1.0-SNAPSHOT</version>
+                            <packaging>pom</packaging>
+                            <modules>
+                                <module>example</module>
+                            </modules>
+                        </project>
+                        """;
 
         @Language("xml")
         String modulePom =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.acme</groupId>
-                        <artifactId>parent</artifactId>
-                        <version>0.1.0-SNAPSHOT</version>
-                    </parent>
-                    <artifactId>example</artifactId>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <parent>
+                                <groupId>com.acme</groupId>
+                                <artifactId>parent</artifactId>
+                                <version>0.1.0-SNAPSHOT</version>
+                            </parent>
+                            <artifactId>example</artifactId>
+                        </project>
+                        """;
 
         List<Resource> resources = List.of(
                 new DummyResource(Path.of("pom.xml"), parentPom),
@@ -103,7 +274,7 @@ class MavenProjectAnalyzerTest {
         );
 
         MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
-        List<MavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
+        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         assertThat(sortedProjects).hasSize(2);
 
@@ -124,48 +295,48 @@ class MavenProjectAnalyzerTest {
         @Language("xml")
         String parentPom =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>com.acme</groupId>
-                    <artifactId>parent</artifactId>
-                    <version>0.1.0-SNAPSHOT</version>
-                    <packaging>pom</packaging>
-                    <modules>
-                        <module>example</module>
-                    </modules>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <groupId>com.acme</groupId>
+                            <artifactId>parent</artifactId>
+                            <version>0.1.0-SNAPSHOT</version>
+                            <packaging>pom</packaging>
+                            <modules>
+                                <module>example</module>
+                            </modules>
+                        </project>
+                        """;
 
         @Language("xml")
         String modulePom =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.acme</groupId>
-                        <artifactId>parent</artifactId>
-                        <version>0.1.0-SNAPSHOT</version>
-                    </parent>
-                    <artifactId>example</artifactId>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <parent>
+                                <groupId>com.acme</groupId>
+                                <artifactId>parent</artifactId>
+                                <version>0.1.0-SNAPSHOT</version>
+                            </parent>
+                            <artifactId>example</artifactId>
+                        </project>
+                        """;
 
         @Language("xml")
         String danglingPom =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>com.acme</groupId>
-                    <artifactId>dangling</artifactId>
-                    <version>0.1.0-SNAPSHOT</version>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <groupId>com.acme</groupId>
+                            <artifactId>dangling</artifactId>
+                            <version>0.1.0-SNAPSHOT</version>
+                        </project>
+                        """;
 
         List<Resource> resources = List.of(
                 new DummyResource(Path.of("pom.xml"), parentPom),
@@ -174,7 +345,7 @@ class MavenProjectAnalyzerTest {
         );
 
         MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
-        List<MavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
+        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         assertThat(sortedProjects).hasSize(2);
 
@@ -196,55 +367,55 @@ class MavenProjectAnalyzerTest {
         @Language("xml")
         String parentPom =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>com.acme</groupId>
-                    <artifactId>parent</artifactId>
-                    <version>0.1.0-SNAPSHOT</version>
-                    <packaging>pom</packaging>
-                    <modules>
-                        <module>example</module>
-                    </modules>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <groupId>com.acme</groupId>
+                            <artifactId>parent</artifactId>
+                            <version>0.1.0-SNAPSHOT</version>
+                            <packaging>pom</packaging>
+                            <modules>
+                                <module>example</module>
+                            </modules>
+                        </project>
+                        """;
 
         @Language("xml")
         String modulePom =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.acme</groupId>
-                        <artifactId>parent</artifactId>
-                        <version>0.1.0-SNAPSHOT</version>
-                    </parent>
-                    <artifactId>example</artifactId>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.acme</groupId>
-                            <artifactId>dangling</artifactId>
-                            <version>0.1.0-SNAPSHOT</version>
-                        </dependency>
-                    </dependencies>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <parent>
+                                <groupId>com.acme</groupId>
+                                <artifactId>parent</artifactId>
+                                <version>0.1.0-SNAPSHOT</version>
+                            </parent>
+                            <artifactId>example</artifactId>
+                            <dependencies>
+                                <dependency>
+                                    <groupId>com.acme</groupId>
+                                    <artifactId>dangling</artifactId>
+                                    <version>0.1.0-SNAPSHOT</version>
+                                </dependency>
+                            </dependencies>
+                        </project>
+                        """;
 
         @Language("xml")
         String danglingPom =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>com.acme</groupId>
-                    <artifactId>dangling</artifactId>
-                    <version>0.1.0-SNAPSHOT</version>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <groupId>com.acme</groupId>
+                            <artifactId>dangling</artifactId>
+                            <version>0.1.0-SNAPSHOT</version>
+                        </project>
+                        """;
 
         List<Resource> resources = List.of(
                 new DummyResource(Path.of("pom.xml"), parentPom),
@@ -253,7 +424,7 @@ class MavenProjectAnalyzerTest {
         );
 
         MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
-        List<MavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
+        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         assertThat(sortedProjects).hasSize(2);
 
@@ -343,7 +514,7 @@ class MavenProjectAnalyzerTest {
         );
 
         MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
-        List<MavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
+        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         // Returned ordered
         assertThat(sortedProjects).hasSize(4);
@@ -453,7 +624,7 @@ class MavenProjectAnalyzerTest {
 
 
         // Provided unordered
-        List<MavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
+        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         // Expected order is parent, module-b, module-c, module-a
         assertThat(sortedProjects).hasSize(4);

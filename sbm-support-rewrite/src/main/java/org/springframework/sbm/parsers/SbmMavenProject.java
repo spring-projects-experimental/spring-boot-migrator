@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers.maven;
+package org.springframework.sbm.parsers;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Plugin;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.Properties;
 
 
 @Getter
@@ -35,32 +34,34 @@ import java.util.Set;
 /**
  * @author Fabian Krüger
  */
-public class MavenProject {
+public class SbmMavenProject {
 
     private final Path projectRoot;
     private final Resource pomFile;
     // FIXME: 945 temporary method, model should nopt come from Maven
-    private Model pomModel;
+    private final Model pomModel;
+    private List<SbmMavenProject> collectedProjects = new ArrayList<>();
 
-    public MavenProject(Path projectRoot, Resource pomFile) {
+    public SbmMavenProject(Path projectRoot, Resource pomFile, Model pomModel) {
         this.projectRoot = projectRoot;
         this.pomFile = pomFile;
+        this.pomModel = pomModel;
     }
 
-    @Deprecated(forRemoval = true)
     public File getFile() {
-        return null;
-    }
-
-    public void setPluginArtifacts(Set<Object> of) {
+        return ResourceUtil.getPath(pomFile).toFile();
     }
 
     public Path getBasedir() {
         return pomFile == null ? null : ResourceUtil.getPath(pomFile).getParent();
     }
 
-    public List<MavenProject> getCollectedProjects() {
-        return null;
+    public void setCollectedProjects(List<SbmMavenProject> collected) {
+        this.collectedProjects = collected;
+    }
+
+    public List<SbmMavenProject> getCollectedProjects() {
+        return collectedProjects;
     }
 
     public Resource getResource() {
@@ -82,4 +83,41 @@ public class MavenProject {
         return this.pomModel.getGroupId() + ":" + pomModel.getArtifactId();
     }
 
+    public Path getPomFilePath() {
+        return ResourceUtil.getPath(pomFile);
+    }
+
+    public Plugin getPlugin(String s) {
+        return pomModel.getBuild() == null ? null : pomModel.getBuild().getPluginsAsMap().get(s);
+    }
+
+    public Properties getProperties() {
+        return pomModel.getProperties();
+    }
+
+    public MavenRuntimeInformation getMavenRuntimeInformation() {
+        // FIXME: 945 implement this
+        return new MavenRuntimeInformation();
+    }
+
+    public String getName() {
+        return pomModel.getName();
+    }
+
+    public String getGroupId() {
+        return pomModel.getGroupId() == null ? pomModel.getParent().getGroupId() : pomModel.getGroupId();
+    }
+
+    public String getArtifactId() {
+        return pomModel.getArtifactId();
+    }
+
+    public String getVersion() {
+        return pomModel.getVersion();
+    }
+
+    @Override
+    public String toString() {
+        return pomModel.getGroupId() == null ? pomModel.getParent().getGroupId() : pomModel.getGroupId() + ":" + pomModel.getArtifactId();
+    }
 }

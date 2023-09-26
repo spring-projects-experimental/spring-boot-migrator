@@ -21,12 +21,10 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.maven.ResourceParser;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.maven.MavenProject;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
@@ -73,11 +71,11 @@ public class SourceFileParser {
     }
 
     /**
-     * {@link org.openrewrite.maven.MavenMojoProjectParser#listSourceFiles(MavenProject, Xml.Document, List, List, ExecutionContext)}
+     * {@link org.openrewrite.maven.MavenMojoProjectParser#listSourceFiles(SbmMavenProject, Xml.Document, List, List, ExecutionContext)}
      */
     private List<SourceFile> parseModuleSourceFiles(
             List<Resource> resources,
-            MavenProject mavenProject,
+            SbmMavenProject sbmMavenProject,
             Xml.Document moduleBuildFile,
             List<Marker> provenanceMarkers,
             List<NamedStyles> styles,
@@ -97,9 +95,9 @@ public class SourceFileParser {
                 .styles(styles)
                 .logCompilationWarningsAndErrors(false);
 
-        Path buildFilePath = mavenProject.getBasedir().resolve(moduleBuildFile.getSourcePath());
+        Path buildFilePath = sbmMavenProject.getBasedir().resolve(moduleBuildFile.getSourcePath());
         // these paths will be ignored by ResourceParser
-        Set<Path> skipResourceScanDirs = pathsToOtherMavenProjects(mavenProject, buildFilePath);
+        Set<Path> skipResourceScanDirs = pathsToOtherMavenProjects(sbmMavenProject, buildFilePath);
         ResourceParser rp = new ResourceParser(
                 baseDir,
                 new Slf4jToMavenLoggerAdapter(log),
@@ -113,8 +111,8 @@ public class SourceFileParser {
         // 155:156: parse main and test sources
         Set<Path> alreadyParsed = new HashSet<>();
         alreadyParsed.add(baseDir.resolve(moduleBuildFile.getSourcePath()));
-        List<SourceFile> mainSources = parseMainSources(baseDir, mavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
-        List<SourceFile> testSources = parseTestSources(baseDir, mavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
+        List<SourceFile> mainSources = parseMainSources(baseDir, sbmMavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
+        List<SourceFile> testSources = parseTestSources(baseDir, sbmMavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
 
         alreadyParsed.addAll(skipResourceScanDirs);
         // 171:175
@@ -149,20 +147,20 @@ public class SourceFileParser {
                 .noneMatch(pm -> pm.matches(baseDir.resolve(s.getSourcePath()).toAbsolutePath().normalize()));
     }
 
-    private List<SourceFile> parseTestSources(Path baseDir, MavenProject mavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
-        return mavenMojoProjectParserPrivateMethods.processTestSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, mavenProject);
+    private List<SourceFile> parseTestSources(Path baseDir, SbmMavenProject sbmMavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
+        return mavenMojoProjectParserPrivateMethods.processTestSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, sbmMavenProject);
     }
 
     /**
      */
-    private List<SourceFile> parseMainSources(Path baseDir, MavenProject mavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
-        // MavenMojoProjectParser#processMainSources(..) takes MavenProject
+    private List<SourceFile> parseMainSources(Path baseDir, SbmMavenProject sbmMavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
+        // MavenMojoProjectParser#processMainSources(..) takes SbmMavenProject
         // it reads from it:
-        // - mavenProject.getBuild().getDirectory()
-        // - mavenProject.getBuild().getSourceDirectory()
-        // - mavenProject.getCompileClasspathElements() --> The classpath of the given project/module
-        // - mavenProject.getBasedir().toPath()
-        return mavenMojoProjectParserPrivateMethods.processMainSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, mavenProject);
+        // - sbmMavenProject.getBuild().getDirectory()
+        // - sbmMavenProject.getBuild().getSourceDirectory()
+        // - sbmMavenProject.getCompileClasspathElements() --> The classpath of the given project/module
+        // - sbmMavenProject.getBasedir().toPath()
+        return mavenMojoProjectParserPrivateMethods.processMainSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, sbmMavenProject);
 //        return invokeProcessMethod(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processMainSources");
     }
 
@@ -172,15 +170,15 @@ public class SourceFileParser {
 
 
     /**
-     * private Set<Path> pathsToOtherMavenProjects(MavenProject mavenProject) {
+     * private Set<Path> pathsToOtherMavenProjects(SbmMavenProject sbmMavenProject) {
      * return mavenSession.getProjects().stream()
-     * .filter(o -> o != mavenProject)
+     * .filter(o -> o != sbmMavenProject)
      * .map(o -> o.getBasedir().toPath())
      * .collect(Collectors.toSet());
      * }
      */
-    private Set<Path> pathsToOtherMavenProjects(MavenProject mavenProject, Path moduleBuildFile) {
-        return mavenProject.getCollectedProjects().stream()
+    private Set<Path> pathsToOtherMavenProjects(SbmMavenProject sbmMavenProject, Path moduleBuildFile) {
+        return sbmMavenProject.getCollectedProjects().stream()
                 .filter(p -> !p.getFile().toPath().equals(moduleBuildFile))
                 .map(p -> p.getFile().toPath().getParent())
                 .collect(Collectors.toSet());

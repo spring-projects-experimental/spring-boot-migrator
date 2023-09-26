@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers.maven;
+package org.springframework.sbm.parsers;
 
 import org.apache.maven.model.*;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -39,7 +39,7 @@ public class MavenProjectAnalyzer {
     public static final String POM_XML = "pom.xml";
     public static final MavenXpp3Reader XPP_3_READER = new MavenXpp3Reader();
 
-    public List<MavenProject> getSortedProjects(Path baseDir, List<Resource> resources) {
+    public List<SbmMavenProject> getSortedProjects(Path baseDir, List<Resource> resources) {
 
         List<Resource> allPomFiles = resources.stream().filter(r -> ResourceUtil.getPath(r).getFileName().toString().equals(POM_XML)).toList();
 
@@ -51,22 +51,27 @@ public class MavenProjectAnalyzer {
         Model rootPomModel = new Model(rootPom);
 
         if (isSingleModuleProject(rootPomModel)) {
-            return List.of(new MavenProject(baseDir, rootPom));
+            return List.of(new SbmMavenProject(baseDir, rootPom, rootPomModel));
         }
         List<Model> reactorModels = new ArrayList<>();
-        recursivelyFindReactorModules(baseDir, reactorModels, allPomFiles, rootPomModel);
+        recursivelyFindReactorModules(baseDir, null, reactorModels, allPomFiles, rootPomModel);
         List<Model> sortedModels = sortModels(reactorModels);
         return map(baseDir, sortedModels);
     }
 
-    private List<MavenProject> map(Path baseDir, List<Model> sortedModels) {
-        return sortedModels.stream().map(m -> {
-                    return new MavenProject(baseDir, m.getResource());
-                })
-                .toList();
+    private List<SbmMavenProject> map(Path baseDir, List<Model> sortedModels) {
+        List<SbmMavenProject> sbmMavenProjects = new ArrayList<>();
+                sortedModels.forEach(m -> {
+                    sbmMavenProjects.add(new SbmMavenProject(baseDir, m.getResource(), m));
+                });
+        // set all non parent poms as collected projects for root parent pom
+        List<SbmMavenProject> collected = new ArrayList<>(sbmMavenProjects);
+        collected.remove(0);
+        sbmMavenProjects.get(0).setCollectedProjects(collected);
+        return sbmMavenProjects;
     }
 
-    private List<Model> recursivelyFindReactorModules(Path baseDir, List<Model> reactorModels, List<Resource> allPomFiles, Model pomModel) {
+    private List<Model> recursivelyFindReactorModules(Path baseDir, String path, List<Model> reactorModels, List<Resource> allPomFiles, Model pomModel) {
         // TODO: verify given module is root pom
 
         reactorModels.add(pomModel);
@@ -75,14 +80,17 @@ public class MavenProjectAnalyzer {
 
         moduleNames.stream()
                 .forEach(moduleName -> {
+
+                    String modulePathSegment = path == null ? moduleName : path + "/" + moduleName;
+
                     allPomFiles.stream()
                             .filter(resource -> {
-                                String modulePath = baseDir.resolve(moduleName).resolve(POM_XML).toAbsolutePath().normalize().toString();
+                                String modulePath = baseDir.resolve(modulePathSegment).resolve(POM_XML).toAbsolutePath().normalize().toString();
                                 String resourcePath = ResourceUtil.getPath(resource).toAbsolutePath().normalize().toString();
                                 return resourcePath.equals(modulePath);
                             })
                             .map(Model::new)
-                            .forEach(m -> recursivelyFindReactorModules(baseDir, reactorModels, allPomFiles, m).stream());
+                            .forEach(m -> recursivelyFindReactorModules(baseDir, modulePathSegment,  reactorModels, allPomFiles, m).stream());
                 });
         return reactorModels;
     }
@@ -136,17 +144,12 @@ public class MavenProjectAnalyzer {
                             return -1;
                         } else {
                             // default is order as given by reactorModels
-                            return Integer.compare(reactorModels.indexOf(e1.getKey()), reactorModels.indexOf(e2.getKey()));
+                            return Integer.compare(reactorModels.indexOf(e2.getKey()), reactorModels.indexOf(e1.getKey()));
                         }
                     }
                 })
                 .forEach(e -> sortedModels.add(e.getKey()));
         return sortedModels;
-    }
-
-    private static Comparator<Map.Entry<Model, List<Model>>> sort(Map.Entry<Model, List<Model>> e1, Map.Entry<Model, List<Model>> e2) {
-
-        return Comparator.comparingInt(e -> e.getValue().size());
     }
 
     private void addToDependants(Model model, Map<Model, List<Model>> dependsOn, Model dependantModel) {
@@ -183,6 +186,11 @@ public class MavenProjectAnalyzer {
             } catch (XmlPullParserException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        @Override
+        public String toString() {
+            return (delegate.getGroupId() == null ? delegate.getParent().getGroupId() : delegate.getGroupId()) + ":" + delegate.getArtifactId();
         }
 
         public Resource getResource() {

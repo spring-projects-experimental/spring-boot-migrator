@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers.maven;
-
-import org.openrewrite.marker.Marker;
-
-import java.util.List;
+package org.springframework.sbm.parsers;
 
 /**
  * @author Fabian Krüger
  */
-public class MavenProvenanceMarkerFactory {
-    public List<Marker> generateProvenance(MavenProject mavenProject) {
-        return null;
+public class MavenRuntimeInformation {
+    public String getMavenVersion() {
+        // FIXME: 945 implement this
+        return "3.9.1";
     }
 }

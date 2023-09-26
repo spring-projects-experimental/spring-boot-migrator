@@ -36,8 +36,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
-import org.springframework.sbm.parsers.maven.MavenProject;
-import org.springframework.sbm.parsers.maven.MavenProjectAnalyzer;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.util.ReflectionUtils;
@@ -117,7 +115,7 @@ public class RewriteProjectParser {
      * processMainSources()
      * processTestSources()
      *
-     * @see MavenMojoProjectParser#listSourceFiles(MavenProject, List, ExecutionContext)
+     * @see MavenMojoProjectParser#listSourceFiles(SbmMavenProject, List, ExecutionContext)
      */
     public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources, ExecutionContext executionContext) {
         scanScope.clear(beanFactory);
@@ -139,13 +137,15 @@ public class RewriteProjectParser {
 
         AtomicReference<RewriteProjectParsingResult> atomicReference = new AtomicReference<>();
 
-        withMavenSession(baseDir, mavenSession -> {
+//        withMavenSession(baseDir, mavenSession -> {
             // Get the ordered list of projects
             // TODO: #945 - replace with custom sorter
-            // TODO: #945 Replace MavenProject
-            mavenSession.getProjectDependencyGraph().getSortedProjects();
-            List<MavenProject> sortedProjectsList = mavenProjectAnalyzer.getSortedProjects(baseDir, resources); // mavenSession.getProjectDependencyGraph().getSortedProjects();
+            // TODO: #945 Replace SbmMavenProject
+//            mavenSession.getProjectDependencyGraph().getSortedProjects();
+
+            List<SbmMavenProject> sortedProjectsList = mavenProjectAnalyzer.getSortedProjects(baseDir, resources); // mavenSession.getProjectDependencyGraph().getSortedProjects();
             // SortedProjects makes downstream components independent of Maven classes
+            // TODO: 945 Is SortedProjects still required?
             SortedProjects mavenInfos = new SortedProjects(resources, sortedProjectsList, List.of("default"));
 
 //            List<Resource> sortedBuildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
@@ -174,7 +174,7 @@ public class RewriteProjectParser {
             eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
 
             atomicReference.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
-        });
+//        });
 
         return atomicReference.get();
     }
