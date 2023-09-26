@@ -25,7 +25,6 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.codehaus.plexus.PlexusContainer;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.maven.MavenMojoProjectParser;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.Collection;

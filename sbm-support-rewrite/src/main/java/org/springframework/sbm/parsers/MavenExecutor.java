@@ -22,7 +22,7 @@ import org.apache.maven.execution.*;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.springframework.stereotype.Component;
+import org.springframework.sbm.parsers.MavenExecutionRequestFactory;
 
 import java.nio.file.Path;
 import java.util.List;
