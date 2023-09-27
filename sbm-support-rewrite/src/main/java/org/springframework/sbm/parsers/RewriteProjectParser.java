@@ -70,10 +70,9 @@ import java.util.stream.Stream;
  *  }
  * </pre>
  *
+ * @author Fabian Krüger
  * @see RewriteMavenProjectParser
  * @see org.springframework.sbm.recipes.RewriteRecipeDiscovery
- *
- * @author Fabian Krüger
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -127,6 +126,7 @@ public class RewriteProjectParser {
             givenBaseDir = givenBaseDir.toAbsolutePath().normalize();
         }
         final Path baseDir = givenBaseDir;
+
         // FIXME: ... WARN 30694 --- [           main] .m.p.i.DeprecatedCoreExpressionValidator : Parameter 'local' is deprecated core expression; Avoid use of ArtifactRepository type. If you need access to local repository, switch to '${repositorySystemSession}' expression and get LRM from it instead.
         MavenExecutionContextView.view(executionContext).setLocalRepository(new MavenRepository("local", "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository"), null, null, false, null, null, null));
         eventPublisher.publishEvent(new StartedParsingProjectEvent(resources));
@@ -141,53 +141,60 @@ public class RewriteProjectParser {
 //        AtomicReference<RewriteProjectParsingResult> atomicReference = new AtomicReference<>();
 
 //        withMavenSession(baseDir, mavenSession -> {
-            // Get the ordered list of projects
-            // TODO: #945 - replace with custom sorter
-            // TODO: #945 Replace SbmMavenProject
+        // Get the ordered list of projects
+        // TODO: #945 - replace with custom sorter
+        // TODO: #945 Replace SbmMavenProject
 //            mavenSession.getProjectDependencyGraph().getSortedProjects();
+        List<SbmMavenProject> sortedProjectsList = mavenProjectAnalyzer.getSortedProjects(baseDir, resources);
 
-            List<SbmMavenProject> sortedProjectsList = mavenProjectAnalyzer.getSortedProjects(baseDir, resources); // mavenSession.getProjectDependencyGraph().getSortedProjects();
-
-            // SortedProjects makes downstream components independent of Maven classes
-            // TODO: 945 Is SortedProjects still required?
-            SortedProjects mavenInfos = new SortedProjects(resources, sortedProjectsList, List.of("default"));
+        // SortedProjects makes downstream components independent of Maven classes
+        // TODO: 945 Is SortedProjects still required?
+        SortedProjects mavenInfos = new SortedProjects(resources, sortedProjectsList, List.of("default"));
 
 //            List<Resource> sortedBuildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
 
-            // generate provenance
-            Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, mavenInfos);
+        // generate provenance
+        Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, mavenInfos);
 
-            // 127: parse build files
-            Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, mavenInfos.getResources(), mavenInfos.getActiveProfiles(), executionContext, parserProperties.isSkipMavenParsing(), provenanceMarkers);
+        // 127: parse build files
+        Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, mavenInfos.getResources(), mavenInfos.getActiveProfiles(), executionContext, parserProperties.isSkipMavenParsing(), provenanceMarkers);
 
-            List<SourceFile> parsedAndSortedBuildFileDocuments = mavenInfos.getResources().stream()
-                    .map(r -> resourceToDocumentMap.get(ResourceUtil.getPath(r)))
-                    .map(SourceFile.class::cast)
-                    .peek(sourceFile -> addSourceFileToModel(baseDir, sortedProjectsList, sourceFile))
-                    .toList();
+        List<SourceFile> parsedAndSortedBuildFileDocuments = mavenInfos.getResources().stream()
+                .map(r -> resourceToDocumentMap.get(ResourceUtil.getPath(r)))
+                .map(SourceFile.class::cast)
+                // FIXME: 945 ugly hack
+                .peek(sourceFile -> addSourceFileToModel(baseDir, sortedProjectsList, sourceFile))
+                .toList();
 
-            // FIXME: 945 - classpath required
-            Map<Path, Pom> projectPoms = resourceToDocumentMap.entrySet().stream()
-                    .collect(Collectors.toMap(
-                            k -> k.getKey(),
-                            k -> k.getValue().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested()
-                    ));
+        // FIXME: 945 - classpath required
+        Map<Path, Pom> projectPoms = resourceToDocumentMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        k -> k.getKey(),
+                        k -> k.getValue().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested()
+                ));
 //            List<ResolvedDependency> resolvedDependencies = parsedAndSortedBuildFileDocuments.get(0).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().resolveDependencies(Scope.Compile, new MavenPomDownloader(projectPoms, executionContext), executionContext);
 
+        // Remove parsed files form resources
+        // TODO: 954 trying to fix already parsed first and then replace it
+//        Set<String> pomPaths = parsedAndSortedBuildFileDocuments.stream().map(s -> baseDir.resolve(s.getSourcePath()).normalize().toString()).collect(Collectors.toSet());
+//        Map<String, Resource> pathToResource = resourcesLeft.stream().collect(Collectors.toMap(
+//                r -> ResourceUtil.getPath(r).toString(),
+//                r -> r
+//        ));
+//        pomPaths.forEach(p -> resourcesLeft.remove(resourcesLeft.indexOf(pathToResource.get(p))));
 
-        // 128 : 131
-            log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
-            List<SourceFile> list = sourceFileParser.parseOtherSourceFiles(baseDir, mavenInfos, resourceToDocumentMap, resources, provenanceMarkers, styles, executionContext);
+        log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
+        List<SourceFile> list = sourceFileParser.parseOtherSourceFiles(baseDir, mavenInfos, resourceToDocumentMap, resources, provenanceMarkers, styles, executionContext);
 
 //        List<SourceFile> sourceFilesWithoutPoms = sourceFilesStream.filter(sf -> resourceToDocumentMap.keySet().contains(baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize())).toList();
-            List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();
-            resultingList.addAll(parsedAndSortedBuildFileDocuments);
-            resultingList.addAll(list);
-            List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
+        List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();
+        resultingList.addAll(parsedAndSortedBuildFileDocuments);
+        resultingList.addAll(list);
+        List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
 
-            eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
+        eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
 
-            return new RewriteProjectParsingResult(sourceFiles, executionContext);
+        return new RewriteProjectParsingResult(sourceFiles, executionContext);
 //        });
 
     }

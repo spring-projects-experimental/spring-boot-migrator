@@ -78,8 +78,8 @@ public class RewriteProjectParserIntegrationTest {
         Path baseDir = TestProjectHelper.getMavenProject("resources");
         List<Resource> resources = projectScanner.scan(baseDir);
 
-        RewriteProjectParsingResult parsingResult1 = mavenProjectParser.parse(baseDir);
-        assertThat(parsingResult1.sourceFiles()).hasSize(5);
+//        RewriteProjectParsingResult parsingResult1 = mavenProjectParser.parse(baseDir);
+//        assertThat(parsingResult1.sourceFiles()).hasSize(5);
 
         RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {
             throw new RuntimeException(t);

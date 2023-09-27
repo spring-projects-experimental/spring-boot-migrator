@@ -64,7 +64,6 @@ public class SortedProjects {
 
     public Resource getMatchingBuildFileResource(SbmMavenProject pom) {
         return resources.stream()
-                .peek(r -> System.out.println(ResourceUtil.getPath(r).toString() + "  -   " + pom.getPomFilePath().toString()))
                 .filter(r -> ResourceUtil.getPath(r).toString().equals(pom.getPomFilePath().toString()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Could not find a resource in the list of resources that matches the path of SbmMavenProject '%s'".formatted(pom.getPomFile().toString())));

@@ -49,8 +49,6 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
-
 /**
  * @author Fabian Krüger
  */
@@ -65,7 +63,7 @@ class MavenMojoProjectParserPrivateMethods {
     /**
      * process sources in src/main/java of current module.
      */
-    public List<SourceFile> processMainSources(Path baseDir, List<Resource> resources, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Resource> alreadyParsed, ExecutionContext executionContext, SbmMavenProject mavenProject) {
+    public List<SourceFile> processMainSources(Path baseDir, List<Resource> resources, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, RewriteResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, SbmMavenProject mavenProject) {
         log.info("Processing main sources in module '%s'".formatted(mavenProject.getModuleDir()));
         // FIXME: 945
 // Some annotation processors output generated sources to the /target directory. These are added for parsing but
@@ -73,8 +71,6 @@ class MavenMojoProjectParserPrivateMethods {
         List<Resource> javaSourcesInTarget = listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getBuildDirectory()));
         List<Resource> javaSourcesInMain = listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getSourceDirectory()));
         List<Resource> mainJavaSources = Stream.concat(javaSourcesInTarget.stream(),javaSourcesInMain.stream()).toList();
-
-        alreadyParsed.addAll(mainJavaSources);
 
         log.info("[%s] Parsing source files".formatted(mavenProject));
 
@@ -102,7 +98,8 @@ class MavenMojoProjectParserPrivateMethods {
 
         Stream<? extends SourceFile> cus = Stream.of(javaParserBuilder)
                 .map(JavaParser.Builder::build)
-                .flatMap(parser -> parser.parseInputs(inputs, baseDir, executionContext));
+                .flatMap(parser -> parser.parseInputs(inputs, baseDir, executionContext))
+                .peek(s -> alreadyParsed.add(baseDir.resolve(s.getSourcePath())));
 
         List<Marker> mainProjectProvenance = new ArrayList<>(provenanceMarkers);
         mainProjectProvenance.add(sourceSet("main", dependencies, typeCache));
@@ -118,7 +115,8 @@ class MavenMojoProjectParserPrivateMethods {
         Stream<SourceFile> sourceFiles = parsedJava.filter(s -> !s.getSourcePath().startsWith(buildDirectory));
 
         int sourcesParsedBefore = alreadyParsed.size();
-        Stream<SourceFile> parsedResourceFiles = rp.parse(mavenProject.getBasedir().resolve("src/main/resources"), alreadyParsed.stream().map(ResourceUtil::getPath).toList())
+        // FIXME: 945 alreadyParsed hack
+        Stream<SourceFile> parsedResourceFiles = rp.parse(mavenProject.getBasedir().resolve("src/main/resources"), resources, alreadyParsed)
                 .map(addProvenance(baseDir, mainProjectProvenance, null));
 
         log.debug("[%s] Scanned %d resource files in main scope.".formatted(mavenProject, (alreadyParsed.size() - sourcesParsedBefore)));
@@ -130,7 +128,7 @@ class MavenMojoProjectParserPrivateMethods {
     /**
      * Calls {@link MavenMojoProjectParser#processTestSources(SbmMavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
      */
-    public List<SourceFile> processTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Resource> alreadyParsed, ExecutionContext executionContext, SbmMavenProject mavenProject, List<Resource> resources) {
+    public List<SourceFile> processTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, SbmMavenProject mavenProject, List<Resource> resources) {
         List<Path> testDependencies = mavenProject.getTestClasspathElements();
 
         javaParserBuilder.classpath(testDependencies);
@@ -138,7 +136,7 @@ class MavenMojoProjectParserPrivateMethods {
         javaParserBuilder.typeCache(typeCache);
 
         List<Resource> testJavaSources = listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getTestSourceDirectory()));
-        alreadyParsed.addAll(testJavaSources);
+        alreadyParsed.addAll(testJavaSources.stream().map(ResourceUtil::getPath).toList());
 
         Iterable<Parser.Input> inputs = testJavaSources.stream()
                 .map(r -> new Parser.Input(ResourceUtil.getPath(r), () -> ResourceUtil.getInputStream(r)))
@@ -158,7 +156,7 @@ class MavenMojoProjectParserPrivateMethods {
 
         // Any resources parsed from "test/resources" should also have the test source set added to them.
         int sourcesParsedBefore = alreadyParsed.size();
-        Stream<SourceFile> parsedResourceFiles = rp.parse(mavenProject.getBasedir().resolve("src/test/resources"), alreadyParsed.stream().map(ResourceUtil::getPath).toList())
+        Stream<SourceFile> parsedResourceFiles = rp.parse(mavenProject.getBasedir().resolve("src/test/resources"), alreadyParsed)
                 .map(addProvenance(baseDir, markers, null));
         log.debug("[%s] Scanned %d resource files in test scope.".formatted(mavenProject, (alreadyParsed.size() - sourcesParsedBefore)));
         sourceFiles = Stream.concat(sourceFiles, parsedResourceFiles);

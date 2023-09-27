@@ -64,7 +64,7 @@ public class SourceFileParser {
             if(markers == null || markers.isEmpty()) {
                 log.warn("Could not find provenance markers for resource '%s'".formatted(mavenProject.getMatchingBuildFileResource(currentMavenProject)));
             }
-            List<SourceFile> sourceFiles = parseModuleSourceFiles(resources, mavenProject, currentMavenProject, moduleBuildFile, markers, styles, executionContext, baseDir);
+            List<SourceFile> sourceFiles = parseModuleSourceFiles(resources, mavenProject, mavenProject.getSortedProjects().get(0), moduleBuildFile, markers, styles, executionContext, baseDir);
             parsedSourceFiles.addAll(sourceFiles);
         });
 
@@ -101,37 +101,34 @@ public class SourceFileParser {
         // these paths will be ignored by ResourceParser
         Set<Path> skipResourceScanDirs = pathsToOtherMavenProjects(sbmMavenProject, buildFilePath);
         // FIXME: Why is skipResourceScanDirs required at all? Shouldn't the module know it's resources
-        ResourceParser rp = new ResourceParser(
+        RewriteResourceParser rp = new RewriteResourceParser(
                 baseDir,
                 new Slf4jToMavenLoggerAdapter(log),
                 parserProperties.getIgnoredPathPatterns(),
                 parserProperties.getPlainTextMasks(),
                 parserProperties.getSizeThresholdMb(),
                 skipResourceScanDirs,
-                javaParserBuilder.clone()
-        );
+                javaParserBuilder.clone(),
+                executionContext);
 
         // 155:156: parse main and test sources
-        Set<Resource> alreadyParsed = new HashSet<>();
+        Set<Path> alreadyParsed = new HashSet<>();
         Path moduleBuildFilePath = baseDir.resolve(moduleBuildFile.getSourcePath());
-        alreadyParsed.add(new FileSystemResource(moduleBuildFilePath));
+        alreadyParsed.add(moduleBuildFilePath);
+        alreadyParsed.addAll(skipResourceScanDirs);
         List<SourceFile> mainSources = parseMainSources(baseDir, sbmMavenProject, moduleBuildFile, resources, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
         List<SourceFile> testSources = parseTestSources(baseDir, sbmMavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext, resources);
+        // Collect the dirs of modules parsed in previous steps
 
-//      FIXME: 945   alreadyParsed.addAll(skipResourceScanDirs);
-
-        // 171:175
-        Stream<SourceFile> parsedResourceFiles = rp.parse(moduleBuildFilePath.getParent(), alreadyParsed.stream().map(ResourceUtil::getPath).toList())
+        // parse other project resources
+        Stream<SourceFile> parsedResourceFiles = rp.parse(moduleBuildFilePath.getParent(), resources, alreadyParsed)
                 // FIXME: handle generated sources
                 .map(mavenMojoProjectParserPrivateMethods.addProvenance(baseDir, provenanceMarkers, null));
-
         // 157:169
-        List<SourceFile> resourceSourceFiles = mergeAndFilterExcluded(baseDir, parserProperties.getIgnoredPathPatterns(), mainSources, testSources);
+        List<SourceFile> mainAndTestSources = mergeAndFilterExcluded(baseDir, parserProperties.getIgnoredPathPatterns(), mainSources, testSources);
         List<SourceFile> resourceFilesList = parsedResourceFiles.toList();
+        sourceFiles.addAll(mainAndTestSources);
         sourceFiles.addAll(resourceFilesList);
-        sourceFiles.addAll(resourceSourceFiles);
-        sourceFiles.addAll(mainSources);
-        sourceFiles.addAll(testSources);
 
         return sourceFiles;
     }
@@ -154,13 +151,13 @@ public class SourceFileParser {
                 .noneMatch(pm -> pm.matches(baseDir.resolve(s.getSourcePath()).toAbsolutePath().normalize()));
     }
 
-    private List<SourceFile> parseTestSources(Path baseDir, SbmMavenProject sbmMavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Resource> alreadyParsed, ExecutionContext executionContext, List<Resource> resources) {
+    private List<SourceFile> parseTestSources(Path baseDir, SbmMavenProject sbmMavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, List<Resource> resources) {
         return mavenMojoProjectParserPrivateMethods.processTestSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, sbmMavenProject, resources);
     }
 
     /**
      */
-    private List<SourceFile> parseMainSources(Path baseDir, SbmMavenProject sbmMavenProject, Xml.Document moduleBuildFile, List<Resource> resources, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Resource> alreadyParsed, ExecutionContext executionContext) {
+    private List<SourceFile> parseMainSources(Path baseDir, SbmMavenProject sbmMavenProject, Xml.Document moduleBuildFile, List<Resource> resources, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, RewriteResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
         // MavenMojoProjectParser#processMainSources(..) takes SbmMavenProject
         // it reads from it:
         // - sbmMavenProject.getBuild().getDirectory()
@@ -186,7 +183,7 @@ public class SourceFileParser {
      */
     private Set<Path> pathsToOtherMavenProjects(SbmMavenProject sbmMavenProject, Path moduleBuildFile) {
         return sbmMavenProject.getCollectedProjects().stream()
-                .filter(p -> !p.getFile().toPath().equals(moduleBuildFile))
+                .filter(p -> !p.getFile().toPath().toString().equals(moduleBuildFile.toString()))
                 .map(p -> p.getFile().toPath().getParent())
                 .collect(Collectors.toSet());
     }

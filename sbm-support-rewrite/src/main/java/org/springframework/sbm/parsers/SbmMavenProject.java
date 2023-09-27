@@ -158,6 +158,7 @@ public class SbmMavenProject {
                     .stream()
                     .filter(rd -> rd.getRepository() != null)
                     .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
+                    .filter(Objects::nonNull)
                     .distinct()
                     .toList();
         } else {
