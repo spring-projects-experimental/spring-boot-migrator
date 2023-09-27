@@ -116,7 +116,7 @@ class RewriteProjectParserTest {
                 mock(ConfigurableListableBeanFactory.class),
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
                 executionContext,
-                new MavenProjectAnalyzer()
+                new MavenProjectAnalyzer(mock(RewriteMavenArtifactDownloader.class))
         );
 
         List<String> parsedFiles = new ArrayList<>();

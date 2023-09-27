@@ -16,14 +16,15 @@
 
 package org.springframework.sbm.parsers;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -33,14 +34,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Fabian Krüger
  */
 class MavenProjectAnalyzerTest {
+
+    private MavenProjectAnalyzer sut;
+
+    @BeforeEach
+    void beforeEach() {
+        MavenArtifactDownloader rewriteMavenArtifactDownloader = mock(RewriteMavenArtifactDownloader.class);
+        sut = new MavenProjectAnalyzer(rewriteMavenArtifactDownloader);
+    }
 
     @Nested
     class CompareWithMaven {
@@ -151,7 +160,6 @@ class MavenProjectAnalyzerTest {
                     new DummyResource(baseDir.resolve("parent-b/module-1/pom.xml"), module1Pom)
             );
 
-            MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
             writeToDisk(baseDir, resources);
             MavenSession mavenSession = startMavenSession(baseDir);
 
@@ -223,7 +231,7 @@ class MavenProjectAnalyzerTest {
                         """;
 
         List<Resource> resources = List.of(new DummyResource(Path.of("pom.xml"), singlePom));
-        MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
+
         Path baseDir = Path.of(".").toAbsolutePath().normalize();
         List<SbmMavenProject> sortedProjects = sut.getSortedProjects(baseDir, resources);
         assertThat(sortedProjects).hasSize(1);
@@ -273,7 +281,7 @@ class MavenProjectAnalyzerTest {
                 new DummyResource(Path.of("example/pom.xml"), modulePom)
         );
 
-        MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
+
         List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         assertThat(sortedProjects).hasSize(2);
@@ -344,7 +352,7 @@ class MavenProjectAnalyzerTest {
                 new DummyResource(Path.of("dangling/pom.xml"), danglingPom)
         );
 
-        MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
+
         List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         assertThat(sortedProjects).hasSize(2);
@@ -423,7 +431,7 @@ class MavenProjectAnalyzerTest {
                 new DummyResource(Path.of("dangling/pom.xml"), danglingPom)
         );
 
-        MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
+
         List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         assertThat(sortedProjects).hasSize(2);
@@ -513,7 +521,7 @@ class MavenProjectAnalyzerTest {
                 new DummyResource(Path.of("pom.xml"), parentPom)
         );
 
-        MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
+
         List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         // Returned ordered
@@ -613,7 +621,7 @@ class MavenProjectAnalyzerTest {
                 </project>                         
                 """;
 
-        MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
+
 
         List<Resource> resources = List.of(
                 new DummyResource(Path.of("module-b/pom.xml"), moduleBPom),
@@ -721,7 +729,6 @@ class MavenProjectAnalyzerTest {
                 """;
 
         // Provided unordered
-        MavenProjectAnalyzer sut = new MavenProjectAnalyzer();
         List<MavenProjectAnalyzer.Model> models = List.of(
                 new MavenProjectAnalyzer.Model(new DummyResource(Path.of("module-b/pom.xml"), moduleBPom)),
                 new MavenProjectAnalyzer.Model(new DummyResource(Path.of("module-a/pom.xml"), moduleAPom)),

@@ -292,7 +292,7 @@ class RewriteMavenProjectParserTest {
                 beanFactory,
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
                 ctx,
-                new MavenProjectAnalyzer()
+                new MavenProjectAnalyzer(mock(RewriteMavenArtifactDownloader.class))
         );
 
         Set<String> ignoredPatters = Set.of();

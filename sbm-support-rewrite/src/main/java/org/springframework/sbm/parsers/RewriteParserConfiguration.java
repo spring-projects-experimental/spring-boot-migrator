@@ -146,8 +146,8 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
-    MavenProjectAnalyzer mavenProjectAnalyzer() {
-        return new MavenProjectAnalyzer();
+    MavenProjectAnalyzer mavenProjectAnalyzer(MavenArtifactDownloader artifactDownloader) {
+        return new MavenProjectAnalyzer(artifactDownloader);
     }
 
     @Bean

@@ -21,6 +21,7 @@ import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
 import org.apache.maven.settings.crypto.DefaultSettingsDecrypter;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.Tree;
 import org.openrewrite.internal.lang.Nullable;
@@ -64,64 +65,51 @@ class MavenMojoProjectParserPrivateMethods {
     /**
      * process sources in src/main/java of current module.
      */
-    public List<SourceFile> processMainSources(Path baseDir, List<Resource> resources, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, SbmMavenProject mavenProject) {
+    public List<SourceFile> processMainSources(Path baseDir, List<Resource> resources, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Resource> alreadyParsed, ExecutionContext executionContext, SbmMavenProject mavenProject) {
+        log.info("Processing main sources in module '%s'".formatted(mavenProject.getModuleDir()));
         // FIXME: 945
 // Some annotation processors output generated sources to the /target directory. These are added for parsing but
         // should be filtered out of the final SourceFile list.
-        List<Path> javaSourcesInTarget = listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getBuildDirectory()));
-        List<Path> javaSourcesInMain = listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getSourceDirectory()));
-        List<Path> mainJavaSources = Stream.concat(javaSourcesInTarget.stream(),javaSourcesInMain.stream()).toList();
+        List<Resource> javaSourcesInTarget = listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getBuildDirectory()));
+        List<Resource> javaSourcesInMain = listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getSourceDirectory()));
+        List<Resource> mainJavaSources = Stream.concat(javaSourcesInTarget.stream(),javaSourcesInMain.stream()).toList();
 
         alreadyParsed.addAll(mainJavaSources);
 
         log.info("[%s] Parsing source files".formatted(mavenProject));
+
         // FIXME 945 classpath
+        // - Resolve dependencies to non-reactor projects from Maven repository
+        // - Resolve dependencies to reactor projects by providing the sources
+        // javaParserBuilder.classpath(byte[])
 
-        /*
-        @Override
-        public Set<Path> getClasspath(Scope scope) {
-            Map<Scope, Set<Path>> resolvedDependenciesMap = getResolvedDependenciesMap();
-            Set<Path> classpath = resolvedDependenciesMap.entrySet().stream()
-                    .filter(e -> e.getKey().isInClasspathOf(scope))
-                    .map(e -> e.getValue())
-                    .flatMap(Set::stream)
-                    .collect(Collectors.toSet());
-            return classpath;
-        }
+        // we're processing a module here. The classpath of the module consists of all declared dependencies and their transitive dependencies too.
+        // For dependencies to projects that belong to the current rector...
+        // They'd either need to be built with Maven before to guarantee that the jars are installed to local Maven repo.
+        // Or, the classpath must be created from the sources of the project.
 
-        @Override
-        public Map<Scope, Set<Path>> getResolvedDependenciesMap() {
-            Map<Scope, Set<Path>> dependenciesMap = new HashMap<>();
-            Arrays.stream(Scope.values()).forEach(scope -> {
-                List<ResolvedDependency> resolvedDependencies = getPom().getDependencies().get(scope);
-                if(resolvedDependencies != null) {
-                    Set<Path> paths = resolvedDependencies
-                            .stream()
-                            .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
-                            .collect(Collectors.toSet());
-                    dependenciesMap.put(scope, paths);
-                }
-            });
-            return dependenciesMap;
-        }
-        */
 
-        List<Path> dependencies = mavenProject.getCompileClasspathElements().stream()
-                .distinct()
-                .map(Paths::get)
-                .collect(toList());
+        List<Path> dependencies = mavenProject.getCompileClasspathElements();
+
         javaParserBuilder.classpath(dependencies);
+
         JavaTypeCache typeCache = new JavaTypeCache();
         javaParserBuilder.typeCache(typeCache);
 
+        Iterable<Parser.Input> inputs = mainJavaSources.stream()
+                .map(r -> new Parser.Input(ResourceUtil.getPath(r), () -> ResourceUtil.getInputStream(r)))
+                .toList();
+
         Stream<? extends SourceFile> cus = Stream.of(javaParserBuilder)
                 .map(JavaParser.Builder::build)
-                .flatMap(parser -> parser.parse(mainJavaSources, baseDir, executionContext));
+                .flatMap(parser -> parser.parseInputs(inputs, baseDir, executionContext));
 
         List<Marker> mainProjectProvenance = new ArrayList<>(provenanceMarkers);
         mainProjectProvenance.add(sourceSet("main", dependencies, typeCache));
 
-        Stream<SourceFile> parsedJava = cus.map(addProvenance(baseDir, mainProjectProvenance, javaSourcesInTarget));
+        // FIXME: 945 Why target and not all main?
+        List<Path> parsedJavaPaths = javaSourcesInTarget.stream().map(ResourceUtil::getPath).toList();
+        Stream<SourceFile> parsedJava = cus.map(addProvenance(baseDir, mainProjectProvenance, parsedJavaPaths));
         log.debug("[%s] Scanned %d java source files in main scope.".formatted(mavenProject, mainJavaSources.size()));
 
         //Filter out any generated source files from the returned list, as we do not want to apply the recipe to the
@@ -130,7 +118,7 @@ class MavenMojoProjectParserPrivateMethods {
         Stream<SourceFile> sourceFiles = parsedJava.filter(s -> !s.getSourcePath().startsWith(buildDirectory));
 
         int sourcesParsedBefore = alreadyParsed.size();
-        Stream<SourceFile> parsedResourceFiles = rp.parse(mavenProject.getBasedir().resolve("src/main/resources"), alreadyParsed)
+        Stream<SourceFile> parsedResourceFiles = rp.parse(mavenProject.getBasedir().resolve("src/main/resources"), alreadyParsed.stream().map(ResourceUtil::getPath).toList())
                 .map(addProvenance(baseDir, mainProjectProvenance, null));
 
         log.debug("[%s] Scanned %d resource files in main scope.".formatted(mavenProject, (alreadyParsed.size() - sourcesParsedBefore)));
@@ -142,19 +130,23 @@ class MavenMojoProjectParserPrivateMethods {
     /**
      * Calls {@link MavenMojoProjectParser#processTestSources(SbmMavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
      */
-    public List<SourceFile> processTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, SbmMavenProject mavenProject, List<Resource> resources) {
+    public List<SourceFile> processTestSources(Path baseDir, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Resource> alreadyParsed, ExecutionContext executionContext, SbmMavenProject mavenProject, List<Resource> resources) {
         List<Path> testDependencies = mavenProject.getTestClasspathElements();
 
         javaParserBuilder.classpath(testDependencies);
         JavaTypeCache typeCache = new JavaTypeCache();
         javaParserBuilder.typeCache(typeCache);
 
-        List<Path> testJavaSources = listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getTestSourceDirectory()));
+        List<Resource> testJavaSources = listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getTestSourceDirectory()));
         alreadyParsed.addAll(testJavaSources);
+
+        Iterable<Parser.Input> inputs = testJavaSources.stream()
+                .map(r -> new Parser.Input(ResourceUtil.getPath(r), () -> ResourceUtil.getInputStream(r)))
+                .toList();
 
         Stream<? extends SourceFile> cus = Stream.of(javaParserBuilder)
                 .map(JavaParser.Builder::build)
-                .flatMap(parser -> parser.parse(testJavaSources, baseDir, executionContext));
+                .flatMap(parser -> parser.parseInputs(inputs, baseDir, executionContext));
 
         List<Marker> markers = new ArrayList<>(provenanceMarkers);
         markers.add(sourceSet("test", testDependencies, typeCache));
@@ -166,70 +158,12 @@ class MavenMojoProjectParserPrivateMethods {
 
         // Any resources parsed from "test/resources" should also have the test source set added to them.
         int sourcesParsedBefore = alreadyParsed.size();
-        Stream<SourceFile> parsedResourceFiles = rp.parse(mavenProject.getBasedir().resolve("src/test/resources"), alreadyParsed)
+        Stream<SourceFile> parsedResourceFiles = rp.parse(mavenProject.getBasedir().resolve("src/test/resources"), alreadyParsed.stream().map(ResourceUtil::getPath).toList())
                 .map(addProvenance(baseDir, markers, null));
         log.debug("[%s] Scanned %d resource files in test scope.".formatted(mavenProject, (alreadyParsed.size() - sourcesParsedBefore)));
         sourceFiles = Stream.concat(sourceFiles, parsedResourceFiles);
-        return sourceFiles.toList();
-    }
-
-    /**
-     * See {@link MavenMojoProjectParser#processMainSources(SbmMavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
-     */
-    @NotNull
-    private List<SourceFile> invokeProcessMethod(
-            Path baseDir,
-            SbmMavenProject mavenProject,
-            Xml.Document moduleBuildFile,
-            JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
-            ResourceParser resourceParser,
-            List<Marker> provenanceMarkers,
-            Set<Path> alreadyParsed,
-            ExecutionContext executionContext,
-            String methodName,
-            List<Resource> resources) {
-        // Some annotation processors output generated sources to the /target directory. These are added for parsing but
-        // should be filtered out of the final SourceFile list.
-        List<Path> generatedSourcePaths = listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getBuildDirectory()));
-        List<Path> mainJavaSources = Stream.concat(
-                generatedSourcePaths.stream(),
-                listJavaSources(resources, mavenProject.getBasedir().resolve(mavenProject.getSourceDirectory())).stream()
-        ).collect(toList());
-
-        alreadyParsed.addAll(mainJavaSources);
-
-        List<Path> dependencies = mavenProject.getCompileClasspathElements().stream()
-                .distinct()
-                .map(Paths::get)
-                .collect(toList());
-        javaParserBuilder.classpath(dependencies);
-        JavaTypeCache typeCache = new JavaTypeCache();
-        javaParserBuilder.typeCache(typeCache);
-
-        Stream<? extends SourceFile> cus = Stream.of(javaParserBuilder)
-                .map(JavaParser.Builder::build)
-                .flatMap(parser -> parser.parse(mainJavaSources, baseDir, executionContext));
-
-        List<Marker> mainProjectProvenance = new ArrayList<>(provenanceMarkers);
-        mainProjectProvenance.add(sourceSet("main", dependencies, typeCache));
-
-        Stream<SourceFile> parsedJava = cus.map(addProvenance(baseDir, mainProjectProvenance, generatedSourcePaths));
-
-        log.debug("[%s] Scanned %d java source files in main scope.".formatted(mavenProject.getArtifactId(), mainJavaSources.size()));
-
-        //Filter out any generated source files from the returned list, as we do not want to apply the recipe to the
-        //generated files.
-        Path buildDirectory = baseDir.relativize(Paths.get(mavenProject.getBuildDirectory()));
-        Stream<SourceFile> sourceFiles = parsedJava.filter(s -> !s.getSourcePath().startsWith(buildDirectory));
-
-        int sourcesParsedBefore = alreadyParsed.size();
-        Stream<SourceFile> parsedResourceFiles = resourceParser.parse(mavenProject.getBasedir().resolve("src/main/resources"), alreadyParsed)
-                .map(addProvenance(baseDir, mainProjectProvenance, null));
-
-        log.debug("[%s] Scanned %s resource files in main scope.".formatted(mavenProject.getArtifactId(), (alreadyParsed.size() - sourcesParsedBefore)));
-        // Any resources parsed from "main/resources" should also have the main source set added to them.
-        sourceFiles = Stream.concat(sourceFiles, parsedResourceFiles);
-        return sourceFiles.toList();
+        List<SourceFile> result = sourceFiles.toList();
+        return result;
     }
 
     @NotNull
@@ -239,22 +173,21 @@ class MavenMojoProjectParserPrivateMethods {
 
 
     // FIXME: 945 take Java sources from resources
-    private static List<Path> listJavaSources(List<Resource> resources, Path sourceDirectory) {
+    private static List<Resource> listJavaSources(List<Resource> resources, Path sourceDirectory) {
         return resources.stream()
-                .map(ResourceUtil::getPath)
                 .filter(whenIn(sourceDirectory))
                 .filter(whenFileNameEndsWithJava())
                 .toList();
     }
 
     @NotNull
-    private static Predicate<Path> whenFileNameEndsWithJava() {
-        return p -> p.getFileName().toString().endsWith(".java");
+    private static Predicate<Resource> whenFileNameEndsWithJava() {
+        return p -> ResourceUtil.getPath(p).getFileName().toString().endsWith(".java");
     }
 
     @NotNull
-    private static Predicate<Path> whenIn(Path sourceDirectory) {
-        return p -> p.toString().startsWith(sourceDirectory.toString());
+    private static Predicate<Resource> whenIn(Path sourceDirectory) {
+        return r -> ResourceUtil.getPath(r).toString().startsWith(sourceDirectory.toString());
     }
 
 

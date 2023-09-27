@@ -18,6 +18,7 @@ package org.springframework.sbm.parsers;
 import org.apache.maven.model.*;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
 
@@ -36,8 +37,13 @@ import java.util.stream.Collectors;
  */
 public class MavenProjectAnalyzer {
 
-    public static final String POM_XML = "pom.xml";
-    public static final MavenXpp3Reader XPP_3_READER = new MavenXpp3Reader();
+    private static final String POM_XML = "pom.xml";
+    private static final MavenXpp3Reader XPP_3_READER = new MavenXpp3Reader();
+    private final MavenArtifactDownloader rewriteMavenArtifactDownloader;
+
+    public MavenProjectAnalyzer(MavenArtifactDownloader rewriteMavenArtifactDownloader) {
+        this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
+    }
 
     public List<SbmMavenProject> getSortedProjects(Path baseDir, List<Resource> resources) {
 
@@ -51,7 +57,7 @@ public class MavenProjectAnalyzer {
         Model rootPomModel = new Model(rootPom);
 
         if (isSingleModuleProject(rootPomModel)) {
-            return List.of(new SbmMavenProject(baseDir, rootPom, rootPomModel));
+            return List.of(new SbmMavenProject(baseDir, rootPom, rootPomModel, rewriteMavenArtifactDownloader));
         }
         List<Model> reactorModels = new ArrayList<>();
         recursivelyFindReactorModules(baseDir, null, reactorModels, allPomFiles, rootPomModel);
@@ -62,7 +68,7 @@ public class MavenProjectAnalyzer {
     private List<SbmMavenProject> map(Path baseDir, List<Model> sortedModels) {
         List<SbmMavenProject> sbmMavenProjects = new ArrayList<>();
                 sortedModels.forEach(m -> {
-                    sbmMavenProjects.add(new SbmMavenProject(baseDir, m.getResource(), m));
+                    sbmMavenProjects.add(new SbmMavenProject(baseDir, m.getResource(), m, rewriteMavenArtifactDownloader));
                 });
         // set all non parent poms as collected projects for root parent pom
         List<SbmMavenProject> collected = new ArrayList<>(sbmMavenProjects);

@@ -163,6 +163,7 @@ public class RewriteProjectParser {
             List<SourceFile> parsedAndSortedBuildFileDocuments = mavenInfos.getResources().stream()
                     .map(r -> resourceToDocumentMap.get(ResourceUtil.getPath(r)))
                     .map(SourceFile.class::cast)
+                    .peek(sourceFile -> addSourceFileToModel(baseDir, sortedProjectsList, sourceFile))
                     .toList();
 
             // FIXME: 945 - classpath required
@@ -171,8 +172,7 @@ public class RewriteProjectParser {
                             k -> k.getKey(),
                             k -> k.getValue().getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested()
                     ));
-        try {
-            List<ResolvedDependency> resolvedDependencies = parsedAndSortedBuildFileDocuments.get(0).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().resolveDependencies(Scope.Compile, new MavenPomDownloader(projectPoms, executionContext), executionContext);
+//            List<ResolvedDependency> resolvedDependencies = parsedAndSortedBuildFileDocuments.get(0).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().resolveDependencies(Scope.Compile, new MavenPomDownloader(projectPoms, executionContext), executionContext);
 
 
         // 128 : 131
@@ -188,11 +188,14 @@ public class RewriteProjectParser {
             eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
 
             return new RewriteProjectParsingResult(sourceFiles, executionContext);
-        } catch (MavenDownloadingExceptions e) {
-            throw new RuntimeException(e);
-        }
 //        });
 
+    }
+
+    private static void addSourceFileToModel(Path baseDir, List<SbmMavenProject> sortedProjectsList, SourceFile s) {
+        sortedProjectsList.stream()
+                .filter(p -> ResourceUtil.getPath(p.getPomFile()).toString().equals(baseDir.resolve(s.getSourcePath()).toString()))
+                .forEach(p -> p.setSourceFile(s));
     }
 
     private void withMavenSession(Path baseDir, Consumer<MavenSession> consumer) {
