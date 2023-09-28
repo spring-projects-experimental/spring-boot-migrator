@@ -38,21 +38,18 @@ class ProvenanceMarkerFactory {
 
     /**
      * Reuses {@link MavenMojoProjectParser#generateProvenance(MavenProject)} to create {@link Marker}s for pom files in
-     * provided {@code pomFileResources}.
+     * provided {@code parserContext}.
      *
      * @return the map of pom.xml {@link Resource}s and their {@link Marker}s.
      */
-    public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, SortedProjects pomFileResources) {
-
-        RuntimeInformation runtimeInformation = new DefaultRuntimeInformation();
-        SettingsDecrypter settingsDecrypter = null;
+    public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, ParserContext parserContext) {
 
         Map<Path, List<Marker>> result = new HashMap<>();
 
-        pomFileResources.getSortedProjects().forEach(mavenProject -> {
+        parserContext.getSortedProjects().forEach(mavenProject -> {
             
             List<Marker> markers = markerFactory.generateProvenance(baseDir, mavenProject);
-            Resource resource = pomFileResources.getMatchingBuildFileResource(mavenProject);
+            Resource resource = parserContext.getMatchingBuildFileResource(mavenProject);
             Path path = ResourceUtil.getPath(resource);
             result.put(path, markers);
         });

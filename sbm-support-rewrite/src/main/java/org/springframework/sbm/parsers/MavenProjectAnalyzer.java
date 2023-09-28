@@ -57,19 +57,24 @@ public class MavenProjectAnalyzer {
         Model rootPomModel = new Model(rootPom);
 
         if (isSingleModuleProject(rootPomModel)) {
-            return List.of(new SbmMavenProject(baseDir, rootPom, rootPomModel, rewriteMavenArtifactDownloader));
+            return List.of(new SbmMavenProject(baseDir, rootPom, rootPomModel, rewriteMavenArtifactDownloader, resources));
         }
         List<Model> reactorModels = new ArrayList<>();
         recursivelyFindReactorModules(baseDir, null, reactorModels, allPomFiles, rootPomModel);
         List<Model> sortedModels = sortModels(reactorModels);
-        return map(baseDir, sortedModels);
+        return map(baseDir, resources, sortedModels);
     }
 
-    private List<SbmMavenProject> map(Path baseDir, List<Model> sortedModels) {
+    private List<SbmMavenProject> map(Path baseDir, List<Resource> resources, List<Model> sortedModels) {
         List<SbmMavenProject> sbmMavenProjects = new ArrayList<>();
-                sortedModels.forEach(m -> {
-                    sbmMavenProjects.add(new SbmMavenProject(baseDir, m.getResource(), m, rewriteMavenArtifactDownloader));
-                });
+        sortedModels
+                .stream()
+                .filter(Objects::nonNull)
+                .forEach(m -> {
+                    String projectDir = baseDir.resolve(m.getProjectDirectory().toString()).normalize().toString();
+                    List<Resource> filteredResources = resources.stream().filter(r -> ResourceUtil.getPath(r).toString().startsWith(projectDir)).toList();
+                    sbmMavenProjects.add(new SbmMavenProject(baseDir, m.getResource(), m, rewriteMavenArtifactDownloader, filteredResources));
+        });
         // set all non parent poms as collected projects for root parent pom
         List<SbmMavenProject> collected = new ArrayList<>(sbmMavenProjects);
         collected.remove(0);
@@ -79,8 +84,11 @@ public class MavenProjectAnalyzer {
 
     private List<Model> recursivelyFindReactorModules(Path baseDir, String path, List<Model> reactorModels, List<Resource> allPomFiles, Model pomModel) {
         // TODO: verify given module is root pom
-
-        reactorModels.add(pomModel);
+        if(pomModel != null) {
+            reactorModels.add(pomModel);
+        } else {
+            throw new IllegalStateException("PomModel was null.");
+        }
 
         List<String> moduleNames = pomModel.getModules();
 
@@ -179,6 +187,12 @@ public class MavenProjectAnalyzer {
         return !rootPomModel.getPackaging().equals("pom");
     }
 
+    public ParserContext createParserContext(Path baseDir, List<Resource> resources) {
+        List<SbmMavenProject> sortedProjectsList = getSortedProjects(baseDir, resources);
+        ParserContext parserContext = new ParserContext(resources, sortedProjectsList);
+        return parserContext;
+    }
+
     static class Model extends org.apache.maven.model.Model {
         private final Resource resource;
         private final org.apache.maven.model.Model delegate;
@@ -187,6 +201,7 @@ public class MavenProjectAnalyzer {
             this.resource = resource;
             try {
                 this.delegate = XPP_3_READER.read(ResourceUtil.getInputStream(resource));
+                this.delegate.setPomFile(resource.getFile());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (XmlPullParserException e) {
@@ -325,7 +340,7 @@ public class MavenProjectAnalyzer {
 
         @Override
         public File getProjectDirectory() {
-            return delegate.getProjectDirectory();
+            return delegate.getPomFile().toPath().getParent().toFile();
         }
 
         @Override

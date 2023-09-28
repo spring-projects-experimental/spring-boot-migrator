@@ -170,7 +170,7 @@ class ProvenanceMarkerFactoryTest {
             when(parserFactory.create(isA(Path.class), isA(DefaultRuntimeInformation.class), isNull())).thenReturn(mojoProjectParser);
 
 
-            SortedProjects sortedProjects = mock(SortedProjects.class);
+            ParserContext sortedProjects = mock(ParserContext.class);
             SbmMavenProject sbmMavenProject1 = mock(SbmMavenProject.class);
             SbmMavenProject sbmMavenProject2 = mock(SbmMavenProject.class);
             List<SbmMavenProject> sbmMavenProjects = List.of(

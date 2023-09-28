@@ -24,7 +24,6 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.ResourceParser;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
 
@@ -48,7 +47,7 @@ public class SourceFileParser {
 
     public List<SourceFile> parseOtherSourceFiles(
             Path baseDir,
-            SortedProjects mavenProject,
+            ParserContext parserContext,
             Map<Path, Xml.Document> pathToDocumentMap,
             List<Resource> resources,
             Map<Path, List<Marker>> provenanceMarkers,
@@ -57,14 +56,14 @@ public class SourceFileParser {
 
         Set<SourceFile> parsedSourceFiles = new LinkedHashSet<>();
 
-        mavenProject.getSortedProjects().forEach(currentMavenProject -> {
-            Resource moduleBuildFileResource = mavenProject.getMatchingBuildFileResource(currentMavenProject);
+        parserContext.getSortedProjects().forEach(currentMavenProject -> {
+            Resource moduleBuildFileResource = parserContext.getMatchingBuildFileResource(currentMavenProject);
             Xml.Document moduleBuildFile = pathToDocumentMap.get(ResourceUtil.getPath(moduleBuildFileResource));
             List<Marker> markers = provenanceMarkers.get(ResourceUtil.getPath(moduleBuildFileResource));
             if(markers == null || markers.isEmpty()) {
-                log.warn("Could not find provenance markers for resource '%s'".formatted(mavenProject.getMatchingBuildFileResource(currentMavenProject)));
+                log.warn("Could not find provenance markers for resource '%s'".formatted(parserContext.getMatchingBuildFileResource(currentMavenProject)));
             }
-            List<SourceFile> sourceFiles = parseModuleSourceFiles(resources, mavenProject, mavenProject.getSortedProjects().get(0), moduleBuildFile, markers, styles, executionContext, baseDir);
+            List<SourceFile> sourceFiles = parseModuleSourceFiles(resources, parserContext, currentMavenProject, moduleBuildFile, markers, styles, executionContext, baseDir);
             parsedSourceFiles.addAll(sourceFiles);
         });
 
@@ -76,14 +75,15 @@ public class SourceFileParser {
      */
     private List<SourceFile> parseModuleSourceFiles(
             List<Resource> resources,
-            SortedProjects mavenProject,
-            SbmMavenProject sbmMavenProject,
+            ParserContext parserContext,
+            SbmMavenProject currentProject,
             Xml.Document moduleBuildFile,
             List<Marker> provenanceMarkers,
             List<NamedStyles> styles,
             ExecutionContext executionContext,
             Path baseDir)
     {
+
         List<SourceFile> sourceFiles = new ArrayList<>();
         // 146:149: get source encoding from maven
         // TDOD:
@@ -97,9 +97,10 @@ public class SourceFileParser {
                 .styles(styles)
                 .logCompilationWarningsAndErrors(false);
 
-        Path buildFilePath = sbmMavenProject.getBasedir().resolve(moduleBuildFile.getSourcePath());
+        Path buildFilePath = currentProject.getBasedir().resolve(moduleBuildFile.getSourcePath());
+        log.info("Parsing module " + buildFilePath);
         // these paths will be ignored by ResourceParser
-        Set<Path> skipResourceScanDirs = pathsToOtherMavenProjects(sbmMavenProject, buildFilePath);
+        Set<Path> skipResourceScanDirs = pathsToOtherMavenProjects(currentProject, buildFilePath);
         // FIXME: Why is skipResourceScanDirs required at all? Shouldn't the module know it's resources
         RewriteResourceParser rp = new RewriteResourceParser(
                 baseDir,
@@ -116,8 +117,8 @@ public class SourceFileParser {
         Path moduleBuildFilePath = baseDir.resolve(moduleBuildFile.getSourcePath());
         alreadyParsed.add(moduleBuildFilePath);
         alreadyParsed.addAll(skipResourceScanDirs);
-        List<SourceFile> mainSources = parseMainSources(baseDir, sbmMavenProject, moduleBuildFile, resources, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
-        List<SourceFile> testSources = parseTestSources(baseDir, sbmMavenProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext, resources);
+        List<SourceFile> mainSources = parseMainSources(baseDir, currentProject, moduleBuildFile, resources, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
+        List<SourceFile> testSources = parseTestSources(baseDir, currentProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext, resources);
         // Collect the dirs of modules parsed in previous steps
 
         // parse other project resources
@@ -151,7 +152,7 @@ public class SourceFileParser {
                 .noneMatch(pm -> pm.matches(baseDir.resolve(s.getSourcePath()).toAbsolutePath().normalize()));
     }
 
-    private List<SourceFile> parseTestSources(Path baseDir, SbmMavenProject sbmMavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, List<Resource> resources) {
+    private List<SourceFile> parseTestSources(Path baseDir, SbmMavenProject sbmMavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, RewriteResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, List<Resource> resources) {
         return mavenMojoProjectParserPrivateMethods.processTestSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, sbmMavenProject, resources);
     }
 

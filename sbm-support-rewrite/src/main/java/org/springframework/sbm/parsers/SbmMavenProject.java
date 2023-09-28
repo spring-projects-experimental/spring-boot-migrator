@@ -29,7 +29,7 @@ import org.springframework.sbm.utils.ResourceUtil;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 
 @Getter
@@ -46,12 +46,14 @@ public class SbmMavenProject {
     private List<SbmMavenProject> collectedProjects = new ArrayList<>();
     private SourceFile sourceFile;
     private final MavenArtifactDownloader rewriteMavenArtifactDownloader;
+    private final List<Resource> resources;
 
-    public SbmMavenProject(Path projectRoot, Resource pomFile, Model pomModel, MavenArtifactDownloader rewriteMavenArtifactDownloader) {
+    public SbmMavenProject(Path projectRoot, Resource pomFile, Model pomModel, MavenArtifactDownloader rewriteMavenArtifactDownloader, List<Resource> resources) {
         this.projectRoot = projectRoot;
         this.pomFile = pomFile;
         this.pomModel = pomModel;
         this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
+        this.resources = resources;
     }
 
     public File getFile() {
@@ -59,6 +61,7 @@ public class SbmMavenProject {
     }
 
     public Path getBasedir() {
+        // TODO: 945 Check if this is correct
         return pomFile == null ? null : ResourceUtil.getPath(pomFile).getParent();
     }
 
@@ -173,5 +176,39 @@ public class SbmMavenProject {
 
     public void setSourceFile(SourceFile sourceFile) {
         this.sourceFile = sourceFile;
+    }
+
+    private static List<Resource> listJavaSources(List<Resource> resources, Path sourceDirectory) {
+        return resources.stream()
+                .filter(whenIn(sourceDirectory))
+                .filter(whenFileNameEndsWithJava())
+                .toList();
+    }
+
+    @NotNull
+    private static Predicate<Resource> whenFileNameEndsWithJava() {
+        return p -> ResourceUtil.getPath(p).getFileName().toString().endsWith(".java");
+    }
+
+    @NotNull
+    private static Predicate<Resource> whenIn(Path sourceDirectory) {
+        return r -> ResourceUtil.getPath(r).toString().startsWith(sourceDirectory.toString());
+    }
+
+
+    public List<Resource> getJavaSourcesInTarget() {
+        return listJavaSources(getResources(), getBasedir().resolve(getBuildDirectory()));
+    }
+
+    private List<Resource> getResources() {
+        return this.resources;
+    }
+
+    public List<Resource> getMainJavaSources() {
+        return listJavaSources(resources, getProjectRoot().resolve(getModuleDir()).resolve("src/main/java"));
+    }
+
+    public Path getModulePath() {
+        return projectRoot.resolve(getModuleDir());
     }
 }

@@ -80,10 +80,11 @@ public class RewriteResourceParser extends ResourceParser { // TODO: Only extend
     }
 
     public Stream<SourceFile> parse(Path searchDir, List<Resource> resources, Set<Path> alreadyParsed) {
+        // TODO: 945 remove/clean this up
         List<Resource> resourcesLeft = resources.stream()
                 .filter(r -> alreadyParsed.stream().noneMatch(path -> ResourceUtil.getPath(r).toString().startsWith(path.toString())))
                 .toList();
-        return this.parseSourceFiles(baseDir, resourcesLeft, alreadyParsed, executionContext);
+        return this.parseSourceFiles(searchDir, resourcesLeft, alreadyParsed, executionContext);
 
 
 //
@@ -117,7 +118,12 @@ public class RewriteResourceParser extends ResourceParser { // TODO: Only extend
         List<Path> quarkPaths = new ArrayList<>();
         List<Path> plainTextPaths = new ArrayList<>();
 
-        resources.forEach(resource -> {
+        List<Resource> filteredResources = resources
+                .stream()
+                .filter(r -> ResourceUtil.getPath(r).toString().startsWith(searchDir.toString()))
+                .toList();
+
+        filteredResources.forEach(resource -> {
             Path file = ResourceUtil.getPath(resource);
             Path dir = file.getParent();
             if (isExcluded(dir) || isIgnoredDirectory(searchDir, dir) || excludedDirectories.contains(dir) || alreadyParsed.contains(new FileSystemResource(dir)) || alreadyParsed.contains(resource)) {
@@ -167,13 +173,15 @@ public class RewriteResourceParser extends ResourceParser { // TODO: Only extend
 
         QuarkParser quarkParser = new QuarkParser();
 
-        resources.forEach(resource -> {
+        filteredResources
+                .forEach(resource -> {
             // See https://github.com/quarkusio/quarkus/blob/main/devtools/project-core-extension-codestarts/src/main/resources/codestarts/quarkus/extension-codestarts/resteasy-reactive-codestart/java/src/main/java/org/acme/%7Bresource.class-name%7D.tpl.qute.java
             // for an example of why we don't want qute files be parsed as java
             Path path = ResourceUtil.getPath(resource);
-            if (javaParser.accept(path) && !path.toString().endsWith(".qute.java")) {
-                javaPaths.add(path);
-            } else if (jsonParser.accept(path)) {
+//            if (javaParser.accept(path) && !path.toString().endsWith(".qute.java")) {
+//                javaPaths.add(path);
+//            }
+            if (jsonParser.accept(path)) {
                 jsonPaths.add(path);
             } else if (xmlParser.accept(path)) {
                 xmlPaths.add(path);
@@ -192,7 +200,7 @@ public class RewriteResourceParser extends ResourceParser { // TODO: Only extend
             }
         });
 
-        Map<Path, Resource> pathToResource = resources.stream().collect(Collectors.toMap(r -> ResourceUtil.getPath(r), r -> r));
+        Map<Path, Resource> pathToResource = filteredResources.stream().collect(Collectors.toMap(r -> ResourceUtil.getPath(r), r -> r));
 
         if (!javaPaths.isEmpty()) {
             List<Parser.Input> inputs = getInputs(pathToResource, javaPaths);

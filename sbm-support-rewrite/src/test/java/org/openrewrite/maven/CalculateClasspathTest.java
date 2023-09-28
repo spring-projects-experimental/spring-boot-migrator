@@ -18,6 +18,7 @@ package org.openrewrite.maven;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
@@ -48,7 +49,7 @@ public class CalculateClasspathTest {
 
     @Test
     @DisplayName("classpath for single-module project")
-    void classpathForSingleModuleProject() {
+    void classpathForSingleModuleProject(@TempDir Path tmpDir) {
         @Language("xml")
         String pom = """
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -100,7 +101,7 @@ public class CalculateClasspathTest {
                 }
                 """;
 
-        Path baseDir = Path.of("./target/example-1").toAbsolutePath().normalize();
+        Path baseDir = tmpDir.resolve("/example-1").toAbsolutePath().normalize();
         List<Resource> resources = List.of(
                 new DummyResource(baseDir.resolve("pom.xml"), pom),
                 new DummyResource(baseDir.resolve("src/main/java/com/example/MainClass.java"), mainClass),
