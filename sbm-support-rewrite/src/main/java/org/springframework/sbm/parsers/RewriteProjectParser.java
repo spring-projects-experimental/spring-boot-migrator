@@ -17,14 +17,10 @@ package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.AbstractRewriteMojo;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.tree.*;
 import org.openrewrite.style.NamedStyles;
@@ -68,14 +64,12 @@ import java.util.stream.Stream;
  * </pre>
  *
  * @author Fabian Krüger
- * @see RewriteMavenProjectParser
  * @see org.springframework.sbm.recipes.RewriteRecipeDiscovery
  */
 @Slf4j
 @RequiredArgsConstructor
 public class RewriteProjectParser {
 
-    private final MavenExecutor mavenExecutor;
     private final ProvenanceMarkerFactory provenanceMarkerFactory;
     private final BuildFileParser buildFileParser;
     private final SourceFileParser sourceFileParser;
@@ -179,32 +173,4 @@ public class RewriteProjectParser {
                 .filter(p -> ResourceUtil.getPath(p.getPomFile()).toString().equals(baseDir.resolve(s.getSourcePath()).toString()))
                 .forEach(p -> p.setSourceFile(s));
     }
-
-    private void withMavenSession(Path baseDir, Consumer<MavenSession> consumer) {
-        List<String> goals = List.of("clean", "package");
-        log.debug("Successfully finished goals %s".formatted(goals));
-        mavenExecutor.onProjectSucceededEvent(baseDir, goals, event -> consumer.accept(event.getSession()));
-    }
-
-    @org.jetbrains.annotations.Nullable
-    private static List<SourceFile> autoDetectStyles(Stream<SourceFile> sourceFilesStream) {
-        RewriteMojo dummyRewriteMojo = new RewriteMojo();
-        Method sourcesWithAutoDetectedStylesMethod = ReflectionUtils.findMethod(RewriteMojo.class, "sourcesWithAutoDetectedStyles");
-        ReflectionUtils.makeAccessible(sourcesWithAutoDetectedStylesMethod);
-        Object o = ReflectionUtils.invokeMethod(sourcesWithAutoDetectedStylesMethod, dummyRewriteMojo, sourceFilesStream);
-        List<SourceFile> sourceFiles = (List<SourceFile>) o;
-        return sourceFiles;
-    }
-
-    /**
-     * Extending {@code AbstractRewriteMojo} to open up protected method for reuse
-     */
-    static class RewriteMojo extends AbstractRewriteMojo {
-
-        @Override
-        public void execute() throws MojoExecutionException, MojoFailureException {
-
-        }
-    }
-
 }

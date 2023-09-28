@@ -15,10 +15,7 @@
  */
 package org.springframework.sbm.parsers;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
-import org.apache.maven.settings.crypto.DefaultSettingsDecrypter;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
@@ -31,18 +28,12 @@ import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.marker.Generated;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.Markers;
-import org.openrewrite.maven.MavenMojoProjectParser;
-import org.openrewrite.maven.ResourceParser;
-import org.openrewrite.maven.tree.ResolvedDependency;
-import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.xml.tree.Xml;
-import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
-import org.sonatype.plexus.components.cipher.PlexusCipherException;
-import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
 
-import java.nio.file.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -53,12 +44,35 @@ import java.util.stream.Stream;
  * @author Fabian Krüger
  */
 @Slf4j
-@RequiredArgsConstructor
-class MavenMojoProjectParserPrivateMethods {
+public class HelperWithoutAGoodName {
+    /**
+     * {@link MavenMojoProjectParser#addProvenance(Path, List, Collection)}
+     */
+    public <T extends
+            SourceFile> UnaryOperator<T> addProvenance(Path baseDir, List<Marker> provenance, @Nullable Collection<Path> generatedSources) {
+//        MavenMojoProjectParser mavenMojoProjectParser = createMavenMojoProjectParser(baseDir);
+//        Method method = ReflectionUtils.findMethod(MavenMojoProjectParser.class, "addProvenance", Path.class, List.class, Collection.class);
+//        ReflectionUtils.makeAccessible(method);
+//        if(method == null) {
+//            throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted("addProvenance", MavenMojoProjectParser.class.getName()));
+//        }
+//        Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser, baseDir, provenance, generatedSources);
+//        return (UnaryOperator<T>) result;
+        return (s) -> {
+            Markers markers = s.getMarkers();
 
-    private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
-    private final MavenArtifactDownloader artifactDownloader;
+            Marker marker;
+            for (Iterator var5 = provenance.iterator(); var5.hasNext(); markers = markers.addIfAbsent(marker)) {
+                marker = (Marker) var5.next();
+            }
 
+            if (generatedSources != null && generatedSources.contains(baseDir.resolve(s.getSourcePath()))) {
+                markers = markers.addIfAbsent(new Generated(Tree.randomId()));
+            }
+
+            return (T) s.withMarkers(markers);
+        };
+    }
 
     /**
      * process sources in src/main/java of current module.
@@ -141,6 +155,12 @@ class MavenMojoProjectParserPrivateMethods {
         return sourceFiles;
     }
 
+    @NotNull
+    private static JavaSourceSet sourceSet(String name, List<Path> dependencies, JavaTypeCache typeCache) {
+        return JavaSourceSet.build(name, dependencies, typeCache, false);
+    }
+
+
     /**
      * Calls {@link MavenMojoProjectParser#processTestSources(SbmMavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
      */
@@ -192,11 +212,6 @@ class MavenMojoProjectParserPrivateMethods {
         return result;
     }
 
-    @NotNull
-    private static JavaSourceSet sourceSet(String name, List<Path> dependencies, JavaTypeCache typeCache) {
-        return JavaSourceSet.build(name, dependencies, typeCache, false);
-    }
-
 
     // FIXME: 945 take Java sources from resources
     private static List<Resource> listJavaSources(List<Resource> resources, Path sourceDirectory) {
@@ -214,64 +229,5 @@ class MavenMojoProjectParserPrivateMethods {
     @NotNull
     private static Predicate<Resource> whenIn(Path sourceDirectory) {
         return r -> ResourceUtil.getPath(r).toString().startsWith(sourceDirectory.toString());
-    }
-
-
-    // TODO: 945 keep but move to a better class
-
-    /**
-     * {@link MavenMojoProjectParser#addProvenance(Path, List, Collection)}
-     */
-    public <T extends
-            SourceFile> UnaryOperator<T> addProvenance(Path baseDir, List<Marker> provenance, @Nullable Collection<Path> generatedSources) {
-//        MavenMojoProjectParser mavenMojoProjectParser = createMavenMojoProjectParser(baseDir);
-//        Method method = ReflectionUtils.findMethod(MavenMojoProjectParser.class, "addProvenance", Path.class, List.class, Collection.class);
-//        ReflectionUtils.makeAccessible(method);
-//        if(method == null) {
-//            throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted("addProvenance", MavenMojoProjectParser.class.getName()));
-//        }
-//        Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser, baseDir, provenance, generatedSources);
-//        return (UnaryOperator<T>) result;
-        return (s) -> {
-            Markers markers = s.getMarkers();
-
-            Marker marker;
-            for (Iterator var5 = provenance.iterator(); var5.hasNext(); markers = markers.addIfAbsent(marker)) {
-                marker = (Marker) var5.next();
-            }
-
-            if (generatedSources != null && generatedSources.contains(baseDir.resolve(s.getSourcePath()))) {
-                markers = markers.addIfAbsent(new Generated(Tree.randomId()));
-            }
-
-            return (T) s.withMarkers(markers);
-        };
-    }
-
-    private MavenMojoProjectParser createMavenMojoProjectParser(Path baseDir) {
-        try {
-            return mavenMojoProjectParserFactory.create(baseDir, new DefaultRuntimeInformation(), new DefaultSettingsDecrypter(new DefaultSecDispatcher(new DefaultPlexusCipher())));
-        } catch (PlexusCipherException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private List<Path> downloadArtifacts(List<ResolvedDependency> dependencies) {
-
-//        eventPublisher.publishEvent(new StartDownloadingDependenciesEvent(dependencies.size()));
-
-
-        List<Path> paths = dependencies
-                .stream()
-                .filter(d -> d.getRepository() != null)
-//                .peek(d -> eventPublisher.publishEvent(new StartDownloadingDependencyEvent(d.getRequested())))
-//                .parallel()
-                .map(artifactDownloader::downloadArtifact)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-//        eventPublisher.publishEvent(new FinishedDownloadingDependencies());
-
-        return paths;
     }
 }

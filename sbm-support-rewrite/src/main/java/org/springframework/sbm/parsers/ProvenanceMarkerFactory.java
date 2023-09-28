@@ -16,12 +16,7 @@
 package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.rtinfo.RuntimeInformation;
-import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
-import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.MavenMojoProjectParser;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
 

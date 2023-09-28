@@ -101,13 +101,12 @@ class RewriteProjectParserTest {
         Consumer<Throwable> onError = (t) -> {
             throw new RuntimeException(t);
         };
-        MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader(mavenArtifactCache, mavenSettings, onError));
+        HelperWithoutAGoodName mavenMojoParserPrivateMethods = new HelperWithoutAGoodName();
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
         RewriteProjectParser projectParser = new RewriteProjectParser(
-                new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
-                new SourceFileParser(parserProperties, mavenMojoParserPrivateMethods, new JavaParserBuilder()),
+                new SourceFileParser(parserProperties, mavenMojoParserPrivateMethods),
                 new StyleDetector(),
                 parserProperties,
                 mock(ParsingEventListener.class),

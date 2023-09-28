@@ -22,7 +22,9 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.tree.J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
 import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 import org.springframework.sbm.parsers.events.FinishedParsingResourceEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
@@ -39,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-@SpringBootTest(classes = {ScannerConfiguration.class})
+@SpringBootTest(classes = {SbmSupportRewriteConfiguration.class, SbmTestConfiguration.class})
 public class RewriteProjectParserIntegrationTest {
 
     @Autowired

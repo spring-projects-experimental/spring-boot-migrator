@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.parsers;
 
-import org.apache.maven.plugin.logging.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
@@ -23,10 +23,8 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.hcl.HclParser;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.json.JsonParser;
-import org.openrewrite.maven.ResourceParser;
 import org.openrewrite.properties.PropertiesParser;
 import org.openrewrite.protobuf.ProtoParser;
-import org.openrewrite.python.PythonParser;
 import org.openrewrite.quark.QuarkParser;
 import org.openrewrite.text.PlainTextParser;
 import org.openrewrite.xml.XmlParser;
@@ -44,11 +42,11 @@ import java.util.stream.Stream;
  * Code from https://github.com/fabapp2/rewrite-maven-plugin/blob/83d184ea9ffe3046429f16c91aa56a9610bae832/src/main/java/org/openrewrite/maven/ResourceParser.java
  * The motivation was to decouple the parser from file access.
  */
-public class RewriteResourceParser extends ResourceParser { // TODO: Only extends from ResourceParser to keep method signatures for now
+@Slf4j
+public class RewriteResourceParser {
     private static final Set<String> DEFAULT_IGNORED_DIRECTORIES = new HashSet<>(Arrays.asList("build", "target", "out", ".sonar", ".gradle", ".idea", ".project", "node_modules", ".git", ".metadata", ".DS_Store"));
 
     private final Path baseDir;
-    private final Log logger;
     private final Collection<PathMatcher> exclusions;
     private final int sizeThresholdMb;
     private final Collection<Path> excludedDirectories;
@@ -60,11 +58,16 @@ public class RewriteResourceParser extends ResourceParser { // TODO: Only extend
     private final JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder;
     private final ExecutionContext executionContext;
 
-    public RewriteResourceParser(Path baseDir, Log logger, Collection<String> exclusions, Collection<String> plainTextMasks, int sizeThresholdMb, Collection<Path> excludedDirectories,
-                                 JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, ExecutionContext executionContext) {
-        super(baseDir, logger, exclusions, plainTextMasks, sizeThresholdMb, excludedDirectories, javaParserBuilder);
+    public RewriteResourceParser(
+            Path baseDir,
+            Collection<String> exclusions,
+            Collection<String> plainTextMasks,
+            int sizeThresholdMb,
+            Collection<Path> excludedDirectories,
+             JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
+            ExecutionContext executionContext
+    ) {
         this.baseDir = baseDir;
-        this.logger = logger;
         this.javaParserBuilder = javaParserBuilder;
         this.executionContext = executionContext;
         this.exclusions = pathMatchers(baseDir, exclusions);
@@ -132,7 +135,7 @@ public class RewriteResourceParser extends ResourceParser { // TODO: Only extend
                 // FIXME: 945 only check threshold if value > 0 is given
                 long fileSize = ResourceUtil.contentLength(resource);
                 if (isOverSizeThreshold(fileSize)) {
-                        logger.info("Parsing as quark " + file + " as its size " + fileSize / (1024L * 1024L) +
+                        log.info("Parsing as quark " + file + " as its size " + fileSize / (1024L * 1024L) +
                                 "Mb exceeds size threshold " + sizeThresholdMb + "Mb");
                         quarkPaths.add(file);
                     } else if (isParsedAsPlainText(file)) {
@@ -163,8 +166,9 @@ public class RewriteResourceParser extends ResourceParser { // TODO: Only extend
         ProtoParser protoParser = new ProtoParser();
         List<Path> protoPaths = new ArrayList<>();
 
-        PythonParser pythonParser = PythonParser.builder().build();
-        List<Path> pythonPaths = new ArrayList<>();
+        // Python currently not supported
+//        PythonParser pythonParser = PythonParser.builder().build();
+//        List<Path> pythonPaths = new ArrayList<>();
 
         HclParser hclParser = HclParser.builder().build();
         List<Path> hclPaths = new ArrayList<>();
@@ -191,9 +195,9 @@ public class RewriteResourceParser extends ResourceParser { // TODO: Only extend
                 propertiesPaths.add(path);
             } else if (protoParser.accept(path)) {
                 protoPaths.add(path);
-            } else if(pythonParser.accept(path)) {
+            } /*else if(pythonParser.accept(path)) {
                 pythonPaths.add(path);
-            } else if (hclParser.accept(path)) {
+            }*/ else if (hclParser.accept(path)) {
                 hclPaths.add(path);
             } else if (quarkParser.accept(path)) {
                 quarkPaths.add(path);
@@ -238,11 +242,11 @@ public class RewriteResourceParser extends ResourceParser { // TODO: Only extend
             alreadyParsed.addAll(protoPaths);
         }
 
-        if (!pythonPaths.isEmpty()) {
-            List<Parser.Input> inputs = getInputs(pathToResource, pythonPaths);
-            sourceFiles = Stream.concat(sourceFiles, (Stream<S>) pythonParser.parseInputs(inputs, baseDir, ctx));
-            alreadyParsed.addAll(pythonPaths);
-        }
+//        if (!pythonPaths.isEmpty()) {
+//            List<Parser.Input> inputs = getInputs(pathToResource, pythonPaths);
+//            sourceFiles = Stream.concat(sourceFiles, (Stream<S>) pythonParser.parseInputs(inputs, baseDir, ctx));
+//            alreadyParsed.addAll(pythonPaths);
+//        }
 
         if (!hclPaths.isEmpty()) {
             List<Parser.Input> inputs = getInputs(pathToResource, hclPaths);

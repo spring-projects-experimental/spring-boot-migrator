@@ -21,7 +21,6 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.ResourceParser;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
@@ -42,8 +41,7 @@ import java.util.stream.Stream;
 public class SourceFileParser {
 
     private final ParserProperties parserProperties;
-    private final MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods;
-    private final JavaParserBuilder javaParserBuilder;
+    private final HelperWithoutAGoodName mavenMojoProjectParserPrivateMethods;
 
     public List<SourceFile> parseOtherSourceFiles(
             Path baseDir,
@@ -63,19 +61,15 @@ public class SourceFileParser {
             if(markers == null || markers.isEmpty()) {
                 log.warn("Could not find provenance markers for resource '%s'".formatted(parserContext.getMatchingBuildFileResource(currentMavenProject)));
             }
-            List<SourceFile> sourceFiles = parseModuleSourceFiles(resources, parserContext, currentMavenProject, moduleBuildFile, markers, styles, executionContext, baseDir);
+            List<SourceFile> sourceFiles = parseModuleSourceFiles(resources, currentMavenProject, moduleBuildFile, markers, styles, executionContext, baseDir);
             parsedSourceFiles.addAll(sourceFiles);
         });
 
         return new ArrayList<>(parsedSourceFiles);
     }
 
-    /**
-     * {@link org.openrewrite.maven.MavenMojoProjectParser#listSourceFiles(SbmMavenProject, Xml.Document, List, List, ExecutionContext)}
-     */
     private List<SourceFile> parseModuleSourceFiles(
             List<Resource> resources,
-            ParserContext parserContext,
             SbmMavenProject currentProject,
             Xml.Document moduleBuildFile,
             List<Marker> provenanceMarkers,
@@ -104,7 +98,6 @@ public class SourceFileParser {
         // FIXME: Why is skipResourceScanDirs required at all? Shouldn't the module know it's resources
         RewriteResourceParser rp = new RewriteResourceParser(
                 baseDir,
-                new Slf4jToMavenLoggerAdapter(log),
                 parserProperties.getIgnoredPathPatterns(),
                 parserProperties.getPlainTextMasks(),
                 parserProperties.getSizeThresholdMb(),

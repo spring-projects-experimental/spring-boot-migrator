@@ -17,20 +17,14 @@ package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.maven.execution.MavenSession;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.MavenExecutionContextView;
-import org.openrewrite.maven.MavenMojoProjectParser;
 import org.openrewrite.maven.MavenParser;
-import org.openrewrite.maven.cache.InMemoryMavenPomCache;
-import org.openrewrite.maven.cache.MavenPomCache;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.nio.file.Path;
