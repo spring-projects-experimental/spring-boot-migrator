@@ -21,7 +21,6 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
 
 import java.io.IOException;
