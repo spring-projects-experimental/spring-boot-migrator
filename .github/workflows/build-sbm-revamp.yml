@@ -53,10 +53,10 @@ jobs:
         run: mvn -DskipTests --batch-mode install --projects :sbm-support-weblogic
 
       - name: sbm-recipes-jee-to-boot (build)
-        run: mvn -DskipTests --batch-mode --projects :sbm-recipes-jee-to-boot
+        run: mvn -DskipTests --batch-mode install --projects :sbm-recipes-jee-to-boot
 
       - name: sbm-recipes-spring-cloud (build)
-        run: mvn -DskipTests --batch-mode --projects :sbm-recipes-spring-cloud
+        run: mvn -DskipTests --batch-mode install --projects :sbm-recipes-spring-cloud
 
       - name: sbm-recipes-boot-upgrade (build)
-        run: mvn -DskipTests --batch-mode --projects :sbm-recipes-boot-upgrade
+        run: mvn -DskipTests --batch-mode install --projects :sbm-recipes-boot-upgrade
