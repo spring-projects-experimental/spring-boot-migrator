@@ -64,26 +64,26 @@
     </modules>
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-http</artifactId>
-                <version>3.5.3</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven.resolver</groupId>
-                <artifactId>maven-resolver-transport-http</artifactId>
-                <version>1.9.14</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven.resolver</groupId>
-                <artifactId>maven-resolver-api</artifactId>
-                <version>1.9.14</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven.resolver</groupId>
-                <artifactId>maven-resolver-impl</artifactId>
-                <version>1.9.14</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.wagon</groupId>-->
+<!--                <artifactId>wagon-http</artifactId>-->
+<!--                <version>3.5.3</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.resolver</groupId>-->
+<!--                <artifactId>maven-resolver-transport-http</artifactId>-->
+<!--                <version>1.9.14</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.resolver</groupId>-->
+<!--                <artifactId>maven-resolver-api</artifactId>-->
+<!--                <version>1.9.14</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.resolver</groupId>-->
+<!--                <artifactId>maven-resolver-impl</artifactId>-->
+<!--                <version>1.9.14</version>-->
+<!--            </dependency>-->
 
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -131,11 +131,12 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>org.apache.maven.shared</groupId>
-                <artifactId>maven-invoker</artifactId>
-                <version>${maven-invoker.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.shared</groupId>-->
+<!--                <artifactId>maven-invoker</artifactId>-->
+<!--                <version>${maven-invoker.version}</version>-->
+<!--                <scope>test</scope>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-core</artifactId>
