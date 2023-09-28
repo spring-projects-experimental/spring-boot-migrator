@@ -47,6 +47,7 @@ public class SbmMavenProject {
     private SourceFile sourceFile;
     private final MavenArtifactDownloader rewriteMavenArtifactDownloader;
     private final List<Resource> resources;
+    private ProjectId projectId;
 
     public SbmMavenProject(Path projectRoot, Resource pomFile, Model pomModel, MavenArtifactDownloader rewriteMavenArtifactDownloader, List<Resource> resources) {
         this.projectRoot = projectRoot;
@@ -54,6 +55,7 @@ public class SbmMavenProject {
         this.pomModel = pomModel;
         this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
         this.resources = resources;
+        projectId = new ProjectId(getGroupId(), getArtifactId());
     }
 
     public File getFile() {
@@ -210,5 +212,9 @@ public class SbmMavenProject {
 
     public Path getModulePath() {
         return projectRoot.resolve(getModuleDir());
+    }
+
+    public ProjectId getProjectId() {
+        return projectId;
     }
 }
