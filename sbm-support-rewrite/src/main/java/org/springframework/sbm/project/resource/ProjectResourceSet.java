@@ -34,6 +34,11 @@ public class ProjectResourceSet {
     private final RewriteMigrationResultMerger migrationResultMerger;
 
 
+    /**
+     * @deprecated
+     * Use {@link ProjectResourceSetFactory#create(Path, List) <RewriteSourceFileHolder<? extends SourceFile>>)} instead.
+     */
+    @Deprecated
     public ProjectResourceSet(List<RewriteSourceFileHolder<? extends SourceFile>> projectResources, ExecutionContext executionContext, RewriteMigrationResultMerger migrationResultMerger) {
         this.executionContext = executionContext;
         this.migrationResultMerger = migrationResultMerger;

@@ -27,6 +27,7 @@ import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.project.resource.ProjectResourceSetFactory;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +45,7 @@ public class ProjectContextInitializer {
     private final RewriteSourceFileWrapper rewriteSourceFileWrapper;
     private final ExecutionContext executionContext;
     private final ProjectContextHolder projectContextHolder;
+    private final ProjectResourceSetFactory projectResourceSetFactory;
 
     public ProjectContext initProjectContext(Path projectDir, List<Resource> resources) {
         final Path absoluteProjectDir = projectDir.toAbsolutePath().normalize();
@@ -53,7 +55,7 @@ public class ProjectContextInitializer {
         List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources, executionContext).sourceFiles();
         List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = rewriteSourceFileWrapper.wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);
 
-        ProjectResourceSet projectResourceSet = new ProjectResourceSet(rewriteSourceFileHolders, executionContext, migrationResultMerger);
+        ProjectResourceSet projectResourceSet = projectResourceSetFactory.createFromSourceFileHolders(rewriteSourceFileHolders);
         ProjectContext projectContext = projectContextFactory.createProjectContext(projectDir, projectResourceSet);
 
         storeGitCommitHash(projectDir, projectContext);

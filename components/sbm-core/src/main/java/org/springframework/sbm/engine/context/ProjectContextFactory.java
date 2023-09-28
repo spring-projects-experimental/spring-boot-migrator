@@ -18,7 +18,7 @@ package org.springframework.sbm.engine.context;
 import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.filter.BuildFileProjectResourceFinder;
-import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
+import org.springframework.sbm.engine.recipe.MigrationResultProjectContextMerger;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.java.util.BasePackageCalculator;
@@ -43,6 +43,7 @@ public class ProjectContextFactory {
     private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
     private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
+    private final ProjectResourceSetFactory projectResourceSetFactory;
 
     @NotNull
     public ProjectContext createProjectContext(Path projectDir, ProjectResourceSet projectResourceSet) {
@@ -50,7 +51,7 @@ public class ProjectContextFactory {
         applyProjectResourceWrappers(projectResourceSet);
         List<BuildFile> buildFiles = new BuildFileProjectResourceFinder().apply(projectResourceSet);
         ClasspathRegistry.initializeFromBuildFiles(buildFiles);
-        ProjectContext projectContext = new ProjectContext(javaRefactoringFactory, projectDir, projectResourceSet, basePackageCalculator, javaParserBuilder, executionContext, rewriteMigrationResultMerger);
+        ProjectContext projectContext = new ProjectContext(javaRefactoringFactory, projectDir, projectResourceSet, basePackageCalculator, javaParserBuilder, executionContext, rewriteMigrationResultMerger, projectResourceSetFactory);
         return projectContext;
     }
 

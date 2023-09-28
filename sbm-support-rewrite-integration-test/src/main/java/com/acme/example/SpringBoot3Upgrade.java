@@ -27,9 +27,7 @@ import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.parsers.RewriteProjectParsingResult;
 import org.springframework.sbm.parsers.events.StartedParsingResourceEvent;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.RewriteMigrationResultMerger;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.project.resource.*;
 import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
 
 import java.nio.file.Path;
@@ -54,9 +52,9 @@ public class SpringBoot3Upgrade implements CommandLineRunner {
     @Autowired
     ExecutionContext executionContext;
     @Autowired
-    RewriteSourceFileWrapper sourceFileWrapper;
+    ProjectResourceSetSerializer serializer;
     @Autowired
-    RewriteMigrationResultMerger resultMerger;
+    ProjectResourceSetFactory projectResourceSetFactory;
 
     @EventListener(StartedParsingResourceEvent.class)
     public void onStartedParsingResourceEvent(StartedParsingResourceEvent event) {
@@ -65,20 +63,31 @@ public class SpringBoot3Upgrade implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Path baseDir = Path.of("/Users/fkrueger/projects/sbm-projects/spring-restbucks/server");
+        Path baseDir = null;
+        if(args.length == 0) {
+            throw new IllegalArgumentException("A path must be provided");
+        } else {
+            String pathStr = args[0];
+            baseDir = Path.of(pathStr);
+        }
+
         // scan
         List<Resource> resources = scanner.scan(baseDir);
+
         // parse
         RewriteProjectParsingResult parsingResult = parser.parse(baseDir, resources, executionContext);
         List<SourceFile> sourceFiles = parsingResult.sourceFiles();
-        List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = sourceFileWrapper.wrapRewriteSourceFiles(baseDir, sourceFiles);
-        ProjectResourceSet projectResourceSet = new ProjectResourceSet(rewriteSourceFileHolders, executionContext, resultMerger);
-        // apply recipe
+        ProjectResourceSet projectResourceSet = projectResourceSetFactory.create(baseDir, sourceFiles);
+
+        // discover
         String recipeName = "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1";
         List<Recipe> recipes = discovery.discoverRecipes();
         Optional<Recipe> recipe = recipes.stream().filter(r -> recipeName.equals(r.getName())).findFirst();
+
+        // apply
         recipe.ifPresent((Recipe r) -> {
             projectResourceSet.apply(r);
+            serializer.writeChanges(projectResourceSet);
         });
     }
 }

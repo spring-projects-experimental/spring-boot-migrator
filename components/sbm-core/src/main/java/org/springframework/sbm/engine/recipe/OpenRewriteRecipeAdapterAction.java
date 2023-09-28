@@ -34,7 +34,7 @@ public class OpenRewriteRecipeAdapterAction extends AbstractAction {
 
     @JsonIgnore
     @Autowired
-    private RewriteMigrationResultMerger resultMerger;
+    private MigrationResultProjectContextMerger resultMerger;
     @JsonIgnore
     @Autowired
     private ExecutionContext executionContext;

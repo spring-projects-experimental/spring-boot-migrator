@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         ResourceHelper.class,
         ActionDeserializerRegistry.class,
         DefaultActionDeserializer.class,
-        RewriteMigrationResultMerger.class,
+        MigrationResultProjectContextMerger.class,
         RewriteSourceFileWrapper.class,
         CustomValidatorBean.class,
         RewriteExecutionContext.class,

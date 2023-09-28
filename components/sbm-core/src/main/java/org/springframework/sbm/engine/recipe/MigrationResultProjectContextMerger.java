@@ -16,27 +16,27 @@
 package org.springframework.sbm.engine.recipe;
 
 import lombok.RequiredArgsConstructor;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
-import org.openrewrite.internal.InMemoryLargeSourceSet;
+import org.springframework.sbm.project.resource.RewriteMigrationResultMerger;
+import org.springframework.sbm.project.resource.finder.AbsolutePathResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.project.RewriteSourceFileWrapper;
+import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class RewriteRecipeRunner {
-    private final MigrationResultProjectContextMerger resultMerger;
-    private final ExecutionContext executionContext;
+public class MigrationResultProjectContextMerger {
 
-    // FIXME: Make this a method 'apply(org.openrewrite.Recipe)' on ProjectContext, see https://github.com/spring-projects-experimental/spring-boot-migrator/issues/803
-    public void run(ProjectContext context, Recipe recipe) {
-        List<? extends SourceFile> rewriteSourceFiles = context.search(new OpenRewriteSourceFilesFinder());
-        List<Result> results = recipe.run(new InMemoryLargeSourceSet(rewriteSourceFiles.stream().map(SourceFile.class::cast).toList()), executionContext).getChangeset().getAllResults();
-        resultMerger.mergeResults(context, results);
+    private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
+
+    public void mergeResults(ProjectContext context, List<Result> results) {
+        rewriteMigrationResultMerger.mergeResults(context.getProjectResources(), results);
     }
-
 }

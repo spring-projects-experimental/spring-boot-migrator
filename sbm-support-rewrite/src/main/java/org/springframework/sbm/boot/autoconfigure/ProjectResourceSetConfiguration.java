@@ -15,9 +15,13 @@
  */
 package org.springframework.sbm.boot.autoconfigure;
 
+import org.openrewrite.ExecutionContext;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
+import org.springframework.sbm.project.resource.ProjectResourceSerializer;
+import org.springframework.sbm.project.resource.ProjectResourceSetFactory;
+import org.springframework.sbm.project.resource.ProjectResourceSetSerializer;
 import org.springframework.sbm.project.resource.RewriteMigrationResultMerger;
 
 /**
@@ -33,5 +37,20 @@ public class ProjectResourceSetConfiguration {
     @Bean
     RewriteMigrationResultMerger rewriteMigrationResultMerger(RewriteSourceFileWrapper rewriteSourceFileWrapper) {
         return new RewriteMigrationResultMerger(rewriteSourceFileWrapper);
+    }
+
+    @Bean
+    ProjectResourceSerializer projectResourceSerializer() {
+        return new ProjectResourceSerializer();
+    }
+
+    @Bean
+    ProjectResourceSetSerializer projectResourceSetSerializer(ProjectResourceSerializer resourceSerializer) {
+        return new ProjectResourceSetSerializer(resourceSerializer);
+    }
+
+    @Bean
+    ProjectResourceSetFactory projectResourceSetFactory(RewriteMigrationResultMerger rewriteMigrationResultMerger, RewriteSourceFileWrapper sourceFileWrapper, ExecutionContext executionContext) {
+        return new ProjectResourceSetFactory(rewriteMigrationResultMerger, sourceFileWrapper, executionContext);
     }
 }

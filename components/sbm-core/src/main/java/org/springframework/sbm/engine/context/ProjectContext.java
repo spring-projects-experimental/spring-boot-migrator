@@ -25,13 +25,14 @@ import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.RootBuildFileFilter;
 import org.springframework.sbm.build.filter.BuildFileProjectResourceFinder;
-import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
 import org.springframework.sbm.java.api.ProjectJavaSources;
 import org.springframework.sbm.java.impl.ProjectJavaSourcesImpl;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.project.resource.ProjectResourceSetFactory;
+import org.springframework.sbm.project.resource.RewriteMigrationResultMerger;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 import lombok.Getter;
@@ -53,8 +54,9 @@ public class ProjectContext {
     private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
     private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
+    private final ProjectResourceSetFactory projectResourceSetFactory;
 
-    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParserBuilder javaParserBuilder, ExecutionContext executionContext, RewriteMigrationResultMerger rewriteMigrationResultMerger) {
+    public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParserBuilder javaParserBuilder, ExecutionContext executionContext, RewriteMigrationResultMerger rewriteMigrationResultMerger, ProjectResourceSetFactory projectResourceSetFactory) {
         this.projectRootDirectory = projectRootDirectory.toAbsolutePath();
         this.projectResources = projectResources;
         this.javaRefactoringFactory = javaRefactoringFactory;
@@ -62,6 +64,7 @@ public class ProjectContext {
         this.javaParserBuilder = javaParserBuilder;
         this.executionContext = executionContext;
         this.rewriteMigrationResultMerger = rewriteMigrationResultMerger;
+        this.projectResourceSetFactory = projectResourceSetFactory;
     }
 
     public ProjectResourceSet getProjectResources() {
@@ -92,7 +95,8 @@ public class ProjectContext {
                 basePackageCalculator,
                 javaParserBuilder,
                 executionContext,
-                rewriteMigrationResultMerger
+                rewriteMigrationResultMerger,
+                projectResourceSetFactory
         );
     }
 
@@ -128,7 +132,7 @@ public class ProjectContext {
                 .toList();
 
         RecipeRun recipeRun = upgradeBootRecipe.run(new InMemoryLargeSourceSet(ast), executionContext);
-        rewriteMigrationResultMerger.mergeResults(this, recipeRun.getChangeset().getAllResults());
+        rewriteMigrationResultMerger.mergeResults(getProjectResources(), recipeRun.getChangeset().getAllResults());
 //        recipeRun.getChangeset().getAllResults().stream()
 //                .forEach(r -> {
 //
