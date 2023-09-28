@@ -16,13 +16,12 @@
 package org.springframework.sbm.project.resource;
 
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.Recipe;
 import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -81,6 +80,51 @@ public class ProjectResourceSet {
                 .map(ProjectResource::getAbsolutePath)
                 .collect(Collectors.toList())
                 .indexOf(absolutePath);
+    }
+
+    public void apply(Recipe... recipes) {
+        InMemoryLargeSourceSet largeSourceSet = new InMemoryLargeSourceSet(
+                projectResources.stream()
+                        .map(RewriteSourceFileHolder::getSourceFile)
+                        .filter(SourceFile.class::isInstance)
+                        .map(SourceFile.class::cast)
+                        .toList()
+        );
+        new Recipe() {
+            @Override
+            public String getDisplayName() {
+                return "Run a list of recipes";
+            }
+
+            @Override
+            public String getDescription() {
+                return getDisplayName();
+            }
+
+            @Override
+            public List<Recipe> getRecipeList() {
+                return Arrays.asList(recipes);
+            }
+        }
+        .run(largeSourceSet, executionContext)
+        .getChangeset()
+        .getAllResults()
+        .forEach(r -> {
+            Path absoluteProjectDir = projectResources.get(0).getAbsoluteProjectDir();
+            if(r.getBefore() == null) {
+                RewriteSourceFileHolder<SourceFile> holder = new RewriteSourceFileHolder<>(absoluteProjectDir, r.getAfter());
+                holder.markAsChanged();
+                this.projectResources.add(holder);
+            } else if(r.getAfter() == null) {
+                RewriteSourceFileHolder<? extends SourceFile> resource = findResourceByPath(absoluteProjectDir.resolve(r.getBefore().getSourcePath())).get();
+                resource.delete();
+                projectResources.remove(resource);
+            } else {
+                RewriteSourceFileHolder<SourceFile> holder = new RewriteSourceFileHolder<>(absoluteProjectDir, r.getAfter());
+                holder.markAsChanged();
+                holder.replaceWith(r.getAfter());
+            }
+        });
     }
 
     void clearDeletedResources() {
