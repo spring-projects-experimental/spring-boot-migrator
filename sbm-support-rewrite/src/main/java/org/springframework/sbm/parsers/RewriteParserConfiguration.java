@@ -29,7 +29,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.sbm.boot.autoconfigure.ParserPropertiesPostProcessor;
-import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.sbm.scopes.ScanScope;
@@ -56,34 +55,19 @@ public class RewriteParserConfiguration {
     @Autowired
     private ParserProperties parserProperties;
 
+//    @Bean
+//    ProvenanceMarkerFactory provenanceMarkerFactory(MavenMojoProjectParserFactory projectParserFactory) {
+//        return new ProvenanceMarkerFactory(projectParserFactory);
+//    }
+
     @Bean
-    MavenPlexusContainer plexusContainer() {
-        return new MavenPlexusContainer();
+    MavenProvenanceMarkerFactory mavenProvenanceMarkerFactory() {
+        return new MavenProvenanceMarkerFactory();
     }
 
     @Bean
-    MavenConfigFileParser configFileParser() {
-        return new MavenConfigFileParser();
-    }
-
-    @Bean
-    MavenExecutionRequestFactory requestFactory(MavenConfigFileParser configFileParser) {
-        return new MavenExecutionRequestFactory(configFileParser);
-    }
-
-    @Bean
-    MavenExecutor mavenExecutor(MavenExecutionRequestFactory requestFactory, MavenPlexusContainer plexusContainer) {
-        return new MavenExecutor(requestFactory, plexusContainer);
-    }
-
-    @Bean
-    MavenMojoProjectParserFactory projectParserFactory() {
-        return new MavenMojoProjectParserFactory(parserProperties);
-    }
-
-    @Bean
-    ProvenanceMarkerFactory provenanceMarkerFactory(MavenMojoProjectParserFactory projectParserFactory) {
-        return new ProvenanceMarkerFactory(projectParserFactory);
+    ProvenanceMarkerFactory provenanceMarkerFactory(MavenProvenanceMarkerFactory mavenPovenanceMarkerFactory) {
+        return new ProvenanceMarkerFactory(mavenPovenanceMarkerFactory);
     }
 
     @Bean
@@ -97,10 +81,6 @@ public class RewriteParserConfiguration {
         return new BuildFileParser();
     }
 
-    @Bean
-    MavenModelReader modelReader() {
-        return new MavenModelReader();
-    }
 
     @Bean
     @ConditionalOnMissingBean(MavenArtifactCache.class)
@@ -121,13 +101,13 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
-    MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods(MavenMojoProjectParserFactory parserFactory, MavenArtifactDownloader artifactDownloader) {
-        return new MavenMojoProjectParserPrivateMethods(parserFactory, artifactDownloader);
+    HelperWithoutAGoodName helperWithoutAGoodName() {
+        return new HelperWithoutAGoodName();
     }
 
     @Bean
-    SourceFileParser sourceFileParser(MavenModelReader modelReader, MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods, JavaParserBuilder javaParserBuilder) {
-        return new SourceFileParser(parserProperties, mavenMojoProjectParserPrivateMethods, javaParserBuilder);
+    SourceFileParser sourceFileParser(JavaParserBuilder javaParserBuilder, HelperWithoutAGoodName helperWithoutAGoodName) {
+        return new SourceFileParser(parserProperties, helperWithoutAGoodName);
     }
 
     @Bean
@@ -141,21 +121,26 @@ public class RewriteParserConfiguration {
         return new RewriteParsingEventListenerAdapter(eventPublisher);
     }
 
+    // FIXME: 945
+//    @Bean
+//    RewriteMavenProjectParser rewriteMavenProjectParser(MavenPlexusContainer plexusContainer, ParsingEventListener parsingListener, MavenExecutor mavenExecutor, MavenMojoProjectParserFactory projectParserFactory, ScanScope scanScope, ConfigurableListableBeanFactory beanFactory, ExecutionContext executionContext) {
+//        return new RewriteMavenProjectParser(
+//                plexusContainer,
+//                parsingListener,
+//                mavenExecutor,
+//                projectParserFactory,
+//                scanScope,
+//                beanFactory,
+//                executionContext);
+//    }
+
     @Bean
-    RewriteMavenProjectParser rewriteMavenProjectParser(MavenPlexusContainer plexusContainer, ParsingEventListener parsingListener, MavenExecutor mavenExecutor, MavenMojoProjectParserFactory projectParserFactory, ScanScope scanScope, ConfigurableListableBeanFactory beanFactory, ExecutionContext executionContext) {
-        return new RewriteMavenProjectParser(
-                plexusContainer,
-                parsingListener,
-                mavenExecutor,
-                projectParserFactory,
-                scanScope,
-                beanFactory,
-                executionContext);
+    MavenProjectAnalyzer mavenProjectAnalyzer(MavenArtifactDownloader artifactDownloader) {
+        return new MavenProjectAnalyzer(artifactDownloader);
     }
 
     @Bean
     RewriteProjectParser rewriteProjectParser(
-            MavenExecutor mavenExecutor,
             ProvenanceMarkerFactory provenanceMarkerFactory,
             BuildFileParser buildFileParser,
             SourceFileParser sourceFileParser,
@@ -166,9 +151,9 @@ public class RewriteParserConfiguration {
             ScanScope scanScope,
             ConfigurableListableBeanFactory beanFactory,
             ProjectScanner projectScanner,
-            ExecutionContext executionContext) {
+            ExecutionContext executionContext,
+            MavenProjectAnalyzer mavenProjectAnalyzer) {
         return new RewriteProjectParser(
-                mavenExecutor,
                 provenanceMarkerFactory,
                 buildFileParser,
                 sourceFileParser,
@@ -179,7 +164,8 @@ public class RewriteParserConfiguration {
                 scanScope,
                 beanFactory,
                 projectScanner,
-                executionContext);
+                executionContext,
+                mavenProjectAnalyzer);
     }
 
     @Bean

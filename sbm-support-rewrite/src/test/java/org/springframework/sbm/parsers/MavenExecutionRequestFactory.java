@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.parsers;
 
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import lombok.RequiredArgsConstructor;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;

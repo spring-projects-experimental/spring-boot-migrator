@@ -32,10 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-class MavenProjectResolutionTest {
+class SbmMavenProjectResolutionTest {
 
     @Test
-    @DisplayName("Factory should create fully initialized MavenProject")
+    @DisplayName("Factory should create fully initialized SbmMavenProject")
     void verifyMavenProjectRetrievedFromSession(@TempDir Path tempDir) throws Exception {
         @Language("xml")
         String pomXml = """

@@ -17,18 +17,12 @@ package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.AbstractRewriteMojo;
 import org.openrewrite.maven.MavenExecutionContextView;
-import org.openrewrite.maven.MavenMojoProjectParser;
-import org.openrewrite.maven.tree.MavenRepository;
+import org.openrewrite.maven.tree.*;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
@@ -40,14 +34,13 @@ import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.utils.ResourceUtil;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -70,16 +63,13 @@ import java.util.stream.Stream;
  *  }
  * </pre>
  *
- * @see RewriteMavenProjectParser
- * @see org.springframework.sbm.recipes.RewriteRecipeDiscovery
- *
  * @author Fabian Krüger
+ * @see org.springframework.sbm.recipes.RewriteRecipeDiscovery
  */
 @Slf4j
 @RequiredArgsConstructor
 public class RewriteProjectParser {
 
-    private final MavenExecutor mavenExecutor;
     private final ProvenanceMarkerFactory provenanceMarkerFactory;
     private final BuildFileParser buildFileParser;
     private final SourceFileParser sourceFileParser;
@@ -91,10 +81,10 @@ public class RewriteProjectParser {
     private final ConfigurableListableBeanFactory beanFactory;
     private final ProjectScanner scanner;
     private final ExecutionContext executionContext;
+    private final MavenProjectAnalyzer mavenProjectAnalyzer;
 
 
     public RewriteProjectParsingResult parse(Path baseDir) {
-        Set<String> ignorePatterns = parserProperties.getIgnoredPathPatterns();
         List<Resource> resources = scanner.scan(baseDir);
         return this.parse(baseDir, resources, executionContext);
     }
@@ -116,16 +106,12 @@ public class RewriteProjectParser {
      * Parse resources
      * processMainSources()
      * processTestSources()
-     *
-     * @see MavenMojoProjectParser#listSourceFiles(MavenProject, List, ExecutionContext)
      */
     public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources, ExecutionContext executionContext) {
         scanScope.clear(beanFactory);
 
-        if (!givenBaseDir.isAbsolute()) {
-            givenBaseDir = givenBaseDir.toAbsolutePath().normalize();
-        }
-        final Path baseDir = givenBaseDir;
+        final Path baseDir = normalizePath(givenBaseDir);
+
         // FIXME: ... WARN 30694 --- [           main] .m.p.i.DeprecatedCoreExpressionValidator : Parameter 'local' is deprecated core expression; Avoid use of ArtifactRepository type. If you need access to local repository, switch to '${repositorySystemSession}' expression and get LRM from it instead.
         MavenExecutionContextView.view(executionContext).setLocalRepository(new MavenRepository("local", "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository"), null, null, false, null, null, null));
         eventPublisher.publishEvent(new StartedParsingProjectEvent(resources));
@@ -137,82 +123,54 @@ public class RewriteProjectParser {
         // TODO: where to retrieve styles from? --> see AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
         List<NamedStyles> styles = List.of();
 
-        AtomicReference<RewriteProjectParsingResult> atomicReference = new AtomicReference<>();
+        // Get the ordered list of projects
+        ParserContext parserContext = mavenProjectAnalyzer.createParserContext(baseDir, resources);
 
-        withMavenSession(baseDir, mavenSession -> {
-            // Get the ordered list of projects
-            List<MavenProject> sortedProjectsList = mavenSession.getProjectDependencyGraph().getSortedProjects();
-            // SortedProjects makes downstream components independent of Maven classes
-            SortedProjects mavenInfos = new SortedProjects(resources, sortedProjectsList, List.of("default"));
-
+        // SortedProjects makes downstream components independent of Maven classes
+        // TODO: 945 Is SortedProjects still required?
 //            List<Resource> sortedBuildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
 
-            // generate provenance
-            Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, mavenInfos);
+        // generate provenance
+        Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, parserContext);
 
-            // 127: parse build files
-            Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, mavenInfos.getResources(), mavenInfos.getActiveProfiles(), executionContext, parserProperties.isSkipMavenParsing(), provenanceMarkers);
+        // 127: parse build files
+        Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, parserContext.getBuildFileResources(), parserContext.getActiveProfiles(), executionContext, parserProperties.isSkipMavenParsing(), provenanceMarkers);
 
-            List<SourceFile> parsedAndSortedBuildFileDocuments = mavenInfos.getResources().stream()
-                    .map(r -> resourceToDocumentMap.get(ResourceUtil.getPath(r)))
-                    .map(SourceFile.class::cast)
-                    .toList();
+        List<SourceFile> parsedAndSortedBuildFileDocuments = parserContext.getBuildFileResources().stream()
+                .map(r -> resourceToDocumentMap.get(ResourceUtil.getPath(r)))
+                .map(SourceFile.class::cast)
+                // FIXME: 945 ugly hack
+                .peek(sourceFile -> addSourceFileToModel(baseDir, parserContext.getSortedProjects(), sourceFile))
+                .toList();
 
-            // 128 : 131
-            log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
-            List<SourceFile> list = sourceFileParser.parseOtherSourceFiles(baseDir, mavenInfos, resourceToDocumentMap, mavenInfos.getResources(), provenanceMarkers, styles, executionContext);
+        log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
+        List<SourceFile> list = sourceFileParser.parseOtherSourceFiles(baseDir, parserContext, resourceToDocumentMap, resources, provenanceMarkers, styles, executionContext);
 
 //        List<SourceFile> sourceFilesWithoutPoms = sourceFilesStream.filter(sf -> resourceToDocumentMap.keySet().contains(baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize())).toList();
-            List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();
-            resultingList.addAll(parsedAndSortedBuildFileDocuments);
-            resultingList.addAll(list);
-            List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
+        List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();
+        resultingList.addAll(parsedAndSortedBuildFileDocuments);
+        resultingList.addAll(list);
+        List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
 
-            eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
+        eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
 
-            atomicReference.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
-        });
+        return new RewriteProjectParsingResult(sourceFiles, executionContext);
+//        });
 
-        return atomicReference.get();
     }
 
-    private void withMavenSession(Path baseDir, Consumer<MavenSession> consumer) {
-        List<String> goals = List.of("clean", "package");
-        log.debug("Successfully finished goals %s".formatted(goals));
-        mavenExecutor.onProjectSucceededEvent(baseDir, goals, event -> consumer.accept(event.getSession()));
-    }
-
-    @org.jetbrains.annotations.Nullable
-    private static List<SourceFile> autoDetectStyles(Stream<SourceFile> sourceFilesStream) {
-        RewriteMojo dummyRewriteMojo = new RewriteMojo();
-        Method sourcesWithAutoDetectedStylesMethod = ReflectionUtils.findMethod(RewriteMojo.class, "sourcesWithAutoDetectedStyles");
-        ReflectionUtils.makeAccessible(sourcesWithAutoDetectedStylesMethod);
-        Object o = ReflectionUtils.invokeMethod(sourcesWithAutoDetectedStylesMethod, dummyRewriteMojo, sourceFilesStream);
-        List<SourceFile> sourceFiles = (List<SourceFile>) o;
-        return sourceFiles;
-    }
-
-//    private Stream<SourceFile> parseToAst(Path baseDir, List<Resource> resources, List<NamedStyles> styles, ExecutionContext executionContext) throws DependencyResolutionRequiredException, MojoExecutionException {
-//        MavenProject mavenProject = createFakeMavenProjectForProvenance(baseDir, resources, executionContext);
-//        return super.listSourceFiles(mavenProject, styles, executionContext);
-//    }
-
-    private MavenProject createFakeMavenProjectForProvenance(Path baseDir, List<Resource> resources, ExecutionContext executionContext) {
-        MavenProject mavenProject = new MavenProject();
-        // Plugin compilerPlugin = mavenProject.getPlugin("org.apache.maven.plugins:maven-compiler-plugin");
-        mavenProject.setPluginArtifacts(Set.of());
-        return mavenProject;
-    }
-
-    /**
-     * Extending {@code AbstractRewriteMojo} to open up protected method for reuse
-     */
-    static class RewriteMojo extends AbstractRewriteMojo {
-
-        @Override
-        public void execute() throws MojoExecutionException, MojoFailureException {
-
+    @NotNull
+    private static Path normalizePath(Path givenBaseDir) {
+        if (!givenBaseDir.isAbsolute()) {
+            givenBaseDir = givenBaseDir.toAbsolutePath().normalize();
         }
+        final Path baseDir = givenBaseDir;
+        return baseDir;
     }
 
+    private static void addSourceFileToModel(Path baseDir, List<SbmMavenProject> sortedProjectsList, SourceFile s) {
+        sortedProjectsList.stream()
+                .filter(p -> ResourceUtil.getPath(p.getPomFile()).toString().equals(baseDir.resolve(s.getSourcePath()).toString()))
+                .forEach(p -> p.setSourceFile(s));
+    }
 }

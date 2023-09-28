@@ -16,15 +16,9 @@
 package org.springframework.sbm.parsers;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.rtinfo.RuntimeInformation;
-import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
-import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.MavenMojoProjectParser;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -35,25 +29,22 @@ import java.util.*;
 @RequiredArgsConstructor
 class ProvenanceMarkerFactory {
 
-    private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
+    private final MavenProvenanceMarkerFactory markerFactory;
 
     /**
      * Reuses {@link MavenMojoProjectParser#generateProvenance(MavenProject)} to create {@link Marker}s for pom files in
-     * provided {@code pomFileResources}.
+     * provided {@code parserContext}.
      *
      * @return the map of pom.xml {@link Resource}s and their {@link Marker}s.
      */
-    public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, SortedProjects pomFileResources) {
+    public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, ParserContext parserContext) {
 
-        RuntimeInformation runtimeInformation = new DefaultRuntimeInformation();
-        SettingsDecrypter settingsDecrypter = null;
-
-        MavenMojoProjectParser helper = mavenMojoProjectParserFactory.create(baseDir, runtimeInformation, settingsDecrypter);
         Map<Path, List<Marker>> result = new HashMap<>();
 
-        pomFileResources.getSortedProjects().forEach(mavenProject -> {
-            List<Marker> markers = helper.generateProvenance(mavenProject);
-            Resource resource = pomFileResources.getMatchingBuildFileResource(mavenProject);
+        parserContext.getSortedProjects().forEach(mavenProject -> {
+            
+            List<Marker> markers = markerFactory.generateProvenance(baseDir, mavenProject);
+            Resource resource = parserContext.getMatchingBuildFileResource(mavenProject);
             Path path = ResourceUtil.getPath(resource);
             result.put(path, markers);
         });

@@ -35,7 +35,6 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.parsers.SortedProjects;
 import org.springframework.sbm.parsers.SourceFileParser;
 import org.springframework.sbm.utils.JavaHelper;
 import org.springframework.stereotype.Component;
@@ -43,7 +42,6 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * @author Fabian Krüger

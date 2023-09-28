@@ -80,4 +80,12 @@ public class ResourceUtil {
             throw new RuntimeException(e);
         }
     }
+
+    public static long contentLength(Resource resource) {
+        try {
+            return resource.contentLength();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

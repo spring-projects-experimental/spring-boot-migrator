@@ -51,6 +51,9 @@ public class ParserEventPublicationIntegrationTest {
     @Autowired
     ParserProperties parserProperties;
 
+    @Autowired
+    ExecutionContext executionContext;
+
     private static List<FinishedParsingResourceEvent> capturedEvents = new ArrayList<>();
     private static StartedParsingProjectEvent startedParsingEvent;
     private static SuccessfullyParsedProjectEvent finishedParsingEvent;
@@ -59,13 +62,22 @@ public class ParserEventPublicationIntegrationTest {
     @DisplayName("Should publish parsing events")
     void shouldPublishParsingEvents() {
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-events");
-        parserProperties.setIgnoredPathPatterns(Set.of("{**/target,target}", "**.adoc"));
+        parserProperties.setIgnoredPathPatterns(Set.of("{**/target/**,target/**}", "**.adoc"));
         List<Resource> resources = projectScanner.scan(baseDir);
-        ExecutionContext ctx = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
 
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, ctx);
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, executionContext);
 
-        assertThat(capturedEvents).hasSize(4);
+        assertThat(parsingResult.sourceFiles()).hasSize(5);
+        assertThat(parsingResult.sourceFiles().stream().map(s -> s.getSourcePath().toString()).toList())
+                .containsExactly(
+                        "pom.xml",
+                        "module-b/pom.xml",
+                        "module-a/pom.xml",
+                        "module-b/src/test/resources/application.yaml",
+                        "module-a/src/main/java/com/acme/SomeClass.java"
+                );
+
+        assertThat(capturedEvents).hasSize(5);
 
         assertThat(capturedEvents.get(0).sourceFile().getSourcePath().toString())
                 .isEqualTo("pom.xml");
@@ -74,6 +86,8 @@ public class ParserEventPublicationIntegrationTest {
         assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString())
                 .isEqualTo("module-a/pom.xml");
         assertThat(capturedEvents.get(3).sourceFile().getSourcePath().toString())
+                .isEqualTo("module-b/src/test/resources/application.yaml");
+        assertThat(capturedEvents.get(4).sourceFile().getSourcePath().toString())
                 .isEqualTo("module-a/src/main/java/com/acme/SomeClass.java");
         // ResourceParser not firing events
         // TODO: reactivate after https://github.com/openrewrite/rewrite-maven-plugin/issues/622

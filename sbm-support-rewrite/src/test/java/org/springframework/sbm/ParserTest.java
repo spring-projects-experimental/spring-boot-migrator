@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.openrewrite.maven.MavenParser;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Fabian Krüger
  */
@@ -75,7 +77,6 @@ public class ParserTest {
 				    
 				</project>
 				""").toList().get(0);
-		System.out.println(sourceFile.printAll());
-
+		assertThat(sourceFile).isNotNull();
     }
 }

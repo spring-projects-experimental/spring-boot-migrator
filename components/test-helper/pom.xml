@@ -40,12 +40,6 @@
             <artifactId>spring-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.maven.resolver</groupId>
-            <artifactId>maven-resolver-spi</artifactId>
-            <version>1.9.15</version>
-        </dependency>
-
         <!-- shrinkwrap -->
         <dependency>
             <groupId>org.jboss.shrinkwrap.resolver</groupId>
@@ -77,11 +71,17 @@
             <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
             <version>${shrinkwrap.resolvers.version}</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.jboss.shrinkwrap.resolver</groupId>-->
+<!--            <artifactId>shrinkwrap-resolver-bom</artifactId>-->
+<!--            <version>${shrinkwrap.resolvers.version}</version>-->
+<!--            <type>pom</type>-->
+<!--        </dependency>-->
+
         <dependency>
-            <groupId>org.jboss.shrinkwrap.resolver</groupId>
-            <artifactId>shrinkwrap-resolver-bom</artifactId>
-            <version>${shrinkwrap.resolvers.version}</version>
-            <type>pom</type>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-spi</artifactId>
+            <version>1.9.15</version>
         </dependency>
     </dependencies>
 </project>

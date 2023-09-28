@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSourceAndType;
-import org.springframework.sbm.parsers.MavenExecutionResultException;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.util.List;

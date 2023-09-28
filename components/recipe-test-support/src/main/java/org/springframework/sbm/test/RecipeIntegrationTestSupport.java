@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.test;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.commands.ScanCommand;
@@ -26,7 +27,6 @@ import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import freemarker.template.Configuration;
 import lombok.AccessLevel;
 import lombok.Setter;
-import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 

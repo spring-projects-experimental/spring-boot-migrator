@@ -40,7 +40,6 @@ import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.cache.*;
-import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.cache.MavenArtifactCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
@@ -277,14 +276,13 @@ class RewriteMavenProjectParserTest {
         MavenArtifactCache mavenArtifactCache = new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository"));
         @Nullable MavenSettings mavenSettings = null;
         Consumer<Throwable> onError = (t) -> {throw new RuntimeException(t);};
-        MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader(mavenArtifactCache, mavenSettings, onError));
+        HelperWithoutAGoodName helperWithoutAGoodName = new HelperWithoutAGoodName();
 
         JavaParserBuilder javaParserBuilder = new JavaParserBuilder();
         RewriteProjectParser rpp = new RewriteProjectParser(
-                new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
-                new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
+                new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
-                new SourceFileParser(parserProperties, mavenMojoParserPrivateMethods, javaParserBuilder),
+                new SourceFileParser(parserProperties, helperWithoutAGoodName),
                 new StyleDetector(),
                 parserProperties,
                 mock(ParsingEventListener.class),
@@ -292,7 +290,8 @@ class RewriteMavenProjectParserTest {
                 scanScope,
                 beanFactory,
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
-                ctx
+                ctx,
+                new MavenProjectAnalyzer(mock(RewriteMavenArtifactDownloader.class))
         );
 
         Set<String> ignoredPatters = Set.of();

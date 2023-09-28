@@ -15,20 +15,18 @@
  */
 package org.springframework.sbm.parsers;
 
-import org.apache.maven.graph.GraphBuilder;
 import org.codehaus.plexus.*;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
 
 import java.net.URL;
 
 @Lazy
 class MavenPlexusContainer {
 
-    public GraphBuilder lookup(Class<GraphBuilder> aClass) {
+    public <T> T lookup(Class<T> aClass) {
         try {
             return ContainerHolder.INSTANCE.lookup(aClass);
         } catch (ComponentLookupException e) {

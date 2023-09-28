@@ -15,7 +15,8 @@
  */
 package org.springframework.sbm.parsers;
 
-import org.apache.maven.project.MavenProject;
+import org.apache.commons.cli.*;
+import org.apache.maven.cli.CleanArgument;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

@@ -16,7 +16,6 @@
 package org.springframework.sbm.project.resource;
 
 import freemarker.template.Configuration;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
@@ -31,7 +30,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;
-import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.project.parser.DependencyHelper;
@@ -190,7 +188,7 @@ public class TestProjectContext {
             Path sbm = tempDirectory.resolve("sbm");
 //            FileUtils.cleanDirectory(sbm.toFile());
             Path randDir = sbm.resolve(RandomStringUtils.randomAlphanumeric(5));
-            FileUtils.forceMkdir(randDir.toFile());
+            Files.createDirectories(randDir);
             return randDir;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -596,9 +594,12 @@ public class TestProjectContext {
                                                                                     executionContext);
              */
 
-            // Writing to filesystem and parsing again changes th eresource order
+            // Writing to filesystem and parsing again changes the resource order
             try {
-                FileUtils.cleanDirectory(projectRoot.toFile());
+                Files.walk(projectRoot)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

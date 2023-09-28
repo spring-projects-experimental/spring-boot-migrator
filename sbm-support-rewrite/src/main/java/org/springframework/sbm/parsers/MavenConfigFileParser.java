@@ -18,7 +18,6 @@ package org.springframework.sbm.parsers;
 import org.apache.commons.cli.*;
 import org.apache.maven.cli.CleanArgument;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
