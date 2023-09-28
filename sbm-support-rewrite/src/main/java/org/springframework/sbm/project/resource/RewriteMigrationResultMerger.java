@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.engine.recipe;
+package org.springframework.sbm.project.resource;
 
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
-import org.springframework.sbm.project.resource.finder.AbsolutePathResourceFinder;
-import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.project.resource.finder.AbsolutePathResourceFinder;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -34,20 +31,6 @@ import java.util.Optional;
 public class RewriteMigrationResultMerger {
 
     private final RewriteSourceFileWrapper surceFileWrapper;
-    public void mergeResults(ProjectContext context, List<Result> results) {
-        // TODO: handle added
-        results.forEach(result -> {
-            SourceFile after = result.getAfter();
-            SourceFile before = result.getBefore();
-            if (after == null) {
-                handleDeleted(context, before);
-            } else if (before == null) {
-                handleAdded(context, after);
-            } else {
-                handleModified(context, after);
-            }
-        });
-    }
 
     public void mergeResults(ProjectResourceSet resourceSet, List<Result> results) {
         results.forEach(result -> {
@@ -63,18 +46,10 @@ public class RewriteMigrationResultMerger {
         });
     }
 
-    private void handleDeleted(ProjectContext context, SourceFile before) {
-        handleDeleted(context.getProjectResources(), before);
-    }
-
     private void handleDeleted(ProjectResourceSet resourceSet, SourceFile before) {
         Path path = resourceSet.list().get(0).getAbsoluteProjectDir().resolve(before.getSourcePath());
         Optional<RewriteSourceFileHolder<? extends SourceFile>> match = new AbsolutePathResourceFinder(path).apply(resourceSet);
         match.get().delete();
-    }
-
-    private void handleAdded(ProjectContext context, SourceFile after) {
-        handleAdded(context.getProjectResources(), after);
     }
 
     private void handleAdded(ProjectResourceSet resourceSet, SourceFile after) {
@@ -91,10 +66,6 @@ public class RewriteMigrationResultMerger {
         }
         // TODO: handle situations where resource is not rewriteSourceFileHolder -> use predicates for known types to reuse, alternatively using the ProjectContextBuiltEvent might help
         replaceWrappedResource(modifiedResource.get(), after);
-    }
-
-    private void handleModified(ProjectContext context, SourceFile after) {
-        handleModified(context.getProjectResources(), after);
     }
 
     private <T extends SourceFile> void replaceWrappedResource(RewriteSourceFileHolder<T> resource, SourceFile r) {

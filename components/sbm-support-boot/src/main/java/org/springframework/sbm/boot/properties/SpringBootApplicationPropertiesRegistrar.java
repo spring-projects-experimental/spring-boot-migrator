@@ -21,7 +21,7 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.properties.tree.Properties;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.api.SpringProfile;
-import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
+import org.springframework.sbm.utils.OsAgnosticPathMatcher;
 import org.springframework.sbm.project.resource.ProjectResourceWrapper;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;

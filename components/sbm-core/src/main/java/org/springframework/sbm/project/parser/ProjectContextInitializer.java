@@ -53,7 +53,7 @@ public class ProjectContextInitializer {
         List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources, executionContext).sourceFiles();
         List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = rewriteSourceFileWrapper.wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);
 
-        ProjectResourceSet projectResourceSet = new ProjectResourceSet(rewriteSourceFileHolders, executionContext);
+        ProjectResourceSet projectResourceSet = new ProjectResourceSet(rewriteSourceFileHolders, executionContext, migrationResultMerger);
         ProjectContext projectContext = projectContextFactory.createProjectContext(projectDir, projectResourceSet);
 
         storeGitCommitHash(projectDir, projectContext);

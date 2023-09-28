@@ -29,7 +29,7 @@ import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.SourceFile;
@@ -156,7 +156,7 @@ public class Module {
 
     public <T> T search(ProjectResourceFinder<T> finder) {
         List<RewriteSourceFileHolder<? extends SourceFile>> resources = getModuleResources();
-        ProjectResourceSet filteredProjectResourceSet = new ProjectResourceSet(resources, executionContext);
+        ProjectResourceSet filteredProjectResourceSet = new ProjectResourceSet(resources, executionContext, migrationResultMerger);
         return finder.apply(filteredProjectResourceSet);
     }
 
@@ -231,7 +231,7 @@ public class Module {
         private final Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate;
 
         public ImmutableFilteringProjectResourceSet(ProjectResourceSet projectResourceSet, Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate) {
-            super(projectResourceSet.list(), executionContext);
+            super(projectResourceSet.list(), executionContext, migrationResultMerger);
             this.projectResourceSet = projectResourceSet;
             this.predicate = predicate;
         }

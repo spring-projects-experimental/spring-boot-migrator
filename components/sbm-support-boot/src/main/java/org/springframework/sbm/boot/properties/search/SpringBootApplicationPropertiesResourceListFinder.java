@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.boot.autoconfigure;
+package org.springframework.sbm.boot.properties.search;
 
-import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.context.annotation.Import;
+import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
+import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
 
-/**
- * @author Fabian Krüger
- */
-@AutoConfiguration
-@Import({DiscoveryConfiguration.class, ScannerConfiguration.class, ProjectResourceSetConfiguration.class})
-public class SbmSupportRewriteConfiguration {
+public class SpringBootApplicationPropertiesResourceListFinder extends GenericTypeListFinder<SpringBootApplicationProperties> {
+
+    public SpringBootApplicationPropertiesResourceListFinder() {
+        super(SpringBootApplicationProperties.class);
+    }
 }

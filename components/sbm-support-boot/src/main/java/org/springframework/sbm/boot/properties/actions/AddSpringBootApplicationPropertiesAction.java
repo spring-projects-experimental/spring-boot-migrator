@@ -16,7 +16,6 @@
 package org.springframework.sbm.boot.properties.actions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,7 +24,7 @@ import lombok.experimental.SuperBuilder;
 import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -71,6 +70,6 @@ public class AddSpringBootApplicationPropertiesAction extends AbstractAction {
 
     @Override
     public boolean isApplicable(ProjectContext context) {
-        return context.search(new SpringBootApplicationPropertiesResourceListFilter()).isEmpty();
+        return context.search(new SpringBootApplicationPropertiesResourceListFinder()).isEmpty();
     }
 }

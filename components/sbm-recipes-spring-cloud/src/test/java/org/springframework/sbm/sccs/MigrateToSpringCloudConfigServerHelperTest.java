@@ -21,7 +21,7 @@ import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMa
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.api.SpringProfile;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
@@ -94,7 +94,7 @@ class MigrateToSpringCloudConfigServerHelperTest {
 
 
         Path targetDir = Files.createDirectory(tmpDir.resolve("copied-files"));
-        sut.copyFiles(projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()), targetDir);
+        sut.copyFiles(projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()), targetDir);
 
         assertThat(targetDir.resolve("application.properties")).exists();
         assertThat(targetDir.resolve("application-foo.properties")).exists();
@@ -114,9 +114,9 @@ class MigrateToSpringCloudConfigServerHelperTest {
                 .addRegistrar(new SpringBootApplicationPropertiesRegistrar(new SpringApplicationPropertiesPathMatcher(), new RewriteExecutionContext()))
                 .build();
 
-        sut.configureSccsConnection(projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()));
+        sut.configureSccsConnection(projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()));
 
-        SpringBootApplicationProperties applicationProperties1 = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).stream().filter(p -> p.getAbsolutePath().toString().endsWith("application.properties")).findFirst().get();
+        SpringBootApplicationProperties applicationProperties1 = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()).stream().filter(p -> p.getAbsolutePath().toString().endsWith("application.properties")).findFirst().get();
         assertThat(applicationProperties1.print()).isEqualTo(
                 "property1=foo\n" +
                         "spring.config.import=optional:configserver:http://localhost:8888"
@@ -148,7 +148,7 @@ class MigrateToSpringCloudConfigServerHelperTest {
 
         sut.findAllSpringApplicationProperties(context);
 
-        verify(context).search(any(SpringBootApplicationPropertiesResourceListFilter.class));
+        verify(context).search(any(SpringBootApplicationPropertiesResourceListFinder.class));
     }
 
     @Test

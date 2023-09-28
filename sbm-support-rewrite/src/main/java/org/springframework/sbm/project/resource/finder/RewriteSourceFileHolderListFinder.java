@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.project.resource.filter;
+package org.springframework.sbm.project.resource.finder;
 
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class RewriteSourceFileHolderListFilter<T extends SourceFile> implements ProjectResourceFinder<List<RewriteSourceFileHolder<T>>> {
+public class RewriteSourceFileHolderListFinder<T extends SourceFile> implements ProjectResourceFinder<List<RewriteSourceFileHolder<T>>> {
 
     private final Class<T> wrappedType;
 

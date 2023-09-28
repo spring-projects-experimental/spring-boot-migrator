@@ -20,7 +20,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.boot.upgrade_24_25.filter.CreateDatasourceInitializerAnalyzer;
 import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
 import org.springframework.sbm.build.api.Module;
@@ -44,7 +44,7 @@ public class Boot_24_25_CreateDatasourceInitializerAction extends AbstractAction
     public void apply(ProjectContext context) {
         if (context.getApplicationModules().isSingleModuleApplication()) {
             Module module = context.getApplicationModules().getRootModule();
-            List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
+            List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFinder());
             applyToModule(module, applicationProperties);
         } else {
             throw new MultiModuleApplicationNotSupportedException("Action can only be applied to applications with single module.");

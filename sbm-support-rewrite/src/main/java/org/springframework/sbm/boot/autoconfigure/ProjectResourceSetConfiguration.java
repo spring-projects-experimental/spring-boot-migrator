@@ -16,12 +16,22 @@
 package org.springframework.sbm.boot.autoconfigure;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Bean;
+import org.springframework.sbm.project.RewriteSourceFileWrapper;
+import org.springframework.sbm.project.resource.RewriteMigrationResultMerger;
 
 /**
  * @author Fabian Krüger
  */
 @AutoConfiguration
-@Import({DiscoveryConfiguration.class, ScannerConfiguration.class, ProjectResourceSetConfiguration.class})
-public class SbmSupportRewriteConfiguration {
+public class ProjectResourceSetConfiguration {
+    @Bean
+    RewriteSourceFileWrapper rewriteSourceFileWrapper() {
+        return new RewriteSourceFileWrapper();
+    }
+
+    @Bean
+    RewriteMigrationResultMerger rewriteMigrationResultMerger(RewriteSourceFileWrapper rewriteSourceFileWrapper) {
+        return new RewriteMigrationResultMerger(rewriteSourceFileWrapper);
+    }
 }

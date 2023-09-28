@@ -17,7 +17,7 @@ package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
+import org.springframework.sbm.utils.OsAgnosticPathMatcher;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.utils.LinuxWindowsPathUnifier;

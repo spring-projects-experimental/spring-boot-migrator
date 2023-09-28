@@ -17,6 +17,7 @@ package org.springframework.sbm.project.resource;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
+import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
 
@@ -30,10 +31,12 @@ public class ProjectResourceSet {
 
     private final List<RewriteSourceFileHolder<? extends SourceFile>> projectResources = new ArrayList<>();
     private final ExecutionContext executionContext;
+    private final RewriteMigrationResultMerger migrationResultMerger;
 
 
-    public ProjectResourceSet(List<RewriteSourceFileHolder<? extends SourceFile>> projectResources, ExecutionContext executionContext) {
+    public ProjectResourceSet(List<RewriteSourceFileHolder<? extends SourceFile>> projectResources, ExecutionContext executionContext, RewriteMigrationResultMerger migrationResultMerger) {
         this.executionContext = executionContext;
+        this.migrationResultMerger = migrationResultMerger;
         this.projectResources.addAll(projectResources);
     }
 
@@ -66,15 +69,6 @@ public class ProjectResourceSet {
         return projectResources.size();
     }
 
-//    /**
-//     * @deprecated use {@link ProjectContext#getFilteredResources(ProjectResourcesFilter)}
-//     * with {@link org.springframework.sbm.project.resource.filter.GenericTypeFilter}
-//     */
-//    @Deprecated(forRemoval = true)
-//    public <T> List<RewriteSourceFileHolder<T>> getProjections(Class<T> projectionClass) {
-//        return typeFilteredList(projectionClass);
-//    }
-
     public int indexOf(Path absolutePath) {
         return projectResources.stream()
                 .map(ProjectResource::getAbsolutePath)
@@ -90,7 +84,7 @@ public class ProjectResourceSet {
                         .map(SourceFile.class::cast)
                         .toList()
         );
-        new Recipe() {
+        List<Result> results = new Recipe() {
             @Override
             public String getDisplayName() {
                 return "Run a list of recipes";
@@ -108,30 +102,16 @@ public class ProjectResourceSet {
         }
         .run(largeSourceSet, executionContext)
         .getChangeset()
-        .getAllResults()
-        .forEach(r -> {
-            Path absoluteProjectDir = projectResources.get(0).getAbsoluteProjectDir();
-            if(r.getBefore() == null) {
-                RewriteSourceFileHolder<SourceFile> holder = new RewriteSourceFileHolder<>(absoluteProjectDir, r.getAfter());
-                holder.markAsChanged();
-                this.projectResources.add(holder);
-            } else if(r.getAfter() == null) {
-                RewriteSourceFileHolder<? extends SourceFile> resource = findResourceByPath(absoluteProjectDir.resolve(r.getBefore().getSourcePath())).get();
-                resource.delete();
-                projectResources.remove(resource);
-            } else {
-                RewriteSourceFileHolder<SourceFile> holder = new RewriteSourceFileHolder<>(absoluteProjectDir, r.getAfter());
-                holder.markAsChanged();
-                holder.replaceWith(r.getAfter());
-            }
-        });
+        .getAllResults();
+
+        migrationResultMerger.mergeResults(this, results);
     }
 
     void clearDeletedResources() {
         Iterator<RewriteSourceFileHolder<? extends SourceFile>> iterator = this.projectResources.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             RewriteSourceFileHolder<? extends SourceFile> current = iterator.next();
-            if(current.isDeleted()) {
+            if (current.isDeleted()) {
                 iterator.remove();
             }
         }

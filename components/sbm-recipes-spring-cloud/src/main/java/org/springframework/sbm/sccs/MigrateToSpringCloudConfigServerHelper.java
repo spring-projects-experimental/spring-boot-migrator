@@ -17,7 +17,7 @@ package org.springframework.sbm.sccs;
 
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.api.SpringProfile;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.stereotype.Component;
@@ -45,7 +45,7 @@ public class MigrateToSpringCloudConfigServerHelper {
     }
 
     List<SpringProfile> findAllSpringProfiles(ProjectContext projectContext) {
-        List<SpringBootApplicationProperties> applicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
+        List<SpringBootApplicationProperties> applicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder());
         List<SpringProfile> profilesFound = new ArrayList<>();
         applicationProperties.forEach(ap -> {
             profilesFound.add(ap.getSpringProfile());
@@ -66,7 +66,7 @@ public class MigrateToSpringCloudConfigServerHelper {
     }
 
     List<SpringBootApplicationProperties> findAllSpringApplicationProperties(ProjectContext context) {
-        return context.search(new SpringBootApplicationPropertiesResourceListFilter());
+        return context.search(new SpringBootApplicationPropertiesResourceListFinder());
     }
 
     Path initializeSccsProjectDir(Path projectRootDirectory) {

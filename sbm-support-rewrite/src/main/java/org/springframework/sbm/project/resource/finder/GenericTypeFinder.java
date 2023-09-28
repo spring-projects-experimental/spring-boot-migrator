@@ -13,28 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.project.resource.filter;
+package org.springframework.sbm.project.resource.finder;
 
 import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
+import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
+import org.springframework.sbm.project.resource.finder.ResourceFilterException;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class GenericTypeListFilter<T> implements ProjectResourceFinder<List<T>> {
+public class GenericTypeFinder<T> implements ProjectResourceFinder<Optional<T>> {
 
     @Getter
     private final Class<T> type;
 
-    public GenericTypeListFilter(Class<T> type) {
+    public GenericTypeFinder(Class<T> type) {
         this.type = type;
     }
 
     @Override
-    public List<T> apply(ProjectResourceSet projectResourceSet) {
-        return projectResourceSet.stream()
+    public Optional<T> apply(ProjectResourceSet projectResourceSet) {
+        List<T> collect = projectResourceSet.stream()
                 .filter(pr -> type.isAssignableFrom(pr.getClass()))
                 .map(type::cast)
                 .collect(Collectors.toList());
+        if (collect.size() > 1) {
+            throw new ResourceFilterException(String.format("Found more than one resource of type '%s'. Use %s instead.", type.getClass(), GenericTypeListFinder.class));
+        }
+        return collect.isEmpty() ? Optional.empty() : Optional.of(collect.get(0));
     }
 }

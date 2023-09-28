@@ -25,7 +25,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 
 import java.nio.file.Path;
 import java.util.List;

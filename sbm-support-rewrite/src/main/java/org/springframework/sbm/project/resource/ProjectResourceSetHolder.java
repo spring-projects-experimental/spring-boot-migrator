@@ -17,7 +17,6 @@ package org.springframework.sbm.project.resource;
 
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
-import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -27,12 +26,13 @@ import java.util.ArrayList;
 public class ProjectResourceSetHolder {
     private ProjectResourceSet projectResourceSet;
     private final ExecutionContext executionContext;
+    private final RewriteMigrationResultMerger migrationResultMerger;
 
     public void setProjectResourceSet(ProjectResourceSet projectResourceSet) {
         this.projectResourceSet = projectResourceSet;
     }
 
     public ProjectResourceSet getProjectResourceSet() {
-        return projectResourceSet == null ? new ProjectResourceSet(new ArrayList<>(), executionContext) : projectResourceSet;
+        return projectResourceSet == null ? new ProjectResourceSet(new ArrayList<>(), executionContext, migrationResultMerger) : projectResourceSet;
     }
 }

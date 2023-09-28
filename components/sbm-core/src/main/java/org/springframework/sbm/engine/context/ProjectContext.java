@@ -24,7 +24,7 @@ import org.springframework.sbm.build.api.ApplicationModules;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.RootBuildFileFilter;
-import org.springframework.sbm.build.filter.BuildFileProjectResourceFilter;
+import org.springframework.sbm.build.filter.BuildFileProjectResourceFinder;
 import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
 import org.springframework.sbm.java.api.ProjectJavaSources;
 import org.springframework.sbm.java.impl.ProjectJavaSourcesImpl;
@@ -33,7 +33,7 @@ import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -74,7 +74,7 @@ public class ProjectContext {
      */
     @Deprecated(forRemoval = false)
     public List<Module> getModules() {
-        return search(new BuildFileProjectResourceFilter()).stream()
+        return search(new BuildFileProjectResourceFinder()).stream()
                 .map(this::mapToModule)
                 .collect(Collectors.toList());
     }

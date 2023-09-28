@@ -27,7 +27,7 @@ import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.exceptions.UnresolvedTypeException;
-import org.springframework.sbm.java.filter.JavaSourceListFilter;
+import org.springframework.sbm.java.filter.JavaSourceListFinder;
 import org.springframework.sbm.java.refactoring.JavaGlobalRefactoring;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -57,7 +57,7 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
 
     @Override
     public List<JavaSource> list() {
-        return new JavaSourceListFilter().apply(projectResourceSet);
+        return new JavaSourceListFinder().apply(projectResourceSet);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
 
     @Override
     public Stream<JavaSource> stream() {
-        return new JavaSourceListFilter().apply(projectResourceSet).stream();
+        return new JavaSourceListFinder().apply(projectResourceSet).stream();
     }
 
     @Override

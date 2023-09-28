@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.java.filter;
+package org.springframework.sbm.project.resource.finder;
 
-import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
-import org.springframework.sbm.project.resource.filter.GenericTypeListFilter;
+import org.springframework.sbm.project.resource.ProjectResourceSet;
 
-public class OpenRewriteJavaSourceListFilter extends GenericTypeListFilter<OpenRewriteJavaSource> {
-
-    public OpenRewriteJavaSourceListFilter() {
-        super(OpenRewriteJavaSource.class);
-    }
-
+public interface ProjectResourceFinder<T> {
+    T apply(ProjectResourceSet projectResourceSet);
 }

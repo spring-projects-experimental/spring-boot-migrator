@@ -15,20 +15,21 @@
  */
 package com.acme.example;
 
-import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.Recipe;
-import org.openrewrite.RecipeRun;
-import org.openrewrite.internal.InMemoryLargeSourceSet;
+import org.openrewrite.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.boot.autoconfigure.DiscoveryConfiguration;
 import org.springframework.sbm.parsers.ProjectScanner;
 import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.parsers.RewriteProjectParsingResult;
+import org.springframework.sbm.parsers.events.StartedParsingResourceEvent;
+import org.springframework.sbm.project.RewriteSourceFileWrapper;
+import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.project.resource.RewriteMigrationResultMerger;
+import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
 
 import java.nio.file.Path;
@@ -50,22 +51,34 @@ public class SpringBoot3Upgrade implements CommandLineRunner {
     ProjectScanner scanner;
     @Autowired
     RewriteRecipeDiscovery discovery;
+    @Autowired
+    ExecutionContext executionContext;
+    @Autowired
+    RewriteSourceFileWrapper sourceFileWrapper;
+    @Autowired
+    RewriteMigrationResultMerger resultMerger;
+
+    @EventListener(StartedParsingResourceEvent.class)
+    public void onStartedParsingResourceEvent(StartedParsingResourceEvent event) {
+        System.out.println();
+    }
 
     @Override
     public void run(String... args) throws Exception {
         Path baseDir = Path.of("/Users/fkrueger/projects/sbm-projects/spring-restbucks/server");
+        // scan
         List<Resource> resources = scanner.scan(baseDir);
-        InMemoryExecutionContext executionContext = new InMemoryExecutionContext();
+        // parse
         RewriteProjectParsingResult parsingResult = parser.parse(baseDir, resources, executionContext);
+        List<SourceFile> sourceFiles = parsingResult.sourceFiles();
+        List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = sourceFileWrapper.wrapRewriteSourceFiles(baseDir, sourceFiles);
+        ProjectResourceSet projectResourceSet = new ProjectResourceSet(rewriteSourceFileHolders, executionContext, resultMerger);
+        // apply recipe
         String recipeName = "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1";
         List<Recipe> recipes = discovery.discoverRecipes();
         Optional<Recipe> recipe = recipes.stream().filter(r -> recipeName.equals(r.getName())).findFirst();
         recipe.ifPresent((Recipe r) -> {
-            RecipeRun run = r.run(new InMemoryLargeSourceSet(parsingResult.sourceFiles()), executionContext);
-            run.getChangeset().getAllResults().forEach(result -> {
-                System.out.println("-------------------------------------------------------");
-                System.out.println(result.diff());
-            });
+            projectResourceSet.apply(r);
         });
     }
 }

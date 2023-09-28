@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.common.util;
+package org.springframework.sbm.utils;
 
 import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.util.AntPathMatcher;
