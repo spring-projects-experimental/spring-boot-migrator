@@ -32,7 +32,6 @@ import java.util.List;
  *
  * @author Fabian Krüger
  */
-@Component
 @RequiredArgsConstructor
 // TODO: should be package private
 public class MavenPasswordDecrypter {

@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.sbm.boot.autoconfigure.ParserPropertiesPostProcessor;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
@@ -48,7 +49,7 @@ import java.util.function.Consumer;
  */
 @Slf4j
 @AutoConfiguration(after = {ScopeConfiguration.class})
-@EnableConfigurationProperties(ParserProperties.class)
+@EnableConfigurationProperties({ParserProperties.class, SbmApplicationProperties.class})
 @Import({ScanScope.class, ScopeConfiguration.class})
 public class RewriteParserConfiguration {
 
@@ -59,6 +60,11 @@ public class RewriteParserConfiguration {
 //    ProvenanceMarkerFactory provenanceMarkerFactory(MavenMojoProjectParserFactory projectParserFactory) {
 //        return new ProvenanceMarkerFactory(projectParserFactory);
 //    }
+
+    @Bean
+    MavenPasswordDecrypter mavenPasswordDecrypter() {
+        return new MavenPasswordDecrypter();
+    }
 
     @Bean
     MavenProvenanceMarkerFactory mavenProvenanceMarkerFactory() {
