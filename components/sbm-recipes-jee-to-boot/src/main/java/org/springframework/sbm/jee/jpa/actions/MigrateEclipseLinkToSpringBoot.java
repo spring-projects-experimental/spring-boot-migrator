@@ -28,7 +28,7 @@ import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.ProjectJavaSources;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.jee.jpa.api.PersistenceXml;
-import org.springframework.sbm.jee.jpa.filter.PersistenceXmlResourceFilter;
+import org.springframework.sbm.jee.jpa.filter.PersistenceXmlResourceFinder;
 
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -289,7 +289,7 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
     private List<SpringBootJpaProperty> extractEclipseLinkProperties(Module module) {
         List<SpringBootJpaProperty> springBootJpaProperties = new ArrayList<>();
 
-        Optional<PersistenceXml> optPersistenceXml = module.search(new PersistenceXmlResourceFilter());
+        Optional<PersistenceXml> optPersistenceXml = module.search(new PersistenceXmlResourceFinder());
         return optPersistenceXml.map(persistenceXml -> persistenceXml.getPersistence().getPersistenceUnit().get(0) // FIXME: should multiple persistence-units be handled or fail?
             .getProperties())
             .filter(not(properties -> properties.getProperty().isEmpty()))

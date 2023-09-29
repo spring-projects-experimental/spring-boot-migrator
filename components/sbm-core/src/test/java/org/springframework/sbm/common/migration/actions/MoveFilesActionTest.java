@@ -17,7 +17,7 @@ package org.springframework.sbm.common.migration.actions;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
+import org.springframework.sbm.project.resource.finder.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.InternalProjectResource;
 import org.springframework.sbm.project.resource.ProjectResource;

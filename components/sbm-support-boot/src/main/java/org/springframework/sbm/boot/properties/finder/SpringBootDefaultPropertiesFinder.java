@@ -15,10 +15,9 @@
  */
 package org.springframework.sbm.boot.properties.finder;
 
-import org.openrewrite.properties.tree.Properties;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 
 import java.util.Optional;
 

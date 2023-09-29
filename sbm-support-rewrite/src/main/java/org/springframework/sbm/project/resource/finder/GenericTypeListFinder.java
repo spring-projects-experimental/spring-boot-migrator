@@ -13,21 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.common.filter;
+package org.springframework.sbm.project.resource.finder;
 
 import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DeletedResourcePathStringFilter implements ProjectResourceFinder<List<String>> {
+public class GenericTypeListFinder<T> implements ProjectResourceFinder<List<T>> {
+
+    @Getter
+    private final Class<T> type;
+
+    public GenericTypeListFinder(Class<T> type) {
+        this.type = type;
+    }
 
     @Override
-    public List<String> apply(ProjectResourceSet projectResourceSet) {
-        return projectResourceSet.streamIncludingDeleted()
-                .filter(r -> r.isDeleted() && !r.getAbsolutePath().toFile().isDirectory())
-                .map(r -> r.getAbsolutePath().toString())
+    public List<T> apply(ProjectResourceSet projectResourceSet) {
+        return projectResourceSet.stream()
+                .filter(pr -> type.isAssignableFrom(pr.getClass()))
+                .map(type::cast)
                 .collect(Collectors.toList());
     }
 }

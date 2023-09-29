@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build.filter;
+package org.springframework.sbm.java.filter;
 
-import org.springframework.sbm.build.api.BuildFile;
-import org.springframework.sbm.project.resource.filter.GenericTypeListFilter;
+import org.springframework.sbm.java.api.JavaSource;
+import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
 
-public class BuildFileProjectResourceFilter extends GenericTypeListFilter<BuildFile> {
-    public BuildFileProjectResourceFilter() {
-        super(BuildFile.class);
+public class JavaSourceListFinder extends GenericTypeListFinder<JavaSource> {
+    public JavaSourceListFinder() {
+        super(JavaSource.class);
     }
 }

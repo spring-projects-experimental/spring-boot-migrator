@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.java.filter;
+package org.springframework.sbm.project.resource.finder;
 
-import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.project.resource.filter.GenericTypeListFilter;
-
-public class JavaSourceListFilter extends GenericTypeListFilter<JavaSource> {
-    public JavaSourceListFilter() {
-        super(JavaSource.class);
+public class ResourceFilterException extends RuntimeException {
+    public ResourceFilterException(String s) {
+        super(s);
     }
 }

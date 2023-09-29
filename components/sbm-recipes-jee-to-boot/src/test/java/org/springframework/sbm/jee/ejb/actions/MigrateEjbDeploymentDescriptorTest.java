@@ -19,7 +19,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.jee.ejb.api.EjbJarXml;
 import org.springframework.sbm.jee.ejb.resource.JeeEjbJarXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.springframework.sbm.project.resource.filter.GenericTypeListFilter;
+import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -86,7 +86,7 @@ class MigrateEjbDeploymentDescriptorTest {
         // verify...
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print()).isEqualTo(expected);
-        List<EjbJarXml> deploymentDescriptors = projectContext.search(new GenericTypeListFilter<>(EjbJarXml.class));
+        List<EjbJarXml> deploymentDescriptors = projectContext.search(new GenericTypeListFinder<>(EjbJarXml.class));
         assertThat(deploymentDescriptors).isEmpty();
     }
 
@@ -136,7 +136,7 @@ class MigrateEjbDeploymentDescriptorTest {
         // verify...
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print()).isEqualTo(expected);
-        List<EjbJarXml> deploymentDescriptors = projectContext.search(new GenericTypeListFilter<>(EjbJarXml.class));
+        List<EjbJarXml> deploymentDescriptors = projectContext.search(new GenericTypeListFinder<>(EjbJarXml.class));
         assertThat(deploymentDescriptors).isEmpty();
     }
 
@@ -186,7 +186,7 @@ class MigrateEjbDeploymentDescriptorTest {
         // verify...
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print()).isEqualTo(expected);
-        List<EjbJarXml> deploymentDescriptors = projectContext.search(new GenericTypeListFilter<>(EjbJarXml.class));
+        List<EjbJarXml> deploymentDescriptors = projectContext.search(new GenericTypeListFinder<>(EjbJarXml.class));
         assertThat(deploymentDescriptors).isEmpty();
     }
 
@@ -236,7 +236,7 @@ class MigrateEjbDeploymentDescriptorTest {
         // verify...
         assertThat(projectContext.getProjectJavaSources().list().size()).isEqualTo(1);
         assertThat(projectContext.getProjectJavaSources().list().get(0).print()).isEqualTo(expected);
-        List<EjbJarXml> deploymentDescriptors = projectContext.search(new GenericTypeListFilter<>(EjbJarXml.class));
+        List<EjbJarXml> deploymentDescriptors = projectContext.search(new GenericTypeListFinder<>(EjbJarXml.class));
         assertThat(deploymentDescriptors).isEmpty();
     }
 }

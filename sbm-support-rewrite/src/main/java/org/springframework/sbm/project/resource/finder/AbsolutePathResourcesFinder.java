@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.common.filter;
+package org.springframework.sbm.project.resource.finder;
 
 import org.openrewrite.SourceFile;
-import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 
 import java.nio.file.Path;
 import java.util.*;

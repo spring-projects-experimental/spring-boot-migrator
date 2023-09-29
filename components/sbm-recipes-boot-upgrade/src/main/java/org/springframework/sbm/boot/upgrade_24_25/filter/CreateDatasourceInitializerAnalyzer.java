@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.filter;
 
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 import org.springframework.sbm.project.resource.ProjectResource;
-import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
+import org.springframework.sbm.project.resource.finder.PathPatternMatchingProjectResourceFinder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,17 +45,17 @@ public class CreateDatasourceInitializerAnalyzer {
     }
 
     public List<SpringBootApplicationProperties> findPropertyFilesContainingDataUsernameProperty(Module module) {
-        List<SpringBootApplicationProperties> applicationProperties = module.search(new SpringBootApplicationPropertiesResourceListFilter());
+        List<SpringBootApplicationProperties> applicationProperties = module.search(new SpringBootApplicationPropertiesResourceListFinder());
         return findPropertyFilesContainingProperty(applicationProperties, "spring.datasource.data-username");
     }
 
     public List<SpringBootApplicationProperties> findPropertyFilesContainingDataPasswordProperty(Module context) {
-        List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
+        List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFinder());
         return findPropertyFilesContainingProperty(applicationProperties, "spring.datasource.data-password");
     }
 
     public List<SpringBootApplicationProperties> findPropertyFilesContainingSchemaUsernameProperty(Module context) {
-        List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
+        List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFinder());
         return findPropertyFilesContainingProperty(applicationProperties, "spring.datasource.schema-username");
     }
 }

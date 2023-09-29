@@ -16,9 +16,9 @@
 package org.springframework.sbm.boot.common.finder;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.sbm.java.filter.JavaSourceListFilter;
+import org.springframework.sbm.java.filter.JavaSourceListFinder;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class SpringBeanMethodDeclarationFinder implements ProjectResourceFinder<
 
         List<MatchingMethod> matches = new ArrayList<>();
 
-        new JavaSourceListFilter()
+        new JavaSourceListFinder()
                 .apply(projectResourceSet)
                 .stream()
                 .filter(js -> js.hasImportStartingWith(SPRING_BEAN_ANNOTATION))

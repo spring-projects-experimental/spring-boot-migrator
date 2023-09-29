@@ -43,7 +43,7 @@ import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.precondition.PreconditionVerifier;
-import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
+import org.springframework.sbm.engine.recipe.MigrationResultProjectContextMerger;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
@@ -77,7 +77,7 @@ import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
         ProjectContextFactory.class,
         MavenPomCacheProvider.class,
         SbmApplicationProperties.class,
-        RewriteMigrationResultMerger.class,
+        MigrationResultProjectContextMerger.class,
         PathScanner.class,
         RewriteJavaParser.class,
         RewritePlainTextParser.class,

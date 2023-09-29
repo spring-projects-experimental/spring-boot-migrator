@@ -16,7 +16,7 @@
 package org.springframework.sbm.boot.properties.actions;
 
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -49,7 +49,7 @@ class AddSpringBootApplicationPropertiesActionTest {
         ActionTest.withProjectContext(projectContextBuilder)
                 .actionUnderTest(sut)
                 .verify(projectContext -> {
-                    SpringBootApplicationProperties springBootApplicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
+                    SpringBootApplicationProperties springBootApplicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()).get(0);
                     assertThat(springBootApplicationProperties).isNotNull();
                     assertThat(springBootApplicationProperties.hasChanges()).isTrue();
                 });

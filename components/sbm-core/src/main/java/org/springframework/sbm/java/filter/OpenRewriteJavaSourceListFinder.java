@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.project.resource.filter;
+package org.springframework.sbm.java.filter;
 
-public class ResourceFilterException extends RuntimeException {
-    public ResourceFilterException(String s) {
-        super(s);
+import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
+import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
+
+public class OpenRewriteJavaSourceListFinder extends GenericTypeListFinder<OpenRewriteJavaSource> {
+
+    public OpenRewriteJavaSourceListFinder() {
+        super(OpenRewriteJavaSource.class);
     }
+
 }

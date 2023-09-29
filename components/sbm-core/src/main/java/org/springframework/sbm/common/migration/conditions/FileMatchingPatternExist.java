@@ -16,7 +16,7 @@
 package org.springframework.sbm.common.migration.conditions;
 
 import lombok.*;
-import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
+import org.springframework.sbm.utils.OsAgnosticPathMatcher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.util.PathMatcher;

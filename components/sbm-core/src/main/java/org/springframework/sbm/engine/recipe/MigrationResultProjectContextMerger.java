@@ -13,33 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.common.filter;
+package org.springframework.sbm.engine.recipe;
 
 import lombok.RequiredArgsConstructor;
+import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
-import org.springframework.sbm.project.resource.ProjectResource;
+import org.springframework.sbm.project.resource.RewriteMigrationResultMerger;
+import org.springframework.sbm.project.resource.finder.AbsolutePathResourceFinder;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
+@Component
 @RequiredArgsConstructor
-public class AbsolutePathResourceFinder implements ProjectResourceFinder<Optional<RewriteSourceFileHolder<? extends SourceFile>>> {
+public class MigrationResultProjectContextMerger {
 
-    private final Path absoluteResourcePath;
+    private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
 
-    @Override
-    public Optional<RewriteSourceFileHolder<? extends SourceFile>> apply(ProjectResourceSet projectResourceSet) {
-        if (absoluteResourcePath == null || ! absoluteResourcePath.isAbsolute()) {
-            throw new IllegalArgumentException("Given path '"+absoluteResourcePath+"' is not absolute");
-        }
-        Path searchForPath = absoluteResourcePath.normalize();
-        return projectResourceSet
-                .stream()
-                .filter(r -> searchForPath.equals(r.getAbsolutePath()))
-                .findFirst();
-
+    public void mergeResults(ProjectContext context, List<Result> results) {
+        rewriteMigrationResultMerger.mergeResults(context.getProjectResources(), results);
     }
 }

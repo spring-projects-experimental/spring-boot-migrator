@@ -17,14 +17,12 @@ package org.springframework.sbm.engine.context;
 
 import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.build.api.BuildFile;
-import org.springframework.sbm.build.filter.BuildFileProjectResourceFilter;
-import org.springframework.sbm.engine.recipe.RewriteMigrationResultMerger;
+import org.springframework.sbm.build.filter.BuildFileProjectResourceFinder;
+import org.springframework.sbm.engine.recipe.MigrationResultProjectContextMerger;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
-import org.springframework.sbm.project.parser.DependencyHelper;
 import org.springframework.sbm.project.resource.*;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -45,14 +43,15 @@ public class ProjectContextFactory {
     private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
     private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
+    private final ProjectResourceSetFactory projectResourceSetFactory;
 
     @NotNull
     public ProjectContext createProjectContext(Path projectDir, ProjectResourceSet projectResourceSet) {
         projectResourceSetHolder.setProjectResourceSet(projectResourceSet);
         applyProjectResourceWrappers(projectResourceSet);
-        List<BuildFile> buildFiles = new BuildFileProjectResourceFilter().apply(projectResourceSet);
+        List<BuildFile> buildFiles = new BuildFileProjectResourceFinder().apply(projectResourceSet);
         ClasspathRegistry.initializeFromBuildFiles(buildFiles);
-        ProjectContext projectContext = new ProjectContext(javaRefactoringFactory, projectDir, projectResourceSet, basePackageCalculator, javaParserBuilder, executionContext, rewriteMigrationResultMerger);
+        ProjectContext projectContext = new ProjectContext(javaRefactoringFactory, projectDir, projectResourceSet, basePackageCalculator, javaParserBuilder, executionContext, rewriteMigrationResultMerger, projectResourceSetFactory);
         return projectContext;
     }
 

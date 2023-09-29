@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.common.filter;
+package org.springframework.sbm.project.resource.finder;
 
-import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
+import org.springframework.sbm.utils.OsAgnosticPathMatcher;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 import org.springframework.util.PathMatcher;
 
 import java.util.Arrays;

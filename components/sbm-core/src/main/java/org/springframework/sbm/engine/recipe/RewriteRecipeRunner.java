@@ -29,7 +29,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class RewriteRecipeRunner {
-    private final RewriteMigrationResultMerger resultMerger;
+    private final MigrationResultProjectContextMerger resultMerger;
     private final ExecutionContext executionContext;
 
     // FIXME: Make this a method 'apply(org.openrewrite.Recipe)' on ProjectContext, see https://github.com/spring-projects-experimental/spring-boot-migrator/issues/803

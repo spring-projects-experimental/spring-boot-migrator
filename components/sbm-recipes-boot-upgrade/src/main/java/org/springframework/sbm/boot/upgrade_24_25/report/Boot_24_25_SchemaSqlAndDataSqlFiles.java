@@ -22,7 +22,7 @@ import org.springframework.sbm.boot.asciidoctor.Section;
 import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.ProjectResource;
-import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
+import org.springframework.sbm.project.resource.finder.PathPatternMatchingProjectResourceFinder;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;

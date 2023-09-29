@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.jee.jpa.filter;
+package org.springframework.sbm.build.filter;
 
-import org.springframework.sbm.jee.jpa.api.PersistenceXml;
-import org.springframework.sbm.project.resource.GenericTypeFilter;
+import org.springframework.sbm.build.api.BuildFile;
+import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
 
-// FIXME: what if persistence.xml in src/test/resources also exists?!
-public class PersistenceXmlResourceFilter extends GenericTypeFilter<PersistenceXml> {
-
-    public PersistenceXmlResourceFilter() {
-        super(PersistenceXml.class);
+public class BuildFileProjectResourceFinder extends GenericTypeListFinder<BuildFile> {
+    public BuildFileProjectResourceFinder() {
+        super(BuildFile.class);
     }
-
 }

@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.common.filter;
+package org.springframework.sbm.project.resource.finder;
 
 import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ModifiedResourcePathStringFilter implements ProjectResourceFinder<List<String>> {
+public class DeletedResourcePathStringFilter implements ProjectResourceFinder<List<String>> {
 
     @Override
     public List<String> apply(ProjectResourceSet projectResourceSet) {
-        return projectResourceSet.stream()
-                .filter(r -> r.hasChanges() && !r.isDeleted() && !r.getAbsolutePath().toFile().isDirectory())
+        return projectResourceSet.streamIncludingDeleted()
+                .filter(r -> r.isDeleted() && !r.getAbsolutePath().toFile().isDirectory())
                 .map(r -> r.getAbsolutePath().toString())
                 .collect(Collectors.toList());
     }

@@ -21,8 +21,8 @@ import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;
-import org.springframework.sbm.common.filter.DeletedResourcePathStringFilter;
-import org.springframework.sbm.common.filter.ModifiedResourcePathStringFilter;
+import org.springframework.sbm.project.resource.finder.DeletedResourcePathStringFilter;
+import org.springframework.sbm.project.resource.finder.ModifiedResourcePathStringFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -42,7 +42,7 @@ public class Boot_27_30_JmxEndpointExposureActionTest {
         Boot_27_30_JmxEndpointExposureAction boot_27_30_jmxEndpointExposureAction = new Boot_27_30_JmxEndpointExposureAction();
         boot_27_30_jmxEndpointExposureAction.apply(projectContext);
 
-        List<SpringBootApplicationProperties> bootApplicationProperties = new SpringBootApplicationPropertiesResourceListFilter().apply(projectContext.getProjectResources());
+        List<SpringBootApplicationProperties> bootApplicationProperties = new SpringBootApplicationPropertiesResourceListFinder().apply(projectContext.getProjectResources());
         assertThat(bootApplicationProperties.size()).isEqualTo(1);
         assertThat(bootApplicationProperties.get(0).getProperty("management.endpoints.jmx.exposure.include").isPresent()).isTrue();
 

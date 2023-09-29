@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.boot.properties.search;
+package org.springframework.sbm.jee.jpa.filter;
 
-import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.project.resource.filter.GenericTypeListFilter;
+import org.springframework.sbm.jee.jpa.api.PersistenceXml;
+import org.springframework.sbm.project.resource.finder.GenericTypeFinder;
 
-public class SpringBootApplicationPropertiesResourceListFilter extends GenericTypeListFilter<SpringBootApplicationProperties> {
+// FIXME: what if persistence.xml in src/test/resources also exists?!
+public class PersistenceXmlResourceFinder extends GenericTypeFinder<PersistenceXml> {
 
-    public SpringBootApplicationPropertiesResourceListFilter() {
-        super(SpringBootApplicationProperties.class);
+    public PersistenceXmlResourceFinder() {
+        super(PersistenceXml.class);
     }
+
 }
