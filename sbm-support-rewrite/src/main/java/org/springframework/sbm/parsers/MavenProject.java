@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.SourceFile;
 import org.openrewrite.maven.tree.*;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
+import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.maven.MavenRuntimeInformation;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -38,19 +39,19 @@ import java.util.function.Predicate;
 /**
  * @author Fabian Krüger
  */
-public class SbmMavenProject {
+public class MavenProject {
 
     private final Path projectRoot;
     private final Resource pomFile;
     // FIXME: 945 temporary method, model should nopt come from Maven
     private final Model pomModel;
-    private List<SbmMavenProject> collectedProjects = new ArrayList<>();
-    private SourceFile sourceFile;
+    private List<MavenProject> collectedProjects = new ArrayList<>();
+    private Xml.Document sourceFile;
     private final MavenArtifactDownloader rewriteMavenArtifactDownloader;
     private final List<Resource> resources;
     private ProjectId projectId;
 
-    public SbmMavenProject(Path projectRoot, Resource pomFile, Model pomModel, MavenArtifactDownloader rewriteMavenArtifactDownloader, List<Resource> resources) {
+    public MavenProject(Path projectRoot, Resource pomFile, Model pomModel, MavenArtifactDownloader rewriteMavenArtifactDownloader, List<Resource> resources) {
         this.projectRoot = projectRoot;
         this.pomFile = pomFile;
         this.pomModel = pomModel;
@@ -68,11 +69,11 @@ public class SbmMavenProject {
         return pomFile == null ? null : ResourceUtil.getPath(pomFile).getParent();
     }
 
-    public void setCollectedProjects(List<SbmMavenProject> collected) {
+    public void setCollectedProjects(List<MavenProject> collected) {
         this.collectedProjects = collected;
     }
 
-    public List<SbmMavenProject> getCollectedProjects() {
+    public List<MavenProject> getCollectedProjects() {
         return collectedProjects;
     }
 

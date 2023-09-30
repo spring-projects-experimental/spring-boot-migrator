@@ -16,7 +16,6 @@
 package org.springframework.sbm.parsers.maven;
 
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.apache.maven.rtinfo.internal.DefaultRuntimeInformation;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
@@ -37,10 +36,9 @@ import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.lib.Repository;
 import org.openrewrite.shaded.jgit.storage.file.FileRepositoryBuilder;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.MavenProject;
 import org.springframework.sbm.parsers.ParserContext;
 import org.springframework.sbm.parsers.ParserProperties;
-import org.springframework.sbm.parsers.SbmMavenProject;
-import org.springframework.sbm.parsers.maven.*;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 
@@ -78,14 +76,14 @@ class ProvenanceMarkerFactoryTest {
             MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(new ParserProperties());
             MavenMojoProjectParser sut = mavenMojoProjectParserFactory.create(baseDir, runtimeInformation, settingsDecrypter);
 
-            // the sut requires a SbmMavenProject, let's retrieve it from Maven
+            // the sut requires a MavenProject, let's retrieve it from Maven
             MavenExecutor mavenExecutor = new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer());
 
             // doing a 'mvn clean install'
             mavenExecutor.onProjectSucceededEvent(baseDir, List.of("clean", "package"), event -> {
 
-                // and then use the SbmMavenProject from the MavenSession
-                MavenProject mavenModel = event.getSession().getCurrentProject();
+                // and then use the MavenProject from the MavenSession
+                org.apache.maven.project.MavenProject mavenModel = event.getSession().getCurrentProject();
 
                 // to call the sut
                 List<Marker> markers = sut.generateProvenance(mavenModel);
@@ -175,29 +173,29 @@ class ProvenanceMarkerFactoryTest {
 
 
             ParserContext sortedProjects = mock(ParserContext.class);
-            SbmMavenProject sbmMavenProject1 = mock(SbmMavenProject.class);
-            SbmMavenProject sbmMavenProject2 = mock(SbmMavenProject.class);
-            List<SbmMavenProject> sbmMavenProjects = List.of(
-                    sbmMavenProject1,
-                    sbmMavenProject2
+            MavenProject mavenProject1 = mock(MavenProject.class);
+            MavenProject mavenProject2 = mock(MavenProject.class);
+            List<MavenProject> mavenProjects = List.of(
+                    mavenProject1,
+                    mavenProject2
             );
             // The provided TopologicallySortedProjects instance will
             // provide the sorted MavenProjects
-            when(sortedProjects.getSortedProjects()).thenReturn(sbmMavenProjects);
+            when(sortedProjects.getSortedProjects()).thenReturn(mavenProjects);
 
             // internally the Maven projects will be matched with the provided resources
             Path path1 = Path.of("some/path").toAbsolutePath().normalize();
-            // path1 matches with sbmMavenProject1
-            when(sortedProjects.getMatchingBuildFileResource(sbmMavenProject1)).thenReturn(new DummyResource(path1, ""));
+            // path1 matches with mavenProject1
+            when(sortedProjects.getMatchingBuildFileResource(mavenProject1)).thenReturn(new DummyResource(path1, ""));
             Path path2 = Path.of("some/other").toAbsolutePath().normalize();
-            // path2 matches with sbmMavenProject2
-            when(sortedProjects.getMatchingBuildFileResource(sbmMavenProject2)).thenReturn(new DummyResource(path2, ""));
+            // path2 matches with mavenProject2
+            when(sortedProjects.getMatchingBuildFileResource(mavenProject2)).thenReturn(new DummyResource(path2, ""));
             List<Marker> markers1 = List.of();
             List<Marker> markers2 = List.of();
             // FIXME: 945
-//            when(mojoProjectParser.generateProvenance(sbmMavenProject1)).thenReturn(markers1);
+//            when(mojoProjectParser.generateProvenance(mavenProject1)).thenReturn(markers1);
             // FIXME: 945
-//            when(mojoProjectParser.generateProvenance(sbmMavenProject2)).thenReturn(markers2);
+//            when(mojoProjectParser.generateProvenance(mavenProject2)).thenReturn(markers2);
             // FIXME: 945
 //            Map<Path, List<Marker>> resourceListMap = sut.generateProvenanceMarkers(baseDir, sortedProjects);
             // FIXME: 945
