@@ -120,6 +120,7 @@ public class RewriteProjectParser {
         Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, parserContext);
 
         // 127: parse build files
+        // TODO: 945 this map is only used to lookup module pom by path in SourceFileParser. If possible provide the build file from ParserContext and remove this map.
         Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, parserContext.getBuildFileResources(), parserContext.getActiveProfiles(), executionContext, parserProperties.isSkipMavenParsing(), provenanceMarkers);
 
         List<SourceFile> parsedAndSortedBuildFileDocuments = parserContext.getBuildFileResources().stream()
