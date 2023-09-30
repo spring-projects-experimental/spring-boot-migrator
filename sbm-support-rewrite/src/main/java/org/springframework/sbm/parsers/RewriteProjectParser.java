@@ -109,10 +109,6 @@ public class RewriteProjectParser {
         // Get the ordered list of projects
         ParserContext parserContext = mavenProjectAnalyzer.createParserContext(baseDir, resources);
 
-        // SortedProjects makes downstream components independent of Maven classes
-        // TODO: 945 Is SortedProjects still required?
-//            List<Resource> sortedBuildFileResources = buildFileParser.filterAndSortBuildFiles(resources);
-
         // generate provenance
         Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir, parserContext);
 
@@ -130,8 +126,7 @@ public class RewriteProjectParser {
         log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
         List<SourceFile> list = sourceFileParser.parseOtherSourceFiles(baseDir, parserContext, resourceToDocumentMap, resources, provenanceMarkers, styles, executionContext);
 
-//        List<SourceFile> sourceFilesWithoutPoms = sourceFilesStream.filter(sf -> resourceToDocumentMap.keySet().contains(baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize())).toList();
-        List<SourceFile> resultingList = new ArrayList<>(); // sourceFilesStream2.toList();
+        List<SourceFile> resultingList = new ArrayList<>();
         resultingList.addAll(parsedAndSortedBuildFileDocuments);
         resultingList.addAll(list);
         List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
@@ -139,8 +134,6 @@ public class RewriteProjectParser {
         eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
 
         return new RewriteProjectParsingResult(sourceFiles, executionContext);
-//        });
-
     }
 
     @NotNull
