@@ -1,10 +1,37 @@
 # sbm-support-rewrite
-these components
 
 The `sbm-support-rewrite` project provides Spring beans classes to parse a given project to an OpenRewrite abstract syntax tree (AST) which can then be used to run OpenRewrite recipes that were discovered on the classpath.
 
-- `RewriteProjectParser` - parses a project to OpenRewrite's AST representation
-- `RecipeDiscovery` - provides access to discovered recipes
+## Components
+The following components can be used to parse a project, run recipes and write changes back to the filesystem.
+These components are provided as Spring beans and can be injected into other Spring beans that require them.
+
+_Example: Inject RewriteProjectParser into your Spring bean_
+[source,java]
+....
+@Autowired
+RewriteProjectParser parser;
+....
+
+### ProjectScanner
+Scan a given path to a list of resources using filter definitions provided as application properties.
+
+### RewriteProjectParser
+Parses a project to OpenRewrite's AST representation.
+
+### RewriteExecutionContext
+OpenRewrite's `ExecutionContext` gets initialized during parsing.
+This `ExecutionContext` is required for some recipes and inner workings of OpenRewrite.
+
+### RecipeDiscovery
+Discover OpenRewrite recipes on classpath
+
+### ProjectResourceSet
+Abstraction of OpenRewrite SourceFiles that allows execution of recipes against the SourceFiles while
+synchronizing changes with the underlying list of SourceFiles.
+
+### ProjectResourceSetSerializer
+Write back the in-memory changed SourceFiles from the ProjectResourceSet to the filesystem.
 
 ## Getting started
 
@@ -36,15 +63,13 @@ Then the dependency can be retrieved.
 </dependency>
 .....
 
+### (Optional) Scan a project
+`ProjectScanner` scans a given `Path` to a list of ``Resource``s.
+It filters out resources and directories matching any of the ignore patterns in
+`parser.ignoredPathPatterns`.
+
 ### Parse a project
-
-`RewriteProjectParser` is provided as Spring bean and can be injected into components.
-
-[source,java]
-.....
-@Autowired
-private RewriteProjectParser parser;
-.....
+`RewriteProjectParser` parses a project to OpenRewrite AST.
 
 The provided `parse(Path)` method can be used to parse a project under a given `Path` to OpenRewrite AST.
 
@@ -55,12 +80,11 @@ List<SourceFile> ast = parser.parse(baseDir);
 .....
 
 ### ExecutionContext
-
-OpenRewrite's `ExecutionContext` is populated during parsing and the settings can be important for recipes executed later.
-The `ExecutionContext` is provided as scoped Spring bean.
+OpenRewrite's `ExecutionContext` is populated during parsing and the settings might be required for recipes executed later.
+The `ExecutionContext` is provided as scoped Spring bean and can be injected into other Spring beans.
 It has the same scope as the parsing and a new instance is automatically created with every parse.
 
-NOTE: The ExecutionContext should be injected and should not be created programmatically.
+NOTE: The ExecutionContext should always be injected and should not be created programmatically.
 
 ### Discover and run recipes
 
@@ -77,6 +101,49 @@ ExecutionContext ctx;
 Recipe recipe = discovery.getRecipe("org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1");
 RecipeRun recipe = recipe.run(new InMemoryLargeSourceSet(ast), ctx));
 ....
+
+### Use ProjectResourceSet
+A successful recipe run will return the modified ``SourceFile``s.
+Before another recipe can be applied to the AST the changed ``SourceFile``s need to be merged into the original list of ``SourceFile``s (the AST).
+The `ProjectResourceSet` provides this capability.
+
+[source,java]
+....
+@Component
+public class SomeClass {
+
+    @Autowired
+    ProjectResourceSetFactory factory;
+
+    @Autowired
+    RewriteProjectParser parser;
+
+    void method() {
+        Recipe r1 = ...
+        Recipe r2 = ...
+        RewriteProjectParsingResult parsingResult = parser.parse(baseDir);
+        List<SourceFile> sourceFiles = parsingResult.sourceFiles();
+        ProjectResourceSet projectResourceSet = factory.create(baseDir, sourceFiles);
+        projectResourceSet.apply(r1); // internally changes get merged back to AST
+        projectResourceSet.apply(r2); // r2 applied against the AST with changes from r1
+    }
+}
+....
+
+### Write changes back to filesystem
+The `ProjectResourceSetSerializer` can be used to write all changes (modify, delete, add) in `ProjectResourceSet` to the filesystem.
+
+[source,java]
+....
+@Autowired
+private ProjectResourceSetSerializer serializer;
+...
+public void method() {
+    ...
+    serializer.writeChanges(projectResourceSet);
+}
+....
+
 
 
 ### Listen to ParserEvents
@@ -177,21 +244,39 @@ Example code showing how to apply OpenRewrite's UpgradeSpringBoot_3_1 recipe
 
 [source, java]
 .....
+/*
+ * Copyright 2021 - 2023 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.sbm;
+
 import org.openrewrite.*;
-import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.ProjectScanner;
-import org.springframework.sbm.parsers.RewriteMavenProjectParser;
+import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.parsers.RewriteProjectParsingResult;
+import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.project.resource.ProjectResourceSetFactory;
+import org.springframework.sbm.project.resource.ProjectResourceSetSerializer;
 import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
 
 @SpringBootApplication
 public class BootUpgrade implements CommandLineRunner {
@@ -202,9 +287,13 @@ public class BootUpgrade implements CommandLineRunner {
     @Autowired
     ProjectScanner scanner;
     @Autowired
-    RewriteMavenProjectParser parser;
+    RewriteProjectParser parser;
     @Autowired
     RewriteRecipeDiscovery discovery;
+    @Autowired
+    ProjectResourceSetSerializer serializer;
+    @Autowired
+    ProjectResourceSetFactory factory;
 
     @Override
     public void run(String... args) throws Exception {
@@ -215,21 +304,24 @@ public class BootUpgrade implements CommandLineRunner {
         if(!baseDir.toFile().exists() || !baseDir.toFile().isDirectory()) {
             throw new IllegalArgumentException("Given path '%s' does not exist or is not a directory.".formatted(path));
         }
-        List<Resource> resources = scanner.scan(baseDir, Set.of("**/.idea/**", "**/.DS_Store", "**/.git/**"));
-        ExecutionContext ctx = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
-        RewriteProjectParsingResult parsingResult = parser.parse(baseDir/*, resources*/, ctx);
+
+        // parse
+        RewriteProjectParsingResult parsingResult = parser.parse(baseDir);
+        List<SourceFile> sourceFiles = parsingResult.sourceFiles();
+
+        // create ProjectResourceSet
+        ProjectResourceSet projectResourceSet = factory.create(baseDir, sourceFiles);
+
+        // find recipe
         String recipeName = "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1";
         List<Recipe> recipes = discovery.discoverRecipes();
-        recipes.stream()
-                .filter(r -> recipeName.equals(r.getName()))
-                .forEach(r -> {
-                    System.out.println("Applying recipe '%s'".formatted(r.getName()));
-                    LargeSourceSet lss = new InMemoryLargeSourceSet(parsingResult.sourceFiles());
-                    RecipeRun recipeRun = r.run(lss, ctx);
-                    recipeRun.getChangeset().getAllResults().stream()
-                            .map(Result::diff)
-                            .forEach(System.out::println);
-                });
+        Recipe recipe = findRecipe(recipes, recipeName);
+
+        // apply recipe
+        projectResourceSet.apply(recipe);
+
+        // write changes to fs
+        serializer.writeChanges(projectResourceSet);
     }
 }
 .....
