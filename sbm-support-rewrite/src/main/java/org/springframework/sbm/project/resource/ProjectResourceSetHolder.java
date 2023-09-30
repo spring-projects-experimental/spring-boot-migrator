@@ -17,7 +17,6 @@ package org.springframework.sbm.project.resource;
 
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
