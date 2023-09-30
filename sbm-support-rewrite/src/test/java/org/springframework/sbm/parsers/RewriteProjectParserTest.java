@@ -101,7 +101,7 @@ class RewriteProjectParserTest {
         Consumer<Throwable> onError = (t) -> {
             throw new RuntimeException(t);
         };
-        HelperWithoutAGoodName mavenMojoParserPrivateMethods = new HelperWithoutAGoodName();
+        ModuleParser mavenMojoParserPrivateMethods = new ModuleParser();
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),

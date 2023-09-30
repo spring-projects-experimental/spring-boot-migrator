@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 public class SourceFileParser {
 
     private final ParserProperties parserProperties;
-    private final HelperWithoutAGoodName mavenMojoProjectParserPrivateMethods;
+    private final ModuleParser mavenMojoProjectParserPrivateMethods;
 
     public List<SourceFile> parseOtherSourceFiles(
             Path baseDir,

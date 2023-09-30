@@ -276,13 +276,13 @@ class RewriteMavenProjectParserTest {
         MavenArtifactCache mavenArtifactCache = new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository"));
         @Nullable MavenSettings mavenSettings = null;
         Consumer<Throwable> onError = (t) -> {throw new RuntimeException(t);};
-        HelperWithoutAGoodName helperWithoutAGoodName = new HelperWithoutAGoodName();
+        ModuleParser moduleParser = new ModuleParser();
 
         JavaParserBuilder javaParserBuilder = new JavaParserBuilder();
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
-                new SourceFileParser(parserProperties, helperWithoutAGoodName),
+                new SourceFileParser(parserProperties, moduleParser),
                 new StyleDetector(),
                 parserProperties,
                 mock(ParsingEventListener.class),

@@ -107,13 +107,13 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
-    HelperWithoutAGoodName helperWithoutAGoodName() {
-        return new HelperWithoutAGoodName();
+    ModuleParser helperWithoutAGoodName() {
+        return new ModuleParser();
     }
 
     @Bean
-    SourceFileParser sourceFileParser(JavaParserBuilder javaParserBuilder, HelperWithoutAGoodName helperWithoutAGoodName) {
-        return new SourceFileParser(parserProperties, helperWithoutAGoodName);
+    SourceFileParser sourceFileParser(JavaParserBuilder javaParserBuilder, ModuleParser moduleParser) {
+        return new SourceFileParser(parserProperties, moduleParser);
     }
 
     @Bean

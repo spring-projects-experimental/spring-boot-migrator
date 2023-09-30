@@ -20,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
-import org.openrewrite.Tree;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.internal.JavaTypeCache;
@@ -46,8 +45,7 @@ import static org.openrewrite.Tree.randomId;
  * @author Fabian Krüger
  */
 @Slf4j
-// TODO: 945 ModuleParser ?
-public class HelperWithoutAGoodName {
+public class ModuleParser {
 
     /**
      * Add {@link Marker}s to {@link SourceFile}.
