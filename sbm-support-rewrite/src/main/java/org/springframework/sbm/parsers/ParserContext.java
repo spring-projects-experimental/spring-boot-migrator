@@ -65,10 +65,6 @@ public class ParserContext {
         return pathDocumentMap.get(path);
     }
 
-    public Map<Path, Xml.Document> getPathDocumentMap() {
-        return pathDocumentMap;
-    }
-
     public void setParsedBuildFiles(List<Xml.Document> xmlDocuments) {
         this.pathDocumentMap = xmlDocuments.stream()
                 .peek(doc -> addSourceFileToModel(baseDir, getSortedProjects(), doc))
