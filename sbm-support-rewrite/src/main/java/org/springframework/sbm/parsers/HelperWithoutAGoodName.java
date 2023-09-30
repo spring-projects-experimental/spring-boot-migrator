@@ -49,6 +49,9 @@ import static org.openrewrite.Tree.randomId;
 // TODO: 945 ModuleParser ?
 public class HelperWithoutAGoodName {
 
+    /**
+     * Add {@link Marker}s to {@link SourceFile}.
+     */
     public <T extends SourceFile> UnaryOperator<T> addProvenance(
             Path baseDir,
             List<Marker> provenance,
@@ -67,7 +70,7 @@ public class HelperWithoutAGoodName {
     }
 
     /**
-     * process sources in src/main/java of current module.
+     * Parse Java sources and resources under {@code src/main} of current module.
      */
     public List<SourceFile> processMainSources(
             Path baseDir,
@@ -154,7 +157,7 @@ public class HelperWithoutAGoodName {
 
 
     /**
-     * Calls {@link MavenMojoProjectParser#processTestSources(SbmMavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
+     * Parse Java sources and resource files under {@code src/test}.
      */
     public List<SourceFile> processTestSources(
             Path baseDir,
