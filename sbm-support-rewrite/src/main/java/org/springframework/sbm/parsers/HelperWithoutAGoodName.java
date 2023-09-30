@@ -40,37 +40,29 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.openrewrite.Tree.randomId;
+
 /**
  * @author Fabian Krüger
  */
 @Slf4j
+// TODO: 945 ModuleParser ?
 public class HelperWithoutAGoodName {
-    /**
-     * {@link MavenMojoProjectParser#addProvenance(Path, List, Collection)}
-     */
-    public <T extends
-            SourceFile> UnaryOperator<T> addProvenance(Path baseDir, List<Marker> provenance, @Nullable Collection<Path> generatedSources) {
-//        MavenMojoProjectParser mavenMojoProjectParser = createMavenMojoProjectParser(baseDir);
-//        Method method = ReflectionUtils.findMethod(MavenMojoProjectParser.class, "addProvenance", Path.class, List.class, Collection.class);
-//        ReflectionUtils.makeAccessible(method);
-//        if(method == null) {
-//            throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted("addProvenance", MavenMojoProjectParser.class.getName()));
-//        }
-//        Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser, baseDir, provenance, generatedSources);
-//        return (UnaryOperator<T>) result;
-        return (s) -> {
+
+    public <T extends SourceFile> UnaryOperator<T> addProvenance(
+            Path baseDir,
+            List<Marker> provenance,
+            @Nullable Collection<Path> generatedSources
+    ) {
+        return s -> {
             Markers markers = s.getMarkers();
-
-            Marker marker;
-            for (Iterator var5 = provenance.iterator(); var5.hasNext(); markers = markers.addIfAbsent(marker)) {
-                marker = (Marker) var5.next();
+            for (Marker marker : provenance) {
+                markers = markers.addIfAbsent(marker);
             }
-
             if (generatedSources != null && generatedSources.contains(baseDir.resolve(s.getSourcePath()))) {
-                markers = markers.addIfAbsent(new Generated(Tree.randomId()));
+                markers = markers.addIfAbsent(new Generated(randomId()));
             }
-
-            return (T) s.withMarkers(markers);
+            return s.withMarkers(markers);
         };
     }
 
