@@ -42,7 +42,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * Project parser parsing resources under a given {@link Path} to OpenRewrite abstract syntax tree.
+ * Project parser parsing resources under a given {@link Path} to OpenRewrite abstract syntax tree (AST).
  * The implementation aims to produce the exact same result as the build tool plugins provided by OpenRewrite.
  * The AST is provided as {@code List<}{@link SourceFile}{@code >}.
  *
@@ -82,6 +82,9 @@ public class RewriteProjectParser {
     private final MavenProjectAnalyzer mavenProjectAnalyzer;
 
 
+    /**
+     * Parse the given {@code baseDir} to OpenRewrite AST.
+     */
     public RewriteProjectParsingResult parse(Path baseDir) {
         List<Resource> resources = scanner.scan(baseDir);
         return this.parse(baseDir, resources, executionContext);
@@ -89,21 +92,6 @@ public class RewriteProjectParser {
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
-     * <p>
-     * extract all poms from list of resources
-     * sort the list of poms
-     * parse all poms
-     * - create marker - generateProvenance()
-     * Read java version from pom.xml, also checks maven-compiler-plugin settings.
-     * Adds markers: BuildEnvironment, GitProvenance, BuildTool, OperatingSystemProvenance, JavaVersion, JavaProject
-     * - Parse Maven files - parseMaven()
-     * * parse source files
-     * - listSourceFiles()
-     * Extract source-encoding from poms
-     * Create JavaParser with logging and styles
-     * Parse resources
-     * processMainSources()
-     * processTestSources()
      */
     public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources, ExecutionContext executionContext) {
         scanScope.clear(beanFactory);
