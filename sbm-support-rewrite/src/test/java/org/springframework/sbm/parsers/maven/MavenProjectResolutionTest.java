@@ -21,10 +21,6 @@ import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.sbm.parsers.maven.MavenConfigFileParser;
-import org.springframework.sbm.parsers.maven.MavenExecutionRequestFactory;
-import org.springframework.sbm.parsers.maven.MavenExecutor;
-import org.springframework.sbm.parsers.maven.MavenPlexusContainer;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,10 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-class SbmMavenProjectResolutionTest {
+class MavenProjectResolutionTest {
 
     @Test
-    @DisplayName("Factory should create fully initialized SbmMavenProject")
+    @DisplayName("Factory should create fully initialized MavenProject")
     void verifyMavenProjectRetrievedFromSession(@TempDir Path tempDir) throws Exception {
         @Language("xml")
         String pomXml = """

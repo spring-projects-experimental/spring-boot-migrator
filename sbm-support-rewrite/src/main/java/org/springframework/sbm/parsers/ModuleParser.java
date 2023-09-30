@@ -79,7 +79,7 @@ public class ModuleParser {
             List<Marker> provenanceMarkers,
             Set<Path> alreadyParsed,
             ExecutionContext executionContext,
-            SbmMavenProject currentProject
+            MavenProject currentProject
     ) {
         log.info("Processing main sources in module '%s'".formatted(currentProject.getProjectId()));
         // FIXME: 945
@@ -165,7 +165,7 @@ public class ModuleParser {
             List<Marker> provenanceMarkers,
             Set<Path> alreadyParsed,
             ExecutionContext executionContext,
-            SbmMavenProject currentProject,
+            MavenProject currentProject,
             List<Resource> resources
     ) {
         log.info("Processing test sources in module '%s'".formatted(currentProject.getProjectId()));

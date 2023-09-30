@@ -17,7 +17,6 @@
 package org.springframework.sbm.parsers.maven;
 
 import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,8 +26,8 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.MavenProject;
 import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
-import org.springframework.sbm.parsers.SbmMavenProject;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 
@@ -166,8 +165,8 @@ class MavenProjectAnalyzerTest {
             writeToDisk(baseDir, resources);
             MavenSession mavenSession = startMavenSession(baseDir);
 
-            List<MavenProject> mavenSorted = mavenSession.getProjectDependencyGraph().getSortedProjects();
-            List<SbmMavenProject> sbmSorted = sut.getSortedProjects(baseDir, resources);
+            List<org.apache.maven.project.MavenProject> mavenSorted = mavenSession.getProjectDependencyGraph().getSortedProjects();
+            List<MavenProject> sbmSorted = sut.getSortedProjects(baseDir, resources);
 
             assertThat(mavenSorted).hasSize(5);
             assertThat(mavenSorted.size()).isEqualTo(sbmSorted.size());
@@ -236,7 +235,7 @@ class MavenProjectAnalyzerTest {
         List<Resource> resources = List.of(new DummyResource(Path.of("pom.xml"), singlePom));
 
         Path baseDir = Path.of(".").toAbsolutePath().normalize();
-        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(baseDir, resources);
+        List<MavenProject> sortedProjects = sut.getSortedProjects(baseDir, resources);
         assertThat(sortedProjects).hasSize(1);
     }
 
@@ -285,7 +284,7 @@ class MavenProjectAnalyzerTest {
         );
 
 
-        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
+        List<MavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         assertThat(sortedProjects).hasSize(2);
 
@@ -356,7 +355,7 @@ class MavenProjectAnalyzerTest {
         );
 
 
-        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
+        List<MavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         assertThat(sortedProjects).hasSize(2);
 
@@ -435,7 +434,7 @@ class MavenProjectAnalyzerTest {
         );
 
 
-        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
+        List<MavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         assertThat(sortedProjects).hasSize(2);
 
@@ -525,7 +524,7 @@ class MavenProjectAnalyzerTest {
         );
 
 
-        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
+        List<MavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         // Returned ordered
         assertThat(sortedProjects).hasSize(4);
@@ -635,7 +634,7 @@ class MavenProjectAnalyzerTest {
 
 
         // Provided unordered
-        List<SbmMavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
+        List<MavenProject> sortedProjects = sut.getSortedProjects(Path.of(".").toAbsolutePath(), resources);
 
         // Expected order is parent, module-b, module-c, module-a
         assertThat(sortedProjects).hasSize(4);

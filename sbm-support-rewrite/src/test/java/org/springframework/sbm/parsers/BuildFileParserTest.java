@@ -157,7 +157,7 @@ class BuildFileParserTest {
             ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
             boolean skipMavenParsing = false;
 
-            Map<Path, Xml.Document> parsedBuildFiles = sut.parseBuildFiles(
+            List<Xml.Document> parsedBuildFiles = sut.parseBuildFiles(
                     baseDir,
                     resources,
                     List.of("default"),
@@ -166,9 +166,9 @@ class BuildFileParserTest {
                     provenanceMarkers);
 
             assertThat(parsedBuildFiles).hasSize(3);
-            assertThat(parsedBuildFiles.get(module1SubmodulePomPath).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1/submodule");
-            assertThat(parsedBuildFiles.get(parentPomPath).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("parent");
-            assertThat(parsedBuildFiles.get(module1PomXml).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1");
+            assertThat(parsedBuildFiles.get(0).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1/submodule");
+            assertThat(parsedBuildFiles.get(1).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("parent");
+            assertThat(parsedBuildFiles.get(2).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1");
         }
 
         @Test

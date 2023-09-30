@@ -21,8 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.MavenExecutionContextView;
-import org.openrewrite.maven.tree.*;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
@@ -36,7 +34,6 @@ import org.springframework.sbm.parsers.maven.BuildFileParser;
 import org.springframework.sbm.parsers.maven.MavenProjectAnalyzer;
 import org.springframework.sbm.parsers.maven.ProvenanceMarkerFactory;
 import org.springframework.sbm.scopes.ScanScope;
-import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -106,7 +103,7 @@ public class RewriteProjectParser {
         // TODO: where to retrieve styles from? --> see AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
         List<NamedStyles> styles = List.of();
 
-        // Get the ordered list of projects
+        // Get the ordered otherSourceFiles of projects
         ParserContext parserContext = mavenProjectAnalyzer.createParserContext(baseDir, resources);
 
         // generate provenance
@@ -114,21 +111,18 @@ public class RewriteProjectParser {
 
         // 127: parse build files
         // TODO: 945 this map is only used to lookup module pom by path in SourceFileParser. If possible provide the build file from ParserContext and remove this map.
-        Map<Path, Xml.Document> resourceToDocumentMap = buildFileParser.parseBuildFiles(baseDir, parserContext.getBuildFileResources(), parserContext.getActiveProfiles(), executionContext, parserProperties.isSkipMavenParsing(), provenanceMarkers);
+        List<Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(baseDir, parserContext.getBuildFileResources(), parserContext.getActiveProfiles(), executionContext, parserProperties.isSkipMavenParsing(), provenanceMarkers);
+        parserContext.setParsedBuildFiles(parsedBuildFiles);
 
-        List<SourceFile> parsedAndSortedBuildFileDocuments = parserContext.getBuildFileResources().stream()
-                .map(r -> resourceToDocumentMap.get(ResourceUtil.getPath(r)))
-                .map(SourceFile.class::cast)
-                // FIXME: 945 ugly hack
-                .peek(sourceFile -> addSourceFileToModel(baseDir, parserContext.getSortedProjects(), sourceFile))
-                .toList();
 
-        log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + resourceToDocumentMap.size(), resourceToDocumentMap.size()));
-        List<SourceFile> list = sourceFileParser.parseOtherSourceFiles(baseDir, parserContext, resourceToDocumentMap, resources, provenanceMarkers, styles, executionContext);
+        log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + parsedBuildFiles.size(), parsedBuildFiles.size()));
+        List<SourceFile> otherSourceFiles = sourceFileParser.parseOtherSourceFiles(baseDir, parserContext, resources, provenanceMarkers, styles, executionContext);
+
+        List<Xml.Document> sortedBuildFileDocuments = parserContext.getSortedBuildFileDocuments();
 
         List<SourceFile> resultingList = new ArrayList<>();
-        resultingList.addAll(parsedAndSortedBuildFileDocuments);
-        resultingList.addAll(list);
+        resultingList.addAll(sortedBuildFileDocuments);
+        resultingList.addAll(otherSourceFiles);
         List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
 
         eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
@@ -145,9 +139,4 @@ public class RewriteProjectParser {
         return baseDir;
     }
 
-    private static void addSourceFileToModel(Path baseDir, List<SbmMavenProject> sortedProjectsList, SourceFile s) {
-        sortedProjectsList.stream()
-                .filter(p -> ResourceUtil.getPath(p.getPomFile()).toString().equals(baseDir.resolve(s.getSourcePath()).toString()))
-                .forEach(p -> p.setSourceFile(s));
-    }
 }

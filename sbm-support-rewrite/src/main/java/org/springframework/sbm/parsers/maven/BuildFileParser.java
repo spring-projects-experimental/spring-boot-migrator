@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
 
@@ -57,7 +58,7 @@ class BuildFileParser {
 *    * @param skipMavenParsing skip parsing Maven files
      * @param provenanceMarkers the map of markers to be added
      */
-    public Map<Path, Xml.Document>  parseBuildFiles(
+    public List<Xml.Document> parseBuildFiles(
             Path baseDir,
             List<Resource> buildFiles,
             List<String> activeProfiles,
@@ -74,7 +75,7 @@ class BuildFileParser {
 
         if(skipMavenParsing) {
             log.info("Maven parsing skipped [parser.skipMavenParsing=true].");
-            return Map.of();
+            return List.of();
         }
 
         // 380 : 382
@@ -89,29 +90,14 @@ class BuildFileParser {
         initializeMavenSettings(executionContext);
 
         // 395 : 398
-
         mavenParserBuilder.activeProfiles(activeProfiles.toArray(new String[]{}));
 
         // 400 : 402
-        List<SourceFile> parsedPoms = parsePoms(baseDir, buildFiles, mavenParserBuilder, executionContext);
-
-        parsedPoms = parsedPoms.stream()
+        List<Xml.Document> parsedPoms = parsePoms(baseDir, buildFiles, mavenParserBuilder, executionContext)
                 .map(pp -> this.markPomFile(pp, provenanceMarkers.getOrDefault(baseDir.resolve(pp.getSourcePath()), emptyList())))
                 .toList();
 
-        // 422 : 436
-        Map<Path, Xml.Document> result = createResult(baseDir, buildFiles, parsedPoms);
-
-        // 438 : 444: add marker
-//        for (Resource mavenProject : pomFiles) {
-//            List<Marker> markers = provenanceMarkers.getOrDefault(mavenProject, emptyList());
-//            Xml.Document document = result.get(mavenProject);
-//            for (Marker marker : markers) {
-//                result.put(mavenProject, document.withMarkers(document.getMarkers().addIfAbsent(marker)));
-//            }
-//        }
-
-        return result;
+        return parsedPoms;
     }
 
     private List<Resource> findResourcesWithoutProvenanceMarker(Path baseDir, List<Resource> buildFileResources, Map<Path, List<Marker>> provenanceMarkers) {
@@ -124,7 +110,7 @@ class BuildFileParser {
         return buildFileResources.stream().filter(r -> !"pom.xml".equals(ResourceUtil.getPath(r).getFileName().toString())).toList();
     }
 
-    private SourceFile markPomFile(SourceFile pp, List<Marker> markers) {
+    private Xml.Document markPomFile(Xml.Document pp, List<Marker> markers) {
         for (Marker marker : markers) {
             pp = pp.withMarkers(pp.getMarkers().addIfAbsent(marker));
         }
@@ -146,11 +132,11 @@ class BuildFileParser {
         return Map.entry(resource, doc);
     }
 
-    private List<SourceFile> parsePoms(Path baseDir, List<Resource> pomFiles, MavenParser.Builder mavenParserBuilder, ExecutionContext executionContext) {
+    private Stream<Xml.Document> parsePoms(Path baseDir, List<Resource> pomFiles, MavenParser.Builder mavenParserBuilder, ExecutionContext executionContext) {
         Iterable<Parser.Input> pomFileInputs = pomFiles.stream()
                 .map(p -> new Parser.Input(ResourceUtil.getPath(p), () -> ResourceUtil.getInputStream(p)))
                 .toList();
-        return mavenParserBuilder.build().parseInputs(pomFileInputs, baseDir, executionContext).toList();
+        return mavenParserBuilder.build().parseInputs(pomFileInputs, baseDir, executionContext).map(Xml.Document.class::cast);
     }
 
     private void initializeMavenSettings(ExecutionContext executionContext) {

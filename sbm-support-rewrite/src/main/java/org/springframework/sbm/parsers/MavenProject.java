@@ -178,7 +178,7 @@ public class MavenProject {
         return s == null ? ResourceUtil.getPath(pomFile).getParent().resolve("src/test/java").toAbsolutePath().normalize().toString() : s;
     }
 
-    public void setSourceFile(SourceFile sourceFile) {
+    public void setSourceFile(Xml.Document sourceFile) {
         this.sourceFile = sourceFile;
     }
 

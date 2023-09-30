@@ -276,7 +276,7 @@ class RewriteMavenProjectParserTest {
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
-                new SourceFileParser(parserProperties, moduleParser),
+                new SourceFileParser(new MavenModuleParser(parserProperties, moduleParser)),
                 new StyleDetector(),
                 parserProperties,
                 mock(ParsingEventListener.class),

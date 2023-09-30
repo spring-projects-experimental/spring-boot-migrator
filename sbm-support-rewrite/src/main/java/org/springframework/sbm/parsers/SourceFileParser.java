@@ -46,7 +46,6 @@ public class SourceFileParser {
     public List<SourceFile> parseOtherSourceFiles(
             Path baseDir,
             ParserContext parserContext,
-            Map<Path, Xml.Document> pathToDocumentMap,
             List<Resource> resources,
             Map<Path, List<Marker>> provenanceMarkers,
             List<NamedStyles> styles,
@@ -55,9 +54,8 @@ public class SourceFileParser {
         Set<SourceFile> parsedSourceFiles = new LinkedHashSet<>();
 
         parserContext.getSortedProjects().forEach(currentMavenProject -> {
-            Resource moduleBuildFileResource = parserContext.getMatchingBuildFileResource(currentMavenProject);
-            Xml.Document moduleBuildFile = pathToDocumentMap.get(ResourceUtil.getPath(moduleBuildFileResource));
-            List<Marker> markers = provenanceMarkers.get(ResourceUtil.getPath(moduleBuildFileResource));
+            Xml.Document moduleBuildFile = currentMavenProject.getSourceFile();
+            List<Marker> markers = provenanceMarkers.get(currentMavenProject.getPomFilePath());
             if(markers == null || markers.isEmpty()) {
                 log.warn("Could not find provenance markers for resource '%s'".formatted(parserContext.getMatchingBuildFileResource(currentMavenProject)));
             }
