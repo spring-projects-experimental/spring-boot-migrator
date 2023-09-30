@@ -35,9 +35,7 @@ public class ProvenanceMarkerFactory {
     private final MavenProvenanceMarkerFactory markerFactory;
 
     /**
-     * Reuses {@link MavenMojoProjectParser#generateProvenance(MavenProject)} to create {@link Marker}s for pom files in
-     * provided {@code parserContext}.
-     *
+     * Create Provenance markers
      * @return the map of pom.xml {@link Resource}s and their {@link Marker}s.
      */
     public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, ParserContext parserContext) {

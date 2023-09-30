@@ -49,7 +49,6 @@ class BuildFileParser {
     /**
      * Parse a list of Maven Pom files to a Map of {@code Path} and their parsed {@link Xml.Document}s.
      * The {@link Xml.Document}s are marked with {@link org.openrewrite.maven.tree.MavenResolutionResult} and the provided provenance markers.
-     * Reimplements {@link org.openrewrite.maven.MavenMojoProjectParser#parseMaven(List, Map, ExecutionContext)}.
      *
      * @param baseDir the {@link Path} to the root of the scanned project
      * @param buildFiles the list of resources for relevant pom files.

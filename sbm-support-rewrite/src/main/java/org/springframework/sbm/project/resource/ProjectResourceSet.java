@@ -36,7 +36,7 @@ public class ProjectResourceSet {
 
     /**
      * @deprecated
-     * Use {@link ProjectResourceSetFactory#create(Path, List) <RewriteSourceFileHolder<? extends SourceFile>>)} instead.
+     * Use {@link ProjectResourceSetFactory#create(Path, List)} instead.
      */
     @Deprecated
     public ProjectResourceSet(List<RewriteSourceFileHolder<? extends SourceFile>> projectResources, ExecutionContext executionContext, RewriteMigrationResultMerger migrationResultMerger) {
