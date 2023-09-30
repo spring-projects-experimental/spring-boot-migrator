@@ -113,8 +113,13 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
-    SourceFileParser sourceFileParser(JavaParserBuilder javaParserBuilder, ModuleParser moduleParser) {
-        return new SourceFileParser(parserProperties, moduleParser);
+    MavenModuleParser mavenModuleParser(ParserProperties parserPropeties, ModuleParser moduleParser) {
+        return new MavenModuleParser(parserPropeties, moduleParser);
+    }
+
+    @Bean
+    SourceFileParser sourceFileParser(MavenModuleParser mavenModuleParser) {
+        return new SourceFileParser(mavenModuleParser);
     }
 
     @Bean

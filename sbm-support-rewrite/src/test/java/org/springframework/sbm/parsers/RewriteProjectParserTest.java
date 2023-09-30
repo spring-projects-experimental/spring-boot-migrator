@@ -29,10 +29,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.maven.BuildFileParser;
-import org.springframework.sbm.parsers.maven.MavenProjectAnalyzer;
-import org.springframework.sbm.parsers.maven.MavenProvenanceMarkerFactory;
-import org.springframework.sbm.parsers.maven.ProvenanceMarkerFactory;
+import org.springframework.sbm.parsers.maven.*;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -94,10 +91,11 @@ class RewriteProjectParserTest {
         ParserProperties parserProperties = new ParserProperties();
         ModuleParser mavenMojoParserPrivateMethods = new ModuleParser();
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
+        MavenModuleParser mavenModuleParser = new MavenModuleParser(parserProperties, mavenMojoParserPrivateMethods);
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
-                new SourceFileParser(parserProperties, mavenMojoParserPrivateMethods),
+                new SourceFileParser(mavenModuleParser),
                 new StyleDetector(),
                 parserProperties,
                 mock(ParsingEventListener.class),
