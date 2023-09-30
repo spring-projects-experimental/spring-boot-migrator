@@ -17,7 +17,6 @@ package org.springframework.sbm.parsers;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.tree.J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,7 +51,7 @@ public class RewriteProjectParserIntegrationTest {
     void parseCheckstyle() {
         Path baseDir = TestProjectHelper.getMavenProject("checkstyle");
         List<Resource> resources = projectScanner.scan(baseDir);
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
     }
@@ -74,12 +73,7 @@ public class RewriteProjectParserIntegrationTest {
         Path baseDir = TestProjectHelper.getMavenProject("resources");
         List<Resource> resources = projectScanner.scan(baseDir);
 
-//        RewriteProjectParsingResult parsingResult1 = mavenProjectParser.parse(baseDir);
-//        assertThat(parsingResult1.sourceFiles()).hasSize(5);
-
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {
-            throw new RuntimeException(t);
-        }));
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
         assertThat(parsingResult.sourceFiles()).hasSize(5);
     }
 
@@ -91,7 +85,7 @@ public class RewriteProjectParserIntegrationTest {
 
         assertThat(resources).hasSize(4);
 
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
         assertThat(parsingResult.sourceFiles()).hasSize(4);
     }
 

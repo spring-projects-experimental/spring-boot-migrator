@@ -108,7 +108,7 @@ public class CalculateClasspathTest {
                 new DummyResource(baseDir.resolve("src/test/java/com/example/TestClass.java"), testClass)
         );
 
-        RewriteProjectParsingResult parsingResult = parser.parse(baseDir, resources, new RewriteExecutionContext());
+        RewriteProjectParsingResult parsingResult = parser.parse(baseDir, resources);
 
         // verify types in use
         SourceFile mainSourceFile = parsingResult.sourceFiles().get(1);

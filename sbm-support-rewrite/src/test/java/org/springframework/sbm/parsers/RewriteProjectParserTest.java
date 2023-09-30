@@ -126,7 +126,7 @@ class RewriteProjectParserTest {
                 new DummyResource(basePath.resolve("src/main/java/com/example/MyMain.java"), javaClass));
         ResourceUtil.write(basePath, resources);
 
-        RewriteProjectParsingResult parsingResult = projectParser.parse(basePath, resources, executionContext);
+        RewriteProjectParsingResult parsingResult = projectParser.parse(basePath, resources);
 
         assertThat(parsingResult.sourceFiles()).hasSize(2);
     }

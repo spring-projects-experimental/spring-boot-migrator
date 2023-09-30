@@ -87,13 +87,13 @@ public class RewriteProjectParser {
      */
     public RewriteProjectParsingResult parse(Path baseDir) {
         List<Resource> resources = scanner.scan(baseDir);
-        return this.parse(baseDir, resources, executionContext);
+        return this.parse(baseDir, resources);
     }
 
     /**
      * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
      */
-    public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources, ExecutionContext executionContext) {
+    public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources) {
         scanScope.clear(beanFactory);
         final Path baseDir = normalizePath(givenBaseDir);
 

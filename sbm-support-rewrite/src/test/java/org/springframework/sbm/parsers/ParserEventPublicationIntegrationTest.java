@@ -18,7 +18,6 @@ package org.springframework.sbm.parsers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -65,7 +64,7 @@ public class ParserEventPublicationIntegrationTest {
         parserProperties.setIgnoredPathPatterns(Set.of("{**/target/**,target/**}", "**.adoc"));
         List<Resource> resources = projectScanner.scan(baseDir);
 
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, executionContext);
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
 
         assertThat(parsingResult.sourceFiles()).hasSize(5);
         assertThat(parsingResult.sourceFiles().stream().map(s -> s.getSourcePath().toString()).toList())

@@ -284,14 +284,14 @@ class RewriteMavenProjectParserTest {
                 scanScope,
                 beanFactory,
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
-                ctx,
+                new RewriteExecutionContext(),
                 new MavenProjectAnalyzer(mock(RewriteMavenArtifactDownloader.class))
         );
 
         Set<String> ignoredPatters = Set.of();
         ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader(), parserProperties);
         List<Resource> resources = projectScanner.scan(baseDir);
-        RewriteProjectParsingResult parsingResult1 = rpp.parse(baseDir, resources, ctx);
+        RewriteProjectParsingResult parsingResult1 = rpp.parse(baseDir, resources);
 
         verifyMavenParser(parsingResult1);
         Mockito.verify(scanScope).clear(beanFactory);
