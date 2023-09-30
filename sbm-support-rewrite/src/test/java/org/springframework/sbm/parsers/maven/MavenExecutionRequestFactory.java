@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
-import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import lombok.RequiredArgsConstructor;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
@@ -27,7 +26,7 @@ import org.apache.maven.model.Profile;
 import org.apache.maven.repository.UserLocalArtifactRepository;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.springframework.stereotype.Component;
+import org.springframework.sbm.parsers.maven.MavenConfigFileParser;
 
 import java.nio.file.Path;
 import java.util.List;

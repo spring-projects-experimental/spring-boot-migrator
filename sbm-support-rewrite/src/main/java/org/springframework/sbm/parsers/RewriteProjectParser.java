@@ -32,16 +32,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
+import org.springframework.sbm.parsers.maven.BuildFileParser;
+import org.springframework.sbm.parsers.maven.MavenProjectAnalyzer;
+import org.springframework.sbm.parsers.maven.ProvenanceMarkerFactory;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.utils.ResourceUtil;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Project parser parsing resources under a given {@link Path} to OpenRewrite abstract syntax tree.

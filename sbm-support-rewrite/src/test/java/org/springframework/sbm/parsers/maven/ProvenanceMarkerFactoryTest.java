@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -37,6 +37,10 @@ import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.lib.Repository;
 import org.openrewrite.shaded.jgit.storage.file.FileRepositoryBuilder;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.ParserContext;
+import org.springframework.sbm.parsers.ParserProperties;
+import org.springframework.sbm.parsers.SbmMavenProject;
+import org.springframework.sbm.parsers.maven.*;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 

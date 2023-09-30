@@ -15,8 +15,6 @@
  */
 package org.springframework.sbm.parsers;
 
-import org.apache.commons.cli.*;
-import org.apache.maven.cli.CleanArgument;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,16 +23,13 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.MavenExecutionContextView;
-import org.openrewrite.maven.cache.InMemoryMavenPomCache;
-import org.openrewrite.maven.tree.*;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.maven.BuildFileParser;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -42,7 +37,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Fabian Krüger

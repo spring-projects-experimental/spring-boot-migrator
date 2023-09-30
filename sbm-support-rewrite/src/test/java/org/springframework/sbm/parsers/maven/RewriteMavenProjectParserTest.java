@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.Nullable;
@@ -54,6 +54,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.*;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;

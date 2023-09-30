@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
@@ -24,6 +24,9 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.sbm.parsers.ParserProperties;
+import org.springframework.sbm.parsers.RewriteParserConfiguration;
+import org.springframework.sbm.parsers.maven.*;
 import org.springframework.sbm.scopes.ScanScope;
 
 import static org.mockito.Mockito.mock;

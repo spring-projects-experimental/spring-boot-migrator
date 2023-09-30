@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import org.apache.maven.model.*;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.ParserContext;
+import org.springframework.sbm.parsers.SbmMavenProject;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.File;

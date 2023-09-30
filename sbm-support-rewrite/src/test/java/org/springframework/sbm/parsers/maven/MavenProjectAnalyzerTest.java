@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -24,8 +24,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mockito;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.parsers.SbmMavenProject;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 
@@ -47,7 +50,7 @@ class MavenProjectAnalyzerTest {
 
     @BeforeEach
     void beforeEach() {
-        MavenArtifactDownloader rewriteMavenArtifactDownloader = mock(RewriteMavenArtifactDownloader.class);
+        MavenArtifactDownloader rewriteMavenArtifactDownloader = Mockito.mock(RewriteMavenArtifactDownloader.class);
         sut = new MavenProjectAnalyzer(rewriteMavenArtifactDownloader);
     }
 

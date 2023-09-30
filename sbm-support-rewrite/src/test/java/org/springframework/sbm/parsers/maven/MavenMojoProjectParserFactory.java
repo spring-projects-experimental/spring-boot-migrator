@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +25,8 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.codehaus.plexus.PlexusContainer;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.maven.MavenMojoProjectParser;
+import org.springframework.sbm.parsers.ParserProperties;
+import org.springframework.sbm.parsers.Slf4jToMavenLoggerAdapter;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -35,6 +37,7 @@ import java.util.List;
  */
 @Slf4j
 @RequiredArgsConstructor
+public
 class MavenMojoProjectParserFactory {
 
     private final ParserProperties parserProperties;

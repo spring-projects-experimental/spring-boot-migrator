@@ -24,6 +24,7 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.maven.tree.*;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.maven.MavenRuntimeInformation;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.File;

@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.sbm.boot.autoconfigure.ParserPropertiesPostProcessor;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
+import org.springframework.sbm.parsers.maven.*;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.sbm.scopes.ScanScope;

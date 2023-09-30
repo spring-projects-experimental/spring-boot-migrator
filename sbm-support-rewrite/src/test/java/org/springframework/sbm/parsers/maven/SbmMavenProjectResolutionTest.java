@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.project.MavenProject;
@@ -21,6 +21,10 @@ import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.sbm.parsers.maven.MavenConfigFileParser;
+import org.springframework.sbm.parsers.maven.MavenExecutionRequestFactory;
+import org.springframework.sbm.parsers.maven.MavenExecutor;
+import org.springframework.sbm.parsers.maven.MavenPlexusContainer;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
