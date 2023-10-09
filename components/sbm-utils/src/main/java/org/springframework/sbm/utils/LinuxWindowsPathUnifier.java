@@ -21,11 +21,11 @@ import java.nio.file.Path;
 
 public class LinuxWindowsPathUnifier {
 
-    public String unifyPath(Path path) {
+    public static String unifyPath(Path path) {
         return unifyPath(path.toString());
     }
 
-    public String unifyPath(String path) {
+    public static String unifyPath(String path) {
         path = StringUtils.cleanPath(path);
         if (isWindows()) {
             path = transformToLinuxPath(path);
@@ -33,11 +33,11 @@ public class LinuxWindowsPathUnifier {
         return path;
     }
 
-    boolean isWindows() {
+    public static boolean isWindows() {
         return System.getProperty("os.name").contains("Windows");
     }
 
-    private String transformToLinuxPath(String path) {
+    private static String transformToLinuxPath(String path) {
         return path.replaceAll("^[\\w]+:\\/?", "/");
     }
 }
