@@ -20,6 +20,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.maven.MavenDownloadingException;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.RocksdbMavenPomCache;
 import org.openrewrite.maven.internal.MavenPomDownloader;
 import org.openrewrite.maven.tree.GroupArtifactVersion;
@@ -44,7 +45,7 @@ public class MavenDependencyDownloadTest {
     void downloadDependencies(@TempDir Path tempDir) throws MavenDownloadingException {
         InMemoryExecutionContext executionContext = new InMemoryExecutionContext((t) -> System.out.println(t.getMessage()));
         MavenExecutionContextView ctx = MavenExecutionContextView.view(executionContext);
-        ctx.setPomCache(new RocksdbMavenPomCache(tempDir.resolve("rewrite-cache")));
+        ctx.setPomCache(new InMemoryMavenPomCache());
 
         HashMap<Path, Pom> projectPoms = new HashMap<>();
         MavenPomDownloader mavenPomDownloader = new MavenPomDownloader(projectPoms, ctx);
