@@ -40,7 +40,7 @@ public class SpringBootMigratorRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         if (args.getSourceArgs().length == 0) {
-            System.err.println("PLease provide the path to the application as parameter.");
+            System.err.println("Please provide the path to the application as parameter.");
             return;
         }
         String applicationPath = args.getSourceArgs()[0];
