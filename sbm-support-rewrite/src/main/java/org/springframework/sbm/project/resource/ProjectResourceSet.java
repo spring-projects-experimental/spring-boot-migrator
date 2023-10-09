@@ -33,13 +33,7 @@ public class ProjectResourceSet {
     private final ExecutionContext executionContext;
     private final RewriteMigrationResultMerger migrationResultMerger;
 
-
-    /**
-     * @deprecated
-     * Use {@link ProjectResourceSetFactory#create(Path, List)} instead.
-     */
-    @Deprecated
-    public ProjectResourceSet(List<RewriteSourceFileHolder<? extends SourceFile>> projectResources, ExecutionContext executionContext, RewriteMigrationResultMerger migrationResultMerger) {
+    ProjectResourceSet(List<RewriteSourceFileHolder<? extends SourceFile>> projectResources, ExecutionContext executionContext, RewriteMigrationResultMerger migrationResultMerger) {
         this.executionContext = executionContext;
         this.migrationResultMerger = migrationResultMerger;
         this.projectResources.addAll(projectResources);
