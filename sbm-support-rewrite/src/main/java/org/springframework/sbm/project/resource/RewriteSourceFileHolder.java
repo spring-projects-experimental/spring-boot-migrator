@@ -20,14 +20,12 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 
 import java.nio.file.Path;
-import java.util.UUID;
 
 public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectResource implements InternalProjectResource {
 
     private T sourceFile;
     @Getter
     final private Path absoluteProjectDir;
-    private SourceFile sourceFile2;
 
     /**
      * @param absoluteProjectDir the absolute path to project root
@@ -75,7 +73,7 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
         if (absoluteProjectDir.resolve(newPath).toFile().isDirectory()) {
             newPath = newPath.resolve(this.getAbsolutePath().getFileName());
         }
-        sourceFile = (T) sourceFile.withSourcePath(newPath);
+        sourceFile = sourceFile.withSourcePath(newPath);
         this.markChanged();
     }
 
@@ -91,8 +89,9 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
      *
      * @param fixedSourceFile the new source file
      */
+    @SuppressWarnings("unchecked")
     public void replaceWith(@Nullable SourceFile fixedSourceFile) {
-        if (sourceFile != null && !sourceFile.printAll().equals(fixedSourceFile.printAll())) {
+        if (sourceFile != null && fixedSourceFile != null && !sourceFile.printAll().equals(fixedSourceFile.printAll())) {
             markChanged();
         }
         sourceFile = (T) fixedSourceFile;
@@ -100,10 +99,6 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
 
     public void markChanged() {
         this.isChanged = true;
-    }
-
-    public UUID getId() {
-        return this.getSourceFile().getId();
     }
 
     public Class<? extends SourceFile> getType() {

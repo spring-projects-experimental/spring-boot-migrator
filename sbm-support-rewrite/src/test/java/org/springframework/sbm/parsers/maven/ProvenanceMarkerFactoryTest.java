@@ -162,8 +162,7 @@ class ProvenanceMarkerFactoryTest {
 
         @Test
         @DisplayName("Should Create Provenance Markers")
-        void shouldCreateProvenanceMarkers(@TempDir Path tempDir)  {
-            Path baseDir = Path.of(".").toAbsolutePath().normalize();
+        void shouldCreateProvenanceMarkers()  {
 
             // The MavenMojoProjectParserFactory creates an instance of OpenRewrite's MavenMojoProjectParser
             // We provide a mock, there's a test for MavenMojoProjectParser
