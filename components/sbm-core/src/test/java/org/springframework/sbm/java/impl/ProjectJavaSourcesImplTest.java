@@ -17,8 +17,11 @@ package org.springframework.sbm.java.impl;
 
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaType;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
@@ -109,9 +112,9 @@ class ProjectJavaSourcesImplTest {
                 """;
 
 
-        assertThrows(UnsatisfiedDependencyException.class, () ->
-            TestProjectContext.buildProjectContext().withJavaSources(sourceCode).build()
-        ).getMessage().contains("src/main/java/a/b/c/SomeClass.java:[2,13] cannot find symbol");
-
+        ProjectContext projectContext = TestProjectContext.buildProjectContext().withJavaSources(sourceCode).build();
+        J.ClassDeclaration javaSource = projectContext.getProjectJavaSources().list().get(0).getResource().getSourceFile().getClasses().get(0);
+        assertThat(javaSource.getImplements()).hasSize(1);
+        assertThat(javaSource.getImplements().get(0).getType()).isEqualTo(JavaType.Unknown.getInstance());
     }
 }
