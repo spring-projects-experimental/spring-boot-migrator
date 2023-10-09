@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import org.apache.maven.model.*;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.MavenProject;
+import org.springframework.sbm.parsers.ParserContext;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.File;
@@ -45,7 +47,7 @@ public class MavenProjectAnalyzer {
         this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
     }
 
-    public List<SbmMavenProject> getSortedProjects(Path baseDir, List<Resource> resources) {
+    public List<MavenProject> getSortedProjects(Path baseDir, List<Resource> resources) {
 
         List<Resource> allPomFiles = resources.stream().filter(r -> ResourceUtil.getPath(r).getFileName().toString().equals(POM_XML)).toList();
 
@@ -57,7 +59,7 @@ public class MavenProjectAnalyzer {
         Model rootPomModel = new Model(rootPom);
 
         if (isSingleModuleProject(rootPomModel)) {
-            return List.of(new SbmMavenProject(baseDir, rootPom, rootPomModel, rewriteMavenArtifactDownloader, resources));
+            return List.of(new MavenProject(baseDir, rootPom, rootPomModel, rewriteMavenArtifactDownloader, resources));
         }
         List<Model> reactorModels = new ArrayList<>();
         recursivelyFindReactorModules(baseDir, null, reactorModels, allPomFiles, rootPomModel);
@@ -65,21 +67,21 @@ public class MavenProjectAnalyzer {
         return map(baseDir, resources, sortedModels);
     }
 
-    private List<SbmMavenProject> map(Path baseDir, List<Resource> resources, List<Model> sortedModels) {
-        List<SbmMavenProject> sbmMavenProjects = new ArrayList<>();
+    private List<MavenProject> map(Path baseDir, List<Resource> resources, List<Model> sortedModels) {
+        List<MavenProject> mavenProjects = new ArrayList<>();
         sortedModels
                 .stream()
                 .filter(Objects::nonNull)
                 .forEach(m -> {
                     String projectDir = baseDir.resolve(m.getProjectDirectory().toString()).normalize().toString();
                     List<Resource> filteredResources = resources.stream().filter(r -> ResourceUtil.getPath(r).toString().startsWith(projectDir)).toList();
-                    sbmMavenProjects.add(new SbmMavenProject(baseDir, m.getResource(), m, rewriteMavenArtifactDownloader, filteredResources));
+                    mavenProjects.add(new MavenProject(baseDir, m.getResource(), m, rewriteMavenArtifactDownloader, filteredResources));
         });
         // set all non parent poms as collected projects for root parent pom
-        List<SbmMavenProject> collected = new ArrayList<>(sbmMavenProjects);
+        List<MavenProject> collected = new ArrayList<>(mavenProjects);
         collected.remove(0);
-        sbmMavenProjects.get(0).setCollectedProjects(collected);
-        return sbmMavenProjects;
+        mavenProjects.get(0).setCollectedProjects(collected);
+        return mavenProjects;
     }
 
     private List<Model> recursivelyFindReactorModules(Path baseDir, String path, List<Model> reactorModels, List<Resource> allPomFiles, Model pomModel) {
@@ -188,8 +190,8 @@ public class MavenProjectAnalyzer {
     }
 
     public ParserContext createParserContext(Path baseDir, List<Resource> resources) {
-        List<SbmMavenProject> sortedProjectsList = getSortedProjects(baseDir, resources);
-        ParserContext parserContext = new ParserContext(resources, sortedProjectsList);
+        List<MavenProject> sortedProjectsList = getSortedProjects(baseDir, resources);
+        ParserContext parserContext = new ParserContext(baseDir, resources, sortedProjectsList);
         return parserContext;
     }
 

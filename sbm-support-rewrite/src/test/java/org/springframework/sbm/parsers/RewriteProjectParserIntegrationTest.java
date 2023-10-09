@@ -15,25 +15,18 @@
  */
 package org.springframework.sbm.parsers;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.tree.J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
-import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
-import org.springframework.sbm.parsers.events.FinishedParsingResourceEvent;
-import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
-import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
-import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
+import org.springframework.sbm.parsers.maven.RewriteMavenProjectParser;
+import org.springframework.sbm.parsers.maven.SbmTestConfiguration;
 import org.springframework.sbm.test.util.TestProjectHelper;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +51,7 @@ public class RewriteProjectParserIntegrationTest {
     void parseCheckstyle() {
         Path baseDir = TestProjectHelper.getMavenProject("checkstyle");
         List<Resource> resources = projectScanner.scan(baseDir);
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
     }
@@ -80,12 +73,7 @@ public class RewriteProjectParserIntegrationTest {
         Path baseDir = TestProjectHelper.getMavenProject("resources");
         List<Resource> resources = projectScanner.scan(baseDir);
 
-//        RewriteProjectParsingResult parsingResult1 = mavenProjectParser.parse(baseDir);
-//        assertThat(parsingResult1.sourceFiles()).hasSize(5);
-
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {
-            throw new RuntimeException(t);
-        }));
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
         assertThat(parsingResult.sourceFiles()).hasSize(5);
     }
 
@@ -97,7 +85,7 @@ public class RewriteProjectParserIntegrationTest {
 
         assertThat(resources).hasSize(4);
 
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
         assertThat(parsingResult.sourceFiles()).hasSize(4);
     }
 

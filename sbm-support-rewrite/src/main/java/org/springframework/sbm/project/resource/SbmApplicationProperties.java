@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 @Setter
 @Getter
-@Component
 @ConfigurationProperties(prefix = "sbm")
 public class SbmApplicationProperties {
     private boolean gitSupportEnabled;

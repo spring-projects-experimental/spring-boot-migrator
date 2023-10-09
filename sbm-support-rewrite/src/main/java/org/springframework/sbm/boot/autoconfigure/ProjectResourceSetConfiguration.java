@@ -53,4 +53,5 @@ public class ProjectResourceSetConfiguration {
     ProjectResourceSetFactory projectResourceSetFactory(RewriteMigrationResultMerger rewriteMigrationResultMerger, RewriteSourceFileWrapper sourceFileWrapper, ExecutionContext executionContext) {
         return new ProjectResourceSetFactory(rewriteMigrationResultMerger, sourceFileWrapper, executionContext);
     }
+
 }

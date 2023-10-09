@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.maven.MavenSettings;
@@ -32,7 +32,6 @@ import java.util.List;
  *
  * @author Fabian Krüger
  */
-@Component
 @RequiredArgsConstructor
 // TODO: should be package private
 public class MavenPasswordDecrypter {

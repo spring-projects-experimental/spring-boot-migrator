@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * @author Fabian Krüger
  */
 
-class StyleDetector {
+public class StyleDetector {
 
     List<SourceFile> sourcesWithAutoDetectedStyles(Stream<SourceFile> sourceFiles) {
         org.openrewrite.java.style.Autodetect.Detector javaDetector = org.openrewrite.java.style.Autodetect.detector();

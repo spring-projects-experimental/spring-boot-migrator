@@ -17,15 +17,9 @@ package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
-import org.openrewrite.java.JavaParser;
-import org.openrewrite.maven.utilities.MavenArtifactDownloader;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.parsers.RewriteProjectParser;
-import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -44,19 +38,10 @@ import java.util.List;
 @Deprecated(forRemoval = true)
 public class MavenProjectParser {
 
-    private final ResourceParser resourceParser;
-    private final RewriteMavenParser mavenParser;
-    private final MavenArtifactDownloader artifactDownloader;
-    private final ApplicationEventPublisher eventPublisher;
-    private final JavaProvenanceMarkerFactory javaProvenanceMarkerFactory;
-    private final JavaParser javaParser;
-    private final MavenConfigHandler mavenConfigHandler;
-    private final ProjectMetadata projectMetadata;
-    private final ExecutionContext executionContext;
     private final RewriteProjectParser parser;
 
     public List<SourceFile> parse(Path projectDirectory, List<Resource> resources) {
-        return parser.parse(projectDirectory, resources, executionContext).sourceFiles();
+        return parser.parse(projectDirectory, resources).sourceFiles();
     }
 
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.Nullable;
@@ -54,6 +54,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.*;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
@@ -270,19 +271,12 @@ class RewriteMavenProjectParserTest {
     @Test
     void parseMultiModule1_WithCustomParser() {
         Path baseDir = getMavenProject("multi-module-1");
-        ExecutionContext ctx;
-        ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
-        MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserProperties);
-        MavenArtifactCache mavenArtifactCache = new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository"));
-        @Nullable MavenSettings mavenSettings = null;
-        Consumer<Throwable> onError = (t) -> {throw new RuntimeException(t);};
-        HelperWithoutAGoodName helperWithoutAGoodName = new HelperWithoutAGoodName();
+        ModuleParser moduleParser = new ModuleParser();
 
-        JavaParserBuilder javaParserBuilder = new JavaParserBuilder();
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
-                new SourceFileParser(parserProperties, helperWithoutAGoodName),
+                new SourceFileParser(new MavenModuleParser(parserProperties, moduleParser)),
                 new StyleDetector(),
                 parserProperties,
                 mock(ParsingEventListener.class),
@@ -290,14 +284,14 @@ class RewriteMavenProjectParserTest {
                 scanScope,
                 beanFactory,
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
-                ctx,
+                new RewriteExecutionContext(),
                 new MavenProjectAnalyzer(mock(RewriteMavenArtifactDownloader.class))
         );
 
         Set<String> ignoredPatters = Set.of();
         ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader(), parserProperties);
         List<Resource> resources = projectScanner.scan(baseDir);
-        RewriteProjectParsingResult parsingResult1 = rpp.parse(baseDir, resources, ctx);
+        RewriteProjectParsingResult parsingResult1 = rpp.parse(baseDir, resources);
 
         verifyMavenParser(parsingResult1);
         Mockito.verify(scanScope).clear(beanFactory);

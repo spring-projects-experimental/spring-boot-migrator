@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.project.MavenProject;
@@ -32,10 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-class SbmMavenProjectResolutionTest {
+class MavenProjectResolutionTest {
 
     @Test
-    @DisplayName("Factory should create fully initialized SbmMavenProject")
+    @DisplayName("Factory should create fully initialized MavenProject")
     void verifyMavenProjectRetrievedFromSession(@TempDir Path tempDir) throws Exception {
         @Language("xml")
         String pomXml = """

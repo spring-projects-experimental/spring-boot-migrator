@@ -23,25 +23,20 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
-import org.openrewrite.internal.lang.Nullable;
-import org.openrewrite.maven.MavenSettings;
-import org.openrewrite.maven.cache.LocalMavenArtifactCache;
-import org.openrewrite.maven.cache.MavenArtifactCache;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.maven.*;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -94,19 +89,13 @@ class RewriteProjectParserTest {
     void parseSimpleMavenProject(@TempDir Path tempDir) {
         Path basePath = tempDir;
         ParserProperties parserProperties = new ParserProperties();
-        MavenModelReader mavenModelReader = new MavenModelReader();
-        MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserProperties);
-        MavenArtifactCache mavenArtifactCache = new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository"));
-        @Nullable MavenSettings mavenSettings = null;
-        Consumer<Throwable> onError = (t) -> {
-            throw new RuntimeException(t);
-        };
-        HelperWithoutAGoodName mavenMojoParserPrivateMethods = new HelperWithoutAGoodName();
+        ModuleParser mavenMojoParserPrivateMethods = new ModuleParser();
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
+        MavenModuleParser mavenModuleParser = new MavenModuleParser(parserProperties, mavenMojoParserPrivateMethods);
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
-                new SourceFileParser(parserProperties, mavenMojoParserPrivateMethods),
+                new SourceFileParser(mavenModuleParser),
                 new StyleDetector(),
                 parserProperties,
                 mock(ParsingEventListener.class),
@@ -135,7 +124,7 @@ class RewriteProjectParserTest {
                 new DummyResource(basePath.resolve("src/main/java/com/example/MyMain.java"), javaClass));
         ResourceUtil.write(basePath, resources);
 
-        RewriteProjectParsingResult parsingResult = projectParser.parse(basePath, resources, executionContext);
+        RewriteProjectParsingResult parsingResult = projectParser.parse(basePath, resources);
 
         assertThat(parsingResult.sourceFiles()).hasSize(2);
     }

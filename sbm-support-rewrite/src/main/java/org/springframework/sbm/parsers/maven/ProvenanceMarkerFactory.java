@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.maven.project.MavenProject;
 import org.openrewrite.marker.Marker;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.ParserContext;
+import org.springframework.sbm.parsers.maven.MavenProvenanceMarkerFactory;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
@@ -27,14 +30,12 @@ import java.util.*;
  * @author Fabian Krüger
  */
 @RequiredArgsConstructor
-class ProvenanceMarkerFactory {
+public class ProvenanceMarkerFactory {
 
     private final MavenProvenanceMarkerFactory markerFactory;
 
     /**
-     * Reuses {@link MavenMojoProjectParser#generateProvenance(MavenProject)} to create {@link Marker}s for pom files in
-     * provided {@code parserContext}.
-     *
+     * Create Provenance markers
      * @return the map of pom.xml {@link Resource}s and their {@link Marker}s.
      */
     public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, ParserContext parserContext) {

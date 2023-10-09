@@ -43,7 +43,6 @@ public class ProjectContextInitializer {
     private final RewriteProjectParser mavenProjectParser;
     private final GitSupport gitSupport;
     private final RewriteSourceFileWrapper rewriteSourceFileWrapper;
-    private final ExecutionContext executionContext;
     private final ProjectContextHolder projectContextHolder;
     private final ProjectResourceSetFactory projectResourceSetFactory;
 
@@ -52,7 +51,7 @@ public class ProjectContextInitializer {
         // TODO: remove git initialization, handled by precondition check
         initializeGitRepoIfNoneExists(absoluteProjectDir);
 
-        List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources, executionContext).sourceFiles();
+        List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources).sourceFiles();
         List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = rewriteSourceFileWrapper.wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);
 
         ProjectResourceSet projectResourceSet = projectResourceSetFactory.createFromSourceFileHolders(rewriteSourceFileHolders);

@@ -75,7 +75,7 @@ public class SpringBoot3Upgrade implements CommandLineRunner {
         List<Resource> resources = scanner.scan(baseDir);
 
         // parse
-        RewriteProjectParsingResult parsingResult = parser.parse(baseDir, resources, executionContext);
+        RewriteProjectParsingResult parsingResult = parser.parse(baseDir);
         List<SourceFile> sourceFiles = parsingResult.sourceFiles();
         ProjectResourceSet projectResourceSet = projectResourceSetFactory.create(baseDir, sourceFiles);
 

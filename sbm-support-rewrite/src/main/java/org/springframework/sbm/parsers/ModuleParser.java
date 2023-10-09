@@ -20,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
-import org.openrewrite.Tree;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.internal.JavaTypeCache;
@@ -40,42 +39,36 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.openrewrite.Tree.randomId;
+
 /**
  * @author Fabian Krüger
  */
 @Slf4j
-public class HelperWithoutAGoodName {
+public class ModuleParser {
+
     /**
-     * {@link MavenMojoProjectParser#addProvenance(Path, List, Collection)}
+     * Add {@link Marker}s to {@link SourceFile}.
      */
-    public <T extends
-            SourceFile> UnaryOperator<T> addProvenance(Path baseDir, List<Marker> provenance, @Nullable Collection<Path> generatedSources) {
-//        MavenMojoProjectParser mavenMojoProjectParser = createMavenMojoProjectParser(baseDir);
-//        Method method = ReflectionUtils.findMethod(MavenMojoProjectParser.class, "addProvenance", Path.class, List.class, Collection.class);
-//        ReflectionUtils.makeAccessible(method);
-//        if(method == null) {
-//            throw new IllegalStateException("Could not find method '%s' on %s while trying to call it.".formatted("addProvenance", MavenMojoProjectParser.class.getName()));
-//        }
-//        Object result = ReflectionUtils.invokeMethod(method, mavenMojoProjectParser, baseDir, provenance, generatedSources);
-//        return (UnaryOperator<T>) result;
-        return (s) -> {
+    public <T extends SourceFile> UnaryOperator<T> addProvenance(
+            Path baseDir,
+            List<Marker> provenance,
+            @Nullable Collection<Path> generatedSources
+    ) {
+        return s -> {
             Markers markers = s.getMarkers();
-
-            Marker marker;
-            for (Iterator var5 = provenance.iterator(); var5.hasNext(); markers = markers.addIfAbsent(marker)) {
-                marker = (Marker) var5.next();
+            for (Marker marker : provenance) {
+                markers = markers.addIfAbsent(marker);
             }
-
             if (generatedSources != null && generatedSources.contains(baseDir.resolve(s.getSourcePath()))) {
-                markers = markers.addIfAbsent(new Generated(Tree.randomId()));
+                markers = markers.addIfAbsent(new Generated(randomId()));
             }
-
-            return (T) s.withMarkers(markers);
+            return s.withMarkers(markers);
         };
     }
 
     /**
-     * process sources in src/main/java of current module.
+     * Parse Java sources and resources under {@code src/main} of current module.
      */
     public List<SourceFile> processMainSources(
             Path baseDir,
@@ -86,7 +79,7 @@ public class HelperWithoutAGoodName {
             List<Marker> provenanceMarkers,
             Set<Path> alreadyParsed,
             ExecutionContext executionContext,
-            SbmMavenProject currentProject
+            MavenProject currentProject
     ) {
         log.info("Processing main sources in module '%s'".formatted(currentProject.getProjectId()));
         // FIXME: 945
@@ -162,7 +155,7 @@ public class HelperWithoutAGoodName {
 
 
     /**
-     * Calls {@link MavenMojoProjectParser#processTestSources(SbmMavenProject, JavaParser.Builder, ResourceParser, List, Set, ExecutionContext)}
+     * Parse Java sources and resource files under {@code src/test}.
      */
     public List<SourceFile> processTestSources(
             Path baseDir,
@@ -172,7 +165,7 @@ public class HelperWithoutAGoodName {
             List<Marker> provenanceMarkers,
             Set<Path> alreadyParsed,
             ExecutionContext executionContext,
-            SbmMavenProject currentProject,
+            MavenProject currentProject,
             List<Resource> resources
     ) {
         log.info("Processing test sources in module '%s'".formatted(currentProject.getProjectId()));

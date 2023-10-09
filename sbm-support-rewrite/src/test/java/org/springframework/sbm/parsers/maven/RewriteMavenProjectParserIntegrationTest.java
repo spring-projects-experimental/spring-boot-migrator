@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.event.EventListener;
 import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
-import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
+import org.springframework.sbm.parsers.RewriteProjectParsingResult;
 import org.springframework.sbm.parsers.events.FinishedParsingResourceEvent;
 
 import java.nio.file.Path;

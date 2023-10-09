@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 
 /**
  * @author Fabian Krüger
  */
-public class MavenRuntimeInformation {
-    public String getMavenVersion() {
-        // FIXME: 945 implement this
-        return "3.9.1";
-    }
+@Slf4j
+@RequiredArgsConstructor
+class MavenMojoProjectParserPrivateMethods {
+
+    private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
+    private final MavenArtifactDownloader artifactDownloader;
+
+
+
 }

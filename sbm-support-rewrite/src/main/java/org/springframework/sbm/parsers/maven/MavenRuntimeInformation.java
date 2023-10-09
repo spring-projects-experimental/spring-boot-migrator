@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.project.resource;
+package org.springframework.sbm.parsers.maven;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
-@RequiredArgsConstructor
-public class ProjectResourceSetSerializer {
-
-    private final ProjectResourceSerializer resourceSerializer;
-
-    public void writeChanges(ProjectResourceSet projectResourceSet) {
-        projectResourceSet.streamIncludingDeleted()
-                .forEach(resourceSerializer::writeChanges);
-        projectResourceSet.clearDeletedResources();
+/**
+ * @author Fabian Krüger
+ */
+public class MavenRuntimeInformation {
+    public String getMavenVersion() {
+        // FIXME: 945 implement this
+        return "3.9.1";
     }
 }

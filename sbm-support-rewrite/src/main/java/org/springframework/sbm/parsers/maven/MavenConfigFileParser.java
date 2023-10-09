@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import org.apache.commons.cli.*;
 import org.apache.maven.cli.CleanArgument;
@@ -38,112 +38,72 @@ import java.util.stream.Stream;
  */
 class MavenConfigFileParser {
 
-    /** Constant <code>ALTERNATE_POM_FILE='f'</code> */
     private static final char ALTERNATE_POM_FILE = 'f';
 
-    /** Constant <code>BATCH_MODE='B'</code> */
     private static final char BATCH_MODE = 'B';
 
-    /** Constant <code>SET_USER_PROPERTY='D'</code> */
     private static final char SET_USER_PROPERTY = 'D';
 
-    /**
-     * @deprecated Use {@link #SET_USER_PROPERTY}
-     */
-    @Deprecated
-    private static final char SET_SYSTEM_PROPERTY = SET_USER_PROPERTY;
-
-    /** Constant <code>OFFLINE='o'</code> */
     private static final char OFFLINE = 'o';
 
-    /** Constant <code>QUIET='q'</code> */
     private static final char QUIET = 'q';
 
-    /** Constant <code>DEBUG='X'</code> */
     private static final char DEBUG = 'X';
 
-    /** Constant <code>ERRORS='e'</code> */
     private static final char ERRORS = 'e';
 
-    /** Constant <code>HELP='h'</code> */
     private static final char HELP = 'h';
 
-    /** Constant <code>VERSION='v'</code> */
     private static final char VERSION = 'v';
 
-    /** Constant <code>SHOW_VERSION='V'</code> */
     private static final char SHOW_VERSION = 'V';
 
-    /** Constant <code>NON_RECURSIVE='N'</code> */
     private static final char NON_RECURSIVE = 'N';
 
-    /** Constant <code>UPDATE_SNAPSHOTS='U'</code> */
     private static final char UPDATE_SNAPSHOTS = 'U';
 
-    /** Constant <code>ACTIVATE_PROFILES='P'</code> */
     private static final char ACTIVATE_PROFILES = 'P';
 
-    /** Constant <code>SUPRESS_SNAPSHOT_UPDATES="nsu"</code> */
     private static final String SUPRESS_SNAPSHOT_UPDATES = "nsu";
 
-    /** Constant <code>CHECKSUM_FAILURE_POLICY='C'</code> */
     private static final char CHECKSUM_FAILURE_POLICY = 'C';
 
-    /** Constant <code>CHECKSUM_WARNING_POLICY='c'</code> */
     private static final char CHECKSUM_WARNING_POLICY = 'c';
 
-    /** Constant <code>ALTERNATE_USER_SETTINGS='s'</code> */
     private static final char ALTERNATE_USER_SETTINGS = 's';
 
-    /** Constant <code>ALTERNATE_GLOBAL_SETTINGS="gs"</code> */
     private static final String ALTERNATE_GLOBAL_SETTINGS = "gs";
 
-    /** Constant <code>ALTERNATE_USER_TOOLCHAINS='t'</code> */
     private static final char ALTERNATE_USER_TOOLCHAINS = 't';
 
-    /** Constant <code>ALTERNATE_GLOBAL_TOOLCHAINS="gt"</code> */
     private static final String ALTERNATE_GLOBAL_TOOLCHAINS = "gt";
 
-    /** Constant <code>FAIL_FAST="ff"</code> */
     private static final String FAIL_FAST = "ff";
 
-    /** Constant <code>FAIL_AT_END="fae"</code> */
     private static final String FAIL_AT_END = "fae";
 
-    /** Constant <code>FAIL_NEVER="fn"</code> */
     private static final String FAIL_NEVER = "fn";
 
-    /** Constant <code>RESUME_FROM="rf"</code> */
     private static final String RESUME_FROM = "rf";
 
-    /** Constant <code>PROJECT_LIST="pl"</code> */
     private static final String PROJECT_LIST = "pl";
 
-    /** Constant <code>ALSO_MAKE="am"</code> */
     private static final String ALSO_MAKE = "am";
 
-    /** Constant <code>ALSO_MAKE_DEPENDENTS="amd"</code> */
     private static final String ALSO_MAKE_DEPENDENTS = "amd";
 
-    /** Constant <code>LOG_FILE="l"</code> */
     private static final String LOG_FILE = "l";
 
-    /** Constant <code>ENCRYPT_MASTER_PASSWORD="emp"</code> */
     private static final String ENCRYPT_MASTER_PASSWORD = "emp";
 
-    /** Constant <code>ENCRYPT_PASSWORD="ep"</code> */
     private static final String ENCRYPT_PASSWORD = "ep";
 
-    /** Constant <code>THREADS="T"</code> */
     private static final String THREADS = "T";
 
-    /** Constant <code>BUILDER="b"</code> */
     private static final String BUILDER = "b";
 
-    /** Constant <code>NO_TRANSFER_PROGRESS="ntp"</code> */
     private static final String NO_TRANSFER_PROGRESS = "ntp";
 
-    /** Constant <code>COLOR="color"</code> */
     private static final String COLOR = "color";
     private static final String MVN_MAVEN_CONFIG = ".mvn/maven.config";
     public List<String> getActivatedProfiles(Path baseDir) {
@@ -153,7 +113,7 @@ class MavenConfigFileParser {
                 String[] args = readFile(lines);
                 return parse(args).stream()
                         .filter(o -> String.valueOf(ACTIVATE_PROFILES).equals(o.getOpt()))
-                        .map(o -> o.getValue())
+                        .map(Option::getValue)
                         .map(v -> v.split(","))
                         .flatMap(Arrays::stream)
                         .map(String::trim)
@@ -173,7 +133,7 @@ class MavenConfigFileParser {
                 String[] args = readFile(lines);
                 return parse(args).stream()
                         .filter(o -> String.valueOf(SET_USER_PROPERTY).equals(o.getOpt()))
-                        .map(o -> o.getValue())
+                        .map(Option::getValue)
                         .filter(v -> v.contains("="))
                         .map(v -> v.split("="))
                         .collect(Collectors.toMap(a -> a[0], a -> a[1]));
@@ -377,6 +337,7 @@ class MavenConfigFileParser {
         // We need to eat any quotes surrounding arguments...
         String[] cleanArgs = CleanArgument.cleanArgs(args);
 
+        @SuppressWarnings("deprecation")
         CommandLineParser parser = new GnuParser();
 
         try {

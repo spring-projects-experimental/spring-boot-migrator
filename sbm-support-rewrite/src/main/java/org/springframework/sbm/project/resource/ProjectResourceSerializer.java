@@ -15,14 +15,11 @@
  */
 package org.springframework.sbm.project.resource;
 
-import org.springframework.stereotype.Component;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Component
 public class ProjectResourceSerializer {
 
     public void writeChanges(InternalProjectResource projectResource) {

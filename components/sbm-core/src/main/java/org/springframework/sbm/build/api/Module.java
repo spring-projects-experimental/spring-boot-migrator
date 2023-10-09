@@ -15,13 +15,15 @@
  */
 package org.springframework.sbm.build.api;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.SourceFile;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.springframework.sbm.build.impl.JavaSourceSetImpl;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.common.util.Verify;
-import org.springframework.sbm.engine.recipe.MigrationResultProjectContextMerger;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
@@ -32,9 +34,6 @@ import org.springframework.sbm.project.resource.ProjectResourceSetFactory;
 import org.springframework.sbm.project.resource.RewriteMigrationResultMerger;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.openrewrite.SourceFile;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -65,10 +64,6 @@ public class Module {
 
     public JavaSourceLocation getBaseJavaSourceLocation() {
         return getMainJavaSourceSet().getJavaSourceLocation();
-    }
-
-    public JavaSourceLocation getBaseTestJavaSourceLocation() {
-        return getTestJavaSourceSet().getJavaSourceLocation();
     }
 
     public JavaSourceSet getTestJavaSourceSet() {

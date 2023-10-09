@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +26,7 @@ import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaVersion;
 import org.openrewrite.marker.*;
 import org.openrewrite.marker.ci.BuildEnvironment;
+import org.springframework.sbm.parsers.MavenProject;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -41,7 +42,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class MavenProvenanceMarkerFactory {
 
-    public List<Marker> generateProvenance(Path baseDir, SbmMavenProject mavenProject) {
+    public List<Marker> generateProvenance(Path baseDir, MavenProject mavenProject) {
         MavenRuntimeInformation runtime = mavenProject.getMavenRuntimeInformation();
         BuildTool buildTool = new BuildTool(Tree.randomId(), BuildTool.Type.Maven, runtime.getMavenVersion());
 
