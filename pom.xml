@@ -4,7 +4,7 @@
 
     <groupId>org.springframework.sbm</groupId>
     <artifactId>spring-boot-migrator</artifactId>
-    <version>0.15.2</version>
+    <version>0.15.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
