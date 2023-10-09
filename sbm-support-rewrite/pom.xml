@@ -376,33 +376,10 @@ limitations under the License.
                                 <exclude>**/*.sh</exclude>
                                 <exclude>**/generated/**</exclude>
                                 <exclude>**/Dockerfile</exclude>
+                                <exclude>**/META-INF/**</exclude>
                             </excludes>
                         </licenseSet>
                     </licenseSets>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.0</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <releaseProfiles>sonatype</releaseProfiles>
-                    <pushChanges>false</pushChanges>
-                    <tagNameFormat>@{project.version}</tagNameFormat>
-                    <localCheckout>true</localCheckout>
                 </configuration>
             </plugin>
         </plugins>
@@ -413,25 +390,9 @@ limitations under the License.
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>3.3.1</version>
-                        <executions>
-                            <execution>
-                                <id>copy-java-sources</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${basedir}/target/delombok</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${basedir}/src/main/java</directory>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.4.1</version>
                     </plugin>
                     <plugin>
                         <groupId>org.projectlombok</groupId>
@@ -439,13 +400,34 @@ limitations under the License.
                         <version>1.18.20.0</version>
                         <executions>
                             <execution>
-                                <phase>generate-sources</phase>
+                                <phase>package</phase>
                                 <goals>
                                     <goal>delombok</goal>
                                 </goals>
                                 <configuration>
+                                    <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
                                     <outputDirectory>${basedir}/target/delomboked</outputDirectory>
-                                    <sourceDirectory>${basedir}/target/delombok</sourceDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>3.3.0</version> <!-- Adjust version as needed -->
+                        <executions>
+                            <execution>
+                                <id>create-sources-jar</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <classesDirectory>${project.build.directory}/delomboked</classesDirectory>
+                                    <includes>
+                                        <include>**/*.java</include>
+                                    </includes>
+                                    <classifier>sources</classifier>
                                 </configuration>
                             </execution>
                         </executions>
@@ -514,26 +496,6 @@ limitations under the License.
                     </releases>
                 </repository>
             </distributionManagement>
-        </profile>
-        <profile>
-            <id>ci</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.4.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>
