@@ -53,7 +53,7 @@ public class MavenDependencyDownloadTest {
         ResolvedPom containingPom = null;
         Pom download = mavenPomDownloader.download(gav, relativePath, containingPom, List.of());
         assertThat(download).isNotNull();
-        assertThat(download.getSourcePath().toString()).isEqualTo("com.h2database/h2/1.4.200");
+        assertThat(download.getSourcePath().toString()).isEqualTo(Path.of("com.h2database", "h2", "1.4.200").toString());
     }
 
 }
