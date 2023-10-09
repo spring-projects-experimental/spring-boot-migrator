@@ -109,7 +109,7 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
         FindMethods findMethods = new FindMethods(methodPattern,true);
         MethodMatcher methodMatcher = new MethodMatcher(methodPattern);
         find(findMethods).stream()
-                .map(m -> list().stream().filter(js -> js.getResource().getId().equals(m.getId())).findFirst().get())
+                .map(m -> list().stream().filter(js -> js.getResource().getSourceFile().getId().equals(m.getSourceFile().getId())).findFirst().get())
                 .map(m -> new MethodCall(m, methodMatcher))
                 .forEach(matches::add);
         return matches;

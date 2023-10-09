@@ -51,7 +51,7 @@ public class OpenRewriteRecipeJavaSearch {
                     OpenRewriteJavaSource affectedJavaSource = javaSources.stream()
                             .filter(js -> js.getClass().isAssignableFrom(OpenRewriteJavaSource.class))
                             .map(OpenRewriteJavaSource.class::cast)
-                            .filter(js -> result.getBefore().getId().equals(js.getResource().getId()))
+                            .filter(js -> result.getBefore().getId().equals(js.getResource().getSourceFile().getId()))
                             .findFirst()
                             .get();
 

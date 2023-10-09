@@ -97,7 +97,7 @@ public class JavaGlobalRefactoringImpl implements JavaGlobalRefactoring {
                 .filter(r -> J.CompilationUnit.class.isAssignableFrom(r.getClass()))
                 .map(J.CompilationUnit.class::cast)
                 .map(cu -> resourceWrappers.stream()
-                        .filter(fh -> fh.getId().equals(cu.getId()))
+                        .filter(fh -> fh.getSourceFile().getId().equals(cu.getId()))
                         .map(pr -> {
                             J.CompilationUnit cuRemovedMarkers = removeMarkers(cu, SearchResult.class, RecipesThatMadeChanges.class);
                             pr.replaceWith(cuRemovedMarkers);
