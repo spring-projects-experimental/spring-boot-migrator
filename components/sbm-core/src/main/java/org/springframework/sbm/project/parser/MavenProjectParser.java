@@ -39,6 +39,7 @@ import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.events.*;
 import org.springframework.sbm.scopes.ProjectMetadata;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -73,9 +74,10 @@ public class MavenProjectParser {
         projectMetadata.setMavenSettings(mavenSettings);
         MavenExecutionContextView mavenExecutionContext = MavenExecutionContextView.view(executionContext);
         mavenExecutionContext.setMavenSettings(mavenSettings);
-//        if(mavenExecutionContext.getLocalRepository() == null) {
-        MavenExecutionContextView.view(executionContext).setLocalRepository(new MavenRepository("local", "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository"), null, null, false, null, null, null));
-//        }
+        Path localRepo = Path.of(System.getProperty("user.home")).resolve(".m2/repository");
+        String unifiedLocalRepo = LinuxWindowsPathUnifier.unifyPath(localRepo);
+        String uri = "%s://%s".formatted("file", unifiedLocalRepo);
+        MavenExecutionContextView.view(executionContext).setLocalRepository(new MavenRepository("local", uri, null, null, false, null, null, null));
         // default local repo provided by MavenExecutionContextView misses two '/' in the path
         mavenConfigHandler.injectMavenConfigIntoSystemProperties(resources);
 
