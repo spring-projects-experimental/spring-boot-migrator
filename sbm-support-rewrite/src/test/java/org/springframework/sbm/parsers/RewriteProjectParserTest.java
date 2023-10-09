@@ -19,26 +19,24 @@ import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junitpioneer.jupiter.Issue;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.maven.*;
+import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -50,71 +48,74 @@ class RewriteProjectParserTest {
 
     @Language("xml")
     String pomXml = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>org.example</groupId>
-                    <artifactId>root-project</artifactId>
-                    <version>1.0.0</version>
-                    <properties>
-                        <maven.compiler.target>17</maven.compiler.target>
-                        <maven.compiler.source>17</maven.compiler.source>
-                    </properties>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-starter</artifactId>
-                            <version>3.1.1</version>
-                        </dependency>
-                    </dependencies>
-                </project>
-                """;
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                <modelVersion>4.0.0</modelVersion>
+                <groupId>org.example</groupId>
+                <artifactId>root-project</artifactId>
+                <version>1.0.0</version>
+                <properties>
+                    <maven.compiler.target>17</maven.compiler.target>
+                    <maven.compiler.source>17</maven.compiler.source>
+                </properties>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter</artifactId>
+                        <version>3.1.1</version>
+                    </dependency>
+                </dependencies>
+            </project>
+            """;
 
     @Language("java")
     String javaClass = """
-                package com.example;
-                import org.springframework.boot.SpringApplication;
-                import org.springframework.boot.autoconfigure.SpringBootApplication;
-                                            
-                @SpringBootApplication
-                public class MyMain {
-                    public static void main(String[] args){
-                        SpringApplication.run(MyMain.class, args);
-                    }
+            package com.example;
+            import org.springframework.boot.SpringApplication;
+            import org.springframework.boot.autoconfigure.SpringBootApplication;
+                                        
+            @SpringBootApplication
+            public class MyMain {
+                public static void main(String[] args){
+                    SpringApplication.run(MyMain.class, args);
                 }
-                """;
+            }
+            """;
 
     @Test
-    @DisplayName("Parse complex Maven reactor project")
-    void parseComplexMavenReactorProject2(@TempDir Path tempDir) {
+    @DisplayName("Parse simple Maven project")
+    void parseSimpleMavenProject(@TempDir Path tempDir) {
         Path basePath = tempDir;
-        ParserSettings parserSettings = new ParserSettings();
-        MavenModelReader mavenModelReader = new MavenModelReader();
-        MavenMojoProjectParserFactory mavenMojoProjectParserFactory = new MavenMojoProjectParserFactory(parserSettings);
-        MavenMojoProjectParserPrivateMethods mavenMojoParserPrivateMethods = new MavenMojoProjectParserPrivateMethods(mavenMojoProjectParserFactory, new RewriteMavenArtifactDownloader());
-        MavenPlexusContainer containerFactory = new MavenPlexusContainer();
+        ParserProperties parserProperties = new ParserProperties();
+        ModuleParser mavenMojoParserPrivateMethods = new ModuleParser();
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
+        MavenModuleParser mavenModuleParser = new MavenModuleParser(parserProperties, mavenMojoParserPrivateMethods);
         RewriteProjectParser projectParser = new RewriteProjectParser(
-                new MavenExecutor(new MavenExecutionRequestFactory(new MavenConfigFileParser()), new MavenPlexusContainer()),
-                new ProvenanceMarkerFactory(mavenMojoProjectParserFactory),
-                new BuildFileParser(parserSettings),
-                new SourceFileParser(mavenModelReader, parserSettings, mavenMojoParserPrivateMethods),
+                new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
+                new BuildFileParser(),
+                new SourceFileParser(mavenModuleParser),
                 new StyleDetector(),
-                parserSettings,
+                parserProperties,
                 mock(ParsingEventListener.class),
-                mock(ApplicationEventPublisher.class)
+                mock(ApplicationEventPublisher.class),
+                new ScanScope(),
+                mock(ConfigurableListableBeanFactory.class),
+                new ProjectScanner(new DefaultResourceLoader(), parserProperties),
+                executionContext,
+                new MavenProjectAnalyzer(mock(RewriteMavenArtifactDownloader.class))
         );
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
+
         List<String> parsedFiles = new ArrayList<>();
-        ParsingExecutionContextView.view(executionContext).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                    .withLocale(Locale.US)
-                    .withZone(ZoneId.systemDefault());
-            String format = dateTimeFormatter.format(Instant.now());
-            System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
-            parsedFiles.add(sourceFile.getSourcePath().toString());
-        });
+        ParsingExecutionContextView.view(executionContext).setParsingListener(
+                    new ParsingEventListener() {
+                        @Override
+                        public void parsed(Parser.Input input, SourceFile sourceFile) {
+                            parsedFiles.add(sourceFile.getSourcePath().toString());
+                        }
+                    }
+                );
 
         // TODO: Provide Scanner with excludes
         // TODO: Make RewriteProjectParser publish ApplicationEvents
@@ -122,7 +123,9 @@ class RewriteProjectParserTest {
                 new DummyResource(basePath.resolve("pom.xml"), pomXml),
                 new DummyResource(basePath.resolve("src/main/java/com/example/MyMain.java"), javaClass));
         ResourceUtil.write(basePath, resources);
-        RewriteProjectParsingResult parsingResult = projectParser.parse(basePath, resources, executionContext);
+
+        RewriteProjectParsingResult parsingResult = projectParser.parse(basePath, resources);
+
         assertThat(parsingResult.sourceFiles()).hasSize(2);
     }
 }

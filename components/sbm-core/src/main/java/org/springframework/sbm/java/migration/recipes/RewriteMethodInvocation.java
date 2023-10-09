@@ -38,11 +38,16 @@ public class RewriteMethodInvocation extends Recipe {
 
 	@Override
 	public String getDisplayName() {
-		return "Rewritre method invocation";
+		return "Rewrite method invocation";
 	}
-	
+
 	@Override
-	protected TreeVisitor<?, ExecutionContext> getVisitor() {
+	public String getDescription() {
+		return getDisplayName();
+	}
+
+	@Override
+	public TreeVisitor<?, ExecutionContext> getVisitor() {
 		return new JavaVisitor<ExecutionContext>() {
 
 			@Override

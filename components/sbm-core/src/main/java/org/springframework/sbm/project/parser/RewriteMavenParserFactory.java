@@ -19,7 +19,7 @@ import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.cache.ReadOnlyLocalMavenArtifactCache;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

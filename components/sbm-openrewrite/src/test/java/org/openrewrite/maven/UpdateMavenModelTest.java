@@ -18,14 +18,17 @@ package org.openrewrite.maven;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.*;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.xml.ChangeTagValueVisitor;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.GitHubIssue;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Fabian Krüger
@@ -63,17 +66,22 @@ public class UpdateMavenModelTest {
                     </build>
                 </project>
                 """;
-        List<Xml.Document> pomXmls = MavenParser.builder().build().parse(pom);
+        Stream<SourceFile> pomXmls = MavenParser.builder().build().parse(pom);
 
         // changing a property in the configuration
         Recipe setMavenCompilerPluginSourceTo17 = new Recipe() {
             @Override
             public String getDisplayName() {
-                return "";
+                return "Set Maven compiler source to 17";
             }
 
             @Override
-            protected TreeVisitor<?, ExecutionContext> getVisitor() {
+            public String getDescription() {
+                return getDisplayName();
+            }
+
+            @Override
+            public TreeVisitor<?, ExecutionContext> getVisitor() {
                 return new MavenIsoVisitor<ExecutionContext>() {
 
                     @Override
@@ -98,8 +106,11 @@ public class UpdateMavenModelTest {
             }
         };
 
-        RecipeRun run = setMavenCompilerPluginSourceTo17.run(pomXmls);
-        SourceFile after = run.getResults().get(0).getAfter();
+        InMemoryLargeSourceSet inMemoryLargeSourceSet = new InMemoryLargeSourceSet(pomXmls.toList());
+
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> fail(t));
+        RecipeRun run = setMavenCompilerPluginSourceTo17.run(inMemoryLargeSourceSet, executionContext);
+        SourceFile after = run.getChangeset().getAllResults().get(0).getAfter();
         // The XML reflects the change
         assertThat(after.printAll()).isEqualTo(
                 """
@@ -140,16 +151,21 @@ public class UpdateMavenModelTest {
             }
 
             @Override
-            protected TreeVisitor<?, ExecutionContext> getVisitor() {
+            public String getDescription() {
+                return getDisplayName();
+            }
+
+            @Override
+            public TreeVisitor<?, ExecutionContext> getVisitor() {
                 return new UpdateMavenModel<>();
             }
-        }.run(List.of(after)).getResults().get(0).getAfter();
+        }.run(new InMemoryLargeSourceSet(List.of(after)), executionContext).getChangeset().getAllResults().get(0).getAfter();
 
         // But the change is not reflected in model
         assertThat(afterUpdateModel.getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested().getPlugins().get(0).getConfiguration().toString()).isEqualTo("{\"target\":\"${maven.compiler.target}\",\"source\":\"${maven.compiler.source}\"}");
 
         // When parsing the modified pom the change ois reflected
-        Xml.Document afterReparse = MavenParser.builder().build().parse(afterUpdateModel.printAll()).get(0);
+        SourceFile afterReparse = MavenParser.builder().build().parse(afterUpdateModel.printAll()).findFirst().get();
         assertThat(afterReparse.getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested().getPlugins().get(0).getConfiguration().toString()).isEqualTo("{\"target\":\"${maven.compiler.target}\",\"source\":\"17\"}");
     }
 }

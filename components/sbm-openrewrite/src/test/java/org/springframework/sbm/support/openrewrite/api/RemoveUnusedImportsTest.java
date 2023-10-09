@@ -15,7 +15,10 @@
  */
 package org.springframework.sbm.support.openrewrite.api;
 
+import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.RecipeRun;
+import org.openrewrite.SourceFile;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.RemoveUnusedImports;
@@ -24,44 +27,49 @@ import org.openrewrite.java.tree.J;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class RemoveUnusedImportsTest {
     @Test
     void removeUnusedImports() {
         String javaCode =
-                "import org.springframework.transaction.annotation.Propagation;\n" +
-                        "import org.springframework.transaction.annotation.Transactional;\n" +
-                        "\n" +
-                        "import javax.ejb.TransactionAttributeType;\n" +
-                        "\n" +
-                        "\n" +
-                        "@Transactional(propagation = Propagation.REQUIRES_NEW)\n" +
-                        "public class TransactionalService {\n" +
-                        "   public void requiresNewFromType() {}\n" +
-                        "\n" +
-                        "    @Transactional(propagation = Propagation.NOT_SUPPORTED)\n" +
-                        "    public void notSupported() {}\n" +
-                        "}";
+                """
+                import org.springframework.transaction.annotation.Propagation;
+                import org.springframework.transaction.annotation.Transactional;
+                                
+                import javax.ejb.TransactionAttributeType;
+                                
+                                
+                @Transactional(propagation = Propagation.REQUIRES_NEW)
+                public class TransactionalService {
+                   public void requiresNewFromType() {}
+                                
+                    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+                    public void notSupported() {}
+                }        
+                """;
 
         String expected =
-                "import org.springframework.transaction.annotation.Propagation;\n" +
-                        "import org.springframework.transaction.annotation.Transactional;\n" +
-                        "\n" +
-                        "\n" +
-                        "@Transactional(propagation = Propagation.REQUIRES_NEW)\n" +
-                        "public class TransactionalService {\n" +
-                        "   public void requiresNewFromType() {}\n" +
-                        "\n" +
-                        "    @Transactional(propagation = Propagation.NOT_SUPPORTED)\n" +
-                        "    public void notSupported() {}\n" +
-                        "}";
+                """
+                import org.springframework.transaction.annotation.Propagation;
+                import org.springframework.transaction.annotation.Transactional;
+                
+                
+                @Transactional(propagation = Propagation.REQUIRES_NEW)
+                public class TransactionalService {
+                   public void requiresNewFromType() {}
+                
+                    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+                    public void notSupported() {}
+                }                
+                """;
 
-        List<J.CompilationUnit> compilationUnits = OpenRewriteTestSupport.createCompilationUnitsFromStrings(List.of("javax.ejb:javax.ejb-api:3.2", "org.springframework.boot:spring-boot-starter-data-jpa:2.4.2"), javaCode);
+        List<SourceFile> compilationUnits = OpenRewriteTestSupport.createCompilationUnitsAsSourceFileFromStrings(List.of("javax.ejb:javax.ejb-api:3.2", "org.springframework.boot:spring-boot-starter-data-jpa:2.4.2"), javaCode);
 
         RemoveUnusedImports sut = new RemoveUnusedImports();
-        RecipeRun run = sut.run(compilationUnits);
+        RecipeRun run = sut.run(new InMemoryLargeSourceSet(compilationUnits), new InMemoryExecutionContext(t -> fail(t)));
 
-        assertThat(run.getResults().get(0).getAfter().printAll()).isEqualTo(expected);
+        assertThat(run.getChangeset().getAllResults().get(0).getAfter().printAll()).isEqualTo(expected);
 
     }
 }

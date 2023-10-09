@@ -46,7 +46,7 @@ public class RedeclaredDependenciesBuilder implements Sbu30_UpgradeSectionBuilde
         Set<RedeclaredDependenciesFinder.RedeclaredDependency> matches = finder.findMatches(projectContext);
         List<TodoList.Todo> todos = matches.stream()
                 .map(m -> TodoList.Todo.builder()
-                        .text(String.format("Remove explicit declaration of version for artifact: %s, its already declared with version %s", m.getRedeclaredDependency().getCoordinates(), m.originalVersion()))
+                        .text(String.format("Remove explicit declaration of version for artifact: %s, its already declared with version %s", m.getRedeclaredDependency().getGav(), m.originalVersion()))
                         .build()).toList();
 
         return ChangeSection.RelevantChangeSection.builder()

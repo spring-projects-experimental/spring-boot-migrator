@@ -17,9 +17,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.search.UsesType;
-import org.openrewrite.java.tree.J;
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
@@ -53,7 +51,7 @@ public class SpringMVCAndWebFluxUrlMatchingChangesHelper extends SpringBootUpgra
             return false;
         }
 
-        GenericOpenRewriteRecipe<UsesType<ExecutionContext>> usesTypeRecipe = new GenericOpenRewriteRecipe<>(() -> new UsesType<>(SPRING_REST_CONTROLLER_FQN));
+        GenericOpenRewriteRecipe<UsesType<ExecutionContext>> usesTypeRecipe = new GenericOpenRewriteRecipe<>(() -> new UsesType<>(SPRING_REST_CONTROLLER_FQN, false));
 
         matches = context.getProjectJavaSources().find(usesTypeRecipe).stream()
                 .filter(m -> OpenRewriteJavaSource.class.isInstance(m))

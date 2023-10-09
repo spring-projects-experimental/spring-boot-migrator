@@ -1,0 +1,62 @@
+name: Build SBM Revamp
+on:
+  push:
+    branches-ignore:
+      - "main"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 17
+          cache: 'maven'
+
+      - name: sbm-support-rewrite (build + test)
+        working-directory: sbm-support-rewrite
+        run: mvn --batch-mode clean install
+
+      - name: clean install skipTests
+        run: mvn clean install -DskipTests
+
+      - name: clean
+        run: mvn clean
+
+      - name: spring-boot-migrator (pom)
+        run: mvn --batch-mode install --projects :spring-boot-migrator
+
+      - name: test-helper (build + test)
+        run: mvn --batch-mode install --projects :test-helper
+
+      - name: sbm-openrewrite (build + test)
+        run: mvn --batch-mode install --projects :sbm-openrewrite
+
+      - name: sbm-core (build)
+        run: mvn -DskipTests --batch-mode install --projects :sbm-core
+
+      - name: recipe-test-support (build)
+        run: mvn -DskipTests --batch-mode install --projects :recipe-test-support
+
+      - name: sbm-support-boot (build)
+        run: mvn -DskipTests --batch-mode install --projects :sbm-support-boot
+
+      - name: sbm-support-jee (build)
+        run: mvn -DskipTests --batch-mode install --projects :sbm-support-jee
+
+      - name: sbm-support-weblogic (build)
+        run: mvn -DskipTests --batch-mode install --projects :sbm-support-weblogic
+
+      - name: sbm-recipes-jee-to-boot (build)
+        run: mvn -DskipTests --batch-mode install --projects :sbm-recipes-jee-to-boot
+
+      - name: sbm-recipes-spring-cloud (build)
+        run: mvn -DskipTests --batch-mode install --projects :sbm-recipes-spring-cloud
+
+      - name: sbm-recipes-boot-upgrade (build)
+        run: mvn -DskipTests --batch-mode install --projects :sbm-recipes-boot-upgrade

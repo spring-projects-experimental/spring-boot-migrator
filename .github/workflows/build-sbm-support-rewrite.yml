@@ -1,4 +1,4 @@
-name: Build
+name: Build SBM Support Rewrite
 on:
   push:
     branches:
@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 17
@@ -26,30 +26,11 @@ jobs:
       - name: Maven Build
         run: mvn --batch-mode clean package
 
-#      - name: Setup JFrog CLI
-#        uses: jfrog/setup-jfrog-cli@v3
-#        with:
-#          version: 2.46.2
-#        env:
-#          JF_ARTIFACTORY_SPRING: ${{ secrets.JF_ARTIFACTORY_SPRING }}
-#          MAVEN_REPO_ID: repo.spring.io
-#          MAVEN_REPO_URL: https://repo.spring.io/libs-snapshot-local
-#      # This command adds a new server configuration to the JFrog CLI
-#      - run: |
-#          export SERVER_ID="repo.spring.io"
-#          jf c add $SERVER_ID --url=https://repo.spring.io/libs-snapshot-local --access-token=${{ secrets.JF_ARTIFACTORY_SPRING }} --interactive=false
-#
-#      - name: Deploy to Artifactory
-#        run: |
-#          jfrog mvnc \
-#            --server-id-deploy $SERVER_ID \
-#            --repo-deploy-releases release \
-#            --repo-deploy-snapshots snapshot
-#          echo JFROG_CLI_BUILD_NAME=sbm-support-rewrite >> $GITHUB_ENV
-#          echo JFROG_CLI_BUILD_NUMBER=$GITHUB_RUN_NUMBER >> $GITHUB_ENV
-#      - name: Build and Publish
-#        env:
-#          DISABLE_SAMPLES: true
-#        run: |
-#          jfrog mvn clean install --repo=repo.spring.io
-#          jfrog build-publish
+      - name: Deploy to Artifactory
+        env:
+          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+          GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
+          GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
+          GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
+        run: mvn -B clean deploy -Partifactory,delombok

@@ -39,7 +39,12 @@ public class AddMavenRepository extends Recipe {
     }
 
     @Override
-    protected TreeVisitor<?, ExecutionContext> getVisitor() {
+    public String getDescription() {
+        return "Add a Maven repository to Maven build file.";
+    }
+
+    @Override
+    public TreeVisitor<?, ExecutionContext> getVisitor() {
         return new AddRepositoryVisitor();
     }
 

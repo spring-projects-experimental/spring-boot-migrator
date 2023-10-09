@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.jee.ejb.actions;
 
+import org.openrewrite.staticanalysis.RemoveUnusedLocalVariables;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -27,7 +28,7 @@ import org.openrewrite.java.AddImport;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.RemoveUnusedImports;
-import org.openrewrite.java.cleanup.RemoveUnusedLocalVariables;
+import org.openrewrite.staticanalysis.RemoveUnusedLocalVariables;
 import org.openrewrite.java.format.AutoFormat;
 import org.openrewrite.java.tree.*;
 
@@ -47,13 +48,13 @@ public class MigrateJndiLookup extends AbstractAction {
     }
 
     private void migrateJndiLookup(JavaSource sourceWithLookup) {
-        Recipe recipe = new GenericOpenRewriteRecipe<>(() -> new MigrateJndiLookupVisitor())
-                .doNext(new RemoveUnusedLocalVariables(null))
-                .doNext(new RemoveUnusedImports())
-                .doNext(new GenericOpenRewriteRecipe<>(() -> new AddImport<>("org.springframework.beans.factory.annotation.Autowired", null, false)))
-                .doNext(new AutoFormat());
-
-        sourceWithLookup.apply(recipe);
+        sourceWithLookup.apply(
+                new GenericOpenRewriteRecipe<>(() -> new MigrateJndiLookupVisitor()),
+                new RemoveUnusedLocalVariables(null),
+                new RemoveUnusedImports(),
+                new GenericOpenRewriteRecipe<>(() -> new AddImport<>("org.springframework.beans.factory.annotation.Autowired", null, false)),
+                new AutoFormat()
+        );
     }
 
     class MigrateJndiLookupVisitor extends JavaIsoVisitor<ExecutionContext> {
@@ -140,8 +141,8 @@ public class MigrateJndiLookup extends AbstractAction {
             J.VariableDeclarations variable = matchFound.getMultiVariable();
             JavaType.Class type = (JavaType.Class) variable.getTypeExpression().getType();
             String variableName = variable.getVariables().get(0).getSimpleName();
-            JavaTemplate javaTemplate = JavaTemplate.builder(() -> getCursor(), "@Autowired\nprivate " + type.getClassName() + " " + variableName).build();
-            J.Block result = body.withTemplate(javaTemplate, body.getCoordinates().lastStatement());
+            JavaTemplate javaTemplate = JavaTemplate.builder("@Autowired\nprivate " + type.getClassName() + " " + variableName).build();
+            J.Block result = javaTemplate.apply(getCursor(), body.getCoordinates().lastStatement());
             List<Statement> statements1 = result.getStatements();
             Statement statement = statements1.get(statements1.size() - 1);
             statements1.remove(statement);

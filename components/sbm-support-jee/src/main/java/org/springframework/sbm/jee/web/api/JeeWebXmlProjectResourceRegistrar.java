@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.jee.web.api;
 
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.project.resource.ProjectResourceWrapper;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.web.api.WebAppType;
@@ -32,6 +35,9 @@ import java.util.List;
 
 @Configuration
 public class JeeWebXmlProjectResourceRegistrar implements ProjectResourceWrapper<RewriteSourceFileHolder<Xml.Document>> {
+
+    @Autowired
+    private ExecutionContext executionContext;
 
 //    @EventListener(ProjectContextBuiltEvent.class)
 //    public void onProjectContextBuiltEvent(ProjectContextBuiltEvent projectContextBuiltEvent) {
@@ -65,10 +71,16 @@ public class JeeWebXmlProjectResourceRegistrar implements ProjectResourceWrapper
 
     @Override
     public boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
+        boolean sourceFileIsXmlDocument = Xml.Document.class.isAssignableFrom(rewriteSourceFileHolder.getSourceFile().getClass());
+        boolean fileNameEndsWithWebXml = rewriteSourceFileHolder.getAbsolutePath().getFileName().endsWith("web.xml");
+        List<SourceFile> sourceFiles = List.of(rewriteSourceFileHolder.getSourceFile());
+        InMemoryLargeSourceSet inMemoryLargeSourceSet = new InMemoryLargeSourceSet(sourceFiles);
+        boolean hasWebAppTag = !new FindTags("/web-app").run(inMemoryLargeSourceSet, executionContext).getChangeset().getAllResults().isEmpty();
         return (
-                Xml.Document.class.isAssignableFrom(rewriteSourceFileHolder.getSourceFile().getClass()) &&
-                rewriteSourceFileHolder.getAbsolutePath().getFileName().endsWith("web.xml") &&
-                ! new FindTags("/web-app").run(List.of(rewriteSourceFileHolder.getSourceFile())).getResults().isEmpty());
+                sourceFileIsXmlDocument &&
+                fileNameEndsWithWebXml &&
+                hasWebAppTag
+        );
     }
 
     @Override

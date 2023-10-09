@@ -15,9 +15,14 @@
  */
 package org.springframework.sbm.java.migration.conditions;
 
+import org.openrewrite.java.marker.JavaSourceSet;
+import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaType;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,22 +31,31 @@ class HasMemberAnnotationTest {
     @Test
     void testIsApplicableTRUE() {
         String sourceCode =
-                "" +
-                        "import org.junit.jupiter.api.Test; " +
-                        "                                   " +
-                        "class AnnotatedClass {             " +
-                        "   @Test                           " +
-                        "   private int var1;" +
-                        "}                                  " +
-                        "";
+                """
+                import javax.validation.constraints.Min;
+                class AnnotatedClass {
+                   @Min(8)
+                   private int var1;
+                }
+                """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                         .withJavaSources(sourceCode)
-                        .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0")
+                        .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
                         .build();
 
+        J.CompilationUnit sourceFile = context.getProjectJavaSources().list().get(0).getResource().getSourceFile();
+        boolean isTypeResolved = sourceFile.getMarkers().findFirst(JavaSourceSet.class).get().getClasspath().stream().map(fq -> fq.getFullyQualifiedName()).anyMatch(fq -> fq.startsWith("javax.validation"));
+        assertThat(isTypeResolved).isTrue();
+
+
+        String annotation = "javax.validation.constraints.Min";
         HasMemberAnnotation sut = new HasMemberAnnotation();
-        sut.setAnnotation("org.junit.jupiter.api.Test");
+        sut.setAnnotation(annotation);
+
+        boolean isTypeInUse = sourceFile.getTypesInUse().getTypesInUse().stream()
+                .anyMatch(t -> ((JavaType.FullyQualified)t).getFullyQualifiedName().equals(annotation));
+        assertThat(isTypeInUse).isTrue();
 
         assertThat(sut.evaluate(context)).isTrue();
     }
@@ -49,22 +63,21 @@ class HasMemberAnnotationTest {
     @Test
     void testIsApplicableFALSE() {
         String sourceCode =
-                "" +
-                        "import org.junit.jupiter.api.BeforeEach; " +
-                        "                                   " +
-                        "class AnnotatedClass {             " +
-                        "   @BeforeEach                     " +
-                        "   private int var1;               " +
-                        "}                                  " +
-                        "";
+                """
+                import javax.validation.constraints.Min;
+                class AnnotatedClass {
+                   @Min(1)
+                   private int var1;
+                }
+                """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withJavaSources(sourceCode)
-                .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0")
+                .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
                 .build();
 
         HasMemberAnnotation sut = new HasMemberAnnotation();
-        sut.setAnnotation("org.junit.jupiter.api.Test");
+        sut.setAnnotation("javax.validation.constraints.Max");
 
         assertThat(sut.evaluate(context)).isFalse();
     }

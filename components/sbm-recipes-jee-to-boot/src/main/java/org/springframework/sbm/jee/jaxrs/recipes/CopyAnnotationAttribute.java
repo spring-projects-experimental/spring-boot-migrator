@@ -52,9 +52,10 @@ public class CopyAnnotationAttribute extends Recipe {
             example = "timeout")
     String targetAttributeName;
 
-    @Override
-    protected TreeVisitor<?, ExecutionContext> getSingleSourceApplicableTest() {
-        return new UsesType<>(sourceAnnotationType);
+    // FIXME: removed with 8.x
+//    @Override
+    public TreeVisitor<?, ExecutionContext> getSingleSourceApplicableTest() {
+        return new UsesType<>(sourceAnnotationType, null);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class CopyAnnotationAttribute extends Recipe {
     }
 
     @Override
-    protected @NotNull JavaIsoVisitor<ExecutionContext> getVisitor() {
+    public @NotNull JavaIsoVisitor<ExecutionContext> getVisitor() {
         return new CopyAnnotationAttributeVisitor(
                 sourceAnnotationType,
                 sourceAttributeName,

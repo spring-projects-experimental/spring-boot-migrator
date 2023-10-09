@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.engine.recipe;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class ActionMustIncludeCondition
         implements ConstraintValidator<ActionMustIncludeConditionConstraint, Action> {

@@ -19,8 +19,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.build.migration.conditions.NoDependencyExistMatchingRegex;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -59,7 +58,7 @@ public class ChangesToDataPropertiesHelper extends SpringBootUpgradeReportSectio
         boolean noDepExists = new NoDependencyExistMatchingRegex(List.of("org\\.springframework\\.data\\:.*")).evaluate(
                 context);
         List<SpringBootApplicationProperties> search = context
-                .search(new SpringBootApplicationPropertiesResourceListFilter());
+                .search(new SpringBootApplicationPropertiesResourceListFinder());
 
         data = new HashMap<>();
 

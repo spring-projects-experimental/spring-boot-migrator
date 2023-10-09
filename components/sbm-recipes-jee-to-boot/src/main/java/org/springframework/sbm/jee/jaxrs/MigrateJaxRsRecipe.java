@@ -99,7 +99,7 @@ public class MigrateJaxRsRecipe {
                                 JavaRecipeAction.builder()
                                         .condition(HasImportStartingWith.builder().value("javax.ws.rs.core.MediaType").build())
                                         .description("Replace JaxRs MediaType with it's Spring equivalent.")
-                                        .recipe(new ReplaceMediaType(javaParserSupplier))
+                                        .recipe(new ReplaceMediaType())
                                         .build(),
 
                                 JavaRecipeAction.builder()
@@ -123,7 +123,7 @@ public class MigrateJaxRsRecipe {
                                 JavaRecipeAction.builder()
                                         .condition(HasImportStartingWith.builder().value("javax.ws.rs.core.Response").build())
                                         .description("Replace JaxRs Response and ResponseBuilder with it's Spring equivalent.")
-                                        .recipe(new SwapResponseWithResponseEntity(javaParserSupplier))
+                                        .recipe(new SwapResponseWithResponseEntity())
                                         .build(),
 
                                 JavaRecipeAction.builder()

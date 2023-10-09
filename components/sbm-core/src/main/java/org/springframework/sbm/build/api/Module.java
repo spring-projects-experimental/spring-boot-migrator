@@ -15,8 +15,10 @@
  */
 package org.springframework.sbm.build.api;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.java.JavaParser;
+import org.openrewrite.SourceFile;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.springframework.sbm.build.impl.JavaSourceSetImpl;
 import org.springframework.sbm.build.impl.MavenBuildFileUtil;
@@ -26,12 +28,12 @@ import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.project.resource.ProjectResourceSetFactory;
+import org.springframework.sbm.project.resource.RewriteMigrationResultMerger;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.openrewrite.SourceFile;
+import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -55,21 +57,19 @@ public class Module {
     private final ProjectResourceSet projectResourceSet;
     private final JavaRefactoringFactory javaRefactoringFactory;
     private final BasePackageCalculator basePackageCalculator;
-    private final JavaParser javaParser;
+    private final JavaParserBuilder javaParserBuilder;
     private final ExecutionContext executionContext;
+    private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
+    private final ProjectResourceSetFactory projectResourceSetFactory;
 
     public JavaSourceLocation getBaseJavaSourceLocation() {
         return getMainJavaSourceSet().getJavaSourceLocation();
     }
 
-    public JavaSourceLocation getBaseTestJavaSourceLocation() {
-        return getTestJavaSourceSet().getJavaSourceLocation();
-    }
-
     public JavaSourceSet getTestJavaSourceSet() {
         Path testJavaPath = Path.of("src/test/java");
         // FIXME: #7 JavaParser
-        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, testJavaPath, javaRefactoringFactory, basePackageCalculator, javaParser,
+        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, testJavaPath, javaRefactoringFactory, basePackageCalculator, javaParserBuilder,
                                      executionContext);
     }
 
@@ -86,7 +86,7 @@ public class Module {
     public JavaSourceSet getMainJavaSourceSet() {
         Path mainJavaPath = Path.of("src/main/java");
 //        return new JavaSourceSetImpl(projectResourceSet, projectRootDir.resolve(modulePath).resolve(mainJavaPath), javaRefactoringFactory);
-        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, mainJavaPath, javaRefactoringFactory, basePackageCalculator, javaParser,
+        return new JavaSourceSetImpl(projectResourceSet, projectRootDir, modulePath, mainJavaPath, javaRefactoringFactory, basePackageCalculator, javaParserBuilder,
                                      executionContext);
     }
 
@@ -130,8 +130,19 @@ public class Module {
         if (!modulesMarker.isEmpty()) {
             return modulesMarker
                     .stream()
-                    .map(m -> new Module(m.getPom().getGav().toString(), this.buildFile, projectRootDir, modulePath,
-                                         projectResourceSet, javaRefactoringFactory, basePackageCalculator, javaParser, executionContext))
+                    .map(m -> new Module(
+                            m.getPom().getGav().toString(),
+                            this.buildFile,
+                            projectRootDir,
+                            modulePath,
+                            projectResourceSet,
+                            javaRefactoringFactory,
+                            basePackageCalculator,
+                            javaParserBuilder,
+                            executionContext,
+                            rewriteMigrationResultMerger,
+                            projectResourceSetFactory)
+                    )
                     .collect(Collectors.toList());
         } else {
             return new ArrayList<>();
@@ -144,8 +155,14 @@ public class Module {
 
     public <T> T search(ProjectResourceFinder<T> finder) {
         List<RewriteSourceFileHolder<? extends SourceFile>> resources = getModuleResources();
-        ProjectResourceSet filteredProjectResourceSet = new ProjectResourceSet(resources);
-        return finder.apply(filteredProjectResourceSet);
+        if(!resources.isEmpty()) {
+            Path baseDir = resources.get(0).getAbsoluteProjectDir();
+            List<SourceFile> sourceFiles = getModuleResources().stream().map(RewriteSourceFileHolder::getSourceFile).map(SourceFile.class::cast).toList();
+            ProjectResourceSet filteredProjectResourceSet = projectResourceSetFactory.create(baseDir, sourceFiles);
+            return finder.apply(filteredProjectResourceSet);
+        } else {
+            return null;
+        }
     }
 
     private List<RewriteSourceFileHolder<? extends SourceFile>> getModuleResources() {
@@ -172,22 +189,25 @@ public class Module {
     }
 
     public <T> T searchMainResources(ProjectResourceFinder<T> finder) {
-        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getMainResourceSet().getAbsolutePath().toAbsolutePath().normalize()));
+        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getMainResourceSet().getAbsolutePath().toAbsolutePath().normalize()), rewriteMigrationResultMerger);
         return finder.apply(resourceSet);
     }
 
     public <T> T searchMainJava(ProjectResourceFinder<T> finder) {
-        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getMainJavaSourceSet().getAbsolutePath().toAbsolutePath().normalize()));
+        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getMainJavaSourceSet().getAbsolutePath().toAbsolutePath().normalize()), rewriteMigrationResultMerger);
         return finder.apply(resourceSet);
     }
 
     public <T> T searchTestResources(ProjectResourceFinder<T> finder) {
-        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getTestResourceSet().getAbsolutePath().toAbsolutePath().normalize()));
+        Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate = (RewriteSourceFileHolder<? extends SourceFile> r) -> {
+            return r.getAbsolutePath().normalize().startsWith(getTestResourceSet().getAbsolutePath().toAbsolutePath().normalize());
+        };
+        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, predicate, rewriteMigrationResultMerger);
         return finder.apply(resourceSet);
     }
 
     public <T> T searchTestJava(ProjectResourceFinder<T> finder) {
-        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getTestJavaSourceSet().getAbsolutePath().toAbsolutePath().normalize()));
+        ProjectResourceSet resourceSet = new ImmutableFilteringProjectResourceSet(projectResourceSet, (RewriteSourceFileHolder<? extends SourceFile> r) -> r.getAbsolutePath().normalize().startsWith(getTestJavaSourceSet().getAbsolutePath().toAbsolutePath().normalize()), rewriteMigrationResultMerger);
         return finder.apply(resourceSet);
     }
 
@@ -215,7 +235,8 @@ public class Module {
         private final ProjectResourceSet projectResourceSet;
         private final Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate;
 
-        public ImmutableFilteringProjectResourceSet(ProjectResourceSet projectResourceSet, Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate) {
+        public ImmutableFilteringProjectResourceSet(ProjectResourceSet projectResourceSet, Predicate<RewriteSourceFileHolder<? extends SourceFile>> predicate, RewriteMigrationResultMerger migrationResultMerger) {
+            super(projectResourceSet.list(), executionContext, migrationResultMerger);
             this.projectResourceSet = projectResourceSet;
             this.predicate = predicate;
         }

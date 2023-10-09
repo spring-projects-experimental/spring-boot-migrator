@@ -51,7 +51,7 @@ public class OpenRewriteRecipeJavaSearch {
                     OpenRewriteJavaSource affectedJavaSource = javaSources.stream()
                             .filter(js -> js.getClass().isAssignableFrom(OpenRewriteJavaSource.class))
                             .map(OpenRewriteJavaSource.class::cast)
-                            .filter(js -> result.getBefore().getId().equals(js.getResource().getId()))
+                            .filter(js -> result.getBefore().getId().equals(js.getResource().getSourceFile().getId()))
                             .findFirst()
                             .get();
 
@@ -67,7 +67,7 @@ public class OpenRewriteRecipeJavaSearch {
 
                     PrintOutputCapture<Integer> outputCapture = new PrintOutputCapture(executionContext);
                     ((JavaPrinter) javaPrinter).visit((J.CompilationUnit) result.getAfter(), outputCapture);
-                    J.CompilationUnit compilationUnit = javaParser.parse(outputCapture.out.toString()).get(0).withSourcePath(result.getBefore().getSourcePath());
+                    J.CompilationUnit compilationUnit = javaParser.parse(outputCapture.out.toString()).toList().get(0).withSourcePath(result.getBefore().getSourcePath());
                     affectedJavaSource.getResource().replaceWith(compilationUnit);
                 });
     }

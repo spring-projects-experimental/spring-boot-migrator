@@ -39,9 +39,14 @@ public class RewriteConstructorInvocation extends Recipe {
 	public String getDisplayName() {
 		return "Rewrite constructor invocation";
 	}
-	
+
 	@Override
-	protected TreeVisitor<?, ExecutionContext> getVisitor() {
+	public String getDescription() {
+		return getDisplayName();
+	}
+
+	@Override
+	public TreeVisitor<?, ExecutionContext> getVisitor() {
 		return new JavaVisitor<>() {
 
 			

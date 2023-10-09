@@ -21,58 +21,72 @@ import org.openrewrite.java.JavaTemplate;
 import org.springframework.sbm.java.migration.recipes.RewriteConstructorInvocation;
 import org.springframework.sbm.java.migration.recipes.RewriteMethodInvocation;
 
+import java.util.List;
+
 public class SwapCacheControl extends Recipe {
 
     public SwapCacheControl() {
 
-        /*
-         * NOT SUPPORTED:
-         * - valueOf(String)
-         * - getCacheExtension()
-         * - getMaxAge()
-         * - getNoCacheFields()
-         * - getPrivateFields()
-         * - getSMaxAge()
-         * - isMustRevalidate()
-         * - isNoCache()
-         * - isNoStore()
-         * - isNoTransform()
-         * - isPrivate()
-         * - isProxyRevalidate()
-         * - setMaxAge(int)
-         * - setMustRevalidate(boolean)
-         * - setNoCache(boolean)
-         * - setNoStore(boolean)
-         * - setNoTransform(boolean)
-         * - setPrivate(boolean)
-         * - setProxyRevalidate(boolean)
-         */
+    }
 
-        // setSMaxAge(int)
-        doNext(new RewriteMethodInvocation(RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.CacheControl setSMaxAge(int)"), (v, m, addImport) -> {
-            JavaTemplate t = JavaTemplate.builder(() -> v.getCursor(), "#{any(org.springframework.http.CacheControl)}.sMaxAge(#{any(int)}, TimeUnit.SECONDS)")
-                    .imports("java.util.concurrent.TimeUnit", "org.springframework.http.CacheControl")
-                    .build();
-            addImport.accept("java.util.concurrent.TimeUnit");
-            return m.withTemplate(t, m.getCoordinates().replace(), m.getSelect(), m.getArguments().get(0));
-        }));
+    @Override
+    public List<Recipe> getRecipeList() {
+        return List.of(
 
-        // constructor
-        doNext(new RewriteConstructorInvocation(RewriteConstructorInvocation.constructorMatcher("javax.ws.rs.core.CacheControl"), (v, c, addImport) -> {
-            JavaTemplate t = JavaTemplate.builder(() -> v.getCursor(), "CacheControl.empty()")
-                    .imports("org.springframework.http.CacheControl")
-                    .build();
-            addImport.accept("org.springframework.http.CacheControl");
-            v.maybeRemoveImport("javax.ws.rs.core.CacheControl");
-            return c.withTemplate(t, c.getCoordinates().replace());
-        }));
+                /*
+                 * NOT SUPPORTED:
+                 * - valueOf(String)
+                 * - getCacheExtension()
+                 * - getMaxAge()
+                 * - getNoCacheFields()
+                 * - getPrivateFields()
+                 * - getSMaxAge()
+                 * - isMustRevalidate()
+                 * - isNoCache()
+                 * - isNoStore()
+                 * - isNoTransform()
+                 * - isPrivate()
+                 * - isProxyRevalidate()
+                 * - setMaxAge(int)
+                 * - setMustRevalidate(boolean)
+                 * - setNoCache(boolean)
+                 * - setNoStore(boolean)
+                 * - setNoTransform(boolean)
+                 * - setPrivate(boolean)
+                 * - setProxyRevalidate(boolean)
+                 */
 
-        doNext(new ChangeType("javax.ws.rs.core.CacheControl", "org.springframework.http.CacheControl", false));
+                // setSMaxAge(int)
+                new RewriteMethodInvocation(RewriteMethodInvocation.methodInvocationMatcher("javax.ws.rs.core.CacheControl setSMaxAge(int)"), (v, m, addImport) -> {
+                    JavaTemplate t = JavaTemplate.builder("#{any(org.springframework.http.CacheControl)}.sMaxAge(#{any(int)}, TimeUnit.SECONDS)")
+                            .imports("java.util.concurrent.TimeUnit", "org.springframework.http.CacheControl")
+                            .build();
+                    addImport.accept("java.util.concurrent.TimeUnit");
+                    return t.apply(v.getCursor(), m.getCoordinates().replace(), m.getSelect(), m.getArguments().get(0));
+                }),
+
+                // constructor
+                new RewriteConstructorInvocation(RewriteConstructorInvocation.constructorMatcher("javax.ws.rs.core.CacheControl"), (v, c, addImport) -> {
+                    JavaTemplate t = JavaTemplate.builder("CacheControl.empty()")
+                            .imports("org.springframework.http.CacheControl")
+                            .build();
+                    addImport.accept("org.springframework.http.CacheControl");
+                    v.maybeRemoveImport("javax.ws.rs.core.CacheControl");
+                    return t.apply(v.getCursor(), c.getCoordinates().replace());
+                }),
+
+                new ChangeType("javax.ws.rs.core.CacheControl", "org.springframework.http.CacheControl", false)
+        );
     }
 
     @Override
     public String getDisplayName() {
         return "Swap JAX-RS CacheControl with Spring CacheControl";
+    }
+
+    @Override
+    public String getDescription() {
+        return getDisplayName();
     }
 
 }

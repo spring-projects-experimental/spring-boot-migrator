@@ -1,8 +1,10 @@
-name: Build
+name: Build SBM Legacy
 on:
   push:
     branches:
       - "**"
+    branches-ignore:
+      - "version/revamp"
     paths-ignore:
       - "sbm-support-rewrite/**"
 jobs:

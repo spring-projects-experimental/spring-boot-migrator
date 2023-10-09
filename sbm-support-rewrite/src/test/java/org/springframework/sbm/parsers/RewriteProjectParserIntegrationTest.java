@@ -17,30 +17,24 @@ package org.springframework.sbm.parsers;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.Issue;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.java.tree.J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.RewriteParserConfig;
-import org.springframework.sbm.parsers.events.FinishedParsingProjectEvent;
-import org.springframework.sbm.parsers.events.ParsedResourceEvent;
-import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
+import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
+import org.springframework.sbm.parsers.maven.RewriteMavenProjectParser;
+import org.springframework.sbm.parsers.maven.SbmTestConfiguration;
+import org.springframework.sbm.test.util.TestProjectHelper;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Fabian Krüger
  */
-@SpringBootTest
+@SpringBootTest(classes = {SbmSupportRewriteConfiguration.class, SbmTestConfiguration.class})
 public class RewriteProjectParserIntegrationTest {
 
     @Autowired
@@ -49,69 +43,50 @@ public class RewriteProjectParserIntegrationTest {
     @Autowired
     ProjectScanner projectScanner;
 
-    private static List<ParsedResourceEvent> capturedEvents = new ArrayList<>();
-    private static StartedParsingProjectEvent startedParsingEvent;
-    private static FinishedParsingProjectEvent finishedParsingEvent;
-
-    @Test
-    @DisplayName("Should publish parsing events")
-    void shouldPublishParsingEvents() {
-        Path baseDir = Path.of("./testcode/maven-projects/multi-module-1");
-        List<Resource> resources = projectScanner.scan(baseDir, Set.of("**/target/**", "**/*.adoc"));
-        ExecutionContext ctx = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
-
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, ctx);
-
-        assertThat(capturedEvents).hasSize(3);
-        assertThat(capturedEvents.get(0).sourceFile().getSourcePath().toString())
-                .isEqualTo("pom.xml");
-        // FIXME: Parsing order differs from RewriteMavenProjectParser but b should be parsed first as it has no dependencies
-        // Reported to OR the order gets lost in a Set in MavenMojoProjectParser
-        assertThat(capturedEvents.get(1).sourceFile().getSourcePath().toString())
-                .isEqualTo("module-b/pom.xml");
-        assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString())
-                .isEqualTo("module-a/pom.xml");
-
-        assertThat(startedParsingEvent).isNotNull();
-        assertThat(startedParsingEvent.resources()).isSameAs(resources);
-        assertThat(finishedParsingEvent).isNotNull();
-        assertThat(finishedParsingEvent.sourceFiles()).isSameAs(parsingResult.sourceFiles());
-    }
-
-    @TestConfiguration
-    static class TestEventListener {
-
-
-        @EventListener(ParsedResourceEvent.class)
-        public void onEvent(ParsedResourceEvent event) {
-            capturedEvents.add(event);
-        }
-
-        @EventListener(StartedParsingProjectEvent.class)
-        public void onStartedParsingProjectEvent(StartedParsingProjectEvent event) {
-            startedParsingEvent = event;
-        }
-
-        @EventListener(FinishedParsingProjectEvent.class)
-        public void onFinishedParsingProjectEvent(FinishedParsingProjectEvent event) {
-            finishedParsingEvent = event;
-        }
-    }
+    @Autowired
+    RewriteMavenProjectParser mavenProjectParser;
 
     @Test
     @DisplayName("parseCheckstyle")
-    @Issue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/875")
     void parseCheckstyle() {
-        Path baseDir = getMavenProject("checkstyle");
-        List<Resource> resources = projectScanner.scan(baseDir, Set.of());
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
+        Path baseDir = TestProjectHelper.getMavenProject("checkstyle");
+        List<Resource> resources = projectScanner.scan(baseDir);
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
     }
 
-    private Path getMavenProject(String s) {
-        return Path.of("./testcode/maven-projects/").resolve(s).toAbsolutePath().normalize();
+    @Test
+    @DisplayName("testFailingProject")
+        // FIXME: Succeeds with RewriteMavenProjectParser
+    void testFailingProject() {
+        Path baseDir = Path.of("./testcode/maven-projects/failing");
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir);
+        assertThat(parsingResult.sourceFiles().get(1)).isInstanceOf(J.CompilationUnit.class);
+        J.CompilationUnit cu = (J.CompilationUnit) parsingResult.sourceFiles().get(1);
+        assertThat(cu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
     }
 
+    @Test
+    @DisplayName("parseResources")
+    void parseResources() {
+        Path baseDir = TestProjectHelper.getMavenProject("resources");
+        List<Resource> resources = projectScanner.scan(baseDir);
+
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
+        assertThat(parsingResult.sourceFiles()).hasSize(5);
+    }
+
+    @Test
+    @DisplayName("parse4Modules")
+    void parse4Modules() {
+        Path baseDir = TestProjectHelper.getMavenProject("4-modules");
+        List<Resource> resources = projectScanner.scan(baseDir);
+
+        assertThat(resources).hasSize(4);
+
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
+        assertThat(parsingResult.sourceFiles()).hasSize(4);
+    }
 
 }

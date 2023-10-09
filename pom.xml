@@ -8,28 +8,30 @@
     <packaging>pom</packaging>
 
     <properties>
+        <jar.name>spring-boot-migrator</jar.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <jar.name>spring-boot-migrator</jar.name>
+        <openrewrite.version>8.1.8</openrewrite.version>
+        <spring-boot.version>3.1.2</spring-boot.version>
         <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <shrinkwrap.resolvers.version>3.2.1</shrinkwrap.resolvers.version>
         <java.version>17</java.version>
-        <spring-shell.version>2.1.10</spring-shell.version>
-        <openrewrite.version>7.35.0</openrewrite.version>
-        <openrewrite.spring.version>4.32.0</openrewrite.spring.version>
-        <rewrite-migrate-java.version>1.17.0</rewrite-migrate-java.version>
-        <spring-boot.version>2.7.5</spring-boot.version>
-        <progressbar.version>0.9.5</progressbar.version>
-        <testcontainers.version>1.19.0</testcontainers.version>
-        <maven-invoker.version>3.2.0</maven-invoker.version>
-        <shrinkwrap.resolvers.version>3.1.4</shrinkwrap.resolvers.version>
+        <!--        <spring-shell.version>2.1.10</spring-shell.version>-->
+        <openrewrite.spring.version>5.0.5</openrewrite.spring.version>
+        <rewrite-migrate-java.version>2.0.6</rewrite-migrate-java.version>
+        <!--        <progressbar.version>0.9.5</progressbar.version>-->
+        <!--        <testcontainers.version>1.17.6</testcontainers.version>-->
         <lombok.version>1.18.24</lombok.version>
+        <maven-invoker.version>3.2.0</maven-invoker.version>
+        <maven-resolver-spi.version>1.9.13</maven-resolver-spi.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
         <snakeyaml.version>1.33</snakeyaml.version>
+        <sbm-support-rewrite.version>0.1.0-SNAPSHOT</sbm-support-rewrite.version>
         <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
     </properties>
 
@@ -37,7 +39,7 @@
         <developerConnection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator.git</developerConnection>
         <connection>scm:git:https://github.com/spring-projects-experimental/spring-boot-migrator</connection>
         <url>https://github.com/spring-projects-experimental/spring-boot-migrator</url>
-        <tag>0.15.0</tag>
+        <tag>0.15.1</tag>
     </scm>
 
     <!--	<scm>-->
@@ -47,13 +49,41 @@
     <!--		<tag>HEAD</tag>-->
     <!--	</scm>-->
 
+    <modules>
+        <!-- <module>components/sbm-utils</module> -->
+        <module>components/sbm-openrewrite</module>
+        <module>components/sbm-core</module>
+        <module>components/test-helper</module>
+        <module>components/recipe-test-support</module>
+        <module>components/sbm-support-boot</module>
+        <module>components/sbm-support-jee</module>
+        <module>components/sbm-support-weblogic</module>
+        <module>components/sbm-recipes-jee-to-boot</module>
+        <module>components/sbm-recipes-spring-cloud</module>
+        <module>components/sbm-recipes-boot-upgrade</module>
+    </modules>
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${snakeyaml.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.wagon</groupId>-->
+<!--                <artifactId>wagon-http</artifactId>-->
+<!--                <version>3.5.3</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.resolver</groupId>-->
+<!--                <artifactId>maven-resolver-transport-http</artifactId>-->
+<!--                <version>1.9.14</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.resolver</groupId>-->
+<!--                <artifactId>maven-resolver-api</artifactId>-->
+<!--                <version>1.9.14</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.resolver</groupId>-->
+<!--                <artifactId>maven-resolver-impl</artifactId>-->
+<!--                <version>1.9.14</version>-->
+<!--            </dependency>-->
 
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -75,12 +105,6 @@
                 <groupId>org.springframework.sbm</groupId>
                 <artifactId>sbm-openrewrite</artifactId>
                 <type>test-jar</type>
-                <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.sbm</groupId>
-                <artifactId>recipe-test-support</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -107,36 +131,12 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>org.springframework.shell</groupId>
-                <artifactId>spring-shell-dependencies</artifactId>
-                <version>${spring-shell.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>me.tongfei</groupId>
-                <artifactId>progressbar</artifactId>
-                <version>${progressbar.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers</artifactId>
-                <version>${testcontainers.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven.shared</groupId>
-                <artifactId>maven-invoker</artifactId>
-                <version>${maven-invoker.version}</version>
-            </dependency>
-            <!-- openrewrite -->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.maven.shared</groupId>-->
+<!--                <artifactId>maven-invoker</artifactId>-->
+<!--                <version>${maven-invoker.version}</version>-->
+<!--                <scope>test</scope>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>org.openrewrite</groupId>
                 <artifactId>rewrite-core</artifactId>
@@ -202,45 +202,8 @@
                 <artifactId>rewrite-migrate-java</artifactId>
                 <version>${rewrite-migrate-java.version}</version>
             </dependency>
-            <!-- shrinkwrap -->
             <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-api</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-spi</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-api-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-spi-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-bom</artifactId>
-                <version>${shrinkwrap.resolvers.version}</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
+                <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>2.3.1</version>
             </dependency>
@@ -256,15 +219,15 @@
                 <scope>compile</scope>
             </dependency>
             <dependency>
+                <groupId>io.spring.asciidoctor.backends</groupId>
+                <artifactId>spring-asciidoctor-backends</artifactId>
+                <version>${spring-asciidoctor-backends.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.junit-pioneer</groupId>
                 <artifactId>junit-pioneer</artifactId>
                 <version>2.0.1</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.spring.asciidoctor.backends</groupId>
-                <artifactId>spring-asciidoctor-backends</artifactId>
-                <version>${spring-asciidoctor-backends.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -274,25 +237,12 @@
             <artifactId>jcl-over-slf4j</artifactId>
             <version>2.0.6</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.experimental</groupId>
+            <artifactId>sbm-support-rewrite</artifactId>
+            <version>${sbm-support-rewrite.version}</version>
+        </dependency>
     </dependencies>
-    <modules>
-        <module>applications/spring-shell</module>
-        <module>applications/spring-boot-upgrade</module>
-        <module>components/openrewrite-spring-recipes</module>
-        <module>components/sbm-recipes-boot-upgrade</module>
-        <module>components/sbm-recipes-spring-cloud</module>
-        <module>components/sbm-recipes-spring-framework</module>
-        <module>components/sbm-recipes-jee-to-boot</module>
-        <module>components/sbm-recipes-mule-to-boot</module>
-        <module>components/sbm-support-boot</module>
-        <module>components/sbm-support-weblogic</module>
-        <module>components/sbm-support-jee</module>
-        <module>components/sbm-openrewrite</module>
-        <module>components/sbm-core</module>
-        <module>components/test-helper</module>
-        <module>components/recipe-test-support</module>
-        <module>components/sbm-utils</module>
-    </modules>
     <build>
         <finalName>${jar.name}</finalName>
         <plugins>
@@ -369,16 +319,16 @@
                     <repositoryId>spring-projects-experimental/spring-boot-migrator</repositoryId>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+<!--                <version>${maven-compiler-plugin.version}</version>-->
+<!--                <configuration>-->
+<!--                    <source></source>-->
+<!--                    <target>18</target>-->
+<!--                    <forceJavacCompilerUse>true</forceJavacCompilerUse>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
@@ -417,6 +367,7 @@ limitations under the License.
                                 <!-- @formatter:on -->
                             </inlineHeader>
                             <excludes>
+                                <exclude>sbm-support-rewrite/**</exclude>
                                 <exclude>**/demo/**</exclude>
                                 <exclude>**/.sdkmanrc</exclude>
                                 <exclude>**/*.adoc</exclude>

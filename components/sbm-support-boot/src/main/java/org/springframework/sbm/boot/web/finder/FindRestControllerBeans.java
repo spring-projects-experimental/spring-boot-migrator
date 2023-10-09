@@ -16,9 +16,9 @@
 package org.springframework.sbm.boot.web.finder;
 
 import org.springframework.sbm.boot.web.api.RestControllerBean;
-import org.springframework.sbm.java.filter.JavaSourceListFilter;
+import org.springframework.sbm.java.filter.JavaSourceListFinder;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +32,7 @@ public class FindRestControllerBeans implements ProjectResourceFinder<List<RestC
 
     @Override
     public List<RestControllerBean> apply(ProjectResourceSet projectResourceSet) {
-        return new JavaSourceListFilter().apply(projectResourceSet).stream()
+        return new JavaSourceListFinder().apply(projectResourceSet).stream()
                 .flatMap(js -> {
                     return js
                             .getTypes()

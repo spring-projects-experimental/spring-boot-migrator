@@ -16,7 +16,7 @@
 package org.springframework.sbm.properties.api;
 
 import org.openrewrite.ExecutionContext;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.properties.migration.recipes.AddProperty;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 // TODO: fcoi RewriteSourceFileHolder as member ?!
 @Slf4j
@@ -99,7 +98,7 @@ public class PropertiesSource extends RewriteSourceFileHolder<Properties.File> {
 
     private void apply(Recipe r) {
         File rewriteResource = getSourceFile();
-        List<Result> results = r.run(List.of(rewriteResource), executionContext).getResults();
+        List<Result> results = r.run(new InMemoryLargeSourceSet(List.of(rewriteResource)), executionContext).getChangeset().getAllResults();
         if (!results.isEmpty()) {
             replaceWith(getSourceFile().getClass().cast(results.get(0).getAfter()));
         }

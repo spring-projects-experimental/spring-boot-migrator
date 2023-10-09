@@ -31,7 +31,6 @@ class Module_contains_Test {
         String rootPom = PomBuilder
                 .buildPom("com.example:parent:1.0")
                 .packaging("jar")
-                .withModules("module1", "module2")
                 .build();
 
         String javaClass = """
@@ -67,7 +66,7 @@ class Module_contains_Test {
         String rootPom = PomBuilder
                 .buildPom("com.example:parent:1.0")
                 .packaging("pom")
-                .withModules("module1", "module2")
+                .withModules("module1", "module2", "module1/module-in-module1")
                 .build();
 
         String module1Pom = PomBuilder

@@ -16,11 +16,11 @@
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +47,7 @@ class Boot_24_25_SqlScriptDataSourceInitializationActionTest {
         Boot_24_25_SqlScriptDataSourceInitializationAction sut = new Boot_24_25_SqlScriptDataSourceInitializationAction();
         sut.apply(projectContext);
 
-        List<SpringBootApplicationProperties> filteredResources = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
+        List<SpringBootApplicationProperties> filteredResources = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder());
         SpringBootApplicationProperties properties = filteredResources.get(0);
 
         assertThat(properties.getProperty("spring.sql.init.continue-on-error").get()).isEqualTo("spring.sql.init.continue-on-error");
@@ -70,12 +70,12 @@ class Boot_24_25_SqlScriptDataSourceInitializationActionTest {
         Boot_24_25_SqlScriptDataSourceInitializationAction sut = new Boot_24_25_SqlScriptDataSourceInitializationAction();
         sut.apply(projectContext);
 
-        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
+        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()).get(0);
 
         assertThat(properties.getProperty("spring.sql.init.continue-on-error").get()).isEqualTo("spring.sql.init.continue-on-error");
         assertThat(properties.getProperty("spring.sql.init.separator").get()).isEqualTo("spring.sql.init.separator");
 
-        SpringBootApplicationProperties properties2 = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(1);
+        SpringBootApplicationProperties properties2 = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()).get(1);
         assertThat(properties2.getProperty("spring.sql.init.continue-on-error").get()).isEqualTo("spring.sql.init.continue-on-error");
         assertThat(properties2.getProperty("spring.sql.init.separator").get()).isEqualTo("spring.sql.init.separator");
     }
@@ -91,7 +91,7 @@ class Boot_24_25_SqlScriptDataSourceInitializationActionTest {
         Boot_24_25_SqlScriptDataSourceInitializationAction sut = new Boot_24_25_SqlScriptDataSourceInitializationAction();
         sut.apply(projectContext);
 
-        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
+        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()).get(0);
 
         assertThat(properties.getProperty("spring.sql.init.password").get()).isEqualTo("spring.sql.init.password");
         assertThat(properties.getProperty("spring.sql.init.username").get()).isEqualTo("spring.sql.init.username");
@@ -108,7 +108,7 @@ class Boot_24_25_SqlScriptDataSourceInitializationActionTest {
         Boot_24_25_SqlScriptDataSourceInitializationAction sut = new Boot_24_25_SqlScriptDataSourceInitializationAction();
         sut.apply(projectContext);
 
-        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
+        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()).get(0);
 
         assertThat(properties.getProperty("spring.sql.init.password").get()).isEqualTo("spring.sql.init.password");
         assertThat(properties.getProperty("spring.sql.init.username").get()).isEqualTo("spring.sql.init.username");
@@ -127,7 +127,7 @@ class Boot_24_25_SqlScriptDataSourceInitializationActionTest {
         Boot_24_25_SqlScriptDataSourceInitializationAction sut = new Boot_24_25_SqlScriptDataSourceInitializationAction();
         sut.apply(projectContext);
 
-        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
+        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()).get(0);
 
         assertThat(properties.getProperty("spring.sql.init.password").get()).isEqualTo("spring.sql.init.password");
         assertThat(properties.getProperty("spring.sql.init.username").get()).isEqualTo("spring.sql.init.username");
@@ -146,7 +146,7 @@ class Boot_24_25_SqlScriptDataSourceInitializationActionTest {
         Boot_24_25_SqlScriptDataSourceInitializationAction sut = new Boot_24_25_SqlScriptDataSourceInitializationAction();
         sut.apply(projectContext);
 
-        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
+        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()).get(0);
 
         assertThat(properties.getProperty("spring.datasource.data-password").get()).isEqualTo("spring.sql.init.password");
         assertThat(properties.getProperty("spring.datasource.data-username").get()).isEqualTo("NAME_1");
@@ -170,10 +170,10 @@ class Boot_24_25_SqlScriptDataSourceInitializationActionTest {
         Boot_24_25_SqlScriptDataSourceInitializationAction sut = new Boot_24_25_SqlScriptDataSourceInitializationAction();
         sut.apply(projectContext);
 
-        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
+        SpringBootApplicationProperties properties = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()).get(0);
         assertThat(properties.getProperty("spring.datasource.data-password").get()).isEqualTo("spring.sql.init.password");
         assertThat(properties.getProperty("spring.datasource.data-username").get()).isEqualTo("NAME_1");
-        SpringBootApplicationProperties properties2 = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(1);
+        SpringBootApplicationProperties properties2 = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder()).get(1);
         assertThat(properties2.getProperty("spring.datasource.schema-password").get()).isEqualTo("spring.sql.init.password");
         assertThat(properties2.getProperty("spring.datasource.schema-username").get()).isEqualTo("NAME_2");
     }

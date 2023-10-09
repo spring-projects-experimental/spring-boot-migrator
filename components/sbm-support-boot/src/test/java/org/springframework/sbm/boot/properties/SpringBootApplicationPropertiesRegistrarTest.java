@@ -16,7 +16,7 @@
 package org.springframework.sbm.boot.properties;
 
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.junit.jupiter.api.Test;

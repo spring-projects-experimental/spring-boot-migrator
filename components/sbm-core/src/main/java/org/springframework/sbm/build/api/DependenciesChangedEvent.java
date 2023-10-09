@@ -15,15 +15,19 @@
  */
 package org.springframework.sbm.build.api;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.openrewrite.maven.tree.Scope;
+import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-@RequiredArgsConstructor
-@Getter
-public class DependenciesChangedEvent {
-
-    private final List<Path> resolvedDependencies;
+/**
+ * Event published when new dependencies were added to a {@link BuildFile}.
+ * A listener can then use the information to recompile affected java source files.
+ *
+ * @author Fabian Krueger
+ */
+public record DependenciesChangedEvent(OpenRewriteMavenBuildFile openRewriteMavenBuildFile, Map<Scope, Set<Path>> resolvedDependencies) {
 }

@@ -16,47 +16,49 @@
 package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
+import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.git.Commit;
 import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.project.resource.ProjectResourceSetFactory;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class ProjectContextInitializer {
 
     private final ProjectContextFactory projectContextFactory;
-    private final MavenProjectParser mavenProjectParser;
-    // FIXME #7 remove
-//    private final RewriteMavenParserFactory rewriteMavenParserFactory;
+    private final RewriteProjectParser mavenProjectParser;
     private final GitSupport gitSupport;
-
     private final RewriteSourceFileWrapper rewriteSourceFileWrapper;
+    private final ProjectContextHolder projectContextHolder;
+    private final ProjectResourceSetFactory projectResourceSetFactory;
 
     public ProjectContext initProjectContext(Path projectDir, List<Resource> resources) {
         final Path absoluteProjectDir = projectDir.toAbsolutePath().normalize();
         // TODO: remove git initialization, handled by precondition check
         initializeGitRepoIfNoneExists(absoluteProjectDir);
 
-        List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources);
+        List<SourceFile> parsedResources = mavenProjectParser.parse(absoluteProjectDir, resources).sourceFiles();
         List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = rewriteSourceFileWrapper.wrapRewriteSourceFiles(absoluteProjectDir, parsedResources);
 
-        ProjectResourceSet projectResourceSet = new ProjectResourceSet(rewriteSourceFileHolders);
+        ProjectResourceSet projectResourceSet = projectResourceSetFactory.createFromSourceFileHolders(rewriteSourceFileHolders);
         ProjectContext projectContext = projectContextFactory.createProjectContext(projectDir, projectResourceSet);
 
         storeGitCommitHash(projectDir, projectContext);
-
+        projectContextHolder.setProjectContext(projectContext);
         return projectContext;
     }
 

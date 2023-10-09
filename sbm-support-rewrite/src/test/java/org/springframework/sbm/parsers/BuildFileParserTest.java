@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.parsers;
 
-import org.apache.maven.project.MavenProject;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,15 +23,13 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.MavenExecutionContextView;
-import org.openrewrite.maven.tree.*;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.maven.BuildFileParser;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -40,7 +37,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Fabian Krüger
@@ -104,7 +100,7 @@ class BuildFileParserTest {
                         </project>
                         """;
 
-        private final BuildFileParser sut = new BuildFileParser(new ParserSettings());
+        private final BuildFileParser sut = new BuildFileParser();
 
         @Test
         void filterAndSortBuildFiles_shouldReturnSortedListOfFilteredBuildFiles() {
@@ -161,7 +157,7 @@ class BuildFileParserTest {
             ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
             boolean skipMavenParsing = false;
 
-            Map<Path, Xml.Document> parsedBuildFiles = sut.parseBuildFiles(
+            List<Xml.Document> parsedBuildFiles = sut.parseBuildFiles(
                     baseDir,
                     resources,
                     List.of("default"),
@@ -170,9 +166,9 @@ class BuildFileParserTest {
                     provenanceMarkers);
 
             assertThat(parsedBuildFiles).hasSize(3);
-            assertThat(parsedBuildFiles.get(module1SubmodulePomPath).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1/submodule");
-            assertThat(parsedBuildFiles.get(parentPomPath).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("parent");
-            assertThat(parsedBuildFiles.get(module1PomXml).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1");
+            assertThat(parsedBuildFiles.get(0).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1/submodule");
+            assertThat(parsedBuildFiles.get(1).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("parent");
+            assertThat(parsedBuildFiles.get(2).getMarkers().findFirst(JavaProject.class).get().getProjectName()).isEqualTo("module1");
         }
 
         @Test

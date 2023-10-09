@@ -35,10 +35,10 @@ public class JohnzonDependencyHelper extends SpringBootUpgradeReportSectionHelpe
 
     @Override
     public boolean evaluate(ProjectContext context) {
-
-        Optional<Dependency> d = context.getBuildFile().getDeclaredDependencies().stream()
-                .filter(x -> x.getCoordinates().contains("org.apache.johnzon:johnzon-core")).findFirst();
-        return d.isPresent();
+        return context.getApplicationModules().getRootModule().getBuildFile()
+                                    .getDeclaredDependencies()
+                                    .stream()
+                                    .anyMatch(x -> x.getGav().contains("org.apache.johnzon:johnzon-core"));
     }
 
     @Override

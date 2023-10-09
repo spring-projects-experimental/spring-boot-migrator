@@ -17,6 +17,7 @@ package org.springframework.sbm.java.refactoring;
 
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.*;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.tree.J;
@@ -96,7 +97,7 @@ public class JavaGlobalRefactoringImpl implements JavaGlobalRefactoring {
                 .filter(r -> J.CompilationUnit.class.isAssignableFrom(r.getClass()))
                 .map(J.CompilationUnit.class::cast)
                 .map(cu -> resourceWrappers.stream()
-                        .filter(fh -> fh.getId().equals(cu.getId()))
+                        .filter(fh -> fh.getSourceFile().getId().equals(cu.getId()))
                         .map(pr -> {
                             J.CompilationUnit cuRemovedMarkers = removeMarkers(cu, SearchResult.class, RecipesThatMadeChanges.class);
                             pr.replaceWith(cuRemovedMarkers);
@@ -118,8 +119,8 @@ public class JavaGlobalRefactoringImpl implements JavaGlobalRefactoring {
                 }
                 return markers;
             }
-        }).run(List.of(cu), executionContext);
-        J.CompilationUnit compilationUnit = (J.CompilationUnit) recipeRun.getResults().get(0).getAfter();
+        }).run(new InMemoryLargeSourceSet(List.of(cu)), executionContext);
+        J.CompilationUnit compilationUnit = (J.CompilationUnit) recipeRun.getChangeset().getAllResults().get(0).getAfter();
         compilationUnit = compilationUnit.withMarkers(compilationUnit.getMarkers().removeByType(RecipesThatMadeChanges.class));
         return compilationUnit;
     }
@@ -156,7 +157,8 @@ public class JavaGlobalRefactoringImpl implements JavaGlobalRefactoring {
 
     List<Result> executeRecipe(List<J.CompilationUnit> compilationUnits, Recipe recipe) {
         // FIXME #7 added RewriteExecutionContext here, remove again?
-        List<Result> results = recipe.run(compilationUnits, executionContext).getResults();
+        List<SourceFile> sourceFiles = compilationUnits.stream().map(SourceFile.class::cast).toList();
+        List<Result> results = recipe.run(new InMemoryLargeSourceSet(sourceFiles), executionContext).getChangeset().getAllResults();
 //         List<Result> results = recipe.run(compilationUnits, new RewriteExecutionContext(), new ForkJoinScheduler(new ForkJoinPool(1)), 10, 1);
         return results;
     }

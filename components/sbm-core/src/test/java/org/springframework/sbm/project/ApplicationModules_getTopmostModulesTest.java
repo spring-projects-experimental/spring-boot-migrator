@@ -33,21 +33,24 @@ class ApplicationModules_getTopmostModulesTest {
     @Nested
     public class GivenSingleModuleProjectWithExternalParentPom {
         private static final String projectPom =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                        "    <parent>\n" +
-                        "        <groupId>org.springframework.boot</groupId>\n" +
-                        "        <artifactId>spring-boot-starter-parent</artifactId>\n" +
-                        "        <version>2.5.6</version>\n" +
-                        "    </parent>\n" +
-                        "    <groupId>com.example.sbm</groupId>\n" +
-                        "    <artifactId>parent</artifactId>\n" +
-                        "    <version>0.1.0-SNAPSHOT</version>\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "    <packaging>jar</packaging>\n" +
-                        "</project>\n";
+                        """
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0"
+                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <parent>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-starter-parent</artifactId>
+                                <version>2.5.6</version>
+                                <relativePath/>
+                            </parent>
+                            <groupId>com.example.sbm</groupId>
+                            <artifactId>parent</artifactId>
+                            <version>0.1.0-SNAPSHOT</version>
+                            <modelVersion>4.0.0</modelVersion>
+                            <packaging>jar</packaging>
+                        </project>
+                        """;
 
         private ProjectContext projectContext;
 
@@ -206,6 +209,7 @@ class ApplicationModules_getTopmostModulesTest {
                         "    <modules>\n" +
                         "        <module>module1</module>\n" +
                         "        <module>module2</module>\n" +
+                        "        <module>module3</module>\n" +
                         "    </modules>" +
                         "</project>\n";
 
@@ -257,7 +261,7 @@ class ApplicationModules_getTopmostModulesTest {
                         "        <version>0.1.0-SNAPSHOT</version>\n" +
                         "        <relativePath>../pom.xml</relativePath>\n" +
                         "    </parent>\n" +
-                        "    <artifactId>module1</artifactId>\n" +
+                        "    <artifactId>module3</artifactId>\n" +
                         "    <modelVersion>4.0.0</modelVersion>\n" +
                         "    <dependencies>\n" +
                         "        <dependency>\n" +

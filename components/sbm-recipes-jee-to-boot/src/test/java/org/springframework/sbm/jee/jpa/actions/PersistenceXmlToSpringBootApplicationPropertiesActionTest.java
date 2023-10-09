@@ -16,10 +16,9 @@
 package org.springframework.sbm.jee.jpa.actions;
 
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.jee.jpa.filter.PersistenceXmlResourceFilter;
-import org.springframework.sbm.jee.jpa.resource.PersistenceXmlProjectResourceRegistrar;
+import org.springframework.sbm.jee.jpa.filter.PersistenceXmlResourceFinder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
@@ -76,7 +75,6 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
                     .withMavenRootBuildFileSource(parentPom)
                     .withProjectResource("pom1/pom.xml", pom1)
                     .withProjectResource("pom2/pom.xml", pom2)
-                    .addRegistrar(new PersistenceXmlProjectResourceRegistrar())
                     .build();
 
             MigratePersistenceXmlToApplicationPropertiesAction sut = new MigratePersistenceXmlToApplicationPropertiesAction();
@@ -142,15 +140,14 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
                     .withProjectResource("pom1/pom.xml", pom1)
                     .withProjectResource("pom2/pom.xml", pom2)
                     .withProjectResource("pom2/src/main/resources/META-INF/persistence.xml", persistenceXml)
-                    .addRegistrar(new PersistenceXmlProjectResourceRegistrar())
                     .build();
 
-            assertThat(projectContext.search(new SpringBootApplicationPropertiesResourceListFilter())).isEmpty();
+            assertThat(projectContext.search(new SpringBootApplicationPropertiesResourceListFinder())).isEmpty();
 
             MigratePersistenceXmlToApplicationPropertiesAction sut = new MigratePersistenceXmlToApplicationPropertiesAction();
             sut.apply(projectContext);
 
-            List<SpringBootApplicationProperties> applicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
+            List<SpringBootApplicationProperties> applicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFinder());
             assertThat(applicationProperties).hasSize(1);
             assertThat(applicationProperties.get(0).getSourcePath().toString()).isEqualTo("pom1/src/main/resources/application.properties");
         }
@@ -176,14 +173,14 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
                                     </persistence-unit>
                                 </persistence>
                                 """)
-                        .addRegistrar(new PersistenceXmlProjectResourceRegistrar()))
+                )
                 .actionUnderTest(new MigratePersistenceXmlToApplicationPropertiesAction())
                 .verify(context -> {
-                    List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
+                    List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFinder());
                     SpringBootApplicationProperties springBootApplicationProperties = applicationProperties.get(0);
                     assertThat(springBootApplicationProperties.getProperty("spring.jpa.hibernate.ddl-auto").get()).isEqualTo("create-drop");
                     assertThat(springBootApplicationProperties.getProperty("spring.jpa.database-platform").get()).isEqualTo("org.hibernate.dialect.HSQLDialect");
-                    assertThat(context.search(new PersistenceXmlResourceFilter())).isNotEmpty();
+                    assertThat(context.search(new PersistenceXmlResourceFinder())).isNotEmpty();
                 });
 
 

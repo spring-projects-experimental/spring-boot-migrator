@@ -15,12 +15,14 @@
  */
 package org.springframework.sbm.build.api;
 
+import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 
 import org.springframework.sbm.project.resource.ProjectResource;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,6 +41,11 @@ public interface BuildFile extends ProjectResource {
      * E.g. a dependency that has no version set will have its version resolved.
      */
     List<Dependency> getRequestedDependencies();
+
+    /**
+     * Searches for a requested dependency matching the given GAV.
+     */
+    Optional<Dependency> findRequestedDependency(String gav);
 
     /**
      * Returns any available dependency (declared or transitive) with given scope.
@@ -98,11 +105,17 @@ public interface BuildFile extends ProjectResource {
 
     List<Path> getResolvedDependenciesPaths();
 
+    Map<Scope, Set<Path>> getResolvedDependenciesMap();
+
+    /**
+     * Returns the classpath for given {@code scope}.
+     * target/classes and target/test-classes are included.
+     */
+    Set<Path> getClasspath(Scope scope);
+
     boolean hasPlugin(Plugin plugin);
 
     void addPlugin(Plugin plugin);
-
-    List<Path> getClasspath();
 
     List<Path> getSourceFolders();
 
@@ -175,5 +188,23 @@ public interface BuildFile extends ProjectResource {
     List<String> getDeclaredModules();
 
 	Optional<Plugin> findPlugin(String groupId, String artifactId);
+
+    /**
+     * Returns GAV of  groupId:artifactId:version of this build file.
+     */
+    default String getGav() {
+        return getGroupId() + ":" + getArtifactId() + ":" + getVersion();
+    }
+
+    /**
+     * Searches for the dependency matching the given gav.
+     */
+    Optional<Dependency> findDeclaredDependency(String gav);
+
+    /**
+     * Returns the declared dependency matching the given gav and throw exception if it doesn't exist.
+     * @throws IllegalStateException when no dependency with given gav exists.
+     */
+    Dependency getDeclaredDependency(String gav);
 
 }

@@ -29,7 +29,6 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.apache.commons.io.FilenameUtils;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.xml.XmlParser;
 import org.openrewrite.xml.tree.Xml;
@@ -222,7 +221,10 @@ public class GenerateWebServices extends AbstractAction {
             } catch (IOException e) {
                 return new ByteArrayInputStream(new byte[0]);
             }
-        })), null, executionContext);
+        })), null, executionContext)
+        .map(Xml.Document.class::cast)
+        .toList();
+
         if (docs.isEmpty()) {
             throw new RuntimeException("Failed to parse XML file '" + p + "'");
         } else {

@@ -27,7 +27,7 @@ import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.exceptions.UnresolvedTypeException;
-import org.springframework.sbm.java.filter.JavaSourceListFilter;
+import org.springframework.sbm.java.filter.JavaSourceListFinder;
 import org.springframework.sbm.java.refactoring.JavaGlobalRefactoring;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
@@ -57,7 +57,7 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
 
     @Override
     public List<JavaSource> list() {
-        return new JavaSourceListFilter().apply(projectResourceSet);
+        return new JavaSourceListFinder().apply(projectResourceSet);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
 
     @Override
     public Stream<JavaSource> stream() {
-        return new JavaSourceListFilter().apply(projectResourceSet).stream();
+        return new JavaSourceListFinder().apply(projectResourceSet).stream();
     }
 
     @Override
@@ -106,10 +106,10 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
     @Override
     public List<MethodCall> findMethodCalls(String methodPattern) {
         List<MethodCall> matches = new ArrayList<>();
-        FindMethods findMethods = new FindMethods(methodPattern,true, null);
+        FindMethods findMethods = new FindMethods(methodPattern,true);
         MethodMatcher methodMatcher = new MethodMatcher(methodPattern);
         find(findMethods).stream()
-                .map(m -> list().stream().filter(js -> js.getResource().getId().equals(m.getId())).findFirst().get())
+                .map(m -> list().stream().filter(js -> js.getResource().getSourceFile().getId().equals(m.getSourceFile().getId())).findFirst().get())
                 .map(m -> new MethodCall(m, methodMatcher))
                 .forEach(matches::add);
         return matches;
@@ -132,7 +132,7 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
 
     @Override
     public List<? extends JavaSource> findClassesUsingType(String type) {
-        UsesType<ExecutionContext> usesType = new UsesType<>(type);
+        UsesType<ExecutionContext> usesType = new UsesType<>(type, true);
         GenericOpenRewriteRecipe<UsesType<ExecutionContext>> recipe = new GenericOpenRewriteRecipe<>(() -> usesType);
         return find(recipe).stream()
                 .filter(RewriteSourceFileHolder.class::isInstance)

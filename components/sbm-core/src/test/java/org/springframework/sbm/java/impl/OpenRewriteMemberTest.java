@@ -15,12 +15,17 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.openrewrite.java.marker.JavaSourceSet;
+import org.openrewrite.java.tree.JavaType;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,19 +34,18 @@ class OpenRewriteMemberTest {
     @Test
     void testHasAnnotation() {
         String sourceCode =
-                "" +
-                        "import org.junit.jupiter.api.Test; " +
-                        "                                   " +
-                        "class AnnotatedClass {             " +
-                        "   private int var1;               " +
-                        "                                   " +
-                        "   @Test                           " +
-                        "   private int var2;               " +
-                        "}                                  " +
-                        "";
+                """
+                import javax.validation.constraints.Min;
+                class AnnotatedClass {
+                   private int var1;
+                
+                   @Min(1)
+                   private int var2;
+                }
+                """;
 
         JavaSource javaSource = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0")
+                .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
                 .withJavaSources(sourceCode)
                 .build()
                 .getProjectJavaSources()
@@ -51,8 +55,8 @@ class OpenRewriteMemberTest {
         Member sut1 = javaSource.getTypes().get(0).getMembers().get(0);
         Member sut2 = javaSource.getTypes().get(0).getMembers().get(1);
 
-        Assertions.assertThat(sut1.getAnnotation("org.junit.jupiter.api.Test")).isNull();
-        Assertions.assertThat(sut2.getAnnotation("org.junit.jupiter.api.Test")).isNotNull();
+        Assertions.assertThat(sut1.getAnnotation("javax.validation.constraints.Min")).isNull();
+        Assertions.assertThat(sut2.getAnnotation("javax.validation.constraints.Min")).isNotNull();
     }
 
     @Test
@@ -79,25 +83,49 @@ class OpenRewriteMemberTest {
 
     @Test
     void testAddMemberAnnotation() {
-        final String sourceCode =
-                "package com.foo;\n" +
-                        "public class Class1 {\n" +
-                        "   private String var1;\n" +
-                        "   private String var2;\n" +
-                        "}";
-
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
-                .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0")
-                .withJavaSources(sourceCode)
+                .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
+                .withJavaSources(
+                        """
+                        package com.foo;
+                        public class Class1 {
+                           private String var1;
+                           private String var2;
+                        }
+                        """
+                )
                 .build();
 
-        JavaSource javaSource = projectContext.getProjectJavaSources().list().get(0);
-        javaSource.getTypes().get(0).getMembers().get(0).addAnnotation("org.junit.jupiter.api.BeforeEach");
+        // find Class1
+        JavaSource javaSource = projectContext.getProjectJavaSources().findJavaSourceDeclaringType("com.foo.Class1").get();
 
+        // Precondition: javax.validation.constraints.Min on classpath
+        List<String> classpath = javaSource.getResource().getSourceFile()
+                .getMarkers()
+                .findFirst(JavaSourceSet.class)
+                .get()
+                .getClasspath()
+                .stream()
+                .map(JavaType.FullyQualified::getFullyQualifiedName)
+                .toList();
+
+        String minAnnotation = "javax.validation.constraints.Min";
+
+        assertThat(classpath).contains(minAnnotation);
+
+        // add annotation
+        Type type = javaSource.getTypes().get(0);
+        type.getMembers().get(0).addAnnotation(minAnnotation);
+
+        boolean isTypeInUse = ((OpenRewriteJavaSource)javaSource).getSourceFile().getTypesInUse().getTypesInUse().stream()
+                .anyMatch(t -> ((JavaType.FullyQualified)t).getFullyQualifiedName().equals(minAnnotation));
+        assertThat(isTypeInUse).isTrue();
+
+        // correct import added
         assertThat(javaSource.getImports()).hasSize(1);
-        assertThat(javaSource.hasImportStartingWith("org.junit.jupiter.api.BeforeEach")).isTrue();
-        assertThat(javaSource.getTypes().get(0).getMembers().get(0).getAnnotation("org.junit.jupiter.api.BeforeEach")).isNotNull();
-        assertThat(javaSource.getTypes().get(0).getMembers().get(1).getAnnotation("org.junit.jupiter.api.BeforeEach")).isNull();
+        assertThat(javaSource.hasImportStartingWith(minAnnotation)).isTrue();
+        assertThat(type.getMembers().get(0).getAnnotation(minAnnotation)).isNotNull();
+        assertThat(type.getMembers().get(1).getAnnotation(minAnnotation)).isNull();
     }
 
     @Test

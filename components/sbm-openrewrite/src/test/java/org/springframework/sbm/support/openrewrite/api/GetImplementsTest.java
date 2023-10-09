@@ -27,28 +27,31 @@ public class GetImplementsTest {
     @Test
     void test() {
         String businessInterface =
-                "package com.example.jee.app.ejb.local;\n" +
-                        "\n" +
-                        "import javax.ejb.Local;\n" +
-                        "\n" +
-                        "@Local\n" +
-                        "public interface ABusinessInterface {\n" +
-                        "    String businessMethod();\n" +
-                        "}";
+                """
+                package com.example.jee.app.ejb.local;
+                                        
+                import javax.ejb.Local;
+                                        
+                @Local
+                public interface ABusinessInterface {
+                    String businessMethod();
+                }
+                """;
 
         String ejb =
-                "package com.example.jee.app.ejb.local;\n" +
-                        "\n" +
-                        "import javax.ejb.Stateless;\n" +
-                        "\n" +
-                        "@Stateless\n" +
-                        "public class ABean implements ABusinessInterface {\n" +
-                        "\n" +
-                        "     @Override\n" +
-                        "     public String businessMethod() {\n" +
-                        "          return \"A\";\n" +
-                        "     }\n" +
-                        "}";
+                """
+                package com.example.jee.app.ejb.local;
+                                        
+                import javax.ejb.Stateless;
+                                        
+                @Stateless
+                public class ABean implements ABusinessInterface {
+                     @Override
+                     public String businessMethod() {
+                          return "A";
+                     }
+                }
+                """;
 
         List<J.CompilationUnit> compilationUnitsFromStrings = OpenRewriteTestSupport.createCompilationUnitsFromStrings(List.of("javax.ejb:javax.ejb-api:3.2"), businessInterface, ejb);
 

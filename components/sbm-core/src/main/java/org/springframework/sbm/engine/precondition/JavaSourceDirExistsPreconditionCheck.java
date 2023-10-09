@@ -16,8 +16,8 @@
 package org.springframework.sbm.engine.precondition;
 
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.utils.OsAgnosticPathMatcher;
 import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
-import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.PathMatcher;
 

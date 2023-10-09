@@ -16,6 +16,7 @@
 package org.springframework.sbm.engine.recipe;
 
 import org.jetbrains.annotations.NotNull;
+import org.openrewrite.Contributor;
 import org.openrewrite.config.DeclarativeRecipe;
 import org.openrewrite.config.Environment;
 import org.openrewrite.config.YamlResourceLoader;
@@ -52,7 +53,7 @@ public class RewriteRecipeLoader implements RecipeLoader {
     @NotNull
     private List<org.openrewrite.Recipe> loadRewriteRecipes() {
         Environment environment = Environment.builder()
-                .scanRuntimeClasspath()
+                .scanRuntimeClasspath("org.rewrite")
                 .build();
         return environment.listRecipes().stream().collect(Collectors.toList());
     }
@@ -77,10 +78,10 @@ public class RewriteRecipeLoader implements RecipeLoader {
     }
 
     private void initializeRecipe(DeclarativeRecipe recipe) {
-        Method initialize = ReflectionUtils.findMethod(DeclarativeRecipe.class, "initialize", Collection.class);
+        Method initialize = ReflectionUtils.findMethod(DeclarativeRecipe.class, "initialize", Collection.class, Map.class);
         ReflectionUtils.makeAccessible(initialize);
         try {
-            initialize.invoke(recipe, List.of(recipe));
+            initialize.invoke(recipe, List.of(recipe), Map.of());
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {

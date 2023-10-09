@@ -179,7 +179,7 @@ class CopyAnnotationAttributeTest {
         String sourceCode = """                
                 import org.springframework.web.bind.annotation.RequestParam;
                 import javax.ws.rs.DefaultValue;
-                import javax.validation.constraints.NotNull;
+                import jakarta.validation.constraints.NotNull;
                                 
                 class ControllerClass {
                     public String test(@RequestParam(value = "q") @NotNull @DefaultValue("default-value") String searchString) {
@@ -191,7 +191,7 @@ class CopyAnnotationAttributeTest {
         String expected = """
                 import org.springframework.web.bind.annotation.RequestParam;
                 import javax.ws.rs.DefaultValue;
-                import javax.validation.constraints.NotNull;
+                import jakarta.validation.constraints.NotNull;
                                 
                 class ControllerClass {
                     public String test(@RequestParam(defaultValue = "default-value", value = "q") @NotNull @DefaultValue("default-value") String searchString) {

@@ -18,7 +18,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.stereotype.Component;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +42,7 @@ public class SpringBootUpgradeReportDataProvider implements SpringBootUpgradeRep
                 .collect(Collectors.toSet());
         data.put("contributors", authors);
 
-        String scannedCoordinate = context.getApplicationModules().getRootModule().getBuildFile().getCoordinates();
+        String scannedCoordinate = context.getApplicationModules().getRootModule().getBuildFile().getGav();
         data.put("scannedCoordinate", scannedCoordinate);
 
         data.put("scannedProjectRoot", context.getProjectRootDirectory());

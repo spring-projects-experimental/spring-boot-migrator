@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.boot.properties.conditions;
 
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.engine.recipe.Condition;
 import org.springframework.sbm.engine.context.ProjectContext;
 
@@ -30,6 +30,6 @@ public class NoSpringBootApplicationPropertiesExists implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return context.search(new SpringBootApplicationPropertiesResourceListFilter()).isEmpty();
+        return context.search(new SpringBootApplicationPropertiesResourceListFinder()).isEmpty();
     }
 }

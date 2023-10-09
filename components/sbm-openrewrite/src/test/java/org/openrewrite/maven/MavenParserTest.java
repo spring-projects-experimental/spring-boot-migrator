@@ -18,15 +18,14 @@ package org.openrewrite.maven;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.Parser;
+import org.openrewrite.*;
+import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
-import org.openrewrite.maven.tree.MavenResolutionResult;
-import org.openrewrite.maven.tree.ResolvedDependency;
-import org.openrewrite.maven.tree.Scope;
-import org.openrewrite.xml.tree.Xml;
+import org.openrewrite.maven.tree.*;
+import org.openrewrite.tree.ParseError;
 import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.Problem;
+import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -140,7 +140,8 @@ public class MavenParserTest {
                 """;
 
         MavenParser mavenParser = MavenParser.builder().build();
-        List<Xml.Document> parsedPomFiles = mavenParser.parse(parentPom, module1Pom, module2Pom);
+        Stream<SourceFile> parsedPomFilesStream = mavenParser.parse(parentPom, module1Pom, module2Pom);
+        List<SourceFile> parsedPomFiles = parsedPomFilesStream.toList();
         MavenResolutionResult parentPomMarker = parsedPomFiles.get(0).getMarkers().findFirst(MavenResolutionResult.class).get();
         assertThat(parentPomMarker.getDependencies().get(Scope.Provided)).isEmpty();
         assertThat(parentPomMarker.getDependencies().get(Scope.Runtime)).isEmpty();
@@ -209,7 +210,7 @@ public class MavenParserTest {
 
     @Test
     void newParsingShouldRefreshModel() {
-        Xml.Document document = MavenParser.builder().build().parse("""
+        SourceFile document = MavenParser.builder().build().parse("""
                                                                             <?xml version="1.0" encoding="UTF-8"?>
                                                                             <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                                                                                     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -219,11 +220,11 @@ public class MavenParserTest {
                                                                                 <packaging>jar</packaging>
                                                                                 <version>0.0.1-SNAPSHOT</version>
                                                                             </project>
-                                                                            """).get(0);
+                                                                            """).toList().get(0);
 
         assertThat(document.getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getDependencyManagement()).isEmpty();
 
-        Xml.Document document1 = MavenParser.builder().build().parse("""
+        SourceFile document1 = MavenParser.builder().build().parse("""
                                                                              <?xml version="1.0" encoding="UTF-8"?>
                                                                              <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                                                                                      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -244,7 +245,7 @@ public class MavenParserTest {
                                                                                      </dependencies>
                                                                                  </dependencyManagement>
                                                                              </project>
-                                                                             """).get(0);
+                                                                             """).toList().get(0);
 
         assertThat(document1.getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getDependencyManagement()).isNotEmpty();
     }
@@ -272,7 +273,7 @@ public class MavenParserTest {
                                      .getBytes(StandardCharsets.UTF_8)),
                              !Files.exists(Path.of("moduleA/pom.xml"))
                 );
-        List<Xml.Document> newMavenFiles = mavenParser.parseInputs(List.of(parserInput), null, new InMemoryExecutionContext((t) -> t.printStackTrace()));
+        Stream<SourceFile> newMavenFiles = mavenParser.parseInputs(List.of(parserInput), null, new InMemoryExecutionContext((t) -> t.printStackTrace()));
 //        System.out.println(newMavenFiles.get(0).printAll());
     }
 
@@ -327,18 +328,30 @@ public class MavenParserTest {
                     </dependencies>
                 </project>
                 """;
-        MavenParser mavenParser = MavenParser.builder().build();
-        Xml.Document parentPom = mavenParser.parse(parentPomXml).get(0);
+        MavenParser mavenParser = MavenParser.builder()
+                .build();
+
+        ExecutionContext ctx = new InMemoryExecutionContext(t -> {
+            throw new RuntimeException(t);
+        });
+
+
+        MavenExecutionContextView.view(ctx).setResolutionListener(new Listener());
+
+        // parent can be parsed
+        SourceFile parentPom = mavenParser.parse(ctx, parentPomXml).toList().get(0);
         Optional<MavenResolutionResult> mavenResolutionResult = parentPom.getMarkers().findFirst(MavenResolutionResult.class);
         assertThat(mavenResolutionResult).isPresent();
-        assertThatExceptionOfType(UncheckedMavenDownloadingException.class)
-                .isThrownBy(() -> mavenParser.parse(parentPomXml, module1PomXml))
+
+        // parent with module1 fails, but requires the listener to handle this case
+        assertThatExceptionOfType(RewriteMavenDownloadingException.class)
+                .isThrownBy(() -> mavenParser.parse(ctx, parentPomXml, module1PomXml))
                 .describedAs("Maven visitors should not be visiting XML documents without a Maven marker");
     }
 
     @Test
     void parsePomFromTextWithoutMarkers() {
-        Xml.Document sut = MavenParser.builder().build().parse(
+        SourceFile sut = MavenParser.builder().build().parse(
                 new InMemoryExecutionContext((e) -> e.printStackTrace()),
                   """
                   <?xml version="1.0" encoding="UTF-8"?>
@@ -356,23 +369,26 @@ public class MavenParserTest {
                       </modules>
                   </project>
                   """
-        ).get(0);
+        ).findFirst().get();
         assertThat(sut).isNotNull();
     }
 
 
     @Problem(description = "java.io.UncheckedIOException: Failed to parse pom", since = "7.18.2", fixedIn = "7.23.0")
     void testParsingPomWithEmptyDependenciesSection() {
-        String pomXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                "    <modelVersion>4.0.0</modelVersion>\n" +
-                "    <groupId>com.example</groupId>\n" +
-                "    <artifactId>foo-bar</artifactId>\n" +
-                "    <version>0.1.0-SNAPSHOT</version>\n" +
-                "    <dependencies></dependencies>\n" +
-                "</project>";
+        @Language("xml")
+        String pomXml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <groupId>com.example</groupId>
+                    <artifactId>foo-bar</artifactId>
+                    <version>0.1.0-SNAPSHOT</version>
+                    <dependencies></dependencies>
+                </project>
+                """;
 
-        List<Xml.Document> parse = MavenParser.builder().build().parse(pomXml);
+        List<SourceFile> parse = MavenParser.builder().build().parse(pomXml).toList();
         assertThat(parse).isNotEmpty();
     }
 
@@ -409,7 +425,7 @@ public class MavenParserTest {
                         "    </dependencies>\n" +
                         "</project>";
 
-        Xml.Document document = MavenParser.builder().build().parse(pomXml).get(0);
+        SourceFile document = MavenParser.builder().build().parse(pomXml).findFirst().get();
         MavenResolutionResult r = document.getMarkers().findFirst(MavenResolutionResult.class).get();
 
         InMemoryExecutionContext executionContext = new InMemoryExecutionContext((t) -> System.out.println(t.getMessage()));
@@ -420,4 +436,41 @@ public class MavenParserTest {
         assertThat(resolvedDependencies).hasSize(81); // FIXME: #7 was 81 before ?!
     }
 
+    // FIXME: Exception Handling with
+    private class Listener implements ResolutionEventListener {
+            @Override
+            public void clear() {
+
+            }
+
+            @Override
+            public void downloadError(GroupArtifactVersion gav, Pom containing) {
+                throw new RewriteMavenDownloadingException("Failed to download dependency: %s".formatted(gav.toString()), null, gav);
+            }
+
+            @Override
+            public void parent(Pom parent, Pom containing) {
+
+            }
+
+            @Override
+            public void dependency(Scope scope, ResolvedDependency resolvedDependency, ResolvedPom containing) {
+
+            }
+
+            @Override
+            public void bomImport(ResolvedGroupArtifactVersion gav, Pom containing) {
+
+            }
+
+            @Override
+            public void property(String key, String value, Pom containing) {
+
+            }
+
+            @Override
+            public void dependencyManagement(ManagedDependency dependencyManagement, Pom containing) {
+
+        }
+    }
 }

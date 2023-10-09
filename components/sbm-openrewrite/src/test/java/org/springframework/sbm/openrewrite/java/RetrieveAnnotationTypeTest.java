@@ -33,10 +33,11 @@ public class RetrieveAnnotationTypeTest {
     @Test
     void retrieveAnnotation() {
         String javaSource =
-                "import javax.ejb.Stateless;\n" +
-                "@Stateless\n" +
-                "public class MyClass {" +
-                "}";
+                """
+                import javax.ejb.Stateless;
+                @Stateless
+                public class MyClass { }
+                """;
 
 //        String mavenRepo = System.getProperty("user.home") + "/.m2/repository";
 //        List<Path> paths = JavaParser.dependenciesFromClasspath("ejb-api");
@@ -49,7 +50,7 @@ public class RetrieveAnnotationTypeTest {
                 .classpath(classpathFiles)
                 .build();
 
-        List<J.Annotation> leadingAnnotations = javaParser.parse(javaSource).get(0).getClasses().get(0).getLeadingAnnotations();
+        List<J.Annotation> leadingAnnotations = javaParser.parse(javaSource).map(J.CompilationUnit.class::cast).toList().get(0).getClasses().get(0).getLeadingAnnotations();
         JavaType.Class type = JavaType.Class.class.cast(leadingAnnotations.get(0).getType());
         assertThat(type.getFullyQualifiedName()).isEqualTo("javax.ejb.Stateless");
     }

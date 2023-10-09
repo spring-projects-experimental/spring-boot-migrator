@@ -39,7 +39,7 @@ public class JerseyTemporarilyRemovedFinderTest {
         Set<Module> matches = sut.findMatches(context);
         assertThat(matches).isNotEmpty();
         assertThat(matches).hasSize(1);
-        assertThat(matches.iterator().next().getBuildFile().getDeclaredDependencies(Scope.Compile).get(0).getCoordinates()).isEqualTo(dependencyCoordinates);
+        assertThat(matches.iterator().next().getBuildFile().getDeclaredDependencies(Scope.Compile).get(0).getGav()).isEqualTo(dependencyCoordinates);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class JerseyTemporarilyRemovedFinderTest {
         assertThat(context.getApplicationModules().list()).hasSize(3);
         assertThat(matches).isNotEmpty();
         assertThat(matches).hasSize(1);
-        assertThat(matches.iterator().next().getBuildFile().getDeclaredDependencies(Scope.Compile).get(0).getCoordinates()).isEqualTo(jerseyDependencyCoordinates);
+        assertThat(matches.iterator().next().getBuildFile().getDeclaredDependencies(Scope.Compile).get(0).getGav()).isEqualTo(jerseyDependencyCoordinates);
     }
 
 }

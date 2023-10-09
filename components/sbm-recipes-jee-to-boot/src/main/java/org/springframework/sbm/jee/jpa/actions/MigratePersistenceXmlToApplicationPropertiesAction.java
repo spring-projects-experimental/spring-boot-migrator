@@ -20,13 +20,13 @@ import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.sbm.boot.properties.actions.AddSpringBootApplicationPropertiesAction;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.jee.jpa.api.Persistence;
 import org.springframework.sbm.jee.jpa.api.PersistenceXml;
-import org.springframework.sbm.jee.jpa.filter.PersistenceXmlResourceFilter;
+import org.springframework.sbm.jee.jpa.filter.PersistenceXmlResourceFinder;
 
 import java.util.List;
 
@@ -39,16 +39,16 @@ public class MigratePersistenceXmlToApplicationPropertiesAction extends Abstract
     @Override
     public void apply(ProjectContext context) {
         Module module = context.getApplicationModules().stream()
-                .filter(m -> m.search(new PersistenceXmlResourceFilter()).isPresent())
+                .filter(m -> m.search(new PersistenceXmlResourceFinder()).isPresent())
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No file 'META-INF/persistence.xml' could be found."));
 
-        PersistenceXml persistenceXml = module.search(new PersistenceXmlResourceFilter()).get();
-        List<SpringBootApplicationProperties> applicationProperties = module.search(new SpringBootApplicationPropertiesResourceListFilter());
+        PersistenceXml persistenceXml = module.search(new PersistenceXmlResourceFinder()).get();
+        List<SpringBootApplicationProperties> applicationProperties = module.search(new SpringBootApplicationPropertiesResourceListFinder());
         if (applicationProperties.isEmpty()) {
             AddSpringBootApplicationPropertiesAction addSpringBootApplicationPropertiesAction = new AddSpringBootApplicationPropertiesAction(executionContext);
             addSpringBootApplicationPropertiesAction.apply(module);
-            applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
+            applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFinder());
         }
         mapPersistenceXmlToApplicationProperties(applicationProperties.get(0), persistenceXml);
         applicationProperties.get(0).markChanged();
@@ -75,6 +75,6 @@ public class MigratePersistenceXmlToApplicationPropertiesAction extends Abstract
 
     @Override
     public boolean isApplicable(ProjectContext context) {
-        return context.search(new PersistenceXmlResourceFilter()).isPresent();
+        return context.search(new PersistenceXmlResourceFinder()).isPresent();
     }
 }

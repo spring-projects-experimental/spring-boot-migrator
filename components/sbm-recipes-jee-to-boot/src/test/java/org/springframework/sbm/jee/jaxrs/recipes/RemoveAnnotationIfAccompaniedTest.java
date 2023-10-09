@@ -81,7 +81,7 @@ class RemoveAnnotationIfAccompaniedTest {
     void givenBothAnnotationsArePresentOnTheFirstMethodParameterAndPrecededByAnotherOne_thenTheAnnotationIsRemoved() {
         String sourceCode = """                
                 import org.springframework.web.bind.annotation.RequestParam;
-                import javax.validation.constraints.NotNull;
+                import jakarta.validation.constraints.NotNull;
                 import javax.ws.rs.DefaultValue;
                                 
                 class ControllerClass {
@@ -93,7 +93,7 @@ class RemoveAnnotationIfAccompaniedTest {
 
         String expected = """
                 import org.springframework.web.bind.annotation.RequestParam;
-                import javax.validation.constraints.NotNull;
+                import jakarta.validation.constraints.NotNull;
                                 
                 class ControllerClass {
                     public String test(@NotNull @RequestParam(value = "q") String searchString) {

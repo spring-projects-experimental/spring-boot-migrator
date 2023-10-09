@@ -18,7 +18,7 @@ package org.springframework.sbm.build.impl;
 import org.junit.jupiter.api.*;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.tree.MavenRepository;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 
 import java.net.URI;
 import java.net.URISyntaxException;

@@ -51,9 +51,10 @@ public class RemoveAnnotationIfAccompanied extends Recipe {
         return "Remove matching annotation if the other annotation is also present.";
     }
 
-    @Override
+    // FIXME: removed with 8.x
+//    @Override
     protected TreeVisitor<?, ExecutionContext> getSingleSourceApplicableTest() {
-        return new UsesType<>(annotationTypeToRemove);
+        return new UsesType<>(annotationTypeToRemove, null);
     }
 
     @Override

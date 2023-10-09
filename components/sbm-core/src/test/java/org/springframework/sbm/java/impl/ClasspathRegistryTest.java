@@ -24,7 +24,7 @@ import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
-import org.springframework.sbm.openrewrite.RewriteExecutionContext;
+import org.springframework.sbm.parsers.RewriteExecutionContext;
 
 import java.util.List;
 import java.util.Set;
@@ -39,63 +39,63 @@ public class ClasspathRegistryTest {
         @Language("xml")
         String parentPom =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>com.acme</groupId>
-                    <artifactId>dummy</artifactId>
-                    <version>0.0.1-SNAPSHOT</version>
-                    <packaging>pom</packaging>
-                    <modules>
-                        <module>pom1</module>
-                        <module>pom2</module>
-                    </modules>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <groupId>com.acme</groupId>
+                            <artifactId>dummy</artifactId>
+                            <version>0.0.1-SNAPSHOT</version>
+                            <packaging>pom</packaging>
+                            <modules>
+                                <module>pom1</module>
+                                <module>pom2</module>
+                            </modules>
+                        </project>
+                        """;
 
         @Language("xml")
         String pom1 =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.acme</groupId>
-                        <artifactId>dummy</artifactId>
-                        <version>0.0.1-SNAPSHOT</version>
-                        <relativePath>../</relativePath>
-                    </parent>
-                    <artifactId>pom1</artifactId>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <parent>
+                                <groupId>com.acme</groupId>
+                                <artifactId>dummy</artifactId>
+                                <version>0.0.1-SNAPSHOT</version>
+                                <relativePath>../</relativePath>
+                            </parent>
+                            <artifactId>pom1</artifactId>
+                        </project>
+                        """;
 
         @Language("xml")
         String pom2 =
                 """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.acme</groupId>
-                        <artifactId>dummy</artifactId>
-                        <version>0.0.1-SNAPSHOT</version>
-                        <relativePath>../</relativePath>
-                    </parent>
-                    <artifactId>pom2</artifactId>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.acme</groupId>
-                            <artifactId>pom1</artifactId>
-                            <version>0.0.1-SNAPSHOT</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>javax.validation</groupId>
-                            <artifactId>validation-api</artifactId>
-                            <version>2.0.1.Final</version>
-                        </dependency>
-                    </dependencies>
-                </project>
-                """;
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            <modelVersion>4.0.0</modelVersion>
+                            <parent>
+                                <groupId>com.acme</groupId>
+                                <artifactId>dummy</artifactId>
+                                <version>0.0.1-SNAPSHOT</version>
+                                <relativePath>../</relativePath>
+                            </parent>
+                            <artifactId>pom2</artifactId>
+                            <dependencies>
+                                <dependency>
+                                    <groupId>com.acme</groupId>
+                                    <artifactId>pom1</artifactId>
+                                    <version>0.0.1-SNAPSHOT</version>
+                                </dependency>
+                                <dependency>
+                                    <groupId>javax.validation</groupId>
+                                    <artifactId>validation-api</artifactId>
+                                    <version>2.0.1.Final</version>
+                                </dependency>
+                            </dependencies>
+                        </project>
+                        """;
 
         ClasspathRegistry sut = ClasspathRegistry.getInstance();
         sut.clear();
@@ -104,8 +104,12 @@ public class ClasspathRegistryTest {
         assertThat(sut.getInitialDependencies()).isEmpty();
 
         ExecutionContext executionContext = new RewriteExecutionContext();
-        List<Xml.Document> poms = new RewriteMavenParser(new MavenSettingsInitializer(),
-                                                         executionContext).parse(parentPom, pom1, pom2);
+        List<Xml.Document> poms = new RewriteMavenParser(
+                new MavenSettingsInitializer(),
+                executionContext
+        ).parse(parentPom, pom1, pom2)
+                .map(Xml.Document.class::cast)
+                .toList();
 
         Set<ResolvedDependency> resolvedDependencies = poms
                 .get(2)

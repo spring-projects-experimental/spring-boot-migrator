@@ -15,18 +15,18 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.boot.upgrade_24_25.filter.SqlScriptDataSourceInitializationPropertiesAnalyzer;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFilter;
 
 import java.util.List;
 
 public class Boot_24_25_SqlScriptDataSourceInitializationAction extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
-        List<SpringBootApplicationProperties> springBootApplicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
+        List<SpringBootApplicationProperties> springBootApplicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFinder());
         List<SqlScriptDataSourceInitializationPropertiesAnalyzer.DeperecatedPropertyMatch> properties = new SqlScriptDataSourceInitializationPropertiesAnalyzer().findDeprecatedProperties(springBootApplicationProperties);
         properties.forEach(deprecatedPropertyMatch -> {
             deprecatedPropertyMatch.getSpringBootApplicationProperties().renameProperty(deprecatedPropertyMatch.getDeprecatedPropery(), deprecatedPropertyMatch.getNewProperty());

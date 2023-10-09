@@ -18,12 +18,12 @@ package org.springframework.sbm.common.migration.actions;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.ProjectResource;
-import org.springframework.sbm.common.filter.PathPatternMatchingProjectResourceFinder;
+import org.springframework.sbm.project.resource.finder.PathPatternMatchingProjectResourceFinder;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
