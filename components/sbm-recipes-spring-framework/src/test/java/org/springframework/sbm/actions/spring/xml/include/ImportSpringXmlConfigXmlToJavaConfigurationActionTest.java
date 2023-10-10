@@ -78,8 +78,7 @@ public class ImportSpringXmlConfigXmlToJavaConfigurationActionTest {
             .withProjectResource(Path.of("src/main/resources/my-xml/nicebeans.xml"), xmlSample)
             .build();
         
-        ImportSpringXmlConfigAction action = new ImportSpringXmlConfigAction();
-        action.setFreemarkerConf(configuration);
+        ImportSpringXmlConfigAction action = new ImportSpringXmlConfigAction(configuration);
         action.apply(ctx);
         
         List<? extends JavaSource> resources = ctx.getProjectJavaSources().list();
@@ -150,8 +149,7 @@ public class ImportSpringXmlConfigXmlToJavaConfigurationActionTest {
             .withProjectResource(Path.of("src/main/resources/my-xml/favabeans.xml"), xmlSample2)
             .build();
         
-        ImportSpringXmlConfigAction action = new ImportSpringXmlConfigAction();
-        action.setFreemarkerConf(configuration);
+        ImportSpringXmlConfigAction action = new ImportSpringXmlConfigAction(configuration);
         action.apply(ctx);
         
         List<? extends JavaSource> resources = ctx.getProjectJavaSources().list();

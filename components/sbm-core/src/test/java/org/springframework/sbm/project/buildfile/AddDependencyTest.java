@@ -82,7 +82,7 @@ public class AddDependencyTest {
         // simple ProjectContext
         String javaSourceCode = "import javax.validation.constraints.Email; class Y {@Email String email;}";
         ProjectContext context = TestProjectContext
-                .buildProjectContext(eventPublisher, rewriteJavaParser)
+                .buildProjectContext(eventPublisher)
                 .withJavaSource("src/main/java", javaSourceCode)
                 .build();
         // provide ProjectContext to Spring beans

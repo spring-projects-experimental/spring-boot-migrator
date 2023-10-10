@@ -26,6 +26,7 @@ import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -83,7 +84,7 @@ public class Module_searchMainJava_Test {
 
             verifySearchMain(context, projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/main/java/SomeClass.java");
+                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.get(0).getSourcePath())).isEqualTo("src/main/java/SomeClass.java");
                 assertThat(projectResourceSet.get(0).print()).isEqualTo("public class SomeClass{}");
             }, "");
         }
@@ -98,7 +99,7 @@ public class Module_searchMainJava_Test {
 
             verifySearchMain(context, projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/main/java/SomeClass.java");
+                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.get(0).getSourcePath())).isEqualTo("src/main/java/SomeClass.java");
                 assertThat(projectResourceSet.get(0).print()).isEqualTo("public class SomeClass{}");
             }, "");
         }
@@ -220,7 +221,7 @@ public class Module_searchMainJava_Test {
             verifySearchMain(context,
                              (projectResourceSet) -> {
                                 assertThat(projectResourceSet.list()).hasSize(1);
-                                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/main/java/SomeClass.java");
+                                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.list().get(0).getSourcePath())).isEqualTo("application/src/main/java/SomeClass.java");
                                 assertThat(projectResourceSet.list().get(0).print()).isEqualTo("public class SomeClass{}");
                             },
                              "application");
@@ -237,7 +238,7 @@ public class Module_searchMainJava_Test {
             verifySearchMain(context,
                              projectResourceSet -> {
                                 assertThat(projectResourceSet.list()).hasSize(1);
-                                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/main/java/SomeClass.java");
+                                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.list().get(0).getSourcePath())).isEqualTo("application/src/main/java/SomeClass.java");
                                 assertThat(projectResourceSet.list().get(0).print()).isEqualTo("public class SomeClass{}");
                             },
                              "application");

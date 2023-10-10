@@ -44,7 +44,7 @@ public class SpringBeanProvider {
     public static void run(ContextConsumer<AssertableApplicationContext> testcode, Class<?>... springBeans) {
         ApplicationContextRunner contextRunner = new ApplicationContextRunner();
         for (Class<?> springBean : springBeans) {
-            if(springBean.isAssignableFrom(Configurations.class)) {
+            if (springBean.isAssignableFrom(Configurations.class)) {
                 Configurations c = Configurations.class.cast(springBean);
                 contextRunner.withConfiguration(c);
             } else {
@@ -62,21 +62,18 @@ public class SpringBeanProvider {
             public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
                 Class<?> beanClass = bean.getClass();
                 Optional<Object> newBean = findReplacementForBean(replacedBeans, beanClass);
-                if(newBean.isPresent()) {
-                    return newBean.get();
-                }
-                return BeanPostProcessor.super.postProcessBeforeInitialization(bean, beanName);
+                return newBean.orElseGet(() -> BeanPostProcessor.super.postProcessBeforeInitialization(bean, beanName));
             }
 
             private Optional<Object> findReplacementForBean(Map<Class<?>, Object> replacedBeans, Class<?> beanClass) {
                 return replacedBeans.keySet().stream()
-                        .filter(replacedType -> beanClass.isAssignableFrom(replacedType))
-                        .map(replacedType -> replacedBeans.get(replacedType))
+                        .filter(beanClass::isAssignableFrom)
+                        .map(replacedBeans::get)
                         .findFirst();
             }
         });
 
-        Arrays.stream(springBeans).forEach(beanDef -> annotationConfigApplicationContext.register(beanDef));
+        Arrays.stream(springBeans).forEach(annotationConfigApplicationContext::register);
         annotationConfigApplicationContext.registerBean(ComponentScanConfiguration.class);
 //        annotationConfigApplicationContext.scan("org.springframework.sbm", "org.springframework.freemarker");
         annotationConfigApplicationContext.refresh();

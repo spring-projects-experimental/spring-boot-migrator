@@ -20,7 +20,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
-import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
 
@@ -37,15 +36,12 @@ public class PathScanner {
 	private final SbmApplicationProperties sbmApplicationProperties;
 	private final ResourceHelper resourceHelper;
 	private final PathMatcher pathMatcher = new OsAgnosticPathMatcher();
-	private final LinuxWindowsPathUnifier pathUnifier = new LinuxWindowsPathUnifier();
 
 	public List<Resource> scan(Path projectRoot) {
-		Path absoluteRootPath = projectRoot.toAbsolutePath();
-		String pattern = new LinuxWindowsPathUnifier().unifyPath(absoluteRootPath.toString() + "/**");
-		Resource[] resources = resourceHelper.loadResources("file:" + pattern);
+		String pattern = "%s/**".formatted(projectRoot.toAbsolutePath().toUri());
+		Resource[] resources = resourceHelper.loadResources(pattern);
 
-		return Arrays.asList(resources)
-				.stream()
+		return Arrays.stream(resources)
 				.filter(p -> this.isRelevant(projectRoot, getPath(p)))
 				.collect(Collectors.toList());
 	}
@@ -55,8 +51,7 @@ public class PathScanner {
 			return false;
 		}
 		return sbmApplicationProperties.getIgnoredPathsPatterns().stream()
-				.noneMatch(ir -> pathMatcher.match(ir,
-						pathUnifier.unifyPath(projectRoot.relativize(givenResource))));
+				.noneMatch(ir -> pathMatcher.match(ir, projectRoot.relativize(givenResource).toString()));
 	}
 
 	private Path getPath(Resource r) {
