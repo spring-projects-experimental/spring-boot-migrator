@@ -21,6 +21,10 @@ import java.nio.file.Path;
 
 public class LinuxWindowsPathUnifier {
 
+    public static Path unify(Path path) {
+        return Path.of(unifyPath(path));
+    }
+
     public static String unifyPath(Path path) {
         return unifyPath(path.toString());
     }
