@@ -289,7 +289,7 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
     private List<SpringBootJpaProperty> extractEclipseLinkProperties(Module module) {
         List<SpringBootJpaProperty> springBootJpaProperties = new ArrayList<>();
 
-        Optional<PersistenceXml> optPersistenceXml = module.search(new PersistenceXmlResourceFilter());
+        Optional<PersistenceXml> optPersistenceXml = module.search(new PersistenceXmlResourceFilter("**/src/main/resources/**"));
         return optPersistenceXml.map(persistenceXml -> persistenceXml.getPersistence().getPersistenceUnit().get(0) // FIXME: should multiple persistence-units be handled or fail?
             .getProperties())
             .filter(not(properties -> properties.getProperty().isEmpty()))

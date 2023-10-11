@@ -183,7 +183,7 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
                     SpringBootApplicationProperties springBootApplicationProperties = applicationProperties.get(0);
                     assertThat(springBootApplicationProperties.getProperty("spring.jpa.hibernate.ddl-auto").get()).isEqualTo("create-drop");
                     assertThat(springBootApplicationProperties.getProperty("spring.jpa.database-platform").get()).isEqualTo("org.hibernate.dialect.HSQLDialect");
-                    assertThat(context.search(new PersistenceXmlResourceFilter())).isNotEmpty();
+                    assertThat(context.search(new PersistenceXmlResourceFilter("**/src/main/resources/**"))).isNotEmpty();
                 });
 
 

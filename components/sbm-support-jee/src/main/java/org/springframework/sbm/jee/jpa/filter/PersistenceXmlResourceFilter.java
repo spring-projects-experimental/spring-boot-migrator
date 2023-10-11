@@ -21,8 +21,8 @@ import org.springframework.sbm.project.resource.GenericTypeFilter;
 // FIXME: what if persistence.xml in src/test/resources also exists?!
 public class PersistenceXmlResourceFilter extends GenericTypeFilter<PersistenceXml> {
 
-    public PersistenceXmlResourceFilter() {
-        super(PersistenceXml.class);
+    public PersistenceXmlResourceFilter(String directoryPattern) {
+        super(PersistenceXml.class, directoryPattern);
     }
 
 }
