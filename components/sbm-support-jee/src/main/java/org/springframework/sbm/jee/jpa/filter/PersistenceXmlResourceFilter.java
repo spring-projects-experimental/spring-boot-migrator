@@ -17,10 +17,28 @@ package org.springframework.sbm.jee.jpa.filter;
 
 import org.springframework.sbm.jee.jpa.api.PersistenceXml;
 import org.springframework.sbm.project.resource.GenericTypeFilter;
+import org.springframework.sbm.project.resource.filter.ResourceFilterException;
 
 // FIXME: what if persistence.xml in src/test/resources also exists?!
 public class PersistenceXmlResourceFilter extends GenericTypeFilter<PersistenceXml> {
 
+    /**
+     * Apply the filter to all resources.
+     *
+     * @see org.springframework.sbm.project.resource.filter.GenericTypeListFilter
+     * @throws ResourceFilterException when more than one resource was found.
+     */
+    public PersistenceXmlResourceFilter() {
+        super(PersistenceXml.class);
+    }
+
+    /**
+     * Apply the filter only to resources matching the {@code directoryPattern}.
+     * The {@code directoryPattern} is used as pattern for {@link java.nio.file.PathMatcher}.
+     *
+     * @see org.springframework.sbm.project.resource.filter.GenericTypeListFilter
+     * @throws ResourceFilterException when more than one resource was found.
+     */
     public PersistenceXmlResourceFilter(String directoryPattern) {
         super(PersistenceXml.class, directoryPattern);
     }
