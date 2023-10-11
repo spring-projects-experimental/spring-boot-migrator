@@ -73,7 +73,6 @@ public class ModuleParser {
     public List<SourceFile> processMainSources(
             Path baseDir,
             List<Resource> resources,
-            Xml.Document moduleBuildFile,
             JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
             RewriteResourceParser rp,
             List<Marker> provenanceMarkers,
@@ -159,7 +158,6 @@ public class ModuleParser {
      */
     public List<SourceFile> processTestSources(
             Path baseDir,
-            Xml.Document moduleBuildFile,
             JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
             RewriteResourceParser rp,
             List<Marker> provenanceMarkers,
