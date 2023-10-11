@@ -39,11 +39,11 @@ public class MigratePersistenceXmlToApplicationPropertiesAction extends Abstract
     @Override
     public void apply(ProjectContext context) {
         Module module = context.getApplicationModules().stream()
-                .filter(m -> m.search(new PersistenceXmlResourceFilter()).isPresent())
+                .filter(m -> m.search(new PersistenceXmlResourceFilter("**/src/main/resources/**")).isPresent())
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No file 'META-INF/persistence.xml' could be found."));
 
-        PersistenceXml persistenceXml = module.search(new PersistenceXmlResourceFilter()).get();
+        PersistenceXml persistenceXml = module.search(new PersistenceXmlResourceFilter("**/src/main/resources/**")).get();
         List<SpringBootApplicationProperties> applicationProperties = module.search(new SpringBootApplicationPropertiesResourceListFilter());
         if (applicationProperties.isEmpty()) {
             AddSpringBootApplicationPropertiesAction addSpringBootApplicationPropertiesAction = new AddSpringBootApplicationPropertiesAction(executionContext);
@@ -75,6 +75,6 @@ public class MigratePersistenceXmlToApplicationPropertiesAction extends Abstract
 
     @Override
     public boolean isApplicable(ProjectContext context) {
-        return context.search(new PersistenceXmlResourceFilter()).isPresent();
+        return context.search(new PersistenceXmlResourceFilter("**/src/main/resources/**")).isPresent();
     }
 }

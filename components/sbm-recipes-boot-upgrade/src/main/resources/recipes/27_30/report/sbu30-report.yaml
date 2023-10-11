@@ -453,7 +453,6 @@
                 }
                 ----
 
-              recipe: sbu30-248-add-PathMatchConfigurer
           gitHubIssue: 522
           projects:
           - spring-boot
