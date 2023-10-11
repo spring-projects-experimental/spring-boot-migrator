@@ -1,5 +1,8 @@
 name: Build
 on:
+  pull_request:
+    branches-ignore:
+      - "**revamp**"
   push:
     branches:
       - "**"
