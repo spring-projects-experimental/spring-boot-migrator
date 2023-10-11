@@ -117,8 +117,7 @@ public abstract class IntegrationTestBaseClass {
         }
 
         if (mvnHome == null) {
-            System.err.println("You must set $MAVEN_HOME on your system for the integration test to run.");
-            throw new RuntimeException();
+            throw new RuntimeException("You must set $MAVEN_HOME on your system for the integration test to run.");
         }
 
         System.setProperty("maven.home", mvnHome);

@@ -24,6 +24,7 @@ import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.sbm.project.resource.filter.ResourceFilterException;
 import org.springframework.sbm.test.ActionTest;
 
 import java.nio.file.Path;
@@ -31,6 +32,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
 
@@ -183,10 +185,74 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
                     SpringBootApplicationProperties springBootApplicationProperties = applicationProperties.get(0);
                     assertThat(springBootApplicationProperties.getProperty("spring.jpa.hibernate.ddl-auto").get()).isEqualTo("create-drop");
                     assertThat(springBootApplicationProperties.getProperty("spring.jpa.database-platform").get()).isEqualTo("org.hibernate.dialect.HSQLDialect");
-                    assertThat(context.search(new PersistenceXmlResourceFilter())).isNotEmpty();
+                    assertThat(context.search(new PersistenceXmlResourceFilter("**/src/main/resources/**"))).isNotEmpty();
                 });
+    }
 
+    // applicable with persistence.xml ONLY in src/main/resources
+    // applicable with persistence.xml in src/main/resources AND in src/test/resources
+    // NOT applicable with persistence.xml ONLY in src/test/resources
 
+    TestProjectContext.Builder projectContextBuilder = TestProjectContext.buildProjectContext()
+            .withProjectResource(Path.of("src/main/resources/META-INF/persistence.xml"), """
+                            <persistence version="1.0"
+                                         xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+                                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+                                <persistence-unit name="movie-unit">
+                                    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+                                    <jta-data-source>movieDatabase</jta-data-source>
+                                    <non-jta-data-source>movieDatabaseUnmanaged</non-jta-data-source>
+                                    <properties>
+                                        <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+                                        <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+                                    </properties>
+                                </persistence-unit>
+                            </persistence>
+                            """)
+            .withProjectResource(Path.of("src/test/resources/META-INF/persistence.xml"), """
+                            <persistence version="1.0"
+                                         xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+                                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                         xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+                                <persistence-unit name="movie-unit">
+                                    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+                                    <jta-data-source>movieDatabase</jta-data-source>
+                                    <non-jta-data-source>movieDatabaseUnmanaged</non-jta-data-source>
+                                    <properties>
+                                        <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+                                        <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+                                    </properties>
+                                </persistence-unit>
+                            </persistence>
+                            """)
+            .addRegistrar(new PersistenceXmlProjectResourceRegistrar());
 
+    @Test
+    void persistenceXmlResourceFilterWithPersistenceXmlInTestResourcesAndNoPathPatternProvided_shouldThrowException() {
+        assertThrows(ResourceFilterException.class, () -> {
+            ProjectContext projectContext = projectContextBuilder.build();
+            assertThat(projectContext.search(new PersistenceXmlResourceFilter())).isNotEmpty();
+        });
+    }
+
+    @Test
+    void persistenceXmlResourceFilterWithPersistenceXmlInTestResourcesAndPathPatternProvided_shouldReturnResult() {
+        ProjectContext projectContext = projectContextBuilder.build();
+        assertThat(projectContext.search(new PersistenceXmlResourceFilter("**/src/main/**"))).isPresent();
+    }
+
+    @Test
+    void migrateJpaToSpringBootWithPersistenceXmlOnlyMatchesPersistenceXmlInMain() {
+        ActionTest.withProjectContext(projectContextBuilder)
+        .actionUnderTest(new MigratePersistenceXmlToApplicationPropertiesAction())
+        .verify(projectContext -> {
+            List<SpringBootApplicationProperties> applicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
+            SpringBootApplicationProperties springBootApplicationProperties = applicationProperties.get(0);
+            assertThat(springBootApplicationProperties.getProperty("spring.jpa.hibernate.ddl-auto").get()).isEqualTo("create-drop");
+            assertThat(springBootApplicationProperties.getProperty("spring.jpa.database-platform").get()).isEqualTo("org.hibernate.dialect.HSQLDialect");
+            assertThat(projectContext.search(new PersistenceXmlResourceFilter("**/src/main/resources/**"))).isNotEmpty();
+        });
     }
 }
+
