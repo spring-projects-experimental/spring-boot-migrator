@@ -25,7 +25,7 @@
         <testcontainers.version>1.19.1</testcontainers.version>
         <maven-invoker.version>3.2.0</maven-invoker.version>
         <shrinkwrap.resolvers.version>3.1.4</shrinkwrap.resolvers.version>
-        <lombok.version>1.18.24</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
