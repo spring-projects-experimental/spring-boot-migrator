@@ -29,6 +29,7 @@ import org.springframework.sbm.project.resource.filter.XmlSpringBeanConfiguratio
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import java.io.StringWriter;
@@ -42,12 +43,10 @@ import java.util.stream.Collectors;
 @Getter
 public class ImportSpringXmlConfigAction extends AbstractAction {
 
+    @Setter
+    @Autowired
     @JsonIgnore
-    private final Configuration freemarkerConf;
-
-    public ImportSpringXmlConfigAction(Configuration freemarkerConf) {
-        this.freemarkerConf = freemarkerConf;
-    }
+    private Configuration freemarkerConf;
 
     @Override
     public void apply(ProjectContext context) {
