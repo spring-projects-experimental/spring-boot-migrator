@@ -42,11 +42,9 @@ public class MavenProjectAnalyzer {
 
     private static final String POM_XML = "pom.xml";
     private static final MavenXpp3Reader XPP_3_READER = new MavenXpp3Reader();
-    private final MavenArtifactDownloader rewriteMavenArtifactDownloader;
     private final ClasspathExtractor classpathExtractor;
 
-    public MavenProjectAnalyzer(MavenArtifactDownloader rewriteMavenArtifactDownloader, ClasspathExtractor classpathExtractor) {
-        this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
+    public MavenProjectAnalyzer(ClasspathExtractor classpathExtractor) {
         this.classpathExtractor = classpathExtractor;
     }
 

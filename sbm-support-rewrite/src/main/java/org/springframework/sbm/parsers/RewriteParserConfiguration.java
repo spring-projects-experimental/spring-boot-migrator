@@ -152,8 +152,8 @@ public class RewriteParserConfiguration {
 //    }
 
     @Bean
-    MavenProjectAnalyzer mavenProjectAnalyzer(MavenArtifactDownloader artifactDownloader, ClasspathExtractor classpathExtractor) {
-        return new MavenProjectAnalyzer(artifactDownloader, classpathExtractor);
+    MavenProjectAnalyzer mavenProjectAnalyzer(ClasspathExtractor classpathExtractor) {
+        return new MavenProjectAnalyzer(classpathExtractor);
     }
 
     @Bean
