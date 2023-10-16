@@ -169,22 +169,6 @@ public class MavenModuleParser {
     }
 
     private List<SourceFile> parseMainSources(Path baseDir, Collection<Path> classpath, Collection<byte[]> classBytesClasspath, List<Resource> resources) {
-        List<byte[]> array = classBytesClasspath
-                .stream()
-                .map(b -> {
-                    return (byte[]) b;
-                })
-                .toList();
-
-        List<byte[]> classBytesClasspathList = new ArrayList<>();
-        classBytesClasspathList.addAll(classBytesClasspath);
-
-        byte[][] classBytesClasspathArray = new byte[classBytesClasspath.size()][];
-        for(int i=0; i<classBytesClasspathList.size(); i++) {
-            byte[] bytes = classBytesClasspathList.get(i);
-            classBytesClasspathArray[i] = bytes;
-        }
-        JavaParser.fromJavaVersion().classpath(classBytesClasspathArray);
         return new ArrayList<>();
     }
 
