@@ -26,6 +26,7 @@ import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.internal.JavaTypeCache;
+import org.openrewrite.java.internal.TypesInUse;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
@@ -154,6 +155,10 @@ public class MavenModuleParserTest {
         // -> Should resolve type A
         // -> Same parser, separate calls, same type cache
         // --> WORKS! That's what we need.
+        // BUT! It'd require keeping and parsing the parser -> Can a parser parse the same resource twice?
+        // Yes, but it needs to be reset
+        // Type A can also be resolved from B then.
+        // So keeping and passing the used parser (per source set) would be an option.
         @Test
         @DisplayName("Same parser with shared cache in separate calls should resolve types")
         void sameParserWithSharedCacheInSeparateCallsShouldResolveTypes() {
@@ -164,7 +169,11 @@ public class MavenModuleParserTest {
 
             // Same parser two calls
             SourceFile a = javaParser.parse(aSource).toList().get(0);
+            SourceFile b1= javaParser.parse(bSource).toList().get(0);
+            // fails! need to call reset()
+            javaParser.reset();
             SourceFile b = javaParser.parse(bSource).toList().get(0);
+
 
             J.CompilationUnit compilationUnitB = (J.CompilationUnit) b;
             String fullyQualifiedName2 = ((JavaType.FullyQualified) compilationUnitB.getClasses().get(0).getExtends().getType()).getFullyQualifiedName();
@@ -172,6 +181,11 @@ public class MavenModuleParserTest {
             assertThat(fullyQualifiedName2).isEqualTo("com.foo.A");
 
             List<String> bTypesInUseFqNames = compilationUnitB.getTypesInUse().getTypesInUse().stream().map(fq -> ((JavaType.FullyQualified) fq).getFullyQualifiedName()).toList();
+
+            TypesInUse.FindTypesInUse findTypesInUse = new TypesInUse.FindTypesInUse();
+            findTypesInUse.visit(compilationUnitB, 0);
+            System.out.println(findTypesInUse.getTypes());
+
             // A is in typesInUse of B
             assertThat(bTypesInUseFqNames).contains("com.foo.A");
             //No markers were set
@@ -269,7 +283,6 @@ public class MavenModuleParserTest {
         BuildFileParser buildFileParser = new BuildFileParser();
         List<Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(baseDir, List.of(resources.get(0)), List.of(), new RewriteExecutionContext(), false, provenanceMarkersMap);
         Xml.Document document = parsedBuildFiles.get(0);
-
 
         Collection<Path> classpath = new ArrayList<>();
         Collection<byte[]> classBytesClasspath = new ArrayList<>();

@@ -115,13 +115,14 @@ public class ModuleParser {
                 .map(r -> new Parser.Input(ResourceUtil.getPath(r), () -> ResourceUtil.getInputStream(r)))
                 .toList();
 
-        Stream<? extends SourceFile> cus = Stream.of(javaParserBuilder)
-                .map(JavaParser.Builder::build)
-                .flatMap(parser -> parser.parseInputs(inputs, baseDir, executionContext))
+        JavaParser javaParser = javaParserBuilder.build();
+        Stream<? extends SourceFile> cus = javaParser.parseInputs(inputs, baseDir, executionContext)
                 .peek(s -> alreadyParsed.add(baseDir.resolve(s.getSourcePath())));
+
 
         List<Marker> mainProjectProvenance = new ArrayList<>(provenanceMarkers);
         mainProjectProvenance.add(sourceSet("main", dependencies, typeCache));
+        mainProjectProvenance.add(new JavaParserMarker(UUID.randomUUID(), javaParser));
 
         // FIXME: 945 Why target and not all main?
         List<Path> parsedJavaPaths = mainJavaSources.stream().map(ResourceUtil::getPath).toList();
