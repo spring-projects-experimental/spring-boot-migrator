@@ -104,7 +104,7 @@ public class ModuleParser {
         // Or, the classpath must be created from the sources of the project.
 
 
-        List<Path> dependencies = currentProject.getCompileClasspathElements();
+        Set<Path> dependencies = currentProject.getCompileClasspathElements();
 
         javaParserBuilder.classpath(dependencies);
 
@@ -148,7 +148,7 @@ public class ModuleParser {
     }
 
     @NotNull
-    private static JavaSourceSet sourceSet(String name, List<Path> dependencies, JavaTypeCache typeCache) {
+    private static JavaSourceSet sourceSet(String name, Set<Path> dependencies, JavaTypeCache typeCache) {
         return JavaSourceSet.build(name, dependencies, typeCache, false);
     }
 
@@ -168,7 +168,7 @@ public class ModuleParser {
     ) {
         log.info("Processing test sources in module '%s'".formatted(currentProject.getProjectId()));
 
-        List<Path> testDependencies = currentProject.getTestClasspathElements();
+        Set<Path> testDependencies = currentProject.getTestClasspathElements();
 
         javaParserBuilder.classpath(testDependencies);
         JavaTypeCache typeCache = new JavaTypeCache();

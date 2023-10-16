@@ -20,12 +20,11 @@ import lombok.Setter;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.jetbrains.annotations.NotNull;
-import org.openrewrite.SourceFile;
 import org.openrewrite.maven.tree.*;
-import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.maven.MavenRuntimeInformation;
+import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.File;
@@ -43,19 +42,17 @@ public class MavenProject {
 
     private final Path projectRoot;
     private final Resource pomFile;
-    // FIXME: 945 temporary method, model should nopt come from Maven
     private final Model pomModel;
+    private final List<Resource> resources;
     private List<MavenProject> collectedProjects = new ArrayList<>();
     private Xml.Document sourceFile;
-    private final MavenArtifactDownloader rewriteMavenArtifactDownloader;
-    private final List<Resource> resources;
     private ProjectId projectId;
+    private Map<Scope, Set<Path>> classpath;
 
-    public MavenProject(Path projectRoot, Resource pomFile, Model pomModel, MavenArtifactDownloader rewriteMavenArtifactDownloader, List<Resource> resources) {
+    public MavenProject(Path projectRoot, Resource pomFile, Model pomModel, List<Resource> resources) {
         this.projectRoot = projectRoot;
         this.pomFile = pomFile;
         this.pomModel = pomModel;
-        this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
         this.resources = resources;
         projectId = new ProjectId(getGroupId(), getArtifactId());
     }
@@ -145,32 +142,18 @@ public class MavenProject {
         return s == null ? ResourceUtil.getPath(pomFile).getParent().resolve("src/main/java").toAbsolutePath().normalize().toString() : s;
     }
 
-    public List<Path> getCompileClasspathElements() {
+    public Set<Path> getCompileClasspathElements() {
         Scope scope = Scope.Compile;
         return getClasspathElements(scope);
     }
 
-    public List<Path> getTestClasspathElements() {
+    public Set<Path> getTestClasspathElements() {
         return getClasspathElements(Scope.Test);
     }
 
     @NotNull
-    private List<Path> getClasspathElements(Scope scope) {
-        MavenResolutionResult pom = getSourceFile().getMarkers().findFirst(MavenResolutionResult.class).get();
-        List<ResolvedDependency> resolvedDependencies = pom.getDependencies().get(scope);
-        if(resolvedDependencies != null) {
-            return resolvedDependencies
-                    // FIXME: 945 - deal with dependencies to projects in reactor
-                    //
-                    .stream()
-                    .filter(rd -> rd.getRepository() != null)
-                    .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
-                    .filter(Objects::nonNull)
-                    .distinct()
-                    .toList();
-        } else {
-            return new ArrayList<>();
-        }
+    private Set<Path> getClasspathElements(Scope scope) {
+        return this.classpath.get(scope);
     }
 
     public String getTestSourceDirectory() {
@@ -198,7 +181,6 @@ public class MavenProject {
     private static Predicate<Resource> whenIn(Path sourceDirectory) {
         return r -> ResourceUtil.getPath(r).toString().startsWith(sourceDirectory.toString());
     }
-
 
     public List<Resource> getJavaSourcesInTarget() {
         return listJavaSources(getResources(), getBasedir().resolve(getBuildDirectory()));

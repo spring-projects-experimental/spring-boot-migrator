@@ -17,6 +17,7 @@ package org.springframework.sbm.parsers.maven;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
@@ -24,17 +25,13 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.MavenProject;
-import org.springframework.sbm.parsers.ModuleParser;
-import org.springframework.sbm.parsers.ParserProperties;
-import org.springframework.sbm.parsers.RewriteResourceParser;
+import org.springframework.sbm.parsers.*;
+import org.springframework.sbm.utils.ResourceUtil;
 
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -148,4 +145,54 @@ public class MavenModuleParser {
                 .collect(Collectors.toSet());
     }
 
+    //-------------
+
+    public ModuleParsingResult parseModule(Path baseDir, String modulePathSegment, Collection<Path> classpath, Collection<byte[]> classBytesClasspath, List<Resource> resources) {
+        resources = filterResources(baseDir, modulePathSegment, resources);
+        List<SourceFile> parsedSources = new ArrayList<>();
+        List<SourceFile> mainSources = parseMainSources(baseDir, classpath, classBytesClasspath, resources);
+        parsedSources.addAll(mainSources);
+        List<SourceFile> testSources = parseTestSources(resources, classpath, classBytesClasspath, resources);
+        parsedSources.addAll(testSources);
+        List<SourceFile> otherResources = parseOtherResources(resources);
+        parsedSources.addAll(otherResources);
+        ModuleParsingResult moduleParsingResult = new ModuleParsingResult(parsedSources);
+        return moduleParsingResult;
+    }
+
+    private List<SourceFile> parseOtherResources(List<Resource> resources) {
+        return new ArrayList<>();
+    }
+
+    private List<SourceFile> parseTestSources(List<Resource> resources, Collection<Path> classpath, Collection<byte[]> classBytesClasspath, List<Resource> resources1) {
+        return new ArrayList<>();
+    }
+
+    private List<SourceFile> parseMainSources(Path baseDir, Collection<Path> classpath, Collection<byte[]> classBytesClasspath, List<Resource> resources) {
+        List<byte[]> array = classBytesClasspath
+                .stream()
+                .map(b -> {
+                    return (byte[]) b;
+                })
+                .toList();
+
+        List<byte[]> classBytesClasspathList = new ArrayList<>();
+        classBytesClasspathList.addAll(classBytesClasspath);
+
+        byte[][] classBytesClasspathArray = new byte[classBytesClasspath.size()][];
+        for(int i=0; i<classBytesClasspathList.size(); i++) {
+            byte[] bytes = classBytesClasspathList.get(i);
+            classBytesClasspathArray[i] = bytes;
+        }
+        JavaParser.fromJavaVersion().classpath(classBytesClasspathArray);
+        return new ArrayList<>();
+    }
+
+    private List<Resource> filterResources(Path baseDir, String modulePathSegment, List<Resource> resources) {
+        String pattern = "glob:" + baseDir.resolve(modulePathSegment);
+        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(pattern);
+        return resources.stream()
+                .filter(r -> pathMatcher.matches(ResourceUtil.getPath(r)))
+                .toList();
+    }
 }

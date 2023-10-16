@@ -50,7 +50,7 @@ class MavenProjectAnalyzerTest {
     @BeforeEach
     void beforeEach() {
         MavenArtifactDownloader rewriteMavenArtifactDownloader = Mockito.mock(RewriteMavenArtifactDownloader.class);
-        sut = new MavenProjectAnalyzer(rewriteMavenArtifactDownloader);
+        sut = new MavenProjectAnalyzer(rewriteMavenArtifactDownloader, classpathExtractor);
     }
 
     @Nested
