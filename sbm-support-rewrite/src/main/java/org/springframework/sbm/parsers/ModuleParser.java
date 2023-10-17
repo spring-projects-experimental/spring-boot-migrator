@@ -73,7 +73,6 @@ public class ModuleParser {
     public List<SourceFile> processMainSources(
             Path baseDir,
             List<Resource> resources,
-            Xml.Document moduleBuildFile,
             JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
             RewriteResourceParser rp,
             List<Marker> provenanceMarkers,
@@ -105,7 +104,7 @@ public class ModuleParser {
         // Or, the classpath must be created from the sources of the project.
 
 
-        List<Path> dependencies = currentProject.getCompileClasspathElements();
+        Set<Path> dependencies = currentProject.getCompileClasspathElements();
 
         javaParserBuilder.classpath(dependencies);
 
@@ -116,13 +115,14 @@ public class ModuleParser {
                 .map(r -> new Parser.Input(ResourceUtil.getPath(r), () -> ResourceUtil.getInputStream(r)))
                 .toList();
 
-        Stream<? extends SourceFile> cus = Stream.of(javaParserBuilder)
-                .map(JavaParser.Builder::build)
-                .flatMap(parser -> parser.parseInputs(inputs, baseDir, executionContext))
+        JavaParser javaParser = javaParserBuilder.build();
+        Stream<? extends SourceFile> cus = javaParser.parseInputs(inputs, baseDir, executionContext)
                 .peek(s -> alreadyParsed.add(baseDir.resolve(s.getSourcePath())));
+
 
         List<Marker> mainProjectProvenance = new ArrayList<>(provenanceMarkers);
         mainProjectProvenance.add(sourceSet("main", dependencies, typeCache));
+        mainProjectProvenance.add(new JavaParserMarker(UUID.randomUUID(), javaParser));
 
         // FIXME: 945 Why target and not all main?
         List<Path> parsedJavaPaths = mainJavaSources.stream().map(ResourceUtil::getPath).toList();
@@ -149,7 +149,7 @@ public class ModuleParser {
     }
 
     @NotNull
-    private static JavaSourceSet sourceSet(String name, List<Path> dependencies, JavaTypeCache typeCache) {
+    private static JavaSourceSet sourceSet(String name, Set<Path> dependencies, JavaTypeCache typeCache) {
         return JavaSourceSet.build(name, dependencies, typeCache, false);
     }
 
@@ -159,7 +159,6 @@ public class ModuleParser {
      */
     public List<SourceFile> processTestSources(
             Path baseDir,
-            Xml.Document moduleBuildFile,
             JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
             RewriteResourceParser rp,
             List<Marker> provenanceMarkers,
@@ -170,7 +169,7 @@ public class ModuleParser {
     ) {
         log.info("Processing test sources in module '%s'".formatted(currentProject.getProjectId()));
 
-        List<Path> testDependencies = currentProject.getTestClasspathElements();
+        Set<Path> testDependencies = currentProject.getTestClasspathElements();
 
         javaParserBuilder.classpath(testDependencies);
         JavaTypeCache typeCache = new JavaTypeCache();

@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.Tree;
 import org.openrewrite.internal.StringUtils;
 import org.openrewrite.internal.lang.Nullable;
@@ -31,6 +32,7 @@ import org.springframework.sbm.parsers.MavenProject;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,16 +45,62 @@ import java.util.stream.Stream;
 public class MavenProvenanceMarkerFactory {
 
     public List<Marker> generateProvenance(Path baseDir, MavenProject mavenProject) {
+        // extract information from mavenProject
         MavenRuntimeInformation runtime = mavenProject.getMavenRuntimeInformation();
-        BuildTool buildTool = new BuildTool(Tree.randomId(), BuildTool.Type.Maven, runtime.getMavenVersion());
+        Plugin compilerPlugin = mavenProject.getPlugin("org.apache.maven.plugins:maven-compiler-plugin");
+        Properties properties = mavenProject.getProperties();
+        String projectName = mavenProject.getName();
+        String groupId = mavenProject.getGroupId();
+        String artifactId = mavenProject.getArtifactId();
+        String version = mavenProject.getVersion();
 
+        return generateProvenanceMarkers(baseDir, runtime, compilerPlugin, properties, projectName, groupId, artifactId, version);
+    }
+
+    @NotNull
+    public List generateProvenanceMarkers(Path baseDir, MavenRuntimeInformation runtime, Plugin compilerPlugin, Properties properties, String projectName, String groupId, String artifactId, String version) {
+        BuildEnvironment buildEnvironment = BuildEnvironment.build(System::getenv);
+        GitProvenance gitProvenance = this.gitProvenance(baseDir, buildEnvironment);
+        OperatingSystemProvenance operatingSystemProvenance = OperatingSystemProvenance.current();
+        BuildTool buildTool = new BuildTool(Tree.randomId(), BuildTool.Type.Maven, runtime.getMavenVersion());
+        JavaVersion javaVersion = getJavaVersion(compilerPlugin, properties);
+        JavaProject javaProject = getJavaProject(projectName, groupId, artifactId, version);
+
+        List provenanceMarkers = Stream.of(
+                        buildEnvironment,
+                        gitProvenance,
+                        operatingSystemProvenance,
+                        buildTool,
+                        javaVersion,
+                        javaProject
+                )
+                .filter(Objects::nonNull)
+                .toList();
+
+        return provenanceMarkers;
+    }
+
+    @NotNull
+    private static JavaProject getJavaProject(String projectName, String groupId, String artifactId, String version) {
+        return new JavaProject(
+                Tree.randomId(),
+                projectName,
+                new JavaProject.Publication(
+                        groupId,
+                        artifactId,
+                        version
+                )
+        );
+    }
+
+    @NotNull
+    private static JavaVersion getJavaVersion(Plugin compilerPlugin, Properties properties) {
         String javaRuntimeVersion = System.getProperty("java.specification.version");
         String javaVendor = System.getProperty("java.vm.vendor");
         String sourceCompatibility = null;
         String targetCompatibility = null;
-        Plugin compilerPlugin = mavenProject.getPlugin("org.apache.maven.plugins:maven-compiler-plugin");
         if (compilerPlugin != null && compilerPlugin.getConfiguration() instanceof Xpp3Dom) {
-            Xpp3Dom dom = (Xpp3Dom)compilerPlugin.getConfiguration();
+            Xpp3Dom dom = (Xpp3Dom) compilerPlugin.getConfiguration();
             Xpp3Dom release = dom.getChild("release");
             if (release != null && StringUtils.isNotEmpty(release.getValue()) && !release.getValue().contains("${")) {
                 sourceCompatibility = release.getValue();
@@ -71,17 +119,18 @@ public class MavenProvenanceMarkerFactory {
         }
 
         if (sourceCompatibility == null || targetCompatibility == null) {
-            String propertiesReleaseCompatibility = (String)mavenProject.getProperties().get("maven.compiler.release");
+
+            String propertiesReleaseCompatibility = (String) properties.get("maven.compiler.release");
             if (propertiesReleaseCompatibility != null) {
                 sourceCompatibility = propertiesReleaseCompatibility;
                 targetCompatibility = propertiesReleaseCompatibility;
             } else {
-                String propertiesSourceCompatibility = (String)mavenProject.getProperties().get("maven.compiler.source");
+                String propertiesSourceCompatibility = (String) properties.get("maven.compiler.source");
                 if (sourceCompatibility == null && propertiesSourceCompatibility != null) {
                     sourceCompatibility = propertiesSourceCompatibility;
                 }
 
-                String propertiesTargetCompatibility = (String)mavenProject.getProperties().get("maven.compiler.target");
+                String propertiesTargetCompatibility = (String) properties.get("maven.compiler.target");
                 if (targetCompatibility == null && propertiesTargetCompatibility != null) {
                     targetCompatibility = propertiesTargetCompatibility;
                 }
@@ -96,8 +145,14 @@ public class MavenProvenanceMarkerFactory {
             targetCompatibility = sourceCompatibility;
         }
 
-        BuildEnvironment buildEnvironment = BuildEnvironment.build(System::getenv);
-        return (List) Stream.of(buildEnvironment, this.gitProvenance(baseDir, buildEnvironment), OperatingSystemProvenance.current(), buildTool, new JavaVersion(Tree.randomId(), javaRuntimeVersion, javaVendor, sourceCompatibility, targetCompatibility), new JavaProject(Tree.randomId(), mavenProject.getName(), new JavaProject.Publication(mavenProject.getGroupId(), mavenProject.getArtifactId(), mavenProject.getVersion()))).filter(Objects::nonNull).collect(Collectors.toList());
+        JavaVersion javaVersion = new JavaVersion(
+                Tree.randomId(),
+                javaRuntimeVersion,
+                javaVendor,
+                sourceCompatibility,
+                targetCompatibility
+        );
+        return javaVersion;
     }
 
     private @Nullable GitProvenance gitProvenance(Path baseDir, @Nullable BuildEnvironment buildEnvironment) {

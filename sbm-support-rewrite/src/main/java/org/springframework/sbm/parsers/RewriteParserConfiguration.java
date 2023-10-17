@@ -103,6 +103,11 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
+    ClasspathExtractor classpathExtractor(MavenArtifactDownloader rewriteMavenArtifactDownloader) {
+        return new ClasspathExtractor(rewriteMavenArtifactDownloader);
+    }
+
+    @Bean
     RewriteMavenArtifactDownloader artifactDownloader(MavenArtifactCache mavenArtifactCache, ProjectMetadata projectMetadata, Consumer<Throwable> artifactDownloaderErrorConsumer) {
         return new RewriteMavenArtifactDownloader(mavenArtifactCache, projectMetadata.getMavenSettings(), artifactDownloaderErrorConsumer);
     }
@@ -147,8 +152,8 @@ public class RewriteParserConfiguration {
 //    }
 
     @Bean
-    MavenProjectAnalyzer mavenProjectAnalyzer(MavenArtifactDownloader artifactDownloader) {
-        return new MavenProjectAnalyzer(artifactDownloader);
+    MavenProjectAnalyzer mavenProjectAnalyzer(ClasspathExtractor classpathExtractor) {
+        return new MavenProjectAnalyzer(classpathExtractor);
     }
 
     @Bean

@@ -20,6 +20,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.ClasspathExtractor;
 import org.springframework.sbm.parsers.MavenProject;
 import org.springframework.sbm.parsers.ParserContext;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -41,10 +42,10 @@ public class MavenProjectAnalyzer {
 
     private static final String POM_XML = "pom.xml";
     private static final MavenXpp3Reader XPP_3_READER = new MavenXpp3Reader();
-    private final MavenArtifactDownloader rewriteMavenArtifactDownloader;
+    private final ClasspathExtractor classpathExtractor;
 
-    public MavenProjectAnalyzer(MavenArtifactDownloader rewriteMavenArtifactDownloader) {
-        this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
+    public MavenProjectAnalyzer(ClasspathExtractor classpathExtractor) {
+        this.classpathExtractor = classpathExtractor;
     }
 
     public List<MavenProject> getSortedProjects(Path baseDir, List<Resource> resources) {
@@ -59,7 +60,7 @@ public class MavenProjectAnalyzer {
         Model rootPomModel = new Model(rootPom);
 
         if (isSingleModuleProject(rootPomModel)) {
-            return List.of(new MavenProject(baseDir, rootPom, rootPomModel, rewriteMavenArtifactDownloader, resources));
+            return List.of(new MavenProject(baseDir, rootPom, rootPomModel, resources));
         }
         List<Model> reactorModels = new ArrayList<>();
         recursivelyFindReactorModules(baseDir, null, reactorModels, allPomFiles, rootPomModel);
@@ -75,7 +76,7 @@ public class MavenProjectAnalyzer {
                 .forEach(m -> {
                     String projectDir = baseDir.resolve(m.getProjectDirectory().toString()).normalize().toString();
                     List<Resource> filteredResources = resources.stream().filter(r -> ResourceUtil.getPath(r).toString().startsWith(projectDir)).toList();
-                    mavenProjects.add(new MavenProject(baseDir, m.getResource(), m, rewriteMavenArtifactDownloader, filteredResources));
+                    mavenProjects.add(new MavenProject(baseDir, m.getResource(), m, filteredResources));
         });
         // set all non parent poms as collected projects for root parent pom
         List<MavenProject> collected = new ArrayList<>(mavenProjects);

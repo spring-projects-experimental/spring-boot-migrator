@@ -16,7 +16,6 @@
 package org.springframework.sbm.parsers.maven;
 
 import org.intellij.lang.annotations.Language;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -40,8 +39,6 @@ import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.cache.*;
-import org.openrewrite.maven.cache.LocalMavenArtifactCache;
-import org.openrewrite.maven.cache.MavenArtifactCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
@@ -64,7 +61,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -285,7 +281,7 @@ class RewriteMavenProjectParserTest {
                 beanFactory,
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
                 new RewriteExecutionContext(),
-                new MavenProjectAnalyzer(mock(RewriteMavenArtifactDownloader.class))
+                new MavenProjectAnalyzer(new ClasspathExtractor(mock(RewriteMavenArtifactDownloader.class)))
         );
 
         Set<String> ignoredPatters = Set.of();

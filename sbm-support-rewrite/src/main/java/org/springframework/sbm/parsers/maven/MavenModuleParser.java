@@ -17,6 +17,7 @@ package org.springframework.sbm.parsers.maven;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
@@ -24,17 +25,13 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.MavenProject;
-import org.springframework.sbm.parsers.ModuleParser;
-import org.springframework.sbm.parsers.ParserProperties;
-import org.springframework.sbm.parsers.RewriteResourceParser;
+import org.springframework.sbm.parsers.*;
+import org.springframework.sbm.utils.ResourceUtil;
 
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -90,8 +87,8 @@ public class MavenModuleParser {
         Path moduleBuildFilePath = baseDir.resolve(moduleBuildFile.getSourcePath());
         alreadyParsed.add(moduleBuildFilePath);
         alreadyParsed.addAll(skipResourceScanDirs);
-        List<SourceFile> mainSources = parseMainSources(baseDir, currentProject, moduleBuildFile, resources, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
-        List<SourceFile> testSources = parseTestSources(baseDir, currentProject, moduleBuildFile, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext, resources);
+        List<SourceFile> mainSources = parseMainSources(baseDir, currentProject, resources, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext);
+        List<SourceFile> testSources = parseTestSources(baseDir, currentProject, javaParserBuilder.clone(), rp, provenanceMarkers, alreadyParsed, executionContext, resources);
         // Collect the dirs of modules parsed in previous steps
 
         // parse other project resources
@@ -124,20 +121,20 @@ public class MavenModuleParser {
                 .noneMatch(pm -> pm.matches(baseDir.resolve(s.getSourcePath()).toAbsolutePath().normalize()));
     }
 
-    private List<SourceFile> parseTestSources(Path baseDir, MavenProject mavenProject, Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, RewriteResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, List<Resource> resources) {
-        return mavenMojoProjectParserPrivateMethods.processTestSources(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, mavenProject, resources);
+    private List<SourceFile> parseTestSources(Path baseDir, MavenProject mavenProject, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, RewriteResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext, List<Resource> resources) {
+        return mavenMojoProjectParserPrivateMethods.processTestSources(baseDir, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, mavenProject, resources);
     }
 
     /**
      */
-    private List<SourceFile> parseMainSources(Path baseDir, MavenProject mavenProject, Xml.Document moduleBuildFile, List<Resource> resources, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, RewriteResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
+    private List<SourceFile> parseMainSources(Path baseDir, MavenProject mavenProject, List<Resource> resources, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, RewriteResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext) {
         // MavenMojoProjectParser#processMainSources(..) takes MavenProject
         // it reads from it:
         // - mavenProject.getBuild().getDirectory()
         // - mavenProject.getBuild().getSourceDirectory()
         // - mavenProject.getCompileClasspathElements() --> The classpath of the given project/module
         // - mavenProject.getBasedir().toPath()
-        return mavenMojoProjectParserPrivateMethods.processMainSources(baseDir, resources, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, mavenProject);
+        return mavenMojoProjectParserPrivateMethods.processMainSources(baseDir, resources, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, mavenProject);
 //        return invokeProcessMethod(baseDir, moduleBuildFile, javaParserBuilder, rp, provenanceMarkers, alreadyParsed, executionContext, "processMainSources");
     }
 
@@ -148,4 +145,38 @@ public class MavenModuleParser {
                 .collect(Collectors.toSet());
     }
 
+    //-------------
+
+    public ModuleParsingResult parseModule(Path baseDir, String modulePathSegment, Collection<Path> classpath, Collection<byte[]> classBytesClasspath, List<Resource> resources) {
+        resources = filterResources(baseDir, modulePathSegment, resources);
+        List<SourceFile> parsedSources = new ArrayList<>();
+        List<SourceFile> mainSources = parseMainSources(baseDir, classpath, classBytesClasspath, resources);
+        parsedSources.addAll(mainSources);
+        List<SourceFile> testSources = parseTestSources(resources, classpath, classBytesClasspath, resources);
+        parsedSources.addAll(testSources);
+        List<SourceFile> otherResources = parseOtherResources(resources);
+        parsedSources.addAll(otherResources);
+        ModuleParsingResult moduleParsingResult = new ModuleParsingResult(parsedSources);
+        return moduleParsingResult;
+    }
+
+    private List<SourceFile> parseOtherResources(List<Resource> resources) {
+        return new ArrayList<>();
+    }
+
+    private List<SourceFile> parseTestSources(List<Resource> resources, Collection<Path> classpath, Collection<byte[]> classBytesClasspath, List<Resource> resources1) {
+        return new ArrayList<>();
+    }
+
+    private List<SourceFile> parseMainSources(Path baseDir, Collection<Path> classpath, Collection<byte[]> classBytesClasspath, List<Resource> resources) {
+        return new ArrayList<>();
+    }
+
+    private List<Resource> filterResources(Path baseDir, String modulePathSegment, List<Resource> resources) {
+        String pattern = "glob:" + baseDir.resolve(modulePathSegment);
+        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(pattern);
+        return resources.stream()
+                .filter(r -> pathMatcher.matches(ResourceUtil.getPath(r)))
+                .toList();
+    }
 }

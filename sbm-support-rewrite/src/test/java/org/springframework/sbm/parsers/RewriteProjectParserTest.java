@@ -23,6 +23,7 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
+import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -92,6 +93,8 @@ class RewriteProjectParserTest {
         ModuleParser mavenMojoParserPrivateMethods = new ModuleParser();
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
         MavenModuleParser mavenModuleParser = new MavenModuleParser(parserProperties, mavenMojoParserPrivateMethods);
+        Path localMavenRepo = Path.of(System.getProperty("user.home")).resolve(".m2/repository");
+        ClasspathExtractor classpathExtractor = new ClasspathExtractor(new RewriteMavenArtifactDownloader(new LocalMavenArtifactCache(localMavenRepo), null, t -> {throw new RuntimeException(t);}));
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
@@ -104,7 +107,7 @@ class RewriteProjectParserTest {
                 mock(ConfigurableListableBeanFactory.class),
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
                 executionContext,
-                new MavenProjectAnalyzer(mock(RewriteMavenArtifactDownloader.class))
+                new MavenProjectAnalyzer(new ClasspathExtractor(mock(RewriteMavenArtifactDownloader.class)))
         );
 
         List<String> parsedFiles = new ArrayList<>();
