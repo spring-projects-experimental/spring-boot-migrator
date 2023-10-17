@@ -32,6 +32,7 @@ import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaSourceFile;
 import org.openrewrite.java.tree.JavaType;
+import org.openrewrite.java.tree.Statement;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
@@ -236,12 +237,8 @@ public class MavenModuleParserTest {
         @Language("java")
         String mainClass = """
                 package com.example.app;
-                import javax.validation.constraints.Min;
                                 
-                public class MainClass {
-                    @Min("0")
-                    private int number;
-                }
+                public class MainClass { }
                 """;
         @Language("java")
         String testClass = """
@@ -306,7 +303,34 @@ public class MavenModuleParserTest {
         // A can be resolved
         assertThat(extendsFullyQualifiedName).isEqualTo("com.example.app.MainClass");
 
+        J.CompilationUnit myClass = (J.CompilationUnit) javaParser.parse("""
+                        package com.example.app;
+                        import a.b.AnotherClass;
+                        import javax.validation.constraints.Min;
+                                        
+                        public class MyClass extends AnotherClass {
+                            @Min("0")
+                            private int number;
+                        }
+                        """)
+                .toList()
+                .get(0);
 
+        J.ClassDeclaration myClassDecl = myClass.getClasses().get(0);
+        String firstExtendFqn = ((JavaType.FullyQualified) myClassDecl.getExtends().getType()).getFullyQualifiedName();
+        assertThat(firstExtendFqn).isEqualTo("a.b.AnotherClass");
+
+        // validation-api should be transitively provided from module parsing
+        assertThat(
+                ((JavaType.FullyQualified)((J.VariableDeclarations)myClassDecl.getBody().getStatements().get(0)).getAllAnnotations().get(0).getType()).getFullyQualifiedName()
+        ).isEqualTo("javax.validation.constraints.Min");
+
+        // Now, let's see if we could add a dependency to the used classpath
+        Path depPath = Path.of(System.getProperty("user.home")).resolve(".m2/repository/javax/validation/validation-api/2.0.1.Final");
+//        javaParser.setClasspath(List.of(depPath));
+
+        // PROBLEM: When using a shared parser to parse a class in lower module, the types from higher modules are cached.
+        // Assumption: reset(Collection) does not help, previous tests indicate that resolution is independant of state cleared in reset().
     }
 
     @Test
