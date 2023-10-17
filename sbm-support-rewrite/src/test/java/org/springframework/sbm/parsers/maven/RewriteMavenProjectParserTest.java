@@ -269,10 +269,12 @@ class RewriteMavenProjectParserTest {
         Path baseDir = getMavenProject("multi-module-1");
         ModuleParser moduleParser = new ModuleParser();
 
+        ClasspathExtractor classpathExtractor = new ClasspathExtractor(mock(RewriteMavenArtifactDownloader.class));
+        RewriteExecutionContext executionContext = new RewriteExecutionContext();
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
-                new SourceFileParser(new MavenModuleParser(parserProperties, moduleParser)),
+                new SourceFileParser(new MavenModuleParser(parserProperties, moduleParser, classpathExtractor, executionContext)),
                 new StyleDetector(),
                 parserProperties,
                 mock(ParsingEventListener.class),
@@ -280,8 +282,8 @@ class RewriteMavenProjectParserTest {
                 scanScope,
                 beanFactory,
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
-                new RewriteExecutionContext(),
-                new MavenProjectAnalyzer(new ClasspathExtractor(mock(RewriteMavenArtifactDownloader.class)))
+                executionContext,
+                new MavenProjectAnalyzer(classpathExtractor)
         );
 
         Set<String> ignoredPatters = Set.of();

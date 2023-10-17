@@ -118,8 +118,8 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
-    MavenModuleParser mavenModuleParser(ParserProperties parserPropeties, ModuleParser moduleParser) {
-        return new MavenModuleParser(parserPropeties, moduleParser);
+    MavenModuleParser mavenModuleParser(ParserProperties parserProperties, ModuleParser moduleParser, ClasspathExtractor classpathExtractor, ExecutionContext executionContext) {
+        return new MavenModuleParser(parserProperties, moduleParser, classpathExtractor, executionContext);
     }
 
     @Bean

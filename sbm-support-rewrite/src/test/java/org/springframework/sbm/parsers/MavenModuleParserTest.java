@@ -27,8 +27,10 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.internal.JavaTypeCache;
 import org.openrewrite.java.internal.TypesInUse;
+import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaSourceFile;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
@@ -56,10 +58,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MavenModuleParserTest {
 
     private MavenModuleParser sut;
+    private ExecutionContext executionContext;
 
     @BeforeEach
     void beforeEach() {
-        sut = new MavenModuleParser(new ParserProperties(), new ModuleParser());
+        executionContext = new RewriteExecutionContext();
+        LocalMavenArtifactCache artifactCache = new LocalMavenArtifactCache(Path.of(System.getProperty("user.home")).resolve(".m2/repository"));
+        sut = new MavenModuleParser(new ParserProperties(), new ModuleParser(), new ClasspathExtractor(new RewriteMavenArtifactDownloader(artifactCache, null, t -> {new RuntimeException(t);})), executionContext);
     }
 
     /**
@@ -194,21 +199,21 @@ public class MavenModuleParserTest {
     }
 
 
+    /**
+     * Example of how a module could be parsed while the JavaParser gets reused by another module (here just a class).
+     */
     @Test
-    @DisplayName("parse simple project")
-    void parseSimpleProject() {
+    @DisplayName("reuse JavaParser from Marker example")
+    void reuseJavaParserFromMarkerExample() {
         @Language("xml")
         String pomXml = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.example</groupId>
-                        <artifactId>example-1-parent</artifactId>
-                        <version>0.1.0-SNAPSHOT</version>
-                    </parent>
+                    <groupId>com.example</groupId>
                     <artifactId>app</artifactId>
+                    <version>0.1.0-SNAPSHOT</version>
                     <properties>
                         <maven.compiler.target>17</maven.compiler.target>
                         <maven.compiler.source>17</maven.compiler.source>
@@ -284,13 +289,24 @@ public class MavenModuleParserTest {
         List<Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(baseDir, List.of(resources.get(0)), List.of(), new RewriteExecutionContext(), false, provenanceMarkersMap);
         Xml.Document document = parsedBuildFiles.get(0);
 
-        Collection<Path> classpath = new ArrayList<>();
-        Collection<byte[]> classBytesClasspath = new ArrayList<>();
+        ModuleParsingResult result = sut.parseLeafModule(baseDir, resources, document.getMarkers().findFirst(MavenResolutionResult.class).get());
 
-        ModuleParsingResult moduleParsingResult = sut.parseModule(baseDir, "", classpath, classBytesClasspath, resources);
+        // take JavaParser from Marker
+        JavaParser javaParser = result.sourceFiles().get(0).getMarkers().findFirst(JavaParserMarker.class).get().getJavaParser();
+        J.CompilationUnit anotherClass = (J.CompilationUnit) javaParser.parse(
+                """
+                        package a.b;
+                        import com.example.app.MainClass;
+                                    
+                        public class AnotherClass extends MainClass {}
+                        """
+        ).toList().get(0);
 
-        assertThat(moduleParsingResult.sourceFiles()).hasSize(2);
-        assertThat(moduleParsingResult.sourceFiles().get(0).printAll()).isEqualTo(mainClass);
+        String extendsFullyQualifiedName = ((JavaType.FullyQualified) anotherClass.getClasses().get(0).getExtends().getType()).getFullyQualifiedName();
+        // A can be resolved
+        assertThat(extendsFullyQualifiedName).isEqualTo("com.example.app.MainClass");
+
+
     }
 
     @Test

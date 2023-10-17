@@ -92,9 +92,9 @@ class RewriteProjectParserTest {
         ParserProperties parserProperties = new ParserProperties();
         ModuleParser mavenMojoParserPrivateMethods = new ModuleParser();
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
-        MavenModuleParser mavenModuleParser = new MavenModuleParser(parserProperties, mavenMojoParserPrivateMethods);
         Path localMavenRepo = Path.of(System.getProperty("user.home")).resolve(".m2/repository");
         ClasspathExtractor classpathExtractor = new ClasspathExtractor(new RewriteMavenArtifactDownloader(new LocalMavenArtifactCache(localMavenRepo), null, t -> {throw new RuntimeException(t);}));
+        MavenModuleParser mavenModuleParser = new MavenModuleParser(parserProperties, mavenMojoParserPrivateMethods, classpathExtractor, executionContext);
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),

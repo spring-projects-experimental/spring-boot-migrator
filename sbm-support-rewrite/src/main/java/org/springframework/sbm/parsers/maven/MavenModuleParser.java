@@ -17,11 +17,13 @@ package org.springframework.sbm.parsers.maven;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.marker.Marker;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
@@ -44,6 +46,8 @@ public class MavenModuleParser {
 
     private final ParserProperties parserProperties;
     private final ModuleParser mavenMojoProjectParserPrivateMethods;
+    private final ClasspathExtractor classpathExtractor;
+    private final ExecutionContext executionContext;
 
     public List<SourceFile> parseModuleSourceFiles(
             List<Resource> resources,
@@ -148,7 +152,7 @@ public class MavenModuleParser {
     //-------------
 
     public ModuleParsingResult parseModule(Path baseDir, String modulePathSegment, Collection<Path> classpath, Collection<byte[]> classBytesClasspath, List<Resource> resources) {
-        resources = filterResources(baseDir, modulePathSegment, resources);
+        resources = filterModuleResources(baseDir, modulePathSegment, resources);
         List<SourceFile> parsedSources = new ArrayList<>();
         List<SourceFile> mainSources = parseMainSources(baseDir, classpath, classBytesClasspath, resources);
         parsedSources.addAll(mainSources);
@@ -172,11 +176,51 @@ public class MavenModuleParser {
         return new ArrayList<>();
     }
 
-    private List<Resource> filterResources(Path baseDir, String modulePathSegment, List<Resource> resources) {
-        String pattern = "glob:" + baseDir.resolve(modulePathSegment);
+    private List<Resource> filterModuleResources(Path baseDir, String modulePathSegment, List<Resource> resources) {
+        String pattern = "glob:" + baseDir.resolve(modulePathSegment).normalize().toString() + "/**";
         PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(pattern);
         return resources.stream()
                 .filter(r -> pathMatcher.matches(ResourceUtil.getPath(r)))
+                .toList();
+    }
+
+    public ModuleParsingResult parseLeafModule(Path baseDir, List<Resource> resources, MavenResolutionResult result) {
+        resources = filterModuleResources(baseDir, "", resources);
+        List<SourceFile> parsedSources = new ArrayList<>();
+        List<Path> compileCP = classpathExtractor.extractClasspath(result, Scope.Compile);
+        List<SourceFile> mainSources = parseMainSources(baseDir, compileCP, resources);
+        parsedSources.addAll(mainSources);
+//        List<Path> testCP = classpathExtractor.extractClasspath(result, Scope.Test);
+//        List<SourceFile> testSources = parseTestSources(resources, testCP, resources);
+//        parsedSources.addAll(testSources);
+        List<SourceFile> otherResources = parseOtherResources(resources);
+        parsedSources.addAll(otherResources);
+        ModuleParsingResult moduleParsingResult = new ModuleParsingResult(parsedSources);
+        return moduleParsingResult;
+    }
+
+//    private List<SourceFile> parseTestSources(List<Resource> resources, List<Path> testCP, List<Resource> moduleResources) {
+//        JavaParser javaParser = JavaParser.fromJavaVersion().classpath(testCP).build();
+//        List<Parser.Input> mainJavaSourcesParserInputs = moduleResources.stream()
+//                .filter(this::isMainJavaSource)
+//                .map(r ->  new Parser.Input(ResourceUtil.getPath(r), () -> ResourceUtil.getInputStream(r)))
+//                .toList();
+//        return javaParser.parseInputs(mainJavaSourcesParserInputs, null, executionContext).toList();
+//    }
+
+    private boolean isMainJavaSource(Resource resource) {
+        Path path = ResourceUtil.getPath(resource);
+        return FileSystems.getDefault().getPathMatcher("glob:**/src/main/java/**").matches(path);
+    }
+
+    private List<SourceFile> parseMainSources(Path baseDir, List<Path> compileCP, List<Resource> moduleResources) {
+        JavaParser javaParser = JavaParser.fromJavaVersion().classpath(compileCP).build();
+        List<Parser.Input> mainJavaSourcesParserInputs = moduleResources.stream()
+                .filter(this::isMainJavaSource)
+                .map(r ->  new Parser.Input(ResourceUtil.getPath(r), () -> ResourceUtil.getInputStream(r)))
+                .toList();
+        return javaParser.parseInputs(mainJavaSourcesParserInputs, null, executionContext)
+                .map(js -> (SourceFile)js.withMarkers(js.getMarkers().addIfAbsent(new JavaParserMarker(UUID.randomUUID(), javaParser))))
                 .toList();
     }
 }

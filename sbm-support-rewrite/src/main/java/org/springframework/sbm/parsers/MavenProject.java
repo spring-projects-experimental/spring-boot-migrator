@@ -142,6 +142,10 @@ public class MavenProject {
         return s == null ? ResourceUtil.getPath(pomFile).getParent().resolve("src/main/java").toAbsolutePath().normalize().toString() : s;
     }
 
+
+    /**
+     * Must be called after {@link ParserContext#setParsedBuildFiles(List)}.
+     */
     public Set<Path> getCompileClasspathElements() {
         Scope scope = Scope.Compile;
         return getClasspathElements(scope);
@@ -153,6 +157,9 @@ public class MavenProject {
 
     @NotNull
     private Set<Path> getClasspathElements(Scope scope) {
+        if(classpath == null) {
+            throw new IllegalStateException("Classpath can not be retrieved before Maven build files were parsed.");
+        }
         return this.classpath.get(scope);
     }
 
