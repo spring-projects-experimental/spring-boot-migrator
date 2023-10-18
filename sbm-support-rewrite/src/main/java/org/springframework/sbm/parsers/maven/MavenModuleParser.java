@@ -187,7 +187,7 @@ public class MavenModuleParser {
     public ModuleParsingResult parseLeafModule(Path baseDir, List<Resource> resources, MavenResolutionResult result) {
         resources = filterModuleResources(baseDir, "", resources);
         List<SourceFile> parsedSources = new ArrayList<>();
-        List<Path> compileCP = classpathExtractor.extractClasspath(result, Scope.Compile);
+        Set<Path> compileCP = classpathExtractor.extractClasspath(result, Scope.Compile);
         List<SourceFile> mainSources = parseMainSources(baseDir, compileCP, resources);
         parsedSources.addAll(mainSources);
 //        List<Path> testCP = classpathExtractor.extractClasspath(result, Scope.Test);
@@ -213,7 +213,7 @@ public class MavenModuleParser {
         return FileSystems.getDefault().getPathMatcher("glob:**/src/main/java/**").matches(path);
     }
 
-    private List<SourceFile> parseMainSources(Path baseDir, List<Path> compileCP, List<Resource> moduleResources) {
+    private List<SourceFile> parseMainSources(Path baseDir, Set<Path> compileCP, List<Resource> moduleResources) {
         JavaParser javaParser = JavaParser.fromJavaVersion().classpath(compileCP).build();
         List<Parser.Input> mainJavaSourcesParserInputs = moduleResources.stream()
                 .filter(this::isMainJavaSource)

@@ -95,6 +95,7 @@ class RewriteProjectParserTest {
         Path localMavenRepo = Path.of(System.getProperty("user.home")).resolve(".m2/repository");
         ClasspathExtractor classpathExtractor = new ClasspathExtractor(new RewriteMavenArtifactDownloader(new LocalMavenArtifactCache(localMavenRepo), null, t -> {throw new RuntimeException(t);}));
         MavenModuleParser mavenModuleParser = new MavenModuleParser(parserProperties, mavenMojoParserPrivateMethods, classpathExtractor, executionContext);
+        ClasspathRegistry classpathRegistry = mock(ClasspathRegistry.class);
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
@@ -107,7 +108,8 @@ class RewriteProjectParserTest {
                 mock(ConfigurableListableBeanFactory.class),
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
                 executionContext,
-                new MavenProjectAnalyzer(new ClasspathExtractor(mock(RewriteMavenArtifactDownloader.class)))
+                new MavenProjectAnalyzer(classpathRegistry),
+                classpathRegistry
         );
 
         List<String> parsedFiles = new ArrayList<>();

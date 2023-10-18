@@ -22,9 +22,8 @@ import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -34,7 +33,7 @@ import java.util.Objects;
 public class ClasspathExtractor {
     private final MavenArtifactDownloader rewriteMavenArtifactDownloader;
 
-    public List<Path> extractClasspath(MavenResolutionResult pom, Scope scope) {
+    public Set<Path> extractClasspath(MavenResolutionResult pom, Scope scope) {
         List<ResolvedDependency> resolvedDependencies = pom.getDependencies().get(scope);
         if (resolvedDependencies != null) {
             return resolvedDependencies
@@ -45,9 +44,9 @@ public class ClasspathExtractor {
                     .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
                     .filter(Objects::nonNull)
                     .distinct()
-                    .toList();
+                    .collect(Collectors.toSet());
         } else {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
     }
 }

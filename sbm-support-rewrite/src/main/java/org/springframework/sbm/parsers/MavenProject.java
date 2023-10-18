@@ -24,7 +24,6 @@ import org.openrewrite.maven.tree.*;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.maven.MavenRuntimeInformation;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.File;
@@ -44,16 +43,17 @@ public class MavenProject {
     private final Resource pomFile;
     private final Model pomModel;
     private final List<Resource> resources;
+    private final ClasspathRegistry classpathRegistry;
     private List<MavenProject> collectedProjects = new ArrayList<>();
     private Xml.Document sourceFile;
     private ProjectId projectId;
-    private Map<Scope, Set<Path>> classpath;
 
-    public MavenProject(Path projectRoot, Resource pomFile, Model pomModel, List<Resource> resources) {
+    public MavenProject(Path projectRoot, Resource pomFile, Model pomModel, List<Resource> resources, ClasspathRegistry classpathRegistry) {
         this.projectRoot = projectRoot;
         this.pomFile = pomFile;
         this.pomModel = pomModel;
         this.resources = resources;
+        this.classpathRegistry = classpathRegistry;
         projectId = new ProjectId(getGroupId(), getArtifactId());
     }
 
@@ -157,10 +157,7 @@ public class MavenProject {
 
     @NotNull
     private Set<Path> getClasspathElements(Scope scope) {
-        if(classpath == null) {
-            throw new IllegalStateException("Classpath can not be retrieved before Maven build files were parsed.");
-        }
-        return this.classpath.get(scope);
+        return classpathRegistry.getClasspath(getPomFilePath(), scope);
     }
 
     public String getTestSourceDirectory() {

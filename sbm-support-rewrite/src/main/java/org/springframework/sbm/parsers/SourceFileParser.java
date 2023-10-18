@@ -19,19 +19,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
-import org.openrewrite.java.JavaParser;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.maven.MavenModuleParser;
-import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Fabian Krüger
@@ -49,7 +44,8 @@ public class SourceFileParser {
             List<Resource> resources,
             Map<Path, List<Marker>> provenanceMarkers,
             List<NamedStyles> styles,
-            ExecutionContext executionContext) {
+            ExecutionContext executionContext
+    ) {
 
         Set<SourceFile> parsedSourceFiles = new LinkedHashSet<>();
 

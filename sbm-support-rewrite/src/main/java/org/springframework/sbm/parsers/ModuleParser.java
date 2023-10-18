@@ -104,9 +104,9 @@ public class ModuleParser {
         // Or, the classpath must be created from the sources of the project.
 
 
-        Set<Path> dependencies = currentProject.getCompileClasspathElements();
+        Set<Path> jarDependencies = currentProject.getCompileClasspathElements();
 
-        javaParserBuilder.classpath(dependencies);
+        javaParserBuilder.classpath(jarDependencies);
 
         JavaTypeCache typeCache = new JavaTypeCache();
         javaParserBuilder.typeCache(typeCache);
@@ -121,7 +121,7 @@ public class ModuleParser {
 
 
         List<Marker> mainProjectProvenance = new ArrayList<>(provenanceMarkers);
-        mainProjectProvenance.add(sourceSet("main", dependencies, typeCache));
+        mainProjectProvenance.add(sourceSet("main", jarDependencies, typeCache));
         mainProjectProvenance.add(new JavaParserMarker(UUID.randomUUID(), javaParser));
 
         // FIXME: 945 Why target and not all main?

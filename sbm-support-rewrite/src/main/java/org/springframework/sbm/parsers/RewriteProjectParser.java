@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
+import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
@@ -33,6 +34,7 @@ import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
 import org.springframework.sbm.parsers.maven.BuildFileParser;
 import org.springframework.sbm.parsers.maven.MavenProjectAnalyzer;
 import org.springframework.sbm.parsers.maven.ProvenanceMarkerFactory;
+import org.springframework.sbm.project.resource.ProjectResourceSetFactory;
 import org.springframework.sbm.scopes.ScanScope;
 
 import java.nio.file.Path;
@@ -77,6 +79,7 @@ public class RewriteProjectParser {
     private final ProjectScanner scanner;
     private final ExecutionContext executionContext;
     private final MavenProjectAnalyzer mavenProjectAnalyzer;
+    private final ClasspathRegistry classpathRegistry;
 
 
     /**
@@ -114,6 +117,7 @@ public class RewriteProjectParser {
         List<Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(baseDir, parserContext.getBuildFileResources(), parserContext.getActiveProfiles(), executionContext, parserProperties.isSkipMavenParsing(), provenanceMarkers);
         parserContext.setParsedBuildFiles(parsedBuildFiles);
 
+        registerClasspaths(baseDir, parsedBuildFiles);
 
         log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + parsedBuildFiles.size(), parsedBuildFiles.size()));
         List<SourceFile> otherSourceFiles = sourceFileParser.parseOtherSourceFiles(baseDir, parserContext, resources, provenanceMarkers, styles, executionContext);
@@ -128,6 +132,19 @@ public class RewriteProjectParser {
         eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
 
         return new RewriteProjectParsingResult(sourceFiles, executionContext);
+    }
+
+    private void registerClasspaths(Path baseDir, List<Xml.Document> parsedBuildFiles) {
+        // The classpath must be passed down to the module parsing
+        // The ClasspathInfo must provide the classpath for all source sets for all modules
+        // E.g.:
+        // List<Path> mainModuleCp = classpathInfo.getClasspath(moduleName, "main");
+        parsedBuildFiles.stream()
+                .forEach(buildFile -> {
+                    Path pomPath = baseDir.resolve(buildFile.getSourcePath()).toAbsolutePath().normalize();
+                    MavenResolutionResult mavenResolutionResult = buildFile.getMarkers().findFirst(MavenResolutionResult.class).get();
+                    classpathRegistry.registerClasspath(pomPath, mavenResolutionResult);
+                });
     }
 
     @NotNull

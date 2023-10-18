@@ -40,6 +40,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.function.Consumer;
 
 
@@ -152,8 +153,13 @@ public class RewriteParserConfiguration {
 //    }
 
     @Bean
-    MavenProjectAnalyzer mavenProjectAnalyzer(ClasspathExtractor classpathExtractor) {
-        return new MavenProjectAnalyzer(classpathExtractor);
+    ClasspathRegistry classpathRegistry(ClasspathExtractor classpathExtractor) {
+        return new ClasspathRegistry(classpathExtractor);
+    }
+
+    @Bean
+    MavenProjectAnalyzer mavenProjectAnalyzer(ClasspathRegistry classpathRegistry) {
+        return new MavenProjectAnalyzer(classpathRegistry);
     }
 
     @Bean
@@ -169,7 +175,8 @@ public class RewriteParserConfiguration {
             ConfigurableListableBeanFactory beanFactory,
             ProjectScanner projectScanner,
             ExecutionContext executionContext,
-            MavenProjectAnalyzer mavenProjectAnalyzer) {
+            MavenProjectAnalyzer mavenProjectAnalyzer,
+            ClasspathRegistry classpathRegistry) {
         return new RewriteProjectParser(
                 provenanceMarkerFactory,
                 buildFileParser,
@@ -182,7 +189,9 @@ public class RewriteParserConfiguration {
                 beanFactory,
                 projectScanner,
                 executionContext,
-                mavenProjectAnalyzer);
+                mavenProjectAnalyzer,
+                classpathRegistry
+        );
     }
 
     @Bean

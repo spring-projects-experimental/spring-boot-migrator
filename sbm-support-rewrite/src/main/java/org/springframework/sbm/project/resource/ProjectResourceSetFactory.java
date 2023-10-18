@@ -18,6 +18,7 @@ package org.springframework.sbm.project.resource;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
+import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 
 import java.nio.file.Path;
@@ -41,4 +42,5 @@ public class ProjectResourceSetFactory {
     public ProjectResourceSet createFromSourceFileHolders(List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders) {
         return new ProjectResourceSet(rewriteSourceFileHolders, executionContext, rewriteMigrationResultMerger);
     }
+
 }

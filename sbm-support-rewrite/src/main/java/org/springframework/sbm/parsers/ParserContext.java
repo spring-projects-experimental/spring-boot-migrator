@@ -40,7 +40,7 @@ public class ParserContext {
     private final List<MavenProject> sortedProjects;
     @Getter
     private Map<Path, Xml.Document> pathDocumentMap;
-
+    private ClasspathRegistry classpathRegistry;
 
 
     public List<String> getActiveProfiles() {
@@ -79,5 +79,9 @@ public class ParserContext {
         sortedProjectsList.stream()
                 .filter(p -> ResourceUtil.getPath(p.getPomFile()).toString().equals(baseDir.resolve(s.getSourcePath()).toString()))
                 .forEach(p -> p.setSourceFile(s));
+    }
+
+    public void setClasspathRegistry(ClasspathRegistry classpathRegistry) {
+        this.classpathRegistry = classpathRegistry;
     }
 }

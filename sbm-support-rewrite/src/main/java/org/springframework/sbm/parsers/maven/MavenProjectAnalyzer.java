@@ -18,9 +18,8 @@ package org.springframework.sbm.parsers.maven;
 import org.apache.maven.model.*;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.ClasspathExtractor;
+import org.springframework.sbm.parsers.ClasspathRegistry;
 import org.springframework.sbm.parsers.MavenProject;
 import org.springframework.sbm.parsers.ParserContext;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -42,10 +41,10 @@ public class MavenProjectAnalyzer {
 
     private static final String POM_XML = "pom.xml";
     private static final MavenXpp3Reader XPP_3_READER = new MavenXpp3Reader();
-    private final ClasspathExtractor classpathExtractor;
+    private final ClasspathRegistry classpathRegistry;
 
-    public MavenProjectAnalyzer(ClasspathExtractor classpathExtractor) {
-        this.classpathExtractor = classpathExtractor;
+    public MavenProjectAnalyzer(ClasspathRegistry classpathRegistry) {
+        this.classpathRegistry = classpathRegistry;
     }
 
     public List<MavenProject> getSortedProjects(Path baseDir, List<Resource> resources) {
@@ -56,11 +55,17 @@ public class MavenProjectAnalyzer {
             throw new IllegalArgumentException("The provided resources did not contain any 'pom.xml' file.");
         }
 
-        Resource rootPom = allPomFiles.stream().filter(r -> ResourceUtil.getPath(r).toString().equals(baseDir.resolve(POM_XML).normalize().toString())).findFirst().orElseThrow(() -> new IllegalArgumentException("The provided resources do not contain a root 'pom.xml' file."));
+        Resource rootPom = allPomFiles.stream()
+                .filter(r -> {
+                    String string = baseDir.resolve(POM_XML).normalize().toString();
+                    return ResourceUtil.getPath(r).toString().equals(string);
+                })
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("The provided resources do not contain a root 'pom.xml' file."));
         Model rootPomModel = new Model(rootPom);
 
         if (isSingleModuleProject(rootPomModel)) {
-            return List.of(new MavenProject(baseDir, rootPom, rootPomModel, resources));
+            return List.of(new MavenProject(baseDir, rootPom, rootPomModel, resources, classpathRegistry));
         }
         List<Model> reactorModels = new ArrayList<>();
         recursivelyFindReactorModules(baseDir, null, reactorModels, allPomFiles, rootPomModel);
@@ -76,7 +81,7 @@ public class MavenProjectAnalyzer {
                 .forEach(m -> {
                     String projectDir = baseDir.resolve(m.getProjectDirectory().toString()).normalize().toString();
                     List<Resource> filteredResources = resources.stream().filter(r -> ResourceUtil.getPath(r).toString().startsWith(projectDir)).toList();
-                    mavenProjects.add(new MavenProject(baseDir, m.getResource(), m, filteredResources));
+                    mavenProjects.add(new MavenProject(baseDir, m.getResource(), m, filteredResources, classpathRegistry));
         });
         // set all non parent poms as collected projects for root parent pom
         List<MavenProject> collected = new ArrayList<>(mavenProjects);

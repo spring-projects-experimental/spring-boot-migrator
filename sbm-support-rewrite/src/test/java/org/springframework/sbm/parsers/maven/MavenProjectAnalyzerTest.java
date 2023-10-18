@@ -27,6 +27,7 @@ import org.mockito.Mockito;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.ClasspathExtractor;
+import org.springframework.sbm.parsers.ClasspathRegistry;
 import org.springframework.sbm.parsers.MavenProject;
 import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.test.util.DummyResource;
@@ -52,7 +53,8 @@ class MavenProjectAnalyzerTest {
     void beforeEach() {
         MavenArtifactDownloader rewriteMavenArtifactDownloader = Mockito.mock(RewriteMavenArtifactDownloader.class);
         ClasspathExtractor classpathExtractor = new ClasspathExtractor(rewriteMavenArtifactDownloader);
-        sut = new MavenProjectAnalyzer(classpathExtractor);
+        ClasspathRegistry classpathRegistry = new ClasspathRegistry(classpathExtractor);
+        sut = new MavenProjectAnalyzer(classpathRegistry);
     }
 
     @Nested

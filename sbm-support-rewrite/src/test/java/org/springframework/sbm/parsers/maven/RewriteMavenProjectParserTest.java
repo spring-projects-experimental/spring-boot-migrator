@@ -271,6 +271,7 @@ class RewriteMavenProjectParserTest {
 
         ClasspathExtractor classpathExtractor = new ClasspathExtractor(mock(RewriteMavenArtifactDownloader.class));
         RewriteExecutionContext executionContext = new RewriteExecutionContext();
+        ClasspathRegistry classpathRegistry = new ClasspathRegistry(classpathExtractor);
         RewriteProjectParser rpp = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
                 new BuildFileParser(),
@@ -283,7 +284,8 @@ class RewriteMavenProjectParserTest {
                 beanFactory,
                 new ProjectScanner(new DefaultResourceLoader(), parserProperties),
                 executionContext,
-                new MavenProjectAnalyzer(classpathExtractor)
+                new MavenProjectAnalyzer(classpathRegistry),
+                classpathRegistry
         );
 
         Set<String> ignoredPatters = Set.of();
