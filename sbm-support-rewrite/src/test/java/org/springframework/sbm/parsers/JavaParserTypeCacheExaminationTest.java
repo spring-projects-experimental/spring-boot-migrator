@@ -22,24 +22,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.internal.JavaTypeCache;
 import org.openrewrite.java.internal.TypesInUse;
-import org.openrewrite.java.marker.JavaProject;
-import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.JavaSourceFile;
 import org.openrewrite.java.tree.JavaType;
-import org.openrewrite.java.tree.Statement;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
-import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.maven.BuildFileParser;
@@ -56,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-public class MavenModuleParserTest {
+public class JavaParserTypeCacheExaminationTest {
 
     private MavenModuleParser sut;
     private ExecutionContext executionContext;
@@ -326,147 +319,12 @@ public class MavenModuleParserTest {
         ).isEqualTo("javax.validation.constraints.Min");
 
         // Now, let's see if we could add a dependency to the used classpath
-        Path depPath = Path.of(System.getProperty("user.home")).resolve(".m2/repository/javax/validation/validation-api/2.0.1.Final");
-//        javaParser.setClasspath(List.of(depPath));
+        Path depPath = Path.of(System.getProperty("user.home")).resolve(".m2/repository/org/jetbrains/annotations/24.0.1/annotations-24.0.1.jar");
+        javaParser.setClasspath(List.of(depPath)); // Here we'd need to add the dependencies from lower modules, if any
+
+
 
         // PROBLEM: When using a shared parser to parse a class in lower module, the types from higher modules are cached.
         // Assumption: reset(Collection) does not help, previous tests indicate that resolution is independant of state cleared in reset().
     }
-
-    @Test
-    @DisplayName("parse reactor project")
-    void parseReactorProject() {
-        @Language("xml")
-        String parentPom = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <groupId>com.example</groupId>
-                    <artifactId>example-1-parent</artifactId>
-                    <version>0.1.0-SNAPSHOT</version>
-                    <packaging>pom</packaging>
-                    <properties>
-                         <maven.compiler.target>17</maven.compiler.target>
-                         <maven.compiler.source>17</maven.compiler.source>
-                    </properties>
-                    <modules>
-                        <module>module-a</module>
-                        <module>module-b</module>
-                        <module>module-c</module>
-                    </modules>
-                </project>
-                """;
-
-        @Language("xml")
-        String moduleAPom = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.example</groupId>
-                        <artifactId>example-1-parent</artifactId>
-                        <version>0.1.0-SNAPSHOT</version>
-                    </parent>
-                    <artifactId>module-a</artifactId>
-                    <properties>
-                        <maven.compiler.target>17</maven.compiler.target>
-                        <maven.compiler.source>17</maven.compiler.source>
-                    </properties>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.example</groupId>
-                            <artifactId>module-b</artifactId>
-                            <version>${project.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>javax.validation</groupId>
-                            <artifactId>validation-api</artifactId>
-                            <version>2.0.1.Final</version>
-                        </dependency>
-                    </dependencies>
-                </project>
-                """;
-
-        @Language("xml")
-        String moduleBPom = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.example</groupId>
-                        <artifactId>example-1-parent</artifactId>
-                        <version>0.1.0-SNAPSHOT</version>
-                    </parent>
-                    <artifactId>module-b</artifactId>
-                    <properties>
-                        <maven.compiler.target>17</maven.compiler.target>
-                        <maven.compiler.source>17</maven.compiler.source>
-                    </properties>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.example</groupId>
-                            <artifactId>module-c</artifactId>
-                            <version>${project.version}</version>
-                        </dependency>
-                    </dependencies>                  
-                </project>
-                """;
-
-        @Language("xml")
-        String moduleCPom = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                    <modelVersion>4.0.0</modelVersion>
-                    <parent>
-                        <groupId>com.example</groupId>
-                        <artifactId>example-1-parent</artifactId>
-                        <version>0.1.0-SNAPSHOT</version>
-                    </parent>
-                    <artifactId>module-c</artifactId>
-                    <properties>
-                        <maven.compiler.target>17</maven.compiler.target>
-                        <maven.compiler.source>17</maven.compiler.source>
-                    </properties>
-                </project>
-                """;
-
-        Path baseDir = Path.of("./target").toAbsolutePath().normalize();
-        List<Resource> resources = List.of(
-                new DummyResource(baseDir.resolve("pom.xml"), parentPom),
-                new DummyResource(baseDir.resolve("module-a/pom.xml"), moduleAPom),
-                new DummyResource(baseDir.resolve("module-b/pom.xml"), moduleBPom),
-                new DummyResource(baseDir.resolve("module-c/pom.xml"), moduleCPom)
-        );
-        ExecutionContext executionContext = new InMemoryExecutionContext();
-/*
-        // used to calculate paths to other modules.
-        // TODO: Remove and filter all provided resources by module path segment
-        MavenProject mavenProject = null;
-        // used to retrieve sourcePath which can be calculated having the module path segment and baseDir
-        Xml.Document moduleBuildFile = null;
-        // required, can be taken from a resource in same source dir?!
-        List<Marker> provenanceMarkers = null;
-        // Make this a Spring bean
-        List<NamedStyles> styles = null;
-        // provided as bean
-        ExecutionContext executionContext = null;
-        // required
-        Path baseDir = null;
-        sut.parseModuleSourceFiles(resources, mavenProject, moduleBuildFile, provenanceMarkers, styles, executionContext, baseDir);
-*/
-        BuildFileParser buildFileParser = new BuildFileParser();
-        List<Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(baseDir, resources, List.of(), executionContext, false, Map.of());
-
-        Path locaMavenRepo = Path.of(System.getProperty("user.home")).resolve(".m2/repository");
-        MavenArtifactDownloader artifactDownloader = new RewriteMavenArtifactDownloader(new LocalMavenArtifactCache(locaMavenRepo), null, t -> {throw new RuntimeException(t);});
-        ClasspathExtractor classpathExtractor = new ClasspathExtractor(artifactDownloader);
-        List<Path> classpath = classpathExtractor.extractClasspath(parsedBuildFiles.get(0).getMarkers().findFirst(MavenResolutionResult.class).get(), Scope.Compile);
-        Collection<byte[]> classBytesClasspath = List.of();
-        String modulePathSegment = "module-c";
-        ModuleParsingResult result = sut.parseModule(baseDir, modulePathSegment, classpath, classBytesClasspath, resources);
-        assertThat(result.sourceFiles()).hasSize(0);
-    }
-
 }
