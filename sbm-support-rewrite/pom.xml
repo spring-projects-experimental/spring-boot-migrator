@@ -22,6 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.1.3</spring-boot.version>
         <rewrite.version>8.5.1</rewrite.version>
+        <rewrite-recipe.version>2.3.0</rewrite-recipe.version>
         <rewrite-maven-plugin.version>5.3.2</rewrite-maven-plugin.version>
         <maven.version>3.9.1</maven.version>
         <maven-resolver.version>1.9.13</maven-resolver.version>
@@ -88,6 +89,20 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.openrewrite</groupId>
+                <artifactId>rewrite-bom</artifactId>
+                <version>${rewrite.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openrewrite.recipe</groupId>
+                <artifactId>rewrite-recipe-bom</artifactId>
+                <version>${rewrite-recipe.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -107,48 +122,136 @@
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-maven</artifactId>
-            <version>${rewrite.version}</version>
+            <artifactId>rewrite-gradle</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-java</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-java-17</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-json</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-yaml</artifactId>
-            <version>${rewrite.version}</version>
+            <artifactId>rewrite-groovy</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-hcl</artifactId>
-            <version>${rewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-protobuf</artifactId>
-            <version>${rewrite.version}</version>
+            <artifactId>rewrite-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-java-dependencies</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-xml</artifactId>
-            <version>${rewrite.version}</version>
+            <artifactId>rewrite-json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-maven</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-properties</artifactId>
-            <version>${rewrite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-protobuf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-yaml</artifactId>
+        </dependency>
+        <!--<dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-python</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-kotlin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-javascript</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-polyglot</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-templating</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-ai-search</artifactId>
+        </dependency>-->
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-cucumber-jvm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-hibernate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-java-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-logging-frameworks</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-micrometer</artifactId>
+        </dependency>
+        <!--<dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-micronaut</artifactId>
+        </dependency>-->
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-migrate-java</artifactId>
+        </dependency>
+        <!--<dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-okhttp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-quarkus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-recommendations</artifactId>
+        </dependency>-->
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-sql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-static-analysis</artifactId>
+        </dependency>
+        <!--<dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-terraform</artifactId>
+        </dependency>-->
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-testing-frameworks</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.maven</groupId>
+            <artifactId>rewrite-maven-plugin</artifactId>
+            <version>${rewrite-maven-plugin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -182,13 +285,6 @@
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrewrite.maven</groupId>
-            <artifactId>rewrite-maven-plugin</artifactId>
-            <version>${rewrite-maven-plugin.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
