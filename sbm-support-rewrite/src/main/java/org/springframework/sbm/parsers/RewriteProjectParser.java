@@ -28,15 +28,17 @@ import org.openrewrite.xml.tree.Xml;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
+import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 import org.springframework.sbm.parsers.maven.BuildFileParser;
 import org.springframework.sbm.parsers.maven.MavenProjectAnalyzer;
 import org.springframework.sbm.parsers.maven.ProvenanceMarkerFactory;
 import org.springframework.sbm.scopes.ScanScope;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Project parser parsing resources under a given {@link Path} to OpenRewrite abstract syntax tree (AST).
@@ -92,6 +94,7 @@ public class RewriteProjectParser {
      */
     public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources) {
         scanScope.clear(beanFactory);
+
         final Path baseDir = normalizePath(givenBaseDir);
 
         eventPublisher.publishEvent(new StartedParsingProjectEvent(resources));

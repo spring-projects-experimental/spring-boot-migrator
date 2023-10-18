@@ -15,7 +15,10 @@
  */
 package org.springframework.sbm.parsers.maven;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junitpioneer.jupiter.SetSystemProperty;
 import org.openrewrite.maven.cache.CompositeMavenPomCache;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
@@ -28,7 +31,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
-import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.util.ReflectionTestUtils;
 

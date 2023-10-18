@@ -23,7 +23,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.sbm.utils.ResourceUtil;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Path;

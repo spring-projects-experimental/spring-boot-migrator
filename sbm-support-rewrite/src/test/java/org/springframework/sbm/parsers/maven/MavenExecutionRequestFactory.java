@@ -26,7 +26,6 @@ import org.apache.maven.model.Profile;
 import org.apache.maven.repository.UserLocalArtifactRepository;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.springframework.sbm.parsers.maven.MavenConfigFileParser;
 
 import java.nio.file.Path;
 import java.util.List;

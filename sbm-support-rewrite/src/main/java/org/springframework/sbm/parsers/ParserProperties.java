@@ -15,12 +15,10 @@
  */
 package org.springframework.sbm.parsers;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
 
-import java.nio.file.PathMatcher;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

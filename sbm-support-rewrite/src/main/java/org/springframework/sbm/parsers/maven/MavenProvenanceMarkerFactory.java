@@ -24,7 +24,10 @@ import org.openrewrite.internal.StringUtils;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaVersion;
-import org.openrewrite.marker.*;
+import org.openrewrite.marker.BuildTool;
+import org.openrewrite.marker.GitProvenance;
+import org.openrewrite.marker.Marker;
+import org.openrewrite.marker.OperatingSystemProvenance;
 import org.openrewrite.marker.ci.BuildEnvironment;
 import org.springframework.sbm.parsers.MavenProject;
 

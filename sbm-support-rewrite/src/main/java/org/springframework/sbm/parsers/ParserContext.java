@@ -17,7 +17,6 @@ package org.springframework.sbm.parsers;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.openrewrite.SourceFile;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;

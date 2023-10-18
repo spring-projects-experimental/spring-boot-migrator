@@ -16,7 +16,6 @@
 package org.springframework.sbm.parsers.events;
 
 import org.openrewrite.Parser;
-import org.springframework.context.ApplicationEvent;
 
 /**
  * @author Fabian Krüger

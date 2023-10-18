@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.openrewrite.maven.MavenSettings;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;

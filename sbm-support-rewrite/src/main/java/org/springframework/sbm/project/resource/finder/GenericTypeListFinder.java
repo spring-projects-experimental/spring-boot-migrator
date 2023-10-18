@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.project.resource.finder;
 
-import org.springframework.sbm.project.resource.ProjectResourceSet;
 import lombok.Getter;
+import org.springframework.sbm.project.resource.ProjectResourceSet;
 
 import java.util.List;
 import java.util.stream.Collectors;

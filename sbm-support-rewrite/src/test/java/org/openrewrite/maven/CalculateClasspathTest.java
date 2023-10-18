@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
-import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.parsers.RewriteProjectParsingResult;
 import org.springframework.sbm.test.util.DummyResource;

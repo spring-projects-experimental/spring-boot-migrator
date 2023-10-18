@@ -24,9 +24,9 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
-import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 import org.springframework.sbm.parsers.events.FinishedParsingResourceEvent;
 import org.springframework.sbm.parsers.events.StartedParsingProjectEvent;
+import org.springframework.sbm.parsers.events.SuccessfullyParsedProjectEvent;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

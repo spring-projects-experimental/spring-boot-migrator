@@ -26,10 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.sbm.parsers.ParserProperties;
 import org.springframework.sbm.parsers.RewriteParserConfiguration;
-import org.springframework.sbm.parsers.maven.*;
 import org.springframework.sbm.scopes.ScanScope;
-
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Fabian Krüger

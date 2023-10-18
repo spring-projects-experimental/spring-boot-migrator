@@ -17,7 +17,6 @@ package org.springframework.sbm.project;
 
 import org.openrewrite.SourceFile;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;

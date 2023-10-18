@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.utils;
 
-import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 

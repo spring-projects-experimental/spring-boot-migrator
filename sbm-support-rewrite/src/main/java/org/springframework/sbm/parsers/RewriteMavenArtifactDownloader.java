@@ -21,7 +21,6 @@ import org.openrewrite.ipc.http.HttpSender;
 import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.cache.MavenArtifactCache;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
-import org.springframework.stereotype.Component;
 
 import java.util.function.Consumer;
 
