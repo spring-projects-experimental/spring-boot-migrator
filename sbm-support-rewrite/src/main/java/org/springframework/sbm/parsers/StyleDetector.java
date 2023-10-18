@@ -18,17 +18,16 @@ package org.springframework.sbm.parsers;
 import org.openrewrite.SourceFile;
 import org.openrewrite.Tree;
 import org.openrewrite.internal.ListUtils;
-import org.openrewrite.java.style.Autodetect;
 import org.openrewrite.java.tree.JavaSourceFile;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**

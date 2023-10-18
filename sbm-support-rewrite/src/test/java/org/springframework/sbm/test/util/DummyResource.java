@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.test.util;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 
 import java.io.ByteArrayInputStream;

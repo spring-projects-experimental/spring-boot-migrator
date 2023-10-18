@@ -20,8 +20,9 @@ import lombok.Setter;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.jetbrains.annotations.NotNull;
-import org.openrewrite.SourceFile;
-import org.openrewrite.maven.tree.*;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.ResolvedDependency;
+import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
@@ -30,7 +31,10 @@ import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.function.Predicate;
 
 

@@ -15,9 +15,9 @@
  */
 package org.springframework.sbm.project.resource.finder;
 
-import org.springframework.sbm.utils.OsAgnosticPathMatcher;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.sbm.utils.OsAgnosticPathMatcher;
 import org.springframework.util.PathMatcher;
 
 import java.util.Arrays;

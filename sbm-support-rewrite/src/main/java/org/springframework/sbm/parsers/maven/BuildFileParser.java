@@ -43,8 +43,7 @@ import static java.util.Collections.emptyList;
  */
 @Slf4j
 @RequiredArgsConstructor
-public
-class BuildFileParser {
+public class BuildFileParser {
 
     /**
      * Parse a list of Maven Pom files to a Map of {@code Path} and their parsed {@link Xml.Document}s.

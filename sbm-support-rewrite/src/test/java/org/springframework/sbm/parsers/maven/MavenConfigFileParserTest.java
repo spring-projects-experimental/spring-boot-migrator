@@ -17,7 +17,6 @@ package org.springframework.sbm.parsers.maven;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.parsers.maven.MavenConfigFileParser;
 
 import java.nio.file.Path;
 import java.util.List;

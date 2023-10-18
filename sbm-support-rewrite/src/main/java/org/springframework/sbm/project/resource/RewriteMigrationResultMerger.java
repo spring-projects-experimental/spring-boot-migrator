@@ -20,7 +20,6 @@ import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.finder.AbsolutePathResourceFinder;
-import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;

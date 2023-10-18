@@ -15,11 +15,8 @@
  */
 package org.springframework.sbm.project.resource.finder;
 
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
-import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
-import org.springframework.sbm.project.resource.finder.ResourceFilterException;
 import lombok.Getter;
+import org.springframework.sbm.project.resource.ProjectResourceSet;
 
 import java.util.List;
 import java.util.Optional;
