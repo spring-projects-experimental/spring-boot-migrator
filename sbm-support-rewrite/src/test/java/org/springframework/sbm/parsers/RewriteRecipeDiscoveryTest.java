@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.parsers;
 
-import com.example.recipes.DummyRecipe;
+import org.springframework.sbm.example.recipes.DummyRecipe;
 import io.example.recipes.AnotherDummyRecipe;
 import org.assertj.core.data.Index;
 import org.jetbrains.annotations.NotNull;
@@ -79,17 +79,17 @@ class RewriteRecipeDiscoveryTest {
     void providingAcceptedPackagesShouldOnlyShowRecipesWithMatchingPackage() {
         ClasspathScanningLoader resourceLoader1 = new ClasspathScanningLoader(new Properties(), new String[]{"com.example"});
         Collection<Recipe> recipes = resourceLoader1.listRecipes();
-        assertThat(recipes).anyMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
+        assertThat(recipes).anyMatch(r -> DummyRecipe.class == r.getClass());
         assertThat(recipes).noneMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
 
         ClasspathScanningLoader resourceLoader2 = new ClasspathScanningLoader(new Properties(), new String[]{"io.example"});
         Collection<Recipe> recipes2 = resourceLoader2.listRecipes();
-        assertThat(recipes2).noneMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
+        assertThat(recipes2).noneMatch(r -> DummyRecipe.class == r.getClass());
         assertThat(recipes2).anyMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
 
         ClasspathScanningLoader resourceLoader3 = new ClasspathScanningLoader(new Properties(), new String[]{"io.example", "com.example"});
         Collection<Recipe> recipes3 = resourceLoader3.listRecipes();
-        assertThat(recipes3).anyMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
+        assertThat(recipes3).anyMatch(r -> DummyRecipe.class == r.getClass());
         assertThat(recipes3).anyMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
     }
 

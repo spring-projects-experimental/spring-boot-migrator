@@ -16,7 +16,6 @@
 package org.springframework.sbm.parsers.maven;
 
 import org.intellij.lang.annotations.Language;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -40,8 +39,6 @@ import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.cache.*;
-import org.openrewrite.maven.cache.LocalMavenArtifactCache;
-import org.openrewrite.maven.cache.MavenArtifactCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
@@ -58,13 +55,12 @@ import org.springframework.sbm.parsers.*;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
+import org.springframework.sbm.test.util.GitTestHelper;
 import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -302,7 +298,7 @@ class RewriteMavenProjectParserTest {
     @Disabled("https://github.com/openrewrite/rewrite/issues/3409")
     void parseComplexMavenReactorProject() {
         String target = "./testcode/maven-projects/cwa-server";
-        cloneProject("https://github.com/corona-warn-app/cwa-server.git", target, "v3.2.0");
+        GitTestHelper.cloneProjectTag("https://github.com/corona-warn-app/cwa-server.git", target, "v3.2.0");
         Path projectRoot = Path.of(target).toAbsolutePath().normalize(); // SBM root
         RewriteMavenProjectParser projectParser = sut;
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
@@ -434,25 +430,6 @@ class RewriteMavenProjectParserTest {
         assertThat(MavenExecutionContextView.view(resultingExecutionContext).getRepositories()).isEmpty();
     }
 
-    private void cloneProject(String url, String target, String tag) {
-        File directory = Path.of(target).toFile();
-        if (directory.exists()) {
-            return;
-        }
-        try {
-            Git git = Git.cloneRepository()
-                    .setDirectory(directory)
-                    .setURI(url)
-                    .call();
-
-            git.checkout()
-                    .setName("refs/tags/" + tag)
-                    .call();
-
-        } catch (GitAPIException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private void verifyMavenParser(RewriteProjectParsingResult parsingResult) {
         verify(parsingResult.sourceFiles().get(0), Xml.Document.class, "pom.xml", document -> {

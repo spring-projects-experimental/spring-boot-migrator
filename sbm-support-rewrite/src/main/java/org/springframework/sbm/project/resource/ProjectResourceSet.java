@@ -19,12 +19,15 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
+import org.openrewrite.config.RecipeDescriptor;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
 
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.joining;
 
 // TODO: make package private
 public class ProjectResourceSet {
@@ -103,7 +106,38 @@ public class ProjectResourceSet {
         .getChangeset()
         .getAllResults();
 
+        results.forEach(r -> logRecipesThatMadeChanges(r));
+
         migrationResultMerger.mergeResults(this, results);
+    }
+
+    protected void logRecipesThatMadeChanges(Result result) {
+        String indent = "    ";
+        String prefix = "    ";
+        for (RecipeDescriptor recipeDescriptor : result.getRecipeDescriptorsThatMadeChanges()) {
+            logRecipe(recipeDescriptor, prefix);
+            prefix = prefix + indent;
+        }
+    }
+
+    private void logRecipe(RecipeDescriptor rd, String prefix) {
+        StringBuilder recipeString = new StringBuilder(prefix + rd.getName());
+        if (!rd.getOptions().isEmpty()) {
+            String opts = rd.getOptions().stream().map(option -> {
+                        if (option.getValue() != null) {
+                            return option.getName() + "=" + option.getValue();
+                        }
+                        return null;
+                    }
+            ).filter(Objects::nonNull).collect(joining(", "));
+            if (!opts.isEmpty()) {
+                recipeString.append(": {").append(opts).append("}");
+            }
+        }
+        System.out.println(recipeString);
+        for (RecipeDescriptor rchild : rd.getRecipeList()) {
+            logRecipe(rchild, prefix + "    ");
+        }
     }
 
     void clearDeletedResources() {
