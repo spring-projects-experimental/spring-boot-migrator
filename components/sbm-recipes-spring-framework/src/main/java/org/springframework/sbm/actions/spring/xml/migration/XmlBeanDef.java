@@ -36,7 +36,7 @@ public class XmlBeanDef {
         this.beanDefinition = beanDefinition;
     }
 
-    public Optional<Class> getTypeOfProperty(ClassLoader classLoader, String property) {
+    public Optional<Class<?>> getTypeOfProperty(ClassLoader classLoader, String property) {
         boolean hasProperty = getBeanDefinition().getPropertyValues().stream()
                 .filter(v -> v.getValue().getClass().isAssignableFrom(TypedStringValue.class))
                 .map(v -> (TypedStringValue) v.getValue())

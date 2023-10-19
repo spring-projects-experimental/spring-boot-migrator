@@ -17,11 +17,14 @@ package org.springframework.sbm.support.openrewrite.java;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaIsoVisitor;
+import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.JavaType.FullyQualified;
 import org.openrewrite.java.tree.TypeUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class RemoveAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
@@ -35,6 +38,7 @@ public class RemoveAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
         this.target = target;
     }
 
+    @Override
     public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration cd, ExecutionContext executionContext) {
         J.ClassDeclaration classDecl = super.visitClassDeclaration(cd, executionContext);
         if (target == classDecl) {
@@ -46,14 +50,15 @@ public class RemoveAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
                     })
                     .collect(Collectors.toList());
             if (classDecl.getLeadingAnnotations().size() != keptAnnotations.size()) {
-                // TODO: Analyze annotation for more types referenced by annotation and maybeRemoveImports, then remove the call to removeUnusedImports in MigrateJeeTransactionsToSpringBootAction
                 maybeRemoveImport(fqAnnotationName);
+                maybeRemoveAnnotationParameterImports(classDecl.getLeadingAnnotations());
                 classDecl = classDecl.withLeadingAnnotations(keptAnnotations);
             }
         }
         return classDecl;
     }
 
+    @Override
     public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration md, ExecutionContext executionContext) {
         J.MethodDeclaration methodDecl = super.visitMethodDeclaration(md, executionContext);
         if (target.getId().equals(methodDecl.getId())) {
@@ -66,6 +71,7 @@ public class RemoveAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
                     .collect(Collectors.toList());
             if (methodDecl.getLeadingAnnotations().size() != annotations.size()) {
                 maybeRemoveImport(fqAnnotationName);
+                maybeRemoveAnnotationParameterImports(methodDecl.getLeadingAnnotations());
                 methodDecl = methodDecl.withLeadingAnnotations(annotations);
             }
         }
@@ -84,10 +90,21 @@ public class RemoveAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
                     .collect(Collectors.toList());
             if (multiVariable.getLeadingAnnotations().size() != annotations.size()) {
                 maybeRemoveImport(fqAnnotationName);
+                maybeRemoveAnnotationParameterImports(multiVariable.getLeadingAnnotations());
                 multiVariable = multiVariable.withLeadingAnnotations(annotations);
             }
         }
         return multiVariable;
     }
 
+    private void maybeRemoveAnnotationParameterImports(List<J.Annotation> leadingAnnotations) {
+        leadingAnnotations
+                .stream()
+                .filter(a -> a.getArguments() != null && !a.getArguments().isEmpty())
+                .flatMap(a -> a.getArguments().stream())
+                .map(Expression::getType)
+                .map(TypeUtils::asFullyQualified)
+                .filter(Objects::nonNull)
+                .forEach(e -> maybeRemoveImport(TypeUtils.asFullyQualified(e)));
+    }
 }
