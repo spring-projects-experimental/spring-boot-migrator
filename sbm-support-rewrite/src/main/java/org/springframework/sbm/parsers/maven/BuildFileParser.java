@@ -46,14 +46,14 @@ import static java.util.Collections.emptyList;
 public class BuildFileParser {
 
     /**
-     * Parse a list of Maven Pom files to a Map of {@code Path} and their parsed {@link Xml.Document}s.
-     * The {@link Xml.Document}s are marked with {@link org.openrewrite.maven.tree.MavenResolutionResult} and the provided provenance markers.
+     * Parse a list of Maven Pom files to a {@code List} of {@link Xml.Document}s.
+     * The {@link Xml.Document}s get marked with {@link org.openrewrite.maven.tree.MavenResolutionResult} and the provided provenance markers.
      *
      * @param baseDir the {@link Path} to the root of the scanned project
      * @param buildFiles the list of resources for relevant pom files.
-     * @param activeProfiles teh active Maven profiles
+     * @param activeProfiles the active Maven profiles
      * @param executionContext the ExecutionContext to use
-*    * @param skipMavenParsing skip parsing Maven files
+     * @param skipMavenParsing skip parsing Maven files
      * @param provenanceMarkers the map of markers to be added
      */
     public List<Xml.Document> parseBuildFiles(
