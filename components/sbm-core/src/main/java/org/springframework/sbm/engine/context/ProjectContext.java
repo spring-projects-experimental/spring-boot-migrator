@@ -98,7 +98,8 @@ public class ProjectContext {
     }
 
     public ProjectJavaSources getProjectJavaSources() {
-        return new ProjectJavaSourcesImpl(projectResources, javaRefactoringFactory.createRefactoring());
+        ProjectJavaSources projectJavaSources = new ProjectJavaSourcesImpl(projectResources, javaRefactoringFactory.createRefactoring());
+        return projectJavaSources;
     }
 
     public ApplicationModules getApplicationModules() {

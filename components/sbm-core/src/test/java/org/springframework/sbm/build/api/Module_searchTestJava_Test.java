@@ -66,7 +66,9 @@ public class Module_searchTestJava_Test {
 
             ProjectContext context = builder.build();
 
-            verifySearchTest(context, projectResourceSet -> assertThat(projectResourceSet.list()).isEmpty(), "");
+            verifySearchTest(context, projectResourceSet -> {
+                assertThat(projectResourceSet.list()).isEmpty();
+            }, "");
         }
 
         @Test
