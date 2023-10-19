@@ -40,12 +40,6 @@ public class SbmTestConfiguration {
     private ParserProperties parserProperties;
 
     @Bean
-    MavenMojoProjectParserPrivateMethods mavenMojoProjectParserPrivateMethods(MavenMojoProjectParserFactory parserFactory, MavenArtifactDownloader artifactDownloader) {
-        return new MavenMojoProjectParserPrivateMethods(parserFactory, artifactDownloader);
-    }
-
-
-    @Bean
     MavenConfigFileParser configFileParser() {
         return new MavenConfigFileParser();
     }
