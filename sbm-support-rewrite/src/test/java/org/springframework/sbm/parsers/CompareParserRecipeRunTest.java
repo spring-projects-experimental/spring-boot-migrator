@@ -45,7 +45,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Fabian Krüger
  */
 @SpringBootTest(classes = {SbmSupportRewriteConfiguration.class, SbmTestConfiguration.class})
-@Issue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/975")
 public class CompareParserRecipeRunTest {
 
     @Autowired
@@ -58,9 +57,8 @@ public class CompareParserRecipeRunTest {
     private ExecutionContext executionContext;
 
     @Test
-    @DisplayName("runningRecipe")
-    @ExpectedToFail("FIXME: #975")
-    void runningRecipe() {
+    @DisplayName("Running a recipe with RewriteMavenParser should yield the same result as with RewriteProjectParser")
+    void runningARecipeWithRewriteMavenParserYieldsTheSameResultAsWithRewriteProjectParser() {
         Path baseDir = TestProjectHelper.getMavenProject("parser-recipe-run");
         RewriteProjectParsingResult sutParsingResult = sut.parse(baseDir);
         RewriteProjectParsingResult compParsingResult = comparingParser.parse(baseDir);
@@ -105,7 +103,7 @@ public class CompareParserRecipeRunTest {
         // Run Parser independent from Maven
         counter.setRelease(0);
         RecipeRun sutRecipeRun = recipe.run(new InMemoryLargeSourceSet(sutParsingResult.sourceFiles()), executionContext);
-        assertThat(counter.get()).isEqualTo(3); // differs, should be 2
+        assertThat(counter.get()).isEqualTo(2); // differs, should be 2
         assertThat(sutRecipeRun.getChangeset().getAllResults()).hasSize(1); // is 0
     }
 
