@@ -128,7 +128,7 @@ public class ModuleParser {
         mainProjectProvenance.add(sourceSet("main", dependencies, typeCache));
 
         // FIXME: 945 Why target and not all main?
-        List<Path> parsedJavaPaths = mainJavaSources.stream().map(ResourceUtil::getPath).toList();
+        List<Path> parsedJavaPaths = javaSourcesInTarget.stream().map(ResourceUtil::getPath).toList();
         Stream<SourceFile> parsedJava = cus.map(addProvenance(baseDir, mainProjectProvenance, parsedJavaPaths));
         log.debug("[%s] Scanned %d java source files in main scope.".formatted(currentProject, mainJavaSources.size()));
 
