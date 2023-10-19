@@ -18,13 +18,21 @@ package org.springframework.sbm.parsers.maven;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.ExpectedToFail;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.Parser;
+import org.openrewrite.SourceFile;
+import org.openrewrite.tree.ParsingEventListener;
+import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.event.EventListener;
 import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
+import org.springframework.sbm.parsers.RewriteProjectParser;
 import org.springframework.sbm.parsers.RewriteProjectParsingResult;
 import org.springframework.sbm.parsers.events.FinishedParsingResourceEvent;
+import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -49,7 +57,14 @@ public class RewriteMavenProjectParserIntegrationTest {
     void shouldPublishBuildEvents() {
 
         Path baseDir = Path.of("./testcode/maven-projects/multi-module-1");
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir);
+        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
+        ParsingExecutionContextView.view(executionContext).setParsingListener(new ParsingEventListener() {
+            @Override
+            public void parsed(Parser.Input input, SourceFile sourceFile) {
+                capturedEvents.add(new FinishedParsingResourceEvent(input, sourceFile));
+            }
+        });
+        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, executionContext);
         assertThat(capturedEvents).hasSize(3);
         assertThat(capturedEvents.get(0).sourceFile().getSourcePath().toString())
                 .isEqualTo("pom.xml");
@@ -58,13 +73,4 @@ public class RewriteMavenProjectParserIntegrationTest {
         assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString())
                 .isEqualTo("module-a/pom.xml");
     }
-
-    @TestConfiguration
-    static class TestEventListener {
-        @EventListener(FinishedParsingResourceEvent.class)
-        public void onEvent(FinishedParsingResourceEvent event) {
-            capturedEvents.add(event);
-        }
-    }
-
 }
