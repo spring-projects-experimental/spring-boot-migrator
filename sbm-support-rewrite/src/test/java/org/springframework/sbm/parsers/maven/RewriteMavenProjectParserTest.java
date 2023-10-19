@@ -39,6 +39,7 @@ import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.cache.CompositeMavenPomCache;
+import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
@@ -85,23 +86,48 @@ class RewriteMavenProjectParserTest {
     );
     MavenPlexusContainer plexusContainer = new MavenPlexusContainer();
     private ParserProperties parserProperties = new ParserProperties();
-    private RewriteMavenProjectParser sut;
+    private RewriteMavenProjectParser mavenProjectParser;
+    private RewriteProjectParser sut;
     private ConfigurableListableBeanFactory beanFactory;
     private ScanScope scanScope;
+    private ExecutionContext executionContext;
 
     @BeforeEach
     void beforeEach() {
         beanFactory = mock(ConfigurableListableBeanFactory.class);
         scanScope = mock(ScanScope.class);
-        sut = new RewriteMavenProjectParser(
+        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+        RewriteParsingEventListenerAdapter parsingListener = new RewriteParsingEventListenerAdapter(eventPublisher);
+        mavenProjectParser = new RewriteMavenProjectParser(
                 plexusContainer,
-                new RewriteParsingEventListenerAdapter(mock(ApplicationEventPublisher.class)),
+                parsingListener,
                 new MavenExecutor(requestFactory, plexusContainer),
                 new MavenMojoProjectParserFactory(parserProperties),
                 scanScope,
                 beanFactory,
                 new InMemoryExecutionContext(t -> {throw new RuntimeException(t);})
         );
+
+        ModuleParser moduleParser = new ModuleParser();
+        ProvenanceMarkerFactory provenanceMarkerFactory = new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory());
+        executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
+        Path cachePath = Path.of(System.getProperty("user.home")).resolve(".m2/repository");
+        MavenProjectAnalyzer mavenProjectAnalyzer = new MavenProjectAnalyzer(new RewriteMavenArtifactDownloader(new LocalMavenArtifactCache(cachePath), null, t -> {throw new RuntimeException(t);}));
+        sut = new RewriteProjectParser(
+                provenanceMarkerFactory,
+                new BuildFileParser(),
+                new SourceFileParser(new MavenModuleParser(parserProperties, moduleParser)),
+                new StyleDetector(),
+                parserProperties,
+                parsingListener,
+                eventPublisher,
+                scanScope,
+                beanFactory,
+                new ProjectScanner(new DefaultResourceLoader(), parserProperties),
+                executionContext,
+                mavenProjectAnalyzer
+        );
+
     }
 
     @Test
@@ -110,9 +136,7 @@ class RewriteMavenProjectParserTest {
         @Language("xml")
         String pomXml = """
                 <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <modelVersion>4.0.0</modelVersion>
                     <groupId>org.example</groupId>
                     <artifactId>root-project</artifactId>
@@ -166,15 +190,22 @@ class RewriteMavenProjectParserTest {
         );
         ResourceUtil.write(tempDir, resources);
 
-        parserProperties.setIgnoredPathPatterns(Set.of("**/testcode/**", "testcode/**", ".rewrite-cache/**"));
+        parserProperties.setIgnoredPathPatterns(Set.of("**/testcode/**", "testcode/**", ".rewrite-cache/**", "**/target/**", "**/.git/**"));
         parserProperties.setPomCacheEnabled(true); // org.openrewrite.maven.pomCache will be CompositeMavenPomCache
 
         // call SUT
-        RewriteProjectParsingResult parsingResult = sut.parse(
+        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(
                 tempDir,
                 new InMemoryExecutionContext(t -> t.printStackTrace())
         );
 
+        verifyParsingResult(parsingResult);
+
+        parsingResult = sut.parse(tempDir);
+        verifyParsingResult(parsingResult);
+    }
+
+    private void verifyParsingResult(RewriteProjectParsingResult parsingResult) {
         // Verify result
         List<SourceFile> sourceFiles = parsingResult.sourceFiles();
         assertThat(sourceFiles).isNotEmpty();
@@ -245,7 +276,7 @@ class RewriteMavenProjectParserTest {
     void shouldParseMavenConfigProject() {
         Path baseDir = Path.of("./testcode/maven-projects/maven-config").toAbsolutePath().normalize();
         parserProperties.setIgnoredPathPatterns(Set.of(".mvn"));
-        RewriteProjectParsingResult parsingResult = sut.parse(
+        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(
                 baseDir,
                 new InMemoryExecutionContext(t -> fail(t.getMessage()))
         );
@@ -258,7 +289,7 @@ class RewriteMavenProjectParserTest {
         ExecutionContext ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
         Path baseDir = getMavenProject("multi-module-1");
         parserProperties.setIgnoredPathPatterns(Set.of("README.adoc"));
-        RewriteProjectParsingResult parsingResult = sut.parse(
+        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(
                 baseDir,
                 ctx);
         verifyMavenParser(parsingResult);
@@ -300,7 +331,7 @@ class RewriteMavenProjectParserTest {
         String target = "./testcode/maven-projects/cwa-server";
         cloneProject("https://github.com/corona-warn-app/cwa-server.git", target, "v3.2.0");
         Path projectRoot = Path.of(target).toAbsolutePath().normalize(); // SBM root
-        RewriteMavenProjectParser projectParser = sut;
+        RewriteMavenProjectParser projectParser = mavenProjectParser;
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         List<String> parsedFiles = new ArrayList<>();
         ParsingExecutionContextView.view(executionContext).setParsingListener(new ParsingEventListener() {
@@ -331,7 +362,7 @@ class RewriteMavenProjectParserTest {
     @Issue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/875")
     void parseCheckstyle() {
         Path baseDir = getMavenProject("checkstyle");
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir);
+        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(baseDir);
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
     }

@@ -125,7 +125,8 @@ public class ModuleParser {
                 .peek(s -> alreadyParsed.add(baseDir.resolve(s.getSourcePath())));
 
         List<Marker> mainProjectProvenance = new ArrayList<>(provenanceMarkers);
-        mainProjectProvenance.add(sourceSet("main", dependencies, typeCache));
+        JavaSourceSet javaSourceSet = sourceSet("main", dependencies, typeCache);
+        mainProjectProvenance.add(javaSourceSet);
 
         // FIXME: 945 Why target and not all main?
         List<Path> parsedJavaPaths = javaSourcesInTarget.stream().map(ResourceUtil::getPath).toList();
