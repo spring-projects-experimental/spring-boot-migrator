@@ -81,18 +81,19 @@ import static org.mockito.Mockito.mock;
 
 
 /**
+ * Test parity between OpenRewrite parser logic and RewriteProjectParser.
+ *
+ * RewriteMavenProjectParser resembles the parser logic from OpenRewrite's Maven plugin
+ *
  * @author Fabian Krüger
  */
 @SpringBootTest(classes = SbmSupportRewriteConfiguration.class)
-class RewriteMavenProjectParserTest {
+class RewriteProjectParserParityTest {
 
     @Autowired
     private RewriteProjectParser sut;
 
     private RewriteMavenProjectParser mavenProjectParser;
-
-
-
 
     MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(
             new MavenConfigFileParser()
