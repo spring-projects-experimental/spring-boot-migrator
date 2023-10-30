@@ -39,7 +39,7 @@ import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.cache.CompositeMavenPomCache;
-import org.openrewrite.maven.cache.LocalMavenArtifactCache;
+import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
@@ -47,11 +47,14 @@ import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.style.Autodetect;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
 import org.springframework.sbm.parsers.*;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.scopes.ScanScope;
@@ -75,25 +78,73 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
 
+
+
 /**
  * @author Fabian Krüger
  */
+@SpringBootTest(classes = SbmSupportRewriteConfiguration.class)
 class RewriteMavenProjectParserTest {
+
+    @Autowired
+    private RewriteProjectParser sut;
+
+    private RewriteMavenProjectParser mavenProjectParser;
+
+
 
 
     MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(
             new MavenConfigFileParser()
     );
-    MavenPlexusContainer plexusContainer = new MavenPlexusContainer();
+
     private ParserProperties parserProperties = new ParserProperties();
-    private RewriteMavenProjectParser mavenProjectParser;
-    private RewriteProjectParser sut;
     private ConfigurableListableBeanFactory beanFactory;
     private ScanScope scanScope;
     private ExecutionContext executionContext;
 
     @BeforeEach
     void beforeEach() {
+        initComparingParser();
+
+//        ModuleParser moduleParser = new ModuleParser();
+//        ProvenanceMarkerFactory provenanceMarkerFactory = new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory());
+//        executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
+//        Path cachePath = Path.of(System.getProperty("user.home")).resolve(".m2/repository");
+//        MavenProjectAnalyzer mavenProjectAnalyzer = new MavenProjectAnalyzer(new RewriteMavenArtifactDownloader(new LocalMavenArtifactCache(cachePath), null, t -> {throw new RuntimeException(t);}));
+//        sut = new RewriteProjectParser(
+//                provenanceMarkerFactory,
+//                new BuildFileParser(),
+//                new SourceFileParser(new MavenModuleParser(parserProperties, moduleParser)),
+//                new StyleDetector(),
+//                parserProperties,
+//                parsingListener,
+//                eventPublisher,
+//                scanScope,
+//                beanFactory,
+//                new ProjectScanner(new DefaultResourceLoader(), parserProperties),
+//                executionContext,
+//                mavenProjectAnalyzer
+//        );
+//        try {
+//            AtomicReference<RewriteProjectParser> parserAtomicReference = new AtomicReference<>();
+//            final List<String> strings = Files.readLines(Path.of("./src/main/resources/META-INF/sbm-support-rewrite.properties").toAbsolutePath().normalize().toFile(), Charset.defaultCharset()).stream().filter(l -> !l.startsWith("#") && !l.isBlank()).toList();
+//            new ApplicationContextRunner().withUserConfiguration(SbmSupportRewriteConfiguration.class)
+//                    .withPropertyValues(strings.toArray(String[]::new))
+//                    .run(appCtx -> {
+////                    appCtx.start();
+//                        RewriteProjectParser rewriteProjectParser = appCtx.getBean(RewriteProjectParser.class);
+//                        parserAtomicReference.set(rewriteProjectParser);
+//                    });
+//
+//            sut = parserAtomicReference.get();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+    }
+
+    private void initComparingParser() {
+        MavenPlexusContainer plexusContainer = new MavenPlexusContainer();
         beanFactory = mock(ConfigurableListableBeanFactory.class);
         scanScope = mock(ScanScope.class);
         ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
@@ -105,29 +156,10 @@ class RewriteMavenProjectParserTest {
                 new MavenMojoProjectParserFactory(parserProperties),
                 scanScope,
                 beanFactory,
-                new InMemoryExecutionContext(t -> {throw new RuntimeException(t);})
+                new InMemoryExecutionContext(t -> {
+                    throw new RuntimeException(t);
+                })
         );
-
-        ModuleParser moduleParser = new ModuleParser();
-        ProvenanceMarkerFactory provenanceMarkerFactory = new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory());
-        executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
-        Path cachePath = Path.of(System.getProperty("user.home")).resolve(".m2/repository");
-        MavenProjectAnalyzer mavenProjectAnalyzer = new MavenProjectAnalyzer(new RewriteMavenArtifactDownloader(new LocalMavenArtifactCache(cachePath), null, t -> {throw new RuntimeException(t);}));
-        sut = new RewriteProjectParser(
-                provenanceMarkerFactory,
-                new BuildFileParser(),
-                new SourceFileParser(new MavenModuleParser(parserProperties, moduleParser)),
-                new StyleDetector(),
-                parserProperties,
-                parsingListener,
-                eventPublisher,
-                scanScope,
-                beanFactory,
-                new ProjectScanner(new DefaultResourceLoader(), parserProperties),
-                executionContext,
-                mavenProjectAnalyzer
-        );
-
     }
 
     @Test
@@ -196,13 +228,13 @@ class RewriteMavenProjectParserTest {
         // call SUT
         InMemoryExecutionContext executionContext1 = new InMemoryExecutionContext(t -> t.printStackTrace());
         RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(tempDir, executionContext1);
-        verifyParsingResult(parsingResult);
+        verifyParsingResult(parsingResult, ParserType.COMPARING);
 
         parsingResult = sut.parse(tempDir);
-        verifyParsingResult(parsingResult);
+        verifyParsingResult(parsingResult, ParserType.SBM);
     }
 
-    private void verifyParsingResult(RewriteProjectParsingResult parsingResult) {
+    private void verifyParsingResult(RewriteProjectParsingResult parsingResult, ParserType parserType) {
         // Verify result
         List<SourceFile> sourceFiles = parsingResult.sourceFiles();
         assertThat(sourceFiles).isNotEmpty();
@@ -210,7 +242,7 @@ class RewriteMavenProjectParserTest {
         SourceFile pom = sourceFiles.get(0);
         assertThat(pom).isInstanceOf(Xml.Document.class);
         int expectedNumMarkers = 7;
-        if(System.getenv("GITHUB_ACTION_REF") != null) {
+        if (System.getenv("GITHUB_ACTION_REF") != null) {
             expectedNumMarkers = 8;
         }
         assertThat(pom.getMarkers().getMarkers()).hasSize(expectedNumMarkers);
@@ -260,7 +292,7 @@ class RewriteMavenProjectParserTest {
                 "java.math.BigInteger"
         );
 
-        verifyExecutionContext(parsingResult);
+        verifyExecutionContext(parsingResult, parserType);
 
         Mockito.verify(scanScope).clear(beanFactory);
 
@@ -364,7 +396,7 @@ class RewriteMavenProjectParserTest {
         assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
     }
 
-    private static void verifyExecutionContext(RewriteProjectParsingResult parsingResult) {
+    private static void verifyExecutionContext(RewriteProjectParsingResult parsingResult, ParserType parserType) {
         ExecutionContext resultingExecutionContext = parsingResult.executionContext();
         assertThat(resultingExecutionContext).isNotNull();
 
@@ -427,14 +459,21 @@ class RewriteMavenProjectParserTest {
         assertThat(
                 MavenExecutionContextView.view(resultingExecutionContext).getLocalRepository().getUri()
         ).isEqualTo(
-                "file://" + Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toAbsolutePath().normalize().toString() + "/"
+                "file://" + Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toAbsolutePath().normalize() + "/"
         );
 
         // 8
-        assertThat(
-                messages.get("org.openrewrite.maven.pomCache")
-        ).isInstanceOf(CompositeMavenPomCache.class);
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
+        if(parserType == ParserType.SBM) {
+            assertThat(
+                    messages.get("org.openrewrite.maven.pomCache")
+            ).isInstanceOf(InMemoryMavenPomCache.class);
+            assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(InMemoryMavenPomCache.class);
+        } else {
+            assertThat(
+                    messages.get("org.openrewrite.maven.pomCache")
+            ).isInstanceOf(CompositeMavenPomCache.class);
+            assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
+        }
 //        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
 
         // 9
@@ -501,7 +540,7 @@ class RewriteMavenProjectParserTest {
         if (Xml.Document.class == clazz) {
             Xml.Document pom = Xml.Document.class.cast(sourceFile);
             int numExpectedMarkers = 7;
-            if(System.getenv("GITHUB_ACTION_REF") != null) {
+            if (System.getenv("GITHUB_ACTION_REF") != null) {
                 numExpectedMarkers = 8;
             }
             assertThat(pom.getMarkers().getMarkers())
@@ -509,7 +548,7 @@ class RewriteMavenProjectParserTest {
                     .hasSize(numExpectedMarkers);
 
             assertThat(pom.getMarkers().findFirst(MavenResolutionResult.class)).isPresent();
-            if(System.getenv("GITHUB_ACTION_REF") != null) {
+            if (System.getenv("GITHUB_ACTION_REF") != null) {
                 assertThat(pom.getMarkers().findFirst(GithubActionsBuildEnvironment.class)).isPresent();
             }
             assertThat(pom.getMarkers().findFirst(GitProvenance.class)).isNotNull();
@@ -526,4 +565,7 @@ class RewriteMavenProjectParserTest {
         return Path.of("./testcode/maven-projects/").resolve(s).toAbsolutePath().normalize();
     }
 
+    private enum ParserType {
+        SBM, COMPARING
+    }
 }

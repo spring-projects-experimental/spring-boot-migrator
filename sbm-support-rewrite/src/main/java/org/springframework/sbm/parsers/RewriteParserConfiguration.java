@@ -17,6 +17,7 @@ package org.springframework.sbm.parsers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.cache.*;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.tree.ParsingEventListener;
@@ -54,8 +55,14 @@ import java.util.function.Consumer;
 @Import({ScanScope.class, ScopeConfiguration.class})
 public class RewriteParserConfiguration {
 
-    @Autowired
-    private ParserProperties parserProperties;
+//    @Autowired
+//    private ParserProperties parserProperties;
+
+//    @Bean
+//    @org.springframework.sbm.scopes.annotations.ScanScope
+//    public ParserProperties parserProperties() {
+//        return new ParserProperties();
+//    }
 
 //    @Bean
 //    ProvenanceMarkerFactory provenanceMarkerFactory(MavenMojoProjectParserFactory projectParserFactory) {

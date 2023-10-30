@@ -223,4 +223,8 @@ public class MavenProject {
     public ProjectId getProjectId() {
         return projectId;
     }
+
+    public Object getProjectEncoding() {
+        return getPomModel().getProperties().get("project.build.sourceEncoding");
+    }
 }

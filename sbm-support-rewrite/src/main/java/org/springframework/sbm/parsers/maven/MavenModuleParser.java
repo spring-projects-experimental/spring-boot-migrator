@@ -22,6 +22,7 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.style.NamedStyles;
+import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.MavenProject;
@@ -29,6 +30,7 @@ import org.springframework.sbm.parsers.ModuleParser;
 import org.springframework.sbm.parsers.ParserProperties;
 import org.springframework.sbm.parsers.RewriteResourceParser;
 
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
@@ -65,6 +67,10 @@ public class MavenModuleParser {
 //        if (mavenSourceEncoding != null) {
 //            ParsingExecutionContextView.view(ctx).setCharset(Charset.forName(mavenSourceEncoding.toString()));
 //        }
+        Object mavenSourceEncoding = currentProject.getProjectEncoding();
+        if (mavenSourceEncoding != null) {
+            ParsingExecutionContextView.view(executionContext).setCharset(Charset.forName(mavenSourceEncoding.toString()));
+        }
 
         // 150:153
         JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder = JavaParser.fromJavaVersion()
