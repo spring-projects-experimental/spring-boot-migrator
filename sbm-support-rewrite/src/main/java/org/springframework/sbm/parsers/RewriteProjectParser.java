@@ -21,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
+import org.openrewrite.maven.MavenExecutionContextView;
+import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
@@ -117,6 +119,10 @@ public class RewriteProjectParser {
         List<Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(baseDir, parserContext.getBuildFileResources(), parserContext.getActiveProfiles(), executionContext, parserProperties.isSkipMavenParsing(), provenanceMarkers);
         parserContext.setParsedBuildFiles(parsedBuildFiles);
 
+        MavenSettings settings = buildSettings();
+        MavenExecutionContextView mavenExecutionContext = MavenExecutionContextView.view(executionContext);
+        mavenExecutionContext.setMavenSettings(settings);
+
 
         log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + parsedBuildFiles.size(), parsedBuildFiles.size()));
         List<SourceFile> otherSourceFiles = sourceFileParser.parseOtherSourceFiles(baseDir, parserContext, resources, provenanceMarkers, styles, executionContext);
@@ -131,6 +137,11 @@ public class RewriteProjectParser {
         eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
 
         return new RewriteProjectParsingResult(sourceFiles, executionContext);
+    }
+
+    private MavenSettings buildSettings() {
+        // FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/880
+        return new MavenSettings(null, null, null, null, null);
     }
 
     @NotNull
