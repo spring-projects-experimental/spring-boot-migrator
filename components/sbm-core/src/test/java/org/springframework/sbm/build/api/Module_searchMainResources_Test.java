@@ -25,6 +25,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -91,7 +92,7 @@ public class Module_searchMainResources_Test {
 
             context.getApplicationModules().list().get(0).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/main/resources/some-resource.txt");
+                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.get(0).getSourcePath())).isEqualTo("src/main/resources/some-resource.txt");
                 assertThat(projectResourceSet.get(0).print()).isEqualTo("the content");
                 wasCalled.set(true);
                 return null;
@@ -112,7 +113,7 @@ public class Module_searchMainResources_Test {
 
             context.getApplicationModules().list().get(0).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/main/resources/some-resource.txt");
+                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.get(0).getSourcePath())).isEqualTo("src/main/resources/some-resource.txt");
                 assertThat(projectResourceSet.get(0).print()).isEqualTo("the content");
                 wasCalled.set(true);
                 return null;
@@ -267,7 +268,7 @@ public class Module_searchMainResources_Test {
 
             context.getApplicationModules().getModule(Path.of("application")).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/main/resources/some-resource.txt");
+                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.list().get(0).getSourcePath())).isEqualTo("application/src/main/resources/some-resource.txt");
                 assertThat(projectResourceSet.list().get(0).print()).isEqualTo("the content");
                 wasCalled.set(true);
                 return null;
@@ -288,7 +289,7 @@ public class Module_searchMainResources_Test {
 
             context.getApplicationModules().getModule(Path.of("application")).searchMainResources(((ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>>) projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/main/resources/some-resource.txt");
+                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.list().get(0).getSourcePath())).isEqualTo("application/src/main/resources/some-resource.txt");
                 assertThat(projectResourceSet.list().get(0).print()).isEqualTo("the content");
                 wasCalled.set(true);
                 return null;

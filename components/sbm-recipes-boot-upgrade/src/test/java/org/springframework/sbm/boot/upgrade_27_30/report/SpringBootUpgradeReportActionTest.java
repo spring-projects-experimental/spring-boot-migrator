@@ -160,7 +160,7 @@ class SpringBootUpgradeReportActionTest {
                     <parent>
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-starter-parent</artifactId>
-                        <version>2.7.3</version>
+                        <version>2.7.2</version>
                         <relativePath/> <!-- lookup parent from repository -->
                     </parent>
                     <groupId>com.example</groupId>

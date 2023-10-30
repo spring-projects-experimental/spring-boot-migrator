@@ -20,15 +20,16 @@ import org.springframework.core.io.Resource;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 @RequiredArgsConstructor
 public class TestDummyResource implements Resource {
+
     private final Path path;
     private final String content;
 
@@ -49,15 +50,11 @@ public class TestDummyResource implements Resource {
 
     @Override
     public File getFile() {
-        return new File(path.toString());
+        return path.toFile();
     }
 
     public boolean isFile() {
-        return getFile(this).isFile();
-    }
-
-    private File getFile(TestDummyResource testDummyResource) {
-        return getFile();
+        return Files.isRegularFile(path);
     }
 
     @Override

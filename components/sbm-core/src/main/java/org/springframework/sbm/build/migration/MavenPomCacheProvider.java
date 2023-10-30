@@ -15,36 +15,27 @@
  */
 package org.springframework.sbm.build.migration;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.cache.MavenPomCache;
 import org.openrewrite.maven.cache.RocksdbMavenPomCache;
 import org.springframework.sbm.engine.annotations.StatefulComponent;
 
-import javax.annotation.PostConstruct;
 import java.nio.file.Path;
+import java.util.Optional;
 
+@Getter
 @StatefulComponent
 public class MavenPomCacheProvider {
 
-	private MavenPomCache pomCache;
+	private final MavenPomCache pomCache;
 
-	@PostConstruct
-	void postConstruct() {
-		pomCache = rocksdb();
-	}
-
-	public MavenPomCache getPomCache() {
-		return pomCache == null ? inMemory() : pomCache;
-	}
-
-	private MavenPomCache inMemory() {
-		return new InMemoryMavenPomCache();
+	public MavenPomCacheProvider(Optional<MavenPomCache> mavenPomCacheProvider) {
+		this.pomCache = mavenPomCacheProvider.orElseGet(this::rocksdb);
 	}
 
 	@NotNull
 	private RocksdbMavenPomCache rocksdb() {
 		return new RocksdbMavenPomCache(Path.of(".").toAbsolutePath());
 	}
-
 }

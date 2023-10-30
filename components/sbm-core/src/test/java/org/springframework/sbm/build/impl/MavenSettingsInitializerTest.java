@@ -20,7 +20,6 @@ import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.tree.MavenRepository;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 
@@ -51,9 +50,7 @@ class MavenSettingsInitializerTest {
     }
 
     @Test
-    void mavenParserMustAdhereToSettingsXmlTest() throws URISyntaxException {
-
-
+    void mavenParserMustAdhereToSettingsXmlTest() {
         RewriteExecutionContext executionContext = new RewriteExecutionContext();
         MavenSettingsInitializer sut = new MavenSettingsInitializer();
         sut.initializeMavenSettings(executionContext);
@@ -71,20 +68,12 @@ class MavenSettingsInitializerTest {
         MavenRepository localRepository = mavenExecutionContextView.getLocalRepository();
         assertThat(localRepository.getSnapshots()).isNull();
 
-        String tmpDir = removeTrailingSlash(System.getProperty("java.io.tmpdir"));
-        String customLocalRepository = new URI("file://" + tmpDir).toString();
-        assertThat(removeTrailingSlash(localRepository.getUri())).isEqualTo(customLocalRepository);
+        String customLocalRepository = Path.of(System.getProperty("java.io.tmpdir")).toUri().toString();
+        assertThat(localRepository.getUri()).isEqualTo(customLocalRepository);
         assertThat(localRepository.getSnapshots()).isNull();
         assertThat(localRepository.isKnownToExist()).isTrue();
         assertThat(localRepository.getUsername()).isNull();
         assertThat(localRepository.getPassword()).isNull();
-    }
-
-    String removeTrailingSlash(String string) {
-        if(string.endsWith("/")){
-            return string.substring(0, string.length()-1);
-        }
-        return string;
     }
 
     @AfterEach

@@ -79,10 +79,10 @@ class MoveFilesActionTest {
         assertThat(newResource.print()).isEqualTo(resource.print());
     }
 
-    private void verifyPrecondition(ProjectResource resourceToMove1, Path absolutePath, String fileContent1) {
-        assertThat(resourceToMove1.print()).isEqualTo(fileContent1);
-        assertThat(resourceToMove1.isDeleted()).isFalse();
-        assertThat(resourceToMove1.getAbsolutePath()).isEqualTo(absolutePath);
+    private void verifyPrecondition(ProjectResource resourceToMove, Path absolutePath, String fileContent) {
+        assertThat(resourceToMove.print()).isEqualTo(fileContent);
+        assertThat(resourceToMove.isDeleted()).isFalse();
+        assertThat(resourceToMove.getAbsolutePath()).isEqualTo(absolutePath);
     }
 
 }

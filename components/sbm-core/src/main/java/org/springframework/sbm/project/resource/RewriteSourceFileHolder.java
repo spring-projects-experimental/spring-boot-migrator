@@ -74,7 +74,7 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
         if (absoluteProjectDir.resolve(newPath).toFile().isDirectory()) {
             newPath = newPath.resolve(this.getAbsolutePath().getFileName());
         }
-        sourceFile = (T) sourceFile.withSourcePath(newPath);
+        sourceFile = sourceFile.withSourcePath(newPath);
         this.markChanged();
     }
 
