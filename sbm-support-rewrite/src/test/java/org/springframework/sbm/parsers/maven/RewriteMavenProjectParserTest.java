@@ -194,11 +194,8 @@ class RewriteMavenProjectParserTest {
         parserProperties.setPomCacheEnabled(true); // org.openrewrite.maven.pomCache will be CompositeMavenPomCache
 
         // call SUT
-        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(
-                tempDir,
-                new InMemoryExecutionContext(t -> t.printStackTrace())
-        );
-
+        InMemoryExecutionContext executionContext1 = new InMemoryExecutionContext(t -> t.printStackTrace());
+        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(tempDir, executionContext1);
         verifyParsingResult(parsingResult);
 
         parsingResult = sut.parse(tempDir);
