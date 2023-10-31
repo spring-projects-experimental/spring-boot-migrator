@@ -55,20 +55,6 @@ import java.util.function.Consumer;
 @Import({ScanScope.class, ScopeConfiguration.class})
 public class RewriteParserConfiguration {
 
-//    @Autowired
-//    private ParserProperties parserProperties;
-
-//    @Bean
-//    @org.springframework.sbm.scopes.annotations.ScanScope
-//    public ParserProperties parserProperties() {
-//        return new ParserProperties();
-//    }
-
-//    @Bean
-//    ProvenanceMarkerFactory provenanceMarkerFactory(MavenMojoProjectParserFactory projectParserFactory) {
-//        return new ProvenanceMarkerFactory(projectParserFactory);
-//    }
-
     @Bean
     MavenPasswordDecrypter mavenPasswordDecrypter() {
         return new MavenPasswordDecrypter();
