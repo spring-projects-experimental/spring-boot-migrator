@@ -15,14 +15,14 @@
  */
 package org.springframework.sbm.parsers.maven;
 
+import com.google.common.collect.Streams;
 import org.intellij.lang.annotations.Language;
-import org.junit.jupiter.api.BeforeEach;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junitpioneer.jupiter.Issue;
-import org.mockito.Mockito;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
@@ -39,30 +39,19 @@ import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.cache.CompositeMavenPomCache;
-import org.openrewrite.maven.cache.InMemoryMavenPomCache;
 import org.openrewrite.maven.tree.MavenResolutionResult;
-import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.style.Autodetect;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.FileSystemResourceLoader;
-import org.springframework.core.io.Resource;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
 import org.springframework.sbm.parsers.*;
-import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
-import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
-import org.springframework.sbm.utils.ResourceUtil;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -73,6 +62,7 @@ import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
@@ -87,81 +77,15 @@ import static org.mockito.Mockito.mock;
  *
  * @author Fabian Krüger
  */
-@SpringBootTest(classes = SbmSupportRewriteConfiguration.class)
+//@SpringBootTest(classes = SbmSupportRewriteConfiguration.class)
+//@DirtiesContext
 class RewriteProjectParserParityTest {
 
     @Autowired
     private RewriteProjectParser sut;
 
-    private RewriteMavenProjectParser mavenProjectParser;
-
-    MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(
-            new MavenConfigFileParser()
-    );
-
-    private ParserProperties parserProperties = new ParserProperties();
-    private ConfigurableListableBeanFactory beanFactory;
-    private ScanScope scanScope;
-    private ExecutionContext executionContext;
-
-    @BeforeEach
-    void beforeEach() {
-        initComparingParser();
-
-//        ModuleParser moduleParser = new ModuleParser();
-//        ProvenanceMarkerFactory provenanceMarkerFactory = new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory());
-//        executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
-//        Path cachePath = Path.of(System.getProperty("user.home")).resolve(".m2/repository");
-//        MavenProjectAnalyzer mavenProjectAnalyzer = new MavenProjectAnalyzer(new RewriteMavenArtifactDownloader(new LocalMavenArtifactCache(cachePath), null, t -> {throw new RuntimeException(t);}));
-//        sut = new RewriteProjectParser(
-//                provenanceMarkerFactory,
-//                new BuildFileParser(),
-//                new SourceFileParser(new MavenModuleParser(parserProperties, moduleParser)),
-//                new StyleDetector(),
-//                parserProperties,
-//                parsingListener,
-//                eventPublisher,
-//                scanScope,
-//                beanFactory,
-//                new ProjectScanner(new DefaultResourceLoader(), parserProperties),
-//                executionContext,
-//                mavenProjectAnalyzer
-//        );
-//        try {
-//            AtomicReference<RewriteProjectParser> parserAtomicReference = new AtomicReference<>();
-//            final List<String> strings = Files.readLines(Path.of("./src/main/resources/META-INF/sbm-support-rewrite.properties").toAbsolutePath().normalize().toFile(), Charset.defaultCharset()).stream().filter(l -> !l.startsWith("#") && !l.isBlank()).toList();
-//            new ApplicationContextRunner().withUserConfiguration(SbmSupportRewriteConfiguration.class)
-//                    .withPropertyValues(strings.toArray(String[]::new))
-//                    .run(appCtx -> {
-////                    appCtx.start();
-//                        RewriteProjectParser rewriteProjectParser = appCtx.getBean(RewriteProjectParser.class);
-//                        parserAtomicReference.set(rewriteProjectParser);
-//                    });
-//
-//            sut = parserAtomicReference.get();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-    }
-
-    private void initComparingParser() {
-        MavenPlexusContainer plexusContainer = new MavenPlexusContainer();
-        beanFactory = mock(ConfigurableListableBeanFactory.class);
-        scanScope = mock(ScanScope.class);
-        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-        RewriteParsingEventListenerAdapter parsingListener = new RewriteParsingEventListenerAdapter(eventPublisher);
-        mavenProjectParser = new RewriteMavenProjectParser(
-                plexusContainer,
-                parsingListener,
-                new MavenExecutor(requestFactory, plexusContainer),
-                new MavenMojoProjectParserFactory(parserProperties),
-                scanScope,
-                beanFactory,
-                new InMemoryExecutionContext(t -> {
-                    throw new RuntimeException(t);
-                })
-        );
-    }
+    @Autowired
+    private ParserProperties parserProperties;
 
     @Test
     @DisplayName("Parsing Simplistic Maven Project ")
@@ -215,24 +139,37 @@ class RewriteProjectParserParityTest {
                 }
                 """;
 
-        // init GIT repo to trigger adding of GitProvenance marker
-        Git.init().setDirectory(tempDir.toFile()).call();
-        List<Resource> resources = List.of(
-                new DummyResource(tempDir.resolve("src/main/java/com/example/MyMain.java"), javaClass),
-                new DummyResource(tempDir.resolve("pom.xml"), pomXml)
-        );
-        ResourceUtil.write(tempDir, resources);
+        TestProjectHelper.createTestProject(tempDir)
+                .withResources(
+                    new DummyResource(tempDir.resolve("src/main/java/com/example/MyMain.java"), javaClass),
+                    new DummyResource(tempDir.resolve("pom.xml"), pomXml)
+                )
+                .initializeGitRepo() // trigger creation of GIT related marker
+                .writeToFilesystem();
 
-        parserProperties.setIgnoredPathPatterns(Set.of("**/testcode/**", "testcode/**", ".rewrite-cache/**", "**/target/**", "**/.git/**"));
-        parserProperties.setPomCacheEnabled(true); // org.openrewrite.maven.pomCache will be CompositeMavenPomCache
+        ParserProperties comparingParserProperties = new ParserProperties();
+        Set<String> ignoredPathPatterns = Set.of("**/testcode/**", "testcode/**", ".rewrite-cache/**", "**/target/**", "**/.git/**");
+        comparingParserProperties.setIgnoredPathPatterns(ignoredPathPatterns);
+        comparingParserProperties.setPomCacheEnabled(true);
 
         // call SUT
-        InMemoryExecutionContext executionContext1 = new InMemoryExecutionContext(t -> t.printStackTrace());
-        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(tempDir, executionContext1);
-        verifyParsingResult(parsingResult, ParserType.COMPARING);
+        new ApplicationContextRunner().withUserConfiguration(SbmSupportRewriteConfiguration.class)
+                .withBean("parser-org.springframework.sbm.parsers.ParserProperties", ParserProperties.class, () -> comparingParserProperties)
+                .run(appCtx -> {
+                    RewriteProjectParser sut = appCtx.getBean(RewriteProjectParser.class);
+                    RewriteProjectParsingResult parsingResult2 = sut.parse(tempDir);
+                    verifyParsingResult(parsingResult2, ParserType.SBM);
 
-        parsingResult = sut.parse(tempDir);
-        verifyParsingResult(parsingResult, ParserType.SBM);
+                    InMemoryExecutionContext executionContext1 = createExecutionContext();
+                    RewriteMavenProjectParser mavenProjectParser = new ComparingParserFactory().createComparingParser(comparingParserProperties);
+                    RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(tempDir, executionContext1);
+                    verifyParsingResult(parsingResult, ParserType.COMPARING);
+                });
+    }
+
+    @NotNull
+    private static InMemoryExecutionContext createExecutionContext() {
+        return new InMemoryExecutionContext(t -> t.printStackTrace());
     }
 
     private void verifyParsingResult(RewriteProjectParsingResult parsingResult, ParserType parserType) {
@@ -294,10 +231,23 @@ class RewriteProjectParserParityTest {
         );
 
         verifyExecutionContext(parsingResult, parserType);
-
-        Mockito.verify(scanScope).clear(beanFactory);
-
         // TODO: Add test that uses Maven settings and encrypted passwords
+    }
+
+    @Test
+    @DisplayName("Parse multi-module-1")
+    void parseMultiModule1() {
+        Path baseDir = getMavenProject("multi-module-1");
+        Set<String> ignoredPathPatterns = Streams.concat(parserProperties.getIgnoredPathPatterns().stream(), Stream.of("README.adoc")).collect(Collectors.toSet());
+        parserProperties.setIgnoredPathPatterns(ignoredPathPatterns);
+
+        ExecutionContext ctx = createExecutionContext();
+        RewriteMavenProjectParser mavenProjectParser = new ComparingParserFactory().createComparingParser();
+        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(baseDir, ctx);
+        verifyMavenParser(parsingResult);
+
+        parsingResult = sut.parse(baseDir);
+        verifyMavenParser(parsingResult);
     }
 
     @Test
@@ -306,6 +256,7 @@ class RewriteProjectParserParityTest {
     void shouldParseMavenConfigProject() {
         Path baseDir = Path.of("./testcode/maven-projects/maven-config").toAbsolutePath().normalize();
         parserProperties.setIgnoredPathPatterns(Set.of(".mvn"));
+        RewriteMavenProjectParser mavenProjectParser = new ComparingParserFactory().createComparingParser();
         RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(
                 baseDir,
                 new InMemoryExecutionContext(t -> fail(t.getMessage()))
@@ -313,56 +264,33 @@ class RewriteProjectParserParityTest {
         assertThat(parsingResult.sourceFiles()).hasSize(2);
     }
 
-    @Test
-    @DisplayName("Parse multi-module-1")
-    void parseMultiModule1_withIntegratedParser() {
-        ExecutionContext ctx = new InMemoryExecutionContext(t -> t.printStackTrace());
-        Path baseDir = getMavenProject("multi-module-1");
-        parserProperties.setIgnoredPathPatterns(Set.of("README.adoc"));
-        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(
-                baseDir,
-                ctx);
-        verifyMavenParser(parsingResult);
-    }
 
     @Test
-    void parseMultiModule1_WithCustomParser() {
-        Path baseDir = getMavenProject("multi-module-1");
-        ModuleParser moduleParser = new ModuleParser();
+    @DisplayName("parseCheckstyle")
+    @Issue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/875")
+    void parseCheckstyle() {
+        Path baseDir = getMavenProject("checkstyle");
+        RewriteMavenProjectParser mavenProjectParser = new ComparingParserFactory().createComparingParser();
+        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(baseDir);
+        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
+        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
 
-        RewriteProjectParser rpp = new RewriteProjectParser(
-                new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
-                new BuildFileParser(),
-                new SourceFileParser(new MavenModuleParser(parserProperties, moduleParser)),
-                new StyleDetector(),
-                parserProperties,
-                mock(ParsingEventListener.class),
-                mock(ApplicationEventPublisher.class),
-                scanScope,
-                beanFactory,
-                new ProjectScanner(new DefaultResourceLoader(), parserProperties),
-                new RewriteExecutionContext(),
-                new MavenProjectAnalyzer(mock(RewriteMavenArtifactDownloader.class))
-        );
-
-        Set<String> ignoredPatters = Set.of();
-        ProjectScanner projectScanner = new ProjectScanner(new FileSystemResourceLoader(), parserProperties);
-        List<Resource> resources = projectScanner.scan(baseDir);
-        RewriteProjectParsingResult parsingResult1 = rpp.parse(baseDir, resources);
-
-        verifyMavenParser(parsingResult1);
-        Mockito.verify(scanScope).clear(beanFactory);
+        parsingResult = sut.parse(baseDir);
+        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
+        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
     }
 
     @Test
     @DisplayName("Parse complex Maven reactor project")
     @Disabled("https://github.com/openrewrite/rewrite/issues/3409")
     void parseComplexMavenReactorProject() {
-        String target = "./testcode/maven-projects/cwa-server";
-        cloneProject("https://github.com/corona-warn-app/cwa-server.git", target, "v3.2.0");
-        Path projectRoot = Path.of(target).toAbsolutePath().normalize(); // SBM root
-        RewriteMavenProjectParser projectParser = mavenProjectParser;
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
+        Path projectRoot = Path.of("./testcode/maven-projects/cwa-server").toAbsolutePath().normalize();
+        TestProjectHelper.createTestProject(projectRoot)
+                .cloneGitProject("https://github.com/corona-warn-app/cwa-server.git")
+                .checkoutTag("v3.2.0")
+                .writeToFilesystem();
+
+        ExecutionContext executionContext = createExecutionContext();
         List<String> parsedFiles = new ArrayList<>();
         ParsingExecutionContextView.view(executionContext).setParsingListener(new ParsingEventListener() {
             @Override
@@ -376,8 +304,10 @@ class RewriteProjectParserParityTest {
             }
         });
 
+        ParserProperties parserProperties = new ParserProperties();
         parserProperties.setIgnoredPathPatterns(Set.of("**/testcode/**", ".rewrite/**", "internal/**"));
-        RewriteProjectParsingResult parsingResult = projectParser.parse(
+        RewriteMavenProjectParser mavenProjectParser = new ComparingParserFactory().createComparingParser(parserProperties);
+        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(
                 projectRoot,
                 executionContext
         );
@@ -387,22 +317,11 @@ class RewriteProjectParserParityTest {
                 .forEach(System.out::println);
     }
 
-    @Test
-    @DisplayName("parseCheckstyle")
-    @Issue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/875")
-    void parseCheckstyle() {
-        Path baseDir = getMavenProject("checkstyle");
-        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(baseDir);
-        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
-        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
-    }
-
     private static void verifyExecutionContext(RewriteProjectParsingResult parsingResult, ParserType parserType) {
         ExecutionContext resultingExecutionContext = parsingResult.executionContext();
         assertThat(resultingExecutionContext).isNotNull();
 
         Map<String, Object> messages = (Map<String, Object>) ReflectionTestUtils.getField(resultingExecutionContext, "messages");
-//        assertThat(messages).hasSize(10);
 
         // 1
         assertThat(
@@ -464,23 +383,13 @@ class RewriteProjectParserParityTest {
         );
 
         // 8
-        if(parserType == ParserType.SBM) {
-            assertThat(
-                    messages.get("org.openrewrite.maven.pomCache")
-            ).isInstanceOf(InMemoryMavenPomCache.class);
-            assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(InMemoryMavenPomCache.class);
-        } else {
-            assertThat(
-                    messages.get("org.openrewrite.maven.pomCache")
-            ).isInstanceOf(CompositeMavenPomCache.class);
-            assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
-        }
-//        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
+        assertThat(
+                messages.get("org.openrewrite.maven.pomCache")
+        ).isInstanceOf(CompositeMavenPomCache.class);
+        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
 
         // 9
-        // FIXME:   This fails sometimes when multiple tests are run together. The resolution time has been 0 and null
-        //          The test succeeds with a useful resolution time when the test runs in isolation.
-        //          The property is set by MavenArtifactDownloader (I think) and an unresolvable pom might ne the reason.
+        // This fails sometimes when multiple tests are run together. The resolution time has been 0 and null
         /*assertThat(
                 messages.get("org.openrewrite.maven.resolutionTime")
         ).isEqualTo(
@@ -498,25 +407,6 @@ class RewriteProjectParserParityTest {
         assertThat(MavenExecutionContextView.view(resultingExecutionContext).getRepositories()).isEmpty();
     }
 
-    private void cloneProject(String url, String target, String tag) {
-        File directory = Path.of(target).toFile();
-        if (directory.exists()) {
-            return;
-        }
-        try {
-            Git git = Git.cloneRepository()
-                    .setDirectory(directory)
-                    .setURI(url)
-                    .call();
-
-            git.checkout()
-                    .setName("refs/tags/" + tag)
-                    .call();
-
-        } catch (GitAPIException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private void verifyMavenParser(RewriteProjectParsingResult parsingResult) {
         verify(parsingResult.sourceFiles().get(0), Xml.Document.class, "pom.xml", document -> {
@@ -565,6 +455,7 @@ class RewriteProjectParserParityTest {
     private Path getMavenProject(String s) {
         return Path.of("./testcode/maven-projects/").resolve(s).toAbsolutePath().normalize();
     }
+
 
     private enum ParserType {
         SBM, COMPARING
