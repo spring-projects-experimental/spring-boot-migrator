@@ -21,7 +21,9 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
+import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -138,7 +140,10 @@ public class BuildFileParser {
     }
 
     private void initializeMavenSettings(ExecutionContext executionContext) {
-
+        // FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/880
+        String repo = "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository") + "/";
+        MavenSettings mavenSettings = new MavenSettings(repo, null, null, null, null);
+        MavenExecutionContextView.view(executionContext).setMavenSettings(mavenSettings);
     }
 
     public List<Resource> filterAndSortBuildFiles(List<Resource> resources) {

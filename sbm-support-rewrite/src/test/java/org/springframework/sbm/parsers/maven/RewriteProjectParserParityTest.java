@@ -27,6 +27,8 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
+import org.openrewrite.java.JavaParser;
+import org.openrewrite.java.internal.JavaTypeCache;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.marker.JavaVersion;
@@ -139,6 +141,37 @@ class RewriteProjectParserParityTest {
                 }
                 """;
 
+
+        List<Path> classpath = List.of(
+                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot-starter/3.1.1/spring-boot-starter-3.1.1.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot/3.1.1/spring-boot-3.1.1.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-context/6.0.10/spring-context-6.0.10.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-aop/6.0.10/spring-aop-6.0.10.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-beans/6.0.10/spring-beans-6.0.10.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-expression/6.0.10/spring-expression-6.0.10.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.1.1/spring-boot-autoconfigure-3.1.1.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.1.1/spring-boot-starter-logging-3.1.1.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/ch/qos/logback/logback-classic/1.4.8/logback-classic-1.4.8.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/ch/qos/logback/logback-core/1.4.8/logback-core-1.4.8.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/slf4j/slf4j-api/2.0.7/slf4j-api-2.0.7.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.20.0/log4j-to-slf4j-2.20.0.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/apache/logging/log4j/log4j-api/2.20.0/log4j-api-2.20.0.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/slf4j/jul-to-slf4j/2.0.7/jul-to-slf4j-2.0.7.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-core/6.0.10/spring-core-6.0.10.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-jcl/6.0.10/spring-jcl-6.0.10.jar"),
+                Path.of("/Users/fkrueger/.m2/repository/org/yaml/snakeyaml/1.33/snakeyaml-1.33.jar")
+        );
+        JavaTypeCache javaTypeCache = new JavaTypeCache();
+        SourceFile sourceFile = JavaParser.fromJavaVersion().classpath(classpath).typeCache(javaTypeCache)
+                .build()
+                .parse(javaClass)
+                .toList()
+                .get(0);
+
+        JavaSourceSet.build("main", classpath, javaTypeCache, true);
+
+
         TestProjectHelper.createTestProject(tempDir)
                 .withResources(
                     new DummyResource(tempDir.resolve("src/main/java/com/example/MyMain.java"), javaClass),
@@ -151,6 +184,13 @@ class RewriteProjectParserParityTest {
         Set<String> ignoredPathPatterns = Set.of("**/testcode/**", "testcode/**", ".rewrite-cache/**", "**/target/**", "**/.git/**");
         comparingParserProperties.setIgnoredPathPatterns(ignoredPathPatterns);
         comparingParserProperties.setPomCacheEnabled(true);
+
+        ParserParityTestHelper
+                .scanProjectDir(tempDir)
+                .withParserProperties(comparingParserProperties)
+                .parseSequentially()
+                .verifyParity();
+
 
         // call SUT
         new ApplicationContextRunner().withUserConfiguration(SbmSupportRewriteConfiguration.class)

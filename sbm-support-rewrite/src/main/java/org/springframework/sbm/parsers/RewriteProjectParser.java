@@ -121,10 +121,6 @@ public class RewriteProjectParser {
         List<Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(baseDir, parserContext.getBuildFileResources(), parserContext.getActiveProfiles(), executionContext, parserProperties.isSkipMavenParsing(), provenanceMarkers);
         parserContext.setParsedBuildFiles(parsedBuildFiles);
 
-        MavenSettings settings = buildSettings();
-        MavenExecutionContextView mavenExecutionContext = MavenExecutionContextView.view(executionContext);
-        mavenExecutionContext.setMavenSettings(settings);
-
         log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + parsedBuildFiles.size(), parsedBuildFiles.size()));
         List<SourceFile> otherSourceFiles = sourceFileParser.parseOtherSourceFiles(baseDir, parserContext, resources, provenanceMarkers, styles, executionContext);
 
@@ -138,12 +134,6 @@ public class RewriteProjectParser {
         eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
 
         return new RewriteProjectParsingResult(sourceFiles, executionContext);
-    }
-
-    private MavenSettings buildSettings() {
-        // FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/880
-        String repo = "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository") + "/";
-        return new MavenSettings(repo, null, null, null, null);
     }
 
     @NotNull
