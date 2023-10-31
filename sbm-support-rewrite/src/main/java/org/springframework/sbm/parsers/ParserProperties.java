@@ -47,7 +47,7 @@ public class ParserProperties {
     /**
      * Directory used by RocksdbMavenPomCache when pomCacheEnabled is true
      */
-    private String pomCacheDirectory;
+    private String pomCacheDirectory = Path.of(System.getProperty("user.home")).resolve(".rewrite-cache").toAbsolutePath().normalize().toString();
 
     /**
      * Comma-separated list of patterns used to create PathMatcher
