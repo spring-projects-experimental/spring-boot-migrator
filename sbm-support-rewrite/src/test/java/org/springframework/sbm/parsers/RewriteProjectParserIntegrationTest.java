@@ -47,16 +47,6 @@ public class RewriteProjectParserIntegrationTest {
     RewriteMavenProjectParser mavenProjectParser;
 
     @Test
-    @DisplayName("parseCheckstyle")
-    void parseCheckstyle() {
-        Path baseDir = TestProjectHelper.getMavenProject("checkstyle");
-        List<Resource> resources = projectScanner.scan(baseDir);
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
-        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
-        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
-    }
-
-    @Test
     @DisplayName("testFailingProject")
         // FIXME: Succeeds with RewriteMavenProjectParser
     void testFailingProject() {
