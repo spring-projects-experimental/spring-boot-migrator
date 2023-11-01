@@ -87,7 +87,6 @@ public class JavaParserTest {
 
         javaTypeCache.put("com.example.MyMain", sourceFile);
 
-        System.out.println(javaTypeCache.size());
         main = JavaSourceSet.build("main", classpath, javaTypeCache, true);
         List<JavaType.FullyQualified> mainCp = main.getClasspath();
         TypesInUse typesInUseBefore = compilationUnit.getTypesInUse();
@@ -96,9 +95,7 @@ public class JavaParserTest {
         assertThat(typesInUse).contains("org.springframework.boot.SpringApplication", "org.springframework.boot.SpringApplication", "com.example.MyMain");
         compilationUnit.getClasses().stream().map(c -> c.getType()).forEach(mainCp::add);
 
-
         main = main.withClasspath(mainCp);
-        System.out.println(main.getClasspath());
         assertThat(main.getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList()).contains("org.springframework.boot.SpringApplication");
         assertThat(main.getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList()).contains("com.example.MyMain");
     }
