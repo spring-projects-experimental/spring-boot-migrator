@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.test.util;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
@@ -25,6 +25,9 @@ import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.style.Style;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
+import org.springframework.sbm.parsers.ParserProperties;
+import org.springframework.sbm.parsers.RewriteProjectParser;
+import org.springframework.sbm.parsers.RewriteProjectParsingResult;
 import org.springframework.sbm.parsers.maven.ComparingParserFactory;
 import org.springframework.sbm.parsers.maven.RewriteMavenProjectParser;
 
