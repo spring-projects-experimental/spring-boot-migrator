@@ -24,6 +24,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
 import org.springframework.sbm.parsers.maven.RewriteMavenProjectParser;
 import org.springframework.sbm.parsers.maven.SbmTestConfiguration;
+import org.springframework.sbm.test.util.ParserParityTestHelper;
 import org.springframework.sbm.test.util.TestProjectHelper;
 
 import java.nio.file.Path;
@@ -76,12 +77,11 @@ public class RewriteProjectParserIntegrationTest {
     @DisplayName("parse4Modules")
     void parse4Modules() {
         Path baseDir = TestProjectHelper.getMavenProject("4-modules");
-        List<Resource> resources = projectScanner.scan(baseDir);
-
-        assertThat(resources).hasSize(4);
-
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
-        assertThat(parsingResult.sourceFiles()).hasSize(4);
+        ParserParityTestHelper.scanProjectDir(baseDir)
+                .verifyParity((comparingParsingResult, testedParsingResult) -> {
+                    assertThat(comparingParsingResult.sourceFiles()).hasSize(4);
+                    assertThat(testedParsingResult.sourceFiles()).hasSize(4);
+                });
     }
 
 }
