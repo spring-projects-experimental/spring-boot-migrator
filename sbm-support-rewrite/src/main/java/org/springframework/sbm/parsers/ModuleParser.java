@@ -174,6 +174,9 @@ public class ModuleParser {
         return new SourceSetParsingResult(sourceFiles, javaSourceSet.getClasspath());
     }
 
+    /**
+     * Add entries that don't exist in the classpath of {@code javaSourceSet} from {@code appendingClasspath}.
+     */
     @NotNull
     private static JavaSourceSet appendToClasspath(Set<JavaType.FullyQualified> appendingClasspath, JavaSourceSet javaSourceSet) {
         List<JavaType.FullyQualified> curCp = javaSourceSet.getClasspath();
