@@ -15,7 +15,6 @@
  */
 package org.springframework.sbm.parsers;
 
-import com.google.common.collect.Streams;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
@@ -47,14 +46,11 @@ import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.style.Autodetect;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
-import org.springframework.sbm.parsers.*;
 import org.springframework.sbm.parsers.maven.ComparingParserFactory;
 import org.springframework.sbm.parsers.maven.RewriteMavenProjectParser;
-import org.springframework.sbm.parsers.maven.TestProjectHelper;
+import org.springframework.sbm.test.util.TestProjectHelper;
 import org.springframework.sbm.test.util.DummyResource;
+import org.springframework.sbm.test.util.ParserParityTestHelper;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.charset.Charset;
@@ -67,7 +63,6 @@ import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
