@@ -38,10 +38,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -132,7 +129,7 @@ public class ModuleParser {
                 })
                 .toList();
 
-        List<JavaType.FullyQualified> localClassesCp = new ArrayList<>();
+        Set<JavaType.FullyQualified> localClassesCp = new HashSet<>();
         JavaSourceSet javaSourceSet = sourceSet("main", dependencies, typeCache);
         List<? extends SourceFile> cus = javaParserBuilder.build()
                 .parseInputs(inputs, baseDir, executionContext)
@@ -151,7 +148,7 @@ public class ModuleParser {
         // The actual parsing happens when the stream is terminated (toList),
         // therefore the toList() must be called before the parsed compilation units can be added to the classpath
         List<Marker> mainProjectProvenance = new ArrayList<>(provenanceMarkers);
-        javaSourceSet = createJavaSourceSetMarker(localClassesCp, javaSourceSet);
+        javaSourceSet = appendToClasspath(localClassesCp, javaSourceSet);
         mainProjectProvenance.add(javaSourceSet);
 
         List<Path> parsedJavaPaths = javaSourcesInTarget.stream().map(ResourceUtil::getPath).toList();
@@ -178,10 +175,14 @@ public class ModuleParser {
     }
 
     @NotNull
-    private static JavaSourceSet createJavaSourceSetMarker(List<JavaType.FullyQualified> localClassesCp, JavaSourceSet javaSourceSet) {
-        List<JavaType.FullyQualified> mainCp = javaSourceSet.getClasspath();
-        mainCp.addAll(localClassesCp);
-        javaSourceSet = javaSourceSet.withClasspath(mainCp);
+    private static JavaSourceSet appendToClasspath(Set<JavaType.FullyQualified> appendingClasspath, JavaSourceSet javaSourceSet) {
+        List<JavaType.FullyQualified> curCp = javaSourceSet.getClasspath();
+        appendingClasspath.forEach(f -> {
+            if(!curCp.contains(f)) {
+                curCp.add(f);
+            }
+        });
+        javaSourceSet = javaSourceSet.withClasspath(new ArrayList<>(curCp));
         return javaSourceSet;
     }
 
@@ -235,8 +236,8 @@ public class ModuleParser {
         List<Marker> markers = new ArrayList<>(provenanceMarkers);
 
         JavaSourceSet javaSourceSet = sourceSet("test", testDependencies, typeCache);
-        List<JavaType.FullyQualified> curClasspath = Stream.concat(classpath.stream(), localClassesCp.stream()).toList();
-        javaSourceSet = createJavaSourceSetMarker(curClasspath, javaSourceSet);
+        Set<JavaType.FullyQualified> curClasspath = Stream.concat(classpath.stream(), localClassesCp.stream()).collect(Collectors.toSet());
+        javaSourceSet = appendToClasspath(curClasspath, javaSourceSet);
         markers.add(javaSourceSet);
         Stream<SourceFile> parsedJava = cus.stream().map(addProvenance(baseDir, markers, null));
 

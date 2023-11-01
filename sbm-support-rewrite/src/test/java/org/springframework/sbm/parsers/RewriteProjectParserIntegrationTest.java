@@ -48,23 +48,28 @@ public class RewriteProjectParserIntegrationTest {
 
     @Test
     @DisplayName("testFailingProject")
-        // FIXME: Succeeds with RewriteMavenProjectParser
     void testFailingProject() {
         Path baseDir = Path.of("./testcode/maven-projects/failing");
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir);
-        assertThat(parsingResult.sourceFiles().get(1)).isInstanceOf(J.CompilationUnit.class);
-        J.CompilationUnit cu = (J.CompilationUnit) parsingResult.sourceFiles().get(1);
-        assertThat(cu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
+        ParserParityTestHelper.scanProjectDir(baseDir)
+                .verifyParity((comparingParsingResult, testedParsingResult) -> {
+                    assertThat(comparingParsingResult.sourceFiles().get(1)).isInstanceOf(J.CompilationUnit.class);
+                    J.CompilationUnit cu = (J.CompilationUnit) comparingParsingResult.sourceFiles().get(1);
+                    assertThat(cu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
+
+                    assertThat(testedParsingResult.sourceFiles().get(1)).isInstanceOf(J.CompilationUnit.class);
+                    J.CompilationUnit cu2 = (J.CompilationUnit) testedParsingResult.sourceFiles().get(1);
+                    assertThat(cu2.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
+                });
     }
 
     @Test
     @DisplayName("parseResources")
     void parseResources() {
         Path baseDir = TestProjectHelper.getMavenProject("resources");
-        List<Resource> resources = projectScanner.scan(baseDir);
-
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
-        assertThat(parsingResult.sourceFiles()).hasSize(5);
+        ParserParityTestHelper.scanProjectDir(baseDir)
+                .verifyParity((comparingParsingResult, testedParsingResult) -> {
+                    assertThat(comparingParsingResult.sourceFiles()).hasSize(5);
+                });
     }
 
     @Test

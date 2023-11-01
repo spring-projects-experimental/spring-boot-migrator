@@ -29,10 +29,7 @@ import org.springframework.sbm.parsers.maven.ComparingParserFactory;
 import org.springframework.sbm.parsers.maven.RewriteMavenProjectParser;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -195,6 +192,8 @@ public class ParserParityTestHelper {
                 // assert classpath equality
                 List<String> comparingClasspath = comparingMarkers.findFirst(JavaSourceSet.class).get().getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList();
                 List<String> testedClasspath = testedMarkers.findFirst(JavaSourceSet.class).get().getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList();
+
+                assertThat(comparingClasspath.size()).isEqualTo(testedClasspath.size());
 
                 assertThat(comparingClasspath)
                         .withFailMessage(() -> {
