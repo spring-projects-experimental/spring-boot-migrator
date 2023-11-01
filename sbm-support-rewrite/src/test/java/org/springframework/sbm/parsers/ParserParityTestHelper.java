@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 the original author or authors.
+ * Copyright 2021 - 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.parsers;
 
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.JavaType;
@@ -28,6 +29,8 @@ import org.springframework.sbm.parsers.maven.ComparingParserFactory;
 import org.springframework.sbm.parsers.maven.RewriteMavenProjectParser;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -46,6 +49,7 @@ public class ParserParityTestHelper {
     private final Path baseDir;
     private ParserProperties parserProperties = new ParserProperties();
     private boolean isParallelParse = true;
+    private ExecutionContext executionContext;
 
     public ParserParityTestHelper(Path baseDir) {
         this.baseDir = baseDir;
@@ -92,14 +96,14 @@ public class ParserParityTestHelper {
 
                 threadPool.submit(() -> {
                     System.out.println("Start parsing with RewriteProjectParser");
-                    RewriteProjectParsingResult tmpTestedParserResult = parseWithRewriteProjectParser(parserProperties);
+                    RewriteProjectParsingResult tmpTestedParserResult = parseWithRewriteProjectParser(parserProperties, executionContext);
                     testedParsingResultRef.set(tmpTestedParserResult);
                     latch.countDown();
                 });
 
                 threadPool.submit(() -> {
                     System.out.println("Start parsing with RewriteMavenProjectParser");
-                    RewriteProjectParsingResult tmpComparingParserResult = parseWithComparingParser(parserProperties);
+                    RewriteProjectParsingResult tmpComparingParserResult = parseWithComparingParser(parserProperties, executionContext);
                     comparingParsingResultRef.set(tmpComparingParserResult);
                     latch.countDown();
                 });
@@ -109,22 +113,21 @@ public class ParserParityTestHelper {
                 comparingParserResult = comparingParsingResultRef.get();
                 testedParserResult = testedParsingResultRef.get();
             } else {
-                testedParserResult = parseWithRewriteProjectParser(parserProperties);
-                comparingParserResult = parseWithComparingParser(parserProperties);
+                testedParserResult = parseWithRewriteProjectParser(parserProperties, executionContext);
+                comparingParserResult = parseWithComparingParser(parserProperties, executionContext);
             }
 
 
 
             // Number of parsed sources should always be the same
             assertThat(comparingParserResult.sourceFiles().size())
-                    .as("ComparingParserResult had %d sourceFiles whereas TestedParserResult had %d sourceFiles.")
+                    .as(renderErrorMessage(comparingParserResult, testedParserResult))
                     .isEqualTo(testedParserResult.sourceFiles().size());
 
             // The paths of sources should be the same
             List<String> comparingResultPaths = comparingParserResult.sourceFiles().stream().map(sf -> baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize().toString()).toList();
             List<String> testedResultPaths = testedParserResult.sourceFiles().stream().map(sf -> baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize().toString()).toList();
-            assertThat(comparingResultPaths)
-                    .isEqualTo(testedResultPaths);
+            assertThat(testedResultPaths).containsExactlyInAnyOrder(comparingResultPaths.toArray(String[]::new));
 
             // The Markers of all resources should be the same
             verifyMarkersAreTheSame(comparingParserResult, testedParserResult);
@@ -135,9 +138,29 @@ public class ParserParityTestHelper {
         }
     }
 
+    private static String renderErrorMessage(RewriteProjectParsingResult comparingParserResult, RewriteProjectParsingResult testedParserResult) {
+        List<SourceFile> collect = new ArrayList<>();
+        if(comparingParserResult.sourceFiles().size() > testedParserResult.sourceFiles().size()) {
+            collect = comparingParserResult.sourceFiles().stream()
+                    .filter(element -> !testedParserResult.sourceFiles().contains(element))
+                    .collect(Collectors.toList());
+        } else {
+            collect = testedParserResult.sourceFiles().stream()
+                    .filter(element -> !comparingParserResult.sourceFiles().contains(element))
+                    .collect(Collectors.toList());
+        }
+
+        return "ComparingParserResult had %d sourceFiles whereas TestedParserResult had %d sourceFiles. Files were %s".formatted(comparingParserResult.sourceFiles().size(), testedParserResult.sourceFiles().size(), collect);
+    }
+
     private void verifyMarkersAreTheSame(RewriteProjectParsingResult comparingParserResult, RewriteProjectParsingResult testedParserResult) {
         List<SourceFile> comparingSourceFiles = comparingParserResult.sourceFiles();
         List<SourceFile> testedSourceFiles = testedParserResult.sourceFiles();
+
+        // bring to same order
+        comparingSourceFiles.sort(Comparator.comparing(SourceFile::getSourcePath));
+        testedSourceFiles.sort(Comparator.comparing(SourceFile::getSourcePath));
+
         for(SourceFile curComparingSourceFile : comparingSourceFiles) {
             int index = comparingSourceFiles.indexOf(curComparingSourceFile);
             SourceFile curTestedSourceFile = testedSourceFiles.get(index);
@@ -150,6 +173,7 @@ public class ParserParityTestHelper {
             assertThat(comparingMarkersList)
                     .usingRecursiveComparison()
                     .withStrictTypeChecking()
+                    .ignoringCollectionOrder()
                     .ignoringFields(
                             // classpath compared further down
                             "classpath",
@@ -198,12 +222,16 @@ public class ParserParityTestHelper {
         }
     }
 
-    private RewriteProjectParsingResult parseWithComparingParser(ParserProperties parserProperties) {
+    private RewriteProjectParsingResult parseWithComparingParser(ParserProperties parserProperties, ExecutionContext executionContext) {
         RewriteMavenProjectParser comparingParser = new ComparingParserFactory().createComparingParser(parserProperties);
-        return comparingParser.parse(baseDir);
+        if(executionContext != null) {
+            return comparingParser.parse(baseDir, executionContext);
+        } else {
+            return comparingParser.parse(baseDir);
+        }
     }
 
-    private RewriteProjectParsingResult parseWithRewriteProjectParser(ParserProperties parserProperties) {
+    private RewriteProjectParsingResult parseWithRewriteProjectParser(ParserProperties parserProperties, ExecutionContext executionContext) {
         AtomicReference<RewriteProjectParsingResult> atomicRef = new AtomicReference<>();
         new ApplicationContextRunner().withUserConfiguration(SbmSupportRewriteConfiguration.class)
                 .withBean("parser-org.springframework.sbm.parsers.ParserProperties", ParserProperties.class, () -> parserProperties)
@@ -220,6 +248,11 @@ public class ParserParityTestHelper {
 //                    verifyParsingResult(parsingResult, RewriteProjectParserParityTest.ParserType.COMPARING);
                 });
         return atomicRef.get();
+    }
+
+    public ParserParityTestHelper withExecutionContextForComparingParser(ExecutionContext executionContext) {
+        this.executionContext = executionContext;
+        return this;
     }
 
     public interface ParserResultParityChecker extends BiConsumer<RewriteProjectParsingResult, RewriteProjectParsingResult> {

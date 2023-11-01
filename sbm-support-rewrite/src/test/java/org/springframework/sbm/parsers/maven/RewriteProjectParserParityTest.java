@@ -79,15 +79,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Fabian Krüger
  */
-//@SpringBootTest(classes = SbmSupportRewriteConfiguration.class)
-//@DirtiesContext
 class RewriteProjectParserParityTest {
-
-    @Autowired
-    private RewriteProjectParser sut;
-
-    @Autowired
-    private ParserProperties parserProperties;
 
     @Test
     @DisplayName("Parsing Simplistic Maven Project ")
@@ -278,16 +270,9 @@ class RewriteProjectParserParityTest {
     @DisplayName("Parse multi-module-1")
     void parseMultiModule1() {
         Path baseDir = getMavenProject("multi-module-1");
-        Set<String> ignoredPathPatterns = Streams.concat(parserProperties.getIgnoredPathPatterns().stream(), Stream.of("README.adoc")).collect(Collectors.toSet());
-        parserProperties.setIgnoredPathPatterns(ignoredPathPatterns);
 
-        ExecutionContext ctx = createExecutionContext();
-        RewriteMavenProjectParser mavenProjectParser = new ComparingParserFactory().createComparingParser();
-        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(baseDir, ctx);
-        verifyMavenParser(parsingResult);
-
-        parsingResult = sut.parse(baseDir);
-        verifyMavenParser(parsingResult);
+        ParserParityTestHelper.scanProjectDir(baseDir)
+                .verifyParity();
     }
 
     @Test
@@ -295,6 +280,7 @@ class RewriteProjectParserParityTest {
     @Disabled("https://github.com/openrewrite/rewrite/issues/3409")
     void shouldParseMavenConfigProject() {
         Path baseDir = Path.of("./testcode/maven-projects/maven-config").toAbsolutePath().normalize();
+        ParserProperties parserProperties = new ParserProperties();
         parserProperties.setIgnoredPathPatterns(Set.of(".mvn"));
         RewriteMavenProjectParser mavenProjectParser = new ComparingParserFactory().createComparingParser();
         RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(
@@ -310,14 +296,13 @@ class RewriteProjectParserParityTest {
     @Issue("https://github.com/spring-projects-experimental/spring-boot-migrator/issues/875")
     void parseCheckstyle() {
         Path baseDir = getMavenProject("checkstyle");
-        RewriteMavenProjectParser mavenProjectParser = new ComparingParserFactory().createComparingParser();
-        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(baseDir);
-        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
-        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
-
-        parsingResult = sut.parse(baseDir);
-        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
-        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
+        ParserParityTestHelper.scanProjectDir(baseDir)
+                .verifyParity((comparingParsingResult, testedParsingResult) -> {
+                    assertThat(comparingParsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
+                    assertThat(comparingParsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
+                    assertThat(testedParsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
+                    assertThat(testedParsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
+                });
     }
 
     @Test
@@ -326,12 +311,16 @@ class RewriteProjectParserParityTest {
     void parseComplexMavenReactorProject() {
         Path projectRoot = Path.of("./testcode/maven-projects/cwa-server").toAbsolutePath().normalize();
         TestProjectHelper.createTestProject(projectRoot)
+                .deleteDirIfExists()
                 .cloneGitProject("https://github.com/corona-warn-app/cwa-server.git")
                 .checkoutTag("v3.2.0")
                 .writeToFilesystem();
 
-        ExecutionContext executionContext = createExecutionContext();
+        ParserProperties parserProperties = new ParserProperties();
+        parserProperties.setIgnoredPathPatterns(Set.of(".rewrite/**", "internal/**"));
+
         List<String> parsedFiles = new ArrayList<>();
+        ExecutionContext executionContext = createExecutionContext();
         ParsingExecutionContextView.view(executionContext).setParsingListener(new ParsingEventListener() {
             @Override
             public void parsed(Parser.Input input, SourceFile sourceFile) {
@@ -344,17 +333,11 @@ class RewriteProjectParserParityTest {
             }
         });
 
-        ParserProperties parserProperties = new ParserProperties();
-        parserProperties.setIgnoredPathPatterns(Set.of("**/testcode/**", ".rewrite/**", "internal/**"));
-        RewriteMavenProjectParser mavenProjectParser = new ComparingParserFactory().createComparingParser(parserProperties);
-        RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(
-                projectRoot,
-                executionContext
-        );
-
-        parsingResult.sourceFiles().stream()
-                .map(SourceFile::getSourcePath)
-                .forEach(System.out::println);
+        ParserParityTestHelper.scanProjectDir(projectRoot)
+                .parseSequentially()
+                .withExecutionContextForComparingParser(executionContext)
+                .withParserProperties(parserProperties)
+                .verifyParity();
     }
 
     private static void verifyExecutionContext(RewriteProjectParsingResult parsingResult, ParserType parserType) {

@@ -15,12 +15,15 @@
  */
 package org.springframework.sbm.parsers.maven;
 
+import org.apache.commons.io.FileUtils;
 import org.openrewrite.shaded.jgit.api.Git;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +38,7 @@ public class TestProjectHelper {
     private boolean initializeGitRepo;
     private String gitUrl;
     private String gitTag;
+    private boolean deleteDirIfExists = false;
 
     public TestProjectHelper(Path targetDir) {
         this.targetDir = targetDir;
@@ -68,7 +72,20 @@ public class TestProjectHelper {
         return this;
     }
 
+    public TestProjectHelper deleteDirIfExists() {
+        this.deleteDirIfExists = true;
+        return this;
+    }
+
     public void writeToFilesystem() {
+        if(deleteDirIfExists) {
+            try {
+                FileUtils.deleteDirectory(targetDir.toFile());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         if (initializeGitRepo) {
             try {
                 Git.init().setDirectory(targetDir.toFile()).call();
