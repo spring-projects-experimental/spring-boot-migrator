@@ -24,6 +24,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
 import org.springframework.sbm.parsers.maven.RewriteMavenProjectParser;
 import org.springframework.sbm.parsers.maven.SbmTestConfiguration;
+import org.springframework.sbm.test.util.ParserParityTestHelper;
 import org.springframework.sbm.test.util.TestProjectHelper;
 
 import java.nio.file.Path;
@@ -47,46 +48,40 @@ public class RewriteProjectParserIntegrationTest {
     RewriteMavenProjectParser mavenProjectParser;
 
     @Test
-    @DisplayName("parseCheckstyle")
-    void parseCheckstyle() {
-        Path baseDir = TestProjectHelper.getMavenProject("checkstyle");
-        List<Resource> resources = projectScanner.scan(baseDir);
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
-        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
-        assertThat(parsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
-    }
-
-    @Test
     @DisplayName("testFailingProject")
-        // FIXME: Succeeds with RewriteMavenProjectParser
     void testFailingProject() {
         Path baseDir = Path.of("./testcode/maven-projects/failing");
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir);
-        assertThat(parsingResult.sourceFiles().get(1)).isInstanceOf(J.CompilationUnit.class);
-        J.CompilationUnit cu = (J.CompilationUnit) parsingResult.sourceFiles().get(1);
-        assertThat(cu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
+        ParserParityTestHelper.scanProjectDir(baseDir)
+                .verifyParity((comparingParsingResult, testedParsingResult) -> {
+                    assertThat(comparingParsingResult.sourceFiles().get(1)).isInstanceOf(J.CompilationUnit.class);
+                    J.CompilationUnit cu = (J.CompilationUnit) comparingParsingResult.sourceFiles().get(1);
+                    assertThat(cu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
+
+                    assertThat(testedParsingResult.sourceFiles().get(1)).isInstanceOf(J.CompilationUnit.class);
+                    J.CompilationUnit cu2 = (J.CompilationUnit) testedParsingResult.sourceFiles().get(1);
+                    assertThat(cu2.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()).anyMatch(t -> t.equals("javax.validation.constraints.Min"))).isTrue();
+                });
     }
 
     @Test
     @DisplayName("parseResources")
     void parseResources() {
         Path baseDir = TestProjectHelper.getMavenProject("resources");
-        List<Resource> resources = projectScanner.scan(baseDir);
-
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
-        assertThat(parsingResult.sourceFiles()).hasSize(5);
+        ParserParityTestHelper.scanProjectDir(baseDir)
+                .verifyParity((comparingParsingResult, testedParsingResult) -> {
+                    assertThat(comparingParsingResult.sourceFiles()).hasSize(5);
+                });
     }
 
     @Test
     @DisplayName("parse4Modules")
     void parse4Modules() {
         Path baseDir = TestProjectHelper.getMavenProject("4-modules");
-        List<Resource> resources = projectScanner.scan(baseDir);
-
-        assertThat(resources).hasSize(4);
-
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
-        assertThat(parsingResult.sourceFiles()).hasSize(4);
+        ParserParityTestHelper.scanProjectDir(baseDir)
+                .verifyParity((comparingParsingResult, testedParsingResult) -> {
+                    assertThat(comparingParsingResult.sourceFiles()).hasSize(4);
+                    assertThat(testedParsingResult.sourceFiles()).hasSize(4);
+                });
     }
 
 }

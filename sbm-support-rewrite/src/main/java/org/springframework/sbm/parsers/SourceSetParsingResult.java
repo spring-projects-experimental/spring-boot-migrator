@@ -13,34 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm;
+package org.springframework.sbm.parsers;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.openrewrite.SourceFile;
+import org.openrewrite.java.tree.JavaType;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 /**
  * @author Fabian Krüger
  */
-public class SetOrderTest {
-
-    @Test
-    @DisplayName("SetShouldKeppOrder")
-    void setShouldKeepOrder() {
-        Set<String> orderedSet = new LinkedHashSet<>();
-        orderedSet.add("A");
-        orderedSet.add("B");
-        orderedSet.add("C");
-
-        addElement(orderedSet);
-        orderedSet.stream().forEach(System.out::println);
-    }
-
-    private Set addElement(Set<String> orderedSet) {
-        orderedSet.add("D");
-        return orderedSet;
-    }
-
+public record SourceSetParsingResult(List<SourceFile> sourceFiles, List<JavaType.FullyQualified> classpath) {
 }

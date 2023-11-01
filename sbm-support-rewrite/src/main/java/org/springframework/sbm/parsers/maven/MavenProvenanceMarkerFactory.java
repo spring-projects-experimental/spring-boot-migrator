@@ -100,7 +100,15 @@ public class MavenProvenanceMarkerFactory {
         }
 
         BuildEnvironment buildEnvironment = BuildEnvironment.build(System::getenv);
-        return (List) Stream.of(buildEnvironment, this.gitProvenance(baseDir, buildEnvironment), OperatingSystemProvenance.current(), buildTool, new JavaVersion(Tree.randomId(), javaRuntimeVersion, javaVendor, sourceCompatibility, targetCompatibility), new JavaProject(Tree.randomId(), mavenProject.getName(), new JavaProject.Publication(mavenProject.getGroupId(), mavenProject.getArtifactId(), mavenProject.getVersion()))).filter(Objects::nonNull).collect(Collectors.toList());
+        return (List) Stream.of(
+                buildEnvironment,
+                this.gitProvenance(baseDir, buildEnvironment),
+                OperatingSystemProvenance.current(),
+                buildTool,
+                new JavaVersion(Tree.randomId(), javaRuntimeVersion, javaVendor, sourceCompatibility, targetCompatibility),
+                new JavaProject(Tree.randomId(), mavenProject.getName(), new JavaProject.Publication(mavenProject.getGroupId(), mavenProject.getArtifactId(), mavenProject.getVersion())))
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     private @Nullable GitProvenance gitProvenance(Path baseDir, @Nullable BuildEnvironment buildEnvironment) {

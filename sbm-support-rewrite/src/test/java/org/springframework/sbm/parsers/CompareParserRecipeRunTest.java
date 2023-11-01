@@ -33,6 +33,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
 import org.springframework.sbm.parsers.maven.RewriteMavenProjectParser;
 import org.springframework.sbm.parsers.maven.SbmTestConfiguration;
+import org.springframework.sbm.test.util.ParallelParsingResult;
+import org.springframework.sbm.test.util.ParserExecutionHelper;
 import org.springframework.sbm.test.util.TestProjectHelper;
 
 import java.nio.file.Path;
@@ -60,8 +62,9 @@ public class CompareParserRecipeRunTest {
     @DisplayName("Running a recipe with RewriteMavenParser should yield the same result as with RewriteProjectParser")
     void runningARecipeWithRewriteMavenParserYieldsTheSameResultAsWithRewriteProjectParser() {
         Path baseDir = TestProjectHelper.getMavenProject("parser-recipe-run");
-        RewriteProjectParsingResult sutParsingResult = sut.parse(baseDir);
-        RewriteProjectParsingResult compParsingResult = comparingParser.parse(baseDir);
+        ParallelParsingResult parallelParsingResult = new ParserExecutionHelper().parseParallel(baseDir);
+        RewriteProjectParsingResult sutParsingResult = parallelParsingResult.testedParsingResult();
+        RewriteProjectParsingResult compParsingResult = parallelParsingResult.comparingParsingResult();
 
         AtomicInteger counter = new AtomicInteger(0);
 
