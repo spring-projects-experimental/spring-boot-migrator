@@ -39,25 +39,26 @@ public class JavaParserTest {
     @Disabled("Examination test")
     void shouldHaveTypeInUse() {
 
+        String localM2Repo = Path.of(System.getProperty("user.home")).resolve(".m2/repository").toString();
         List<Path> classpath = List.of(
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot-starter/3.1.1/spring-boot-starter-3.1.1.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot/3.1.1/spring-boot-3.1.1.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-context/6.0.10/spring-context-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-aop/6.0.10/spring-aop-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-beans/6.0.10/spring-beans-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-expression/6.0.10/spring-expression-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.1.1/spring-boot-autoconfigure-3.1.1.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.1.1/spring-boot-starter-logging-3.1.1.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/ch/qos/logback/logback-classic/1.4.8/logback-classic-1.4.8.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/ch/qos/logback/logback-core/1.4.8/logback-core-1.4.8.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/slf4j/slf4j-api/2.0.7/slf4j-api-2.0.7.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.20.0/log4j-to-slf4j-2.20.0.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/apache/logging/log4j/log4j-api/2.20.0/log4j-api-2.20.0.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/slf4j/jul-to-slf4j/2.0.7/jul-to-slf4j-2.0.7.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-core/6.0.10/spring-core-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-jcl/6.0.10/spring-jcl-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/yaml/snakeyaml/1.33/snakeyaml-1.33.jar")
+                Path.of(localM2Repo + "/org/springframework/boot/spring-boot-starter/3.1.1/spring-boot-starter-3.1.1.jar"),
+                Path.of(localM2Repo + "/org/springframework/boot/spring-boot/3.1.1/spring-boot-3.1.1.jar"),
+                Path.of(localM2Repo + "/org/springframework/spring-context/6.0.10/spring-context-6.0.10.jar"),
+                Path.of(localM2Repo + "/org/springframework/spring-aop/6.0.10/spring-aop-6.0.10.jar"),
+                Path.of(localM2Repo + "/org/springframework/spring-beans/6.0.10/spring-beans-6.0.10.jar"),
+                Path.of(localM2Repo + "/org/springframework/spring-expression/6.0.10/spring-expression-6.0.10.jar"),
+                Path.of(localM2Repo + "/org/springframework/boot/spring-boot-autoconfigure/3.1.1/spring-boot-autoconfigure-3.1.1.jar"),
+                Path.of(localM2Repo + "/org/springframework/boot/spring-boot-starter-logging/3.1.1/spring-boot-starter-logging-3.1.1.jar"),
+                Path.of(localM2Repo + "/ch/qos/logback/logback-classic/1.4.8/logback-classic-1.4.8.jar"),
+                Path.of(localM2Repo + "/ch/qos/logback/logback-core/1.4.8/logback-core-1.4.8.jar"),
+                Path.of(localM2Repo + "/org/slf4j/slf4j-api/2.0.7/slf4j-api-2.0.7.jar"),
+                Path.of(localM2Repo + "/org/apache/logging/log4j/log4j-to-slf4j/2.20.0/log4j-to-slf4j-2.20.0.jar"),
+                Path.of(localM2Repo + "/org/apache/logging/log4j/log4j-api/2.20.0/log4j-api-2.20.0.jar"),
+                Path.of(localM2Repo + "/org/slf4j/jul-to-slf4j/2.0.7/jul-to-slf4j-2.0.7.jar"),
+                Path.of(localM2Repo + "/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar"),
+                Path.of(localM2Repo + "/org/springframework/spring-core/6.0.10/spring-core-6.0.10.jar"),
+                Path.of(localM2Repo + "/org/springframework/spring-jcl/6.0.10/spring-jcl-6.0.10.jar"),
+                Path.of(localM2Repo + "/org/yaml/snakeyaml/1.33/snakeyaml-1.33.jar")
         );
         JavaTypeCache javaTypeCache = new JavaTypeCache();
         SourceFile sourceFile = JavaParser.fromJavaVersion().classpath(classpath).typeCache(javaTypeCache)
@@ -82,7 +83,7 @@ public class JavaParserTest {
         assertThat(typesInUse).contains("org.springframework.boot.SpringApplication", "org.springframework.boot.SpringApplication", "com.example.MyMain");
         JavaSourceSet main = JavaSourceSet.build("main", classpath, javaTypeCache, true);
         List<String> typesOnClasspath = main.getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList();
-        assertThat(typesOnClasspath).doesNotContain("com.example.MyMain");
+        assertThat(typesOnClasspath).doesNotContain("com.example.MyMain"); // By design
 
         javaTypeCache.put("com.example.MyMain", sourceFile);
 
