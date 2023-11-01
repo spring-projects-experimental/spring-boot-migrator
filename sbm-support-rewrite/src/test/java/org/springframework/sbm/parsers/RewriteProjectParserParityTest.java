@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers.maven;
+package org.springframework.sbm.parsers;
 
 import com.google.common.collect.Streams;
 import org.intellij.lang.annotations.Language;
@@ -51,6 +51,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
 import org.springframework.sbm.parsers.*;
+import org.springframework.sbm.parsers.maven.ComparingParserFactory;
+import org.springframework.sbm.parsers.maven.RewriteMavenProjectParser;
+import org.springframework.sbm.parsers.maven.TestProjectHelper;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -182,21 +185,6 @@ class RewriteProjectParserParityTest {
                 .withParserProperties(comparingParserProperties)
                 .parseSequentially()
                 .verifyParity();
-
-
-        // call SUT
-        new ApplicationContextRunner().withUserConfiguration(SbmSupportRewriteConfiguration.class)
-                .withBean("parser-org.springframework.sbm.parsers.ParserProperties", ParserProperties.class, () -> comparingParserProperties)
-                .run(appCtx -> {
-                    RewriteProjectParser sut = appCtx.getBean(RewriteProjectParser.class);
-                    RewriteProjectParsingResult parsingResult2 = sut.parse(tempDir);
-                    verifyParsingResult(parsingResult2, ParserType.SBM);
-
-                    InMemoryExecutionContext executionContext1 = createExecutionContext();
-                    RewriteMavenProjectParser mavenProjectParser = new ComparingParserFactory().createComparingParser(comparingParserProperties);
-                    RewriteProjectParsingResult parsingResult = mavenProjectParser.parse(tempDir, executionContext1);
-                    verifyParsingResult(parsingResult, ParserType.COMPARING);
-                });
     }
 
     @NotNull
