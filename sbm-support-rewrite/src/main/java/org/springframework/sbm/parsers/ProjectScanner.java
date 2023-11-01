@@ -85,6 +85,11 @@ public class ProjectScanner {
         List<Resource> resultingResources = Stream.of(resources)
                 .filter(r -> isAccepted(baseDir, r, pathMatchers))
                 .toList();
+
+        if(resultingResources.isEmpty()) {
+            throw new IllegalArgumentException("No resources were scanned. Check directory and ignore patterns.");
+        }
+
         return resultingResources;
     }
 
