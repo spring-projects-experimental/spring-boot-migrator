@@ -15,21 +15,8 @@
  */
 package org.springframework.sbm.parsers;
 
-import org.intellij.lang.annotations.Language;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.junitpioneer.jupiter.Issue;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.Parser;
-import org.openrewrite.SourceFile;
-import org.openrewrite.tree.ParsingEventListener;
-import org.openrewrite.tree.ParsingExecutionContextView;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.io.Resource;
-import org.springframework.sbm.test.util.DummyResource;
-import org.springframework.sbm.utils.ResourceUtil;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.nio.file.Path;
 import java.time.Instant;
@@ -40,8 +27,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.Parser.Input;
+import org.openrewrite.SourceFile;
+import org.openrewrite.tree.ParsingEventListener;
+import org.openrewrite.tree.ParsingExecutionContextView;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.Resource;
+import org.springframework.sbm.test.util.DummyResource;
+import org.springframework.sbm.utils.ResourceUtil;
 
 /**
  * @author Fabian Krüger
@@ -107,13 +106,18 @@ class RewriteProjectParserTest {
         );
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         List<String> parsedFiles = new ArrayList<>();
-        ParsingExecutionContextView.view(executionContext).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                    .withLocale(Locale.US)
-                    .withZone(ZoneId.systemDefault());
-            String format = dateTimeFormatter.format(Instant.now());
-            System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
-            parsedFiles.add(sourceFile.getSourcePath().toString());
+        ParsingExecutionContextView.view(executionContext).setParsingListener(new ParsingEventListener() {
+
+			@Override
+			public void parsed(Input input, SourceFile sourceFile) {
+	            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+	                    .withLocale(Locale.US)
+	                    .withZone(ZoneId.systemDefault());
+	            String format = dateTimeFormatter.format(Instant.now());
+	            System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
+	            parsedFiles.add(sourceFile.getSourcePath().toString());
+			}
+        	
         });
 
         // TODO: Provide Scanner with excludes

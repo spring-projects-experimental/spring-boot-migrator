@@ -23,7 +23,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junitpioneer.jupiter.Issue;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.Parser;
+import org.openrewrite.Parser.Input;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaSourceSet;
@@ -282,13 +282,18 @@ class RewriteMavenProjectParserTest {
         RewriteMavenProjectParser projectParser = sut;
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> t.printStackTrace());
         List<String> parsedFiles = new ArrayList<>();
-        ParsingExecutionContextView.view(executionContext).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                    .withLocale(Locale.US)
-                    .withZone(ZoneId.systemDefault());
-            String format = dateTimeFormatter.format(Instant.now());
-            System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
-            parsedFiles.add(sourceFile.getSourcePath().toString());
+        ParsingExecutionContextView.view(executionContext).setParsingListener(new ParsingEventListener() {
+
+			@Override
+			public void parsed(Input input, SourceFile sourceFile) {
+	            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+	                    .withLocale(Locale.US)
+	                    .withZone(ZoneId.systemDefault());
+	            String format = dateTimeFormatter.format(Instant.now());
+	            System.out.println("%s: Parsed file: %s".formatted(format, sourceFile.getSourcePath()));
+	            parsedFiles.add(sourceFile.getSourcePath().toString());
+			}
+        	
         });
         RewriteProjectParsingResult parsingResult = projectParser.parse(
                 projectRoot,

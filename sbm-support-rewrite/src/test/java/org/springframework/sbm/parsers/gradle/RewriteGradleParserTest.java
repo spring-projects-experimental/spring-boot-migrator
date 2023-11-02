@@ -15,18 +15,34 @@
  */
 package org.springframework.sbm.parsers.gradle;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.InMemoryExecutionContext;
+import org.openrewrite.SourceFile;
+import org.springframework.sbm.parsers.RewriteGradleProjectParser;
 
 /**
  * @author Fabian Krüger
  */
 public class RewriteGradleParserTest {
+	
+    private final RewriteGradleProjectParser sut = new RewriteGradleProjectParser();
+
     
     @Test
     @DisplayName("Should ")
     void should() {
-        
-        
+        File baseDir = Path.of("./testcode/gradle-projects/gs-rest-service-complete").toAbsolutePath().normalize().toFile();
+        File buildFile = new File(baseDir, "build.gradle");
+        List<SourceFile> files = sut.parse(baseDir, buildFile, new InMemoryExecutionContext(t -> fail(t.getMessage()))).collect(Collectors.toList());
+        assertThat(files).hasSize(16);
     }
 }
