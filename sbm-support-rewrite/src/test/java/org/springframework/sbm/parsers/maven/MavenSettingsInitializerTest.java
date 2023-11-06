@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build.impl;
+package org.springframework.sbm.parsers.maven;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.SetSystemProperty;
 import org.openrewrite.maven.MavenExecutionContextView;
+import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.tree.MavenRepository;
+import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
+import org.sonatype.plexus.components.cipher.PlexusCipherException;
+import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.springframework.sbm.parsers.RewriteExecutionContext;
+import org.springframework.sbm.scopes.ProjectMetadata;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,32 +37,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class MavenSettingsInitializerTest {
 
-    // localRepository.getUri() will differ from '"file:" + userHome + "/.m2/repository/"' because
-    // MavenRepository.MAVEN_LOCAL_DEFAULT gets returned and this field is statically initialized.
-    // For this test it means that running the test in isolation succeeds but running it in combination
-    // with a test that loads MavenRepository before 'user.home' was changed in this test, it fails.
-    // And maybe even worse, running this test before others would set the local maven repository to the
-    // dummy dir used in this test.
-    // To prevent this it will be initialized (if it wasn't already) with the original settings with this line:
-    MavenRepository mavenLocalDefault = MavenRepository.MAVEN_LOCAL_DEFAULT;
-    private String actualUserHome;
-    private Path fakedUserHome;
-
-    @BeforeEach
-    void beforeEach() {
-        // Faking the local maven dir to provide the settings.xml for this test
-        fakedUserHome = Path.of("./testcode/project-with-maven-settings/user-home").toAbsolutePath().normalize();
-        actualUserHome = System.getProperty("user.home");
-        System.setProperty("user.home", fakedUserHome.toString());
-    }
-
     @Test
-    void mavenParserMustAdhereToSettingsXmlTest() throws URISyntaxException {
-
+    @SetSystemProperty(key = "user.home", value = "./testcode/maven-projects/project-with-maven-settings/user-home")
+    void mavenParserMustAdhereToSettingsXmlTest() throws URISyntaxException, PlexusCipherException {
 
         RewriteExecutionContext executionContext = new RewriteExecutionContext();
-        MavenSettingsInitializer sut = new MavenSettingsInitializer();
-        sut.initializeMavenSettings(executionContext);
+        MavenSettingsInitializer sut = new MavenSettingsInitializer(executionContext, new ProjectMetadata());
+
+        sut.initializeMavenSettings();
+
         MavenExecutionContextView mavenExecutionContextView = MavenExecutionContextView.view(executionContext);
 
         assertThat(mavenExecutionContextView.getRepositories()).hasSize(1);
@@ -72,12 +61,18 @@ class MavenSettingsInitializerTest {
         assertThat(localRepository.getSnapshots()).isNull();
 
         String tmpDir = removeTrailingSlash(System.getProperty("java.io.tmpdir"));
-        String customLocalRepository = new URI("file://" + tmpDir).toString();
+        String customLocalRepository = "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository").toAbsolutePath().normalize().toString();// new URI("file://" + tmpDir).toString();
         assertThat(removeTrailingSlash(localRepository.getUri())).isEqualTo(customLocalRepository);
         assertThat(localRepository.getSnapshots()).isNull();
         assertThat(localRepository.isKnownToExist()).isTrue();
         assertThat(localRepository.getUsername()).isNull();
         assertThat(localRepository.getPassword()).isNull();
+
+        // assert servers were read
+        MavenSettings mavenSettings = mavenExecutionContextView.getSettings();
+        assertThat(mavenSettings.getServers().getServers()).hasSize(1);
+        assertThat(mavenSettings.getServers().getServers().get(0).getUsername()).isEqualTo("user");
+        assertThat(mavenSettings.getServers().getServers().get(0).getPassword()).isEqualTo("secret");
     }
 
     String removeTrailingSlash(String string) {
@@ -87,9 +82,4 @@ class MavenSettingsInitializerTest {
         return string;
     }
 
-    @AfterEach
-    public void reset() {
-        // reset
-        System.setProperty("user.home", actualUserHome);
-    }
 }

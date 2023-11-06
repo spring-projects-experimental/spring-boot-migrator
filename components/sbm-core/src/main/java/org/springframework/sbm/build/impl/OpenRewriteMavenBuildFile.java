@@ -40,7 +40,7 @@ import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyManagement;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.parsers.maven.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.util.Assert;
 

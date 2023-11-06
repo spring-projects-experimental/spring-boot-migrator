@@ -22,9 +22,10 @@ import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.parsers.RewriteExecutionContext;
+import org.springframework.sbm.parsers.maven.MavenSettingsInitializer;
+import org.springframework.sbm.scopes.ProjectMetadata;
 
 import java.util.List;
 import java.util.Set;
@@ -105,7 +106,7 @@ public class ClasspathRegistryTest {
 
         ExecutionContext executionContext = new RewriteExecutionContext();
         List<Xml.Document> poms = new RewriteMavenParser(
-                new MavenSettingsInitializer(),
+                new MavenSettingsInitializer(executionContext, new ProjectMetadata()),
                 executionContext
         ).parse(parentPom, pom1, pom2)
                 .map(Xml.Document.class::cast)

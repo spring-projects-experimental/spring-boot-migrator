@@ -28,6 +28,7 @@ import org.apache.maven.repository.UserLocalArtifactRepository;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,10 @@ class MavenExecutionRequestFactory {
             request.setShowErrors(true);
             request.setLocalRepositoryPath(LOCAL_REPOSITORY);
             request.setPluginArtifactRepositories(List.of(repository));
+            File userSettingsFile = Path.of(System.getProperty("user.home")).resolve(".m2/settings.xml").toFile();
+            if(userSettingsFile.exists()) {
+                request.setUserSettingsFile(userSettingsFile);
+            }
 
             List<String> activatedProfiles = mavenConfigFileParser.getActivatedProfiles(baseDir);
             if (activatedProfiles.isEmpty()) {

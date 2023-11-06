@@ -16,6 +16,7 @@
 package org.springframework.sbm.parsers;
 
 import org.intellij.lang.annotations.Language;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,8 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.maven.BuildFileParser;
+import org.springframework.sbm.parsers.maven.MavenSettingsInitializer;
+import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 
@@ -99,7 +102,14 @@ class BuildFileParserTest {
                         </project>
                         """;
 
-        private final BuildFileParser sut = new BuildFileParser();
+        private BuildFileParser sut;
+
+        @BeforeEach
+        void beforeEach() {
+            ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
+            MavenSettingsInitializer mavenSettingsInitializer = new MavenSettingsInitializer(executionContext, new ProjectMetadata());
+            sut = new BuildFileParser(mavenSettingsInitializer);
+        }
 
         @Test
         void filterAndSortBuildFiles_shouldReturnSortedListOfFilteredBuildFiles() {

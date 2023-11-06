@@ -26,47 +26,27 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
-import org.openrewrite.java.JavaParser;
-import org.openrewrite.java.internal.JavaTypeCache;
-import org.openrewrite.java.marker.JavaProject;
-import org.openrewrite.java.marker.JavaSourceSet;
-import org.openrewrite.java.marker.JavaVersion;
-import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.JavaType;
-import org.openrewrite.marker.BuildTool;
-import org.openrewrite.marker.GitProvenance;
-import org.openrewrite.marker.OperatingSystemProvenance;
-import org.openrewrite.marker.ci.GithubActionsBuildEnvironment;
-import org.openrewrite.maven.MavenExecutionContextView;
-import org.openrewrite.maven.MavenSettings;
-import org.openrewrite.maven.cache.CompositeMavenPomCache;
-import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
-import org.openrewrite.xml.style.Autodetect;
-import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.parsers.maven.ComparingParserFactory;
 import org.springframework.sbm.parsers.maven.RewriteMavenProjectParser;
-import org.springframework.sbm.test.util.TestProjectHelper;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.test.util.ParserParityTestHelper;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.sbm.test.util.TestProjectHelper;
 
-import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
-import static org.mockito.Mockito.mock;
 
 
 
@@ -131,37 +111,6 @@ class RewriteProjectParserParityTest {
                 }
                 """;
 
-
-        List<Path> classpath = List.of(
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot-starter/3.1.1/spring-boot-starter-3.1.1.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot/3.1.1/spring-boot-3.1.1.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-context/6.0.10/spring-context-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-aop/6.0.10/spring-aop-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-beans/6.0.10/spring-beans-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-expression/6.0.10/spring-expression-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.1.1/spring-boot-autoconfigure-3.1.1.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.1.1/spring-boot-starter-logging-3.1.1.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/ch/qos/logback/logback-classic/1.4.8/logback-classic-1.4.8.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/ch/qos/logback/logback-core/1.4.8/logback-core-1.4.8.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/slf4j/slf4j-api/2.0.7/slf4j-api-2.0.7.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.20.0/log4j-to-slf4j-2.20.0.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/apache/logging/log4j/log4j-api/2.20.0/log4j-api-2.20.0.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/slf4j/jul-to-slf4j/2.0.7/jul-to-slf4j-2.0.7.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-core/6.0.10/spring-core-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/springframework/spring-jcl/6.0.10/spring-jcl-6.0.10.jar"),
-                Path.of("/Users/fkrueger/.m2/repository/org/yaml/snakeyaml/1.33/snakeyaml-1.33.jar")
-        );
-        JavaTypeCache javaTypeCache = new JavaTypeCache();
-        SourceFile sourceFile = JavaParser.fromJavaVersion().classpath(classpath).typeCache(javaTypeCache)
-                .build()
-                .parse(javaClass)
-                .toList()
-                .get(0);
-
-        JavaSourceSet.build("main", classpath, javaTypeCache, true);
-
-
         TestProjectHelper.createTestProject(tempDir)
                 .withResources(
                     new DummyResource(tempDir.resolve("src/main/java/com/example/MyMain.java"), javaClass),
@@ -178,75 +127,12 @@ class RewriteProjectParserParityTest {
         ParserParityTestHelper
                 .scanProjectDir(tempDir)
                 .withParserProperties(comparingParserProperties)
-                .parseSequentially()
                 .verifyParity();
     }
 
     @NotNull
     private static InMemoryExecutionContext createExecutionContext() {
         return new InMemoryExecutionContext(t -> t.printStackTrace());
-    }
-
-    private void verifyParsingResult(RewriteProjectParsingResult parsingResult, ParserType parserType) {
-        // Verify result
-        List<SourceFile> sourceFiles = parsingResult.sourceFiles();
-        assertThat(sourceFiles).isNotEmpty();
-        assertThat(sourceFiles).hasSize(2);
-        SourceFile pom = sourceFiles.get(0);
-        assertThat(pom).isInstanceOf(Xml.Document.class);
-        int expectedNumMarkers = 7;
-        if (System.getenv("GITHUB_ACTION_REF") != null) {
-            expectedNumMarkers = 8;
-        }
-        assertThat(pom.getMarkers().getMarkers()).hasSize(expectedNumMarkers);
-        assertThat(pom.getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequested().getDependencies()).hasSize(1);
-        assertThat(pom.getMarkers().findFirst(GitProvenance.class)).isNotNull();
-        assertThat(pom.getMarkers().findFirst(OperatingSystemProvenance.class)).isNotNull();
-        assertThat(pom.getMarkers().findFirst(BuildTool.class)).isNotNull();
-        assertThat(pom.getMarkers().findFirst(JavaVersion.class)).isNotNull();
-        assertThat(pom.getMarkers().findFirst(JavaProject.class)).isNotNull();
-        assertThat(pom.getMarkers().findFirst(Autodetect.class)).isNotNull();
-
-        assertThat(sourceFiles.get(1)).isInstanceOf(J.CompilationUnit.class);
-        J.CompilationUnit compilationUnit = J.CompilationUnit.class.cast(sourceFiles.get(1));
-        assertThat(compilationUnit.getMarkers().getMarkers()).hasSize(expectedNumMarkers);
-        assertThat(compilationUnit.getMarkers().findFirst(GitProvenance.class)).isNotNull();
-        assertThat(compilationUnit.getMarkers().findFirst(OperatingSystemProvenance.class)).isNotNull();
-        assertThat(compilationUnit.getMarkers().findFirst(BuildTool.class)).isNotNull();
-        assertThat(compilationUnit.getMarkers().findFirst(JavaVersion.class)).isNotNull();
-        assertThat(compilationUnit.getMarkers().findFirst(JavaProject.class)).isNotNull();
-        assertThat(compilationUnit.getMarkers().findFirst(JavaSourceSet.class)).isNotNull();
-        assertThat(compilationUnit.getMarkers().findFirst(Autodetect.class)).isNotNull();
-        List<JavaType> typeInUse = new ArrayList<>();
-        typeInUse.addAll(compilationUnit.getTypesInUse().getTypesInUse());
-        assertThat(typeInUse).hasSize(7);
-        List<String> fqnTypesInUse = typeInUse.stream()
-                .filter(JavaType.class::isInstance)
-                .map(JavaType.class::cast)
-                .map(JavaType::toString)
-                .toList();
-        assertThat(fqnTypesInUse).contains("org.springframework.boot.autoconfigure.SpringBootApplication");
-        assertThat(fqnTypesInUse).contains("void");
-        assertThat(fqnTypesInUse).contains("java.lang.String");
-        assertThat(fqnTypesInUse).contains("java.lang.Class<com.example.MyMain>");
-        assertThat(fqnTypesInUse).contains("org.springframework.boot.SpringApplication");
-        assertThat(fqnTypesInUse).contains("com.example.MyMain");
-        assertThat(fqnTypesInUse).contains("org.springframework.boot.autoconfigure.SpringBootApplication");
-
-        List<String> classpath = compilationUnit.getMarkers().findFirst(JavaSourceSet.class).get().getClasspath()
-                .stream()
-                .map(JavaType.FullyQualified::getFullyQualifiedName)
-                .toList();
-
-        // Classpath contains classes from JDK and spring-boot-starter
-        assertThat(classpath).contains(
-                "org.springframework.boot.web.reactive.context.ApplicationReactiveWebEnvironment",
-                "org.springframework.context.ApplicationContext",
-                "java.math.BigInteger"
-        );
-
-        verifyExecutionContext(parsingResult, parserType);
-        // TODO: Add test that uses Maven settings and encrypted passwords
     }
 
     @Test
@@ -280,6 +166,7 @@ class RewriteProjectParserParityTest {
     void parseCheckstyle() {
         Path baseDir = getMavenProject("checkstyle");
         ParserParityTestHelper.scanProjectDir(baseDir)
+                .parseSequentially()
                 .verifyParity((comparingParsingResult, testedParsingResult) -> {
                     assertThat(comparingParsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/rules.xml");
                     assertThat(comparingParsingResult.sourceFiles().stream().map(sf -> sf.getSourcePath().toString()).toList()).contains("checkstyle/suppressions.xml");
@@ -321,141 +208,6 @@ class RewriteProjectParserParityTest {
                 .withExecutionContextForComparingParser(executionContext)
                 .withParserProperties(parserProperties)
                 .verifyParity();
-    }
-
-    private static void verifyExecutionContext(RewriteProjectParsingResult parsingResult, ParserType parserType) {
-        ExecutionContext resultingExecutionContext = parsingResult.executionContext();
-        assertThat(resultingExecutionContext).isNotNull();
-
-        Map<String, Object> messages = (Map<String, Object>) ReflectionTestUtils.getField(resultingExecutionContext, "messages");
-
-        // 1
-        assertThat(
-                (Object) resultingExecutionContext.getMessage("org.openrewrite.maven.settings")
-        ).isSameAs(
-                MavenExecutionContextView.view(resultingExecutionContext).getSettings()
-        );
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getSettings()).isInstanceOf(MavenSettings.class);
-
-        // 2
-        assertThat(
-                (Object) resultingExecutionContext.getMessage("org.openrewrite.maven.auth")
-        ).isSameAs(
-                MavenExecutionContextView.view(resultingExecutionContext).getCredentials()
-        );
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getCredentials()).isEmpty();
-
-        // 3
-        assertThat(
-                messages.get("org.openrewrite.parser.charset")
-        )
-                .isSameAs(
-                        ParsingExecutionContextView.view(resultingExecutionContext).getCharset()
-                );
-        assertThat(ParsingExecutionContextView.view(resultingExecutionContext).getCharset()).isEqualTo(Charset.forName("UTF-8"));
-
-        // 4
-        assertThat(
-                ((Duration) resultingExecutionContext.getMessage(ExecutionContext.RUN_TIMEOUT)).toMillis()
-        ).isGreaterThan(10);
-
-        // 5
-        assertThat(
-                (List) resultingExecutionContext.getMessage("org.openrewrite.maven.activeProfiles")
-        ).isSameAs(
-                MavenExecutionContextView.view(resultingExecutionContext).getActiveProfiles()
-        );
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getActiveProfiles()).isEmpty();
-
-        // 6
-        assertThat(
-                messages.get("org.openrewrite.maven.mirrors")
-        ).isSameAs(
-                MavenExecutionContextView.view(resultingExecutionContext).getMirrors()
-        );
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getMirrors()).isEmpty();
-
-        // 7
-        assertThat(
-                messages.get("org.openrewrite.maven.localRepo")
-        ).isSameAs(
-                MavenExecutionContextView.view(resultingExecutionContext).getLocalRepository()
-        );
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getLocalRepository().getId()).isEqualTo("local");
-        assertThat(
-                MavenExecutionContextView.view(resultingExecutionContext).getLocalRepository().getUri()
-        ).isEqualTo(
-                "file://" + Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toAbsolutePath().normalize() + "/"
-        );
-
-        // 8
-        assertThat(
-                messages.get("org.openrewrite.maven.pomCache")
-        ).isInstanceOf(CompositeMavenPomCache.class);
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getPomCache()).isInstanceOf(CompositeMavenPomCache.class);
-
-        // 9
-        // This fails sometimes when multiple tests are run together. The resolution time has been 0 and null
-        /*assertThat(
-                messages.get("org.openrewrite.maven.resolutionTime")
-        ).isEqualTo(
-                MavenExecutionContextView.view(resultingExecutionContext).getResolutionTime().toMillis()
-        );
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getResolutionTime()).isInstanceOf(Duration.class);
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getResolutionTime()).isNotNull(); //.toMillis()).isGreaterThanOrEqualTo(0);*/
-
-        // 10
-        assertThat(
-                messages.get("org.openrewrite.maven.repos")
-        ).isSameAs(
-                MavenExecutionContextView.view(resultingExecutionContext).getRepositories()
-        );
-        assertThat(MavenExecutionContextView.view(resultingExecutionContext).getRepositories()).isEmpty();
-    }
-
-
-    private void verifyMavenParser(RewriteProjectParsingResult parsingResult) {
-        verify(parsingResult.sourceFiles().get(0), Xml.Document.class, "pom.xml", document -> {
-            // further verifications specific to this source file
-        });
-        verify(parsingResult.sourceFiles().get(1), Xml.Document.class, "module-b/pom.xml");
-        verify(parsingResult.sourceFiles().get(2), Xml.Document.class, "module-a/pom.xml");
-    }
-
-    private <T extends SourceFile> void verify(SourceFile sourceFile, Class<T> clazz, String resourcePath) {
-        verify(sourceFile, clazz, resourcePath, t -> {
-        });
-    }
-
-    private <T extends SourceFile> void verify(SourceFile sourceFile, Class<T> clazz, String resourcePath, Consumer<T> verify) {
-        if (!clazz.isInstance(sourceFile)) {
-            fail("Given sourceFile '%s' is not of type %s".formatted(sourceFile.getSourcePath(), clazz));
-        }
-        if (!resourcePath.equals(sourceFile.getSourcePath().toString())) {
-            fail("Actual path '%s' did not match expected path '%s'".formatted(sourceFile.getSourcePath().toString(), resourcePath));
-        }
-        if (Xml.Document.class == clazz) {
-            Xml.Document pom = Xml.Document.class.cast(sourceFile);
-            int numExpectedMarkers = 7;
-            if (System.getenv("GITHUB_ACTION_REF") != null) {
-                numExpectedMarkers = 8;
-            }
-            assertThat(pom.getMarkers().getMarkers())
-                    .as(() -> pom.getMarkers().getMarkers().stream().map(m -> m.getClass().getName()).collect(Collectors.joining("\n")))
-                    .hasSize(numExpectedMarkers);
-
-            assertThat(pom.getMarkers().findFirst(MavenResolutionResult.class)).isPresent();
-            if (System.getenv("GITHUB_ACTION_REF") != null) {
-                assertThat(pom.getMarkers().findFirst(GithubActionsBuildEnvironment.class)).isPresent();
-            }
-            assertThat(pom.getMarkers().findFirst(GitProvenance.class)).isNotNull();
-            assertThat(pom.getMarkers().findFirst(OperatingSystemProvenance.class)).isNotNull();
-            assertThat(pom.getMarkers().findFirst(BuildTool.class)).isNotNull();
-            assertThat(pom.getMarkers().findFirst(JavaVersion.class)).isNotNull();
-            assertThat(pom.getMarkers().findFirst(JavaProject.class)).isNotNull();
-            assertThat(pom.getMarkers().findFirst(Autodetect.class)).isNotNull();
-            verify.accept((T) pom);
-        }
     }
 
     private Path getMavenProject(String s) {

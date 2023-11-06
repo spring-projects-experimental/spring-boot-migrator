@@ -17,8 +17,6 @@ package org.springframework.sbm.parsers;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.ExpectedToFail;
-import org.junitpioneer.jupiter.Issue;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.RecipeRun;
@@ -63,8 +61,8 @@ public class CompareParserRecipeRunTest {
     void runningARecipeWithRewriteMavenParserYieldsTheSameResultAsWithRewriteProjectParser() {
         Path baseDir = TestProjectHelper.getMavenProject("parser-recipe-run");
         ParallelParsingResult parallelParsingResult = new ParserExecutionHelper().parseParallel(baseDir);
-        RewriteProjectParsingResult sutParsingResult = parallelParsingResult.testedParsingResult();
-        RewriteProjectParsingResult compParsingResult = parallelParsingResult.comparingParsingResult();
+        RewriteProjectParsingResult sutParsingResult = parallelParsingResult.actualParsingResult();
+        RewriteProjectParsingResult compParsingResult = parallelParsingResult.expectedParsingResult();
 
         AtomicInteger counter = new AtomicInteger(0);
 
