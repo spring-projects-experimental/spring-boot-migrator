@@ -28,15 +28,17 @@ import org.openrewrite.yaml.YamlParser;
 import org.openrewrite.yaml.tree.Yaml;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigRecipeTestHelper {
 
@@ -57,18 +59,16 @@ public class ConfigRecipeTestHelper {
     }
 
     public static Pair<String, String> provideIO(String inputFilePath) throws IOException {
+        String fileContent = Files.readString(Path.of(inputFilePath));
+        String[] k = fileContent.split("expected:.*%n".formatted());
 
-        InputStream data = new FileInputStream(inputFilePath);
-
-        String fileContent = new String(data.readAllBytes());
-        String[] k = fileContent.split("expected:.*\n");
-
-        return new ImmutablePair<>(k[0].replaceAll("input:.*\n", ""), k[1]);
+        return new ImmutablePair<>(k[0].replaceAll("input:.*%n".formatted(), ""), k[1]);
     }
 
     public static Stream<Arguments> provideFiles(String folder, String fileType) throws URISyntaxException {
 
         URL url = RemovedPropertyTest.class.getResource(folder);
+        assertThat(url).isNotNull();
 
         File f = Paths.get(url.toURI()).toFile();
 

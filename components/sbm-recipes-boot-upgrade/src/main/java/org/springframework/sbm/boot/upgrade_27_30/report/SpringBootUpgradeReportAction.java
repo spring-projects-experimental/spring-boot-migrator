@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * Special Action generates a Spring Boot Upgrade report.
@@ -117,14 +116,10 @@ public class SpringBootUpgradeReportAction implements Action {
 
     @Override
     public void apply(ProjectContext context) {
-
-
         List<String> renderedSections = new ArrayList<>();
         sections.stream()
                 .filter(s -> s.shouldRender(context))
-                .forEach(section -> {
-            renderedSections.add(section.render(context));
-        });
+                .forEach(section -> renderedSections.add(section.render(context)));
 
         Map<String, Object> data = dataProvider.getData(context, sections);
         String renderedHeader = renderTemplate("header", header, data);
@@ -160,15 +155,12 @@ public class SpringBootUpgradeReportAction implements Action {
     }
 
     private String renderRunAllRecipesButton() {
-
-        StringBuilder sb = new StringBuilder();
-
         List<String> recipes = sections
                 .stream()
                 .flatMap(section -> section.getRemediation().getPossibilities().stream())
-                .map(p -> p.getRecipe())
+                .map(RemediationPossibility::getRecipe)
                 .filter(recipe -> recipe != null && !recipe.isEmpty())
-                .collect(Collectors.toList());
+                .toList();
 
         String renderedRecipeInputs = IntStream
                 .range(0, recipes.size())
@@ -196,15 +188,12 @@ public class SpringBootUpgradeReportAction implements Action {
     }
 
     private String renderTemplate(String key, String content, Map<String, Object> data) {
-
         try (StringWriter writer = new StringWriter()) {
             freemarkerSupport.getStringLoader().putTemplate(key, content);
             Template report = freemarkerSupport.getConfiguration().getTemplate(key);
             report.process(data, writer);
             return writer.toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (TemplateException e) {
+        } catch (IOException | TemplateException e) {
             throw new RuntimeException(e);
         }
     }

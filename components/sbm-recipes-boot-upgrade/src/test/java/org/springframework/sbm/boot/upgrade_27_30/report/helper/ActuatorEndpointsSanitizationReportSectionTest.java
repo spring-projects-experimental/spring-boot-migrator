@@ -15,12 +15,15 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportTestSupport;
 import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
+
+import java.nio.file.Path;
 
 /**
  * @author Fabian Krüger
@@ -30,18 +33,22 @@ public class ActuatorEndpointsSanitizationReportSectionTest {
     @Test
     @DisplayName("Actuator Endpoints SanitizationReport should render")
     void shouldRender() {
+        @Language("xml")
         String parentPom = PomBuilder
                 .buildParentPom("org.springframework.boot:spring-boot-starter-parent:3.0.0", "com.example:parent:1.0")
                 .withModules("moduleA", "moduleB", "moduleC")
                 .build();
+        @Language("xml")
         String moduleA = PomBuilder
                 .buildPom("com.example:parent:1.0", "moduleA")
                 .compileScopeDependencies("com.example:moduleC:1.0")
                 .build();
+        @Language("xml")
         String moduleB = PomBuilder
                 .buildPom("com.example:parent:1.0", "moduleB")
                 .compileScopeDependencies("com.example:moduleC:1.0")
                 .build();
+        @Language("xml")
         String moduleC = PomBuilder
                 .buildPom("com.example:parent:1.0", "moduleC")
                 .compileScopeDependencies("org.springframework.boot:spring-boot-starter-actuator")
@@ -55,6 +62,11 @@ public class ActuatorEndpointsSanitizationReportSectionTest {
                 .withMavenBuildFileSource("moduleC", moduleC)
                 .build();
 
+        Path projectRoot = context.getProjectRootDirectory();
+        Path moduleAPath = Path.of("moduleA", "pom.xml");
+        Path moduleBPath = Path.of("moduleB", "pom.xml");
+        Path moduleCPath = Path.of("moduleC", "pom.xml");
+
         SpringBootUpgradeReportTestSupport.generatedSection("Actuator Endpoints Sanitization")
                 .fromProjectContext(context)
                 .shouldRenderAs("""
@@ -66,7 +78,7 @@ public class ActuatorEndpointsSanitizationReportSectionTest {
                                                                       
                                         Instead, this release opts for a more secure default.
                                         The keys-based approach has been removed in favor of a role based approach, similar to the health endpoint details.
-                                        Whether unsanitized values are shown or not can be configured using a property which can have the following values:
+                                        Whether non-sanitized values are shown or not can be configured using a property which can have the following values:
                                                                      
                                         - `NEVER` - All values are sanitized.
                                         - `ALWAYS` - All values are present in the output (sanitizing functions will apply).
@@ -79,9 +91,9 @@ public class ActuatorEndpointsSanitizationReportSectionTest {
                                         ==== Why is the application affected
                                         The scan found a dependency to actuator on the classpath.
                                                                                 
-                                        * file://<PATH>/moduleA/pom.xml[`moduleA/pom.xml`]
-                                        * file://<PATH>/moduleB/pom.xml[`moduleB/pom.xml`]
-                                        * file://<PATH>/moduleC/pom.xml[`moduleC/pom.xml`]
+                                        * %s[`%s`]
+                                        * %s[`%s`]
+                                        * %s[`%s`]
                                                                     
                                         ==== Remediation
                                         
@@ -95,7 +107,15 @@ public class ActuatorEndpointsSanitizationReportSectionTest {
                                         * https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/html/howto.html#howto.actuator.sanitize-sensitive-values.customizing-sanitization[Customizing Sanitization^, role="ext-link"]
                                                                                 
                                                                                 
-                                        """);
+                                        """.formatted(
+                                                projectRoot.resolve(moduleAPath).toUri(),
+                                                moduleAPath,
+                                                projectRoot.resolve(moduleBPath).toUri(),
+                                                moduleBPath,
+                                                projectRoot.resolve(moduleCPath).toUri(),
+                                                moduleCPath
+                                        )
+                );
     }
 
 }

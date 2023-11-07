@@ -42,11 +42,6 @@ public class ChangesToDataPropertiesHelper extends SpringBootUpgradeReportSectio
     private Map<String, List<Match>> data = new HashMap<>();
 
     @Override
-    public String getDescription() {
-        return "";
-    }
-
-    @Override
     public boolean evaluate(ProjectContext context) {
         IsSpringBootProject isSpringBootProjectCondition = new IsSpringBootProject();
         isSpringBootProjectCondition.setVersionPattern(VERSION_PATTERN);

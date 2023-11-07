@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.jee.jms;
 
+import org.intellij.lang.annotations.Language;
 import org.springframework.sbm.jee.jms.actions.AddJmsConfigAction;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -34,12 +35,11 @@ public class AddJmsConfigTest {
 
 
     private final AddJmsConfigAction sut = new AddJmsConfigAction();
-    private Configuration configuration;
 
     @BeforeEach
     void setUp() throws IOException {
         Version version = new Version("2.3.0");
-        configuration = new Configuration(version);
+        Configuration configuration = new Configuration(version);
         configuration.setTemplateLoader(new FileTemplateLoader(new File("./src/main/resources/templates")));
         sut.setConfiguration(configuration);
     }
@@ -47,67 +47,70 @@ public class AddJmsConfigTest {
     @Test
     void testAddJmsConfig() {
 
-        String javaSource =
-                "package com.example.foo;\n" +
-                        "import javax.ejb.MessageDriven;\n"
-                        + "import javax.jms.Message;\n"
-                        + "import javax.annotation.Resource;\n"
-                        + "import javax.jms.Queue;\n"
-                        + "\n"
-                        + "@MessageDriven\n"
-                        + "public class CargoHandled {\n"
-                        + "\n"
-                        + "    @Resource(name = \"ChatBean\")\n"
-                        + "    private Queue questionQueue;\n"
-                        + "\n"
-                        + "    @Resource(name = \"AnswerQueue\")\n"
-                        + "    private Queue answerQueue;\n"
-                        + "}\n"
-                        + "";
+        @Language("java")
+        String javaSource = """
+                package com.example.foo;
 
-        String expected =
-                "package com.example.foo;\n"
-                        + "\n"
-                        + "import javax.jms.ConnectionFactory;\n"
-                        + "\n"
-                        + "import javax.jms.Queue;\n"
-                        + "import org.apache.activemq.command.ActiveMQQueue;\n"
-                        + "import javax.jms.JMSException;\n"
-                        + "\n"
-                        + "import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;\n"
-                        + "import org.springframework.context.annotation.Bean;\n"
-                        + "import org.springframework.context.annotation.Configuration;\n"
-                        + "import org.springframework.jms.annotation.EnableJms;\n"
-                        + "import org.springframework.jms.config.DefaultJmsListenerContainerFactory;\n"
-                        + "import org.springframework.jms.config.JmsListenerContainerFactory;\n"
-                        + "\n"
-                        + "@Configuration\n"
-                        + "@EnableJms\n"
-                        + "public class JmsConfig {\n"
-                        + "\n"
-                        + "    @Bean\n"
-                        + "    public JmsListenerContainerFactory<?> jmsListenerContainerFactory(\n"
-                        + "           ConnectionFactory connectionFactory,\n"
-                        + "           DefaultJmsListenerContainerFactoryConfigurer configurer) {\n"
-                        + "        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();\n"
-                        + "        configurer.configure(factory, connectionFactory);\n"
-                        + "        return factory;\n"
-                        + "    }\n"
-                        + "\n"
-                        + "    @Bean\n"
-                        + "    Queue answerQueue(ConnectionFactory connectionFactory) throws JMSException {\n"
-                        + "        ActiveMQQueue activeMQQueue = new ActiveMQQueue(\"AnswerQueue\");\n"
-                        + "        return activeMQQueue;\n"
-                        + "    }\n"
-                        + "\n"
-                        + "    @Bean\n"
-                        + "    Queue questionQueue(ConnectionFactory connectionFactory) throws JMSException {\n"
-                        + "        ActiveMQQueue activeMQQueue = new ActiveMQQueue(\"ChatBean\");\n"
-                        + "        return activeMQQueue;\n"
-                        + "    }\n"
-                        + "\n"
-                        + "}\n"
-                        + "";
+                import javax.ejb.MessageDriven;
+                import javax.jms.Message;
+                import javax.annotation.Resource;
+                import javax.jms.Queue;
+
+                @MessageDriven
+                public class CargoHandled {
+
+                    @Resource(name = "ChatBean")
+                    private Queue questionQueue;
+
+                    @Resource(name = "AnswerQueue")
+                    private Queue answerQueue;
+                }
+                """;
+
+        @Language("java")
+        String expected = """
+                package com.example.foo;
+
+                import javax.jms.ConnectionFactory;
+
+                import javax.jms.Queue;
+                import org.apache.activemq.command.ActiveMQQueue;
+                import javax.jms.JMSException;
+
+                import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
+                import org.springframework.context.annotation.Bean;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.jms.annotation.EnableJms;
+                import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+                import org.springframework.jms.config.JmsListenerContainerFactory;
+
+                @Configuration
+                @EnableJms
+                public class JmsConfig {
+
+                    @Bean
+                    public JmsListenerContainerFactory<?> jmsListenerContainerFactory(
+                           ConnectionFactory connectionFactory,
+                           DefaultJmsListenerContainerFactoryConfigurer configurer) {
+                        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+                        configurer.configure(factory, connectionFactory);
+                        return factory;
+                    }
+
+                    @Bean
+                    Queue answerQueue(ConnectionFactory connectionFactory) throws JMSException {
+                        ActiveMQQueue activeMQQueue = new ActiveMQQueue("AnswerQueue");
+                        return activeMQQueue;
+                    }
+
+                    @Bean
+                    Queue questionQueue(ConnectionFactory connectionFactory) throws JMSException {
+                        ActiveMQQueue activeMQQueue = new ActiveMQQueue("ChatBean");
+                        return activeMQQueue;
+                    }
+
+                }
+                """;
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("javax:javaee-api:7.0")
@@ -119,57 +122,60 @@ public class AddJmsConfigTest {
         String actual = projectContext.getProjectJavaSources().list().get(1).getResource().print();
         assertThat(actual)
                 .as(TestDiff.of(actual, expected))
-                .isEqualTo(expected);
+                .isEqualToNormalizingNewlines(expected);
     }
 
     @Test
     void testAddJmsConfigNoQueues() {
 
-        String javaSource =
-                "package the.pckg.name;\n"
-                        + "\n"
-                        + "import javax.ejb.MessageDriven;\n"
-                        + "import javax.jms.Message;\n"
-                        + "import javax.annotation.Resource;\n"
-                        + "import javax.jms.Queue;\n"
-                        + "\n"
-                        + "@MessageDriven\n"
-                        + "public class CargoHandled {\n"
-                        + "\n"
-                        + "    private Queue questionQueue;\n"
-                        + "\n"
-                        + "    @Resource(name = \"AnswerQueue\")\n"
-                        + "    private String answerQueue;\n"
-                        + "}\n"
-                        + "";
+        @Language("java")
+        String javaSource = """
+                package the.pckg.name;
 
-        String expected =
-                "package the.pckg.name;\n"
-                        + "\n"
-                        + "import javax.jms.ConnectionFactory;\n"
-                        + "\n"
-                        + "\n"
-                        + "import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;\n"
-                        + "import org.springframework.context.annotation.Bean;\n"
-                        + "import org.springframework.context.annotation.Configuration;\n"
-                        + "import org.springframework.jms.annotation.EnableJms;\n"
-                        + "import org.springframework.jms.config.DefaultJmsListenerContainerFactory;\n"
-                        + "import org.springframework.jms.config.JmsListenerContainerFactory;\n"
-                        + "\n"
-                        + "@Configuration\n"
-                        + "@EnableJms\n"
-                        + "public class JmsConfig {\n"
-                        + "\n"
-                        + "    @Bean\n"
-                        + "    public JmsListenerContainerFactory<?> jmsListenerContainerFactory(\n"
-                        + "           ConnectionFactory connectionFactory,\n"
-                        + "           DefaultJmsListenerContainerFactoryConfigurer configurer) {\n"
-                        + "        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();\n"
-                        + "        configurer.configure(factory, connectionFactory);\n"
-                        + "        return factory;\n"
-                        + "    }\n"
-                        + "\n"
-                        + "}\n";
+                import javax.ejb.MessageDriven;
+                import javax.jms.Message;
+                import javax.annotation.Resource;
+                import javax.jms.Queue;
+
+                @MessageDriven
+                public class CargoHandled {
+
+                    private Queue questionQueue;
+
+                    @Resource(name = "AnswerQueue")
+                    private String answerQueue;
+                }
+                """;
+
+        @Language("java")
+        String expected = """
+                package the.pckg.name;
+
+                import javax.jms.ConnectionFactory;
+
+
+                import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
+                import org.springframework.context.annotation.Bean;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.jms.annotation.EnableJms;
+                import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+                import org.springframework.jms.config.JmsListenerContainerFactory;
+
+                @Configuration
+                @EnableJms
+                public class JmsConfig {
+
+                    @Bean
+                    public JmsListenerContainerFactory<?> jmsListenerContainerFactory(
+                           ConnectionFactory connectionFactory,
+                           DefaultJmsListenerContainerFactoryConfigurer configurer) {
+                        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+                        configurer.configure(factory, connectionFactory);
+                        return factory;
+                    }
+
+                }
+                """;
 
         ProjectContext projectContext = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("javax:javaee-api:7.0")
@@ -181,7 +187,7 @@ public class AddJmsConfigTest {
         String actual = projectContext.getProjectJavaSources().list().get(1).getResource().print();
         assertThat(actual)
                 .as(TestDiff.of(actual, expected))
-                .isEqualTo(expected);
+                .isEqualToNormalizingNewlines(expected);
     }
 
 

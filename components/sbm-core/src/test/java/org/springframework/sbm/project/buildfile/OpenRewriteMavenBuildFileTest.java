@@ -2134,9 +2134,9 @@ public class OpenRewriteMavenBuildFileTest {
 						plugin.getArtifactId().equals("maven-compiler-plugin"))
 				.findAny().orElseThrow();
 
-		assertThat(compilerPlugin.getConfiguration().getDeclaredStringValue("source").get()).isEqualTo("${source}");
-		assertThat(compilerPlugin.getConfiguration().getDeclaredStringValue("target").get()).isEqualTo("17");
-		assertThat(compilerPlugin.getConfiguration().getDeclaredStringValue("fork").get()).isEqualTo("false");
+		assertThat(compilerPlugin.getConfiguration().getDeclaredStringValue("source")).hasValue("${source}");
+		assertThat(compilerPlugin.getConfiguration().getDeclaredStringValue("target")).hasValue("17");
+		assertThat(compilerPlugin.getConfiguration().getDeclaredStringValue("fork")).hasValue("false");
 	}
 
 	@Test

@@ -17,6 +17,7 @@ package org.springframework.sbm.project.resource;
 
 import freemarker.template.Configuration;
 import org.apache.commons.lang3.SystemUtils;
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.maven.cache.InMemoryMavenPomCache;
@@ -337,12 +338,12 @@ public class TestProjectContext {
          * The source Path is 'src/main/java' in the root module and the path inside is calculated from package declaration if it exists.
          */
         @Deprecated
-        public Builder withJavaSource(String sourceCode) {
+        public Builder withJavaSource(@Language("java") String sourceCode) {
             return withJavaSources(sourceCode);
         }
 
 
-        public Builder withJavaSource(Path sourcePathDir, String sourceCode) {
+        public Builder withJavaSource(Path sourcePathDir, @Language("java") String sourceCode) {
             if (sourcePathDir.isAbsolute()) {
                 throw new IllegalArgumentException("Source path must be relative to project root dir.");
             }
@@ -352,11 +353,11 @@ public class TestProjectContext {
             return this;
         }
 
-        public Builder withJavaSource(String sourcePath, String sourceCode) {
+        public Builder withJavaSource(String sourcePath, @Language("java") String sourceCode) {
             return withJavaSource(Path.of(sourcePath), sourceCode);
         }
 
-        public Builder withJavaSourceInModule(String modulePath, String sourceCode) {
+        public Builder withJavaSourceInModule(String modulePath, @Language("java") String sourceCode) {
             Path path = Path.of(modulePath);
             if (path.isAbsolute()) {
                 throw new IllegalArgumentException("Source path must be relative to project root dir.");
@@ -371,7 +372,7 @@ public class TestProjectContext {
          * Adds the given Java sources to the list of compiled Java sources.
          * The source Path is 'src/main/java' in the root module and the path inside is calculated from package declaration if exists.
          */
-        public Builder withJavaSources(String... sourceCodes) {
+        public Builder withJavaSources(@Language("java") String... sourceCodes) {
             Arrays.asList(sourceCodes).forEach(sourceCode -> {
                 String fqName = JavaSourceUtil.retrieveFullyQualifiedClassFileName(sourceCode);
                 Path sourcePath = Path.of("src/main/java").resolve(fqName);
@@ -386,7 +387,7 @@ public class TestProjectContext {
          * Adds the given Java sources to the list of compiled Java sources.
          * The source Path is 'src/test/java' in the root module and the path inside is calculated from package declaration if exists.
          */
-        public Builder withJavaTestSources(String... sourceCodes) {
+        public Builder withJavaTestSources(@Language("java") String... sourceCodes) {
             Arrays.asList(sourceCodes).forEach(sourceCode -> {
                 String fqName = JavaSourceUtil.retrieveFullyQualifiedClassFileName(sourceCode);
                 Path sourcePath = Path.of("src/test/java").resolve(fqName);
@@ -408,18 +409,18 @@ public class TestProjectContext {
             return this;
         }
 
-        public Builder withMavenRootBuildFileSource(String pomSource) {
+        public Builder withMavenRootBuildFileSource(@Language("xml") String pomSource) {
             this.resourcesWithRelativePaths.put(Path.of("pom.xml"), pomSource);
             return this;
         }
 
         @Deprecated
-        public Builder withMavenBuildFileSource(Path path, String pomSource) {
+        public Builder withMavenBuildFileSource(Path path, @Language("xml") String pomSource) {
             this.withProjectResource(projectRoot.resolve(path).normalize(), pomSource);
             return this;
         }
 
-        public Builder withMavenBuildFileSource(String sourceDir, String pomSource) {
+        public Builder withMavenBuildFileSource(String sourceDir, @Language("xml") String pomSource) {
             Path sourcePath = Path.of(sourceDir);
             if (!sourceDir.endsWith("pom.xml")) {
                 sourcePath = sourcePath.resolve("pom.xml");
@@ -443,6 +444,7 @@ public class TestProjectContext {
                 throw new IllegalArgumentException("ProjectContext already contains pom.xml files.");
             }
 
+            @Language("xml")
             String xml = """
                     <?xml version="1.0" encoding="UTF-8"?>
                     <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -479,7 +481,10 @@ public class TestProjectContext {
         public ProjectContext build() {
             verifyValidBuildFileSetup();
 
+            Path pathOfPomXml = Path.of("pom.xml");
+
             if (!containsAnyPomXml()) {
+                @Language("xml")
                 String xml = """
                         <?xml version="1.0" encoding="UTF-8"?>
                         <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -497,7 +502,7 @@ public class TestProjectContext {
                         .replace("{{dependencies}}", getDependenciesSection())
                         .replace("{{springParentPom}}", getSpringParentPomSection());
 
-                resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
+                resourcesWithRelativePaths.put(pathOfPomXml, xml);
             }
 
 
@@ -545,9 +550,8 @@ public class TestProjectContext {
             // replace with mocks
             if (mockedBuildFile != null) {
                 // TODO: add javadoc.
-                Path pomPath = Path.of("pom.xml");
-                when(mockedBuildFile.getSourcePath()).thenReturn(pomPath);
-                projectContext.getProjectResources().replace(projectRoot.resolve(pomPath).normalize(), mockedBuildFile);
+                when(mockedBuildFile.getSourcePath()).thenReturn(pathOfPomXml);
+                projectContext.getProjectResources().replace(projectRoot.resolve(pathOfPomXml).normalize(), mockedBuildFile);
             }
 
             return projectContext;

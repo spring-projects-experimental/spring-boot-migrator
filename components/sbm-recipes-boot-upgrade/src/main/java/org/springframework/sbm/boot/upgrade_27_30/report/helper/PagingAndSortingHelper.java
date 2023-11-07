@@ -39,11 +39,6 @@ public class PagingAndSortingHelper extends SpringBootUpgradeReportSectionHelper
     private List<String> rxJavaSortingRepo;
 
     @Override
-    public String getDescription() {
-        return null;
-    }
-
-    @Override
     public boolean evaluate(ProjectContext context) {
         IsSpringBootProject isSpringBootProject = new IsSpringBootProject();
         isSpringBootProject.setVersionPattern(VERSION_PATTERN);

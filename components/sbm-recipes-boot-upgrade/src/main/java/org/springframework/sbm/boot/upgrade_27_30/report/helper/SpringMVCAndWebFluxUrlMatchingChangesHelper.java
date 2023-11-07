@@ -17,9 +17,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.search.UsesType;
-import org.openrewrite.java.tree.J;
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
@@ -40,23 +38,18 @@ public class SpringMVCAndWebFluxUrlMatchingChangesHelper extends SpringBootUpgra
     private List<JavaSource> matches = new ArrayList<>();
 
     @Override
-    public String getDescription() {
-        return "";
-    }
-
-    @Override
     public boolean evaluate(ProjectContext context) {
         IsSpringBootProject isSpringBootProject = new IsSpringBootProject();
         isSpringBootProject.setVersionPattern(VERSION_PATTERN);
         boolean isSpringBootApplication = isSpringBootProject.evaluate(context);
-        if(!isSpringBootApplication) {
+        if (!isSpringBootApplication) {
             return false;
         }
 
         GenericOpenRewriteRecipe<UsesType<ExecutionContext>> usesTypeRecipe = new GenericOpenRewriteRecipe<>(() -> new UsesType<>(SPRING_REST_CONTROLLER_FQN));
 
         matches = context.getProjectJavaSources().find(usesTypeRecipe).stream()
-                .filter(m -> OpenRewriteJavaSource.class.isInstance(m))
+                .filter(OpenRewriteJavaSource.class::isInstance)
                 .map(OpenRewriteJavaSource.class::cast)
                 .sorted(Comparator.comparing(RewriteSourceFileHolder::getAbsolutePath))
                 .collect(Collectors.toList());
@@ -66,8 +59,6 @@ public class SpringMVCAndWebFluxUrlMatchingChangesHelper extends SpringBootUpgra
 
     @Override
     public Map<String, List<JavaSource>> getData() {
-        Map<String, List<JavaSource>> restControllerClasses = new HashMap<>();
-        restControllerClasses.put("restControllers", matches);
-        return restControllerClasses;
+        return Map.of("restControllers", matches);
     }
 }

@@ -33,11 +33,6 @@ public class BannerSupportHelper extends SpringBootUpgradeReportSectionHelper<Li
     private List<Path> foundBanners;
 
     @Override
-    public String getDescription() {
-        return "";
-    }
-
-    @Override
     public boolean evaluate(ProjectContext context) {
         IsSpringBootProject isSpringBootProjectCondition = new IsSpringBootProject();
         isSpringBootProjectCondition.setVersionPattern(VERSION_PATTERN);

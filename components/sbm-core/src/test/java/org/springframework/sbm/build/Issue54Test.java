@@ -15,20 +15,16 @@
  */
 package org.springframework.sbm.build;
 
-import org.assertj.core.api.Assertions;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.MavenParser;
-import org.openrewrite.maven.internal.RawPom;
 import org.openrewrite.maven.tree.Dependency;
 import org.openrewrite.maven.tree.MavenResolutionResult;
-import org.openrewrite.maven.tree.Pom;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
-import java.io.ByteArrayInputStream;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,9 +79,9 @@ public class Issue54Test {
 
         List<Xml.Document> poms = MavenParser.builder().build().parse(pomA, pomB);
 
-        assertThat(
-                poms.get(1).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getProperties().get("boolean-variable")
-        ).isEqualTo("false");
+        assertThat(poms.get(1).getMarkers().findFirst(MavenResolutionResult.class))
+                .hasValueSatisfying(mrr -> assertThat(mrr.getPom().getProperties()).containsEntry("boolean-variable", "false")
+        );
 
         List<Dependency> requestedDependencies = poms.get(1).getMarkers().findFirst(MavenResolutionResult.class).get().getPom().getRequestedDependencies();
 

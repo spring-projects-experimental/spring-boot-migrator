@@ -16,7 +16,6 @@
 package org.springframework.sbm.boot.upgrade_27_30.report;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import freemarker.core.ParseException;
 import freemarker.template.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,9 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.recipe.Condition;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
@@ -38,8 +35,9 @@ import java.util.stream.Collectors;
 
 /**
  * A section in a generated report for Spring Boot 3 upgrade, rendered as Asciidoc from a freemarker template string.
- * The {@link Helper} is condition and evaluates if the section should be rendered.
- * If the section should be rendered, the {@link Helper} provides the data extracted from {@link ProjectContext} to render the template.
+ * The {@link SpringBootUpgradeReportSectionHelper Helper} is condition and evaluates if the section should be rendered.
+ * If the section should be rendered, the {@link SpringBootUpgradeReportSectionHelper Helper} provides the data extracted
+ * from {@link ProjectContext} to render the template.
  *
  * @author Fabian Krüger
  */
@@ -50,6 +48,8 @@ public class SpringBootUpgradeReportSection {
     public static final String CHANGE_HEADER = "What Changed";
     public static final String AFFECTED = "Why is the application affected";
     public static final String REMEDIATION = "Remediation";
+    private static final String GITHUB_ISSUE = "**Issue:** https://github.com/spring-projects-experimental/spring-boot-migrator/issues/%1$d[#%1$d^, role=\"ext-link\"]  + %n";
+    private static final String GITHUB_CONTRIBUTOR = "https://github.com/%1$s[@%1$s^, role=\"ext-link\"]";
     private static final String ls = System.lineSeparator();
     /**
      * The spring project(s)/modules this change comes from.
@@ -99,8 +99,6 @@ public class SpringBootUpgradeReportSection {
         return helper.evaluate(context);
     }
 
-
-
     public String render(ProjectContext context) {
         if (getHelper().evaluate(context)) {
             Map<String, ?> params = getHelper().getData();
@@ -109,19 +107,12 @@ public class SpringBootUpgradeReportSection {
                 String templateContent = buildTemplate();
                 renderTemplate(params, writer, templateContent);
                 return writer.toString();
-            } catch (TemplateException e) {
-                throw new RuntimeException(e);
-            } catch (TemplateNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (ParseException e) {
-                throw new RuntimeException(e);
-            } catch (MalformedTemplateNameException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
+            } catch (TemplateException | IOException e) {
                 throw new RuntimeException(e);
             }
         }
-        throw new IllegalArgumentException("Could not render Section '"+ getTitle()+"', evaluating the context returned false");
+
+        throw new IllegalArgumentException("Could not render Section '%s', evaluating the context returned false".formatted(getTitle()));
     }
 
     private void renderTemplate(Map<String, ?> params, StringWriter writer, String templateContent) throws IOException, TemplateException {
@@ -160,7 +151,7 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderRemediationTitle(StringBuilder sb) {
-        sb.append("==== " + REMEDIATION).append(ls);
+        sb.append("==== %s%n".formatted(REMEDIATION));
     }
 
     private void renderAffectedSubSection(StringBuilder sb) {
@@ -169,7 +160,7 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderAffectedDescription(StringBuilder sb) {
-        sb.append(getAffected()).append(ls);
+        sb.append("%s%n".formatted(getAffected()));
     }
 
     private void renderChangeSubSection(StringBuilder sb) {
@@ -178,7 +169,7 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderAffectedTitle(StringBuilder sb) {
-        sb.append("==== " + AFFECTED).append(ls);
+        sb.append("==== %s%n".formatted(AFFECTED));
     }
 
     private void renderChangeDecription(StringBuilder sb) {
@@ -195,23 +186,23 @@ public class SpringBootUpgradeReportSection {
     }
 
     void renderGitHubInfo(StringBuilder sb) {
-        if(gitHubIssue != null) {
-            sb.append("**Issue:** https://github.com/spring-projects-experimental/spring-boot-migrator/issues/").append(gitHubIssue).append("[#").append(gitHubIssue).append("^, role=\"ext-link\"] ").append(" + ").append(ls);
+        if (gitHubIssue != null) {
+            sb.append(GITHUB_ISSUE.formatted(gitHubIssue));
         }
-        if(contributors != null) {
+        if (contributors != null) {
             List<Author> authors = getAuthors();
             sb.append("**Contributors:** ");
-            String authorsString = authors.stream().map(a -> "https://github.com/" + a.getHandle() + "[@" + a.getHandle() + "^, role=\"ext-link\"]").collect(Collectors.joining(", "));
-            sb.append(authorsString).append(" + ").append(ls);
+            String authorsString = authors.stream().map(a -> GITHUB_CONTRIBUTOR.formatted(a.getHandle())).collect(Collectors.joining(", "));
+            sb.append(authorsString).append("%s + %n".formatted(authorsString));
         }
-        if(projects != null){
-            String projectsList = projects.stream().collect(Collectors.joining(", "));
-            sb.append("**Projects:** ").append(projectsList).append(ls);
+        if (projects != null) {
+            String projectsList = String.join(", ", projects);
+            sb.append("**Projects:** %s%n".formatted(projectsList));
         }
     }
 
     private void renderSectionTitle(StringBuilder sb) {
-        sb.append("=== ").append(title).append(ls);
+        sb.append("=== %s%n".formatted(title));
     }
 
     public List<Author> getAuthors() {
@@ -235,11 +226,11 @@ public class SpringBootUpgradeReportSection {
 
     private String renderRemediation() {
         StringBuilder sb = new StringBuilder();
-        if(remediation.getDescription() != null) {
-            sb.append(remediation.getDescription()).append(ls);
+        if (remediation.getDescription() != null) {
+            sb.append("%s%n".formatted(remediation.getDescription()));
         }
         sb.append(ls);
-        if(remediation.getPossibilities().isEmpty()) {
+        if (remediation.getPossibilities().isEmpty()) {
             renderResourcesList(sb, remediation);
             renderRecipeButton(sb, remediation.getRecipe());
         } else {
@@ -249,14 +240,13 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderRemediationPossibility(StringBuilder sb, RemediationPossibility p) {
-        sb.append("===== ").append(p.getTitle()).append(ls);
-        sb.append(p.getDescription()).append(ls).append(ls);
+        sb.append("===== %s%n%s%n%n".formatted(p.getTitle(), p.getDescription()));
         renderResourcesList(sb, p);
         renderRecipeButton(sb, p.getRecipe());
     }
 
     private void renderRecipeButton(StringBuilder sb, String recipe) {
-        if(recipe != null && !recipe.isEmpty()) {
+        if (recipe != null && !recipe.isEmpty()) {
             sb.append(ls).append(ls);
             /*
             <!--
@@ -276,7 +266,7 @@ public class SpringBootUpgradeReportSection {
             String buttonCode = """
                     ++++
                     <div class="run-a-recipe" recipe="<RECIPE>">
-                    </div>                
+                    </div>
                     ++++
                     """;
             buttonCode = buttonCode.replace("<RECIPE>", recipe);
@@ -285,8 +275,8 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderResourcesList(StringBuilder sb, ResourceList p) {
-        p.getResources().forEach(r -> sb.append("* ").append(r).append(ls));
-        if(!p.getResources().isEmpty()) {
+        p.getResources().forEach(r -> sb.append("* %s%n".formatted(r)));
+        if (!p.getResources().isEmpty()) {
             sb.append(ls);
         }
     }
@@ -295,7 +285,7 @@ public class SpringBootUpgradeReportSection {
     @Getter
     @RequiredArgsConstructor
     @EqualsAndHashCode
-    public class Author {
+    public static class Author {
         private final String name;
         private final String handle;
     }

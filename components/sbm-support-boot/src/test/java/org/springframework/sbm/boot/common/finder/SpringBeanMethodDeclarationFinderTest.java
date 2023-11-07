@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 
 import java.util.List;
 
@@ -78,9 +79,9 @@ class SpringBeanMethodDeclarationFinderTest {
         void shouldReturnTheMatchingBeanDeclaration() {
             List<MatchingMethod> matches = builder.build().search(sut);
             assertThat(matches).hasSize(1);
-            assertThat(matches.get(0).getJavaSource().getSourcePath().toString()).isEqualTo("src/main/java/MyConfiguration.java");
+            assertThat(LinuxWindowsPathUnifier.unifyPath(matches.get(0).getJavaSource().getSourcePath())).isEqualTo("src/main/java/MyConfiguration.java");
             assertThat(matches.get(0).getType().getFullyQualifiedName()).isEqualTo("MyConfiguration");
-            assertThat(matches.get(0).getMethod().getReturnValue().get()).isEqualTo("a.b.c.SomeBean");
+            assertThat(matches.get(0).getMethod().getReturnValue()).hasValue("a.b.c.SomeBean");
             assertThat(matches.get(0).getMethod().getName()).isEqualTo("someBean");
         }
     }
@@ -143,24 +144,20 @@ class SpringBeanMethodDeclarationFinderTest {
                     .withBuildFileHavingDependencies("org.springframework:spring-context:5.3.22");
         }
 
-
         @Test
         void shouldReturnTheMatchingBeanDeclarations() {
             List<MatchingMethod> matches = builder.build().search(sut);
             assertThat(matches).hasSize(2);
-            assertThat(matches.get(0).getJavaSource().getSourcePath().toString()).isEqualTo("src/main/java/MyConfiguration.java");
+            assertThat(LinuxWindowsPathUnifier.unifyPath(matches.get(0).getJavaSource().getSourcePath())).isEqualTo("src/main/java/MyConfiguration.java");
             assertThat(matches.get(0).getType().getFullyQualifiedName()).isEqualTo("MyConfiguration");
-            assertThat(matches.get(0).getMethod().getReturnValue()).isPresent();
-            assertThat(matches.get(0).getMethod().getReturnValue().get()).isEqualTo("a.b.c.SomeBean");
+            assertThat(matches.get(0).getMethod().getReturnValue()).hasValue("a.b.c.SomeBean");
             assertThat(matches.get(0).getMethod().getName()).isEqualTo("someBean");
-            assertThat(matches.get(1).getJavaSource().getSourcePath().toString()).isEqualTo("src/main/java/MyConfiguration2.java");
+            assertThat(LinuxWindowsPathUnifier.unifyPath(matches.get(1).getJavaSource().getSourcePath())).isEqualTo("src/main/java/MyConfiguration2.java");
             assertThat(matches.get(1).getType().getFullyQualifiedName()).isEqualTo("MyConfiguration2");
             assertThat(matches.get(1).getMethod().getName()).isEqualTo("someBean2");
-            assertThat(matches.get(1).getMethod().getReturnValue()).isPresent();
-            assertThat(matches.get(1).getMethod().getReturnValue().get()).isEqualTo("a.b.c.SomeBean");
+            assertThat(matches.get(1).getMethod().getReturnValue()).hasValue("a.b.c.SomeBean");
         }
     }
-
 
     @Nested
     class WithVoidBeans {

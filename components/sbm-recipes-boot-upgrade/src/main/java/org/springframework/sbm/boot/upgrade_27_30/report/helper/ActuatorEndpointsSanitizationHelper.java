@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
+
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
-import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSection;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Module;

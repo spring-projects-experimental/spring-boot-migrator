@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SpringMVCAndWebFluxUrlMatchingChangesHelperTest {
     @Test
     void findsMatches() {
+        @Language("java")
         String restController1 =
                 """
                 package b.example;
@@ -40,6 +42,7 @@ class SpringMVCAndWebFluxUrlMatchingChangesHelperTest {
                 }
                 """;
 
+        @Language("java")
         String restController2 =
                 """
                 package a.example;
@@ -50,6 +53,7 @@ class SpringMVCAndWebFluxUrlMatchingChangesHelperTest {
                 }
                 """;
 
+        @Language("java")
         String anotherClass =
                 """
                 package com.example;
@@ -80,6 +84,7 @@ class SpringMVCAndWebFluxUrlMatchingChangesHelperTest {
 
     @Test
     void findNoMatches() {
+        @Language("java")
         String anotherClass =
                 """
                 package com.example;

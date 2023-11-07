@@ -179,7 +179,7 @@
             
             Instead, this release opts for a more secure default.
             The keys-based approach has been removed in favor of a role based approach, similar to the health endpoint details.
-            Whether unsanitized values are shown or not can be configured using a property which can have the following values:
+            Whether non-sanitized values are shown or not can be configured using a property which can have the following values:
           
             - `NEVER` - All values are sanitized.
             - `ALWAYS` - All values are present in the output (sanitizing functions will apply).
@@ -192,7 +192,7 @@
             The scan found a dependency to actuator on the classpath.
             
             <#list matchingBuildFiles as match>
-              * file://${match.absolutePath}[`${match.sourcePath}`]<#lt>
+              * ${match.absolutePath.toUri()}[`${match.sourcePath}`]<#lt>
             </#list>
           remediation:
             possibilities:
@@ -372,11 +372,10 @@
             @RestController
             public class MyController {
             
-              @GetMapping("/some/greeting")
-              public String greeting {
-                return "Hello";
-              }
-            
+                @GetMapping("/some/greeting")
+                public String greeting {
+                    return "Hello";
+                }
             }
             ----
             
@@ -395,7 +394,6 @@
                 public void configurePathMatch(PathMatchConfigurer configurer) {
                   configurer.setUseTrailingSlashMatch(true);
                 }
-            
             }
             ----
           sources:
@@ -404,7 +402,7 @@
           affected: |-
             The scan found classes annotated with `@RestController` which could be affected by this change.
             <#list restControllers as restController>
-              * file://${restController.absolutePath}[`${restController.sourcePath}`]<#lt>
+              * ${restController.absolutePath.toUri()}[`${restController.sourcePath}`]<#lt>
             </#list>
           remediation:
             description: |-

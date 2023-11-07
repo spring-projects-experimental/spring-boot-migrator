@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.boot.common.actions;
 
+import org.intellij.lang.annotations.Language;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -32,8 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AddSpringBootContextTestClassTest {
 
-    private Configuration configuration;
-
     private AddSpringBootContextTestClassAction sut;
 
     // TODO: add missing tests: test adding test with no classes in src/test/java but in src/main/java -> root package must be taken from src/main/java then
@@ -42,7 +41,7 @@ public class AddSpringBootContextTestClassTest {
     @BeforeEach
     void setUp() throws IOException {
         Version version = new Version("2.3.0");
-        configuration = new Configuration(version);
+        Configuration configuration = new Configuration(version);
         configuration.setTemplateLoader(new FileTemplateLoader(new File("./src/main/resources/templates")));
         sut = new AddSpringBootContextTestClassAction();
         sut.setConfiguration(configuration);
@@ -53,20 +52,22 @@ public class AddSpringBootContextTestClassTest {
         @Test
         void testApplyShouldAddNewSource() {
 
-            String expectedTestClassSource =
-                    "package org.springframework.sbm.root.test;\n" +
-                    "\n" +
-                    "import org.junit.jupiter.api.Test;\n" +
-                    "import org.springframework.boot.test.context.SpringBootTest;\n" +
-                    "\n" +
-                    "@SpringBootTest\n" +
-                    "class SpringBootAppTest {\n" +
-                    "\n" +
-                    "    @Test\n" +
-                    "    void contextLoads() {\n" +
-                    "    }\n" +
-                    "\n" +
-                    "}\n";
+            @Language("java")
+            String expectedTestClassSource = """
+                    package org.springframework.sbm.root.test;
+                    
+                    import org.junit.jupiter.api.Test;
+                    import org.springframework.boot.test.context.SpringBootTest;
+                    
+                    @SpringBootTest
+                    class SpringBootAppTest {
+                    
+                        @Test
+                        void contextLoads() {
+                        }
+                    
+                    }
+                    """;
 
             SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
             sbmApplicationProperties.setDefaultBasePackage("foo.bar");
@@ -91,69 +92,76 @@ public class AddSpringBootContextTestClassTest {
 
             assertThat(context.getProjectJavaSources().list()).hasSize(3);
             assertThat(context.getProjectJavaSources().list().get(2).getPackageName()).isEqualTo("org.springframework.sbm.root.test");
-            assertThat(context.getProjectJavaSources().list().get(2).print()).isEqualTo(expectedTestClassSource);
+            assertThat(context.getProjectJavaSources().list().get(2).print()).isEqualToNormalizingNewlines(expectedTestClassSource);
         }
     }
 
     @Nested
     public class GivenMultiModuleProject {
-        private static final String parentPom =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                        "    <groupId>com.example.sbm</groupId>\n" +
-                        "    <artifactId>parent</artifactId>\n" +
-                        "    <version>0.1.0-SNAPSHOT</version>\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "    <packaging>pom</packaging>\n" +
-                        "    <modules>\n" +
-                        "        <module>module1</module>\n" +
-                        "        <module>module2</module>\n" +
-                        "    </modules>" +
-                        "</project>\n";
+        @Language("xml")
+        private static final String parentPom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <groupId>com.example.sbm</groupId>
+                    <artifactId>parent</artifactId>
+                    <version>0.1.0-SNAPSHOT</version>
+                    <modelVersion>4.0.0</modelVersion>
+                    <packaging>pom</packaging>
+                    <modules>
+                        <module>module1</module>
+                        <module>module2</module>
+                    </modules>
+                </project>
+                """;
 
-        private static final String childPom1 =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                        "    <parent>\n" +
-                        "        <groupId>com.example.sbm</groupId>\n" +
-                        "        <artifactId>parent</artifactId>\n" +
-                        "        <version>0.1.0-SNAPSHOT</version>\n" +
-                        "        <relativePath>../pom.xml</relativePath>\n" +
-                        "    </parent>\n" +
-                        "    <artifactId>module1</artifactId>\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "    <dependencies>\n" +
-                        "        <dependency>\n" +
-                        "            <groupId>com.example.sbm</groupId>\n" +
-                        "            <artifactId>module2</artifactId>\n" +
-                        "            <version>0.1.0-SNAPSHOT</version>\n" +
-                        "        </dependency>\n" +
-                        "    </dependencies>\n" +
-                        "</project>\n";
+        @Language("xml")
+        private static final String childPom1 = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <parent>
+                        <groupId>com.example.sbm</groupId>
+                        <artifactId>parent</artifactId>
+                        <version>0.1.0-SNAPSHOT</version>
+                        <relativePath>../pom.xml</relativePath>
+                    </parent>
+                    <artifactId>module1</artifactId>
+                    <modelVersion>4.0.0</modelVersion>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.example.sbm</groupId>
+                            <artifactId>module2</artifactId>
+                            <version>0.1.0-SNAPSHOT</version>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """;
 
-        private static final String childPom2 =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                        "    <parent>\n" +
-                        "        <groupId>com.example.sbm</groupId>\n" +
-                        "        <artifactId>parent</artifactId>\n" +
-                        "        <version>0.1.0-SNAPSHOT</version>\n" +
-                        "        <relativePath>../pom.xml</relativePath>\n" +
-                        "    </parent>\n" +
-                        "    <artifactId>module2</artifactId>\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "</project>\n";
+        @Language("xml")
+        private static final String childPom2 = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <parent>
+                        <groupId>com.example.sbm</groupId>
+                        <artifactId>parent</artifactId>
+                        <version>0.1.0-SNAPSHOT</version>
+                        <relativePath>../pom.xml</relativePath>
+                    </parent>
+                    <artifactId>module2</artifactId>
+                    <modelVersion>4.0.0</modelVersion>
+                </project>
+                """;
 
-
-        private static final String javaClass1 =
-                "package com.example.sbm;\n" +
-                        "public class SomeClass {}";
+        @Language("java")
+        private static final String javaClass1 = """
+                package com.example.sbm;
+                public class SomeClass {}
+                """;
 
         @Test
         void test() {
@@ -178,6 +186,4 @@ public class AddSpringBootContextTestClassTest {
             assertThat(projectContext.getApplicationModules().findModule("com.example.sbm:module2:0.1.0-SNAPSHOT").get().getTestJavaSourceSet().list()).isEmpty();
         }
     }
-
-
 }

@@ -23,6 +23,7 @@ import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.OpenRewriteType;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class DocumentationExtraction extends AbstractAction {
             Path sourcePath = module.getBaseJavaSourceLocation().getSourceFolder();
             Path sourceDir = rootDirectory.relativize(sourcePath);
             module.getMainJavaSources().stream()
-                    .filter(js -> js.getResource().getAbsolutePath().endsWith(sourceDir.resolve(js.getPackageName().replace(".", "/") + "/" + js.getResource().getAbsolutePath().getFileName())))
+                    .filter(js -> filterPath(js, sourceDir))
                     .map(JavaSource::getTypes)
                     .flatMap(List::stream)
                     .filter(t -> OpenRewriteType.class.isAssignableFrom(t.getClass()))
@@ -50,6 +51,12 @@ public class DocumentationExtraction extends AbstractAction {
                     });
         });
 
+    }
+
+    private static boolean filterPath(JavaSource js, Path sourceDir) {
+        String packageName = js.getPackageName().replace(".", File.separator);
+        Path resolved = sourceDir.resolve(packageName).resolve(js.getResource().getAbsolutePath().getFileName());
+        return js.getResource().getAbsolutePath().endsWith(resolved);
     }
 
     private boolean filterActions(OpenRewriteType javaSource) {

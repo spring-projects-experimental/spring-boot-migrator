@@ -21,6 +21,8 @@ import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReport
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
+import java.nio.file.Path;
+
 public class ConstructorBindingReportSectionTest {
 
     @Test
@@ -86,16 +88,16 @@ public class ConstructorBindingReportSectionTest {
                     ==== Why is the application affected
                     We found usage of `@ConstructorBinding` in following files:
 
-                    * <PATH>/src/main/java/com/example/ConfigProperties.java
+                    * %s
                                                     
                     ==== Remediation
                     Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
                     for more information
                                        
-                    * https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[Issue 166]   
+                    * https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[Issue 166]
                     
                                                                                        
-                    """
+                    """.formatted(context.getProjectRootDirectory().resolve(Path.of("src/main/java/com/example/ConfigProperties.java")))
                 );
     }
 

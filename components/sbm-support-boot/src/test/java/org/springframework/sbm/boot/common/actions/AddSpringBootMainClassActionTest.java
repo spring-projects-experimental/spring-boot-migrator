@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.boot.common.actions;
 
+import org.intellij.lang.annotations.Language;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import freemarker.template.Configuration;
@@ -52,20 +53,24 @@ class AddSpringBootMainClassActionTest {
         sut.apply(context);
 
         assertThat(context.getProjectJavaSources().list()).hasSize(2);
+
+        @Language("java")
+        String expected = """
+                package org.springframework.sbm.root;
+
+                import org.springframework.boot.SpringApplication;
+                import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+                @SpringBootApplication
+                public class SpringBootApp {
+
+                    public static void main(String[] args) {
+                        SpringApplication.run(SpringBootApp.class, args);
+                    }
+                }
+                """;
+
         assertThat(context.getProjectJavaSources().list().get(1).print())
-                .isEqualTo(
-                        "package org.springframework.sbm.root;\n" +
-                        "\n" +
-                        "import org.springframework.boot.SpringApplication;\n" +
-                        "import org.springframework.boot.autoconfigure.SpringBootApplication;\n" +
-                        "\n" +
-                        "@SpringBootApplication\n" +
-                        "public class SpringBootApp {\n" +
-                        "\n" +
-                        "    public static void main(String[] args) {\n" +
-                        "        SpringApplication.run(SpringBootApp.class, args);\n" +
-                        "    }\n" +
-                        "}\n"
-                );
+                .isEqualToNormalizingNewlines(expected);
     }
 }

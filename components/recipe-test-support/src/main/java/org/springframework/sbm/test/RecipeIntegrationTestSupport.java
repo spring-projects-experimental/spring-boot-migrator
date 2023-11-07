@@ -34,7 +34,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +49,7 @@ public class RecipeIntegrationTestSupport {
     }
 
     private static final String TARGET_DIR = "./target/testcode";
+    private static final String TEMPLATES = "./src/main/resources/templates";
     @Setter(AccessLevel.PRIVATE)
     private Path rootDir;
     @Setter(AccessLevel.PRIVATE)
@@ -68,10 +68,10 @@ public class RecipeIntegrationTestSupport {
     public static RecipeIntegrationTestSupport initializeProject(Path sourceDir, String targetDirName) {
         try {
             Resource classPathResource = new FileSystemResource(sourceDir.toString());
-            File to = getResultDir(targetDirName).toFile();
+            File to = getResultDir(targetDirName).toFile().getCanonicalFile();
             FileUtils.deleteDirectory(to);
             FileUtils.forceMkdir(to);
-            FileUtils.copyDirectory(classPathResource.getFile(), to);
+            FileUtils.copyDirectory(classPathResource.getFile().getCanonicalFile(), to);
             RecipeIntegrationTestSupport recipeIntegrationTestSupport = new RecipeIntegrationTestSupport();
             recipeIntegrationTestSupport.setRootDir(to.toPath());
             recipeIntegrationTestSupport.setSourceDir(sourceDir);
@@ -91,9 +91,11 @@ public class RecipeIntegrationTestSupport {
 
     public void andApplyRecipe(String recipeName) {
         SpringBeanProvider.run(ctx -> {
-                    if (new File("./src/main/resources/templates").exists()) {
-                        Configuration configuration = ctx.getBean("configuration", Configuration.class); // FIXME: two freemarker configurations exist
-                        configuration.setDirectoryForTemplateLoading(new File("./src/main/resources/templates"));
+                    Path templatesPath = Path.of(TEMPLATES).normalize().toAbsolutePath();
+                    if (Files.exists(templatesPath)) {
+                        // FIXME: two freemarker configurations exist
+                        Configuration configuration = ctx.getBean("configuration", Configuration.class);
+                        configuration.setDirectoryForTemplateLoading(templatesPath.toFile().getCanonicalFile());
                     }
 
                     ScanCommand scanCommand = ctx.getBean(ScanCommand.class);
@@ -108,7 +110,7 @@ public class RecipeIntegrationTestSupport {
                     Recipe recipe = recipesFound.stream()
                             .filter(r -> r.getName().equals(recipeName))
                             .findFirst()
-                            .orElseThrow(() -> new RuntimeException("Could not find recipe '" + recipeName + "' in list of recipes found: " + recipesFound));
+                            .orElseThrow(() -> new RuntimeException("Could not find recipe '%s' in list of recipes found: %s".formatted(recipeName, recipesFound)));
                     ApplyCommand applyCommand = ctx.getBean(ApplyCommand.class);
                     applyCommand.execute(projectContext, recipe.getName());
                 },
@@ -134,12 +136,12 @@ public class RecipeIntegrationTestSupport {
             List<Path> result;
             try (Stream<Path> walk = Files.walk(expectedProject)) {
                 result = walk.filter(Files::isRegularFile)
-                        .map(f -> expectedProject.relativize(f))
-                        .collect(Collectors.toList());
+                        .map(expectedProject::relativize)
+                        .toList();
             }
 
-            result.stream()
-                    .forEach(r -> assertThat(expectedProject.resolve(r)).hasSameTextualContentAs(migratedProject.resolve(r)));
+            result.forEach(r -> assertThat(expectedProject.resolve(r).normalize().toAbsolutePath())
+                    .hasSameTextualContentAs(migratedProject.resolve(r).normalize().toAbsolutePath()));
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

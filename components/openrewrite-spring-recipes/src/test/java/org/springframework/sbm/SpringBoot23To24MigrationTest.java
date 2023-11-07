@@ -126,7 +126,7 @@ public class SpringBoot23To24MigrationTest {
 
         sut.apply(projectContext);
 
-        assertThat(expectedPom).isEqualTo(projectContext.getBuildFile().print());
+        assertThat(expectedPom).isEqualToNormalizingNewlines(projectContext.getBuildFile().print());
 
         SpringBootApplicationProperties applicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
         assertThat(applicationProperties.hasChanges()).isFalse();
@@ -200,7 +200,7 @@ public class SpringBoot23To24MigrationTest {
         );
 
         SpringBootApplicationProperties applicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
-        assertThat(applicationProperties.getProperty("spring.datasource.initialization-order").get()).isEqualTo("after-jpa");
+        assertThat(applicationProperties.getProperty("spring.datasource.initialization-order")).hasValue("after-jpa");
 
         verify(ui).askUserYesOrNo(InitDataSourceAfterJpaInitAction.QUESTION);
         verifyNoMoreInteractions(ui);
@@ -218,7 +218,7 @@ public class SpringBoot23To24MigrationTest {
 //        sut.apply(projectContext);
 //
 //        SpringBootApplicationProperties applicationProperties = projectContext.getFilteredResources(new SpringBootApplicationPropertiesResourceListFilter()).get(0);
-//        assertThat(applicationProperties.getProperty("spring.datasource.initialization-order").get()).isEqualTo("after-jpa");
+//        assertThat(applicationProperties.getProperty("spring.datasource.initialization-order")).hasValue("after-jpa");
 //
 //        verify(ui).askUserYesOrNo(InitDataSourceAfterJpaInitAction.QUESTION);
 //        verifyNoMoreInteractions(ui);

@@ -40,11 +40,6 @@ public class ConstructorBindingHelper extends SpringBootUpgradeReportSectionHelp
     private List<String> constructorBindingFiles;
 
     @Override
-    public String getDescription() {
-        return "";
-    }
-
-    @Override
     public boolean evaluate(ProjectContext context) {
         IsSpringBootProject isSpringBootProjectCondition = new IsSpringBootProject();
         isSpringBootProjectCondition.setVersionPattern(VERSION_PATTERN);

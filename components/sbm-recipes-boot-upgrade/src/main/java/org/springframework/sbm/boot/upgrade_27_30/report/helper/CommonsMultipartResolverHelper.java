@@ -34,11 +34,6 @@ public class CommonsMultipartResolverHelper extends SpringBootUpgradeReportSecti
     private List<String> types;
 
     @Override
-    public String getDescription() {
-        return null;
-    }
-
-    @Override
     public boolean evaluate(ProjectContext context) {
         IsSpringBootProject isSpringBootProjectCondition = new IsSpringBootProject();
         isSpringBootProjectCondition.setVersionPattern(VERSION_PATTERN);

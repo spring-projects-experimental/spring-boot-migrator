@@ -513,8 +513,8 @@ class RemoveRedundantMavenCompilerPluginPropertiesTest {
 		assertThat(rootModule.getProperty("maven.compiler.source")).isNull();
 		assertThat(rootModule.getProperty("maven.compiler.target")).isNull();
 		assertThat(rootModule.getProperty("java.version")).isEqualTo("17");
-		assertThat(rootModule.getPlugins().get(0).getConfiguration().getDeclaredStringValue("target").get()).isEqualTo("${java.version}");
-		assertThat(rootModule.getPlugins().get(0).getConfiguration().getDeclaredStringValue("source").get()).isEqualTo("${java.version}");
+		assertThat(rootModule.getPlugins().get(0).getConfiguration().getDeclaredStringValue("target")).hasValue("${java.version}");
+		assertThat(rootModule.getPlugins().get(0).getConfiguration().getDeclaredStringValue("source")).hasValue("${java.version}");
 
 
 		BuildFile childModule = projectContext.getApplicationModules().getModule("module1").getBuildFile();

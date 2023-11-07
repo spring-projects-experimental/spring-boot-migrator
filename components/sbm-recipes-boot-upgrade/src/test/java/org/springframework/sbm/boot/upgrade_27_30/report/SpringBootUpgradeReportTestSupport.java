@@ -17,6 +17,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.intellij.lang.annotations.Language;
 import org.springframework.sbm.boot.upgrade_27_30.report.yaml.SpringBootUpgradeReportActionDeserializer;
 import org.springframework.sbm.boot.upgrade_27_30.report.yaml.SpringBootUpgradeReportYamlDeserializationConfiguration;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -32,6 +33,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -57,7 +59,7 @@ public class SpringBootUpgradeReportTestSupport {
     }
 
     public static class SectionProjectContext {
-        private BuilderData builderData;
+        private final BuilderData builderData;
 
         public SectionProjectContext(BuilderData builderData) {
             this.builderData = builderData;
@@ -71,20 +73,20 @@ public class SpringBootUpgradeReportTestSupport {
     }
 
     public static class Assertion {
-        private BuilderData builderData;
+        private final BuilderData builderData;
 
         public Assertion(BuilderData builderData) {
             this.builderData = builderData;
         }
 
 
-        public void shouldRenderAs(String expectedOutput) {
+        public void shouldRenderAs(@Language("adoc") String expectedOutput) {
             shouldRenderAs(expectedOutput, defaultMap());
         }
 
-        public void shouldRenderAs(String expectedOutput, Map<String, String> templateVariables) {
+        public void shouldRenderAs(@Language("adoc") String expectedOutput, Map<String, String> templateVariables) {
             String expectedOutputRendered = replacePlaceHolders(expectedOutput, templateVariables);
-            Consumer<String> assertion = (s) -> assertThat(s).isEqualTo(expectedOutputRendered);
+            Consumer<String> assertion = (s) -> assertThat(s).isEqualToNormalizingNewlines(expectedOutputRendered);
             verify(assertion);
         }
 
@@ -92,11 +94,11 @@ public class SpringBootUpgradeReportTestSupport {
             verifyDoesNotRender();
         }
 
-        public void shouldStartWith(String expectedOutput) {
+        public void shouldStartWith(@Language("adoc") String expectedOutput) {
             shouldStartWith(expectedOutput, defaultMap());
         }
 
-        public void shouldStartWith(String expectedOutput, Map<String, String> templateVariables) {
+        public void shouldStartWith(@Language("adoc") String expectedOutput, Map<String, String> templateVariables) {
             String expectedOutputRendered = replacePlaceHolders(expectedOutput, templateVariables);
             Consumer<String> assertion = (s) -> assertThat(s).as(TestDiff.of(s, expectedOutputRendered)).startsWith(expectedOutputRendered);
             verify(assertion);
@@ -113,8 +115,7 @@ public class SpringBootUpgradeReportTestSupport {
         }
 
         private void verifyDoesNotRender() {
-            if(SectionBuilderData.class.isInstance(builderData)) {
-                SectionBuilderData sectionBuilderData = SectionBuilderData.class.cast(builderData);
+            if (builderData instanceof SectionBuilderData sectionBuilderData) {
                 withRecipes(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("sbu30-report").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
@@ -122,18 +123,17 @@ public class SpringBootUpgradeReportTestSupport {
                     List<SpringBootUpgradeReportSection> matchingSections = sections
                             .stream()
                             .filter(s -> s.getTitle().equals(builderData.getTitle()))
-                            .collect(Collectors.toList());
+                            .toList();
 
-                    if(matchingSections.size() != 1) {
-                        fail("Found " + matchingSections.size() + " Sections with title '" + builderData.getTitle() + "'.");
+                    if (matchingSections.size() != 1) {
+                        fail("Found %d Sections with title '%s'.".formatted(matchingSections.size(), builderData.getTitle()));
                     }
 
                     SpringBootUpgradeReportSection sectionUnderTest = matchingSections.get(0);
                     bruteForceProjectContextIntoProjectContextHolder(builderData.getContext(), action);
                     assertThat(sectionUnderTest.getHelper().evaluate(sectionBuilderData.getContext())).isFalse();
                 });
-            } else if(ReportBuilderData.class.isInstance(builderData)) {
-                ReportBuilderData reportBuilderData = ReportBuilderData.class.cast(builderData);
+            } else if (builderData instanceof ReportBuilderData reportBuilderData) {
                 withRecipes(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("sbu30-report").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.apply(reportBuilderData.getContext()).get(0);
@@ -148,7 +148,7 @@ public class SpringBootUpgradeReportTestSupport {
          * Another nasty hack required to make the ProjectContext available in ProjectContextHolder which is required by the
          * hacked implementation of Spring Upgrade report web application.
          * The {@code SpringBootUpgradeReportFileSystemRenderer} accesses the {@code ProjectContext} through
-         * {@ProjectContextHolder} but its set in {@code ScanShellCommand} which is not available here.
+         * {@link ProjectContextHolder} but its set in {@code ScanShellCommand} which is not available here.
          */
         private void bruteForceProjectContextIntoProjectContextHolder(ProjectContext context, SpringBootUpgradeReportAction action) {
             ProjectContextHolder contextHolder = new ProjectContextHolder();
@@ -157,8 +157,7 @@ public class SpringBootUpgradeReportTestSupport {
         }
 
         private void verify(Consumer<String> assertion) {
-            if(ReportBuilderData.class.isInstance(builderData)) {
-                ReportBuilderData reportBuilderData = ReportBuilderData.class.cast(builderData);
+            if (builderData instanceof ReportBuilderData reportBuilderData) {
                 withRecipes(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("sbu30-report").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
@@ -166,19 +165,20 @@ public class SpringBootUpgradeReportTestSupport {
 //                    ReflectionTestUtils.setField(action, "upgradeReportProcessor", (SpringBootUpgradeReportFileSystemRenderer) s -> assertion.accept(s));
                     action.apply(reportBuilderData.getContext());
                 });
-            } else if(SectionBuilderData.class.isInstance(builderData)) {
+            } else if(builderData instanceof SectionBuilderData) {
                 withRecipes(recipes -> {
                     Recipe recipe = recipes.getRecipeByName("sbu30-report").get();
                     SpringBootUpgradeReportAction action = (SpringBootUpgradeReportAction) recipe.getActions().get(0);
                     bruteForceProjectContextIntoProjectContextHolder(builderData.getContext(), action);
                     List<SpringBootUpgradeReportSection> sections = (List<SpringBootUpgradeReportSection>) ReflectionTestUtils.getField(recipe.getActions().get(0), "sections");
+                    assertThat(sections).isNotNull();
                     List<SpringBootUpgradeReportSection> matchingSections = sections
                             .stream()
                             .filter(s -> s.getTitle().equals(builderData.getTitle()))
-                            .collect(Collectors.toList());
+                            .toList();
 
-                    if(matchingSections.size() != 1) {
-                        fail("Found " + matchingSections.size() + " Sections with title '" + builderData.getTitle() + "'.");
+                    if (matchingSections.size() != 1) {
+                        fail("Found %d Sections with title '%s'.".formatted(matchingSections.size(), builderData.getTitle()));
                     }
 
                     SpringBootUpgradeReportSection sectionUnderTest = matchingSections.get(0);
@@ -198,11 +198,11 @@ public class SpringBootUpgradeReportTestSupport {
             // if GitHub info is not given
             StringBuilder sb = new StringBuilder();
             sectionUnderTest.renderGitHubInfo(sb);
-            if( ! renderedSectionWithoutButtonCode.startsWith("=== " + sectionUnderTest.getTitle() +"\n" + sb.toString())) {
-                fail("Missing GitHub info: " + sb.toString() + " rendered section was: \n " + renderedSectionWithoutButtonCode);
+            if( ! renderedSectionWithoutButtonCode.startsWith("=== " + sectionUnderTest.getTitle() + System.lineSeparator() + sb)) {
+                fail("Missing GitHub info: %s rendered section was:%s%s".formatted(sb, System.lineSeparator(), renderedSectionWithoutButtonCode));
             }
-            String asciidocTitle = "=== " + sectionUnderTest.getTitle() + "\n";
-            return renderedSectionWithoutButtonCode.replace(asciidocTitle + sb.toString(), asciidocTitle);
+            String asciidocTitle = "=== " + sectionUnderTest.getTitle() + System.lineSeparator();
+            return renderedSectionWithoutButtonCode.replace(asciidocTitle + sb, asciidocTitle);
         }
 
         /**
@@ -211,9 +211,9 @@ public class SpringBootUpgradeReportTestSupport {
          */
         private String replaceRecipeButtonCodeFromExpectedOutput(SpringBootUpgradeReportSection sectionUnderTest, String renderedSection) {
             List<String> buttonCodes = new ArrayList<>();
-            if(sectionUnderTest.getRemediation().getPossibilities().isEmpty()) {
+            if (sectionUnderTest.getRemediation().getPossibilities().isEmpty()) {
                 String recipe = sectionUnderTest.getRemediation().getRecipe();
-                if(recipe != null) {
+                if (recipe != null) {
                     String target = """
                                                                                     
                               ++++
@@ -229,8 +229,8 @@ public class SpringBootUpgradeReportTestSupport {
                         .getRemediation()
                         .getPossibilities()
                         .stream()
-                        .filter(p -> p.getRecipe() != null)
                         .map(RemediationPossibility::getRecipe)
+                        .filter(Objects::nonNull)
                         .map(recipe -> {
                             String target = """
                                                                                     
@@ -245,7 +245,7 @@ public class SpringBootUpgradeReportTestSupport {
                         .collect(Collectors.toList());
             }
 
-            for(String buttonCode : buttonCodes) {
+            for (String buttonCode : buttonCodes) {
                 renderedSection = renderedSection.replace(buttonCode, "");
             }
             return renderedSection;
@@ -265,7 +265,7 @@ public class SpringBootUpgradeReportTestSupport {
         private String replacePlaceHolders(String expectedOutput, Map<String, String> templateVariables) {
             StringBuffer sb = new StringBuffer();
             // hacked, there's most probably a better way but ST couldn't digest html code
-            for(Map.Entry<String, String> kv : templateVariables.entrySet()) {
+            for (Map.Entry<String, String> kv : templateVariables.entrySet()) {
                 String key = "<" + kv.getKey() + ">";
                 String replacement = kv.getValue();
                 expectedOutput = expectedOutput.replace(key, replacement);
@@ -276,13 +276,13 @@ public class SpringBootUpgradeReportTestSupport {
 
     @Getter
     @Setter
-    private static class BuilderData {
+    public static class BuilderData {
         private ProjectContext context;
         private String title;
     }
-    private static class SectionBuilderData extends BuilderData {
+    public static class SectionBuilderData extends BuilderData {
     }
 
-    private static class ReportBuilderData extends BuilderData {
+    public static class ReportBuilderData extends BuilderData {
     }
 }

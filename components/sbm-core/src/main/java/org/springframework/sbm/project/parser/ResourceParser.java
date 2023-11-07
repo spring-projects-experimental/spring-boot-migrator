@@ -34,6 +34,7 @@ import org.openrewrite.yaml.YamlParser;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.events.StartedScanningProjectResourceEvent;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -107,7 +108,7 @@ public class ResourceParser {
         parserAndParserInputMappings.put(plainTextParser, new ArrayList<>());
 
         parserInputs.forEach(r -> {
-            Parser parser = parserAndParserInputMappings.keySet().stream()
+            Parser<?> parser = parserAndParserInputMappings.keySet().stream()
                     .filter(p -> p.accept(r))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Could not find matching parser for " + r.getPath()));
@@ -141,7 +142,7 @@ public class ResourceParser {
                 .getValue()
                 .stream()
                 .map(resource -> (List<SourceFile>) parseSingleResource(baseDir, ctx, e, resource))
-                .flatMap(elem -> Stream.ofNullable(elem))
+                .flatMap(Stream::ofNullable)
                 .flatMap(List::stream);
     }
 
@@ -149,7 +150,7 @@ public class ResourceParser {
         try {
             return e.getKey().parseInputs(List.of(resource), baseDir, ctx);
         } catch(Exception ex) {
-            if(resource.getPath().toString().contains("src/test/resources")) {
+            if (LinuxWindowsPathUnifier.unifyPath(resource.getPath()).contains("src/test/resources")) {
                 log.error("Could not parse resource '%s' using parser %s. Exception was: %s".formatted(resource.getPath(), e.getKey().getClass().getName(), ex.getMessage()));
                 return null;
             } else {

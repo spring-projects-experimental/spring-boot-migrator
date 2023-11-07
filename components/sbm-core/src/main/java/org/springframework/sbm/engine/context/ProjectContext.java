@@ -54,7 +54,7 @@ public class ProjectContext {
     private final RewriteMigrationResultMerger resultMerger;
 
     public ProjectContext(JavaRefactoringFactory javaRefactoringFactory, Path projectRootDirectory, ProjectResourceSet projectResources, BasePackageCalculator basePackageCalculator, JavaParser javaParser, ExecutionContext executionContext, RewriteMigrationResultMerger resultMerger) {
-        this.projectRootDirectory = projectRootDirectory.toAbsolutePath();
+        this.projectRootDirectory = projectRootDirectory.normalize().toAbsolutePath();
         this.projectResources = projectResources;
         this.javaRefactoringFactory = javaRefactoringFactory;
         this.basePackageCalculator = basePackageCalculator;

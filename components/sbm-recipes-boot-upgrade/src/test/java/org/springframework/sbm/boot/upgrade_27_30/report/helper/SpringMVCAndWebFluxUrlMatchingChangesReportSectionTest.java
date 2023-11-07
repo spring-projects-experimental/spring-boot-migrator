@@ -21,15 +21,19 @@ import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReport
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
+import java.nio.file.Path;
+
 /**
  * @author Fabian Krüger
  */
 public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
     @Test
     void shouldRenderSection() {
+        @Language("java")
         String restController1 =
                 """
                 package b.example;
+                
                 import org.springframework.web.bind.annotation.RestController;
                 
                 @RestController
@@ -37,9 +41,11 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                 }
                 """;
 
+        @Language("java")
         String restController2 =
                 """
                 package a.example;
+                
                 import org.springframework.web.bind.annotation.RestController;
                 
                 @RestController
@@ -47,10 +53,13 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                 }
                 """;
 
+        @Language("java")
         String anotherClass =
                 """
                 package com.example;
-                public class AnotherClass {};
+                
+                public class AnotherClass {
+                }
                 """;
 
         ProjectContext context = TestProjectContext
@@ -61,6 +70,11 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                 .withJavaSource("src/main/java", restController2)
                 .withJavaSource("src/main/java", anotherClass)
                 .build();
+
+        Path projectRoot = context.getProjectRootDirectory();
+        Path restController1Path = Path.of("src", "main", "java", "b", "example", "RestController1.java");
+        Path restController2Path = Path.of("src", "main", "java", "a", "example", "RestController2.java");
+
 
         @Language("adoc")
         String expectedOutput =
@@ -76,11 +90,10 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                 @RestController
                 public class MyController {
 
-                  @GetMapping("/some/greeting")
-                  public String greeting {
-                    return "Hello";
-                  }
-
+                    @GetMapping("/some/greeting")
+                    public String greeting {
+                        return "Hello";
+                    }
                 }
                 ----
 
@@ -97,23 +110,22 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
 
                     @Override
                     public void configurePathMatch(PathMatchConfigurer configurer) {
-                      configurer.setUseTrailingSlashMatch(true);
+                        configurer.setUseTrailingSlashMatch(true);
                     }
-                                                 
                 }
                 ----
                                                  
                 ==== Why is the application affected
                 The scan found classes annotated with `@RestController` which could be affected by this change.
-                * file://<PATH>/src/main/java/a/example/RestController2.java[`src/main/java/a/example/RestController2.java`]
-                * file://<PATH>/src/main/java/b/example/RestController1.java[`src/main/java/b/example/RestController1.java`]
+                * %s[`%s`]
+                * %s[`%s`]
                                                  
                 ==== Remediation
                 You have different choices to remediate this change.
                                                  
                 ===== Do Nothing
                 If no clients expect a response for requests with a trailing `/` nothing needs to done.
-                                                 
+                
                 ===== Configure explicit redirects/rewrites
                 Configure explicit redirects/rewrites through a proxy, a Servlet/web filter.
                                                  
@@ -144,16 +156,20 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                 @Configuration
                 public class WebConfiguration implements WebMvcConfigurer {
                                                
-                  @Override
-                  public void configurePathMatch(PathMatchConfigurer configurer) {
-                    configurer.setUseTrailingSlashMatch(true);
-                  }
-                                               
+                    @Override
+                    public void configurePathMatch(PathMatchConfigurer configurer) {
+                        configurer.setUseTrailingSlashMatch(true);
+                    }
                 }
                 ----
                 
                 
-                """;
+                """.formatted(
+                        projectRoot.resolve(restController1Path).toUri(),
+                        restController1Path,
+                        projectRoot.resolve(restController2Path).toUri(),
+                        restController2Path
+                );
 
         SpringBootUpgradeReportTestSupport.generatedSection("Spring MVC and WebFlux URL matching changes")
                 .fromProjectContext(context)

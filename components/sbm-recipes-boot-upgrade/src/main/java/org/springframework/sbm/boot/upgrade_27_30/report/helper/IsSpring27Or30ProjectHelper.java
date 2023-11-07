@@ -31,10 +31,6 @@ import java.util.Map;
 public class IsSpring27Or30ProjectHelper extends SpringBootUpgradeReportSectionHelper<List<String>> {
 
     public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
-    @Override
-    public String getDescription() {
-        return "";
-    }
 
     @Override
     public boolean evaluate(ProjectContext context) {

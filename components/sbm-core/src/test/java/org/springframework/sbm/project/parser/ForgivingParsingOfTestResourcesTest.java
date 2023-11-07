@@ -23,6 +23,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.test.TestProjectContextInfo;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 
 import java.util.List;
 
@@ -53,9 +54,9 @@ public class ForgivingParsingOfTestResourcesTest {
         List<RewriteSourceFileHolder<? extends SourceFile>> parsedResources = context.getProjectResources().list();
         assertThat(parsedResources).hasSize(3);
         assertThat(parsedResources.get(0).getSourcePath().toString()).isEqualTo("pom.xml");
-        assertThat(parsedResources.get(1).getSourcePath().toString()).isEqualTo("src/test/resources/one.yaml");
+        assertThat(LinuxWindowsPathUnifier.unifyPath(parsedResources.get(1).getSourcePath())).isEqualTo("src/test/resources/one.yaml");
         // src/test/resources/error.yaml is ignored
-        assertThat(parsedResources.get(2).getSourcePath().toString()).isEqualTo("src/test/resources/three.yaml");
+        assertThat(LinuxWindowsPathUnifier.unifyPath(parsedResources.get(2).getSourcePath())).isEqualTo("src/test/resources/three.yaml");
         ParsingExecutionContextView contextView = ParsingExecutionContextView.view(projectContextInfo.executionContext());
         assertThat(contextView.getParseFailures()).hasSize(1);
         assertThat(contextView.getParseFailures().get(0).getText()).isEqualTo("""

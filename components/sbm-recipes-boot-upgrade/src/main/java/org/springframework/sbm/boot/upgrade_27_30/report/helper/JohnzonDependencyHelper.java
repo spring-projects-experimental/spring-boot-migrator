@@ -29,11 +29,6 @@ import java.util.Optional;
 public class JohnzonDependencyHelper extends SpringBootUpgradeReportSectionHelper<List<String>> {
 
     @Override
-    public String getDescription() {
-        return "";
-    }
-
-    @Override
     public boolean evaluate(ProjectContext context) {
 
         Optional<Dependency> d = context.getBuildFile().getDeclaredDependencies().stream()

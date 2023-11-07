@@ -42,7 +42,7 @@ class RewriteXmlParserTest {
         String xml = "<foo>content</foo>";
         RewriteSourceFileHolder<Xml.Document> parse = sut.parse(Path.of(".").toAbsolutePath(), Path.of("some.xml"), xml);
         assertThat(parse.getSourceFile().getRoot().getName()).isEqualTo("foo");
-        assertThat(parse.getSourceFile().getRoot().getValue().get()).isEqualTo("content");
+        assertThat(parse.getSourceFile().getRoot().getValue()).hasValue("content");
     }
 
     @Test
@@ -51,7 +51,7 @@ class RewriteXmlParserTest {
         List<RewriteSourceFileHolder<Xml.Document>> rewriteSourceFileHolders = sut.parse(List.of(file), Path.of("./testcode").toAbsolutePath().normalize(), new RewriteExecutionContext());
         RewriteSourceFileHolder<Xml.Document> sourceFileHolder = rewriteSourceFileHolders.get(0);
         assertThat(sourceFileHolder.getSourceFile().getRoot().getName()).isEqualTo("shiporder");
-        assertThat(sourceFileHolder.getSourceFile().getRoot().getChild("orderperson").get().getValue().get()).isEqualTo("John Smith");
+        assertThat(sourceFileHolder.getSourceFile().getRoot().getChild("orderperson").get().getValue()).hasValue("John Smith");
     }
 
     @Test

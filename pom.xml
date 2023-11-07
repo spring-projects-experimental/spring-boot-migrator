@@ -193,6 +193,11 @@
                 <version>${openrewrite.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.openrewrite</groupId>
+                <artifactId>rewrite-test</artifactId>
+                <version>${openrewrite.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.openrewrite.recipe</groupId>
                 <artifactId>rewrite-spring</artifactId>
                 <version>${openrewrite.spring.version}</version>
@@ -382,7 +387,7 @@
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>4.1</version>
+                <version>4.3</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -426,6 +431,8 @@ limitations under the License.
                                 <exclude>**/testcode/**</exclude>
                                 <exclude>**/test-code/**</exclude>
                                 <exclude>**/pom.xml</exclude>
+                                <exclude>**/*.gradle.kts</exclude>
+                                <exclude>**/*.gradle</exclude>
                                 <exclude>**/*.properties</exclude>
                                 <exclude>**/*.yaml</exclude>
                                 <exclude>**/*.yml</exclude>

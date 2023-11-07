@@ -172,6 +172,11 @@
 			<artifactId>jackson-dataformat-xml</artifactId>
 			<version>2.14.1</version>
 		</dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
 	</dependencies>
     <build>

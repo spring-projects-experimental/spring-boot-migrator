@@ -20,6 +20,8 @@ import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReport
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
+import java.nio.file.Path;
+
 
 public class BannerSupportReportSectionTest {
 
@@ -46,8 +48,8 @@ public class BannerSupportReportSectionTest {
                                 ==== Why is the application affected
                                 The scan found banner image files here:
                                                                 
-                                * `<PATH>/src/main/resources/banner.gif`
-                                * `<PATH>/src/main/resources/banner.jpg`
+                                * `%1$s`
+                                * `%2%s`
                                                         
                                 ==== Remediation
                                  
@@ -55,8 +57,8 @@ public class BannerSupportReportSectionTest {
                                 ===== Remove image banner
                                 Remove these image banners\s
                                                         
-                                * `<PATH>/src/main/resources/banner.gif`
-                                * `<PATH>/src/main/resources/banner.jpg`
+                                * `%1$s`
+                                * `%2$s`
                                                         
                                                         
                                                         
@@ -67,12 +69,16 @@ public class BannerSupportReportSectionTest {
                                 ===== Replace image banner
                                 Replace these banners\s
                                                         
-                                * `<PATH>/src/main/resources/banner.gif`
-                                * `<PATH>/src/main/resources/banner.jpg`
+                                * `%1$s`
+                                * `%2$s`
                                                         
                                 with `banner.txt`
                                                 
                                                   
-                                """);
+                                """.formatted(
+                                        context.getProjectRootDirectory().resolve(Path.of("src/main/resources/banner.gif")),
+                                        context.getProjectRootDirectory().resolve(Path.of("src/main/resources/banner.jpg"))
+                                )
+                        );
     }
 }

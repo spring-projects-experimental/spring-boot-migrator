@@ -77,7 +77,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         runAction(projectContext1 -> {
             assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
             assertThat(getGeneratedJavaFile())
-                    .isEqualTo(
+                    .isEqualToNormalizingNewlines(
                             """
                                     package com.example.javadsl;
                                     import org.springframework.context.annotation.Bean;
@@ -99,7 +99,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                         }
                                     }""");
             assertThat(projectContext.getProjectJavaSources().list().get(1).print())
-                    .isEqualTo("""
+                    .isEqualToNormalizingNewlines("""
                                        package com.example.javadsl;
                                                                           
                                        public class DwlFlowTransform_2 {
@@ -131,7 +131,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
 
             assertThat(projectContext.getProjectJavaSources().list()).hasSize(3);
             assertThat(getGeneratedJavaFile())
-                    .isEqualTo("""
+                    .isEqualToNormalizingNewlines("""
                             package com.example.javadsl;
                             import org.springframework.context.annotation.Bean;
                             import org.springframework.context.annotation.Configuration;
@@ -164,7 +164,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 }
                             }""");
             assertThat(projectContext.getProjectJavaSources().list().get(1).print())
-                    .isEqualTo("""
+                    .isEqualToNormalizingNewlines("""
                                        package com.example.javadsl;
                                        import org.springframework.context.annotation.Configuration;
                                                                           
@@ -182,7 +182,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                        """
                     );
             assertThat(projectContext.getProjectJavaSources().list().get(2).print())
-                    .isEqualTo("""
+                    .isEqualToNormalizingNewlines("""
                                        package com.example.javadsl;
                                                                           
                                        import com.fasterxml.jackson.databind.ObjectMapper;
@@ -285,7 +285,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         runAction(projectContext -> {
             assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
             assertThat(getGeneratedJavaFile())
-                    .isEqualTo("""
+                    .isEqualToNormalizingNewlines("""
                             package com.example.javadsl;
                             import org.springframework.context.annotation.Bean;
                             import org.springframework.context.annotation.Configuration;
@@ -306,7 +306,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 }
                             }""");
             assertThat(projectContext.getProjectJavaSources().list().get(1).print())
-                    .isEqualTo("""
+                    .isEqualToNormalizingNewlines("""
                                        package com.example.javadsl;
                                                                           
                                        public class MapClientRiskRatingResponseTransform {
@@ -358,7 +358,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         runAction(projectContext -> {
             assertThat(projectContext.getProjectJavaSources().list()).hasSize(1);
             assertThat(getGeneratedJavaFile())
-                    .isEqualTo("""
+                    .isEqualToNormalizingNewlines("""
                             package com.example.javadsl;
                             import org.springframework.context.annotation.Bean;
                             import org.springframework.context.annotation.Configuration;
@@ -415,7 +415,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         runAction(projectContext -> {
             assertThat(projectContext.getProjectJavaSources().list()).hasSize(2);
             assertThat(getGeneratedJavaFile())
-                    .isEqualTo("""
+                    .isEqualToNormalizingNewlines("""
                             package com.example.javadsl;
                             import org.springframework.context.annotation.Bean;
                             import org.springframework.context.annotation.Configuration;
@@ -436,7 +436,7 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
                                 }
                             }""");
             assertThat(projectContext.getProjectJavaSources().list().get(1).print())
-                    .isEqualTo("""
+                    .isEqualToNormalizingNewlines("""
                                        package com.example.javadsl;
                                                                           
                                        public class MapclientriskratingresponseTransform {
@@ -560,11 +560,14 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
 
         addXMLFileToResource(xml);
         runAction(projectContext -> {
-            assertThat(projectContext.getProjectJavaSources().list()).hasSize(4);
-            assertThat(projectContext.getProjectJavaSources().list().get(0).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.FlowConfigurations");
-            assertThat(projectContext.getProjectJavaSources().list().get(1).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.TmDwPayload");
-            assertThat(projectContext.getProjectJavaSources().list().get(2).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransformTM_3");
-            assertThat(projectContext.getProjectJavaSources().list().get(3).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransformTM_1");
+            assertThat(projectContext.getProjectJavaSources().list())
+                    .hasSize(4)
+                    .satisfiesExactlyInAnyOrder(
+                            s -> assertThat(s.getTypes().get(0).toString()).isEqualTo("com.example.javadsl.FlowConfigurations"),
+                            s -> assertThat(s.getTypes().get(0).toString()).isEqualTo("com.example.javadsl.TmDwPayload"),
+                            s -> assertThat(s.getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransformTM_3"),
+                            s -> assertThat(s.getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransformTM_1")
+                    );
         });
     }
 }

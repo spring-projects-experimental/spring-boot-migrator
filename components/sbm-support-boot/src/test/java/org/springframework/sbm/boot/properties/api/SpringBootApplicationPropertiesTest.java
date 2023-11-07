@@ -43,8 +43,8 @@ class SpringBootApplicationPropertiesTest {
                 "foo=bar\n" +
                         "bob=bill");
         SpringBootApplicationProperties sut = new SpringBootApplicationProperties(Path.of("./projectDir").toAbsolutePath(), parse.get(0), new RewriteExecutionContext());
-        assertThat(sut.getProperty("foo").get()).isEqualTo("bar");
-        assertThat(sut.getProperty("bob").get()).isEqualTo("bill");
+        assertThat(sut.getProperty("foo")).hasValue("bar");
+        assertThat(sut.getProperty("bob")).hasValue("bill");
         assertThat(sut.getProperty("jane")).isEmpty();
     }
 

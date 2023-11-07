@@ -183,8 +183,8 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
                 .verify(context -> {
                     List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
                     SpringBootApplicationProperties springBootApplicationProperties = applicationProperties.get(0);
-                    assertThat(springBootApplicationProperties.getProperty("spring.jpa.hibernate.ddl-auto").get()).isEqualTo("create-drop");
-                    assertThat(springBootApplicationProperties.getProperty("spring.jpa.database-platform").get()).isEqualTo("org.hibernate.dialect.HSQLDialect");
+                    assertThat(springBootApplicationProperties.getProperty("spring.jpa.hibernate.ddl-auto")).hasValue("create-drop");
+                    assertThat(springBootApplicationProperties.getProperty("spring.jpa.database-platform")).hasValue("org.hibernate.dialect.HSQLDialect");
                     assertThat(context.search(new PersistenceXmlResourceFilter("**/src/main/resources/**"))).isNotEmpty();
                 });
     }
@@ -249,8 +249,8 @@ class PersistenceXmlToSpringBootApplicationPropertiesActionTest {
         .verify(projectContext -> {
             List<SpringBootApplicationProperties> applicationProperties = projectContext.search(new SpringBootApplicationPropertiesResourceListFilter());
             SpringBootApplicationProperties springBootApplicationProperties = applicationProperties.get(0);
-            assertThat(springBootApplicationProperties.getProperty("spring.jpa.hibernate.ddl-auto").get()).isEqualTo("create-drop");
-            assertThat(springBootApplicationProperties.getProperty("spring.jpa.database-platform").get()).isEqualTo("org.hibernate.dialect.HSQLDialect");
+            assertThat(springBootApplicationProperties.getProperty("spring.jpa.hibernate.ddl-auto")).hasValue("create-drop");
+            assertThat(springBootApplicationProperties.getProperty("spring.jpa.database-platform")).hasValue("org.hibernate.dialect.HSQLDialect");
             assertThat(projectContext.search(new PersistenceXmlResourceFilter("**/src/main/resources/**"))).isNotEmpty();
         });
     }

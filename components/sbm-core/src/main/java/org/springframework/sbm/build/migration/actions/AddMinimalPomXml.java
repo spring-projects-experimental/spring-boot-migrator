@@ -30,6 +30,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -59,7 +60,7 @@ public class AddMinimalPomXml extends AbstractAction {
     @Override
     public void apply(ProjectContext context) {
         String projectDir = context.getProjectRootDirectory().toString();
-        String projectName = projectDir.replace(" ", "-").substring(projectDir.lastIndexOf("/") + 1);
+        String projectName = projectDir.replace(" ", "-").substring(projectDir.lastIndexOf(File.separator) + 1);
         Map<String, String> params = new HashMap<>();
         params.put("groupId", "com.example.change");
         params.put("artifactId", projectName);

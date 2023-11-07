@@ -38,7 +38,7 @@ public class SpringBootApplicationPropertiesResourceFilterTest {
 
         List<SpringBootApplicationProperties> properties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
         assertThat(properties).hasSize(1);
-        assertThat(properties.get(0).getProperty("foo").get()).isEqualTo("bar");
+        assertThat(properties.get(0).getProperty("foo")).hasValue("bar");
     }
 
 }

@@ -19,7 +19,6 @@ import org.springframework.sbm.common.filter.AbsolutePathResourceFinder;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
-import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
@@ -94,7 +93,10 @@ class MigrateMulesoftFileTest {
         sut.apply(projectContext);
 
         Path path = TestProjectContext.getDefaultProjectRoot().resolve("src/main/resources/spring-integration-flow.xml");
-        ProjectResource springIntegration = projectContext.search(new AbsolutePathResourceFinder(path)).get();
-        assertThat(springIntegration.print()).isEqualTo(expected);
+        assertThat(projectContext.search(new AbsolutePathResourceFinder(path)))
+                .isNotEmpty()
+                .hasValueSatisfying(v -> {
+                    assertThat(v.print()).isEqualToNormalizingNewlines(expected);
+                });
     }
 }

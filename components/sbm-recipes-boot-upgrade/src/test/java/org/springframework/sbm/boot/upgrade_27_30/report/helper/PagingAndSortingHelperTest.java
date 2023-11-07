@@ -28,21 +28,20 @@ public class PagingAndSortingHelperTest {
         String javaClassWithPagingAndSortingRepository = """
                 package example;
                  
-                 import org.springframework.data.repository.PagingAndSortingRepository;
+                import org.springframework.data.repository.PagingAndSortingRepository;
                  
-                 import java.util.List;
+                import java.util.List;
                  
-                 public interface SongStatRepository extends PagingAndSortingRepository<SongStat, String> {
-                     List<String> findTop10SongsByRegionOrderByTimesPlayedDesc(String region);
-                 }
+                public interface SongStatRepository extends PagingAndSortingRepository<SongStat, String> {
+                    List<String> findTop10SongsByRegionOrderByTimesPlayedDesc(String region);
+                }
                 """;
 
         @Language("java")
         String javaClassWithoutPagingAndSortingRepo = """
-        
-        package example;
-        public class A {}
-        """;
+                package example;
+                public class A {}
+                """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.1")
@@ -70,14 +69,14 @@ public class PagingAndSortingHelperTest {
                                 ==== Why is the application affected
                                 We found classes which uses `PagingAndSortingRepository` in following files:
                                 
-                                * `<PATH>/src/main/java/example/SongStatRepository.java`
+                                * `%s`
                                                   
                                                                 
                                 ==== Remediation
                                 If one requires the old behavior one must extend not only the sorting repository, but also the respective CRUD repository explicitly. This was done so the sorting support could easily be combined with the List repositories introduced above.
                                 
                                 
-                                    """
+                                    """.formatted(context.getProjectRootDirectory().resolve("src/main/java/example/SongStatRepository.java"))
                 );
     }
 
@@ -87,21 +86,20 @@ public class PagingAndSortingHelperTest {
         String javaClassWithReactiveSortingRepo = """
                 package example;
                  
-                 import org.springframework.data.repository.reactive.ReactiveSortingRepository;
+                import org.springframework.data.repository.reactive.ReactiveSortingRepository;
                  
-                 import java.util.List;
+                import java.util.List;
                  
-                 public interface SongStatRepository extends ReactiveSortingRepository<SongStat, String> {
-                     List<String> findTop10SongsByRegionOrderByTimesPlayedDesc(String region);
-                 }
+                public interface SongStatRepository extends ReactiveSortingRepository<SongStat, String> {
+                    List<String> findTop10SongsByRegionOrderByTimesPlayedDesc(String region);
+                }
                 """;
 
         @Language("java")
         String javaClassWithoutReactiveSortingRepo = """
-        
-        package example;
-        public class A {}
-        """;
+                package example;
+                public class A {}
+                """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.1")
@@ -130,14 +128,14 @@ public class PagingAndSortingHelperTest {
                                 ==== Why is the application affected
                                 We found classes which uses `ReactiveSortingRepository` in following files:
                                                                 
-                                * `<PATH>/src/main/java/example/SongStatRepository.java`
+                                * `%s`
                                                                 
                                                                 
                                 ==== Remediation
                                 If one requires the old behavior one must extend not only the sorting repository, but also the respective CRUD repository explicitly. This was done so the sorting support could easily be combined with the List repositories introduced above.
                                           
                                                                 
-                                """
+                                """.formatted(context.getProjectRootDirectory().resolve("src/main/java/example/SongStatRepository.java"))
                 );
     }
 
@@ -147,21 +145,20 @@ public class PagingAndSortingHelperTest {
         String javaClassWithReactiveSortingRepo = """
                 package example;
                  
-                 import org.springframework.data.repository.reactive.RxJava3SortingRepository;
+                import org.springframework.data.repository.reactive.RxJava3SortingRepository;
                  
-                 import java.util.List;
+                import java.util.List;
                  
-                 public interface SongStatRepository extends RxJava3SortingRepository<SongStat, String> {
-                     List<String> findTop10SongsByRegionOrderByTimesPlayedDesc(String region);
-                 }
+                public interface SongStatRepository extends RxJava3SortingRepository<SongStat, String> {
+                    List<String> findTop10SongsByRegionOrderByTimesPlayedDesc(String region);
+                }
                 """;
 
         @Language("java")
         String javaClassWithoutReactiveSortingRepo = """
-        
-        package example;
-        public class A {}
-        """;
+                package example;
+                public class A {}
+                """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.1")
@@ -174,8 +171,7 @@ public class PagingAndSortingHelperTest {
         SpringBootUpgradeReportTestSupport
                 .generatedSection("Paging and sorting repository")
                 .fromProjectContext(context)
-                .shouldRenderAs(
-                        """
+                .shouldRenderAs("""
                                 === Paging and sorting repository
 
                                 ==== What Changed
@@ -190,14 +186,14 @@ public class PagingAndSortingHelperTest {
                                 ==== Why is the application affected
                                 We found classes which uses `RxJavaSortingRepository` in following files:
                                 
-                                * `<PATH>/src/main/java/example/SongStatRepository.java`
+                                * `%s`
                                                     
                                                                 
                                 ==== Remediation
                                 If one requires the old behavior one must extend not only the sorting repository, but also the respective CRUD repository explicitly. This was done so the sorting support could easily be combined with the List repositories introduced above.
                                 
                                 
-                                    """
+                                """.formatted(context.getProjectRootDirectory().resolve("src/main/java/example/SongStatRepository.java"))
                 );
     }
 
@@ -219,33 +215,32 @@ public class PagingAndSortingHelperTest {
         String javaClassWithReactiveSortingRepo = """
                 package example;
                  
-                 import org.springframework.data.repository.reactive.ReactiveSortingRepository;
+                import org.springframework.data.repository.reactive.ReactiveSortingRepository;
                  
-                 import java.util.List;
+                import java.util.List;
                  
-                 public interface SongStatRepositoryReactive extends ReactiveSortingRepository<SongStat, String> {
-                     List<String> findTop10SongsByRegionOrderByTimesPlayedDesc(String region);
-                 }
+                public interface SongStatRepositoryReactive extends ReactiveSortingRepository<SongStat, String> {
+                    List<String> findTop10SongsByRegionOrderByTimesPlayedDesc(String region);
+                }
                 """;
         @Language("java")
         String javaClassWithRXReactiveSortingRepo = """
                 package example;
                  
-                 import org.springframework.data.repository.reactive.RxJava3SortingRepository;
+                import org.springframework.data.repository.reactive.RxJava3SortingRepository;
                  
-                 import java.util.List;
+                import java.util.List;
                  
-                 public interface SongStatRepositoryReactiveRx extends RxJava3SortingRepository<SongStat, String> {
-                     List<String> findTop10SongsByRegionOrderByTimesPlayedDesc(String region);
-                 }
+                public interface SongStatRepositoryReactiveRx extends RxJava3SortingRepository<SongStat, String> {
+                    List<String> findTop10SongsByRegionOrderByTimesPlayedDesc(String region);
+                }
                 """;
 
         @Language("java")
         String javaClassWithoutPagingAndSortingRepo = """
-        
-        package example;
-        public class A {}
-        """;
+                package example;
+                public class A {}
+                """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.1")
@@ -277,22 +272,26 @@ public class PagingAndSortingHelperTest {
                                 ==== Why is the application affected
                                 We found classes which uses `PagingAndSortingRepository` in following files:
                                                                 
-                                * `<PATH>/src/main/java/example/SongStatRepositoryPagingAndSorting.java`
+                                * `%s`
                                                                 
                                 We found classes which uses `ReactiveSortingRepository` in following files:
                                                                 
-                                * `<PATH>/src/main/java/example/SongStatRepositoryReactive.java`
+                                * `%s`
                                                                 
                                 We found classes which uses `RxJavaSortingRepository` in following files:
                                                                 
-                                * `<PATH>/src/main/java/example/SongStatRepositoryReactiveRx.java`
+                                * `%s`
                                                                 
                                                                 
                                 ==== Remediation
                                 If one requires the old behavior one must extend not only the sorting repository, but also the respective CRUD repository explicitly. This was done so the sorting support could easily be combined with the List repositories introduced above.
                                            
-                                                                
-                                """
+                                       
+                                """.formatted(
+                                        context.getProjectRootDirectory().resolve("src/main/java/example/SongStatRepositoryPagingAndSorting.java"),
+                                        context.getProjectRootDirectory().resolve("src/main/java/example/SongStatRepositoryReactive.java"),
+                                        context.getProjectRootDirectory().resolve("src/main/java/example/SongStatRepositoryReactiveRx.java")
+                                )
                 );
     }
 
@@ -301,10 +300,9 @@ public class PagingAndSortingHelperTest {
 
         @Language("java")
         String javaClassWithoutPagingAndSortingRepo = """
-        
-        package example;
-        public class A {}
-        """;
+                package example;
+                public class A {}
+                """;
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withSpringBootParentOf("2.7.1")

@@ -19,9 +19,7 @@ import org.openrewrite.SourceFile;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 // TODO: make package private
@@ -65,63 +63,18 @@ public class ProjectResourceSet {
         return projectResources.size();
     }
 
-//    /**
-//     * @deprecated use {@link ProjectContext#getFilteredResources(ProjectResourcesFilter)}
-//     * with {@link org.springframework.sbm.project.resource.filter.GenericTypeFilter}
-//     */
-//    @Deprecated(forRemoval = true)
-//    public <T> List<RewriteSourceFileHolder<T>> getProjections(Class<T> projectionClass) {
-//        return typeFilteredList(projectionClass);
-//    }
-
     public int indexOf(Path absolutePath) {
         return projectResources.stream()
                 .map(ProjectResource::getAbsolutePath)
-                .collect(Collectors.toList())
+                .toList()
                 .indexOf(absolutePath);
     }
 
     void clearDeletedResources() {
-        Iterator<RewriteSourceFileHolder<? extends SourceFile>> iterator = this.projectResources.iterator();
-        while(iterator.hasNext()) {
-            RewriteSourceFileHolder<? extends SourceFile> current = iterator.next();
-            if(current.isDeleted()) {
-                iterator.remove();
-            }
-        }
+        this.projectResources.removeIf(BaseProjectResource::isDeleted);
     }
 
     public Stream<RewriteSourceFileHolder<? extends SourceFile>> streamIncludingDeleted() {
         return projectResources.stream();
     }
-//
-//    public Stream<ProjectResource> filteredStream(ProjectResourceFilter filter) {
-//        return projectResources.stream()
-//                .filter(filter::satisfies);
-//    }
-
-//    public <T extends ProjectResource> Stream<T> classFilteredStream(Class<T> clazz) {
-//        return filteredStream(pr -> clazz.isAssignableFrom(pr.getClass()))
-//                .map(clazz::cast);
-//    }
-//
-//    public <T> Stream<RewriteSourceFileHolder<T>> typeFilteredStream(Class<T> type) {
-//        return filteredStream(pr -> Objects.nonNull(pr.getType()) && type.isAssignableFrom(pr.getType()))
-//                .map(pr -> (RewriteSourceFileHolder<T>)pr);
-//    }
-//
-//    public List<ProjectResource> filteredList(ProjectResourceFilter filter) {
-//        return filteredStream(filter)
-//                .collect(Collectors.toList());
-//    }
-//
-//    public <T extends ProjectResource> List<T> classFilteredList(Class<T> clazz) {
-//        return classFilteredStream(clazz)
-//                .collect(Collectors.toList());
-//    }
-//
-//    public <T> List<RewriteSourceFileHolder<T>> typeFilteredList(Class<T> type) {
-//        return typeFilteredStream(type)
-//                .collect(Collectors.toList());
-//    }
 }
