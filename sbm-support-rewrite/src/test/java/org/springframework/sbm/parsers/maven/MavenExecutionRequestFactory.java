@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
+import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
@@ -74,6 +75,8 @@ class MavenExecutionRequestFactory {
             }
             userProperties.put("skipTests", "true");
             request.setUserProperties(userProperties);
+
+            request.setRemoteRepositories(List.of(new MavenArtifactRepository("central", "https://repo.maven.apache.org/maven2", new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(true, "never", "warn"), new ArtifactRepositoryPolicy(true, "never", "warn"))));
 
             // TODO: make profile configurable
             // fixes the maven run when plugins depending on Java version are encountered.

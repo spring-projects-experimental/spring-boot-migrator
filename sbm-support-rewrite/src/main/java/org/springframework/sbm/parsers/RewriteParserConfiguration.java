@@ -17,6 +17,7 @@ package org.springframework.sbm.parsers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.cache.*;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.tree.ParsingEventListener;
@@ -53,14 +54,6 @@ import java.util.function.Consumer;
 @EnableConfigurationProperties({ParserProperties.class, SbmApplicationProperties.class})
 @Import({ScanScope.class, ScopeConfiguration.class})
 public class RewriteParserConfiguration {
-
-    @Autowired
-    private ParserProperties parserProperties;
-
-//    @Bean
-//    ProvenanceMarkerFactory provenanceMarkerFactory(MavenMojoProjectParserFactory projectParserFactory) {
-//        return new ProvenanceMarkerFactory(projectParserFactory);
-//    }
 
     @Bean
     MavenPasswordDecrypter mavenPasswordDecrypter() {

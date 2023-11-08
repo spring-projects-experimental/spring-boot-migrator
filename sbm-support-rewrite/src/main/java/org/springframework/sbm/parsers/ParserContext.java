@@ -79,4 +79,5 @@ public class ParserContext {
                 .filter(p -> ResourceUtil.getPath(p.getPomFile()).toString().equals(baseDir.resolve(s.getSourcePath()).toString()))
                 .forEach(p -> p.setSourceFile(s));
     }
+
 }

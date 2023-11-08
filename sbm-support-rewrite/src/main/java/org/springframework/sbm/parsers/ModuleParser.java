@@ -18,12 +18,15 @@ package org.springframework.sbm.parsers;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.FileAttributes;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.internal.JavaTypeCache;
 import org.openrewrite.java.marker.JavaSourceSet;
+import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.Generated;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.Markers;
@@ -31,13 +34,13 @@ import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
 
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -73,7 +76,7 @@ public class ModuleParser {
     /**
      * Parse Java sources and resources under {@code src/main} of current module.
      */
-    public List<SourceFile> processMainSources(
+    public SourceSetParsingResult processMainSources(
             Path baseDir,
             List<Resource> resources,
             Xml.Document moduleBuildFile,
@@ -116,20 +119,40 @@ public class ModuleParser {
         javaParserBuilder.typeCache(typeCache);
 
         Iterable<Parser.Input> inputs = mainJavaSources.stream()
-                .map(r -> new Parser.Input(ResourceUtil.getPath(r), () -> ResourceUtil.getInputStream(r)))
+                .map(r -> {
+                    FileAttributes fileAttributes = null;
+                    Path path = ResourceUtil.getPath(r);
+                    boolean isSynthetic = Files.exists(path);
+                    Supplier<InputStream> inputStreamSupplier = () -> ResourceUtil.getInputStream(r);
+                    Parser.Input input = new Parser.Input(path, fileAttributes, inputStreamSupplier, isSynthetic);
+                    return input;
+                })
                 .toList();
 
-        Stream<? extends SourceFile> cus = Stream.of(javaParserBuilder)
-                .map(JavaParser.Builder::build)
-                .flatMap(parser -> parser.parseInputs(inputs, baseDir, executionContext))
-                .peek(s -> alreadyParsed.add(baseDir.resolve(s.getSourcePath())));
+        Set<JavaType.FullyQualified> localClassesCp = new HashSet<>();
+        JavaSourceSet javaSourceSet = sourceSet("main", dependencies, typeCache);
+        List<? extends SourceFile> cus = javaParserBuilder.build()
+                .parseInputs(inputs, baseDir, executionContext)
+                .peek(s -> {
+                    ((J.CompilationUnit)s).getClasses()
+                            .stream()
+                            .map(J.ClassDeclaration::getType)
+                            .forEach(localClassesCp::add);
 
+                    alreadyParsed.add(baseDir.resolve(s.getSourcePath()));
+                })
+                .toList();
+
+        // TODO: This is a hack:
+        // Parsed java sources are not themselves on the classpath (here).
+        // The actual parsing happens when the stream is terminated (toList),
+        // therefore the toList() must be called before the parsed compilation units can be added to the classpath
         List<Marker> mainProjectProvenance = new ArrayList<>(provenanceMarkers);
-        mainProjectProvenance.add(sourceSet("main", dependencies, typeCache));
+        javaSourceSet = appendToClasspath(localClassesCp, javaSourceSet);
+        mainProjectProvenance.add(javaSourceSet);
 
-        // FIXME: 945 Why target and not all main?
         List<Path> parsedJavaPaths = javaSourcesInTarget.stream().map(ResourceUtil::getPath).toList();
-        Stream<SourceFile> parsedJava = cus.map(addProvenance(baseDir, mainProjectProvenance, parsedJavaPaths));
+        Stream<SourceFile> parsedJava = cus.stream().map(addProvenance(baseDir, mainProjectProvenance, parsedJavaPaths));
         log.debug("[%s] Scanned %d java source files in main scope.".formatted(currentProject, mainJavaSources.size()));
 
         //Filter out any generated source files from the returned list, as we do not want to apply the recipe to the
@@ -148,7 +171,22 @@ public class ModuleParser {
         log.debug("[%s] Scanned %d resource files in main scope.".formatted(currentProject, (alreadyParsed.size() - sourcesParsedBefore)));
         // Any resources parsed from "main/resources" should also have the main source set added to them.
         sourceFiles.addAll(parsedResourceFiles);
-        return sourceFiles;
+        return new SourceSetParsingResult(sourceFiles, javaSourceSet.getClasspath());
+    }
+
+    /**
+     * Add entries that don't exist in the classpath of {@code javaSourceSet} from {@code appendingClasspath}.
+     */
+    @NotNull
+    private static JavaSourceSet appendToClasspath(Set<JavaType.FullyQualified> appendingClasspath, JavaSourceSet javaSourceSet) {
+        List<JavaType.FullyQualified> curCp = javaSourceSet.getClasspath();
+        appendingClasspath.forEach(f -> {
+            if(!curCp.contains(f)) {
+                curCp.add(f);
+            }
+        });
+        javaSourceSet = javaSourceSet.withClasspath(new ArrayList<>(curCp));
+        return javaSourceSet;
     }
 
     @NotNull
@@ -160,7 +198,7 @@ public class ModuleParser {
     /**
      * Parse Java sources and resource files under {@code src/test}.
      */
-    public List<SourceFile> processTestSources(
+    public SourceSetParsingResult processTestSources(
             Path baseDir,
             Xml.Document moduleBuildFile,
             JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
@@ -169,8 +207,8 @@ public class ModuleParser {
             Set<Path> alreadyParsed,
             ExecutionContext executionContext,
             MavenProject currentProject,
-            List<Resource> resources
-    ) {
+            List<Resource> resources,
+            List<JavaType.FullyQualified> classpath) {
         log.info("Processing test sources in module '%s'".formatted(currentProject.getProjectId()));
 
         List<Path> testDependencies = currentProject.getTestClasspathElements();
@@ -186,14 +224,25 @@ public class ModuleParser {
                 .map(r -> new Parser.Input(ResourceUtil.getPath(r), () -> ResourceUtil.getInputStream(r)))
                 .toList();
 
-        Stream<? extends SourceFile> cus = Stream.of(javaParserBuilder)
-                .map(JavaParser.Builder::build)
-                .flatMap(parser -> parser.parseInputs(inputs, baseDir, executionContext));
+        final List<JavaType.FullyQualified> localClassesCp = new ArrayList<>();
+        List<? extends SourceFile> cus = javaParserBuilder.build()
+                .parseInputs(inputs, baseDir, executionContext)
+                .peek(s -> {
+                    ((J.CompilationUnit) s).getClasses()
+                            .stream()
+                            .map(J.ClassDeclaration::getType)
+                            .forEach(localClassesCp::add);
+                    alreadyParsed.add(baseDir.resolve(s.getSourcePath()));
+                })
+                .toList();
 
         List<Marker> markers = new ArrayList<>(provenanceMarkers);
-        markers.add(sourceSet("test", testDependencies, typeCache));
 
-        Stream<SourceFile> parsedJava = cus.map(addProvenance(baseDir, markers, null));
+        JavaSourceSet javaSourceSet = sourceSet("test", testDependencies, typeCache);
+        Set<JavaType.FullyQualified> curClasspath = Stream.concat(classpath.stream(), localClassesCp.stream()).collect(Collectors.toSet());
+        javaSourceSet = appendToClasspath(curClasspath, javaSourceSet);
+        markers.add(javaSourceSet);
+        Stream<SourceFile> parsedJava = cus.stream().map(addProvenance(baseDir, markers, null));
 
         log.debug("[%s] Scanned %d java source files in test scope.".formatted(currentProject, testJavaSources.size()));
         Stream<SourceFile> sourceFiles = parsedJava;
@@ -205,7 +254,7 @@ public class ModuleParser {
         log.debug("[%s] Scanned %d resource files in test scope.".formatted(currentProject, (alreadyParsed.size() - sourcesParsedBefore)));
         sourceFiles = Stream.concat(sourceFiles, parsedResourceFiles);
         List<SourceFile> result = sourceFiles.toList();
-        return result;
+        return new SourceSetParsingResult(result, javaSourceSet.getClasspath());
     }
 
 

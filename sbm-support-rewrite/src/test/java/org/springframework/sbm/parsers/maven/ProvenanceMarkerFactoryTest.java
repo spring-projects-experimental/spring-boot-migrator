@@ -94,8 +94,6 @@ class ProvenanceMarkerFactoryTest {
                 // and assert markers
                 int numExpectedMarkers = 5;
 
-                System.out.println(System.getenv());
-
                 if(System.getenv("GITHUB_ACTION_REF") != null) {
                     numExpectedMarkers = 6; // CI marker
                 }

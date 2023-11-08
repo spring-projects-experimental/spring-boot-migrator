@@ -129,8 +129,11 @@ public class MavenProject {
         return pomModel.getArtifactId();
     }
 
+    /**
+     * FIXME: when the version of parent pom is null (inherited by it's parent) the version will be null.
+     */
     public String getVersion() {
-        return pomModel.getVersion();
+        return pomModel.getVersion() == null ? pomModel.getParent().getVersion() : pomModel.getVersion();
     }
 
     @Override
@@ -222,5 +225,9 @@ public class MavenProject {
 
     public ProjectId getProjectId() {
         return projectId;
+    }
+
+    public Object getProjectEncoding() {
+        return getPomModel().getProperties().get("project.build.sourceEncoding");
     }
 }

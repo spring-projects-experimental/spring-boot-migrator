@@ -292,7 +292,11 @@ public class MavenProjectAnalyzer {
 
         @Override
         public String getName() {
-            return delegate.getName();
+            String name = delegate.getName();
+            if(name == null) {
+                name = delegate.getArtifactId();
+            }
+            return name;
         }
 
         @Override

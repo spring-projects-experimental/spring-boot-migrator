@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers.maven;
+package org.springframework.sbm.test.util;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.openrewrite.maven.utilities.MavenArtifactDownloader;
+import org.springframework.sbm.parsers.RewriteProjectParsingResult;
 
 /**
  * @author Fabian Krüger
  */
-@Slf4j
-@RequiredArgsConstructor
-class MavenMojoProjectParserPrivateMethods {
-
-    private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
-    private final MavenArtifactDownloader artifactDownloader;
-
-
-
+public record ParallelParsingResult(RewriteProjectParsingResult comparingParsingResult, RewriteProjectParsingResult testedParsingResult) {
 }

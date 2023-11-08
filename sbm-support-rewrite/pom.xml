@@ -164,30 +164,6 @@
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-yaml</artifactId>
         </dependency>
-        <!--<dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-python</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-kotlin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-javascript</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-polyglot</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-templating</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite.recipe</groupId>
-            <artifactId>rewrite-ai-search</artifactId>
-        </dependency>-->
         <dependency>
             <groupId>org.openrewrite.recipe</groupId>
             <artifactId>rewrite-cucumber-jvm</artifactId>
@@ -208,26 +184,10 @@
             <groupId>org.openrewrite.recipe</groupId>
             <artifactId>rewrite-micrometer</artifactId>
         </dependency>
-        <!--<dependency>
-            <groupId>org.openrewrite.recipe</groupId>
-            <artifactId>rewrite-micronaut</artifactId>
-        </dependency>-->
         <dependency>
             <groupId>org.openrewrite.recipe</groupId>
             <artifactId>rewrite-migrate-java</artifactId>
         </dependency>
-        <!--<dependency>
-            <groupId>org.openrewrite.recipe</groupId>
-            <artifactId>rewrite-okhttp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite.recipe</groupId>
-            <artifactId>rewrite-quarkus</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite.recipe</groupId>
-            <artifactId>rewrite-recommendations</artifactId>
-        </dependency>-->
         <dependency>
             <groupId>org.openrewrite.recipe</groupId>
             <artifactId>rewrite-spring</artifactId>
@@ -240,10 +200,6 @@
             <groupId>org.openrewrite.recipe</groupId>
             <artifactId>rewrite-static-analysis</artifactId>
         </dependency>
-        <!--<dependency>
-            <groupId>org.openrewrite.recipe</groupId>
-            <artifactId>rewrite-terraform</artifactId>
-        </dependency>-->
         <dependency>
             <groupId>org.openrewrite.recipe</groupId>
             <artifactId>rewrite-testing-frameworks</artifactId>
@@ -347,7 +303,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <pluginManagement>
             <plugins>
@@ -368,7 +323,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
