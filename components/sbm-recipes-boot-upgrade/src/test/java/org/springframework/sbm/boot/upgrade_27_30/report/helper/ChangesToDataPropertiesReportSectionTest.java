@@ -24,6 +24,8 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
+import java.nio.file.Path;
+
 
 /**
  * @author Fabian Krüger
@@ -40,6 +42,10 @@ public class ChangesToDataPropertiesReportSectionTest {
                 .withProjectResource("src/main/resources/application-another.properties", "spring.data.here=there")
                 .build();
 
+        Path projectRoot = context.getProjectRootDirectory();
+        Path props1 = Path.of("src", "main", "resources", "application.properties");
+        Path props2 = Path.of("src", "main", "resources", "application-another.properties");
+
         SpringBootUpgradeReportTestSupport.generatedSection("Changes to Data Properties")
                 .fromProjectContext(context)
                 .shouldRenderAs(
@@ -53,16 +59,23 @@ public class ChangesToDataPropertiesReportSectionTest {
                         ==== Why is the application affected
                         The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
                         
-                        * file://<PATH>/src/main/resources/application.properties[`src/main/resources/application.properties`]
+                        * %s[`%s`]
                         ** `spring.data.foo`
-                        * file://<PATH>/src/main/resources/application-another.properties[`src/main/resources/application-another.properties`]
+                        * %s[`%s`]
                         ** `spring.data.here`
                                            
                         ==== Remediation
                         Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
                                            
                                            
-                        """);
+                        """.formatted(
+                                projectRoot.resolve(props1).toUri(),
+                                props1,
+                                projectRoot.resolve(props2).toUri(),
+                                props2
+
+                                )
+                );
     }
 
     @Test

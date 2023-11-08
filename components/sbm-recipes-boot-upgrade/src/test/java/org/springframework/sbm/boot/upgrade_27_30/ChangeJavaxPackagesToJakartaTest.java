@@ -15,14 +15,15 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30;
 
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.ChangePackage;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,34 +32,43 @@ public class ChangeJavaxPackagesToJakartaTest {
     @Test
     void collectingJavaxPackages() {
 
-        String javaClass1 =
-                "package com.example;\n" +
-                "import javax.money.MonetaryAmount;\n" +
-                "public class SomeClass {\n" +
-                "  public MonetaryAmount convertToEntityAttribute() {\n" +
-                "      return null;\n" +
-                "  }\n" +
-                "}";
+        @Language("java")
+        String javaClass1 = """
+                package com.example;
+                import javax.money.MonetaryAmount;
+                public class SomeClass {
+                  public MonetaryAmount convertToEntityAttribute() {
+                      return null;
+                  }
+                }
+                """;
 
-        String javaClass2 =
-                "package com.example;\n" +
-                "import javax.persistence.Converter;\n" +
-                "public class SomeClass2 {\n" +
-                "  public Converter getConverter() {\n" +
-                "      return null;\n" +
-                "  }\n" +
-                "}";
+        @Language("java")
+        String javaClass2 = """
+                package com.example;
+                import javax.persistence.Converter;
+                public class SomeClass2 {
+                  public Converter getConverter() {
+                      return null;
+                  }
+                }
+                """;
 
-        String javaClass3 =
-                "package com.example;\n" +
-                "public class NoImports {}";
+        @Language("java")
+        String javaClass3 = """
+                package com.example;
+                public class NoImports {}
+                """;
 
-        String javaClass4 =
-                "package com.example;\n" +
-                "import java.math.BigDecimal;\n" +
-                "public class OtherImports {\n" +
-                "  private BigDecimal number;\n" +
-                "}";
+        @Language("java")
+        String javaClass4 = """
+                package com.example;
+                import java.math.BigDecimal;
+                public class OtherImports {
+                  private BigDecimal number;
+                }
+                """;
+
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("javax.money:money-api:1.1")
                 .withJavaSource("src/main/java", javaClass1)
@@ -67,13 +77,13 @@ public class ChangeJavaxPackagesToJakartaTest {
                 .withJavaSource("src/main/java", javaClass4)
                 .build();
 
-        List<JavaSource> matches = context.getProjectJavaSources().asStream()
+        List<JavaSource> matches = context.getProjectJavaSources().stream()
                 .filter(js -> js.hasImportStartingWith("javax."))
-                .collect(Collectors.toList());
+                .toList();
 
         assertThat(matches).hasSize(2);
-        assertThat(matches.get(0).getSourcePath().toString()).isEqualTo("src/main/java/com/example/SomeClass.java");
-        assertThat(matches.get(1).getSourcePath().toString()).isEqualTo("src/main/java/com/example/SomeClass2.java");
+        assertThat(LinuxWindowsPathUnifier.unifyPath(matches.get(0).getSourcePath())).isEqualTo("src/main/java/com/example/SomeClass.java");
+        assertThat(LinuxWindowsPathUnifier.unifyPath(matches.get(1).getSourcePath())).isEqualTo("src/main/java/com/example/SomeClass2.java");
         matches.forEach(m -> System.out.println(m.getSourcePath()));
 
     }

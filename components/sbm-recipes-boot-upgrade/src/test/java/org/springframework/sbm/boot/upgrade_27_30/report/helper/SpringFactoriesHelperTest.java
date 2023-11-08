@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
+import java.nio.file.Path;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SpringFactoriesHelperTest {
@@ -43,6 +45,9 @@ class SpringFactoriesHelperTest {
 
         assertThat(sut.getData()).isNotNull();
         assertThat(sut.getData().get("files")).hasSize(1);
-        assertThat(sut.getData().get("files").get(0)).contains("src/main/resources/META-INF/spring.factories");
+
+        Path actual = context.getProjectRootDirectory().resolve(Path.of("src/main/resources/META-INF/spring.factories"));
+        Path expected = Path.of(sut.getData().get("files").get(0));
+        assertThat(expected).isEqualTo(actual);
     }
 }

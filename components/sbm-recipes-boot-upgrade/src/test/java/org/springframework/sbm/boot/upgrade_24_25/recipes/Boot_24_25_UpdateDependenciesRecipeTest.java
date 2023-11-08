@@ -44,7 +44,7 @@ public class Boot_24_25_UpdateDependenciesRecipeTest {
                         <version>2.5.6</version>
                         <relativePath/> <!-- lookup parent from repository -->
                     </parent>
-                """
+                """.replace("\n", System.lineSeparator())
         );
     }
 }

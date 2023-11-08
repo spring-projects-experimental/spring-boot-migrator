@@ -68,10 +68,10 @@ public class ChangesToDataPropertiesHelper extends SpringBootUpgradeReportSectio
                     .collect(Collectors.toList());
             if (!propertiesFound.isEmpty()) {
                 if (data.containsKey("matches")) {
-                    data.get("matches").add(new Match(absolutePath.toString(), p.getSourcePath().toString(), propertiesFound));
+                    data.get("matches").add(new Match(absolutePath.toUri().toString(), p.getSourcePath().toString(), propertiesFound));
                 } else {
                     List<Match> matches = new ArrayList<>();
-                    matches.add(new Match(absolutePath.toString(), p.getSourcePath().toString(), propertiesFound));
+                    matches.add(new Match(absolutePath.toUri().toString(), p.getSourcePath().toString(), propertiesFound));
                     data.put("matches", matches);
                 }
             }
@@ -87,7 +87,7 @@ public class ChangesToDataPropertiesHelper extends SpringBootUpgradeReportSectio
 
     @RequiredArgsConstructor
     @Getter
-    public class Match {
+    public static class Match {
         private final String absolutePath;
         private final String relativePath;
         private final List<Object> propertiesFound;

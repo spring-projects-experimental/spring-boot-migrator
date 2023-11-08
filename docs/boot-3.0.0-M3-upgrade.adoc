@@ -61,7 +61,7 @@ All variables used in the template must be provided by `getData`.
             The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
 
             <#list matches as match> <2>
-              * file://${match.absolutePath}[`${match.relativePath}`]
+              * ${match.absolutePath.toUri()}[`${match.relativePath}`]
               <#list match.propertiesFound as property>
               ** `${property}`
               </#list>
@@ -232,7 +232,7 @@ https://github.com/Buzzardo/spring-style-guide/blob/master/spring-style-guide.ad
             The scan found properties with `spring.data` prefix but no dependency matching `org.springframework.data:.*`.
 
             <#list matches as match>
-              * file://${match.absolutePath}[`${match.relativePath}`]
+              * ${match.absolutePath.toUri()}[`${match.relativePath}`]
               <#list match.propertiesFound as property>
               ** `${property}`
               </#list>

@@ -165,10 +165,11 @@ public class SpringMVCAndWebFluxUrlMatchingChangesReportSectionTest {
                 
                 
                 """.formatted(
-                        projectRoot.resolve(restController1Path).toUri(),
-                        restController1Path,
+                        // Note the controller order here, sorted by package / absolute path
                         projectRoot.resolve(restController2Path).toUri(),
-                        restController2Path
+                        restController2Path,
+                        projectRoot.resolve(restController1Path).toUri(),
+                        restController1Path
                 );
 
         SpringBootUpgradeReportTestSupport.generatedSection("Spring MVC and WebFlux URL matching changes")

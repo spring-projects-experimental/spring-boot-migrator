@@ -49,7 +49,7 @@ public class BannerSupportReportSectionTest {
                                 The scan found banner image files here:
                                                                 
                                 * `%1$s`
-                                * `%2%s`
+                                * `%2$s`
                                                         
                                 ==== Remediation
                                  
