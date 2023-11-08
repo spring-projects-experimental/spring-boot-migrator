@@ -104,7 +104,6 @@ public class SpringBootUpgradeReportTestSupport {
             verify(assertion);
         }
 
-
         private Map<String, String> defaultMap() {
             String path = Path
                     .of(".")
@@ -214,14 +213,7 @@ public class SpringBootUpgradeReportTestSupport {
             if (sectionUnderTest.getRemediation().getPossibilities().isEmpty()) {
                 String recipe = sectionUnderTest.getRemediation().getRecipe();
                 if (recipe != null) {
-                    String target = """
-                                                                                    
-                              ++++
-                              <div class="run-a-recipe" recipe="<RECIPE>">
-                              </div>
-                              ++++
-                                                                            
-                              """;
+                    String target = "%n%s%n".formatted(SpringBootUpgradeReportSection.BUTTON_CODE);
                     buttonCodes.add(target.replace("<RECIPE>", recipe));
                 }
             } else {
@@ -232,14 +224,7 @@ public class SpringBootUpgradeReportTestSupport {
                         .map(RemediationPossibility::getRecipe)
                         .filter(Objects::nonNull)
                         .map(recipe -> {
-                            String target = """
-                                                                                    
-                              ++++
-                              <div class="run-a-recipe" recipe="<RECIPE>">
-                              </div>
-                              ++++
-                                                                            
-                              """;
+                            String target = "%n%s%n".formatted(SpringBootUpgradeReportSection.BUTTON_CODE);
                             return target.replace("<RECIPE>", recipe);
                         })
                         .collect(Collectors.toList());
@@ -263,7 +248,6 @@ public class SpringBootUpgradeReportTestSupport {
         }
 
         private String replacePlaceHolders(String expectedOutput, Map<String, String> templateVariables) {
-            StringBuffer sb = new StringBuffer();
             // hacked, there's most probably a better way but ST couldn't digest html code
             for (Map.Entry<String, String> kv : templateVariables.entrySet()) {
                 String key = "<" + kv.getKey() + ">";

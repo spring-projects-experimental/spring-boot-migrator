@@ -51,6 +51,14 @@ public class SpringBootUpgradeReportSection {
     private static final String GITHUB_ISSUE = "**Issue:** https://github.com/spring-projects-experimental/spring-boot-migrator/issues/%1$d[#%1$d^, role=\"ext-link\"]  + %n";
     private static final String GITHUB_CONTRIBUTOR = "https://github.com/%1$s[@%1$s^, role=\"ext-link\"]";
     private static final String ls = System.lineSeparator();
+
+    public static final String BUTTON_CODE = """
+            ++++
+            <div class="run-a-recipe" recipe="<RECIPE>">
+            </div>
+            ++++
+            """.replace("\n", System.lineSeparator());
+
     /**
      * The spring project(s)/modules this change comes from.
      *
@@ -263,13 +271,7 @@ public class SpringBootUpgradeReportSection {
                         <span class="visually-hidden">Loading...</span>
                     </button>
             */
-            String buttonCode = """
-                    ++++
-                    <div class="run-a-recipe" recipe="<RECIPE>">
-                    </div>
-                    ++++
-                    """;
-            buttonCode = buttonCode.replace("<RECIPE>", recipe);
+            String buttonCode = BUTTON_CODE.replace("<RECIPE>", recipe);
             sb.append(buttonCode);
         }
     }
