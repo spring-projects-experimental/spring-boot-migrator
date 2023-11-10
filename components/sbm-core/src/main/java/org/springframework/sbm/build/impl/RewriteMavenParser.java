@@ -21,12 +21,10 @@ import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenParser;
-import org.openrewrite.xml.XmlParser;
-import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.parsers.maven.MavenSettingsInitializer;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -76,7 +74,7 @@ public class RewriteMavenParser implements Parser {
 
     @Override
     public Stream<SourceFile> parse(ExecutionContext ctx, String... sources) {
-        mavenSettingsInitializer.initializeMavenSettings(ctx);
+        mavenSettingsInitializer.initializeMavenSettings();
         return parser.parse(ctx, sources);
     }
 
@@ -90,7 +88,7 @@ public class RewriteMavenParser implements Parser {
         if (relativeTo != null) {
             initMavenParser(ctx, relativeTo);
         } else {
-            mavenSettingsInitializer.initializeMavenSettings(ctx);
+            mavenSettingsInitializer.initializeMavenSettings();
         }
         return parser.parseInputs(sources, relativeTo, ctx);
     }

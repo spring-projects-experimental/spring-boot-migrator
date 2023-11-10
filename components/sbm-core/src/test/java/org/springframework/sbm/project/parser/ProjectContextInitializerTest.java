@@ -34,7 +34,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
-import org.springframework.sbm.build.impl.MavenSettingsInitializer;
+import org.springframework.sbm.parsers.maven.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.build.migration.MavenPomCacheProvider;
 import org.springframework.sbm.engine.commands.ScanCommand;
@@ -64,7 +64,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.*;
-import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.parsers.maven.RewriteMavenArtifactDownloader;
 
 @SpringBootTest(classes = {
         ProjectContextInitializer.class,

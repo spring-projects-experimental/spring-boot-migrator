@@ -27,7 +27,6 @@ import org.mockito.Mockito;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.MavenProject;
-import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
 

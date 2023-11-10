@@ -17,8 +17,6 @@ package org.springframework.sbm.boot.autoconfigure;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.java.AddOrUpdateAnnotationAttribute;
-import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.cache.MavenPomCache;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -74,9 +72,6 @@ public class ScopeConfiguration {
     @org.springframework.sbm.scopes.annotations.ScanScope
     ExecutionContext executionContext(ProjectMetadata projectMetadata, Supplier<ExecutionContext> executionContextSupplier, MavenPomCache mavenPomCache) {
         ExecutionContext executionContext = executionContextSupplier.get();
-        MavenExecutionContextView contextView = MavenExecutionContextView.view(executionContext);
-        contextView.setMavenSettings(projectMetadata.getMavenSettings());
-        contextView.setPomCache(mavenPomCache);
         return executionContext;
     }
 

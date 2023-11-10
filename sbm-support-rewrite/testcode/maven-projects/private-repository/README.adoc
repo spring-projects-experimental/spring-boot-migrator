@@ -1,0 +1,36 @@
+# Artifact Repository Test
+
+Test that artifacts available in a private artifact repository configured in `~/.m2/settings.xml` can be accessed.
+This is important as many enterprise projects use their private artifact repository to retrieve private dependencies.
+
+- A private artifact repository using (https://github.com/dzikoysk/reposilite[reposilite]) is started in a Docker container.
+The reposilite instance has a user configured (admin:secret) which can deploy and access artifacts.
+
+- The repositories in the artifact repository (e.g. snapshot) require successful authentication (deploy + download).
+
+- `dependency-project` has a simple class `DependencyClass` and gets deployed to the artifact repository.
+
+- `dependent-project` depends on `dependency-project` and has a class `DependentClass` that uses `DependencyClass`
+
+- `dependent-project` gets parsed
+
+- The resulting AST has the type information of `dependency-project` resolved when the repository information and credentials were read from `settings.xml` and `security-settings.xml`.
+
+Technical requirements:
+
+- The port of the Docker container is dynamic and used in settings.xml and pom.xml.
+- The local Maven installation of any system should not be affected by this test.
+- The location of the Maven dir `.m2` must therefore point to a different location while the test is running.
+
+
+
+
+
+
+This requires temporarily a different `.m2` location, here `testcode/maven-projects/private-repository/user.home/.m2`.
+When deploying the `dependency-project` the path to `settings.xml` is provided, pointing to `testcode/maven-projects/private-repository/user.home/.m2/settings.xml`.
+This file declares the location of the local Maven repository pointing to the same dir.
+Because these paths can't be relative for this test and absolute paths
+
+
+The `user.home` is set to point to `testcode/maven-projects/private-repository/user.home` which contains a `.m2` directory providing access configuration to the reposilite instance through `.m2/settings.xml` and `.m2/security-settings.xml`,

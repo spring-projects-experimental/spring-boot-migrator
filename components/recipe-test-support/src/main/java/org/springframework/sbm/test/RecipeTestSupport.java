@@ -17,7 +17,7 @@ package org.springframework.sbm.test;
 
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
-import org.springframework.sbm.build.impl.MavenSettingsInitializer;
+import org.springframework.sbm.parsers.maven.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.context.RewriteJavaSearchActionDeserializer;

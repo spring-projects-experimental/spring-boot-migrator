@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -54,25 +55,22 @@ public class ParserExecutionHelper {
 
             ExecutorService threadPool = Executors.newFixedThreadPool(2);
 
-            AtomicReference<RewriteProjectParsingResult> testedParsingResultRef = new AtomicReference<>();
-            AtomicReference<RewriteProjectParsingResult> comparingParsingResultRef = new AtomicReference<>();
+            AtomicReference<RewriteProjectParsingResult> actualParsingResultRef = new AtomicReference<>();
+            AtomicReference<RewriteProjectParsingResult> expectedParsingResultRef = new AtomicReference<>();
 
             threadPool.submit(() -> {
-                System.out.println("Start parsing with RewriteProjectParser");
-                RewriteProjectParsingResult tmpTestedParserResult = parseWithRewriteProjectParser(baseDir, parserProperties, executionContext);
-                testedParsingResultRef.set(tmpTestedParserResult);
+                RewriteProjectParsingResult parsingResult = parseWithRewriteProjectParser(baseDir, parserProperties);;
+                actualParsingResultRef.set(parsingResult);
                 latch.countDown();
             });
 
             threadPool.submit(() -> {
-                System.out.println("Start parsing with RewriteMavenProjectParser");
-                RewriteProjectParsingResult tmpComparingParserResult = parseWithComparingParser(baseDir, parserProperties, executionContext);
-                comparingParsingResultRef.set(tmpComparingParserResult);
+                RewriteProjectParsingResult parsingResult = parseWithComparingParser(baseDir, parserProperties, executionContext);
+                expectedParsingResultRef.set(parsingResult);
                 latch.countDown();
             });
-
             latch.await();
-            return new ParallelParsingResult(comparingParsingResultRef.get(), testedParsingResultRef.get());
+            return new ParallelParsingResult(expectedParsingResultRef.get(), actualParsingResultRef.get());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -87,7 +85,7 @@ public class ParserExecutionHelper {
         }
     }
 
-    public RewriteProjectParsingResult parseWithRewriteProjectParser(Path baseDir, ParserProperties parserProperties, ExecutionContext executionContext) {
+    public RewriteProjectParsingResult parseWithRewriteProjectParser(Path baseDir, ParserProperties parserProperties) {
         AtomicReference<RewriteProjectParsingResult> atomicRef = new AtomicReference<>();
         new ApplicationContextRunner().withUserConfiguration(SbmSupportRewriteConfiguration.class)
                 .withBean("parser-org.springframework.sbm.parsers.ParserProperties", ParserProperties.class, () -> parserProperties)

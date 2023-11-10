@@ -17,7 +17,6 @@ package org.springframework.sbm.parsers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.cache.*;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.tree.ParsingEventListener;
@@ -34,13 +33,11 @@ import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.sbm.parsers.events.RewriteParsingEventListenerAdapter;
 import org.springframework.sbm.parsers.maven.*;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
-import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.sbm.scopes.ScanScope;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.function.Consumer;
 
 
@@ -52,18 +49,8 @@ import java.util.function.Consumer;
 @Slf4j
 @AutoConfiguration(after = {ScopeConfiguration.class})
 @EnableConfigurationProperties({ParserProperties.class, SbmApplicationProperties.class})
-@Import({ScanScope.class, ScopeConfiguration.class})
+@Import({ScanScope.class, ScopeConfiguration.class, RewriteParserMavenConfiguration.class})
 public class RewriteParserConfiguration {
-
-    @Bean
-    MavenPasswordDecrypter mavenPasswordDecrypter() {
-        return new MavenPasswordDecrypter();
-    }
-
-    @Bean
-    MavenProvenanceMarkerFactory mavenProvenanceMarkerFactory() {
-        return new MavenProvenanceMarkerFactory();
-    }
 
     @Bean
     ProvenanceMarkerFactory provenanceMarkerFactory(MavenProvenanceMarkerFactory mavenPovenanceMarkerFactory) {
@@ -77,37 +64,18 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
-    BuildFileParser buildFileParser() {
-        return new BuildFileParser();
-    }
-
-
-    @Bean
-    @ConditionalOnMissingBean(MavenArtifactCache.class)
-    MavenArtifactCache mavenArtifactCache() {
-        return new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository")).orElse(
-                new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".rewrite", "cache", "artifacts"))
-        );
-    }
-
-    @Bean
     Consumer<Throwable> artifactDownloaderErrorConsumer() {
         return (t) -> {throw new RuntimeException(t);};
     }
 
     @Bean
-    RewriteMavenArtifactDownloader artifactDownloader(MavenArtifactCache mavenArtifactCache, ProjectMetadata projectMetadata, Consumer<Throwable> artifactDownloaderErrorConsumer) {
-        return new RewriteMavenArtifactDownloader(mavenArtifactCache, projectMetadata.getMavenSettings(), artifactDownloaderErrorConsumer);
-    }
-
-    @Bean
-    ModuleParser helperWithoutAGoodName() {
+    ModuleParser moduleParser() {
         return new ModuleParser();
     }
 
     @Bean
-    MavenModuleParser mavenModuleParser(ParserProperties parserPropeties, ModuleParser moduleParser) {
-        return new MavenModuleParser(parserPropeties, moduleParser);
+    MavenModuleParser mavenModuleParser(ParserProperties parserProperties, ModuleParser moduleParser) {
+        return new MavenModuleParser(parserProperties, moduleParser);
     }
 
     @Bean

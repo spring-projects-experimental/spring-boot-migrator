@@ -17,6 +17,9 @@ package org.springframework.sbm.parsers.maven;
 
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.maven.MavenSettings;
+import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
+import org.sonatype.plexus.components.cipher.PlexusCipherException;
+import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
@@ -31,25 +34,33 @@ import java.util.List;
  *
  * @author Fabian Krüger
  */
-@RequiredArgsConstructor
-// TODO: should be package private
-public class MavenPasswordDecrypter {
+class MavenPasswordDecrypter {
 
-    public void decryptMavenServerPasswords(SecDispatcher secDispatcher, MavenSettings mavenSettings, Path mavenSecuritySettingsFile) {
+    private final SecDispatcher secDispatcher;
+
+    public MavenPasswordDecrypter() {
+        try {
+            this.secDispatcher = new DefaultSecDispatcher(new DefaultPlexusCipher());
+        } catch (PlexusCipherException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void decryptMavenServerPasswords(MavenSettings mavenSettings, Path mavenSecuritySettingsFile) {
         System.setProperty("settings.security", mavenSecuritySettingsFile.toString());
         if (mavenSettings.getServers() != null && mavenSettings.getServers().getServers() != null) {
             List<MavenSettings.Server> servers = mavenSettings.getServers().getServers();
             for (int i = 0; i < servers.size(); i++) {
                 MavenSettings.Server server = servers.get(i);
                 if (server.getPassword() != null) {
-                    MavenSettings.Server serverWithDecodedPw = decryptPassword(secDispatcher, server);
+                    MavenSettings.Server serverWithDecodedPw = decryptPassword(server);
                     servers.set(i, serverWithDecodedPw);
                 }
             }
         }
     }
 
-    private MavenSettings.Server decryptPassword(SecDispatcher secDispatcher, MavenSettings.Server server) {
+    private MavenSettings.Server decryptPassword(MavenSettings.Server server) {
         try {
             String decryptionResult = secDispatcher.decrypt(server.getPassword());
             return server.withPassword(decryptionResult);

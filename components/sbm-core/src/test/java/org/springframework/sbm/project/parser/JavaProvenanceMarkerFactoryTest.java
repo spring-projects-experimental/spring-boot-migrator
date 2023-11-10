@@ -17,14 +17,16 @@ package org.springframework.sbm.project.parser;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.marker.JavaProject;
 import org.openrewrite.java.marker.JavaVersion;
 import org.openrewrite.marker.BuildTool;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.sbm.build.impl.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.parsers.RewriteExecutionContext;
+import org.springframework.sbm.parsers.maven.MavenSettingsInitializer;
+import org.springframework.sbm.scopes.ProjectMetadata;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -63,7 +65,8 @@ class JavaProvenanceMarkerFactoryTest {
                 "</project>";
 
         Path projectDirectory = Path.of("./faked-project-dir/pom.xml");
-        Xml.Document maven = new RewriteMavenParser(new MavenSettingsInitializer(), new RewriteExecutionContext()).parse(pomXmlSource).toList().get(0).withSourcePath(Path.of("pom.xml"));
+        ExecutionContext executionContext = new RewriteExecutionContext();
+        Xml.Document maven = new RewriteMavenParser(new MavenSettingsInitializer(executionContext, new ProjectMetadata()), executionContext).parse(pomXmlSource).toList().get(0).withSourcePath(Path.of("pom.xml"));
 
         List<Marker> javaProvenanceMarkers = sut.createJavaProvenanceMarkers(maven, projectDirectory, new RewriteExecutionContext());
 

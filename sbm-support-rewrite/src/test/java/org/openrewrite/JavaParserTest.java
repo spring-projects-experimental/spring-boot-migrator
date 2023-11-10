@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JavaParserTest {
     @Test
     @DisplayName("shouldHaveTypeInUse")
-    @Disabled("Examination test")
+    @Disabled("Examination the JavaParser")
     void shouldHaveTypeInUse() {
 
         String localM2Repo = Path.of(System.getProperty("user.home")).resolve(".m2/repository").toString();
