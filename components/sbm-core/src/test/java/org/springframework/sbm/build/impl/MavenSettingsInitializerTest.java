@@ -15,12 +15,13 @@
  */
 package org.springframework.sbm.build.impl;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.tree.MavenRepository;
 import org.springframework.sbm.openrewrite.RewriteExecutionContext;
 
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,7 +64,7 @@ class MavenSettingsInitializerTest {
         assertThat(mavenRepository.getId()).isEqualTo("central");
         assertThat(mavenRepository.getUri()).isEqualTo("https://jcenter.bintray.com");
         assertThat(mavenRepository.getReleases()).isNull();
-        assertThat(mavenRepository.getSnapshots()).isEqualToIgnoringCase("false");
+        assertThat(mavenRepository.getSnapshots()).isEqualTo("false");
 
         MavenRepository localRepository = mavenExecutionContextView.getLocalRepository();
         assertThat(localRepository.getSnapshots()).isNull();

@@ -53,9 +53,25 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
         return LinuxWindowsPathUnifier.unify(sourceFile.getSourcePath());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSourcePathString() {
+        return LinuxWindowsPathUnifier.unifyPath(getSourcePath());
+    }
+
     @Override
     public Path getAbsolutePath() {
         return LinuxWindowsPathUnifier.unify(absoluteProjectDir.resolve(getSourcePath()).normalize().toAbsolutePath());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAbsolutePathString() {
+        return LinuxWindowsPathUnifier.unifyPath(getAbsolutePath());
     }
 
     /**
