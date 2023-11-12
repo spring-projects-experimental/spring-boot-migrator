@@ -34,6 +34,7 @@ import org.openrewrite.yaml.YamlParser;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.engine.events.StartedScanningProjectResourceEvent;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -149,7 +150,7 @@ public class ResourceParser {
         try {
             return e.getKey().parseInputs(List.of(resource), baseDir, ctx);
         } catch(Exception ex) {
-            if(resource.getPath().toString().contains("src/test/resources")) {
+            if(LinuxWindowsPathUnifier.unifyPath(resource.getPath()).contains("src/test/resources")) {
                 log.error("Could not parse resource '%s' using parser %s. Exception was: %s".formatted(resource.getPath(), e.getKey().getClass().getName(), ex.getMessage()));
                 return null;
             } else {
