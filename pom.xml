@@ -441,6 +441,8 @@ limitations under the License.
                                 <exclude>**/*.xsd</exclude>
                                 <exclude>**/*.xml</exclude>
                                 <exclude>**/*.sh</exclude>
+                                <exclude>**/spring.factories</exclude>
+                                <exclude>**/*.gradle*</exclude>
                                 <exclude>**/generated/**</exclude>
                                 <exclude>**/Dockerfile</exclude>
                             </excludes>
