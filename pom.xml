@@ -382,7 +382,7 @@
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>4.1</version>
+                <version>4.3</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -441,6 +441,8 @@ limitations under the License.
                                 <exclude>**/*.xsd</exclude>
                                 <exclude>**/*.xml</exclude>
                                 <exclude>**/*.sh</exclude>
+                                <exclude>**/spring.factories</exclude>
+                                <exclude>**/*.gradle*</exclude>
                                 <exclude>**/generated/**</exclude>
                                 <exclude>**/Dockerfile</exclude>
                             </excludes>
