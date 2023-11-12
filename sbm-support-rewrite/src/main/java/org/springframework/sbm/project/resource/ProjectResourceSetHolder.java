@@ -20,7 +20,6 @@ import org.openrewrite.ExecutionContext;
 
 import java.util.ArrayList;
 
-// TODO: Making ProjectResourceSet a scoped bean would allow to remove this class.
 @RequiredArgsConstructor
 public class ProjectResourceSetHolder {
     private ProjectResourceSet projectResourceSet;
