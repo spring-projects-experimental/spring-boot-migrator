@@ -127,8 +127,7 @@ public class BootUpgrade_27_30_IntegrationTest extends IntegrationTestBaseClass 
 
         assertThat(johnzonDependency.getClassifier()).isEqualTo("jakarta");
         assertThat(johnzonDependency.getArtifactId()).isEqualTo("johnzon-core");
-        Optional<String> expectedJohnzonVersion = DependencyVersionHelper.getLatestReleaseVersion(johnzonDependency.getGroupId(), johnzonDependency.getArtifactId());
-        assertThat(johnzonDependency.getVersion()).isEqualTo(expectedJohnzonVersion.get());
+        assertThat(johnzonDependency.getVersion()).isEqualTo("1.2.21");
     }
 
     @NotNull
