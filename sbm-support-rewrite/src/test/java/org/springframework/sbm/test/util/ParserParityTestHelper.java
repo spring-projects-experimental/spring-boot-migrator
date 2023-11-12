@@ -15,6 +15,9 @@
  */
 package org.springframework.sbm.test.util;
 
+import lombok.RequiredArgsConstructor;
+import org.assertj.core.api.SoftAssertions;
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.marker.JavaSourceSet;
@@ -22,13 +25,19 @@ import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.MavenSettings;
+import org.openrewrite.maven.tree.MavenResolutionResult;
+import org.openrewrite.maven.tree.ResolvedDependency;
+import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.style.Style;
 import org.springframework.sbm.parsers.ParserProperties;
 import org.springframework.sbm.parsers.RewriteProjectParsingResult;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +51,7 @@ public class ParserParityTestHelper {
     private boolean isParallelParse = true;
     private ExecutionContext executionContext;
 
-    public ParserParityTestHelper(Path baseDir) {
+    private ParserParityTestHelper(Path baseDir) {
         this.baseDir = baseDir;
     }
 
@@ -65,136 +74,311 @@ public class ParserParityTestHelper {
         return this;
     }
 
-    public void verifyParity() {
-        verifyParity((comparingParsingResult, testedParsingResult) -> {
-            // nothing extra to verify
-        });
-    }
-
-    public void verifyParity(ParserResultParityChecker parserResultParityChecker) {
-        RewriteProjectParsingResult comparingParserResult = null;
-        RewriteProjectParsingResult testedParserResult = null;
-
-        ParserExecutionHelper parserExecutionHelper = new ParserExecutionHelper();
-        if (isParallelParse) {
-            ParallelParsingResult result = parserExecutionHelper.parseParallel(baseDir, parserProperties, executionContext);
-            comparingParserResult = result.comparingParsingResult();
-            testedParserResult = result.testedParsingResult();
-        } else {
-            testedParserResult = parserExecutionHelper.parseWithRewriteProjectParser(baseDir, parserProperties, executionContext);
-            comparingParserResult = parserExecutionHelper.parseWithComparingParser(baseDir, parserProperties, executionContext);
-        }
-
-
-        // Number of parsed sources should always be the same
-        assertThat(comparingParserResult.sourceFiles().size())
-                .as(renderErrorMessage(comparingParserResult, testedParserResult))
-                .isEqualTo(testedParserResult.sourceFiles().size());
-
-        // The paths of sources should be the same
-        List<String> comparingResultPaths = comparingParserResult.sourceFiles().stream().map(sf -> baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize().toString()).toList();
-        List<String> testedResultPaths = testedParserResult.sourceFiles().stream().map(sf -> baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize().toString()).toList();
-        assertThat(testedResultPaths).containsExactlyInAnyOrder(comparingResultPaths.toArray(String[]::new));
-
-        // The Markers of all resources should be the same
-        verifyMarkersAreTheSame(comparingParserResult, testedParserResult);
-
-        parserResultParityChecker.accept(testedParserResult, comparingParserResult);
-    }
-
-    private static String renderErrorMessage(RewriteProjectParsingResult comparingParserResult, RewriteProjectParsingResult testedParserResult) {
-        List<SourceFile> collect = new ArrayList<>();
-        if (comparingParserResult.sourceFiles().size() > testedParserResult.sourceFiles().size()) {
-            collect = comparingParserResult.sourceFiles().stream()
-                    .filter(element -> !testedParserResult.sourceFiles().contains(element))
-                    .collect(Collectors.toList());
-        } else {
-            collect = testedParserResult.sourceFiles().stream()
-                    .filter(element -> !comparingParserResult.sourceFiles().contains(element))
-                    .collect(Collectors.toList());
-        }
-
-        return "ComparingParserResult had %d sourceFiles whereas TestedParserResult had %d sourceFiles. Files were %s".formatted(comparingParserResult.sourceFiles().size(), testedParserResult.sourceFiles().size(), collect);
-    }
-
-    private void verifyMarkersAreTheSame(RewriteProjectParsingResult comparingParserResult, RewriteProjectParsingResult testedParserResult) {
-        List<SourceFile> comparingSourceFiles = comparingParserResult.sourceFiles();
-        List<SourceFile> testedSourceFiles = testedParserResult.sourceFiles();
-
-        // bring to same order
-        comparingSourceFiles.sort(Comparator.comparing(SourceFile::getSourcePath));
-        testedSourceFiles.sort(Comparator.comparing(SourceFile::getSourcePath));
-
-        for (SourceFile curComparingSourceFile : comparingSourceFiles) {
-            int index = comparingSourceFiles.indexOf(curComparingSourceFile);
-            SourceFile curTestedSourceFile = testedSourceFiles.get(index);
-
-            Markers comparingMarkers = curComparingSourceFile.getMarkers();
-            List<Marker> comparingMarkersList = comparingMarkers.getMarkers();
-            Markers testedMarkers = curTestedSourceFile.getMarkers();
-            List<Marker> testedMarkersList = testedMarkers.getMarkers();
-
-            assertThat(comparingMarkersList)
-                    .usingRecursiveComparison()
-                    .withStrictTypeChecking()
-                    .ignoringCollectionOrder()
-                    .ignoringFields(
-                            // classpath compared further down
-                            "classpath",
-                            // FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/982
-                            "styles"
-                    )
-                    .ignoringFieldsOfTypes(
-                            UUID.class,
-                            // FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/880
-                            MavenSettings.class,
-                            // FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/982
-                            Style.class)
-                    .isEqualTo(testedMarkersList);
-
-            if (curComparingSourceFile.getMarkers().findFirst(JavaSourceSet.class).isPresent()) {
-                // Tested parser must have JavaSourceSet marker when comparing parser has it
-                assertThat(testedMarkers.findFirst(JavaSourceSet.class)).isPresent();
-
-                // assert classpath equality
-                List<String> comparingClasspath = comparingMarkers.findFirst(JavaSourceSet.class).get().getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList();
-                List<String> testedClasspath = testedMarkers.findFirst(JavaSourceSet.class).get().getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList();
-
-                assertThat(comparingClasspath.size()).isEqualTo(testedClasspath.size());
-
-                assertThat(comparingClasspath)
-                        .withFailMessage(() -> {
-                            List<String> additionalElementsInComparingClasspath = comparingClasspath.stream()
-                                    .filter(element -> !testedClasspath.contains(element))
-                                    .collect(Collectors.toList());
-
-                            if (!additionalElementsInComparingClasspath.isEmpty()) {
-                                return "Classpath of comparing and tested parser differ: comparing classpath contains additional entries: %s".formatted(additionalElementsInComparingClasspath);
-                            }
-
-                            List<String> additionalElementsInTestedClasspath = testedClasspath.stream()
-                                    .filter(element -> !comparingClasspath.contains(element))
-                                    .collect(Collectors.toList());
-
-                            if (!additionalElementsInTestedClasspath.isEmpty()) {
-                                return "Classpath of comparing and tested parser differ: tested classpath contains additional entries: %s".formatted(additionalElementsInTestedClasspath);
-                            }
-
-                            return "Bang!";
-                        })
-                        .containsExactlyInAnyOrder(testedClasspath.toArray(String[]::new));
-            }
-
-        }
-    }
-
     public ParserParityTestHelper withExecutionContextForComparingParser(ExecutionContext executionContext) {
         this.executionContext = executionContext;
         return this;
     }
 
-    public interface ParserResultParityChecker extends BiConsumer<RewriteProjectParsingResult, RewriteProjectParsingResult> {
+    /**
+     * Use this method when no additional assertions required.
+     */
+    public void verifyParity() {
+        verifyParity((expectedParsingResult, actualParsingResult) -> {
+            // nothing extra to verify
+        });
+    }
+
+    /**
+     * Use this method if additional assertions are required.
+     */
+    public void verifyParity(CustomParserResultParityChecker customParserResultParityChecker) {
+        RewriteProjectParsingResult expectedParserResult = null;
+        RewriteProjectParsingResult actualParserResult = null;
+
+        ParserExecutionHelper parserExecutionHelper = new ParserExecutionHelper();
+        if (isParallelParse) {
+            ParallelParsingResult result = parserExecutionHelper.parseParallel(baseDir, parserProperties, executionContext);
+            expectedParserResult = result.expectedParsingResult();
+            actualParserResult = result.actualParsingResult();
+        } else {
+            actualParserResult = parserExecutionHelper.parseWithRewriteProjectParser(baseDir, parserProperties);
+            expectedParserResult = parserExecutionHelper.parseWithComparingParser(baseDir, parserProperties, executionContext);
+        }
+
+        DefaultParserResultParityChecker.verifyParserResultParity(baseDir, expectedParserResult, actualParserResult);
+
+        // additional checks
+        customParserResultParityChecker.accept(actualParserResult, expectedParserResult);
+    }
+
+    public interface CustomParserResultParityChecker extends BiConsumer<RewriteProjectParsingResult, RewriteProjectParsingResult> {
         @Override
-        void accept(RewriteProjectParsingResult comparingParsingResult, RewriteProjectParsingResult testedParsingResult);
+        void accept(RewriteProjectParsingResult expectedParsingResult, RewriteProjectParsingResult actualParsingResult);
+    }
+
+    @RequiredArgsConstructor
+    private class DefaultParserResultParityChecker {
+
+        public static void verifyParserResultParity(Path baseDir, RewriteProjectParsingResult expectedParserResult, RewriteProjectParsingResult actualParserResult) {
+            verifyEqualNumberOfParsedResources(expectedParserResult, actualParserResult);
+            verifyEqualResourcePaths(baseDir, expectedParserResult, actualParserResult);
+            RewriteMarkerParityVerifier.verifyEqualMarkers(expectedParserResult, actualParserResult);
+        }
+
+        private static void verifyEqualResourcePaths(Path baseDir, RewriteProjectParsingResult expectedParserResult, RewriteProjectParsingResult actualParserResult) {
+            List<String> expectedResultPaths = expectedParserResult.sourceFiles().stream().map(sf -> baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize().toString()).toList();
+            List<String> actualResultPaths = actualParserResult.sourceFiles().stream().map(sf -> baseDir.resolve(sf.getSourcePath()).toAbsolutePath().normalize().toString()).toList();
+            assertThat(actualResultPaths).containsExactlyInAnyOrder(expectedResultPaths.toArray(String[]::new));
+        }
+
+        private static void verifyEqualNumberOfParsedResources(RewriteProjectParsingResult expectedParserResult, RewriteProjectParsingResult actualParserResult) {
+            assertThat(actualParserResult.sourceFiles().size())
+                    .as(renderErrorMessage(expectedParserResult, actualParserResult))
+                    .isEqualTo(expectedParserResult.sourceFiles().size());
+        }
+
+        private static String renderErrorMessage(RewriteProjectParsingResult expectedParserResult, RewriteProjectParsingResult actualParserResult) {
+            List<SourceFile> collect = new ArrayList<>();
+            if (expectedParserResult.sourceFiles().size() > actualParserResult.sourceFiles().size()) {
+                collect = expectedParserResult.sourceFiles().stream()
+                        .filter(element -> !actualParserResult.sourceFiles().contains(element))
+                        .collect(Collectors.toList());
+            } else {
+                collect = actualParserResult.sourceFiles().stream()
+                        .filter(element -> !expectedParserResult.sourceFiles().contains(element))
+                        .collect(Collectors.toList());
+            }
+
+            return "ComparingParserResult had %d sourceFiles whereas TestedParserResult had %d sourceFiles. Files were %s".formatted(expectedParserResult.sourceFiles().size(), actualParserResult.sourceFiles().size(), collect);
+        }
+
+    }
+
+    private static class RewriteMarkerParityVerifier {
+        static void verifyEqualMarkers(RewriteProjectParsingResult expectedParserResult, RewriteProjectParsingResult actualParserResult) {
+            List<SourceFile> expectedSourceFiles = expectedParserResult.sourceFiles();
+            List<SourceFile> actualSourceFiles = actualParserResult.sourceFiles();
+
+            // bring to same order
+            expectedSourceFiles.sort(Comparator.comparing(SourceFile::getSourcePath));
+            actualSourceFiles.sort(Comparator.comparing(SourceFile::getSourcePath));
+
+            // Compare and verify markers of all source files
+            for (SourceFile curExpectedSourceFile : expectedSourceFiles) {
+                int index = expectedSourceFiles.indexOf(curExpectedSourceFile);
+                SourceFile curGivenSourceFile = actualSourceFiles.get(index);
+                verifyEqualSourceFileMarkers(curExpectedSourceFile, curGivenSourceFile);
+            }
+        }
+
+        static void verifyEqualSourceFileMarkers(SourceFile curExpectedSourceFile, SourceFile curGivenSourceFile) {
+            Markers expectedMarkers = curExpectedSourceFile.getMarkers();
+            List<Marker> expectedMarkersList = expectedMarkers.getMarkers();
+            Markers givenMarkers = curGivenSourceFile.getMarkers();
+            List<Marker> actualMarkersList = givenMarkers.getMarkers();
+
+            assertThat(actualMarkersList.size()).isEqualTo(expectedMarkersList.size());
+
+            SoftAssertions softAssertions = new SoftAssertions();
+
+            actualMarkersList.sort(Comparator.comparing(o -> o.getClass().getName()));
+            expectedMarkersList.sort(Comparator.comparing(o -> o.getClass().getName()));
+
+            expectedMarkersList.forEach(expectedMarker -> {
+                int i = expectedMarkersList.indexOf(expectedMarker);
+                Marker actualMarker = actualMarkersList.get(i);
+
+                assertThat(actualMarker).isInstanceOf(expectedMarker.getClass());
+
+                if (MavenResolutionResult.class.isInstance(actualMarker)) {
+                    MavenResolutionResult expected = (MavenResolutionResult) expectedMarker;
+                    MavenResolutionResult actual = (MavenResolutionResult) actualMarker;
+                    compareMavenResolutionResultMarker(softAssertions, expected, actual);
+                } else {
+                    compareMarker(softAssertions, expectedMarker, actualMarker);
+                }
+
+            });
+
+            softAssertions.assertAll();
+
+            if (curExpectedSourceFile.getMarkers().findFirst(JavaSourceSet.class).isPresent()) {
+                // Tested parser must have JavaSourceSet marker when comparing parser has it
+                assertThat(givenMarkers.findFirst(JavaSourceSet.class)).isPresent();
+
+                // assert classpath equality
+                List<String> expectedClasspath = expectedMarkers.findFirst(JavaSourceSet.class).get().getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList();
+                List<String> actualClasspath = givenMarkers.findFirst(JavaSourceSet.class).get().getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList();
+
+                assertThat(actualClasspath.size()).isEqualTo(expectedClasspath.size());
+
+                assertThat(expectedClasspath)
+                        .withFailMessage(() -> {
+                            List<String> additionalElementsInExpectedClasspath = expectedClasspath.stream()
+                                    .filter(element -> !actualClasspath.contains(element))
+                                    .collect(Collectors.toList());
+
+                            if (!additionalElementsInExpectedClasspath.isEmpty()) {
+                                return "Classpath of comparing and tested parser differ: comparing classpath contains additional entries: %s".formatted(additionalElementsInExpectedClasspath);
+                            }
+
+                            List<String> additionalElementsInActualClasspath = actualClasspath.stream()
+                                    .filter(element -> !expectedClasspath.contains(element))
+                                    .collect(Collectors.toList());
+
+                            if (!additionalElementsInActualClasspath.isEmpty()) {
+                                return "Classpath of comparing and tested parser differ: tested classpath contains additional entries: %s".formatted(additionalElementsInActualClasspath);
+                            }
+
+                            throw new IllegalStateException("Something went terribly wrong...");
+                        })
+                        .containsExactlyInAnyOrder(actualClasspath.toArray(String[]::new));
+            }
+        }
+
+        static void compareMavenResolutionResultMarker(SoftAssertions softAssertions, MavenResolutionResult expected, MavenResolutionResult actual) {
+            softAssertions.assertThat(actual)
+                    .usingRecursiveComparison()
+                    .withEqualsForFieldsMatchingRegexes(
+                            customRepositoryEquals("mavenSettings.localRepository"),
+                            "mavenSettings.localRepository",
+                            ".*\\.repository",
+                            "mavenSettings.mavenLocal.uri"
+                    )
+                    .ignoringFields(
+                            "modules", // checked further down
+                            "dependencies",  // checked further down
+                            "parent.modules" // TODO: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/991
+                    )
+                    .ignoringFieldsOfTypes(
+                            UUID.class)
+                    .isEqualTo(expected);
+
+
+            // verify modules
+            verifyEqualModulesInMavenResolutionResult(softAssertions, expected, actual);
+
+            // verify dependencies
+            verifyEqualDependencies(softAssertions, expected, actual);
+        }
+
+        private static void verifyEqualDependencies(SoftAssertions softAssertions, MavenResolutionResult expected, MavenResolutionResult actual) {
+            Set<Scope> keys = expected.getDependencies().keySet();
+            keys.forEach(k -> {
+                List<ResolvedDependency> expectedDependencies = expected.getDependencies().get(k);
+                List<ResolvedDependency> actualDependencies = actual.getDependencies().get(k);
+
+                // same order
+                expectedDependencies.sort(Comparator.comparing(o -> o.getGav().toString()));
+                actualDependencies.sort(Comparator.comparing(o -> o.getGav().toString()));
+
+                softAssertions.assertThat(actualDependencies)
+                        .usingRecursiveComparison()
+                        .withEqualsForFieldsMatchingRegexes(
+                                customRepositoryEquals(".*\\.repository"),
+                                ".*\\.repository")
+                        .ignoringFieldsOfTypes(
+                                UUID.class
+                        )
+                        .isEqualTo(expectedDependencies);
+            });
+        }
+
+        private static void verifyEqualModulesInMavenResolutionResult(SoftAssertions softAssertions, MavenResolutionResult expected, MavenResolutionResult actual) {
+            List<MavenResolutionResult> expectedModules = expected.getModules();
+            List<MavenResolutionResult> actualModules = actual.getModules();
+            // bring modules in same order
+            expectedModules.sort(Comparator.comparing(o -> o.getPom().getGav().toString()));
+            actualModules.sort(Comparator.comparing(o -> o.getPom().getGav().toString()));
+            // test modules
+            expectedModules.forEach(cm -> {
+                MavenResolutionResult actualMavenResolutionResult = actualModules.get(expectedModules.indexOf(cm));
+                compareMavenResolutionResultMarker(softAssertions, cm, actualMavenResolutionResult);
+            });
+        }
+
+        /**
+         * Custom equals comparing fields names with 'repository' URI.
+         * This is required because the repository URI can be 'file:host' or 'file//host' which is effectively the same.
+         * But the strict comparison fails.
+         * This custom equals method can be used instead.
+         * <pre>
+         * .withEqualsForFieldsMatchingRegexes(
+         *                  customRepositoryEquals(),
+         *                  ".*\\.repository"
+         * )
+         * </pre>
+         */
+        @NotNull
+        private static BiPredicate<Object, Object> customRepositoryEquals(String s) {
+//            System.out.println(s);
+            return (Object actual, Object expected) -> {
+                // field null?
+                if (actual == null) {
+                    if (expected == null) {
+                        return true;
+                    }
+                    return false;
+                }
+                // normal equals?
+                boolean equals = actual.equals(expected);
+                if (equals) {
+                    return true;
+                }
+                // Compare Repository URI
+                if (actual.getClass() == actual.getClass()) {
+                    if (actual instanceof URI) {
+                        URI f1 = (URI) actual;
+                        URI f2 = (URI) expected;
+                        return equals ? true : f1.getScheme().equals(f2.getScheme()) &&
+                                f1.getHost().equals(f2.getHost()) &&
+                                f1.getPath().equals(f2.getPath()) &&
+                                f1.getFragment().equals(f2.getFragment());
+                    } else if (actual instanceof String) {
+                        try {
+                            URI f1 = new URI((String) actual);
+                            URI f2 = new URI((String) expected);
+                            return f1.getScheme() == null ? (f2.getScheme() == null ? true : false) : f1.getScheme().equals(f2.getScheme()) &&
+                                    (f1.getHost() == null ? (f2.getHost() == null ? true : false) : f1.getHost().equals(f2.getHost())) &&
+                                    f1.getPath().equals(f2.getPath()) &&
+                                    f1.getFragment() == null ? (f2.getFragment() == null ? true : false) : f1.getFragment().equals(f2.getFragment());
+                        } catch (URISyntaxException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+
+            };
+        }
+
+        static void compareMarker(SoftAssertions softAssertions, Marker expectedMarker, Marker actualMarker) {
+            softAssertions.assertThat(actualMarker)
+                    .usingRecursiveComparison()
+                    .withStrictTypeChecking()
+                    .ignoringCollectionOrder()
+                    .withEqualsForFields(equalsClasspath(), "classpath")
+                    .ignoringFields(
+                            // FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/982
+                            "styles"
+                    )
+                    .ignoringFieldsOfTypes(
+                            UUID.class,
+                            // FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/982
+                            Style.class)
+                    .isEqualTo(expectedMarker);
+        }
+
+        private static BiPredicate<?,?> equalsClasspath() {
+            return (List<JavaType.FullyQualified> c1, List<JavaType.FullyQualified>  c2) -> {
+                List<String> c1Sorted = c1.stream().map(JavaType.FullyQualified::getFullyQualifiedName).sorted().toList();
+                List<String> c2Sorted = c2.stream().map(JavaType.FullyQualified::getFullyQualifiedName).sorted().toList();
+                return c1Sorted.equals(c2Sorted);
+            };
+        }
+
     }
 }

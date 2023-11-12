@@ -24,7 +24,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoring;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.parsers.maven.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.project.resource.ProjectResourceWrapper;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;

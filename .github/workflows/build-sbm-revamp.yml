@@ -22,9 +22,6 @@ jobs:
         working-directory: sbm-support-rewrite
         run: mvn --batch-mode clean install
 
-      - name: clean install skipTests
-        run: mvn clean install -DskipTests
-
       - name: clean
         run: mvn clean
 

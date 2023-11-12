@@ -1,0 +1,75 @@
+{
+  "statistics": {
+    "enabled": true,
+    "resolvedRequestsInterval": "MONTHLY"
+  },
+  "web": {
+    "forwardedIp": "X-Forwarded-For"
+  },
+  "frontend": {
+    "id": "reposilite-repository",
+    "title": "Reposilite Repository",
+    "description": "Public Maven repository hosted through the Reposilite",
+    "organizationWebsite": "https://reposilite.com",
+    "organizationLogo": "https://avatars.githubusercontent.com/u/88636591",
+    "icpLicense": ""
+  },
+  "authentication": {
+    "ldap": {
+      "enabled": false,
+      "ssl": false,
+      "hostname": "ldap.domain.com",
+      "port": 389,
+      "baseDn": "dc=company,dc=com",
+      "searchUserDn": "cn=reposilite,ou=admins,dc=domain,dc=com",
+      "searchUserPassword": "reposilite-admin-secret",
+      "typeAttribute": "person",
+      "userAttribute": "cn",
+      "userFilter": "(&(objectClass=person)(ou=Maven Users))",
+      "userType": "PERSISTENT"
+    }
+  },
+  "maven": {
+    "repositories": [
+      {
+        "id": "releases",
+        "visibility": "PRIVATE",
+        "redeployment": false,
+        "preserveSnapshots": false,
+        "storageProvider": {
+          "type": "fs",
+          "quota": "100%",
+          "mount": ""
+        },
+        "storagePolicy": "PRIORITIZE_UPSTREAM_METADATA",
+        "proxied": []
+      },
+      {
+        "id": "snapshots",
+        "visibility": "PRIVATE",
+        "redeployment": true,
+        "preserveSnapshots": false,
+        "storageProvider": {
+          "type": "fs",
+          "quota": "100%",
+          "mount": "./snapshots"
+        },
+        "storagePolicy": "PRIORITIZE_UPSTREAM_METADATA",
+        "proxied": []
+      },
+      {
+        "id": "private",
+        "visibility": "PRIVATE",
+        "redeployment": false,
+        "preserveSnapshots": false,
+        "storageProvider": {
+          "type": "fs",
+          "quota": "100%",
+          "mount": ""
+        },
+        "storagePolicy": "PRIORITIZE_UPSTREAM_METADATA",
+        "proxied": []
+      }
+    ]
+  }
+}

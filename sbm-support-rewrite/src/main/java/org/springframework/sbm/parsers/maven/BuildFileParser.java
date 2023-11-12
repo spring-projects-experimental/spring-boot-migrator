@@ -21,9 +21,7 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
-import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenParser;
-import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -46,6 +44,8 @@ import static java.util.Collections.emptyList;
 @Slf4j
 @RequiredArgsConstructor
 public class BuildFileParser {
+
+    private final MavenSettingsInitializer mavenSettingsInitilizer;
 
     /**
      * Parse a list of Maven Pom files to a {@code List} of {@link Xml.Document}s.
@@ -87,7 +87,7 @@ public class BuildFileParser {
         MavenParser.Builder mavenParserBuilder = MavenParser.builder().mavenConfig(baseDir.resolve(".mvn/maven.config"));
 
         // 385 : 387
-        initializeMavenSettings(executionContext);
+        mavenSettingsInitilizer.initializeMavenSettings();
 
         // 395 : 398
         mavenParserBuilder.activeProfiles(activeProfiles.toArray(new String[]{}));
@@ -137,13 +137,6 @@ public class BuildFileParser {
                 .map(p -> new Parser.Input(ResourceUtil.getPath(p), () -> ResourceUtil.getInputStream(p)))
                 .toList();
         return mavenParserBuilder.build().parseInputs(pomFileInputs, baseDir, executionContext).map(Xml.Document.class::cast);
-    }
-
-    private void initializeMavenSettings(ExecutionContext executionContext) {
-        // FIXME: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/880
-        String repo = "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository") + "/";
-        MavenSettings mavenSettings = new MavenSettings(repo, null, null, null, null);
-        MavenExecutionContextView.view(executionContext).setMavenSettings(mavenSettings);
     }
 
     public List<Resource> filterAndSortBuildFiles(List<Resource> resources) {

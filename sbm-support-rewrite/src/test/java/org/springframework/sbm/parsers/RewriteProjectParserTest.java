@@ -25,11 +25,15 @@ import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
+import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
+import org.sonatype.plexus.components.cipher.PlexusCipherException;
+import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.maven.*;
+import org.springframework.sbm.scopes.ProjectMetadata;
 import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.sbm.test.util.DummyResource;
 import org.springframework.sbm.utils.ResourceUtil;
@@ -86,15 +90,17 @@ class RewriteProjectParserTest {
 
     @Test
     @DisplayName("Parse simple Maven project")
-    void parseSimpleMavenProject(@TempDir Path tempDir) {
+    void parseSimpleMavenProject(@TempDir Path tempDir) throws PlexusCipherException {
         Path basePath = tempDir;
         ParserProperties parserProperties = new ParserProperties();
         ModuleParser mavenMojoParserPrivateMethods = new ModuleParser();
         ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
         MavenModuleParser mavenModuleParser = new MavenModuleParser(parserProperties, mavenMojoParserPrivateMethods);
+        ProjectMetadata projectMetadata = new ProjectMetadata();
+        MavenSettingsInitializer mavenSettingsInitializer = new MavenSettingsInitializer(executionContext, projectMetadata);
         RewriteProjectParser projectParser = new RewriteProjectParser(
                 new ProvenanceMarkerFactory(new MavenProvenanceMarkerFactory()),
-                new BuildFileParser(),
+                new BuildFileParser(mavenSettingsInitializer),
                 new SourceFileParser(mavenModuleParser),
                 new StyleDetector(),
                 parserProperties,

@@ -28,7 +28,7 @@ import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
-import org.springframework.sbm.parsers.RewriteMavenArtifactDownloader;
+import org.springframework.sbm.parsers.maven.RewriteMavenArtifactDownloader;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;

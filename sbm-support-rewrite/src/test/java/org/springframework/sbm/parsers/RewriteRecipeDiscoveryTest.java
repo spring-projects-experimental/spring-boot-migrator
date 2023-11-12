@@ -66,7 +66,6 @@ class RewriteRecipeDiscoveryTest {
     void shouldDiscoverDummyRecipes() {
         RewriteRecipeDiscovery recipeDiscovery = buildRecipeDiscovery();
         String[] acceptPackages = {};
-//        Path jarPath = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
         ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
         List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes(List.of("com.example.recipes.DummyRecipe"), new Properties(), acceptPackages, classpathScanningLoader);
         assertThat(dummyRecipe).isNotNull();
@@ -114,7 +113,6 @@ class RewriteRecipeDiscoveryTest {
                 .contains(DummyRecipe.class.getName());
 
         List<Recipe> recipes = Environment.builder()
-//                .scanJar()
                 .load(resourceLoader)
                 .build()
                 .listRecipes();
@@ -122,8 +120,6 @@ class RewriteRecipeDiscoveryTest {
         assertThat(recipes).isNotEmpty();
 
         assertThat(recipes)
-//                .map(Object::getClass)
-//                .map(Class::getName)
                 .map(Recipe::getName)
                 .contains(DummyRecipe.class.getName());
 
@@ -137,7 +133,8 @@ class RewriteRecipeDiscoveryTest {
     void loadRecipeFromClasspath2() {
         String[] acceptPackages = {}; // "com.example"
         ClasspathScanningLoader loader = new ClasspathScanningLoader(new Properties(), acceptPackages);
-        Path jarPath = Path.of("/Users/fkrueger/.m2/repository/org/openrewrite/recipe/rewrite-spring/4.36.0/rewrite-spring-4.36.0.jar");// Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
+        String path = System.getProperty("user.home");
+        Path jarPath = Path.of(path + "/.m2/repository/org/openrewrite/recipe/rewrite-spring/4.36.0/rewrite-spring-4.36.0.jar");
 
 
         ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(loader), getClass().getClassLoader());
@@ -166,6 +163,7 @@ class RewriteRecipeDiscoveryTest {
     }
 
     @Test
+    @Disabled("WIP: No assertions")
     @DisplayName("Should Find Recipe Categories")
     void shouldFindRecipeCategories() {
         ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{});
@@ -215,13 +213,6 @@ class RewriteRecipeDiscoveryTest {
             assertThat(maintainer.getMaintainer()).isEqualTo("SBM");
             assertThat(maintainer.getLogo()).isNull();
         }, Index.atIndex(1));
-
-        /*System.out.println("Recipes: " + descriptor.getRecipeList());
-        System.out.println("DataTables: " + descriptor.getDataTables());
-        System.out.println("Estimated effort: " + descriptor.getEstimatedEffortPerOccurrence());
-        System.out.println("Examples: " + descriptor.getExamples());
-        System.out.println("Options: " + descriptor.getOptions());
-        System.out.println("Tags: " + descriptor.getTags());*/
     }
 
     @Test
