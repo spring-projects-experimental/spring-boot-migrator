@@ -62,7 +62,7 @@ public class TestDummyResource implements Resource {
 
     @Override
     public long contentLength() {
-        throw new UnsupportedOperationException();
+        return content.length();
     }
 
     @Override
