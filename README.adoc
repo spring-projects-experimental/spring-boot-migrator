@@ -37,8 +37,8 @@ ____
 
 == Documentation
 
-- https://spring-projects-experimental.github.io/spring-boot-migrator/user-documentation.html[User documentation,window=_blank]
-- https://spring-projects-experimental.github.io/spring-boot-migrator/developer-documentation.html[Developer documentation,window=_blank]
+- https://github.com/spring-projects-experimental/spring-boot-migrator/blob/main/docs/reference/user-documentation.adoc[User documentation]
+- https://github.com/spring-projects-experimental/spring-boot-migrator/blob/main/docs/reference/developer-documentation.adoc[Developer documentation]
 
 
 == Spring Boot 3.0 Upgrade - Interactive Web UI
