@@ -30,7 +30,7 @@
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
         <snakeyaml.version>1.33</snakeyaml.version>
-        <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
+        <spring-asciidoctor-backends.version>0.0.7</spring-asciidoctor-backends.version>
     </properties>
 
     <scm>
