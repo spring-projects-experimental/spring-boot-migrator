@@ -24,7 +24,6 @@ import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.Markers;
-import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
@@ -237,7 +236,7 @@ public class ParserParityTestHelper {
         }
 
         static void compareMavenResolutionResultMarker(SoftAssertions softAssertions, MavenResolutionResult expected, MavenResolutionResult actual) {
-            softAssertions.assertThat(actual)
+            assertThat(actual)
                     .usingRecursiveComparison()
                     .withEqualsForFieldsMatchingRegexes(
                             customRepositoryEquals("mavenSettings.localRepository"),
@@ -260,6 +259,46 @@ public class ParserParityTestHelper {
 
             // verify dependencies
             verifyEqualDependencies(softAssertions, expected, actual);
+
+            // parent.modules
+            verifyEqualParentModules(softAssertions, expected, actual);
+        }
+
+        private static void verifyEqualParentModules(SoftAssertions softAssertions, MavenResolutionResult expected, MavenResolutionResult actual) {
+            if(expected.getParent() == null) {
+                assertThat(actual.getParent()).isNull();
+                return;
+            }
+
+
+            List<MavenResolutionResult> actualParentModules = new ArrayList<>(actual.getParent().getModules());
+            List<MavenResolutionResult> expectedParentModules = new ArrayList<>(expected.getParent().getModules());
+            actualParentModules.sort(Comparator.comparing(o -> o.getPom().getGav().toString()));
+            expectedParentModules.sort(Comparator.comparing(o -> o.getPom().getGav().toString()));
+
+            expectedParentModules.forEach(expectedModule -> {
+                System.out.println(expectedModule.getPom().getGav());
+                int index = expectedParentModules.indexOf(expectedModule);
+                MavenResolutionResult actualModule = actualParentModules.get(index);
+
+//                compareMavenResolutionResultMarker(softAssertions, expectedModule, actualModule);
+                assertThat(actualModule)
+                        .usingRecursiveComparison()
+                        .ignoringFieldsOfTypes(UUID.class)
+                        .ignoringFields(
+                                "parent",
+                                "modules",
+                                "pom",
+                                "dependencies"
+                                )
+                        .withEqualsForFields(customRepositoryEquals("mavenSettings.localRepository"), "mavenSettings.localRepository")
+                        .isEqualTo(expectedModule);
+//                if(actualModule.getParent() != null) {
+//                    compareMavenResolutionResultMarker(softAssertions, actualModule.getParent(), expectedModule.getParent());
+//                }
+////                compareMavenResolutionResultMarker(softAssertions, expectedModule, actualModule);
+////                verifyEqualParentModules(softAssertions, expectedModule, actualModule);
+            });
         }
 
         private static void verifyEqualDependencies(SoftAssertions softAssertions, MavenResolutionResult expected, MavenResolutionResult actual) {
