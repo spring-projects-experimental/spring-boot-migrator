@@ -72,8 +72,8 @@ public class ChangeJavaxPackagesToJakartaTest {
                 .collect(Collectors.toList());
 
         assertThat(matches).hasSize(2);
-        assertThat(matches.get(0).getSourcePath().toString()).isEqualTo("src/main/java/com/example/SomeClass.java");
-        assertThat(matches.get(1).getSourcePath().toString()).isEqualTo("src/main/java/com/example/SomeClass2.java");
+        assertThat(matches.get(0).getSourcePathString()).isEqualTo("src/main/java/com/example/SomeClass.java");
+        assertThat(matches.get(1).getSourcePathString()).isEqualTo("src/main/java/com/example/SomeClass2.java");
         matches.forEach(m -> System.out.println(m.getSourcePath()));
 
     }

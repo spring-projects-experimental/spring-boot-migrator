@@ -30,7 +30,7 @@ public class BannerSupportHelper extends SpringBootUpgradeReportSectionHelper<Li
 
     public static final String VERSION_PATTERN = "(2\\.7\\..*)|(3\\.0\\..*)";
 
-    private List<Path> foundBanners;
+    private List<String> foundBanners;
 
     @Override
     public String getDescription() {
@@ -49,10 +49,8 @@ public class BannerSupportHelper extends SpringBootUpgradeReportSectionHelper<Li
         foundBanners = context
                 .getProjectResources()
                 .stream()
-                .map(RewriteSourceFileHolder::getAbsolutePath)
-                .filter(absolutePath -> absolutePath.toString()
-                        .matches(".*banner.(jpg|gif|png)$")
-                )
+                .map(RewriteSourceFileHolder::getAbsolutePathString)
+                .filter(absolutePath -> absolutePath.matches(".*banner.(jpg|gif|png)$"))
                 .collect(Collectors.toList());
         return !foundBanners.isEmpty();
     }
@@ -60,6 +58,6 @@ public class BannerSupportHelper extends SpringBootUpgradeReportSectionHelper<Li
     @Override
     public Map<String, List<String>> getData() {
 
-        return Map.of("files", foundBanners.stream().map(Path::toString).collect(Collectors.toList()));
+        return Map.of("files", foundBanners);
     }
 }

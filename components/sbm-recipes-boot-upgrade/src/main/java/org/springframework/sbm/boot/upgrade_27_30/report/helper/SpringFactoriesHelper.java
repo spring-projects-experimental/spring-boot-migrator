@@ -39,7 +39,7 @@ public class SpringFactoriesHelper extends SpringBootUpgradeReportSectionHelper<
                                 "/**/src/main/resources/META-INF/spring.factories"
                         ));
 
-        files = search.stream().map(k -> k.getAbsolutePath().toString()).toList();
+        files = search.stream().map(k -> k.getAbsolutePathString()).toList();
 
         return search
                 .stream()

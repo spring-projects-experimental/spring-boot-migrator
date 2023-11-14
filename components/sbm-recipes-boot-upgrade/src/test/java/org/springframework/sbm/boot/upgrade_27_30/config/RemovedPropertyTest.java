@@ -50,7 +50,7 @@ public class RemovedPropertyTest {
                 "org.openrewrite.java.spring.boot3.SpringBootPropertiesManual_2_7_Removed");
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getAfter().printAll()).isEqualTo(testData.getRight());
+        assertThat(result.get(0).getAfter().printAll()).isEqualToNormalizingNewlines(testData.getRight());
     }
 
     private static Stream<Arguments> providePropertiesInputFiles() throws URISyntaxException  {
