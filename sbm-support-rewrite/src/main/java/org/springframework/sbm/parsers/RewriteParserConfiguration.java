@@ -69,13 +69,8 @@ public class RewriteParserConfiguration {
     }
 
     @Bean
-    ModuleParser moduleParser() {
-        return new ModuleParser();
-    }
-
-    @Bean
-    MavenModuleParser mavenModuleParser(ParserProperties parserProperties, ModuleParser moduleParser) {
-        return new MavenModuleParser(parserProperties, moduleParser);
+    MavenModuleParser mavenModuleParser(ParserProperties parserProperties) {
+        return new MavenModuleParser(parserProperties);
     }
 
     @Bean

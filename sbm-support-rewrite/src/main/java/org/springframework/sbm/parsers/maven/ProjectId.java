@@ -13,14 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
+
+import java.util.Objects;
 
 /**
- * Thrown when recipe validation failed during discovery.
- *
  * @author Fabian Krüger
  */
-public class RecipeValidationErrorException extends RuntimeException {
-    public RecipeValidationErrorException(String s) {
+public record ProjectId(String groupId, String artifactId) {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProjectId projectId = (ProjectId) o;
+        return Objects.equals(groupId, projectId.groupId) && Objects.equals(artifactId, projectId.artifactId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(groupId, artifactId);
+    }
+
+    @Override
+    public String toString() {
+        return groupId + ":" + artifactId;
     }
 }
