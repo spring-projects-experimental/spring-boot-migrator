@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
+import org.springframework.sbm.parsers.maven.MavenProject;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.nio.file.Path;
