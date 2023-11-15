@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.parsers;
+package org.springframework.sbm.parsers.maven;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +26,6 @@ import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.maven.MavenRuntimeInformation;
 import org.springframework.sbm.utils.ResourceUtil;
 
 import java.io.File;
