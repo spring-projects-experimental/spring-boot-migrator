@@ -28,6 +28,7 @@ import org.openrewrite.Recipe;
 import org.openrewrite.SourceFile;
 import org.openrewrite.shaded.jgit.api.CreateBranchCommand;
 import org.openrewrite.shaded.jgit.api.Git;
+import org.openrewrite.shaded.jgit.api.ListBranchCommand;
 import org.openrewrite.shaded.jgit.api.ResetCommand;
 import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
 import org.openrewrite.shaded.jgit.lib.Ref;
@@ -160,10 +161,11 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
 
         if(versionToRecipeMap.containsKey(currentBootVersion)) {
             String newBootVersion = calculateNextBootVersion(currentBootVersion);
+            log.info("Found migration path to Spring Boot %s".formatted(newBootVersion));
             String branchName = calculateBranchName(newBootVersion);
             Git git = Git.open(baseDir.resolve(".git").toFile());
             if(branchExists(git, branchName)) {
-                log.info("Found open branch: " + branchName);
+                log.info("There might be an open PR? Otherwise please delete this remote branch: " + branchName);
                 return;
             }
             // find recipe name
@@ -195,7 +197,11 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
         try {
             git.fetch().call();
             // FIXME: This works only in this example. origin could be different
-            return git.branchList().call().stream().anyMatch(b -> "remotes/origin/%s".formatted(branchName).equals(b.getName()));
+            return git.branchList()
+                    .setListMode(ListBranchCommand.ListMode.REMOTE)
+                    .call()
+                    .stream()
+                    .anyMatch(b -> "refs/remotes/origin/%s".formatted(branchName).equals(b.getName()));
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
         }
@@ -314,6 +320,7 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
 
     private void applyRecipe(ProjectResourceSet projectResourceSet, List<Recipe> recipes) {
         // FIXME: If recipes is a list they need to be provided through Recipe.getRecipeList() to not require a new parse
+        log.info("Applying recipes %s".formatted(recipes.stream().map(Recipe::getDisplayName).toList()));
         if(recipes.size() > 1) throw new UnsupportedOperationException("Can only handle single recipes.");
         recipes.forEach(r -> this.applyRecipe(projectResourceSet, r));
     }
