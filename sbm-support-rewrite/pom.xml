@@ -88,9 +88,15 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.openrewrite</groupId>
+                <artifactId>rewrite-bom</artifactId>
+                <version>${rewrite.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -107,48 +113,49 @@
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-maven</artifactId>
-            <version>${rewrite.version}</version>
+            <artifactId>rewrite-gradle</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-java</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-java-17</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-json</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-yaml</artifactId>
-            <version>${rewrite.version}</version>
+            <artifactId>rewrite-groovy</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-hcl</artifactId>
-            <version>${rewrite.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-protobuf</artifactId>
-            <version>${rewrite.version}</version>
+            <artifactId>rewrite-java</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-xml</artifactId>
-            <version>${rewrite.version}</version>
+            <artifactId>rewrite-json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-maven</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openrewrite</groupId>
             <artifactId>rewrite-properties</artifactId>
-            <version>${rewrite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-protobuf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite</groupId>
+            <artifactId>rewrite-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.maven</groupId>
+            <artifactId>rewrite-maven-plugin</artifactId>
+            <version>${rewrite-maven-plugin.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -182,13 +189,6 @@
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openrewrite.maven</groupId>
-            <artifactId>rewrite-maven-plugin</artifactId>
-            <version>${rewrite-maven-plugin.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
@@ -274,7 +274,6 @@
         </dependency>
         <!-- END: Required by PrivateArtifactRepositoryTest -->
     </dependencies>
-
     <build>
         <pluginManagement>
             <plugins>
@@ -295,7 +294,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

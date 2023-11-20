@@ -87,7 +87,7 @@ class ParserPropertiesTest {
         @Test
         @DisplayName("parser.ignoredPathPatterns")
         void defaultIgnoredPathPatterns() {
-            assertThat(parserProperties.getIgnoredPathPatterns()).containsExactlyInAnyOrder("**.idea/**", "**.git/**", "**/target/**", "target/**");
+            assertThat(parserProperties.getIgnoredPathPatterns()).containsExactlyInAnyOrder("**/target/**", "target/**", "**/.idea/**", ".idea/**", "**/.git/**", ".git/**", ".mvn/**", "**/.mvn/**", "node_modules/**", "**/node_modules/**");
         }
 
     }

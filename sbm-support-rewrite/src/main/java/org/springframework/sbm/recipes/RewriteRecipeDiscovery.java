@@ -24,7 +24,6 @@ import org.openrewrite.config.Environment;
 import org.openrewrite.config.RecipeDescriptor;
 import org.openrewrite.config.ResourceLoader;
 import org.springframework.sbm.parsers.ParserProperties;
-import org.springframework.sbm.parsers.RecipeValidationErrorException;
 
 import java.util.ArrayList;
 import java.util.Collection;
