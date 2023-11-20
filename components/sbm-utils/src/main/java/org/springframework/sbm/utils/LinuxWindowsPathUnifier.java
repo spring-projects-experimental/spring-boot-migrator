@@ -19,25 +19,32 @@ import org.springframework.util.StringUtils;
 
 import java.nio.file.Path;
 
-public class LinuxWindowsPathUnifier {
+public final class LinuxWindowsPathUnifier {
+
+    public static Path unify(Path path) {
+        return Path.of(unifyPath(path));
+    }
 
     public static String unifyPath(Path path) {
         return unifyPath(path.toString());
     }
 
     public static String unifyPath(String path) {
-        path = StringUtils.cleanPath(path);
-        if (isWindows()) {
-            path = transformToLinuxPath(path);
-        }
-        return path;
+        return StringUtils.cleanPath(path);
     }
 
-    public static boolean isWindows() {
+    public static String transformToLinuxPath(String path) {
+        return unifyPath(
+                isWindows()
+                        ? path.replaceAll("^\\w+:\\\\", "/")
+                        : path
+        );
+    }
+
+    private LinuxWindowsPathUnifier() {
+    }
+
+    private static boolean isWindows() {
         return System.getProperty("os.name").contains("Windows");
-    }
-
-    private static String transformToLinuxPath(String path) {
-        return path.replaceAll("^[\\w]+:\\/?", "/");
     }
 }

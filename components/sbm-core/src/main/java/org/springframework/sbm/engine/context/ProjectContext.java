@@ -63,10 +63,6 @@ public class ProjectContext {
         this.resultMerger = resultMerger;
     }
 
-    public ProjectResourceSet getProjectResources() {
-        return projectResources;
-    }
-
     /**
      * @deprecated
      * Use {@link #getApplicationModules()} instead.
@@ -89,7 +85,7 @@ public class ProjectContext {
      * This is a legacy way of retrieving applications build file.
      * This function does not generalise for situations where application is under a multi-module maven structure
      * Use {@link #getApplicationModules()} instead of getBuildFile()
-     * If one would want to retrieve the root build file use:
+     * If one wants to retrieve the root build file use:
      * {@link #getApplicationModules()} and then call to get root module using: {@link ApplicationModules#getRootModule()}
      * */
     @Deprecated(forRemoval = true)

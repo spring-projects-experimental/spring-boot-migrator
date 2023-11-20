@@ -55,7 +55,7 @@ class ApacheSolrRepositorySectionBuilderTest {
         Section section = sut.build(context);
 
         String rendered = SectionRendererTestUtil.render(section);
-        assertThat(rendered).isEqualTo(
+        assertThat(rendered).isEqualToNormalizingNewlines(
                 """
                         === `Spring Data ApacheSolr` support has been removed
                         Support for `Spring Data ApacheSolr` has been removed in Spring Framework 6

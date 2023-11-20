@@ -83,7 +83,7 @@ public class Module_searchMainJava_Test {
 
             verifySearchMain(context, projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/main/java/SomeClass.java");
+                assertThat(projectResourceSet.get(0).getSourcePathString()).isEqualTo("src/main/java/SomeClass.java");
                 assertThat(projectResourceSet.get(0).print()).isEqualTo("public class SomeClass{}");
             }, "");
         }
@@ -98,7 +98,7 @@ public class Module_searchMainJava_Test {
 
             verifySearchMain(context, projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/main/java/SomeClass.java");
+                assertThat(projectResourceSet.get(0).getSourcePathString()).isEqualTo("src/main/java/SomeClass.java");
                 assertThat(projectResourceSet.get(0).print()).isEqualTo("public class SomeClass{}");
             }, "");
         }
@@ -220,7 +220,7 @@ public class Module_searchMainJava_Test {
             verifySearchMain(context,
                              (projectResourceSet) -> {
                                 assertThat(projectResourceSet.list()).hasSize(1);
-                                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/main/java/SomeClass.java");
+                                assertThat(projectResourceSet.list().get(0).getSourcePathString()).isEqualTo("application/src/main/java/SomeClass.java");
                                 assertThat(projectResourceSet.list().get(0).print()).isEqualTo("public class SomeClass{}");
                             },
                              "application");
@@ -237,7 +237,7 @@ public class Module_searchMainJava_Test {
             verifySearchMain(context,
                              projectResourceSet -> {
                                 assertThat(projectResourceSet.list()).hasSize(1);
-                                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/main/java/SomeClass.java");
+                                assertThat(projectResourceSet.list().get(0).getSourcePathString()).isEqualTo("application/src/main/java/SomeClass.java");
                                 assertThat(projectResourceSet.list().get(0).print()).isEqualTo("public class SomeClass{}");
                             },
                              "application");

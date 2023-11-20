@@ -53,19 +53,21 @@ class AddSpringBootMainClassActionTest {
 
         assertThat(context.getProjectJavaSources().list()).hasSize(2);
         assertThat(context.getProjectJavaSources().list().get(1).print())
-                .isEqualTo(
-                        "package org.springframework.sbm.root;\n" +
-                        "\n" +
-                        "import org.springframework.boot.SpringApplication;\n" +
-                        "import org.springframework.boot.autoconfigure.SpringBootApplication;\n" +
-                        "\n" +
-                        "@SpringBootApplication\n" +
-                        "public class SpringBootApp {\n" +
-                        "\n" +
-                        "    public static void main(String[] args) {\n" +
-                        "        SpringApplication.run(SpringBootApp.class, args);\n" +
-                        "    }\n" +
-                        "}\n"
+                .isEqualToNormalizingNewlines(
+                        """
+                                package org.springframework.sbm.root;
+                                                                
+                                import org.springframework.boot.SpringApplication;
+                                import org.springframework.boot.autoconfigure.SpringBootApplication;
+                                                                
+                                @SpringBootApplication
+                                public class SpringBootApp {
+                                
+                                    public static void main(String[] args) {
+                                        SpringApplication.run(SpringBootApp.class, args);
+                                    }
+                                }
+                                """
                 );
     }
 }

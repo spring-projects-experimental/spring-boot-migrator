@@ -24,9 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.engine.recipe.Condition;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
@@ -35,6 +33,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static org.springframework.sbm.SbmConstants.LS;
 
 /**
  * A section in a generated report for Spring Boot 3 upgrade, rendered as Asciidoc from a freemarker template string.
@@ -50,7 +50,7 @@ public class SpringBootUpgradeReportSection {
     public static final String CHANGE_HEADER = "What Changed";
     public static final String AFFECTED = "Why is the application affected";
     public static final String REMEDIATION = "Remediation";
-    private static final String ls = System.lineSeparator();
+
     /**
      * The spring project(s)/modules this change comes from.
      *
@@ -156,11 +156,11 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderRemediationDescription(StringBuilder sb) {
-        sb.append(renderRemediation()).append(ls);
+        sb.append(renderRemediation()).append(LS);
     }
 
     private void renderRemediationTitle(StringBuilder sb) {
-        sb.append("==== " + REMEDIATION).append(ls);
+        sb.append("==== " + REMEDIATION).append(LS);
     }
 
     private void renderAffectedSubSection(StringBuilder sb) {
@@ -169,7 +169,7 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderAffectedDescription(StringBuilder sb) {
-        sb.append(getAffected()).append(ls);
+        sb.append(getAffected()).append(LS);
     }
 
     private void renderChangeSubSection(StringBuilder sb) {
@@ -178,11 +178,11 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderAffectedTitle(StringBuilder sb) {
-        sb.append("==== " + AFFECTED).append(ls);
+        sb.append("==== " + AFFECTED).append(LS);
     }
 
     private void renderChangeDecription(StringBuilder sb) {
-        sb.append(getChange()).append(ls);
+        sb.append(getChange()).append(LS);
     }
 
     private void renderChangeHeader(StringBuilder sb) {
@@ -191,27 +191,27 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderLineBreak(StringBuilder sb) {
-        sb.append(ls);
+        sb.append(LS);
     }
 
     void renderGitHubInfo(StringBuilder sb) {
         if(gitHubIssue != null) {
-            sb.append("**Issue:** https://github.com/spring-projects-experimental/spring-boot-migrator/issues/").append(gitHubIssue).append("[#").append(gitHubIssue).append("^, role=\"ext-link\"] ").append(" + ").append(ls);
+            sb.append("**Issue:** https://github.com/spring-projects-experimental/spring-boot-migrator/issues/").append(gitHubIssue).append("[#").append(gitHubIssue).append("^, role=\"ext-link\"] ").append(" + ").append(LS);
         }
         if(contributors != null) {
             List<Author> authors = getAuthors();
             sb.append("**Contributors:** ");
             String authorsString = authors.stream().map(a -> "https://github.com/" + a.getHandle() + "[@" + a.getHandle() + "^, role=\"ext-link\"]").collect(Collectors.joining(", "));
-            sb.append(authorsString).append(" + ").append(ls);
+            sb.append(authorsString).append(" + ").append(LS);
         }
         if(projects != null){
             String projectsList = projects.stream().collect(Collectors.joining(", "));
-            sb.append("**Projects:** ").append(projectsList).append(ls);
+            sb.append("**Projects:** ").append(projectsList).append(LS);
         }
     }
 
     private void renderSectionTitle(StringBuilder sb) {
-        sb.append("=== ").append(title).append(ls);
+        sb.append("=== ").append(title).append(LS);
     }
 
     public List<Author> getAuthors() {
@@ -236,9 +236,9 @@ public class SpringBootUpgradeReportSection {
     private String renderRemediation() {
         StringBuilder sb = new StringBuilder();
         if(remediation.getDescription() != null) {
-            sb.append(remediation.getDescription()).append(ls);
+            sb.append(remediation.getDescription()).append(LS);
         }
-        sb.append(ls);
+        sb.append(LS);
         if(remediation.getPossibilities().isEmpty()) {
             renderResourcesList(sb, remediation);
             renderRecipeButton(sb, remediation.getRecipe());
@@ -249,15 +249,15 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderRemediationPossibility(StringBuilder sb, RemediationPossibility p) {
-        sb.append("===== ").append(p.getTitle()).append(ls);
-        sb.append(p.getDescription()).append(ls).append(ls);
+        sb.append("===== ").append(p.getTitle()).append(LS);
+        sb.append(p.getDescription()).append(LS).append(LS);
         renderResourcesList(sb, p);
         renderRecipeButton(sb, p.getRecipe());
     }
 
     private void renderRecipeButton(StringBuilder sb, String recipe) {
         if(recipe != null && !recipe.isEmpty()) {
-            sb.append(ls).append(ls);
+            sb.append(LS).append(LS);
             /*
             <!--
                     <form name="apply-<RECIPE>-form" action="http://localhost:8080/spring-boot-upgrade" method="post">
@@ -276,7 +276,7 @@ public class SpringBootUpgradeReportSection {
             String buttonCode = """
                     ++++
                     <div class="run-a-recipe" recipe="<RECIPE>">
-                    </div>                
+                    </div>          
                     ++++
                     """;
             buttonCode = buttonCode.replace("<RECIPE>", recipe);
@@ -285,9 +285,9 @@ public class SpringBootUpgradeReportSection {
     }
 
     private void renderResourcesList(StringBuilder sb, ResourceList p) {
-        p.getResources().forEach(r -> sb.append("* ").append(r).append(ls));
+        p.getResources().forEach(r -> sb.append("* ").append(r).append(LS));
         if(!p.getResources().isEmpty()) {
-            sb.append(ls);
+            sb.append(LS);
         }
     }
 

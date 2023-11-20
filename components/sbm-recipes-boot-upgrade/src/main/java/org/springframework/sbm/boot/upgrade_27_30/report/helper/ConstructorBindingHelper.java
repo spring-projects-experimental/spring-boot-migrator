@@ -61,7 +61,7 @@ public class ConstructorBindingHelper extends SpringBootUpgradeReportSectionHelp
 
         constructorBindingFiles = rewriteSourceFileHolders
                 .stream()
-                .map(k -> k.getAbsolutePath().toString())
+                .map(k -> k.getAbsolutePathString())
                 .collect(Collectors.toList());
 
         return !rewriteSourceFileHolders.isEmpty();

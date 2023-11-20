@@ -56,8 +56,6 @@ public class LoggingDateFormatReportSectionTest {
                         
                         ==== Remediation
                         Set `logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS` to fall back to the previous log format.
-                        
-                        
                         """
                 );
     }
@@ -88,8 +86,6 @@ public class LoggingDateFormatReportSectionTest {
                         
                         ==== Remediation
                         Set `logging.pattern.dateformat=yyyy-MM-dd HH:mm:ss.SSS` to fall back to the previous log format.
-                        
-                        
                         """
                 );
     }

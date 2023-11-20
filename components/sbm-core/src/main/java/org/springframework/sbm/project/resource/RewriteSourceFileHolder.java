@@ -17,6 +17,7 @@ package org.springframework.sbm.project.resource;
 
 import lombok.Getter;
 import org.openrewrite.SourceFile;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 
 import java.nio.file.Path;
 import java.util.UUID;
@@ -49,12 +50,28 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
 
     @Override
     public Path getSourcePath() {
-        return sourceFile.getSourcePath();
+        return LinuxWindowsPathUnifier.unify(sourceFile.getSourcePath());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSourcePathString() {
+        return LinuxWindowsPathUnifier.unifyPath(getSourcePath());
     }
 
     @Override
     public Path getAbsolutePath() {
-        return absoluteProjectDir.resolve(getSourcePath()).normalize().toAbsolutePath();
+        return LinuxWindowsPathUnifier.unify(absoluteProjectDir.resolve(getSourcePath()).normalize().toAbsolutePath());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAbsolutePathString() {
+        return LinuxWindowsPathUnifier.unifyPath(getAbsolutePath());
     }
 
     /**
@@ -73,7 +90,7 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
         if (absoluteProjectDir.resolve(newPath).toFile().isDirectory()) {
             newPath = newPath.resolve(this.getAbsolutePath().getFileName());
         }
-        sourceFile = (T) sourceFile.withSourcePath(newPath);
+        sourceFile = sourceFile.withSourcePath(newPath);
         this.markChanged();
     }
 

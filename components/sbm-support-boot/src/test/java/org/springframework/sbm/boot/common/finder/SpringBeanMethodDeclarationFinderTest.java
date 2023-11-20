@@ -78,7 +78,7 @@ class SpringBeanMethodDeclarationFinderTest {
         void shouldReturnTheMatchingBeanDeclaration() {
             List<MatchingMethod> matches = builder.build().search(sut);
             assertThat(matches).hasSize(1);
-            assertThat(matches.get(0).getJavaSource().getSourcePath().toString()).isEqualTo("src/main/java/MyConfiguration.java");
+            assertThat(matches.get(0).getJavaSource().getSourcePathString()).isEqualTo("src/main/java/MyConfiguration.java");
             assertThat(matches.get(0).getType().getFullyQualifiedName()).isEqualTo("MyConfiguration");
             assertThat(matches.get(0).getMethod().getReturnValue().get()).isEqualTo("a.b.c.SomeBean");
             assertThat(matches.get(0).getMethod().getName()).isEqualTo("someBean");
@@ -148,12 +148,12 @@ class SpringBeanMethodDeclarationFinderTest {
         void shouldReturnTheMatchingBeanDeclarations() {
             List<MatchingMethod> matches = builder.build().search(sut);
             assertThat(matches).hasSize(2);
-            assertThat(matches.get(0).getJavaSource().getSourcePath().toString()).isEqualTo("src/main/java/MyConfiguration.java");
+            assertThat(matches.get(0).getJavaSource().getSourcePathString()).isEqualTo("src/main/java/MyConfiguration.java");
             assertThat(matches.get(0).getType().getFullyQualifiedName()).isEqualTo("MyConfiguration");
             assertThat(matches.get(0).getMethod().getReturnValue()).isPresent();
             assertThat(matches.get(0).getMethod().getReturnValue().get()).isEqualTo("a.b.c.SomeBean");
             assertThat(matches.get(0).getMethod().getName()).isEqualTo("someBean");
-            assertThat(matches.get(1).getJavaSource().getSourcePath().toString()).isEqualTo("src/main/java/MyConfiguration2.java");
+            assertThat(matches.get(1).getJavaSource().getSourcePathString()).isEqualTo("src/main/java/MyConfiguration2.java");
             assertThat(matches.get(1).getType().getFullyQualifiedName()).isEqualTo("MyConfiguration2");
             assertThat(matches.get(1).getMethod().getName()).isEqualTo("someBean2");
             assertThat(matches.get(1).getMethod().getReturnValue()).isPresent();

@@ -16,6 +16,7 @@
 package org.springframework.sbm.actions.spring.xml.include;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
 import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.build.MultiModuleApplicationNotSupportedException;
@@ -39,17 +40,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Getter
 public class ImportSpringXmlConfigAction extends AbstractAction {
 
     @Setter
     @Autowired
     @JsonIgnore
     private Configuration freemarkerConf;
-    
+
     @Override
     public void apply(ProjectContext context) {
         if (context.getApplicationModules().isSingleModuleApplication()) {
-            List<RewriteSourceFileHolder> xmlFiles = getResourcesToImport(context);
+            List<RewriteSourceFileHolder<?>> xmlFiles = getResourcesToImport(context);
             Module module = context.getApplicationModules().getRootModule();
             applyToModule(module, xmlFiles);
         } else {
@@ -57,7 +59,7 @@ public class ImportSpringXmlConfigAction extends AbstractAction {
         }
     }
 
-    private void applyToModule(Module module, List<RewriteSourceFileHolder> xmlFiles) {
+    private void applyToModule(Module module, List<RewriteSourceFileHolder<?>> xmlFiles) {
 
         JavaSourceSet mainJavaSourceSet = module.getMainJavaSourceSet();
         JavaSourceLocation sourceFileLocation = mainJavaSourceSet.getJavaSourceLocation();
@@ -68,11 +70,10 @@ public class ImportSpringXmlConfigAction extends AbstractAction {
         classpathRoots.addAll(module.getBuildFile().getSourceFolders());
         classpathRoots.addAll(module.getBuildFile().getResourceFolders());
 
-        String relativePaths = xmlFiles.stream()
+        String resourcesString = xmlFiles.stream()
                 .map(xmlFile -> makeRelativeTo(xmlFile.getAbsolutePath(), classpathRoots))
                 .sorted()
                 .map(rp -> "\"classpath:"+rp+"\"").collect(Collectors.joining(", ")); // avoid 'randomized' behavior.
-        String resourcesString = relativePaths;
 
         Map<String, Object> params = new HashMap<>();
         params.put("packageName", pkg);
@@ -95,13 +96,13 @@ public class ImportSpringXmlConfigAction extends AbstractAction {
         for (Path cpr : classpathRoots) {
             if (absolutePath.startsWith(cpr)) {
                 Path relativePath = cpr.relativize(absolutePath);
-                return new LinuxWindowsPathUnifier().unifyPath(relativePath.toString());
+                return LinuxWindowsPathUnifier.unifyPath(relativePath.toString());
             }
         }
         throw new RuntimeException(String.format("Absolute path '%s' is not contained in any classpath root", absolutePath));
     }
 
-    private List<RewriteSourceFileHolder> getResourcesToImport(ProjectContext module) {
+    private List<RewriteSourceFileHolder<?>> getResourcesToImport(ProjectContext module) {
         return module.search(new XmlSpringBeanConfigurationFilter());
     }
     

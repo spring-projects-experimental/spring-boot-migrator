@@ -88,7 +88,7 @@ public class ImportSpringXmlConfigXmlToJavaConfigurationActionTest {
         Path absolutePathToConfig = projectRootDirectory.resolve("src/main/java/").resolve(pkgName.replace('.', '/')).resolve("SpringContextImportConfig.java");
         assertThat(r.getResource().getAbsolutePath()).isEqualTo(absolutePathToConfig);
         assertThat(r.getResource().print())
-        .isEqualTo(
+        .isEqualToNormalizingNewlines(
                 "package "+pkgName+";\n" + 
                 "\n" + 
                 "import org.springframework.context.annotation.Configuration;\n" + 
@@ -159,7 +159,7 @@ public class ImportSpringXmlConfigXmlToJavaConfigurationActionTest {
         JavaSource r = resources.get(0);
         assertThat(r.getResource().getAbsolutePath()).isEqualTo(Path.of(".").toAbsolutePath().resolve("src/main/java/").resolve(pkgName.replace(".", "/")).resolve("SpringContextImportConfig.java").normalize());
         assertThat(r.getResource().print())
-        .isEqualTo(
+        .isEqualToNormalizingNewlines(
                 "package "+pkgName+";\n" + 
                 "\n" + 
                 "import org.springframework.context.annotation.Configuration;\n" + 
