@@ -58,7 +58,6 @@ public class SpringBoot3Upgrade implements CommandLineRunner {
 
     @EventListener(StartedParsingResourceEvent.class)
     public void onStartedParsingResourceEvent(StartedParsingResourceEvent event) {
-        System.out.println();
     }
 
     @Override
