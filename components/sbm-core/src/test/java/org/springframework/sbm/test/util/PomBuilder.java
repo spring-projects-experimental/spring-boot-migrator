@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.build.util;
+package org.springframework.sbm.test.util;
 
 import org.springframework.sbm.project.parser.DependencyHelper;
 

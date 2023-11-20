@@ -30,6 +30,7 @@ import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.style.Style;
 import org.springframework.sbm.parsers.ParserProperties;
 import org.springframework.sbm.parsers.RewriteProjectParsingResult;
+import org.springframework.util.StopWatch;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -100,7 +101,15 @@ public class ParserParityTestHelper {
             expectedParserResult = result.expectedParsingResult();
             actualParserResult = result.actualParsingResult();
         } else {
+            StopWatch sw1 = new StopWatch("Parsers");
+            sw1.start("actual");
             actualParserResult = parserExecutionHelper.parseWithRewriteProjectParser(baseDir, parserProperties);
+            sw1.stop();
+            System.out.println(sw1.shortSummary());
+
+            sw1.start("expectd");
+            sw1.stop();
+            System.out.println(sw1.shortSummary());
             expectedParserResult = parserExecutionHelper.parseWithComparingParser(baseDir, parserProperties, executionContext);
         }
 
