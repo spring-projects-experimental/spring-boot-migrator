@@ -561,10 +561,11 @@ public class MuleToJavaDSLDwlTransformTest extends JavaDSLActionBaseTest {
         addXMLFileToResource(xml);
         runAction(projectContext -> {
             assertThat(projectContext.getProjectJavaSources().list()).hasSize(4);
-            assertThat(projectContext.getProjectJavaSources().list().get(0).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.FlowConfigurations");
-            assertThat(projectContext.getProjectJavaSources().list().get(1).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.TmDwPayload");
-            assertThat(projectContext.getProjectJavaSources().list().get(2).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransformTM_1");
-            assertThat(projectContext.getProjectJavaSources().list().get(3).getTypes().get(0).toString()).isEqualTo("com.example.javadsl.MultipleTransformsTransformTM_3");
+            assertThat(projectContext.getProjectJavaSources().list().stream().map(s -> s.getTypes().get(0).toString()).toList()).containsExactlyInAnyOrder(
+                    "com.example.javadsl.FlowConfigurations",
+                    "com.example.javadsl.TmDwPayload",
+                    "com.example.javadsl.MultipleTransformsTransformTM_1",
+                    "com.example.javadsl.MultipleTransformsTransformTM_3");
         });
     }
 }

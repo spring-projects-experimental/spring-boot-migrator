@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -59,9 +61,7 @@ public class ConfigRecipeTestHelper {
 
     public static Pair<String, String> provideIO(String inputFilePath) throws IOException {
 
-        InputStream data = new FileInputStream(inputFilePath);
-
-        String fileContent = new String(data.readAllBytes());
+        String fileContent = Files.readString(Path.of(inputFilePath));
         String[] k = fileContent.split("expected:.*" + LS);
 
         return new ImmutablePair<>(k[0].replaceAll("input:.*" + LS, ""), k[1]);
