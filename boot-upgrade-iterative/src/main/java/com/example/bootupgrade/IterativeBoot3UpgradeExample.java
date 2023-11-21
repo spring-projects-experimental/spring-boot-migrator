@@ -79,50 +79,50 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
 
     private static Map<String, List<String>> versionToRecipeMap = new HashMap<>();
     static {
-        Map<List<String>, List<String>> map = Map.of(
-                List.of("2.3.0", "2.3.1", "2.3.2", "2.3.4", "2.3.5.RELEASE"),
+        versionToRecipeMap = Map.of(
+                "2.3.5.RELEASE",
                 List.of(
                         "org.openrewrite.java.spring.boot2.UpgradeSpringBoot_2_4"
                 ),
 
-                List.of("2.4.0", "2.4.13"),
+                "2.4.13",
                 List.of(
                         "org.openrewrite.java.spring.boot2.UpgradeSpringBoot_2_5"
                 ),
 
-                List.of("2.5.0", "2.5.15"),
+                "2.5.15",
                 List.of(
                         "org.openrewrite.java.spring.boot2.UpgradeSpringBoot_2_6"
                 ),
 
-                List.of("2.6.0", "2.6.15"),
+                "2.6.15",
                 List.of(
                         "org.openrewrite.java.spring.boot2.UpgradeSpringBoot_2_7"
                 ),
 
-                List.of("2.7.0", "2.7.17"),
+                "2.7.17",
                 List.of(
-                        "org.openrewrite.java.spring.boot2.UpgradeSpringBoot_3_0"
+                        "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_0"
                 ),
 
-                List.of("3.0.0", "3.0.12"),
+                "3.0.12",
                 List.of(
-                        "org.openrewrite.java.spring.boot2.UpgradeSpringBoot_3_1"
+                        "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1"
                 ),
 
-                List.of("3.1.0", "3.1.5"),
+                "3.1.5",
                 List.of(
-                        "org.openrewrite.java.spring.boot2.UpgradeSpringBoot_3_2"
+                        "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_2"
                 )
         );
-        map.keySet()
-                .stream()
-                .forEach(keys -> {
-                    keys.stream()
-                        .forEach(k -> {
-                            versionToRecipeMap.put(k, map.get(keys));
-                        });
-                });
+//        map.keySet()
+//                .stream()
+//                .forEach(keys -> {
+//                    keys.stream()
+//                        .forEach(k -> {
+//                            versionToRecipeMap.put(k, map.get(keys));
+//                        });
+//                });
 
     }
 
@@ -212,8 +212,12 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
     }
 
     private String calculateNextBootVersion(String currentBootVersion) {
-        String[] split = currentBootVersion.split("\\.");
-        return split[0] + "." + (Integer.parseInt(split[1]) + 1) + ".x";
+        List<String> sortedVersions = versionToRecipeMap.keySet().stream().sorted(String::compareTo).toList();
+        int i = sortedVersions.indexOf(currentBootVersion);
+        if(i>0) {
+            return sortedVersions.get(i+1);
+        }
+        throw new IllegalArgumentException("No higher version found than %s.".formatted(currentBootVersion));
     }
 
     private String extractSpringBootVersion(String pomXml) {
