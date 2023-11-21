@@ -27,8 +27,6 @@ import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * @author Fabian Krüger
  */

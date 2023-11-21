@@ -35,10 +35,8 @@ import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.java.impl.DependencyChangeHandler;
-import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;

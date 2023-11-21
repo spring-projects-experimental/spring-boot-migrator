@@ -60,6 +60,38 @@ import static org.assertj.core.api.Fail.fail;
 class RewriteProjectParserParityTest {
 
     @Test
+    @DisplayName("pom")
+    void pom(@TempDir Path tempDir) {
+
+        @Language("xml")
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                                
+                    <groupId>com.acme</groupId>
+                    <artifactId>app</artifactId>
+                    <version>0.1.0-SNAPSHOT</version>
+                    
+                    <dependencies>
+                        <dependency>
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                        <version>8.0.33</version>
+                        </dependency>
+                    </dependencies>
+                </project>
+                """;
+    TestProjectHelper.createTestProject(tempDir).withResources(new DummyResource(tempDir.resolve("pom.xml"), pom)).writeToFilesystem();
+        ParserParityTestHelper
+                .scanProjectDir(tempDir)
+                .parseSequentially()
+                .verifyParity();
+
+    }
+
+    @Test
     @DisplayName("Parsing Simplistic Maven Project ")
     void parsingSimplisticMavenProject(@TempDir Path tempDir) throws GitAPIException {
         @Language("xml")
