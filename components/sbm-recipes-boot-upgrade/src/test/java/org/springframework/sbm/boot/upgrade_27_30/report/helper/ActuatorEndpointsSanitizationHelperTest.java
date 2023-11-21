@@ -16,7 +16,7 @@
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.sbm.test.util.PomBuilder;
+import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 

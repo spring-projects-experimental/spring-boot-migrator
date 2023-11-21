@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.springframework.sbm.test.util.PomBuilder;
+import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.parsers.RewriteExecutionContext;

@@ -24,7 +24,7 @@ import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
 import org.springframework.sbm.build.migration.actions.OpenRewriteMavenBuildFileTestSupport;
-import org.springframework.sbm.test.util.PomBuilder;
+import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
