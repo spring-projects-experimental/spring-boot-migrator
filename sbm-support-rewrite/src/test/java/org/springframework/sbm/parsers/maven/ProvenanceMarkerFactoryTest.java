@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,7 +94,7 @@ class ProvenanceMarkerFactoryTest {
                 // and assert markers
                 int numExpectedMarkers = 5;
 
-                if(System.getenv("GITHUB_ACTION_REF") != null) {
+                if (System.getenv("GITHUB_ACTION_REF") != null) {
                     numExpectedMarkers = 6; // CI marker
                 }
                 assertThat(markers).hasSize(numExpectedMarkers);
@@ -123,7 +124,18 @@ class ProvenanceMarkerFactoryTest {
                 String gitHash = getCurrentGitHash();
                 GitProvenance expectedGitProvenance = GitProvenance.fromProjectDirectory(baseDir, BuildEnvironment.build(System::getenv));
                 GitProvenance gitProvenance = findMarker(markers, GitProvenance.class);
-                assertThat(countGetters(gitProvenance)).isEqualTo(9);
+                assertThat(getGetterNames(gitProvenance)).containsExactlyInAnyOrder(
+                        "getId()",
+                        "getBranch()",
+                        "getEol()",
+                        "getOrigin()",
+                        "getAutocrlf()",
+                        "getRepositoryName()",
+                        "getChange()",
+                        "getOrganizationName(java.lang.String)",
+                        "getOrganizationName()",
+                        "getCommitters()"
+                );
                 assertThat(gitProvenance.getId()).isInstanceOf(UUID.class);
                 assertThat(gitProvenance.getBranch()).isEqualTo(branch);
                 assertThat(gitProvenance.getEol()).isEqualTo(GitProvenance.EOL.Native);
@@ -133,6 +145,7 @@ class ProvenanceMarkerFactoryTest {
                 assertThat(gitProvenance.getChange()).isEqualTo(gitHash);
                 assertThat(gitProvenance.getOrganizationName()).isEqualTo("spring-projects-experimental");
                 assertThat(gitProvenance.getOrganizationName("https://github.com")).isEqualTo("spring-projects-experimental");
+                assertThat(gitProvenance.getCommitters().stream().map(c -> c.getName()).toList()).contains("Fabian Krüger");
 
                 OperatingSystemProvenance operatingSystemProvenance = findMarker(markers, OperatingSystemProvenance.class);
                 OperatingSystemProvenance expected = OperatingSystemProvenance.current();
@@ -152,17 +165,17 @@ class ProvenanceMarkerFactoryTest {
         private <T extends Marker> T findMarker(List<Marker> markers, Class<T> markerClass) {
             return (T) markers.stream().filter(m -> markerClass.isAssignableFrom(m.getClass())).findFirst().orElseThrow();
         }
+
     }
-
-
 
 
     @Nested
     public class GivenSimpleMultiModuleProject {
 
+
         @Test
         @DisplayName("Should Create Provenance Markers")
-        void shouldCreateProvenanceMarkers()  {
+        void shouldCreateProvenanceMarkers() {
 
             // The MavenMojoProjectParserFactory creates an instance of OpenRewrite's MavenMojoProjectParser
             // We provide a mock, there's a test for MavenMojoProjectParser
@@ -202,13 +215,11 @@ class ProvenanceMarkerFactoryTest {
 //            assertThat(resourceListMap.get(path2)).isEqualTo(markers2);
         }
 
-        /**
-         * With a configured maven-compile-plugin the source and target version should be taken from the plugin
-         */
         @Nested
         public class GivenSimpleMultiModuleProjectWithCompilerPlugin {
 
         }
+
     }
 
     private void verifyMarkers(Resource resource, Path baseDir, Map<Path, List<Marker>> resourceListMap, String projectName, String groupId, String artifactModule, String version) {
@@ -225,7 +236,10 @@ class ProvenanceMarkerFactoryTest {
         assertThat(jv.getId()).isInstanceOf(UUID.class);
 
         JavaProject jp = findMarker(resourceListMap, resource, JavaProject.class);
-        assertThat(countGetters(jp)).isEqualTo(3);
+        assertThat(getGetterNames(jp)).containsExactly(
+                "getId",
+                "getProjectName"
+        );
         assertThat(jp.getId()).isInstanceOf(UUID.class);
         assertThat(jp.getProjectName()).isEqualTo(projectName);
         JavaProject.Publication publication = jp.getPublication();
@@ -294,6 +308,17 @@ class ProvenanceMarkerFactoryTest {
                 .count();
     }
 
+    /**
+     * With a configured maven-compile-plugin the source and target version should be taken from the plugin
+     */
+    private static List<String> getGetterNames(Object marker) {
+        return getGetter(marker).map(m -> m.getName() + "(" + renderArgs(m) + ")").toList();
+    }
+
+    private static String renderArgs(Method m) {
+        return Arrays.stream(m.getParameters()).map(p -> p.getType().getName()).collect(Collectors.joining(", "));
+    }
+
     @NotNull
     private static Stream<Method> getGetter(Object marker) {
         return Arrays
@@ -325,6 +350,7 @@ class ProvenanceMarkerFactoryTest {
     }
 
     public static class MyLogger implements Log {
+
 
         @Override
         public boolean isDebugEnabled() {

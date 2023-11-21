@@ -78,6 +78,7 @@ public class RewriteProjectParserIntegrationTest {
     void parse4Modules() {
         Path baseDir = TestProjectHelper.getMavenProject("4-modules");
         ParserParityTestHelper.scanProjectDir(baseDir)
+                .parseSequentially()
                 .verifyParity((comparingParsingResult, testedParsingResult) -> {
                     assertThat(comparingParsingResult.sourceFiles()).hasSize(4);
                     assertThat(testedParsingResult.sourceFiles()).hasSize(4);
