@@ -34,8 +34,8 @@ jobs:
       - name: sbm-openrewrite (build + test)
         run: mvn --batch-mode install --projects :sbm-openrewrite
 
-      - name: sbm-core (build)
-        run: mvn -DskipTests --batch-mode install --projects :sbm-core
+      - name: sbm-core (build + test)
+        run: mvn --batch-mode install --projects :sbm-core
 
       - name: recipe-test-support (build)
         run: mvn -DskipTests --batch-mode install --projects :recipe-test-support
