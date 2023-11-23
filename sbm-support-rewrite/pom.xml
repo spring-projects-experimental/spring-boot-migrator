@@ -8,7 +8,7 @@
     <artifactId>spring-rewrite-commons</artifactId>
 
     <name>Spring Support for OpenRewrite</name>
-    <description>Parse projects and run OpenRewrite recipes without a build tool plugin</description>
+    <description>Run OpenRewrite recipes without a build tool plugin</description>
     <url>https://github.com/spring-projects/spring-rewrite-commons</url>
 
     <organization>
@@ -20,19 +20,26 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- prod dependencies -->
         <spring-boot.version>3.1.3</spring-boot.version>
         <rewrite.version>8.5.1</rewrite.version>
         <rewrite-maven-plugin.version>5.3.2</rewrite-maven-plugin.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
+
+        <!-- testing dependencies -->
         <maven.version>3.9.1</maven.version>
         <maven-resolver.version>1.9.13</maven-resolver.version>
         <maven-wagon-http.version>3.5.3</maven-wagon-http.version>
-        <artifactory-maven-plugin.version>3.6.1</artifactory-maven-plugin.version>
         <plexus-cypher.version>1.8</plexus-cypher.version>
         <maven-invoker.version>3.2.0</maven-invoker.version>
-        <jaxb-api.version>2.3.1</jaxb-api.version>
         <junit-pioneer.version>2.1.0</junit-pioneer.version>
+
+        <!-- plugins -->
+        <artifactory-maven-plugin.version>3.6.1</artifactory-maven-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+
         <!-- Should be same as version managed by Spring -->
         <lombok.version.annotationProcessorPath>1.18.28</lombok.version.annotationProcessorPath>
     </properties>
@@ -94,6 +101,7 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- prod dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
