@@ -78,6 +78,7 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
     }
 
     private static Map<String, List<String>> versionToRecipeMap = new HashMap<>();
+
     static {
         versionToRecipeMap = Map.of(
                 "2.3.5.RELEASE",
@@ -150,7 +151,7 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
     @Scheduled(fixedDelay = 10_000)
     void loop() throws IOException, GitAPIException {
         log.info("Scheduling...");
-        if(repoUrl == null || ghToken == null) {
+        if (repoUrl == null || ghToken == null) {
             return;
         }
         // clone
@@ -159,35 +160,40 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
         String pomXml = Files.readString(baseDir.resolve("pom.xml"));
         String currentBootVersion = extractSpringBootVersion(pomXml);
 
-        if(versionToRecipeMap.containsKey(currentBootVersion)) {
-            String newBootVersion = calculateNextBootVersion(currentBootVersion);
-            log.info("Found migration path to Spring Boot %s".formatted(newBootVersion));
-            String branchName = calculateBranchName(newBootVersion);
-            Git git = Git.open(baseDir.resolve(".git").toFile());
-            if(branchExists(git, branchName)) {
-                log.info("There might be an open PR? Otherwise please delete this remote branch: " + branchName);
-                return;
-            }
-            // find recipe name
-            List<String> recipeNames = versionToRecipeMap.get(currentBootVersion);
-            // parse
-            ProjectResourceSet projectResourceSet = parseProject(baseDir);
-            // discover
-            List<Recipe> recipes = discoverRecipes(recipeNames);
-            // apply
-            applyRecipe(projectResourceSet, recipes);
-            // create branch
-            Ref branchRef = createBranch(git, branchName);
-            checkout(git, branchName);
-            // commit
-            String message = "Upgrade Spring Boot from %s to %s".formatted(currentBootVersion, newBootVersion);
-            RevCommit commit = commit(git, message);
-            System.out.println("commit: " + commit);
-            push(git, branchRef, ghToken);
+        if (versionToRecipeMap.containsKey(currentBootVersion)) {
+            Optional<String> newBootVersionOpt = calculateNextBootVersion(currentBootVersion);
+            if (newBootVersionOpt.isPresent()) {
+                String newBootVersion = newBootVersionOpt.get();
+                log.info("Found migration path to Spring Boot %s".formatted(newBootVersion));
+                String branchName = calculateBranchName(newBootVersion);
+                Git git = Git.open(baseDir.resolve(".git").toFile());
+                if (branchExists(git, branchName)) {
+                    log.info("There might be an open PR? Otherwise please delete this remote branch: " + branchName);
+                    return;
+                }
+                // find recipe name
+                List<String> recipeNames = versionToRecipeMap.get(currentBootVersion);
+                // parse
+                ProjectResourceSet projectResourceSet = parseProject(baseDir);
+                // discover
+                List<Recipe> recipes = discoverRecipes(recipeNames);
+                // apply
+                applyRecipe(projectResourceSet, recipes);
+                // create branch
+                Ref branchRef = createBranch(git, branchName);
+                checkout(git, branchName);
+                // commit
+                String message = "Upgrade Spring Boot from %s to %s".formatted(currentBootVersion, newBootVersion);
+                RevCommit commit = commit(git, message);
+                log.info("commit: " + commit);
+                push(git, branchRef, ghToken);
 
-            // Create PR
-            String mainBranch = "main";
-            GHPullRequest pr = createPullRequest(ghToken, message, branchName, mainBranch, message);
+                // Create PR
+                String mainBranch = "main";
+                GHPullRequest pr = createPullRequest(ghToken, message, branchName, mainBranch, message);
+            } else {
+                log.info("No migration path found.");
+            }
         } else {
             log.info("No migration found for Spring Boot version: %s".formatted(currentBootVersion));
         }
@@ -211,13 +217,13 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
         return "app-analyzer/boot-upgrade-%s".formatted(newBootVersion.replace(".", ""));
     }
 
-    private String calculateNextBootVersion(String currentBootVersion) {
+    private Optional<String> calculateNextBootVersion(String currentBootVersion) {
         List<String> sortedVersions = versionToRecipeMap.keySet().stream().sorted(String::compareTo).toList();
         int i = sortedVersions.indexOf(currentBootVersion);
-        if(i>0) {
-            return sortedVersions.get(i+1);
+        if (i < sortedVersions.size() -1) {
+            return Optional.of(sortedVersions.get(i + 1));
         }
-        throw new IllegalArgumentException("No higher version found than %s.".formatted(currentBootVersion));
+        return Optional.empty();
     }
 
     private String extractSpringBootVersion(String pomXml) {
@@ -235,7 +241,7 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
     }
 
     private String getGitHubToken(ApplicationArguments args) {
-        if(args.getNonOptionArgs().size() < 2) {
+        if (args.getNonOptionArgs().size() < 2) {
             throw new IllegalArgumentException("The GitHub token must be provided as second parameter.");
         }
         return args.getNonOptionArgs().get(1);
@@ -252,10 +258,10 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
 
     private static Ref createBranch(Git git, String branchName) throws GitAPIException {
         Ref branchRef = git.branchCreate()
-                        .setName(branchName)
-                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
-                        .setForce(true)
-                        .call();
+                .setName(branchName)
+                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                .setForce(true)
+                .call();
         return branchRef;
     }
 
@@ -272,7 +278,7 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
     @NotNull
     private Path cloneFreshRepo(String repoUrl) throws IOException {
         Path targetDir = Path.of(System.getProperty("java.io.tmpdir")).resolve(GH_REPO_NAME); //Files.createTempDirectory(GH_REPO_NAME).toAbsolutePath();
-        if(targetDir.toFile().exists()) {
+        if (targetDir.toFile().exists()) {
             FileSystemUtils.deleteRecursively(targetDir);
         }
         String commitHash = null;// GIT_COMMIT_HASH; // https://github.com/spring-projects/spring-petclinic/commit/a3294f2
@@ -282,7 +288,7 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
     }
 
     private static String getRepoUrl(ApplicationArguments args) {
-        if(args.getNonOptionArgs().isEmpty()) {
+        if (args.getNonOptionArgs().isEmpty()) {
             throw new IllegalArgumentException("A repository URL must be provided.");
         }
         String repoUrl = args.getNonOptionArgs().get(0);
@@ -325,7 +331,7 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
     private void applyRecipe(ProjectResourceSet projectResourceSet, List<Recipe> recipes) {
         // FIXME: If recipes is a list they need to be provided through Recipe.getRecipeList() to not require a new parse
         log.info("Applying recipes %s".formatted(recipes.stream().map(Recipe::getDisplayName).toList()));
-        if(recipes.size() > 1) throw new UnsupportedOperationException("Can only handle single recipes.");
+        if (recipes.size() > 1) throw new UnsupportedOperationException("Can only handle single recipes.");
         recipes.forEach(r -> this.applyRecipe(projectResourceSet, r));
     }
 
