@@ -26,42 +26,48 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AbsolutePathResourcesFinder implements ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>> {
+public class AbsolutePathResourcesFinder
+		implements ProjectResourceFinder<List<RewriteSourceFileHolder<? extends SourceFile>>> {
 
-    private final Set<Path> absoluteResourcePaths;
-    public AbsolutePathResourcesFinder(List<Path> absoluteResourcePaths) {
-        this(new HashSet<>(absoluteResourcePaths));
-    }
-    public AbsolutePathResourcesFinder(Path... absoluteResourcePath) {
-        this(Arrays.asList(absoluteResourcePath));
-    }
-    public AbsolutePathResourcesFinder(Path absoluteResourcePath) {
-        this(Set.of(absoluteResourcePath));
-    }
-    public AbsolutePathResourcesFinder(Set<Path> absoluteResourcePaths) {
-        String invalidPaths = absoluteResourcePaths.stream()
-                .filter(absoluteResourcePath -> absoluteResourcePath == null || !absoluteResourcePath.isAbsolute())
-                .map(p -> {
-                    if(p == null) {
-                        return "null";
-                    } else  {
-                        return p.toString();
-                    }
-                })
-                .collect(Collectors.joining("', '"));
+	private final Set<Path> absoluteResourcePaths;
 
-        if(invalidPaths != null) {
-            throw new IllegalArgumentException("Given paths '"+ invalidPaths +"' were not absolute");
-        }
+	public AbsolutePathResourcesFinder(List<Path> absoluteResourcePaths) {
+		this(new HashSet<>(absoluteResourcePaths));
+	}
 
-        this.absoluteResourcePaths = absoluteResourcePaths.stream().map(Path::normalize).collect(Collectors.toSet());
-    }
+	public AbsolutePathResourcesFinder(Path... absoluteResourcePath) {
+		this(Arrays.asList(absoluteResourcePath));
+	}
 
-    @Override
-    public List<RewriteSourceFileHolder<? extends SourceFile>> apply(ProjectResourceSet projectResourceSet) {
-        return projectResourceSet
-                .stream()
-                .filter(r -> absoluteResourcePaths.contains(r.getAbsolutePath()))
-                .collect(Collectors.toList());
-    }
+	public AbsolutePathResourcesFinder(Path absoluteResourcePath) {
+		this(Set.of(absoluteResourcePath));
+	}
+
+	public AbsolutePathResourcesFinder(Set<Path> absoluteResourcePaths) {
+		String invalidPaths = absoluteResourcePaths.stream()
+			.filter(absoluteResourcePath -> absoluteResourcePath == null || !absoluteResourcePath.isAbsolute())
+			.map(p -> {
+				if (p == null) {
+					return "null";
+				}
+				else {
+					return p.toString();
+				}
+			})
+			.collect(Collectors.joining("', '"));
+
+		if (invalidPaths != null) {
+			throw new IllegalArgumentException("Given paths '" + invalidPaths + "' were not absolute");
+		}
+
+		this.absoluteResourcePaths = absoluteResourcePaths.stream().map(Path::normalize).collect(Collectors.toSet());
+	}
+
+	@Override
+	public List<RewriteSourceFileHolder<? extends SourceFile>> apply(ProjectResourceSet projectResourceSet) {
+		return projectResourceSet.stream()
+			.filter(r -> absoluteResourcePaths.contains(r.getAbsolutePath()))
+			.collect(Collectors.toList());
+	}
+
 }

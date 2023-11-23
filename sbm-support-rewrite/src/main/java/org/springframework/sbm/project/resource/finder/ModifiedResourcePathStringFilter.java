@@ -22,11 +22,12 @@ import java.util.stream.Collectors;
 
 public class ModifiedResourcePathStringFilter implements ProjectResourceFinder<List<String>> {
 
-    @Override
-    public List<String> apply(ProjectResourceSet projectResourceSet) {
-        return projectResourceSet.stream()
-                .filter(r -> r.hasChanges() && !r.isDeleted() && !r.getAbsolutePath().toFile().isDirectory())
-                .map(r -> r.getAbsolutePath().toString())
-                .collect(Collectors.toList());
-    }
+	@Override
+	public List<String> apply(ProjectResourceSet projectResourceSet) {
+		return projectResourceSet.stream()
+			.filter(r -> r.hasChanges() && !r.isDeleted() && !r.getAbsolutePath().toFile().isDirectory())
+			.map(r -> r.getAbsolutePath().toString())
+			.collect(Collectors.toList());
+	}
+
 }

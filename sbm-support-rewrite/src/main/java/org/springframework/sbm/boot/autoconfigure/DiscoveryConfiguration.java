@@ -30,8 +30,10 @@ import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
 @Import(RewriteParserConfiguration.class)
 @EnableConfigurationProperties(ParserProperties.class)
 public class DiscoveryConfiguration {
-    @Bean
-    RewriteRecipeDiscovery rewriteRecipeDiscovery(ParserProperties parserProperties) {
-        return new RewriteRecipeDiscovery(parserProperties);
-    }
+
+	@Bean
+	RewriteRecipeDiscovery rewriteRecipeDiscovery(ParserProperties parserProperties) {
+		return new RewriteRecipeDiscovery(parserProperties);
+	}
+
 }

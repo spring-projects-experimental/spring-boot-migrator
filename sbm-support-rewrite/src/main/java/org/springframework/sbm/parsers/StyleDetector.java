@@ -36,48 +36,50 @@ import java.util.stream.Stream;
 
 public class StyleDetector {
 
-    List<SourceFile> sourcesWithAutoDetectedStyles(Stream<SourceFile> sourceFiles) {
-        org.openrewrite.java.style.Autodetect.Detector javaDetector = org.openrewrite.java.style.Autodetect.detector();
-        org.openrewrite.xml.style.Autodetect.Detector xmlDetector = org.openrewrite.xml.style.Autodetect.detector();
-        List<SourceFile> sourceFileList = sourceFiles
-                .peek(javaDetector::sample)
-                .peek(xmlDetector::sample)
-                .toList();
+	List<SourceFile> sourcesWithAutoDetectedStyles(Stream<SourceFile> sourceFiles) {
+		org.openrewrite.java.style.Autodetect.Detector javaDetector = org.openrewrite.java.style.Autodetect.detector();
+		org.openrewrite.xml.style.Autodetect.Detector xmlDetector = org.openrewrite.xml.style.Autodetect.detector();
+		List<SourceFile> sourceFileList = sourceFiles.peek(javaDetector::sample).peek(xmlDetector::sample).toList();
 
-        Map<Class<? extends Tree>, NamedStyles> stylesByType = new HashMap<>();
-        stylesByType.put(JavaSourceFile.class, javaDetector.build());
-        stylesByType.put(Xml.Document.class, xmlDetector.build());
+		Map<Class<? extends Tree>, NamedStyles> stylesByType = new HashMap<>();
+		stylesByType.put(JavaSourceFile.class, javaDetector.build());
+		stylesByType.put(Xml.Document.class, xmlDetector.build());
 
-        return ListUtils.map(sourceFileList, applyAutodetectedStyle(stylesByType));
-    }
+		return ListUtils.map(sourceFileList, applyAutodetectedStyle(stylesByType));
+	}
 
-    private UnaryOperator<SourceFile> applyAutodetectedStyle(Map<Class<? extends Tree>, NamedStyles> stylesByType) {
-        return (before) -> {
-            Iterator var2 = stylesByType.entrySet().iterator();
+	private UnaryOperator<SourceFile> applyAutodetectedStyle(Map<Class<? extends Tree>, NamedStyles> stylesByType) {
+		return (before) -> {
+			Iterator var2 = stylesByType.entrySet().iterator();
 
-            while(var2.hasNext()) {
-                Map.Entry<Class<? extends Tree>, NamedStyles> styleTypeEntry = (Map.Entry)var2.next();
-                if (((Class)styleTypeEntry.getKey()).isAssignableFrom(before.getClass())) {
-                    before = (SourceFile)before.withMarkers(before.getMarkers().add((Marker)styleTypeEntry.getValue()));
-                }
-            }
+			while (var2.hasNext()) {
+				Map.Entry<Class<? extends Tree>, NamedStyles> styleTypeEntry = (Map.Entry) var2.next();
+				if (((Class) styleTypeEntry.getKey()).isAssignableFrom(before.getClass())) {
+					before = (SourceFile) before
+						.withMarkers(before.getMarkers().add((Marker) styleTypeEntry.getValue()));
+				}
+			}
 
-            return before;
-        };
-    }
+			return before;
+		};
+	}
 
-//    public List<SourceFile> sourcesWithAutoDetectedStyles(Stream<SourceFile> sourceFilesStream) {
-//        OpenedRewriteMojo m = new OpenedRewriteMojo();
-//        Method method = ReflectionUtils.findMethod(OpenedRewriteMojo.class, "sourcesWithAutoDetectedStyles", Stream.class);
-//        ReflectionUtils.makeAccessible(method);
-//        return (List<SourceFile>) ReflectionUtils.invokeMethod(method, m, sourceFilesStream);
-//    }
-//
-//    static class OpenedRewriteMojo extends AbstractRewriteMojo {
-//
-//        @Override
-//        public void execute() throws MojoExecutionException, MojoFailureException {
-//            throw new UnsupportedOperationException();
-//        }
-//    }
+	// public List<SourceFile> sourcesWithAutoDetectedStyles(Stream<SourceFile>
+	// sourceFilesStream) {
+	// OpenedRewriteMojo m = new OpenedRewriteMojo();
+	// Method method = ReflectionUtils.findMethod(OpenedRewriteMojo.class,
+	// "sourcesWithAutoDetectedStyles", Stream.class);
+	// ReflectionUtils.makeAccessible(method);
+	// return (List<SourceFile>) ReflectionUtils.invokeMethod(method, m,
+	// sourceFilesStream);
+	// }
+	//
+	// static class OpenedRewriteMojo extends AbstractRewriteMojo {
+	//
+	// @Override
+	// public void execute() throws MojoExecutionException, MojoFailureException {
+	// throw new UnsupportedOperationException();
+	// }
+	// }
+
 }

@@ -16,7 +16,9 @@
 package org.springframework.sbm.project.resource;
 
 public class NoProjectResourceWrapperFoundException extends RuntimeException {
-    public NoProjectResourceWrapperFoundException(String s) {
-        super(s);
-    }
+
+	public NoProjectResourceWrapperFoundException(String s) {
+		super(s);
+	}
+
 }

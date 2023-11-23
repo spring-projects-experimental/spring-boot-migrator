@@ -37,63 +37,76 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ParserExecutionHelper {
 
-    public ParallelParsingResult parseParallel(Path baseDir) {
-        return parseParallel(baseDir, new ParserProperties(), new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
-    }
+	public ParallelParsingResult parseParallel(Path baseDir) {
+		return parseParallel(baseDir, new ParserProperties(), new InMemoryExecutionContext(t -> {
+			throw new RuntimeException(t);
+		}));
+	}
 
-    public ParallelParsingResult parseParallel(Path baseDir, ParserProperties parserProperties) {
-        return parseParallel(baseDir, parserProperties, new InMemoryExecutionContext(t -> {throw new RuntimeException(t);}));
-    }
+	public ParallelParsingResult parseParallel(Path baseDir, ParserProperties parserProperties) {
+		return parseParallel(baseDir, parserProperties, new InMemoryExecutionContext(t -> {
+			throw new RuntimeException(t);
+		}));
+	}
 
-    public ParallelParsingResult parseParallel(Path baseDir, ExecutionContext executionContext) {
-        return parseParallel(baseDir, new ParserProperties(), executionContext);
-    }
+	public ParallelParsingResult parseParallel(Path baseDir, ExecutionContext executionContext) {
+		return parseParallel(baseDir, new ParserProperties(), executionContext);
+	}
 
-    public ParallelParsingResult parseParallel(Path baseDir, ParserProperties parserProperties, ExecutionContext executionContext) {
-        try {
-            CountDownLatch latch = new CountDownLatch(2);
+	public ParallelParsingResult parseParallel(Path baseDir, ParserProperties parserProperties,
+			ExecutionContext executionContext) {
+		try {
+			CountDownLatch latch = new CountDownLatch(2);
 
-            ExecutorService threadPool = Executors.newFixedThreadPool(2);
+			ExecutorService threadPool = Executors.newFixedThreadPool(2);
 
-            AtomicReference<RewriteProjectParsingResult> actualParsingResultRef = new AtomicReference<>();
-            AtomicReference<RewriteProjectParsingResult> expectedParsingResultRef = new AtomicReference<>();
+			AtomicReference<RewriteProjectParsingResult> actualParsingResultRef = new AtomicReference<>();
+			AtomicReference<RewriteProjectParsingResult> expectedParsingResultRef = new AtomicReference<>();
 
-            threadPool.submit(() -> {
-                RewriteProjectParsingResult parsingResult = parseWithRewriteProjectParser(baseDir, parserProperties);;
-                actualParsingResultRef.set(parsingResult);
-                latch.countDown();
-            });
+			threadPool.submit(() -> {
+				RewriteProjectParsingResult parsingResult = parseWithRewriteProjectParser(baseDir, parserProperties);
+				;
+				actualParsingResultRef.set(parsingResult);
+				latch.countDown();
+			});
 
-            threadPool.submit(() -> {
-                RewriteProjectParsingResult parsingResult = parseWithComparingParser(baseDir, parserProperties, executionContext);
-                expectedParsingResultRef.set(parsingResult);
-                latch.countDown();
-            });
-            latch.await();
-            return new ParallelParsingResult(expectedParsingResultRef.get(), actualParsingResultRef.get());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+			threadPool.submit(() -> {
+				RewriteProjectParsingResult parsingResult = parseWithComparingParser(baseDir, parserProperties,
+						executionContext);
+				expectedParsingResultRef.set(parsingResult);
+				latch.countDown();
+			});
+			latch.await();
+			return new ParallelParsingResult(expectedParsingResultRef.get(), actualParsingResultRef.get());
+		}
+		catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public RewriteProjectParsingResult parseWithComparingParser(Path baseDir, ParserProperties parserProperties, ExecutionContext executionContext) {
-        RewriteMavenProjectParser comparingParser = new ComparingParserFactory().createComparingParser(parserProperties);
-        if (executionContext != null) {
-            return comparingParser.parse(baseDir, executionContext);
-        } else {
-            return comparingParser.parse(baseDir);
-        }
-    }
+	public RewriteProjectParsingResult parseWithComparingParser(Path baseDir, ParserProperties parserProperties,
+			ExecutionContext executionContext) {
+		RewriteMavenProjectParser comparingParser = new ComparingParserFactory()
+			.createComparingParser(parserProperties);
+		if (executionContext != null) {
+			return comparingParser.parse(baseDir, executionContext);
+		}
+		else {
+			return comparingParser.parse(baseDir);
+		}
+	}
 
-    public RewriteProjectParsingResult parseWithRewriteProjectParser(Path baseDir, ParserProperties parserProperties) {
-        AtomicReference<RewriteProjectParsingResult> atomicRef = new AtomicReference<>();
-        new ApplicationContextRunner().withUserConfiguration(SbmSupportRewriteConfiguration.class)
-                .withBean("parser-org.springframework.sbm.parsers.ParserProperties", ParserProperties.class, () -> parserProperties)
-                .run(appCtx -> {
-                    RewriteProjectParser sut = appCtx.getBean(RewriteProjectParser.class);
-                    RewriteProjectParsingResult testedParserResult = sut.parse(baseDir);
-                    atomicRef.set(testedParserResult);
-                });
-        return atomicRef.get();
-    }
+	public RewriteProjectParsingResult parseWithRewriteProjectParser(Path baseDir, ParserProperties parserProperties) {
+		AtomicReference<RewriteProjectParsingResult> atomicRef = new AtomicReference<>();
+		new ApplicationContextRunner().withUserConfiguration(SbmSupportRewriteConfiguration.class)
+			.withBean("parser-org.springframework.sbm.parsers.ParserProperties", ParserProperties.class,
+					() -> parserProperties)
+			.run(appCtx -> {
+				RewriteProjectParser sut = appCtx.getBean(RewriteProjectParser.class);
+				RewriteProjectParsingResult testedParserResult = sut.parse(baseDir);
+				atomicRef.set(testedParserResult);
+			});
+		return atomicRef.get();
+	}
+
 }

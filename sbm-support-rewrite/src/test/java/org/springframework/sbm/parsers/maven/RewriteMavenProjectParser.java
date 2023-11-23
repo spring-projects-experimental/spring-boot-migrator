@@ -49,111 +49,121 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 
 /**
- * Parses a given {@link Path} to a Open Rewrite's AST representation {@code List<}{@link SourceFile}{@code >}.
+ * Parses a given {@link Path} to a Open Rewrite's AST representation
+ * {@code List<}{@link SourceFile}{@code >}.
  *
  * @author Fabian Krüger
  */
 @Slf4j
 @RequiredArgsConstructor
 public class RewriteMavenProjectParser {
-    private final MavenPlexusContainer mavenPlexusContainer;
-    private final ParsingEventListener parsingListener;
-    private final MavenExecutor mavenRunner;
-    private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
-    private final ScanScope scanScope;
-    private final ConfigurableListableBeanFactory beanFactory;
-    private final ExecutionContext executionContext;
 
-    /**
-     * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST.
-     * It uses default settings for configuration.
-     */
-    public RewriteProjectParsingResult parse(Path baseDir) {
-        ParsingExecutionContextView.view(executionContext).setParsingListener(parsingListener);
-        return parse(baseDir, executionContext);
-    }
+	private final MavenPlexusContainer mavenPlexusContainer;
 
-    @NotNull
-    public RewriteProjectParsingResult parse(Path baseDir, ExecutionContext executionContext) {
-        final Path absoluteBaseDir = getAbsolutePath(baseDir);
-        PlexusContainer plexusContainer = mavenPlexusContainer.get();
-        RewriteProjectParsingResult parsingResult = parseInternal(absoluteBaseDir, executionContext, plexusContainer);
-        return parsingResult;
-    }
+	private final ParsingEventListener parsingListener;
 
-    private RewriteProjectParsingResult parseInternal(Path baseDir, ExecutionContext executionContext, PlexusContainer plexusContainer) {
-        clearScanScopedBeans();
+	private final MavenExecutor mavenRunner;
 
-        AtomicReference<RewriteProjectParsingResult> parsingResult = new AtomicReference<>();
-        mavenRunner.onProjectSucceededEvent(
-                baseDir,
-                List.of("clean", "package"),
-                event -> {
-                    try {
-                        MavenSession session = event.getSession();
-                        List<MavenProject> mavenProjects = session.getAllProjects();
-                        MavenMojoProjectParser rewriteProjectParser = mavenMojoProjectParserFactory.create(baseDir, mavenProjects, plexusContainer, session);
-                        List<NamedStyles> styles = List.of();
-                        List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles, executionContext);
-                        parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-        );
-        return parsingResult.get();
-    }
+	private final MavenMojoProjectParserFactory mavenMojoProjectParserFactory;
 
-    private void clearScanScopedBeans() {
-        scanScope.clear(beanFactory);
-    }
+	private final ScanScope scanScope;
 
-    private List<SourceFile> parseSourceFiles(MavenMojoProjectParser rewriteProjectParser, List<MavenProject> mavenProjects, List<NamedStyles> styles, ExecutionContext executionContext) {
-        try {
-            Stream<SourceFile> sourceFileStream = rewriteProjectParser.listSourceFiles(
-                    mavenProjects.get(mavenProjects.size() - 1), // FIXME: Order and access to root module
-                    styles,
-                    executionContext);
-            return sourcesWithAutoDetectedStyles(sourceFileStream);
-        } catch (DependencyResolutionRequiredException | MojoExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	private final ConfigurableListableBeanFactory beanFactory;
 
-    @NotNull
-    private static Path getAbsolutePath(Path baseDir) {
-        if (!baseDir.isAbsolute()) {
-            baseDir = baseDir.toAbsolutePath().normalize();
-        }
-        return baseDir;
-    }
+	private final ExecutionContext executionContext;
 
-    // copied from OpenRewrite for now, TODO: remove and reuse
-    List<SourceFile> sourcesWithAutoDetectedStyles(Stream<SourceFile> sourceFiles) {
-        org.openrewrite.java.style.Autodetect.Detector javaDetector = org.openrewrite.java.style.Autodetect.detector();
-        org.openrewrite.xml.style.Autodetect.Detector xmlDetector = org.openrewrite.xml.style.Autodetect.detector();
-        List<SourceFile> sourceFileList = sourceFiles
-                .peek(javaDetector::sample)
-                .peek(xmlDetector::sample)
-                .collect(toList());
+	/**
+	 * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST. It
+	 * uses default settings for configuration.
+	 */
+	public RewriteProjectParsingResult parse(Path baseDir) {
+		ParsingExecutionContextView.view(executionContext).setParsingListener(parsingListener);
+		return parse(baseDir, executionContext);
+	}
 
-        Map<Class<? extends Tree>, NamedStyles> stylesByType = new HashMap<>();
-        stylesByType.put(JavaSourceFile.class, javaDetector.build());
-        stylesByType.put(Xml.Document.class, xmlDetector.build());
+	@NotNull
+	public RewriteProjectParsingResult parse(Path baseDir, ExecutionContext executionContext) {
+		final Path absoluteBaseDir = getAbsolutePath(baseDir);
+		PlexusContainer plexusContainer = mavenPlexusContainer.get();
+		RewriteProjectParsingResult parsingResult = parseInternal(absoluteBaseDir, executionContext, plexusContainer);
+		return parsingResult;
+	}
 
-        return ListUtils.map(sourceFileList, applyAutodetectedStyle(stylesByType));
-    }
+	private RewriteProjectParsingResult parseInternal(Path baseDir, ExecutionContext executionContext,
+			PlexusContainer plexusContainer) {
+		clearScanScopedBeans();
 
-    // copied from OpenRewrite for now, TODO: remove and reuse
-    UnaryOperator<SourceFile> applyAutodetectedStyle(Map<Class<? extends Tree>, NamedStyles> stylesByType) {
-        return before -> {
-            for (Map.Entry<Class<? extends Tree>, NamedStyles> styleTypeEntry : stylesByType.entrySet()) {
-                if (styleTypeEntry.getKey().isAssignableFrom(before.getClass())) {
-                    before = before.withMarkers(before.getMarkers().add(styleTypeEntry.getValue()));
-                }
-            }
-            return before;
-        };
-    }
+		AtomicReference<RewriteProjectParsingResult> parsingResult = new AtomicReference<>();
+		mavenRunner.onProjectSucceededEvent(baseDir, List.of("clean", "package"), event -> {
+			try {
+				MavenSession session = event.getSession();
+				List<MavenProject> mavenProjects = session.getAllProjects();
+				MavenMojoProjectParser rewriteProjectParser = mavenMojoProjectParserFactory.create(baseDir,
+						mavenProjects, plexusContainer, session);
+				List<NamedStyles> styles = List.of();
+				List<SourceFile> sourceFiles = parseSourceFiles(rewriteProjectParser, mavenProjects, styles,
+						executionContext);
+				parsingResult.set(new RewriteProjectParsingResult(sourceFiles, executionContext));
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+		return parsingResult.get();
+	}
+
+	private void clearScanScopedBeans() {
+		scanScope.clear(beanFactory);
+	}
+
+	private List<SourceFile> parseSourceFiles(MavenMojoProjectParser rewriteProjectParser,
+			List<MavenProject> mavenProjects, List<NamedStyles> styles, ExecutionContext executionContext) {
+		try {
+			Stream<SourceFile> sourceFileStream = rewriteProjectParser.listSourceFiles(
+					mavenProjects.get(mavenProjects.size() - 1), // FIXME: Order and
+																	// access to root
+																	// module
+					styles, executionContext);
+			return sourcesWithAutoDetectedStyles(sourceFileStream);
+		}
+		catch (DependencyResolutionRequiredException | MojoExecutionException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@NotNull
+	private static Path getAbsolutePath(Path baseDir) {
+		if (!baseDir.isAbsolute()) {
+			baseDir = baseDir.toAbsolutePath().normalize();
+		}
+		return baseDir;
+	}
+
+	// copied from OpenRewrite for now, TODO: remove and reuse
+	List<SourceFile> sourcesWithAutoDetectedStyles(Stream<SourceFile> sourceFiles) {
+		org.openrewrite.java.style.Autodetect.Detector javaDetector = org.openrewrite.java.style.Autodetect.detector();
+		org.openrewrite.xml.style.Autodetect.Detector xmlDetector = org.openrewrite.xml.style.Autodetect.detector();
+		List<SourceFile> sourceFileList = sourceFiles.peek(javaDetector::sample)
+			.peek(xmlDetector::sample)
+			.collect(toList());
+
+		Map<Class<? extends Tree>, NamedStyles> stylesByType = new HashMap<>();
+		stylesByType.put(JavaSourceFile.class, javaDetector.build());
+		stylesByType.put(Xml.Document.class, xmlDetector.build());
+
+		return ListUtils.map(sourceFileList, applyAutodetectedStyle(stylesByType));
+	}
+
+	// copied from OpenRewrite for now, TODO: remove and reuse
+	UnaryOperator<SourceFile> applyAutodetectedStyle(Map<Class<? extends Tree>, NamedStyles> stylesByType) {
+		return before -> {
+			for (Map.Entry<Class<? extends Tree>, NamedStyles> styleTypeEntry : stylesByType.entrySet()) {
+				if (styleTypeEntry.getKey().isAssignableFrom(before.getClass())) {
+					before = before.withMarkers(before.getMarkers().add(styleTypeEntry.getValue()));
+				}
+			}
+			return before;
+		};
+	}
 
 }

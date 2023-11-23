@@ -22,11 +22,12 @@ import java.util.stream.Collectors;
 
 public class DeletedResourcePathStringFilter implements ProjectResourceFinder<List<String>> {
 
-    @Override
-    public List<String> apply(ProjectResourceSet projectResourceSet) {
-        return projectResourceSet.streamIncludingDeleted()
-                .filter(r -> r.isDeleted() && !r.getAbsolutePath().toFile().isDirectory())
-                .map(r -> r.getAbsolutePath().toString())
-                .collect(Collectors.toList());
-    }
+	@Override
+	public List<String> apply(ProjectResourceSet projectResourceSet) {
+		return projectResourceSet.streamIncludingDeleted()
+			.filter(r -> r.isDeleted() && !r.getAbsolutePath().toFile().isDirectory())
+			.map(r -> r.getAbsolutePath().toString())
+			.collect(Collectors.toList());
+	}
+
 }

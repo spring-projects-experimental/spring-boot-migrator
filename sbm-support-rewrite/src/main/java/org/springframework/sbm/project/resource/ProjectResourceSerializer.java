@@ -22,36 +22,41 @@ import java.nio.file.Path;
 
 public class ProjectResourceSerializer {
 
-    public void writeChanges(InternalProjectResource projectResource) {
+	public void writeChanges(InternalProjectResource projectResource) {
 
-        if (projectResource != null && projectResource.hasChanges()) {
+		if (projectResource != null && projectResource.hasChanges()) {
 
-            Path absolutePath = projectResource.getAbsolutePath();
+			Path absolutePath = projectResource.getAbsolutePath();
 
-            if (projectResource.isDeleted()) {
-                try {
-                    if(Files.exists(absolutePath)) {
-                        Files.delete(absolutePath);
-                    }
-                } catch (IOException ioe) {
-                    throw new RuntimeException("Can't delete file [" + absolutePath + "]", ioe);
-                }
-            } else {
-                try {
-                    Files.createDirectories(absolutePath.getParent());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+			if (projectResource.isDeleted()) {
+				try {
+					if (Files.exists(absolutePath)) {
+						Files.delete(absolutePath);
+					}
+				}
+				catch (IOException ioe) {
+					throw new RuntimeException("Can't delete file [" + absolutePath + "]", ioe);
+				}
+			}
+			else {
+				try {
+					Files.createDirectories(absolutePath.getParent());
+				}
+				catch (IOException e) {
+					throw new RuntimeException(e);
+				}
 
-                try (BufferedWriter sourceFileWriter = Files.newBufferedWriter(absolutePath)) {
-                    String newSource = projectResource.print();
-                    sourceFileWriter.write(newSource);
-                    projectResource.resetHasChanges();
-                } catch (IOException ioe) {
-                    throw new RuntimeException("Can't write back changes in [" + absolutePath + "]", ioe);
-                }
-            }
+				try (BufferedWriter sourceFileWriter = Files.newBufferedWriter(absolutePath)) {
+					String newSource = projectResource.print();
+					sourceFileWriter.write(newSource);
+					projectResource.resetHasChanges();
+				}
+				catch (IOException ioe) {
+					throw new RuntimeException("Can't write back changes in [" + absolutePath + "]", ioe);
+				}
+			}
 
-        }
-    }
+		}
+	}
+
 }

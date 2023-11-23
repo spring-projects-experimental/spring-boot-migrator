@@ -28,12 +28,15 @@ import java.nio.file.Path;
  * @author Fabian Krüger
  */
 class MavenModelReader {
-    public Model readModel(Resource mavenPomFile) {
-        try {
-            return new MavenXpp3Reader().read(ResourceUtil.getInputStream(mavenPomFile));
-        } catch (IOException | XmlPullParserException e) {
-            Path path = ResourceUtil.getPath(mavenPomFile);
-            throw new RuntimeException("Could not read Maven model from resource '%s'".formatted(path.toString()), e);
-        }
-    }
+
+	public Model readModel(Resource mavenPomFile) {
+		try {
+			return new MavenXpp3Reader().read(ResourceUtil.getInputStream(mavenPomFile));
+		}
+		catch (IOException | XmlPullParserException e) {
+			Path path = ResourceUtil.getPath(mavenPomFile);
+			throw new RuntimeException("Could not read Maven model from resource '%s'".formatted(path.toString()), e);
+		}
+	}
+
 }

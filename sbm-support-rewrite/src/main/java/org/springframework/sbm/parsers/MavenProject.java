@@ -37,7 +37,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Predicate;
 
-
 @Getter
 @Setter
 /**
@@ -45,189 +44,209 @@ import java.util.function.Predicate;
  */
 public class MavenProject {
 
-    private final Path projectRoot;
-    private final Resource pomFile;
-    // FIXME: 945 temporary method, model should nopt come from Maven
-    private final Model pomModel;
-    private List<MavenProject> collectedProjects = new ArrayList<>();
-    private Xml.Document sourceFile;
-    private final MavenArtifactDownloader rewriteMavenArtifactDownloader;
-    private final List<Resource> resources;
-    private ProjectId projectId;
+	private final Path projectRoot;
 
-    public MavenProject(Path projectRoot, Resource pomFile, Model pomModel, MavenArtifactDownloader rewriteMavenArtifactDownloader, List<Resource> resources) {
-        this.projectRoot = projectRoot;
-        this.pomFile = pomFile;
-        this.pomModel = pomModel;
-        this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
-        this.resources = resources;
-        projectId = new ProjectId(getGroupId(), getArtifactId());
-    }
+	private final Resource pomFile;
 
-    public File getFile() {
-        return ResourceUtil.getPath(pomFile).toFile();
-    }
+	// FIXME: 945 temporary method, model should nopt come from Maven
+	private final Model pomModel;
 
-    public Path getBasedir() {
-        // TODO: 945 Check if this is correct
-        return pomFile == null ? null : ResourceUtil.getPath(pomFile).getParent();
-    }
+	private List<MavenProject> collectedProjects = new ArrayList<>();
 
-    public void setCollectedProjects(List<MavenProject> collected) {
-        this.collectedProjects = collected;
-    }
+	private Xml.Document sourceFile;
 
-    public List<MavenProject> getCollectedProjects() {
-        return collectedProjects;
-    }
+	private final MavenArtifactDownloader rewriteMavenArtifactDownloader;
 
-    public Resource getResource() {
-        return pomFile;
-    }
+	private final List<Resource> resources;
 
-    public Path getModuleDir() {
-        if(getBasedir() == null) {
-            return null;
-        } else if(projectRoot.relativize(ResourceUtil.getPath(pomFile)).toString().equals("pom.xml")){
-            return Path.of("");
-        } else {
-            return projectRoot.relativize(ResourceUtil.getPath(pomFile)).getParent();
-        }
-    }
+	private ProjectId projectId;
 
+	public MavenProject(Path projectRoot, Resource pomFile, Model pomModel,
+			MavenArtifactDownloader rewriteMavenArtifactDownloader, List<Resource> resources) {
+		this.projectRoot = projectRoot;
+		this.pomFile = pomFile;
+		this.pomModel = pomModel;
+		this.rewriteMavenArtifactDownloader = rewriteMavenArtifactDownloader;
+		this.resources = resources;
+		projectId = new ProjectId(getGroupId(), getArtifactId());
+	}
 
-    public String getGroupIdAndArtifactId() {
-        return this.pomModel.getGroupId() + ":" + pomModel.getArtifactId();
-    }
+	public File getFile() {
+		return ResourceUtil.getPath(pomFile).toFile();
+	}
 
-    public Path getPomFilePath() {
-        return ResourceUtil.getPath(pomFile);
-    }
+	public Path getBasedir() {
+		// TODO: 945 Check if this is correct
+		return pomFile == null ? null : ResourceUtil.getPath(pomFile).getParent();
+	}
 
-    public Plugin getPlugin(String s) {
-        return pomModel.getBuild() == null ? null : pomModel.getBuild().getPluginsAsMap().get(s);
-    }
+	public void setCollectedProjects(List<MavenProject> collected) {
+		this.collectedProjects = collected;
+	}
 
-    public Properties getProperties() {
-        return pomModel.getProperties();
-    }
+	public List<MavenProject> getCollectedProjects() {
+		return collectedProjects;
+	}
 
-    public MavenRuntimeInformation getMavenRuntimeInformation() {
-        // FIXME: 945 implement this
-        return new MavenRuntimeInformation();
-    }
+	public Resource getResource() {
+		return pomFile;
+	}
 
-    public String getName() {
-        return pomModel.getName();
-    }
+	public Path getModuleDir() {
+		if (getBasedir() == null) {
+			return null;
+		}
+		else if (projectRoot.relativize(ResourceUtil.getPath(pomFile)).toString().equals("pom.xml")) {
+			return Path.of("");
+		}
+		else {
+			return projectRoot.relativize(ResourceUtil.getPath(pomFile)).getParent();
+		}
+	}
 
-    public String getGroupId() {
-        return pomModel.getGroupId() == null ? pomModel.getParent().getGroupId() : pomModel.getGroupId();
-    }
+	public String getGroupIdAndArtifactId() {
+		return this.pomModel.getGroupId() + ":" + pomModel.getArtifactId();
+	}
 
-    public String getArtifactId() {
-        return pomModel.getArtifactId();
-    }
+	public Path getPomFilePath() {
+		return ResourceUtil.getPath(pomFile);
+	}
 
-    /**
-     * FIXME: when the version of parent pom is null (inherited by it's parent) the version will be null.
-     */
-    public String getVersion() {
-        return pomModel.getVersion() == null ? pomModel.getParent().getVersion() : pomModel.getVersion();
-    }
+	public Plugin getPlugin(String s) {
+		return pomModel.getBuild() == null ? null : pomModel.getBuild().getPluginsAsMap().get(s);
+	}
 
-    @Override
-    public String toString() {
-        String groupId = pomModel.getGroupId() == null ? pomModel.getParent().getGroupId() : pomModel.getGroupId();
-        return groupId + ":" + pomModel.getArtifactId();
-    }
+	public Properties getProperties() {
+		return pomModel.getProperties();
+	}
 
-    public String getBuildDirectory() {
-        String s = pomModel.getBuild() != null ? pomModel.getBuild().getDirectory() : null;
-        return s == null ? ResourceUtil.getPath(pomFile).getParent().resolve("target").toAbsolutePath().normalize().toString() : s;
-    }
+	public MavenRuntimeInformation getMavenRuntimeInformation() {
+		// FIXME: 945 implement this
+		return new MavenRuntimeInformation();
+	}
 
-    public String getSourceDirectory() {
-        String s = pomModel.getBuild() != null ? pomModel.getBuild().getSourceDirectory() : null;
-        return s == null ? ResourceUtil.getPath(pomFile).getParent().resolve("src/main/java").toAbsolutePath().normalize().toString() : s;
-    }
+	public String getName() {
+		return pomModel.getName();
+	}
 
-    public List<Path> getCompileClasspathElements() {
-        Scope scope = Scope.Compile;
-        return getClasspathElements(scope);
-    }
+	public String getGroupId() {
+		return pomModel.getGroupId() == null ? pomModel.getParent().getGroupId() : pomModel.getGroupId();
+	}
 
-    public List<Path> getTestClasspathElements() {
-        return getClasspathElements(Scope.Test);
-    }
+	public String getArtifactId() {
+		return pomModel.getArtifactId();
+	}
 
-    @NotNull
-    private List<Path> getClasspathElements(Scope scope) {
-        MavenResolutionResult pom = getSourceFile().getMarkers().findFirst(MavenResolutionResult.class).get();
-        List<ResolvedDependency> resolvedDependencies = pom.getDependencies().get(scope);
-        if(resolvedDependencies != null) {
-            return resolvedDependencies
-                    // FIXME: 945 - deal with dependencies to projects in reactor
-                    //
-                    .stream()
-                    .filter(rd -> rd.getRepository() != null)
-                    .map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
-                    .filter(Objects::nonNull)
-                    .distinct()
-                    .toList();
-        } else {
-            return new ArrayList<>();
-        }
-    }
+	/**
+	 * FIXME: when the version of parent pom is null (inherited by it's parent) the
+	 * version will be null.
+	 */
+	public String getVersion() {
+		return pomModel.getVersion() == null ? pomModel.getParent().getVersion() : pomModel.getVersion();
+	}
 
-    public String getTestSourceDirectory() {
-        String s = pomModel.getBuild() != null ? pomModel.getBuild().getSourceDirectory() : null;
-        return s == null ? ResourceUtil.getPath(pomFile).getParent().resolve("src/test/java").toAbsolutePath().normalize().toString() : s;
-    }
+	@Override
+	public String toString() {
+		String groupId = pomModel.getGroupId() == null ? pomModel.getParent().getGroupId() : pomModel.getGroupId();
+		return groupId + ":" + pomModel.getArtifactId();
+	}
 
-    public void setSourceFile(Xml.Document sourceFile) {
-        this.sourceFile = sourceFile;
-    }
+	public String getBuildDirectory() {
+		String s = pomModel.getBuild() != null ? pomModel.getBuild().getDirectory() : null;
+		return s == null
+				? ResourceUtil.getPath(pomFile).getParent().resolve("target").toAbsolutePath().normalize().toString()
+				: s;
+	}
 
-    private static List<Resource> listJavaSources(List<Resource> resources, Path sourceDirectory) {
-        return resources.stream()
-                .filter(whenIn(sourceDirectory))
-                .filter(whenFileNameEndsWithJava())
-                .toList();
-    }
+	public String getSourceDirectory() {
+		String s = pomModel.getBuild() != null ? pomModel.getBuild().getSourceDirectory() : null;
+		return s == null ? ResourceUtil.getPath(pomFile)
+			.getParent()
+			.resolve("src/main/java")
+			.toAbsolutePath()
+			.normalize()
+			.toString() : s;
+	}
 
-    @NotNull
-    private static Predicate<Resource> whenFileNameEndsWithJava() {
-        return p -> ResourceUtil.getPath(p).getFileName().toString().endsWith(".java");
-    }
+	public List<Path> getCompileClasspathElements() {
+		Scope scope = Scope.Compile;
+		return getClasspathElements(scope);
+	}
 
-    @NotNull
-    private static Predicate<Resource> whenIn(Path sourceDirectory) {
-        return r -> ResourceUtil.getPath(r).toString().startsWith(sourceDirectory.toString());
-    }
+	public List<Path> getTestClasspathElements() {
+		return getClasspathElements(Scope.Test);
+	}
 
+	@NotNull
+	private List<Path> getClasspathElements(Scope scope) {
+		MavenResolutionResult pom = getSourceFile().getMarkers().findFirst(MavenResolutionResult.class).get();
+		List<ResolvedDependency> resolvedDependencies = pom.getDependencies().get(scope);
+		if (resolvedDependencies != null) {
+			return resolvedDependencies
+				// FIXME: 945 - deal with dependencies to projects in reactor
+				//
+				.stream()
+				.filter(rd -> rd.getRepository() != null)
+				.map(rd -> rewriteMavenArtifactDownloader.downloadArtifact(rd))
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+		}
+		else {
+			return new ArrayList<>();
+		}
+	}
 
-    public List<Resource> getJavaSourcesInTarget() {
-        return listJavaSources(getResources(), getBasedir().resolve(getBuildDirectory()));
-    }
+	public String getTestSourceDirectory() {
+		String s = pomModel.getBuild() != null ? pomModel.getBuild().getSourceDirectory() : null;
+		return s == null ? ResourceUtil.getPath(pomFile)
+			.getParent()
+			.resolve("src/test/java")
+			.toAbsolutePath()
+			.normalize()
+			.toString() : s;
+	}
 
-    private List<Resource> getResources() {
-        return this.resources;
-    }
+	public void setSourceFile(Xml.Document sourceFile) {
+		this.sourceFile = sourceFile;
+	}
 
-    public List<Resource> getMainJavaSources() {
-        return listJavaSources(resources, getProjectRoot().resolve(getModuleDir()).resolve("src/main/java"));
-    }
+	private static List<Resource> listJavaSources(List<Resource> resources, Path sourceDirectory) {
+		return resources.stream().filter(whenIn(sourceDirectory)).filter(whenFileNameEndsWithJava()).toList();
+	}
 
-    public Path getModulePath() {
-        return projectRoot.resolve(getModuleDir());
-    }
+	@NotNull
+	private static Predicate<Resource> whenFileNameEndsWithJava() {
+		return p -> ResourceUtil.getPath(p).getFileName().toString().endsWith(".java");
+	}
 
-    public ProjectId getProjectId() {
-        return projectId;
-    }
+	@NotNull
+	private static Predicate<Resource> whenIn(Path sourceDirectory) {
+		return r -> ResourceUtil.getPath(r).toString().startsWith(sourceDirectory.toString());
+	}
 
-    public Object getProjectEncoding() {
-        return getPomModel().getProperties().get("project.build.sourceEncoding");
-    }
+	public List<Resource> getJavaSourcesInTarget() {
+		return listJavaSources(getResources(), getBasedir().resolve(getBuildDirectory()));
+	}
+
+	private List<Resource> getResources() {
+		return this.resources;
+	}
+
+	public List<Resource> getMainJavaSources() {
+		return listJavaSources(resources, getProjectRoot().resolve(getModuleDir()).resolve("src/main/java"));
+	}
+
+	public Path getModulePath() {
+		return projectRoot.resolve(getModuleDir());
+	}
+
+	public ProjectId getProjectId() {
+		return projectId;
+	}
+
+	public Object getProjectEncoding() {
+		return getPomModel().getProperties().get("project.build.sourceEncoding");
+	}
+
 }

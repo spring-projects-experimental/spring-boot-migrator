@@ -27,18 +27,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Fabian Krüger
  */
 class MavenExecutorTest {
-    @Test
-    @DisplayName("Verify MavenSession when running in Maven")
-    void verifyMavenSessionWhenRunningInMaven() {
-        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
-        MavenPlexusContainer containerFactory= new MavenPlexusContainer();
-        MavenExecutor sut = new MavenExecutor(requestFactory, containerFactory);
-        Path baseDir = Path.of("./testcode/maven-projects/maven-config");
-        List<String> goals = List.of("clean", "install");
-        sut.onProjectSucceededEvent(baseDir, goals, event -> {
-            assertThat(event.getSession()).isNotNull();
-        });
-    }
 
+	@Test
+	@DisplayName("Verify MavenSession when running in Maven")
+	void verifyMavenSessionWhenRunningInMaven() {
+		MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
+		MavenPlexusContainer containerFactory = new MavenPlexusContainer();
+		MavenExecutor sut = new MavenExecutor(requestFactory, containerFactory);
+		Path baseDir = Path.of("./testcode/maven-projects/maven-config");
+		List<String> goals = List.of("clean", "install");
+		sut.onProjectSucceededEvent(baseDir, goals, event -> {
+			assertThat(event.getSession()).isNotNull();
+		});
+	}
 
 }

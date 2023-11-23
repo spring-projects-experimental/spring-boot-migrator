@@ -44,68 +44,71 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-@SpringBootTest(classes = {SbmSupportRewriteConfiguration.class, SbmTestConfiguration.class})
+@SpringBootTest(classes = { SbmSupportRewriteConfiguration.class, SbmTestConfiguration.class })
 public class CompareParserRecipeRunTest {
 
-    @Autowired
-    RewriteProjectParser sut;
+	@Autowired
+	RewriteProjectParser sut;
 
-    @Autowired
-    RewriteMavenProjectParser comparingParser;
+	@Autowired
+	RewriteMavenProjectParser comparingParser;
 
-    @Autowired
-    private ExecutionContext executionContext;
+	@Autowired
+	private ExecutionContext executionContext;
 
-    @Test
-    @DisplayName("Running a recipe with RewriteMavenParser should yield the same result as with RewriteProjectParser")
-    void runningARecipeWithRewriteMavenParserYieldsTheSameResultAsWithRewriteProjectParser() {
-        Path baseDir = TestProjectHelper.getMavenProject("parser-recipe-run");
-        ParallelParsingResult parallelParsingResult = new ParserExecutionHelper().parseParallel(baseDir);
-        RewriteProjectParsingResult sutParsingResult = parallelParsingResult.actualParsingResult();
-        RewriteProjectParsingResult compParsingResult = parallelParsingResult.expectedParsingResult();
+	@Test
+	@DisplayName("Running a recipe with RewriteMavenParser should yield the same result as with RewriteProjectParser")
+	void runningARecipeWithRewriteMavenParserYieldsTheSameResultAsWithRewriteProjectParser() {
+		Path baseDir = TestProjectHelper.getMavenProject("parser-recipe-run");
+		ParallelParsingResult parallelParsingResult = new ParserExecutionHelper().parseParallel(baseDir);
+		RewriteProjectParsingResult sutParsingResult = parallelParsingResult.actualParsingResult();
+		RewriteProjectParsingResult compParsingResult = parallelParsingResult.expectedParsingResult();
 
-        AtomicInteger counter = new AtomicInteger(0);
+		AtomicInteger counter = new AtomicInteger(0);
 
-        Recipe recipe = new Recipe() {
-            @Override
-            public String getDisplayName() {
-                return "Dummy recipe for test";
-            }
+		Recipe recipe = new Recipe() {
+			@Override
+			public String getDisplayName() {
+				return "Dummy recipe for test";
+			}
 
-            @Override
-            public String getDescription() {
-                return getDisplayName();
-            }
+			@Override
+			public String getDescription() {
+				return getDisplayName();
+			}
 
-            @Override
-            public TreeVisitor<?, ExecutionContext> getVisitor() {
-                return new JavaIsoVisitor<>() {
-                    @Override
-                    public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext executionContext) {
-                        J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
-                        if(cd.getType().getFullyQualifiedName().equals("com.example.app.My")) {
-                            Markers markers = cd.getMarkers();
-                            markers = markers.addIfAbsent(new SearchResult(UUID.randomUUID(), "Another visit"));
-                            // This triggers the result
-                            cd = cd.withMarkers(markers);
-                            counter.incrementAndGet();
-                        }
+			@Override
+			public TreeVisitor<?, ExecutionContext> getVisitor() {
+				return new JavaIsoVisitor<>() {
+					@Override
+					public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl,
+							ExecutionContext executionContext) {
+						J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
+						if (cd.getType().getFullyQualifiedName().equals("com.example.app.My")) {
+							Markers markers = cd.getMarkers();
+							markers = markers.addIfAbsent(new SearchResult(UUID.randomUUID(), "Another visit"));
+							// This triggers the result
+							cd = cd.withMarkers(markers);
+							counter.incrementAndGet();
+						}
 
-                        return cd;
-                    }
-                };
-            }
-        };
-        // Run the Comparing Parser reusing OpenRewrite code
-        RecipeRun compRecipeRun = recipe.run(new InMemoryLargeSourceSet(compParsingResult.sourceFiles()), executionContext);
-        assertThat(counter.get()).isEqualTo(2);
-        assertThat(compRecipeRun.getChangeset().getAllResults()).hasSize(1);
+						return cd;
+					}
+				};
+			}
+		};
+		// Run the Comparing Parser reusing OpenRewrite code
+		RecipeRun compRecipeRun = recipe.run(new InMemoryLargeSourceSet(compParsingResult.sourceFiles()),
+				executionContext);
+		assertThat(counter.get()).isEqualTo(2);
+		assertThat(compRecipeRun.getChangeset().getAllResults()).hasSize(1);
 
-        // Run Parser independent from Maven
-        counter.setRelease(0);
-        RecipeRun sutRecipeRun = recipe.run(new InMemoryLargeSourceSet(sutParsingResult.sourceFiles()), executionContext);
-        assertThat(counter.get()).isEqualTo(2); // differs, should be 2
-        assertThat(sutRecipeRun.getChangeset().getAllResults()).hasSize(1); // is 0
-    }
+		// Run Parser independent from Maven
+		counter.setRelease(0);
+		RecipeRun sutRecipeRun = recipe.run(new InMemoryLargeSourceSet(sutParsingResult.sourceFiles()),
+				executionContext);
+		assertThat(counter.get()).isEqualTo(2); // differs, should be 2
+		assertThat(sutRecipeRun.getChangeset().getAllResults()).hasSize(1); // is 0
+	}
 
 }

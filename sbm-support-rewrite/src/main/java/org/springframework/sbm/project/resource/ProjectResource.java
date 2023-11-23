@@ -18,22 +18,24 @@ package org.springframework.sbm.project.resource;
 import java.nio.file.Path;
 
 /**
- * Defines operations on all project resources found during scan.
- * All file resources need to implement this interface.
+ * Defines operations on all project resources found during scan. All file resources need
+ * to implement this interface.
  */
 public interface ProjectResource {
-    String print();
 
-    /**
-     * @return Path relative to module root.
-     */
-    Path getSourcePath();
+	String print();
 
-    Path getAbsolutePath();
+	/**
+	 * @return Path relative to module root.
+	 */
+	Path getSourcePath();
 
-    void delete();
+	Path getAbsolutePath();
 
-    boolean isDeleted();
+	void delete();
 
-    void moveTo(Path newPath);
+	boolean isDeleted();
+
+	void moveTo(Path newPath);
+
 }

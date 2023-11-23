@@ -37,78 +37,46 @@ import java.util.List;
  */
 @Slf4j
 @RequiredArgsConstructor
-public
-class MavenMojoProjectParserFactory {
+public class MavenMojoProjectParserFactory {
 
-    private final ParserProperties parserProperties;
+	private final ParserProperties parserProperties;
 
-    public MavenMojoProjectParser create(Path baseDir, List<MavenProject> mavenProjects, PlexusContainer plexusContainer, MavenSession session) {
-        return buildMavenMojoProjectParser(
-                baseDir,
-                mavenProjects,
-                parserProperties.isPomCacheEnabled(),
-                parserProperties.getPomCacheDirectory(),
-                parserProperties.isSkipMavenParsing(),
-                parserProperties.getIgnoredPathPatterns(),
-                parserProperties.getPlainTextMasks(),
-                parserProperties.getSizeThresholdMb(),
-                parserProperties.isRunPerSubmodule(),
-                plexusContainer,
-                session);
-    }
+	public MavenMojoProjectParser create(Path baseDir, List<MavenProject> mavenProjects,
+			PlexusContainer plexusContainer, MavenSession session) {
+		return buildMavenMojoProjectParser(baseDir, mavenProjects, parserProperties.isPomCacheEnabled(),
+				parserProperties.getPomCacheDirectory(), parserProperties.isSkipMavenParsing(),
+				parserProperties.getIgnoredPathPatterns(), parserProperties.getPlainTextMasks(),
+				parserProperties.getSizeThresholdMb(), parserProperties.isRunPerSubmodule(), plexusContainer, session);
+	}
 
-    @NotNull
-    private MavenMojoProjectParser buildMavenMojoProjectParser(
-            Path baseDir,
-            List<MavenProject> mavenProjects,
-            boolean pomCacheEnabled,
-            String pomCacheDirectory,
-            boolean skipMavenParsing,
-            Collection<String> exclusions,
-            Collection<String> plainTextMasks,
-            int sizeThresholdMb,
-            boolean runPerSubmodule,
-            PlexusContainer plexusContainer,
-            MavenSession session) {
-        try {
-            Log logger = new Slf4jToMavenLoggerAdapter(log);
-            RuntimeInformation runtimeInformation = plexusContainer.lookup(RuntimeInformation.class);
-            SettingsDecrypter decrypter = plexusContainer.lookup(SettingsDecrypter.class);
+	@NotNull
+	private MavenMojoProjectParser buildMavenMojoProjectParser(Path baseDir, List<MavenProject> mavenProjects,
+			boolean pomCacheEnabled, String pomCacheDirectory, boolean skipMavenParsing, Collection<String> exclusions,
+			Collection<String> plainTextMasks, int sizeThresholdMb, boolean runPerSubmodule,
+			PlexusContainer plexusContainer, MavenSession session) {
+		try {
+			Log logger = new Slf4jToMavenLoggerAdapter(log);
+			RuntimeInformation runtimeInformation = plexusContainer.lookup(RuntimeInformation.class);
+			SettingsDecrypter decrypter = plexusContainer.lookup(SettingsDecrypter.class);
 
-            MavenMojoProjectParser sut = new MavenMojoProjectParser(
-                    logger,
-                    baseDir,
-                    pomCacheEnabled,
-                    pomCacheDirectory,
-                    runtimeInformation,
-                    skipMavenParsing,
-                    exclusions,
-                    plainTextMasks,
-                    sizeThresholdMb,
-                    session,
-                    decrypter,
-                    runPerSubmodule);
+			MavenMojoProjectParser sut = new MavenMojoProjectParser(logger, baseDir, pomCacheEnabled, pomCacheDirectory,
+					runtimeInformation, skipMavenParsing, exclusions, plainTextMasks, sizeThresholdMb, session,
+					decrypter, runPerSubmodule);
 
-            return sut;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+			return sut;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public MavenMojoProjectParser create(Path baseDir, RuntimeInformation runtimeInformation, SettingsDecrypter settingsDecrypter) {
-        return new MavenMojoProjectParser(
-                new Slf4jToMavenLoggerAdapter(log),
-                baseDir,
-                parserProperties.isPomCacheEnabled(),
-                parserProperties.getPomCacheDirectory(),
-                runtimeInformation,
-                parserProperties.isSkipMavenParsing(),
-                parserProperties.getIgnoredPathPatterns(),
-                parserProperties.getPlainTextMasks(),
-                parserProperties.getSizeThresholdMb(),
-                null,
-                settingsDecrypter,
-                parserProperties.isRunPerSubmodule()
-        );
-    }
+	public MavenMojoProjectParser create(Path baseDir, RuntimeInformation runtimeInformation,
+			SettingsDecrypter settingsDecrypter) {
+		return new MavenMojoProjectParser(new Slf4jToMavenLoggerAdapter(log), baseDir,
+				parserProperties.isPomCacheEnabled(), parserProperties.getPomCacheDirectory(), runtimeInformation,
+				parserProperties.isSkipMavenParsing(), parserProperties.getIgnoredPathPatterns(),
+				parserProperties.getPlainTextMasks(), parserProperties.getSizeThresholdMb(), null, settingsDecrypter,
+				parserProperties.isRunPerSubmodule());
+	}
+
 }

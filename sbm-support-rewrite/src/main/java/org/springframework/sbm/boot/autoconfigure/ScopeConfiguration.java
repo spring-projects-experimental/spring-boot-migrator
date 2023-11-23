@@ -34,45 +34,48 @@ import java.util.function.Supplier;
 @AutoConfiguration
 public class ScopeConfiguration {
 
+	@Bean
+	ExecutionScope executionScope() {
+		return new ExecutionScope();
+	}
 
-    @Bean
-    ExecutionScope executionScope() {
-        return new ExecutionScope();
-    }
+	@Bean
+	ScanScope scanScope() {
+		return new ScanScope();
+	}
 
-    @Bean
-    ScanScope scanScope() {
-        return new ScanScope();
-    }
+	/**
+	 * Register {@link ScanScope} and {@link ExecutionScope}.
+	 */
+	@Bean
+	public static BeanFactoryPostProcessor beanFactoryPostProcessor(ExecutionScope executionScope,
+			ScanScope scanScope) {
+		return beanFactory -> {
+			beanFactory.registerScope(ScanScope.SCOPE_NAME, scanScope);
+			beanFactory.registerScope(ExecutionScope.SCOPE_NAME, executionScope);
+		};
+	}
 
-    /**
-     * Register {@link ScanScope} and {@link ExecutionScope}.
-     */
-    @Bean
-    public static BeanFactoryPostProcessor beanFactoryPostProcessor(ExecutionScope executionScope, ScanScope scanScope) {
-        return beanFactory -> {
-            beanFactory.registerScope(ScanScope.SCOPE_NAME, scanScope);
-            beanFactory.registerScope(ExecutionScope.SCOPE_NAME, executionScope);
-        };
-    }
+	@Bean
+	@org.springframework.sbm.scopes.annotations.ScanScope
+	ProjectMetadata projectMetadata() {
+		return new ProjectMetadata();
+	}
 
-    @Bean
-    @org.springframework.sbm.scopes.annotations.ScanScope
-    ProjectMetadata projectMetadata() {
-        return new ProjectMetadata();
-    }
+	@Bean
+	@ConditionalOnMissingBean(name = "executionContextSupplier")
+	Supplier<ExecutionContext> executionContextSupplier() {
+		return () -> new InMemoryExecutionContext(t -> {
+			throw new RuntimeException(t);
+		});
+	}
 
-    @Bean
-    @ConditionalOnMissingBean(name = "executionContextSupplier")
-    Supplier<ExecutionContext> executionContextSupplier() {
-        return () -> new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
-    }
-
-    @Bean
-    @org.springframework.sbm.scopes.annotations.ScanScope
-    ExecutionContext executionContext(ProjectMetadata projectMetadata, Supplier<ExecutionContext> executionContextSupplier, MavenPomCache mavenPomCache) {
-        ExecutionContext executionContext = executionContextSupplier.get();
-        return executionContext;
-    }
+	@Bean
+	@org.springframework.sbm.scopes.annotations.ScanScope
+	ExecutionContext executionContext(ProjectMetadata projectMetadata,
+			Supplier<ExecutionContext> executionContextSupplier, MavenPomCache mavenPomCache) {
+		ExecutionContext executionContext = executionContextSupplier.get();
+		return executionContext;
+	}
 
 }

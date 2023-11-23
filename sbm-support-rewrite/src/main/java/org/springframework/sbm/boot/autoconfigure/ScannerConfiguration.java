@@ -29,8 +29,10 @@ import org.springframework.sbm.parsers.RewriteParserConfiguration;
 @AutoConfiguration(after = RewriteParserConfiguration.class)
 @Import(RewriteParserConfiguration.class)
 public class ScannerConfiguration {
-    @Bean
-    ProjectScanner projectScanner(ResourceLoader resourceLoader, ParserProperties parserProperties) {
-        return new ProjectScanner(resourceLoader, parserProperties);
-    }
+
+	@Bean
+	ProjectScanner projectScanner(ResourceLoader resourceLoader, ParserProperties parserProperties) {
+		return new ProjectScanner(resourceLoader, parserProperties);
+	}
+
 }

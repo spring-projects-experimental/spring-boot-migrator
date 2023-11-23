@@ -33,41 +33,40 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Fabian Krüger
  */
 public class MavenParserTest {
-    @Test
-    @DisplayName("Should Read .mvn/maven.config")
-    @ExpectedToFail("See https://github.com/openrewrite/rewrite/issues/3409")
-    void shouldReadMvnMavenConfig() {
-        String mavenConfig = """
-                -Drevision=42
-                -Dvalidation-api.version=2.0.1.Final
-                -Psome-profile,another-profile
-                """;
 
-        Path baseDir = Path.of("./testcode/maven-projects/maven-config");
-        Stream<SourceFile> parse = MavenParser.builder()
-                .mavenConfig(baseDir.resolve(".mvn/maven.config"))
-                .build()
-                .parse(
-                        List.of(baseDir.resolve("pom.xml")),
-                        null,
-                        new InMemoryExecutionContext(t -> {
-                            t.printStackTrace();
-                            fail("exception");
-                        })
-                );
-    }
+	@Test
+	@DisplayName("Should Read .mvn/maven.config")
+	@ExpectedToFail("See https://github.com/openrewrite/rewrite/issues/3409")
+	void shouldReadMvnMavenConfig() {
+		String mavenConfig = """
+				-Drevision=42
+				-Dvalidation-api.version=2.0.1.Final
+				-Psome-profile,another-profile
+				""";
 
-    @Test
-    @DisplayName("testRegex")
-    // TODO: Tryout of the regex that leads to the failing test (above), remove this test when issue #3409 is fixed.
-    void testRegex() {
+		Path baseDir = Path.of("./testcode/maven-projects/maven-config");
+		Stream<SourceFile> parse = MavenParser.builder()
+			.mavenConfig(baseDir.resolve(".mvn/maven.config"))
+			.build()
+			.parse(List.of(baseDir.resolve("pom.xml")), null, new InMemoryExecutionContext(t -> {
+				t.printStackTrace();
+				fail("exception");
+			}));
+	}
 
-        String regex = "(?:$|\\s)-P\\s+([^\\s]+)";
-        assertThat(Pattern.compile(regex).matcher("\n-P someProfile\n").find()).isTrue();
-        assertThat(Pattern.compile(regex).matcher("""
-                -Psome-profile,another-profile
-                """).find()).isFalse();
-        assertThat(Pattern.compile(regex).matcher("-PsomeProfile").find()).isFalse();
-        assertThat(Pattern.compile(regex).matcher("-P someProfile").find()).isFalse();
-    }
+	@Test
+	@DisplayName("testRegex")
+	// TODO: Tryout of the regex that leads to the failing test (above), remove this test
+	// when issue #3409 is fixed.
+	void testRegex() {
+
+		String regex = "(?:$|\\s)-P\\s+([^\\s]+)";
+		assertThat(Pattern.compile(regex).matcher("\n-P someProfile\n").find()).isTrue();
+		assertThat(Pattern.compile(regex).matcher("""
+				-Psome-profile,another-profile
+				""").find()).isFalse();
+		assertThat(Pattern.compile(regex).matcher("-PsomeProfile").find()).isFalse();
+		assertThat(Pattern.compile(regex).matcher("-P someProfile").find()).isFalse();
+	}
+
 }

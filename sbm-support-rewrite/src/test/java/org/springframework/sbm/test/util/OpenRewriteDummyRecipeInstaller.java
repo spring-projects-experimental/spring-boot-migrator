@@ -26,17 +26,18 @@ import java.util.List;
  */
 public class OpenRewriteDummyRecipeInstaller {
 
-     public void installRecipe() {
-         Invoker invoker = new DefaultInvoker();
-         InvocationRequest request = new DefaultInvocationRequest();
-         File dummRecipeProject = Path.of("./testcode/openrewrite-dummy-recipe").toFile();
-         request.setBaseDirectory(dummRecipeProject);
-         request.setGoals(List.of("clean", "install"));
-         try {
-             InvocationResult result = invoker.execute(request);
-         } catch (MavenInvocationException e) {
-             throw new RuntimeException(e);
-         }
-     }
+	public void installRecipe() {
+		Invoker invoker = new DefaultInvoker();
+		InvocationRequest request = new DefaultInvocationRequest();
+		File dummRecipeProject = Path.of("./testcode/openrewrite-dummy-recipe").toFile();
+		request.setBaseDirectory(dummRecipeProject);
+		request.setGoals(List.of("clean", "install"));
+		try {
+			InvocationResult result = invoker.execute(request);
+		}
+		catch (MavenInvocationException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }

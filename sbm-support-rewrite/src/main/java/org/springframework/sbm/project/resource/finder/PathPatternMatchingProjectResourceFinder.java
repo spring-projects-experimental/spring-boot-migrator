@@ -26,40 +26,39 @@ import java.util.stream.Collectors;
 
 public class PathPatternMatchingProjectResourceFinder implements ProjectResourceFinder<List<ProjectResource>> {
 
-    /**
-     * Ant-style path patterns to filter resources.
-     */
-    private final List<String> matchingPatterns;
+	/**
+	 * Ant-style path patterns to filter resources.
+	 */
+	private final List<String> matchingPatterns;
 
-    private final PathMatcher matcher = new OsAgnosticPathMatcher();
+	private final PathMatcher matcher = new OsAgnosticPathMatcher();
 
-    public PathPatternMatchingProjectResourceFinder(List<String> matchingPatterns) {
-        validateMatchingPatterns(matchingPatterns);
-        this.matchingPatterns = matchingPatterns;
-    }
+	public PathPatternMatchingProjectResourceFinder(List<String> matchingPatterns) {
+		validateMatchingPatterns(matchingPatterns);
+		this.matchingPatterns = matchingPatterns;
+	}
 
-    public PathPatternMatchingProjectResourceFinder(String... matchingPatterns) {
-        this(Arrays.asList(matchingPatterns));
-    }
+	public PathPatternMatchingProjectResourceFinder(String... matchingPatterns) {
+		this(Arrays.asList(matchingPatterns));
+	}
 
-    private void validateMatchingPatterns(List<String> matchingPatterns) {
-        for(String pattern : matchingPatterns) {
-            if( ! matcher.isPattern(pattern)) {
-                throw new RuntimeException("The provided pattern '"+pattern+"' is invalid. Please check AntPathMatcher javadoc for examples of valid patterns.");
-            }
-        }
-    }
+	private void validateMatchingPatterns(List<String> matchingPatterns) {
+		for (String pattern : matchingPatterns) {
+			if (!matcher.isPattern(pattern)) {
+				throw new RuntimeException("The provided pattern '" + pattern
+						+ "' is invalid. Please check AntPathMatcher javadoc for examples of valid patterns.");
+			}
+		}
+	}
 
-    private boolean filterResources(ProjectResource projectResource) {
-        return matchingPatterns.stream()
-                .anyMatch(pattern -> matcher.match(pattern, projectResource.getAbsolutePath().toString()));
-    }
+	private boolean filterResources(ProjectResource projectResource) {
+		return matchingPatterns.stream()
+			.anyMatch(pattern -> matcher.match(pattern, projectResource.getAbsolutePath().toString()));
+	}
 
-    @Override
-    public List<ProjectResource> apply(ProjectResourceSet projectResourceSet) {
-        return projectResourceSet
-                .stream()
-                .filter(this::filterResources)
-                .collect(Collectors.toList());
-    }
+	@Override
+	public List<ProjectResource> apply(ProjectResourceSet projectResourceSet) {
+		return projectResourceSet.stream().filter(this::filterResources).collect(Collectors.toList());
+	}
+
 }

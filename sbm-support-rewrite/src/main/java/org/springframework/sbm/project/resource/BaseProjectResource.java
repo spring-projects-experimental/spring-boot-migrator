@@ -16,27 +16,30 @@
 package org.springframework.sbm.project.resource;
 
 public abstract class BaseProjectResource implements InternalProjectResource {
-    protected boolean isChanged = false;
-    private boolean isDeleted = false;
 
-    public boolean hasChanges() {
-        return isChanged;
-    }
+	protected boolean isChanged = false;
 
-    public void resetHasChanges() {
-        isChanged = false;
-    }
+	private boolean isDeleted = false;
 
-    public void markAsChanged() {
-        isChanged = true;
-    }
+	public boolean hasChanges() {
+		return isChanged;
+	}
 
-    public void delete() {
-        isDeleted = true;
-        markAsChanged();
-    }
+	public void resetHasChanges() {
+		isChanged = false;
+	}
 
-    public boolean isDeleted() {
-        return isDeleted;
-    }
+	public void markAsChanged() {
+		isChanged = true;
+	}
+
+	public void delete() {
+		isDeleted = true;
+		markAsChanged();
+	}
+
+	public boolean isDeleted() {
+		return isDeleted;
+	}
+
 }

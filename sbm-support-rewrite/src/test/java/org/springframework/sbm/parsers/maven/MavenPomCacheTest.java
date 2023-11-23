@@ -44,101 +44,106 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class MavenPomCacheTest {
 
-    private static final String originalArchDataModel = System.getProperty("sun.arch.data.model");
+	private static final String originalArchDataModel = System.getProperty("sun.arch.data.model");
 
-    @Nested
-    @SetSystemProperty(key="sun.arch.data.model", value = "64")
-    class GivenA64BitSystem {
+	@Nested
+	@SetSystemProperty(key = "sun.arch.data.model", value = "64")
+	class GivenA64BitSystem {
 
-        @Nested
-        @SpringBootTest(classes = {ScannerConfiguration.class}, properties = {"parser.pomCacheEnabled=true", "parser.pomCacheDirectory=target"})
-        @DirtiesContext
-        class WhenPomCacheIsEnabledIsTrue {
+		@Nested
+		@SpringBootTest(classes = { ScannerConfiguration.class },
+				properties = { "parser.pomCacheEnabled=true", "parser.pomCacheDirectory=target" })
+		@DirtiesContext
+		class WhenPomCacheIsEnabledIsTrue {
 
-            @Autowired
-            private MavenPomCache mavenPomCache;
+			@Autowired
+			private MavenPomCache mavenPomCache;
 
-            @Test
-            @DisplayName("When pomCacheEnabled is true a CompositeMavenPomCache gets be used")
-            void compositePomCacheShouldBeUsed() {
-                assertThat(mavenPomCache).isInstanceOf(CompositeMavenPomCache.class);
-            }
+			@Test
+			@DisplayName("When pomCacheEnabled is true a CompositeMavenPomCache gets be used")
+			void compositePomCacheShouldBeUsed() {
+				assertThat(mavenPomCache).isInstanceOf(CompositeMavenPomCache.class);
+			}
 
-            @Test
-            @DisplayName("The used CompositeMavenPomCache should be Rocksdb and InMemory cache")
-            void compositePomCacheShouldBeUsed2() {
-                assertThat(mavenPomCache).isInstanceOf(CompositeMavenPomCache.class);
-                assertThat(
-                    List.of(
-                        ReflectionTestUtils.getField(mavenPomCache, "l1").getClass(),
-                        ReflectionTestUtils.getField(mavenPomCache, "l2").getClass()
-                    )
-                )
-                .containsExactly(InMemoryMavenPomCache.class, RocksdbMavenPomCache.class);
-            }
-        }
+			@Test
+			@DisplayName("The used CompositeMavenPomCache should be Rocksdb and InMemory cache")
+			void compositePomCacheShouldBeUsed2() {
+				assertThat(mavenPomCache).isInstanceOf(CompositeMavenPomCache.class);
+				assertThat(List.of(ReflectionTestUtils.getField(mavenPomCache, "l1").getClass(),
+						ReflectionTestUtils.getField(mavenPomCache, "l2").getClass()))
+					.containsExactly(InMemoryMavenPomCache.class, RocksdbMavenPomCache.class);
+			}
 
-        @Nested
-        @SpringBootTest(classes = ScannerConfiguration.class, properties = {"parser.pomCacheEnabled=false"})
-        @DirtiesContext
-        class WhenPomCacheIsEnabledIsFalse {
+		}
 
-            @Autowired
-            private MavenPomCache mavenPomCache;
+		@Nested
+		@SpringBootTest(classes = ScannerConfiguration.class, properties = { "parser.pomCacheEnabled=false" })
+		@DirtiesContext
+		class WhenPomCacheIsEnabledIsFalse {
 
-            @Test
-            @DisplayName("When pomCacheEnabled is false a InMemoryMavenPomCache should be used")
-            void InMemoryMavenPomCacheShouldBeUsed() {
-                assertThat(mavenPomCache).isInstanceOf(InMemoryMavenPomCache.class);
-            }
-        }
+			@Autowired
+			private MavenPomCache mavenPomCache;
 
-    }
+			@Test
+			@DisplayName("When pomCacheEnabled is false a InMemoryMavenPomCache should be used")
+			void InMemoryMavenPomCacheShouldBeUsed() {
+				assertThat(mavenPomCache).isInstanceOf(InMemoryMavenPomCache.class);
+			}
 
-    @Nested
-    @DirtiesContext
-    @SpringBootTest(classes = ScannerConfiguration.class, properties = {"parser.pomCacheEnabled=true"})
-    @SetSystemProperty(key = "sun.arch.data.model", value = "32")
-    class GivenA32BitSystem {
+		}
 
-        @Autowired
-        private MavenPomCache mavenPomCache;
+	}
 
-        @Test
-        @DisplayName("With 32Bit an InMemory pom cache gets used")
-        void shouldUseInMemoryMavenPomCache() {
-            assertThat(mavenPomCache).isInstanceOf(InMemoryMavenPomCache.class);
-        }
-    }
+	@Nested
+	@DirtiesContext
+	@SpringBootTest(classes = ScannerConfiguration.class, properties = { "parser.pomCacheEnabled=true" })
+	@SetSystemProperty(key = "sun.arch.data.model", value = "32")
+	class GivenA32BitSystem {
 
-    @Nested
-    @DirtiesContext
-    @Import(GivenCustomCacheProvided.CustomCacheConfig.class)
-    @SpringBootTest(classes = ScannerConfiguration.class, properties = {"parser.pomCacheEnabled=true", "customCache=true"})
-    class GivenCustomCacheProvided {
+		@Autowired
+		private MavenPomCache mavenPomCache;
 
-        @Autowired
-        private MavenPomCache mavenPomCache;
+		@Test
+		@DisplayName("With 32Bit an InMemory pom cache gets used")
+		void shouldUseInMemoryMavenPomCache() {
+			assertThat(mavenPomCache).isInstanceOf(InMemoryMavenPomCache.class);
+		}
 
-        @Test
-        @DisplayName("The custom pom cache should be used")
-        void shouldUseTheProvidedPomCache() {
-            assertThat(mavenPomCache).isInstanceOf(CustomPomCache.class);
-        }
+	}
 
-        @TestConfiguration
-        @ConditionalOnProperty(value = "customCache", havingValue = "true")
-        static class CustomCacheConfig {
-            // Provide custom MavenPomCache as bean
-            // Should overwrite the existing MavenPomCache
-            @Bean
-            public MavenPomCache mavenPomCache() {
-                return new CustomPomCache();
-            }
-        }
+	@Nested
+	@DirtiesContext
+	@Import(GivenCustomCacheProvided.CustomCacheConfig.class)
+	@SpringBootTest(classes = ScannerConfiguration.class,
+			properties = { "parser.pomCacheEnabled=true", "customCache=true" })
+	class GivenCustomCacheProvided {
 
-        static  class CustomPomCache extends InMemoryMavenPomCache {}
-    }
+		@Autowired
+		private MavenPomCache mavenPomCache;
+
+		@Test
+		@DisplayName("The custom pom cache should be used")
+		void shouldUseTheProvidedPomCache() {
+			assertThat(mavenPomCache).isInstanceOf(CustomPomCache.class);
+		}
+
+		@TestConfiguration
+		@ConditionalOnProperty(value = "customCache", havingValue = "true")
+		static class CustomCacheConfig {
+
+			// Provide custom MavenPomCache as bean
+			// Should overwrite the existing MavenPomCache
+			@Bean
+			public MavenPomCache mavenPomCache() {
+				return new CustomPomCache();
+			}
+
+		}
+
+		static class CustomPomCache extends InMemoryMavenPomCache {
+
+		}
+
+	}
 
 }
-

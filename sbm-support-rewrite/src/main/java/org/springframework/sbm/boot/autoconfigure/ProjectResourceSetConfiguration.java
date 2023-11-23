@@ -29,29 +29,31 @@ import org.springframework.sbm.project.resource.RewriteMigrationResultMerger;
  */
 @AutoConfiguration
 public class ProjectResourceSetConfiguration {
-    @Bean
-    RewriteSourceFileWrapper rewriteSourceFileWrapper() {
-        return new RewriteSourceFileWrapper();
-    }
 
-    @Bean
-    RewriteMigrationResultMerger rewriteMigrationResultMerger(RewriteSourceFileWrapper rewriteSourceFileWrapper) {
-        return new RewriteMigrationResultMerger(rewriteSourceFileWrapper);
-    }
+	@Bean
+	RewriteSourceFileWrapper rewriteSourceFileWrapper() {
+		return new RewriteSourceFileWrapper();
+	}
 
-    @Bean
-    ProjectResourceSerializer projectResourceSerializer() {
-        return new ProjectResourceSerializer();
-    }
+	@Bean
+	RewriteMigrationResultMerger rewriteMigrationResultMerger(RewriteSourceFileWrapper rewriteSourceFileWrapper) {
+		return new RewriteMigrationResultMerger(rewriteSourceFileWrapper);
+	}
 
-    @Bean
-    ProjectResourceSetSerializer projectResourceSetSerializer(ProjectResourceSerializer resourceSerializer) {
-        return new ProjectResourceSetSerializer(resourceSerializer);
-    }
+	@Bean
+	ProjectResourceSerializer projectResourceSerializer() {
+		return new ProjectResourceSerializer();
+	}
 
-    @Bean
-    ProjectResourceSetFactory projectResourceSetFactory(RewriteMigrationResultMerger rewriteMigrationResultMerger, RewriteSourceFileWrapper sourceFileWrapper, ExecutionContext executionContext) {
-        return new ProjectResourceSetFactory(rewriteMigrationResultMerger, sourceFileWrapper, executionContext);
-    }
+	@Bean
+	ProjectResourceSetSerializer projectResourceSetSerializer(ProjectResourceSerializer resourceSerializer) {
+		return new ProjectResourceSetSerializer(resourceSerializer);
+	}
+
+	@Bean
+	ProjectResourceSetFactory projectResourceSetFactory(RewriteMigrationResultMerger rewriteMigrationResultMerger,
+			RewriteSourceFileWrapper sourceFileWrapper, ExecutionContext executionContext) {
+		return new ProjectResourceSetFactory(rewriteMigrationResultMerger, sourceFileWrapper, executionContext);
+	}
 
 }

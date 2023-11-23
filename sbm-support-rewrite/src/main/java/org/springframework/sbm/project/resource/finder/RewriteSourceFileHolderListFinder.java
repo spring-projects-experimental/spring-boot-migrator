@@ -24,19 +24,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class RewriteSourceFileHolderListFinder<T extends SourceFile> implements ProjectResourceFinder<List<RewriteSourceFileHolder<T>>> {
+public class RewriteSourceFileHolderListFinder<T extends SourceFile>
+		implements ProjectResourceFinder<List<RewriteSourceFileHolder<T>>> {
 
-    private final Class<T> wrappedType;
+	private final Class<T> wrappedType;
 
-    @Override
-    public List<RewriteSourceFileHolder<T>> apply(ProjectResourceSet projectResourceSet) {
-        return projectResourceSet.stream()
-                .filter(r -> wrappedType.isAssignableFrom(r.getSourceFile().getClass()))
-                .map(this::cast)
-                .collect(Collectors.toList());
-    }
+	@Override
+	public List<RewriteSourceFileHolder<T>> apply(ProjectResourceSet projectResourceSet) {
+		return projectResourceSet.stream()
+			.filter(r -> wrappedType.isAssignableFrom(r.getSourceFile().getClass()))
+			.map(this::cast)
+			.collect(Collectors.toList());
+	}
 
-    private RewriteSourceFileHolder<T> cast(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
-        return (RewriteSourceFileHolder<T>) rewriteSourceFileHolder;
-    }
+	private RewriteSourceFileHolder<T> cast(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder) {
+		return (RewriteSourceFileHolder<T>) rewriteSourceFileHolder;
+	}
+
 }

@@ -29,63 +29,70 @@ import java.util.List;
  * @author fkrueger
  */
 public class ResourceUtil {
-    public ResourceUtil() {
-    }
 
-    public static Path getPath(Resource resource) {
-        try {
-            return resource.getFile().toPath();
-        } catch (IOException var2) {
-            throw new RuntimeException(var2);
-        }
-    }
+	public ResourceUtil() {
+	}
 
-    public static InputStream getInputStream(Resource resource) {
-        try {
-            return resource.getInputStream();
-        } catch (IOException var2) {
-            throw new RuntimeException(var2);
-        }
-    }
+	public static Path getPath(Resource resource) {
+		try {
+			return resource.getFile().toPath();
+		}
+		catch (IOException var2) {
+			throw new RuntimeException(var2);
+		}
+	}
 
-    public static void write(Path basePath, List<Resource> resources) {
-        resources.stream()
-                .forEach(r -> ResourceUtil.persistResource(basePath, r));
-    }
+	public static InputStream getInputStream(Resource resource) {
+		try {
+			return resource.getInputStream();
+		}
+		catch (IOException var2) {
+			throw new RuntimeException(var2);
+		}
+	}
 
-    private static void persistResource(Path basePath, Resource r) {
-        Path resourcePath = ResourceUtil.getPath(r);
-        if(resourcePath.isAbsolute()) {
-            Path relativize = resourcePath.relativize(basePath);
-        } else {
-            resourcePath = basePath.resolve(resourcePath).toAbsolutePath().normalize();
-        }
-        if(resourcePath.toFile().exists()) {
-            return;
-        }
-        try {
-            if(!resourcePath.getParent().toFile().exists()) {
-                Files.createDirectories(resourcePath.getParent());
-            }
-            Files.writeString(resourcePath, ResourceUtil.getContent(r));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public static void write(Path basePath, List<Resource> resources) {
+		resources.stream().forEach(r -> ResourceUtil.persistResource(basePath, r));
+	}
 
-    public static String getContent(Resource r) {
-        try {
-            return new String(getInputStream(r).readAllBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	private static void persistResource(Path basePath, Resource r) {
+		Path resourcePath = ResourceUtil.getPath(r);
+		if (resourcePath.isAbsolute()) {
+			Path relativize = resourcePath.relativize(basePath);
+		}
+		else {
+			resourcePath = basePath.resolve(resourcePath).toAbsolutePath().normalize();
+		}
+		if (resourcePath.toFile().exists()) {
+			return;
+		}
+		try {
+			if (!resourcePath.getParent().toFile().exists()) {
+				Files.createDirectories(resourcePath.getParent());
+			}
+			Files.writeString(resourcePath, ResourceUtil.getContent(r));
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public static long contentLength(Resource resource) {
-        try {
-            return resource.contentLength();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public static String getContent(Resource r) {
+		try {
+			return new String(getInputStream(r).readAllBytes());
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static long contentLength(Resource resource) {
+		try {
+			return resource.contentLength();
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

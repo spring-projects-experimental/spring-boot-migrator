@@ -23,35 +23,37 @@ import java.util.function.Supplier;
 
 public class GenericOpenRewriteRecipe<V extends TreeVisitor<?, ExecutionContext>> extends Recipe {
 
-    private final Supplier<V> visitorSupplier;
-    private final String description;
+	private final Supplier<V> visitorSupplier;
 
-    public GenericOpenRewriteRecipe() {
-        description = null;
-        visitorSupplier = null;
-    }
+	private final String description;
 
-    public GenericOpenRewriteRecipe(String description, Supplier<V> visitor) {
-        this.visitorSupplier = visitor;
-        this.description = description;
-    }
+	public GenericOpenRewriteRecipe() {
+		description = null;
+		visitorSupplier = null;
+	}
 
-    public GenericOpenRewriteRecipe(Supplier<V> visitor) {
-        this("Executing visitor %s".formatted(visitor.get().getClass()), visitor);
-    }
+	public GenericOpenRewriteRecipe(String description, Supplier<V> visitor) {
+		this.visitorSupplier = visitor;
+		this.description = description;
+	}
 
-    @Override
-    public TreeVisitor<?, ExecutionContext> getVisitor() {
-        return visitorSupplier.get();
-    }
+	public GenericOpenRewriteRecipe(Supplier<V> visitor) {
+		this("Executing visitor %s".formatted(visitor.get().getClass()), visitor);
+	}
 
-    @Override
-    public String getDisplayName() {
-        return visitorSupplier != null ? visitorSupplier.get().getClass().getSimpleName() : "???";
-    }
+	@Override
+	public TreeVisitor<?, ExecutionContext> getVisitor() {
+		return visitorSupplier.get();
+	}
 
-    @Override
-    public String getDescription() {
-        return description;
-    }
+	@Override
+	public String getDisplayName() {
+		return visitorSupplier != null ? visitorSupplier.get().getClass().getSimpleName() : "???";
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
+	}
+
 }

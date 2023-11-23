@@ -28,17 +28,22 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 public class ProjectResourceSetFactory {
-    private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
-    private final RewriteSourceFileWrapper sourceFileWrapper;
-    private final ExecutionContext executionContext;
 
+	private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
 
-    public ProjectResourceSet create(Path baseDir, List<SourceFile> sourceFiles) {
-        List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = sourceFileWrapper.wrapRewriteSourceFiles(baseDir, sourceFiles);
-        return createFromSourceFileHolders(rewriteSourceFileHolders);
-    }
+	private final RewriteSourceFileWrapper sourceFileWrapper;
 
-    public ProjectResourceSet createFromSourceFileHolders(List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders) {
-        return new ProjectResourceSet(rewriteSourceFileHolders, executionContext, rewriteMigrationResultMerger);
-    }
+	private final ExecutionContext executionContext;
+
+	public ProjectResourceSet create(Path baseDir, List<SourceFile> sourceFiles) {
+		List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = sourceFileWrapper
+			.wrapRewriteSourceFiles(baseDir, sourceFiles);
+		return createFromSourceFileHolders(rewriteSourceFileHolders);
+	}
+
+	public ProjectResourceSet createFromSourceFileHolders(
+			List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders) {
+		return new ProjectResourceSet(rewriteSourceFileHolders, executionContext, rewriteMigrationResultMerger);
+	}
+
 }

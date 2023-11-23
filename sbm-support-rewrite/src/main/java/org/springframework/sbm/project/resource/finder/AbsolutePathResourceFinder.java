@@ -24,20 +24,19 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class AbsolutePathResourceFinder implements ProjectResourceFinder<Optional<RewriteSourceFileHolder<? extends SourceFile>>> {
+public class AbsolutePathResourceFinder
+		implements ProjectResourceFinder<Optional<RewriteSourceFileHolder<? extends SourceFile>>> {
 
-    private final Path absoluteResourcePath;
+	private final Path absoluteResourcePath;
 
-    @Override
-    public Optional<RewriteSourceFileHolder<? extends SourceFile>> apply(ProjectResourceSet projectResourceSet) {
-        if (absoluteResourcePath == null || ! absoluteResourcePath.isAbsolute()) {
-            throw new IllegalArgumentException("Given path '"+absoluteResourcePath+"' is not absolute");
-        }
-        Path searchForPath = absoluteResourcePath.normalize();
-        return projectResourceSet
-                .stream()
-                .filter(r -> searchForPath.equals(r.getAbsolutePath()))
-                .findFirst();
+	@Override
+	public Optional<RewriteSourceFileHolder<? extends SourceFile>> apply(ProjectResourceSet projectResourceSet) {
+		if (absoluteResourcePath == null || !absoluteResourcePath.isAbsolute()) {
+			throw new IllegalArgumentException("Given path '" + absoluteResourcePath + "' is not absolute");
+		}
+		Path searchForPath = absoluteResourcePath.normalize();
+		return projectResourceSet.stream().filter(r -> searchForPath.equals(r.getAbsolutePath())).findFirst();
 
-    }
+	}
+
 }

@@ -23,18 +23,19 @@ import java.util.stream.Collectors;
 
 public class GenericTypeListFinder<T> implements ProjectResourceFinder<List<T>> {
 
-    @Getter
-    private final Class<T> type;
+	@Getter
+	private final Class<T> type;
 
-    public GenericTypeListFinder(Class<T> type) {
-        this.type = type;
-    }
+	public GenericTypeListFinder(Class<T> type) {
+		this.type = type;
+	}
 
-    @Override
-    public List<T> apply(ProjectResourceSet projectResourceSet) {
-        return projectResourceSet.stream()
-                .filter(pr -> type.isAssignableFrom(pr.getClass()))
-                .map(type::cast)
-                .collect(Collectors.toList());
-    }
+	@Override
+	public List<T> apply(ProjectResourceSet projectResourceSet) {
+		return projectResourceSet.stream()
+			.filter(pr -> type.isAssignableFrom(pr.getClass()))
+			.map(type::cast)
+			.collect(Collectors.toList());
+	}
+
 }

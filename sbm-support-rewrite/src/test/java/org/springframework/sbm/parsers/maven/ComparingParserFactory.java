@@ -29,29 +29,25 @@ import static org.mockito.Mockito.mock;
  * @author Fabian Krüger
  */
 public class ComparingParserFactory {
-    @NotNull
-    public RewriteMavenProjectParser createComparingParser() {
-        return createComparingParser(new ParserProperties());
-    }
 
-    public RewriteMavenProjectParser createComparingParser(ParserProperties parserProperties) {
-        MavenPlexusContainer plexusContainer = new MavenPlexusContainer();
-        ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
-        ScanScope scanScope = mock(ScanScope.class);
-        ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
-        RewriteParsingEventListenerAdapter parsingListener = new RewriteParsingEventListenerAdapter(eventPublisher);
-        MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
-        RewriteMavenProjectParser mavenProjectParser1 = new RewriteMavenProjectParser(
-                plexusContainer,
-                parsingListener,
-                new MavenExecutor(requestFactory, plexusContainer),
-                new MavenMojoProjectParserFactory(parserProperties),
-                scanScope,
-                beanFactory,
-                new InMemoryExecutionContext(t -> {
-                    throw new RuntimeException(t);
-                })
-        );
-        return mavenProjectParser1;
-    }
+	@NotNull
+	public RewriteMavenProjectParser createComparingParser() {
+		return createComparingParser(new ParserProperties());
+	}
+
+	public RewriteMavenProjectParser createComparingParser(ParserProperties parserProperties) {
+		MavenPlexusContainer plexusContainer = new MavenPlexusContainer();
+		ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
+		ScanScope scanScope = mock(ScanScope.class);
+		ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
+		RewriteParsingEventListenerAdapter parsingListener = new RewriteParsingEventListenerAdapter(eventPublisher);
+		MavenExecutionRequestFactory requestFactory = new MavenExecutionRequestFactory(new MavenConfigFileParser());
+		RewriteMavenProjectParser mavenProjectParser1 = new RewriteMavenProjectParser(plexusContainer, parsingListener,
+				new MavenExecutor(requestFactory, plexusContainer), new MavenMojoProjectParserFactory(parserProperties),
+				scanScope, beanFactory, new InMemoryExecutionContext(t -> {
+					throw new RuntimeException(t);
+				}));
+		return mavenProjectParser1;
+	}
+
 }

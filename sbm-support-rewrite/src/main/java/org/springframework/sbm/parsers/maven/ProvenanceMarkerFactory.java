@@ -32,24 +32,24 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ProvenanceMarkerFactory {
 
-    private final MavenProvenanceMarkerFactory markerFactory;
+	private final MavenProvenanceMarkerFactory markerFactory;
 
-    /**
-     * Create Provenance markers
-     * @return the map of pom.xml {@link Resource}s and their {@link Marker}s.
-     */
-    public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, ParserContext parserContext) {
+	/**
+	 * Create Provenance markers
+	 * @return the map of pom.xml {@link Resource}s and their {@link Marker}s.
+	 */
+	public Map<Path, List<Marker>> generateProvenanceMarkers(Path baseDir, ParserContext parserContext) {
 
-        Map<Path, List<Marker>> result = new HashMap<>();
+		Map<Path, List<Marker>> result = new HashMap<>();
 
-        parserContext.getSortedProjects().forEach(mavenProject -> {
-            
-            List<Marker> markers = markerFactory.generateProvenance(baseDir, mavenProject);
-            Resource resource = parserContext.getMatchingBuildFileResource(mavenProject);
-            Path path = ResourceUtil.getPath(resource);
-            result.put(path, markers);
-        });
-        return result;
-    }
+		parserContext.getSortedProjects().forEach(mavenProject -> {
+
+			List<Marker> markers = markerFactory.generateProvenance(baseDir, mavenProject);
+			Resource resource = parserContext.getMatchingBuildFileResource(mavenProject);
+			Path path = ResourceUtil.getPath(resource);
+			result.put(path, markers);
+		});
+		return result;
+	}
 
 }

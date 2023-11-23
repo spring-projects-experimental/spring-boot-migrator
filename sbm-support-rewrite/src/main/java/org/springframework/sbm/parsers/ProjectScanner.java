@@ -40,75 +40,82 @@ import java.util.stream.Stream;
 @Slf4j
 @RequiredArgsConstructor
 public class ProjectScanner {
-    private final ResourceLoader resourceLoader;
-    private final ParserProperties parserProperties;
 
-    public List<Resource> scan(Path baseDir) {
-        if(!baseDir.isAbsolute()) {
-            baseDir = baseDir.toAbsolutePath().normalize();
-        }
-        if(!baseDir.toFile().exists()) {
-            throw new IllegalArgumentException("Provided path does not exist: " + baseDir);
-        }
-        Path absoluteRootPath = baseDir.toAbsolutePath();
-        String unifiedPath = new LinuxWindowsPathUnifier().unifyPath(absoluteRootPath.toString() + "/**");
-        String pattern = "file:" + unifiedPath;
-        try {
-            Resource[] resources = ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(pattern);
+	private final ResourceLoader resourceLoader;
 
-            log.debug("Scanned %d resources in dir: '%s'".formatted(resources.length, absoluteRootPath.toString()));
+	private final ParserProperties parserProperties;
 
-            List<Resource> resultingResources = filterIgnoredResources(absoluteRootPath, resources);
+	public List<Resource> scan(Path baseDir) {
+		if (!baseDir.isAbsolute()) {
+			baseDir = baseDir.toAbsolutePath().normalize();
+		}
+		if (!baseDir.toFile().exists()) {
+			throw new IllegalArgumentException("Provided path does not exist: " + baseDir);
+		}
+		Path absoluteRootPath = baseDir.toAbsolutePath();
+		String unifiedPath = new LinuxWindowsPathUnifier().unifyPath(absoluteRootPath.toString() + "/**");
+		String pattern = "file:" + unifiedPath;
+		try {
+			Resource[] resources = ResourcePatternUtils.getResourcePatternResolver(resourceLoader)
+				.getResources(pattern);
 
-            int numResulting = resultingResources.size();
-            int numIgnored = resources.length - numResulting;
-            log.debug("Scan returns %s resources, %d resources were ignored.".formatted(numResulting, numIgnored));
-            log.trace("Resources resulting from scan: %s".formatted(resultingResources.stream().map(r -> absoluteRootPath.relativize(ResourceUtil.getPath(r)).toString()).collect(Collectors.joining(", "))));
+			log.debug("Scanned %d resources in dir: '%s'".formatted(resources.length, absoluteRootPath.toString()));
 
-            return resultingResources;
-        } catch (IOException e) {
-            throw new RuntimeException("Can't get resources for pattern '" + pattern + "'", e);
-        }
-    }
+			List<Resource> resultingResources = filterIgnoredResources(absoluteRootPath, resources);
 
-    @NotNull
-    private List<Resource> filterIgnoredResources(Path baseDir, Resource[] resources) {
-        Set<String> effectivePathMatcherPatterns = new HashSet<>();
-        List<PathMatcher> pathMatchers = parserProperties.getIgnoredPathPatterns().stream()
-                .map(p -> p.startsWith("glob:") ? p : "glob:" + p)
-                .peek(p -> effectivePathMatcherPatterns.add(p))
-                .map(baseDir.getFileSystem()::getPathMatcher)
-                .toList();
+			int numResulting = resultingResources.size();
+			int numIgnored = resources.length - numResulting;
+			log.debug("Scan returns %s resources, %d resources were ignored.".formatted(numResulting, numIgnored));
+			log.trace("Resources resulting from scan: %s".formatted(resultingResources.stream()
+				.map(r -> absoluteRootPath.relativize(ResourceUtil.getPath(r)).toString())
+				.collect(Collectors.joining(", "))));
 
-        log.trace("Ignore resources matching any of these PathMatchers: %s".formatted(effectivePathMatcherPatterns.stream().collect(Collectors.joining(", "))));
+			return resultingResources;
+		}
+		catch (IOException e) {
+			throw new RuntimeException("Can't get resources for pattern '" + pattern + "'", e);
+		}
+	}
 
-        List<Resource> resultingResources = Stream.of(resources)
-                .filter(r -> isAccepted(baseDir, r, pathMatchers))
-                .toList();
+	@NotNull
+	private List<Resource> filterIgnoredResources(Path baseDir, Resource[] resources) {
+		Set<String> effectivePathMatcherPatterns = new HashSet<>();
+		List<PathMatcher> pathMatchers = parserProperties.getIgnoredPathPatterns()
+			.stream()
+			.map(p -> p.startsWith("glob:") ? p : "glob:" + p)
+			.peek(p -> effectivePathMatcherPatterns.add(p))
+			.map(baseDir.getFileSystem()::getPathMatcher)
+			.toList();
 
-        if(resultingResources.isEmpty()) {
-            throw new IllegalArgumentException("No resources were scanned. Check directory and ignore patterns.");
-        }
+		log.trace("Ignore resources matching any of these PathMatchers: %s"
+			.formatted(effectivePathMatcherPatterns.stream().collect(Collectors.joining(", "))));
 
-        return resultingResources;
-    }
+		List<Resource> resultingResources = Stream.of(resources)
+			.filter(r -> isAccepted(baseDir, r, pathMatchers))
+			.toList();
 
-    private boolean isAccepted(Path baseDir, Resource r, List<PathMatcher> pathMatchers) {
-        if(ResourceUtil.getPath(r).toFile().isDirectory()) {
-            return false;
-        }
-        Optional<PathMatcher> isIgnored = pathMatchers
-                .stream()
-                .filter(matcher -> {
-                    Path resourcePath = ResourceUtil.getPath(r);
-                    boolean matches = matcher.matches(resourcePath);
-                    return matches;
-                })
-                .findFirst();
-        if(isIgnored.isPresent() && log.isInfoEnabled()) {
-            Set<String> ignoredPathPatterns = parserProperties.getIgnoredPathPatterns();
-            log.info("Ignoring scanned resource '%s' given these path matchers: %s.".formatted(baseDir.relativize(ResourceUtil.getPath(r)), ignoredPathPatterns));
-        }
-        return isIgnored.isEmpty();
-    }
+		if (resultingResources.isEmpty()) {
+			throw new IllegalArgumentException("No resources were scanned. Check directory and ignore patterns.");
+		}
+
+		return resultingResources;
+	}
+
+	private boolean isAccepted(Path baseDir, Resource r, List<PathMatcher> pathMatchers) {
+		if (ResourceUtil.getPath(r).toFile().isDirectory()) {
+			return false;
+		}
+		Optional<PathMatcher> isIgnored = pathMatchers.stream().filter(matcher -> {
+			Path resourcePath = ResourceUtil.getPath(r);
+			boolean matches = matcher.matches(resourcePath);
+			return matches;
+		}).findFirst();
+		if (isIgnored.isPresent() && log.isInfoEnabled()) {
+			Set<String> ignoredPathPatterns = parserProperties.getIgnoredPathPatterns();
+			log.info("Ignoring scanned resource '%s' given these path matchers: %s."
+				.formatted(baseDir.relativize(ResourceUtil.getPath(r)), ignoredPathPatterns));
+		}
+		return isIgnored.isEmpty();
+	}
+
 }

@@ -27,23 +27,31 @@ import java.util.stream.Collectors;
 @Getter
 @ConfigurationProperties(prefix = "sbm")
 public class SbmApplicationProperties {
-    private boolean gitSupportEnabled;
-    private boolean muleTriggerMeshTransformEnabled;
-    private String defaultBasePackage;
-    private boolean writeInMavenLocal;
-    private boolean  javaParserLoggingCompilationWarningsAndErrors;
-    private List<String> ignoredPathsPatterns = new ArrayList<>();
 
-    public void setIgnoredPathsPatterns(List<String> patterns) {
-        List<String> absolutePatterns = patterns.stream()
-                .filter(pattern -> pattern.startsWith("/"))
-                .collect(Collectors.toList());
+	private boolean gitSupportEnabled;
 
-        if( ! absolutePatterns.isEmpty()) {
-            throw new IllegalArgumentException("Found absolute ignore paths patterns defined in sbm.ignoredPathsPatterns. Patterns must be relative and not start with '/'. Invalid patterns found: ['" + String.join("', '", absolutePatterns) + "'].");
-        }
+	private boolean muleTriggerMeshTransformEnabled;
 
-        this.ignoredPathsPatterns = patterns;
-    }
+	private String defaultBasePackage;
+
+	private boolean writeInMavenLocal;
+
+	private boolean javaParserLoggingCompilationWarningsAndErrors;
+
+	private List<String> ignoredPathsPatterns = new ArrayList<>();
+
+	public void setIgnoredPathsPatterns(List<String> patterns) {
+		List<String> absolutePatterns = patterns.stream()
+			.filter(pattern -> pattern.startsWith("/"))
+			.collect(Collectors.toList());
+
+		if (!absolutePatterns.isEmpty()) {
+			throw new IllegalArgumentException(
+					"Found absolute ignore paths patterns defined in sbm.ignoredPathsPatterns. Patterns must be relative and not start with '/'. Invalid patterns found: ['"
+							+ String.join("', '", absolutePatterns) + "'].");
+		}
+
+		this.ignoredPathsPatterns = patterns;
+	}
 
 }

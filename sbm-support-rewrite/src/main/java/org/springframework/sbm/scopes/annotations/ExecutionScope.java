@@ -27,13 +27,9 @@ import java.lang.annotation.Target;
 /**
  * Annotation to mark beans for executionScope.
  *
- * The `executionScope` starts with
- * - the evaluation of conditions
- * - or with a recipe-run
+ * The `executionScope` starts with - the evaluation of conditions - or with a recipe-run
  *
- * The `executionScope` ends with
- * - the end of recipe-run
- * - or when the application stops.
+ * The `executionScope` ends with - the end of recipe-run - or when the application stops.
  *
  * @author Fabian Krüger
  */
@@ -42,4 +38,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Scope(scopeName = org.springframework.sbm.scopes.ExecutionScope.SCOPE_NAME, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public @interface ExecutionScope {
+
 }

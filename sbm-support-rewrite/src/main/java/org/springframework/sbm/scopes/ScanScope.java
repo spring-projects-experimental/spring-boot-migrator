@@ -16,12 +16,13 @@
 package org.springframework.sbm.scopes;
 
 /**
- * Scope implementation for beans marked with {@link org.springframework.sbm.scopes.annotations.ScanScope}.
+ * Scope implementation for beans marked with
+ * {@link org.springframework.sbm.scopes.annotations.ScanScope}.
  *
  * @author Fabian Krüger
  */
 public class ScanScope extends AbstractBaseScope {
 
-    public final static String SCOPE_NAME = "scanScope";
+	public final static String SCOPE_NAME = "scanScope";
 
 }

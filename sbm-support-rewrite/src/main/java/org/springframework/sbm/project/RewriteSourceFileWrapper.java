@@ -24,15 +24,18 @@ import java.util.stream.Collectors;
 
 public class RewriteSourceFileWrapper {
 
-    public List<RewriteSourceFileHolder<? extends SourceFile>> wrapRewriteSourceFiles(Path absoluteProjectDir, List<SourceFile> parsedByRewrite) {
-        List<RewriteSourceFileHolder<?>> rewriteProjectResources = parsedByRewrite.stream()
-                .map(sf -> wrapRewriteSourceFile(absoluteProjectDir, sf))
-                .collect(Collectors.toList());
-        return rewriteProjectResources;
-    }
+	public List<RewriteSourceFileHolder<? extends SourceFile>> wrapRewriteSourceFiles(Path absoluteProjectDir,
+			List<SourceFile> parsedByRewrite) {
+		List<RewriteSourceFileHolder<?>> rewriteProjectResources = parsedByRewrite.stream()
+			.map(sf -> wrapRewriteSourceFile(absoluteProjectDir, sf))
+			.collect(Collectors.toList());
+		return rewriteProjectResources;
+	}
 
-    private RewriteSourceFileHolder<?> wrapRewriteSourceFile(Path absoluteProjectDir, SourceFile sourceFile) {
-        RewriteSourceFileHolder<?> rewriteSourceFileHolder = new RewriteSourceFileHolder<>(absoluteProjectDir, sourceFile);
-        return rewriteSourceFileHolder;
-    }
+	private RewriteSourceFileHolder<?> wrapRewriteSourceFile(Path absoluteProjectDir, SourceFile sourceFile) {
+		RewriteSourceFileHolder<?> rewriteSourceFileHolder = new RewriteSourceFileHolder<>(absoluteProjectDir,
+				sourceFile);
+		return rewriteSourceFileHolder;
+	}
+
 }

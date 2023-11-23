@@ -34,233 +34,224 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 /**
  * @author Fabian Krüger
  */
 @DisabledIfEnvironmentVariable(named = "GITHUB_ACTION_REF", matches = ".*")
 class RewriteRecipeDiscoveryTest {
 
-    @BeforeAll
-    public static void beforeAll() {
-        String mvnHome = System.getenv("MAVEN_HOME");
+	@BeforeAll
+	public static void beforeAll() {
+		String mvnHome = System.getenv("MAVEN_HOME");
 
-        if (mvnHome == null) {
-            mvnHome = System.getenv("M2_HOME");
-        }
+		if (mvnHome == null) {
+			mvnHome = System.getenv("M2_HOME");
+		}
 
-        if (mvnHome == null) {
-            System.err.println("You must set $MAVEN_HOME on your system for the integration test to run.");
-            throw new RuntimeException();
-        }
+		if (mvnHome == null) {
+			System.err.println("You must set $MAVEN_HOME on your system for the integration test to run.");
+			throw new RuntimeException();
+		}
 
-        System.setProperty("maven.home", mvnHome);
+		System.setProperty("maven.home", mvnHome);
 
-        OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
-        recipeInstaller.installRecipe();
-    }
+		OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
+		recipeInstaller.installRecipe();
+	}
 
+	@Test
+	@DisplayName("Should Discover Dummy Recipes")
+	void shouldDiscoverDummyRecipes() {
+		RewriteRecipeDiscovery recipeDiscovery = buildRecipeDiscovery();
+		String[] acceptPackages = {};
+		ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
+		List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes(List.of("com.example.recipes.DummyRecipe"),
+				new Properties(), acceptPackages, classpathScanningLoader);
+		assertThat(dummyRecipe).isNotNull();
+		assertThat(dummyRecipe).isNotEmpty();
+	}
 
-    @Test
-    @DisplayName("Should Discover Dummy Recipes")
-    void shouldDiscoverDummyRecipes() {
-        RewriteRecipeDiscovery recipeDiscovery = buildRecipeDiscovery();
-        String[] acceptPackages = {};
-        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
-        List<Recipe> dummyRecipe = recipeDiscovery.discoverFilteredRecipes(List.of("com.example.recipes.DummyRecipe"), new Properties(), acceptPackages, classpathScanningLoader);
-        assertThat(dummyRecipe).isNotNull();
-        assertThat(dummyRecipe).isNotEmpty();
-    }
+	@Test
+	@DisplayName("ProvidingAcceptedPackagesShouldOnlyShowRecipesWithMatchingPackage")
+	void providingAcceptedPackagesShouldOnlyShowRecipesWithMatchingPackage() {
+		ClasspathScanningLoader resourceLoader1 = new ClasspathScanningLoader(new Properties(),
+				new String[] { "com.example" });
+		Collection<Recipe> recipes = resourceLoader1.listRecipes();
+		assertThat(recipes).anyMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
+		assertThat(recipes).noneMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
 
+		ClasspathScanningLoader resourceLoader2 = new ClasspathScanningLoader(new Properties(),
+				new String[] { "io.example" });
+		Collection<Recipe> recipes2 = resourceLoader2.listRecipes();
+		assertThat(recipes2).noneMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
+		assertThat(recipes2).anyMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
 
-    @Test
-    @DisplayName("ProvidingAcceptedPackagesShouldOnlyShowRecipesWithMatchingPackage")
-    void providingAcceptedPackagesShouldOnlyShowRecipesWithMatchingPackage() {
-        ClasspathScanningLoader resourceLoader1 = new ClasspathScanningLoader(new Properties(), new String[]{"com.example"});
-        Collection<Recipe> recipes = resourceLoader1.listRecipes();
-        assertThat(recipes).anyMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
-        assertThat(recipes).noneMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
+		ClasspathScanningLoader resourceLoader3 = new ClasspathScanningLoader(new Properties(),
+				new String[] { "io.example", "com.example" });
+		Collection<Recipe> recipes3 = resourceLoader3.listRecipes();
+		assertThat(recipes3).anyMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
+		assertThat(recipes3).anyMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
+	}
 
-        ClasspathScanningLoader resourceLoader2 = new ClasspathScanningLoader(new Properties(), new String[]{"io.example"});
-        Collection<Recipe> recipes2 = resourceLoader2.listRecipes();
-        assertThat(recipes2).noneMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
-        assertThat(recipes2).anyMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
+	@Test
+	@DisplayName("Discover all available recipes by default")
+	void discoverAllAvailableRecipesByDefault() {
+		RewriteRecipeDiscovery sut = buildRecipeDiscovery();
+		List<Recipe> recipes = sut.discoverRecipes();
+		assertThat(recipes).anyMatch(r -> r.getClass() == DummyRecipe.class);
+		assertThat(recipes).anyMatch(r -> r.getClass() == AnotherDummyRecipe.class);
+		assertThat(recipes).anyMatch(r -> "com.example.SomeDummyRecipeInYaml".equals(r.getName()));
+	}
 
-        ClasspathScanningLoader resourceLoader3 = new ClasspathScanningLoader(new Properties(), new String[]{"io.example", "com.example"});
-        Collection<Recipe> recipes3 = resourceLoader3.listRecipes();
-        assertThat(recipes3).anyMatch(r -> com.example.recipes.DummyRecipe.class == r.getClass());
-        assertThat(recipes3).anyMatch(r -> io.example.recipes.AnotherDummyRecipe.class == r.getClass());
-    }
+	@Test
+	@DisplayName("Load OpenRewrite Recipes")
+	void loadOpenRewriteRecipes() {
+		ClasspathScanningLoader resourceLoader = new ClasspathScanningLoader(new Properties(),
+				new String[] { "com.example" });
+		Collection<Recipe> recipes1 = resourceLoader.listRecipes();
+		assertThat(recipes1).map(Object::getClass).map(Class::getName).contains(DummyRecipe.class.getName());
 
-    @Test
-    @DisplayName("Discover all available recipes by default")
-    void discoverAllAvailableRecipesByDefault() {
-        RewriteRecipeDiscovery sut = buildRecipeDiscovery();
-        List<Recipe> recipes = sut.discoverRecipes();
-        assertThat(recipes).anyMatch(r -> r.getClass() == DummyRecipe.class);
-        assertThat(recipes).anyMatch(r -> r.getClass() == AnotherDummyRecipe.class);
-        assertThat(recipes).anyMatch(r -> "com.example.SomeDummyRecipeInYaml".equals(r.getName()));
-    }
+		List<Recipe> recipes = Environment.builder().load(resourceLoader).build().listRecipes();
 
-    @Test
-    @DisplayName("Load OpenRewrite Recipes")
-    void loadOpenRewriteRecipes() {
-        ClasspathScanningLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{"com.example"});
-        Collection<Recipe> recipes1 = resourceLoader.listRecipes();
-        assertThat(recipes1)
-                .map(Object::getClass)
-                .map(Class::getName)
-                .contains(DummyRecipe.class.getName());
+		assertThat(recipes).isNotEmpty();
 
-        List<Recipe> recipes = Environment.builder()
-                .load(resourceLoader)
-                .build()
-                .listRecipes();
+		assertThat(recipes).map(Recipe::getName).contains(DummyRecipe.class.getName());
 
-        assertThat(recipes).isNotEmpty();
+		assertThat(recipes).map(Recipe::getName).contains("com.example.SomeDummyRecipeInYaml");
+	}
 
-        assertThat(recipes)
-                .map(Recipe::getName)
-                .contains(DummyRecipe.class.getName());
+	@Test
+	@DisplayName("Load Recipe From Classpath")
+	void loadRecipeFromClasspath2() {
+		String[] acceptPackages = {}; // "com.example"
+		ClasspathScanningLoader loader = new ClasspathScanningLoader(new Properties(), acceptPackages);
+		String path = System.getProperty("user.home");
+		Path jarPath = Path
+			.of(path + "/.m2/repository/org/openrewrite/recipe/rewrite-spring/4.36.0/rewrite-spring-4.36.0.jar");
 
-        assertThat(recipes)
-                .map(Recipe::getName)
-                .contains("com.example.SomeDummyRecipeInYaml");
-    }
+		ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(),
+				Set.of(loader), getClass().getClassLoader());
+		Environment environment = Environment.builder().load(loader, Set.of(classpathScanningLoader)).build();
+		List<Recipe> recipes = environment.listRecipes();
+		assertThat(recipes).hasSizeGreaterThan(1);
+		// found the Java recipe under src/test/java/com/example/recipes/DummyRecipe.jav
+		Optional<Recipe> recipe = getRecipeByDisplayName(recipes, "DummyRecipe");
+		assertThat(recipe).isNotEmpty();
+		Optional<Recipe> customJavaFromYaml = getRecipeByName(recipes, "com.example.SomeDummyRecipeInYaml");
+		assertThat(customJavaFromYaml).isNotEmpty();
+		assertThat(customJavaFromYaml.get()).isInstanceOf(DeclarativeRecipe.class);
+	}
 
-    @Test
-    @DisplayName("Load Recipe From Classpath")
-    void loadRecipeFromClasspath2() {
-        String[] acceptPackages = {}; // "com.example"
-        ClasspathScanningLoader loader = new ClasspathScanningLoader(new Properties(), acceptPackages);
-        String path = System.getProperty("user.home");
-        Path jarPath = Path.of(path + "/.m2/repository/org/openrewrite/recipe/rewrite-spring/4.36.0/rewrite-spring-4.36.0.jar");
+	@Test
+	@DisplayName("Should Find Recipes By Tag")
+	void shouldFindRecipesByTag() {
+		String tag = "Java";
+		RewriteRecipeDiscovery sut = buildRecipeDiscovery();
+		List<Recipe> recipes = sut.findRecipesByTags(tag);
 
+		assertThat(recipes).hasSize(1);
+		assertThat(getRecipeByName(recipes, "io.example.recipes.AnotherDummyRecipe")).isNotNull();
+	}
 
-        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(loader), getClass().getClassLoader());
-        Environment environment = Environment.builder()
-                .load(loader, Set.of(classpathScanningLoader))
-                .build();
-        List<Recipe> recipes = environment.listRecipes();
-        assertThat(recipes).hasSizeGreaterThan(1);
-        // found the Java recipe under src/test/java/com/example/recipes/DummyRecipe.jav
-        Optional<Recipe> recipe = getRecipeByDisplayName(recipes, "DummyRecipe");
-        assertThat(recipe).isNotEmpty();
-        Optional<Recipe> customJavaFromYaml = getRecipeByName(recipes, "com.example.SomeDummyRecipeInYaml");
-        assertThat(customJavaFromYaml).isNotEmpty();
-        assertThat(customJavaFromYaml.get()).isInstanceOf(DeclarativeRecipe.class);
-    }
+	@Test
+	@Disabled("WIP: No assertions")
+	@DisplayName("Should Find Recipe Categories")
+	void shouldFindRecipeCategories() {
+		ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[] {});
+		Collection<CategoryDescriptor> categoryDescriptors = resourceLoader.listCategoryDescriptors();
 
-    @Test
-    @DisplayName("Should Find Recipes By Tag")
-    void shouldFindRecipesByTag() {
-        String tag = "Java";
-        RewriteRecipeDiscovery sut = buildRecipeDiscovery();
-        List<Recipe> recipes = sut.findRecipesByTags(tag);
+		categoryDescriptors.stream().forEach(cd -> {
+			System.out.println("Tags: " + cd.getTags());
+			System.out.println("Description: " + cd.getDescription());
+			System.out.println("DisplayName: " + cd.getDisplayName());
+			System.out.println("Priority: " + cd.getPriority());
+			System.out.println("PackageName: " + cd.getPackageName());
+			System.out.println("------------------------------------------------");
+		});
 
-        assertThat(recipes).hasSize(1);
-        assertThat(getRecipeByName(recipes, "io.example.recipes.AnotherDummyRecipe")).isNotNull();
-    }
+	}
 
-    @Test
-    @Disabled("WIP: No assertions")
-    @DisplayName("Should Find Recipe Categories")
-    void shouldFindRecipeCategories() {
-        ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{});
-        Collection<CategoryDescriptor> categoryDescriptors = resourceLoader.listCategoryDescriptors();
+	@Test
+	@DisplayName("Should Find RecipeDescriptor By Name")
+	void shouldFindRecipeDescriptorByName() {
 
-        categoryDescriptors.stream()
-                .forEach(cd -> {
-                    System.out.println("Tags: " + cd.getTags());
-                    System.out.println("Description: " + cd.getDescription());
-                    System.out.println("DisplayName: " + cd.getDisplayName());
-                    System.out.println("Priority: " + cd.getPriority());
-                    System.out.println("PackageName: " + cd.getPackageName());
-                    System.out.println("------------------------------------------------");
-                });
+		RewriteRecipeDiscovery sut = buildRecipeDiscovery();
 
-    }
+		RecipeDescriptor descriptor = sut.findRecipeDescriptor("AnotherDummyRecipe");
 
-    @Test
-    @DisplayName("Should Find RecipeDescriptor By Name")
-    void shouldFindRecipeDescriptorByName() {
+		assertThat(descriptor).isNotNull();
+		assertThat(descriptor.getName()).isEqualTo("io.example.recipes.AnotherDummyRecipe");
+		assertThat(descriptor.getDisplayName()).isEqualTo("AnotherDummyRecipe");
+		assertThat(descriptor.getDescription()).isEqualTo("Description of AnotherDummyRecipe");
 
-        RewriteRecipeDiscovery sut = buildRecipeDiscovery();
+		assertThat(descriptor.getContributors()).satisfies(contributor -> {
+			assertThat(contributor.getName()).isEqualTo("Fabian Krüger");
+			assertThat(contributor.getEmail()).isEqualTo("some@email.com");
+			assertThat(contributor.getLineCount()).isEqualTo(1);
+		}, Index.atIndex(0));
+		assertThat(descriptor.getContributors()).satisfies(contributor -> {
+			assertThat(contributor.getName()).isEqualTo("Mike Wazowski");
+			assertThat(contributor.getEmail()).isEqualTo("mike@monsterag.com");
+			assertThat(contributor.getLineCount()).isEqualTo(1000);
+		}, Index.atIndex(1));
 
-        RecipeDescriptor descriptor = sut.findRecipeDescriptor("AnotherDummyRecipe");
+		assertThat(descriptor.getMaintainers()).satisfies(maintainer -> {
+			assertThat(maintainer.getMaintainer()).isEqualTo("Spring");
+			assertThat(maintainer.getLogo()).isNull();
+		}, Index.atIndex(0));
+		assertThat(descriptor.getMaintainers()).satisfies(maintainer -> {
+			assertThat(maintainer.getMaintainer()).isEqualTo("SBM");
+			assertThat(maintainer.getLogo()).isNull();
+		}, Index.atIndex(1));
+	}
 
-        assertThat(descriptor).isNotNull();
-        assertThat(descriptor.getName()).isEqualTo("io.example.recipes.AnotherDummyRecipe");
-        assertThat(descriptor.getDisplayName()).isEqualTo("AnotherDummyRecipe");
-        assertThat(descriptor.getDescription()).isEqualTo("Description of AnotherDummyRecipe");
+	@Test
+	@DisplayName("Load Recipe From JAR")
+	@Disabled("Still fiddling")
+	void loadRecipeFromJar() {
+		OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
+		recipeInstaller.installRecipe();
 
-        assertThat(descriptor.getContributors()).satisfies(contributor -> {
-            assertThat(contributor.getName()).isEqualTo("Fabian Krüger");
-            assertThat(contributor.getEmail()).isEqualTo("some@email.com");
-            assertThat(contributor.getLineCount()).isEqualTo(1);
-        }, Index.atIndex(0));
-        assertThat(descriptor.getContributors()).satisfies(contributor -> {
-            assertThat(contributor.getName()).isEqualTo("Mike Wazowski");
-            assertThat(contributor.getEmail()).isEqualTo("mike@monsterag.com");
-            assertThat(contributor.getLineCount()).isEqualTo(1000);
-        }, Index.atIndex(1));
+		String[] acceptPackages = { "com", "org.springframework" };
 
-        assertThat(descriptor.getMaintainers()).satisfies(maintainer -> {
-            assertThat(maintainer.getMaintainer()).isEqualTo("Spring");
-            assertThat(maintainer.getLogo()).isNull();
-        }, Index.atIndex(0));
-        assertThat(descriptor.getMaintainers()).satisfies(maintainer -> {
-            assertThat(maintainer.getMaintainer()).isEqualTo("SBM");
-            assertThat(maintainer.getLogo()).isNull();
-        }, Index.atIndex(1));
-    }
+		Path jarPath = Path.of(System.getProperty("user.home"))
+			.resolve(".m2")
+			.resolve(
+					"repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
+		assertThat(jarPath.toFile()).exists();
+		ClasspathScanningLoader scanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
+		ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(),
+				Set.of(scanningLoader), getClass().getClassLoader());
 
-    @Test
-    @DisplayName("Load Recipe From JAR")
-    @Disabled("Still fiddling")
-    void loadRecipeFromJar() {
-        OpenRewriteDummyRecipeInstaller recipeInstaller = new OpenRewriteDummyRecipeInstaller();
-        recipeInstaller.installRecipe();
+		Environment environment = Environment.builder().load(classpathScanningLoader).build();
+		List<Recipe> recipes = environment.listRecipes();
+		assertThat(recipes).hasSizeGreaterThan(2);
 
-        String[] acceptPackages = {"com", "org.springframework"};
+		// found the Java recipe under src/test/java/com/example/recipes/DummyRecipe.java
+		Optional<Recipe> recipe = getRecipeByDisplayName(recipes, "Dummy Recipe in Java");
+		assertThat(recipe).isNotEmpty();
 
-        Path jarPath = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository/org/springframework/sbm/openrewrite-dummy-recipe/1.0-SNAPSHOT/openrewrite-dummy-recipe-1.0-SNAPSHOT.jar");
-        assertThat(jarPath.toFile()).exists();
-        ClasspathScanningLoader scanningLoader = new ClasspathScanningLoader(new Properties(), acceptPackages);
-        ClasspathScanningLoader classpathScanningLoader = new ClasspathScanningLoader(jarPath, new Properties(), Set.of(scanningLoader), getClass().getClassLoader());
+		// found the declarative recipe under
+		// src/test/resources/META-INF/rewrite/dummy-recipe-in-yaml.yaml
+		Optional<Recipe> customJavaFromYaml = getRecipeByName(recipes, "com.example.SomeDummyRecipeInYaml");
+		assertThat(customJavaFromYaml).isNotEmpty();
+		assertThat(customJavaFromYaml.get()).isInstanceOf(DeclarativeRecipe.class);
+	}
 
-        Environment environment = Environment.builder()
-                .load(classpathScanningLoader)
-                .build();
-        List<Recipe> recipes = environment.listRecipes();
-        assertThat(recipes).hasSizeGreaterThan(2);
+	private Optional<Recipe> getRecipeByName(List<Recipe> recipes, String s) {
+		return recipes.stream().filter(r -> r.getName().equals(s)).findFirst();
+	}
 
-        // found the Java recipe under src/test/java/com/example/recipes/DummyRecipe.java
-        Optional<Recipe> recipe = getRecipeByDisplayName(recipes, "Dummy Recipe in Java");
-        assertThat(recipe).isNotEmpty();
+	@NotNull
+	private static Optional<Recipe> getRecipeByDisplayName(List<Recipe> recipes, String recipeDisplayName) {
+		return recipes.stream().filter(r -> {
+			return r.getDisplayName().equals(recipeDisplayName);
+		}).findFirst();
+	}
 
-        // found the declarative recipe under src/test/resources/META-INF/rewrite/dummy-recipe-in-yaml.yaml
-        Optional<Recipe> customJavaFromYaml = getRecipeByName(recipes, "com.example.SomeDummyRecipeInYaml");
-        assertThat(customJavaFromYaml).isNotEmpty();
-        assertThat(customJavaFromYaml.get()).isInstanceOf(DeclarativeRecipe.class);
-    }
+	@NotNull
+	private static RewriteRecipeDiscovery buildRecipeDiscovery() {
+		return new RewriteRecipeDiscovery(new ParserProperties());
+	}
 
-    private Optional<Recipe> getRecipeByName(List<Recipe> recipes, String s) {
-        return recipes.stream()
-                .filter(r -> r.getName().equals(s))
-                .findFirst();
-    }
-
-    @NotNull
-    private static Optional<Recipe> getRecipeByDisplayName(List<Recipe> recipes, String recipeDisplayName) {
-        return recipes.stream().filter(r -> {
-            return r.getDisplayName().equals(recipeDisplayName);
-        }).findFirst();
-    }
-
-
-    @NotNull
-    private static RewriteRecipeDiscovery buildRecipeDiscovery() {
-        return new RewriteRecipeDiscovery(new ParserProperties());
-    }
 }

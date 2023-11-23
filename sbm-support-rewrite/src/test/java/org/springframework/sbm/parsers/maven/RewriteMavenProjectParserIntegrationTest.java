@@ -43,34 +43,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-@SpringBootTest(classes = {SbmSupportRewriteConfiguration.class, SbmTestConfiguration.class})
+@SpringBootTest(classes = { SbmSupportRewriteConfiguration.class, SbmTestConfiguration.class })
 public class RewriteMavenProjectParserIntegrationTest {
 
-    @Autowired
-    private RewriteMavenProjectParser sut;
+	@Autowired
+	private RewriteMavenProjectParser sut;
 
-    private static List<FinishedParsingResourceEvent> capturedEvents = new ArrayList<>();
+	private static List<FinishedParsingResourceEvent> capturedEvents = new ArrayList<>();
 
-    @Test
-    @ExpectedToFail("Parsing order of pom files is not correct, see https://github.com/openrewrite/rewrite-maven-plugin/pull/601")
-    @DisplayName("Should Publish Build Events")
-    void shouldPublishBuildEvents() {
+	@Test
+	@ExpectedToFail("Parsing order of pom files is not correct, see https://github.com/openrewrite/rewrite-maven-plugin/pull/601")
+	@DisplayName("Should Publish Build Events")
+	void shouldPublishBuildEvents() {
 
-        Path baseDir = Path.of("./testcode/maven-projects/multi-module-1");
-        ExecutionContext executionContext = new InMemoryExecutionContext(t -> {throw new RuntimeException(t);});
-        ParsingExecutionContextView.view(executionContext).setParsingListener(new ParsingEventListener() {
-            @Override
-            public void parsed(Parser.Input input, SourceFile sourceFile) {
-                capturedEvents.add(new FinishedParsingResourceEvent(input, sourceFile));
-            }
-        });
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, executionContext);
-        assertThat(capturedEvents).hasSize(3);
-        assertThat(capturedEvents.get(0).sourceFile().getSourcePath().toString())
-                .isEqualTo("pom.xml");
-        assertThat(capturedEvents.get(1).sourceFile().getSourcePath().toString())
-                .isEqualTo("module-b/pom.xml");
-        assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString())
-                .isEqualTo("module-a/pom.xml");
-    }
+		Path baseDir = Path.of("./testcode/maven-projects/multi-module-1");
+		ExecutionContext executionContext = new InMemoryExecutionContext(t -> {
+			throw new RuntimeException(t);
+		});
+		ParsingExecutionContextView.view(executionContext).setParsingListener(new ParsingEventListener() {
+			@Override
+			public void parsed(Parser.Input input, SourceFile sourceFile) {
+				capturedEvents.add(new FinishedParsingResourceEvent(input, sourceFile));
+			}
+		});
+		RewriteProjectParsingResult parsingResult = sut.parse(baseDir, executionContext);
+		assertThat(capturedEvents).hasSize(3);
+		assertThat(capturedEvents.get(0).sourceFile().getSourcePath().toString()).isEqualTo("pom.xml");
+		assertThat(capturedEvents.get(1).sourceFile().getSourcePath().toString()).isEqualTo("module-b/pom.xml");
+		assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString()).isEqualTo("module-a/pom.xml");
+	}
+
 }

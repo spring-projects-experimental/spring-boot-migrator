@@ -23,7 +23,8 @@ import org.openrewrite.tree.ParsingEventListener;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
- * Adapter listening to OpenRewrite ParsingEvents and publishing them as Spring application events.
+ * Adapter listening to OpenRewrite ParsingEvents and publishing them as Spring
+ * application events.
  *
  * @author Fabian Krüger
  */
@@ -31,21 +32,22 @@ import org.springframework.context.ApplicationEventPublisher;
 @RequiredArgsConstructor
 public class RewriteParsingEventListenerAdapter implements ParsingEventListener {
 
-    private final ApplicationEventPublisher eventPublisher;
+	private final ApplicationEventPublisher eventPublisher;
 
-    @Override
-    public void intermediateMessage(String stateMessage) {
-        eventPublisher.publishEvent(new IntermediateParsingEvent(stateMessage));
-    }
+	@Override
+	public void intermediateMessage(String stateMessage) {
+		eventPublisher.publishEvent(new IntermediateParsingEvent(stateMessage));
+	}
 
-    @Override
-    public void startedParsing(Parser.Input input) {
-        eventPublisher.publishEvent(new StartedParsingResourceEvent(input));
-    }
+	@Override
+	public void startedParsing(Parser.Input input) {
+		eventPublisher.publishEvent(new StartedParsingResourceEvent(input));
+	}
 
-    @Override
-    public void parsed(Parser.Input input, SourceFile sourceFile) {
-        log.debug("Parsed %s to %s".formatted(input.getPath(), sourceFile.getSourcePath()));
-        eventPublisher.publishEvent(new FinishedParsingResourceEvent(input, sourceFile));
-    }
+	@Override
+	public void parsed(Parser.Input input, SourceFile sourceFile) {
+		log.debug("Parsed %s to %s".formatted(input.getPath(), sourceFile.getSourcePath()));
+		eventPublisher.publishEvent(new FinishedParsingResourceEvent(input, sourceFile));
+	}
+
 }

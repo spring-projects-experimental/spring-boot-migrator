@@ -36,28 +36,26 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SourceFileParser {
 
-    private final MavenModuleParser moduleParser;
+	private final MavenModuleParser moduleParser;
 
-    public List<SourceFile> parseOtherSourceFiles(
-            Path baseDir,
-            ParserContext parserContext,
-            List<Resource> resources,
-            Map<Path, List<Marker>> provenanceMarkers,
-            List<NamedStyles> styles,
-            ExecutionContext executionContext) {
+	public List<SourceFile> parseOtherSourceFiles(Path baseDir, ParserContext parserContext, List<Resource> resources,
+			Map<Path, List<Marker>> provenanceMarkers, List<NamedStyles> styles, ExecutionContext executionContext) {
 
-        Set<SourceFile> parsedSourceFiles = new LinkedHashSet<>();
+		Set<SourceFile> parsedSourceFiles = new LinkedHashSet<>();
 
-        parserContext.getSortedProjects().forEach(currentMavenProject -> {
-            Xml.Document moduleBuildFile = currentMavenProject.getSourceFile();
-            List<Marker> markers = provenanceMarkers.get(currentMavenProject.getPomFilePath());
-            if(markers == null || markers.isEmpty()) {
-                log.warn("Could not find provenance markers for resource '%s'".formatted(parserContext.getMatchingBuildFileResource(currentMavenProject)));
-            }
-            List<SourceFile> sourceFiles = moduleParser.parseModuleSourceFiles(resources, currentMavenProject, moduleBuildFile, markers, styles, executionContext, baseDir);
-            parsedSourceFiles.addAll(sourceFiles);
-        });
+		parserContext.getSortedProjects().forEach(currentMavenProject -> {
+			Xml.Document moduleBuildFile = currentMavenProject.getSourceFile();
+			List<Marker> markers = provenanceMarkers.get(currentMavenProject.getPomFilePath());
+			if (markers == null || markers.isEmpty()) {
+				log.warn("Could not find provenance markers for resource '%s'"
+					.formatted(parserContext.getMatchingBuildFileResource(currentMavenProject)));
+			}
+			List<SourceFile> sourceFiles = moduleParser.parseModuleSourceFiles(resources, currentMavenProject,
+					moduleBuildFile, markers, styles, executionContext, baseDir);
+			parsedSourceFiles.addAll(sourceFiles);
+		});
 
-        return new ArrayList<>(parsedSourceFiles);
-    }
+		return new ArrayList<>(parsedSourceFiles);
+	}
+
 }

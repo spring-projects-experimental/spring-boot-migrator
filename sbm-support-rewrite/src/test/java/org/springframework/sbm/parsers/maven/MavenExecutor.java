@@ -37,71 +37,82 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 class MavenExecutor {
 
-    private final MavenExecutionRequestFactory requestFactory;
-    private final MavenPlexusContainer mavenPlexusContainer;
+	private final MavenExecutionRequestFactory requestFactory;
 
+	private final MavenPlexusContainer mavenPlexusContainer;
 
-    /**
-     * Runs given {@code goals} in Maven and calls {@code eventConsumer} when Maven processed the last MavenProject.
-     * Maven then calls {@link org.apache.maven.execution.ExecutionListener#projectSucceeded(ExecutionEvent)}.
-     * The {@code eventConsumer} will be provided with the current {@link MavenSession} through the {@link ExecutionEvent}.
-     * The MavenSession provides all required information about the given project.
-     */
-    public void onProjectSucceededEvent(Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
-        PlexusContainer plexusContainer = mavenPlexusContainer.get();
-        AbstractExecutionListener executionListener = new AbstractExecutionListener() {
-            @Override
-            public void mojoFailed(ExecutionEvent event) {
-                super.mojoFailed(event);
-                String mojo = event.getMojoExecution().getGroupId() + ":" + event.getMojoExecution().getArtifactId() + ":" + event.getMojoExecution().getGoal();
-                throw new RuntimeException("Exception while executing Maven Mojo: " + mojo, event.getException());
-            }
+	/**
+	 * Runs given {@code goals} in Maven and calls {@code eventConsumer} when Maven
+	 * processed the last MavenProject. Maven then calls
+	 * {@link org.apache.maven.execution.ExecutionListener#projectSucceeded(ExecutionEvent)}.
+	 * The {@code eventConsumer} will be provided with the current {@link MavenSession}
+	 * through the {@link ExecutionEvent}. The MavenSession provides all required
+	 * information about the given project.
+	 */
+	public void onProjectSucceededEvent(Path baseDir, List<String> goals, Consumer<ExecutionEvent> eventConsumer) {
+		PlexusContainer plexusContainer = mavenPlexusContainer.get();
+		AbstractExecutionListener executionListener = new AbstractExecutionListener() {
+			@Override
+			public void mojoFailed(ExecutionEvent event) {
+				super.mojoFailed(event);
+				String mojo = event.getMojoExecution().getGroupId() + ":" + event.getMojoExecution().getArtifactId()
+						+ ":" + event.getMojoExecution().getGoal();
+				throw new RuntimeException("Exception while executing Maven Mojo: " + mojo, event.getException());
+			}
 
-            @Override
-            public void projectSucceeded(ExecutionEvent event) {
-                List<MavenProject> sortedProjects = event.getSession().getProjectDependencyGraph().getSortedProjects();
-                MavenProject lastProject = (MavenProject) sortedProjects.get(sortedProjects.size()-1);
-                log.info("Maven successfully processed project: %s".formatted(event.getSession().getCurrentProject().getName()));
-                if(event.getSession().getCurrentProject().getFile().toPath().toString().equals(lastProject.getFile().getPath().toString())) {
-                    eventConsumer.accept(event);
-                }
-            }
+			@Override
+			public void projectSucceeded(ExecutionEvent event) {
+				List<MavenProject> sortedProjects = event.getSession().getProjectDependencyGraph().getSortedProjects();
+				MavenProject lastProject = (MavenProject) sortedProjects.get(sortedProjects.size() - 1);
+				log.info("Maven successfully processed project: %s"
+					.formatted(event.getSession().getCurrentProject().getName()));
+				if (event.getSession()
+					.getCurrentProject()
+					.getFile()
+					.toPath()
+					.toString()
+					.equals(lastProject.getFile().getPath().toString())) {
+					eventConsumer.accept(event);
+				}
+			}
 
-            @Override
-            public void mojoSucceeded(ExecutionEvent event) {
-                super.mojoSucceeded(event);
-                log.info("Mojo succeeded: " + event.getMojoExecution().getGoal());
-            }
+			@Override
+			public void mojoSucceeded(ExecutionEvent event) {
+				super.mojoSucceeded(event);
+				log.info("Mojo succeeded: " + event.getMojoExecution().getGoal());
+			}
 
-            @Override
-            public void projectFailed(ExecutionEvent event) {
-                super.projectFailed(event);
-                throw new RuntimeException("Exception while executing Maven project: " + event.getProject().getName(), event.getException());
-            }
-        };
-        MavenExecutionRequest request = requestFactory.createMavenExecutionRequest(plexusContainer, baseDir);
-        request.setGoals(goals);
-        request.setExecutionListener(executionListener);
-        execute(request);
-    }
+			@Override
+			public void projectFailed(ExecutionEvent event) {
+				super.projectFailed(event);
+				throw new RuntimeException("Exception while executing Maven project: " + event.getProject().getName(),
+						event.getException());
+			}
+		};
+		MavenExecutionRequest request = requestFactory.createMavenExecutionRequest(plexusContainer, baseDir);
+		request.setGoals(goals);
+		request.setExecutionListener(executionListener);
+		execute(request);
+	}
 
-    /**
-     * Executes the {@code request} against Maven.
-     *
-     * @see MavenExecutionRequestFactory
-     */
-    public void execute(MavenExecutionRequest request) {
-        try {
-            PlexusContainer plexusContainer = mavenPlexusContainer.get();
-            Maven maven = plexusContainer.lookup(Maven.class);
-            MavenExecutionResult execute = maven.execute(request);
-            if (execute.hasExceptions()) {
-                throw new MavenExecutionResultException("Maven could not run %s on project '%s'".formatted(request.getGoals(), request.getBaseDirectory()), execute.getExceptions());
-            }
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	/**
+	 * Executes the {@code request} against Maven.
+	 *
+	 * @see MavenExecutionRequestFactory
+	 */
+	public void execute(MavenExecutionRequest request) {
+		try {
+			PlexusContainer plexusContainer = mavenPlexusContainer.get();
+			Maven maven = plexusContainer.lookup(Maven.class);
+			MavenExecutionResult execute = maven.execute(request);
+			if (execute.hasExceptions()) {
+				throw new MavenExecutionResultException("Maven could not run %s on project '%s'"
+					.formatted(request.getGoals(), request.getBaseDirectory()), execute.getExceptions());
+			}
+		}
+		catch (ComponentLookupException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }
-
-

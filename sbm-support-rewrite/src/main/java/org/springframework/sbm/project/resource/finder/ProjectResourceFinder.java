@@ -18,5 +18,7 @@ package org.springframework.sbm.project.resource.finder;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 
 public interface ProjectResourceFinder<T> {
-    T apply(ProjectResourceSet projectResourceSet);
+
+	T apply(ProjectResourceSet projectResourceSet);
+
 }

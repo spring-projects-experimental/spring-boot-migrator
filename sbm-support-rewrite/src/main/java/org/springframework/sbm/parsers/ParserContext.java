@@ -32,52 +32,55 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ParserContext {
 
-    private final Path baseDir;
-    @Getter
-    private final List<Resource> resources;
-    @Getter
-    private final List<MavenProject> sortedProjects;
-    @Getter
-    private Map<Path, Xml.Document> pathDocumentMap;
+	private final Path baseDir;
 
+	@Getter
+	private final List<Resource> resources;
 
+	@Getter
+	private final List<MavenProject> sortedProjects;
 
-    public List<String> getActiveProfiles() {
-        // FIXME: Add support for Maven profiles
-        return List.of("default");
-    }
+	@Getter
+	private Map<Path, Xml.Document> pathDocumentMap;
 
-    public Resource getMatchingBuildFileResource(MavenProject pom) {
-        return resources.stream()
-                .filter(r -> ResourceUtil.getPath(r).toString().equals(pom.getPomFilePath().toString()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Could not find a resource in the list of resources that matches the path of MavenProject '%s'".formatted(pom.getPomFile().toString())));
-    }
+	public List<String> getActiveProfiles() {
+		// FIXME: Add support for Maven profiles
+		return List.of("default");
+	}
 
-    public List<Resource> getBuildFileResources() {
-        return sortedProjects.stream()
-                .map(p -> p.getPomFile())
-                .toList();
-    }
+	public Resource getMatchingBuildFileResource(MavenProject pom) {
+		return resources.stream()
+			.filter(r -> ResourceUtil.getPath(r).toString().equals(pom.getPomFilePath().toString()))
+			.findFirst()
+			.orElseThrow(() -> new IllegalStateException(
+					"Could not find a resource in the list of resources that matches the path of MavenProject '%s'"
+						.formatted(pom.getPomFile().toString())));
+	}
 
-    public Xml.Document getXmlDocument(Path path) {
-        return pathDocumentMap.get(path);
-    }
+	public List<Resource> getBuildFileResources() {
+		return sortedProjects.stream().map(p -> p.getPomFile()).toList();
+	}
 
-    public void setParsedBuildFiles(List<Xml.Document> xmlDocuments) {
-        this.pathDocumentMap = xmlDocuments.stream()
-                .peek(doc -> addSourceFileToModel(baseDir, getSortedProjects(), doc))
-                .collect(Collectors.toMap(doc -> baseDir.resolve(doc.getSourcePath()), doc -> doc));
-    }
+	public Xml.Document getXmlDocument(Path path) {
+		return pathDocumentMap.get(path);
+	}
 
-    public List<Xml.Document> getSortedBuildFileDocuments() {
-        return getSortedProjects().stream().map(p -> pathDocumentMap.get(p.getFile().toPath())).toList();
-    }
+	public void setParsedBuildFiles(List<Xml.Document> xmlDocuments) {
+		this.pathDocumentMap = xmlDocuments.stream()
+			.peek(doc -> addSourceFileToModel(baseDir, getSortedProjects(), doc))
+			.collect(Collectors.toMap(doc -> baseDir.resolve(doc.getSourcePath()), doc -> doc));
+	}
 
-    private void addSourceFileToModel(Path baseDir, List<MavenProject> sortedProjectsList, Xml.Document s) {
-        sortedProjectsList.stream()
-                .filter(p -> ResourceUtil.getPath(p.getPomFile()).toString().equals(baseDir.resolve(s.getSourcePath()).toString()))
-                .forEach(p -> p.setSourceFile(s));
-    }
+	public List<Xml.Document> getSortedBuildFileDocuments() {
+		return getSortedProjects().stream().map(p -> pathDocumentMap.get(p.getFile().toPath())).toList();
+	}
+
+	private void addSourceFileToModel(Path baseDir, List<MavenProject> sortedProjectsList, Xml.Document s) {
+		sortedProjectsList.stream()
+			.filter(p -> ResourceUtil.getPath(p.getPomFile())
+				.toString()
+				.equals(baseDir.resolve(s.getSourcePath()).toString()))
+			.forEach(p -> p.setSourceFile(s));
+	}
 
 }

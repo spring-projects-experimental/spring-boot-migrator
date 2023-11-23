@@ -27,30 +27,38 @@ import java.util.function.Consumer;
 @Slf4j
 public class RewriteExecutionContextErrorHandler implements Consumer<Throwable> {
 
-    private final ThrowExceptionSwitch throwExceptionSwitch;
+	private final ThrowExceptionSwitch throwExceptionSwitch;
 
-    RewriteExecutionContextErrorHandler(ThrowExceptionSwitch throwExceptionSwitch) {
-        this.throwExceptionSwitch = throwExceptionSwitch;
-    }
+	RewriteExecutionContextErrorHandler(ThrowExceptionSwitch throwExceptionSwitch) {
+		this.throwExceptionSwitch = throwExceptionSwitch;
+	}
 
-    @Override
-    public void accept(Throwable t) {
-        if (t instanceof MavenParsingException) {
-            log.warn(t.getMessage());
-        } else if(t instanceof MavenDownloadingException) {
-            log.warn(t.getMessage());
-        } else if(t instanceof JavaParsingException) {
-            if(t.getMessage().equals("Failed symbol entering or attribution")) {
-                throw new RuntimeException("This could be a broken jar. Activate logging on WARN level for 'org.openrewrite' might reveal more information.", t);
-            }
-        } else {
-            throw new RuntimeException(t.getMessage(), t);
-        }
-    }
+	@Override
+	public void accept(Throwable t) {
+		if (t instanceof MavenParsingException) {
+			log.warn(t.getMessage());
+		}
+		else if (t instanceof MavenDownloadingException) {
+			log.warn(t.getMessage());
+		}
+		else if (t instanceof JavaParsingException) {
+			if (t.getMessage().equals("Failed symbol entering or attribution")) {
+				throw new RuntimeException(
+						"This could be a broken jar. Activate logging on WARN level for 'org.openrewrite' might reveal more information.",
+						t);
+			}
+		}
+		else {
+			throw new RuntimeException(t.getMessage(), t);
+		}
+	}
 
-    @Getter
-    @Setter
-    public static class ThrowExceptionSwitch {
-        private boolean throwExceptions = true;
-    }
+	@Getter
+	@Setter
+	public static class ThrowExceptionSwitch {
+
+		private boolean throwExceptions = true;
+
+	}
+
 }

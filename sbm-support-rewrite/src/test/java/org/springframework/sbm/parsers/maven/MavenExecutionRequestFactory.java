@@ -40,67 +40,95 @@ import java.util.Properties;
 @RequiredArgsConstructor
 class MavenExecutionRequestFactory {
 
-    private final MavenConfigFileParser mavenConfigFileParser;
-    private static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository").toString();
-    private static final List<String> MAVEN_GOALS = List.of("clean", "package");// "dependency:resolve";
+	private final MavenConfigFileParser mavenConfigFileParser;
 
-    public MavenExecutionRequest createMavenExecutionRequest(PlexusContainer plexusContainer, Path baseDir) {
-        try {
-            MavenExecutionRequest request = new DefaultMavenExecutionRequest();
-            ArtifactRepositoryFactory repositoryFactory = plexusContainer.lookup(ArtifactRepositoryFactory.class);
+	private static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home"))
+		.resolve(".m2")
+		.resolve("repository")
+		.toString();
 
-            repositoryFactory.setGlobalChecksumPolicy("warn");
-            repositoryFactory.setGlobalUpdatePolicy("never");
-            ArtifactRepository repository = new UserLocalArtifactRepository(repositoryFactory.createArtifactRepository("local", "file://" + LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null));// repositoryFactory.createArtifactRepository("local", "file://" + LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null); // new MavenArtifactRepository("local", "file://"+LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null);
-            repository.setUrl("file://" + LOCAL_REPOSITORY);
-            repository.setReleaseUpdatePolicy(new ArtifactRepositoryPolicy(true, "never", "warn"));
-            repository.setMirroredRepositories(List.of());
-            repository.setSnapshotUpdatePolicy(new ArtifactRepositoryPolicy(true, "never", "warn"));
+	private static final List<String> MAVEN_GOALS = List.of("clean", "package");// "dependency:resolve";
 
-            request.setBaseDirectory(baseDir.toFile());
-            request.setShowErrors(true);
-            request.setLocalRepositoryPath(LOCAL_REPOSITORY);
-            request.setPluginArtifactRepositories(List.of(repository));
-            File userSettingsFile = Path.of(System.getProperty("user.home")).resolve(".m2/settings.xml").toFile();
-            if(userSettingsFile.exists()) {
-                request.setUserSettingsFile(userSettingsFile);
-            }
+	public MavenExecutionRequest createMavenExecutionRequest(PlexusContainer plexusContainer, Path baseDir) {
+		try {
+			MavenExecutionRequest request = new DefaultMavenExecutionRequest();
+			ArtifactRepositoryFactory repositoryFactory = plexusContainer.lookup(ArtifactRepositoryFactory.class);
 
-            List<String> activatedProfiles = mavenConfigFileParser.getActivatedProfiles(baseDir);
-            if (activatedProfiles.isEmpty()) {
-                request.setActiveProfiles(List.of("default"));
-            } else {
-                request.setActiveProfiles(activatedProfiles);
-            }
+			repositoryFactory.setGlobalChecksumPolicy("warn");
+			repositoryFactory.setGlobalUpdatePolicy("never");
+			ArtifactRepository repository = new UserLocalArtifactRepository(repositoryFactory.createArtifactRepository(
+					"local", "file://" + LOCAL_REPOSITORY, new DefaultRepositoryLayout(), null, null));// repositoryFactory.createArtifactRepository("local",
+																										// "file://"
+																										// +
+																										// LOCAL_REPOSITORY,
+																										// new
+																										// DefaultRepositoryLayout(),
+																										// null,
+																										// null);
+																										// //
+																										// new
+																										// MavenArtifactRepository("local",
+																										// "file://"+LOCAL_REPOSITORY,
+																										// new
+																										// DefaultRepositoryLayout(),
+																										// null,
+																										// null);
+			repository.setUrl("file://" + LOCAL_REPOSITORY);
+			repository.setReleaseUpdatePolicy(new ArtifactRepositoryPolicy(true, "never", "warn"));
+			repository.setMirroredRepositories(List.of());
+			repository.setSnapshotUpdatePolicy(new ArtifactRepositoryPolicy(true, "never", "warn"));
 
-            Map<String, String> userPropertiesFromConfig = mavenConfigFileParser.getUserProperties(baseDir);
-            Properties userProperties = new Properties();
-            if (!userPropertiesFromConfig.isEmpty()) {
-                userProperties.putAll(userPropertiesFromConfig);
-            }
-            userProperties.put("skipTests", "true");
-            request.setUserProperties(userProperties);
+			request.setBaseDirectory(baseDir.toFile());
+			request.setShowErrors(true);
+			request.setLocalRepositoryPath(LOCAL_REPOSITORY);
+			request.setPluginArtifactRepositories(List.of(repository));
+			File userSettingsFile = Path.of(System.getProperty("user.home")).resolve(".m2/settings.xml").toFile();
+			if (userSettingsFile.exists()) {
+				request.setUserSettingsFile(userSettingsFile);
+			}
 
-            request.setRemoteRepositories(List.of(new MavenArtifactRepository("central", "https://repo.maven.apache.org/maven2", new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(true, "never", "warn"), new ArtifactRepositoryPolicy(true, "never", "warn"))));
+			List<String> activatedProfiles = mavenConfigFileParser.getActivatedProfiles(baseDir);
+			if (activatedProfiles.isEmpty()) {
+				request.setActiveProfiles(List.of("default"));
+			}
+			else {
+				request.setActiveProfiles(activatedProfiles);
+			}
 
-            // TODO: make profile configurable
-            // fixes the maven run when plugins depending on Java version are encountered.
-            // This is the case for some transitive dependencies when running against the SBM code base itself.
-            // In these cases the Java version could not be retrieved without this line
-            request.setSystemProperties(System.getProperties());
+			Map<String, String> userPropertiesFromConfig = mavenConfigFileParser.getUserProperties(baseDir);
+			Properties userProperties = new Properties();
+			if (!userPropertiesFromConfig.isEmpty()) {
+				userProperties.putAll(userPropertiesFromConfig);
+			}
+			userProperties.put("skipTests", "true");
+			request.setUserProperties(userProperties);
 
-            Profile profile = new Profile();
-            profile.setId("default");
-            request.setProfiles(List.of(profile));
-            request.setDegreeOfConcurrency(1);
-            request.setLoggingLevel(MavenExecutionRequest.LOGGING_LEVEL_DEBUG);
-            request.setMultiModuleProjectDirectory(baseDir.toFile());
-            request.setLocalRepository(repository);
-            request.setGoals(MAVEN_GOALS);
-            request.setPom(baseDir.resolve("pom.xml").toFile());
-            return request;
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException(e);
-        }
-    }
+			request.setRemoteRepositories(
+					List.of(new MavenArtifactRepository("central", "https://repo.maven.apache.org/maven2",
+							new DefaultRepositoryLayout(), new ArtifactRepositoryPolicy(true, "never", "warn"),
+							new ArtifactRepositoryPolicy(true, "never", "warn"))));
+
+			// TODO: make profile configurable
+			// fixes the maven run when plugins depending on Java version are encountered.
+			// This is the case for some transitive dependencies when running against the
+			// SBM code base itself.
+			// In these cases the Java version could not be retrieved without this line
+			request.setSystemProperties(System.getProperties());
+
+			Profile profile = new Profile();
+			profile.setId("default");
+			request.setProfiles(List.of(profile));
+			request.setDegreeOfConcurrency(1);
+			request.setLoggingLevel(MavenExecutionRequest.LOGGING_LEVEL_DEBUG);
+			request.setMultiModuleProjectDirectory(baseDir.toFile());
+			request.setLocalRepository(repository);
+			request.setGoals(MAVEN_GOALS);
+			request.setPom(baseDir.resolve("pom.xml").toFile());
+			return request;
+		}
+		catch (ComponentLookupException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

@@ -21,6 +21,8 @@ package org.springframework.sbm.parsers;
  * @author Fabian Krüger
  */
 public class RecipeValidationErrorException extends RuntimeException {
-    public RecipeValidationErrorException(String s) {
-    }
+
+	public RecipeValidationErrorException(String s) {
+	}
+
 }

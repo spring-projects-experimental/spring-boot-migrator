@@ -21,5 +21,5 @@ import org.openrewrite.SourceFile;
 /**
  * @author Fabian Krüger
  */
-public record FinishedParsingResourceEvent(Parser.Input input, SourceFile sourceFile){
+public record FinishedParsingResourceEvent(Parser.Input input, SourceFile sourceFile) {
 }

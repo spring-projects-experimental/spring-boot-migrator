@@ -17,12 +17,12 @@ package org.springframework.sbm.project.resource;
 
 public interface InternalProjectResource extends ProjectResource {
 
-    void resetHasChanges();
+	void resetHasChanges();
 
-    void markAsChanged();
+	void markAsChanged();
 
-    boolean hasChanges();
+	boolean hasChanges();
 
-    boolean isDeleted();
+	boolean isDeleted();
 
 }

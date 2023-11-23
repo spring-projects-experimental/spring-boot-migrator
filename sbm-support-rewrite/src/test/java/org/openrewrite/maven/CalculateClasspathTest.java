@@ -40,109 +40,123 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-@SpringBootTest(classes = {ScannerConfiguration.class})
+@SpringBootTest(classes = { ScannerConfiguration.class })
 public class CalculateClasspathTest {
 
-    @Autowired
-    RewriteProjectParser parser;
+	@Autowired
+	RewriteProjectParser parser;
 
-    @Test
-    @DisplayName("classpath for single-module project")
-    void classpathForSingleModuleProject(@TempDir Path tmpDir) {
-        @Language("xml")
-        String pom = """
-                    <?xml version="1.0" encoding="UTF-8"?>
-                    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                        <modelVersion>4.0.0</modelVersion>
-                        <groupId>com.example</groupId>
-                        <artifactId>example-1</artifactId>
-                        <version>0.1.0-SNAPSHOT</version>
-                        <properties>
-                            <maven.compiler.target>17</maven.compiler.target>
-                            <maven.compiler.source>17</maven.compiler.source>
-                        </properties>
-                        <dependencies>
-                            <dependency>
-                                <groupId>javax.validation</groupId>
-                                <artifactId>validation-api</artifactId>
-                                <version>2.0.1.Final</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.junit.jupiter</groupId>
-                                <artifactId>junit-jupiter-api</artifactId>
-                                <version>5.9.3</version>
-                                <scope>test</scope>
-                            </dependency>
-                        </dependencies>
-                    </project>
-                    """;
+	@Test
+	@DisplayName("classpath for single-module project")
+	void classpathForSingleModuleProject(@TempDir Path tmpDir) {
+		@Language("xml")
+		String pom = """
+				<?xml version="1.0" encoding="UTF-8"?>
+				<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+				    <modelVersion>4.0.0</modelVersion>
+				    <groupId>com.example</groupId>
+				    <artifactId>example-1</artifactId>
+				    <version>0.1.0-SNAPSHOT</version>
+				    <properties>
+				        <maven.compiler.target>17</maven.compiler.target>
+				        <maven.compiler.source>17</maven.compiler.source>
+				    </properties>
+				    <dependencies>
+				        <dependency>
+				            <groupId>javax.validation</groupId>
+				            <artifactId>validation-api</artifactId>
+				            <version>2.0.1.Final</version>
+				        </dependency>
+				        <dependency>
+				            <groupId>org.junit.jupiter</groupId>
+				            <artifactId>junit-jupiter-api</artifactId>
+				            <version>5.9.3</version>
+				            <scope>test</scope>
+				        </dependency>
+				    </dependencies>
+				</project>
+				""";
 
-        @Language("java")
-        String mainClass = """
-                package com.example;
-                import javax.validation.constraints.Min;
-                
-                public class MainClass {
-                    @Min("10")
-                    private int value;
-                }
-                """;
+		@Language("java")
+		String mainClass = """
+				package com.example;
+				import javax.validation.constraints.Min;
 
-        @Language("java")
-        String testClass = """
-                package com.example;
-                import org.junit.jupiter.api.Test;
-                
-                public class TestClass {
-                    @Test
-                    void someTest() {}
-                }
-                """;
+				public class MainClass {
+				    @Min("10")
+				    private int value;
+				}
+				""";
 
-        Path baseDir = tmpDir.resolve("/example-1").toAbsolutePath().normalize();
-        List<Resource> resources = List.of(
-                new DummyResource(baseDir.resolve("pom.xml"), pom),
-                new DummyResource(baseDir.resolve("src/main/java/com/example/MainClass.java"), mainClass),
-                new DummyResource(baseDir.resolve("src/test/java/com/example/TestClass.java"), testClass)
-        );
+		@Language("java")
+		String testClass = """
+				package com.example;
+				import org.junit.jupiter.api.Test;
 
-        RewriteProjectParsingResult parsingResult = parser.parse(baseDir, resources);
+				public class TestClass {
+				    @Test
+				    void someTest() {}
+				}
+				""";
 
-        // verify types in use
-        SourceFile mainSourceFile = parsingResult.sourceFiles().get(1);
-        J.CompilationUnit mainCu = (J.CompilationUnit) mainSourceFile;
-        // Having Min annotation resolved proves type resolution is working for main resources
-        assertThat(mainCu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString())).containsExactlyInAnyOrder("int", "String", "javax.validation.constraints.Min");
+		Path baseDir = tmpDir.resolve("/example-1").toAbsolutePath().normalize();
+		List<Resource> resources = List.of(new DummyResource(baseDir.resolve("pom.xml"), pom),
+				new DummyResource(baseDir.resolve("src/main/java/com/example/MainClass.java"), mainClass),
+				new DummyResource(baseDir.resolve("src/test/java/com/example/TestClass.java"), testClass));
 
-        SourceFile testSourceFile = parsingResult.sourceFiles().get(2);
-        J.CompilationUnit testCu = (J.CompilationUnit) testSourceFile;
-        // Having Test annotation resolved proves type resolution is working for test resources
-        assertThat(testCu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString())).containsExactlyInAnyOrder("void", "org.junit.jupiter.api.Test");
+		RewriteProjectParsingResult parsingResult = parser.parse(baseDir, resources);
 
-        // verify classpath
-        List<String> mainClasspath = mainCu.getMarkers().findFirst(JavaSourceSet.class).get().getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList();
-        // Min is on main classpath
-        assertThat(mainClasspath).contains("javax.validation.constraints.Min");
-        // Test is not
-        assertThat(mainClasspath).doesNotContain("org.junit.jupiter.api.Test");
+		// verify types in use
+		SourceFile mainSourceFile = parsingResult.sourceFiles().get(1);
+		J.CompilationUnit mainCu = (J.CompilationUnit) mainSourceFile;
+		// Having Min annotation resolved proves type resolution is working for main
+		// resources
+		assertThat(mainCu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()))
+			.containsExactlyInAnyOrder("int", "String", "javax.validation.constraints.Min");
 
-        List<String> testClasspath = testCu.getMarkers().findFirst(JavaSourceSet.class).get().getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList();
-        // all main classes on test classpath
-        assertThat(testClasspath).containsAll(mainClasspath);
-        // plus the classes from test dependencies
-        assertThat(testClasspath).contains("org.junit.jupiter.api.Test");
-    }
+		SourceFile testSourceFile = parsingResult.sourceFiles().get(2);
+		J.CompilationUnit testCu = (J.CompilationUnit) testSourceFile;
+		// Having Test annotation resolved proves type resolution is working for test
+		// resources
+		assertThat(testCu.getTypesInUse().getTypesInUse().stream().map(t -> t.toString()))
+			.containsExactlyInAnyOrder("void", "org.junit.jupiter.api.Test");
 
-    /**
-     * Given a multi-module Maven reactor project.
-     * - Where module A depends on B and both inherit from same parent.
-     * - Module A has a
-     */
-    @Test
-    @DisplayName("classpath for reactor build")
-    void classpathForReactorBuild() {
-        Path mavenProject = TestProjectHelper.getMavenProject("classpath-test/example-1");
-        RewriteProjectParsingResult parsingResult = parser.parse(mavenProject);
-    }
+		// verify classpath
+		List<String> mainClasspath = mainCu.getMarkers()
+			.findFirst(JavaSourceSet.class)
+			.get()
+			.getClasspath()
+			.stream()
+			.map(JavaType.FullyQualified::getFullyQualifiedName)
+			.toList();
+		// Min is on main classpath
+		assertThat(mainClasspath).contains("javax.validation.constraints.Min");
+		// Test is not
+		assertThat(mainClasspath).doesNotContain("org.junit.jupiter.api.Test");
+
+		List<String> testClasspath = testCu.getMarkers()
+			.findFirst(JavaSourceSet.class)
+			.get()
+			.getClasspath()
+			.stream()
+			.map(JavaType.FullyQualified::getFullyQualifiedName)
+			.toList();
+		// all main classes on test classpath
+		assertThat(testClasspath).containsAll(mainClasspath);
+		// plus the classes from test dependencies
+		assertThat(testClasspath).contains("org.junit.jupiter.api.Test");
+	}
+
+	/**
+	 * Given a multi-module Maven reactor project. - Where module A depends on B and both
+	 * inherit from same parent. - Module A has a
+	 */
+	@Test
+	@DisplayName("classpath for reactor build")
+	void classpathForReactorBuild() {
+		Path mavenProject = TestProjectHelper.getMavenProject("classpath-test/example-1");
+		RewriteProjectParsingResult parsingResult = parser.parse(mavenProject);
+	}
+
 }

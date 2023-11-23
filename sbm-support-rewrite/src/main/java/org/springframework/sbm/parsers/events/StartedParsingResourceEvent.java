@@ -20,5 +20,5 @@ import org.openrewrite.Parser;
 /**
  * @author Fabian Krüger
  */
-public record StartedParsingResourceEvent(Parser.Input input){
+public record StartedParsingResourceEvent(Parser.Input input) {
 }

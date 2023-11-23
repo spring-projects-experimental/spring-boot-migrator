@@ -29,69 +29,72 @@ import java.nio.file.Path;
  * @author Fabian Krüger
  */
 public class DummyResource implements Resource {
-    private final Path path;
-    private final String content;
 
-    public DummyResource(Path path, String content) {
-        this.path = path;
-        this.content = content;
-    }
+	private final Path path;
 
-    public DummyResource(String path, String content) {
-        this(Path.of(path), content);
-    }
+	private final String content;
 
-    public DummyResource(Path baseDir, String sourcePath, String pom) {
-        this(baseDir.resolve(sourcePath).toAbsolutePath().normalize(), pom);
-    }
+	public DummyResource(Path path, String content) {
+		this.path = path;
+		this.content = content;
+	}
 
-    @Override
-    public boolean exists() {
-        return true;
-    }
+	public DummyResource(String path, String content) {
+		this(Path.of(path), content);
+	}
 
-    @Override
-    public URL getURL() throws IOException {
-        return null;
-    }
+	public DummyResource(Path baseDir, String sourcePath, String pom) {
+		this(baseDir.resolve(sourcePath).toAbsolutePath().normalize(), pom);
+	}
 
-    @Override
-    public URI getURI() throws IOException {
-        return null;
-    }
+	@Override
+	public boolean exists() {
+		return true;
+	}
 
-    @Override
-    public File getFile() throws IOException {
-        return new File(path.toAbsolutePath().toString());
-    }
+	@Override
+	public URL getURL() throws IOException {
+		return null;
+	}
 
-    @Override
-    public long contentLength() throws IOException {
-        return 0;
-    }
+	@Override
+	public URI getURI() throws IOException {
+		return null;
+	}
 
-    @Override
-    public long lastModified() throws IOException {
-        return 0;
-    }
+	@Override
+	public File getFile() throws IOException {
+		return new File(path.toAbsolutePath().toString());
+	}
 
-    @Override
-    public Resource createRelative(String relativePath) throws IOException {
-        return null;
-    }
+	@Override
+	public long contentLength() throws IOException {
+		return 0;
+	}
 
-    @Override
-    public String getFilename() {
-        return path.getFileName().toString();
-    }
+	@Override
+	public long lastModified() throws IOException {
+		return 0;
+	}
 
-    @Override
-    public String getDescription() {
-        return null;
-    }
+	@Override
+	public Resource createRelative(String relativePath) throws IOException {
+		return null;
+	}
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return new ByteArrayInputStream(content.getBytes());
-    }
+	@Override
+	public String getFilename() {
+		return path.getFileName().toString();
+	}
+
+	@Override
+	public String getDescription() {
+		return null;
+	}
+
+	@Override
+	public InputStream getInputStream() throws IOException {
+		return new ByteArrayInputStream(content.getBytes());
+	}
+
 }

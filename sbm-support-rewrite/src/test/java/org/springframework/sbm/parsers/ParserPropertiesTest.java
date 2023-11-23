@@ -24,72 +24,70 @@ import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
-
 class ParserPropertiesTest {
 
-    @Nested
-    @SpringBootTest(classes = {ScannerConfiguration.class})
-    public class GivenDefaultProperties {
+	@Nested
+	@SpringBootTest(classes = { ScannerConfiguration.class })
+	public class GivenDefaultProperties {
 
-        @Autowired
-        private ParserProperties parserProperties;
+		@Autowired
+		private ParserProperties parserProperties;
 
-        @Test
-        @DisplayName("parser.pomCacheEnabled")
-        void defaultPomCacheEnabled() {
-            assertThat(parserProperties.isPomCacheEnabled()).isFalse();
-        }
+		@Test
+		@DisplayName("parser.pomCacheEnabled")
+		void defaultPomCacheEnabled() {
+			assertThat(parserProperties.isPomCacheEnabled()).isFalse();
+		}
 
+		@Test
+		@DisplayName("parser.pomCacheDirectory")
+		void defaultPomCacheDirectory() {
+			assertThat(parserProperties.getPomCacheDirectory()).isEqualTo("~/.rewrite-cache");
+		}
 
-        @Test
-        @DisplayName("parser.pomCacheDirectory")
-        void defaultPomCacheDirectory() {
-            assertThat(parserProperties.getPomCacheDirectory()).isEqualTo("~/.rewrite-cache");
-        }
+		@Test
+		@DisplayName("parser.skipMavenParsing")
+		void defaultSkipMavenParsing() {
+			assertThat(parserProperties.isSkipMavenParsing()).isFalse();
+		}
 
-        @Test
-        @DisplayName("parser.skipMavenParsing")
-        void defaultSkipMavenParsing() {
-            assertThat(parserProperties.isSkipMavenParsing()).isFalse();
-        }
+		@Test
+		@DisplayName("parser.plainTextMasks")
+		void defaultPlainTextMasks() {
+			assertThat(parserProperties.getPlainTextMasks()).containsExactlyInAnyOrder("*.txt");
+		}
 
-        @Test
-        @DisplayName("parser.plainTextMasks")
-        void defaultPlainTextMasks() {
-            assertThat(parserProperties.getPlainTextMasks()).containsExactlyInAnyOrder("*.txt");
-        }
+		@Test
+		@DisplayName("parser.sizeThresholdMb")
+		void defaultSizeThresholdMb() {
+			assertThat(parserProperties.getSizeThresholdMb()).isEqualTo(10);
+		}
 
-        @Test
-        @DisplayName("parser.sizeThresholdMb")
-        void defaultSizeThresholdMb() {
-            assertThat(parserProperties.getSizeThresholdMb()).isEqualTo(10);
-        }
+		@Test
+		@DisplayName("parser.runPerSubmodule")
+		void defaultRunPerSubmodule() {
+			assertThat(parserProperties.isRunPerSubmodule()).isFalse();
+		}
 
-        @Test
-        @DisplayName("parser.runPerSubmodule")
-        void defaultRunPerSubmodule() {
-            assertThat(parserProperties.isRunPerSubmodule()).isFalse();
-        }
+		@Test
+		@DisplayName("parser.failOnInvalidActiveRecipes")
+		void defaultFailOnInvalidActiveRecipes() {
+			assertThat(parserProperties.isFailOnInvalidActiveRecipes()).isTrue();
+		}
 
-        @Test
-        @DisplayName("parser.failOnInvalidActiveRecipes")
-        void defaultFailOnInvalidActiveRecipes() {
-            assertThat(parserProperties.isFailOnInvalidActiveRecipes()).isTrue();
-        }
+		@Test
+		@DisplayName("parser.activeProfiles")
+		void defaultActiveProfiles() {
+			assertThat(parserProperties.getActiveProfiles()).containsExactlyInAnyOrder("default");
+		}
 
-        @Test
-        @DisplayName("parser.activeProfiles")
-        void defaultActiveProfiles() {
-            assertThat(parserProperties.getActiveProfiles()).containsExactlyInAnyOrder("default");
-        }
+		@Test
+		@DisplayName("parser.ignoredPathPatterns")
+		void defaultIgnoredPathPatterns() {
+			assertThat(parserProperties.getIgnoredPathPatterns()).containsExactlyInAnyOrder("**.idea/**", "**.git/**",
+					"**/target/**", "target/**");
+		}
 
-        @Test
-        @DisplayName("parser.ignoredPathPatterns")
-        void defaultIgnoredPathPatterns() {
-            assertThat(parserProperties.getIgnoredPathPatterns()).containsExactlyInAnyOrder("**.idea/**", "**.git/**", "**/target/**", "target/**");
-        }
-
-    }
+	}
 
 }

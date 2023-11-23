@@ -37,49 +37,53 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class MavenSettingsInitializerTest {
 
-    @Test
-    @SetSystemProperty(key = "user.home", value = "./testcode/maven-projects/project-with-maven-settings/user-home")
-    void mavenParserMustAdhereToSettingsXmlTest() throws URISyntaxException, PlexusCipherException {
+	@Test
+	@SetSystemProperty(key = "user.home", value = "./testcode/maven-projects/project-with-maven-settings/user-home")
+	void mavenParserMustAdhereToSettingsXmlTest() throws URISyntaxException, PlexusCipherException {
 
-        RewriteExecutionContext executionContext = new RewriteExecutionContext();
-        MavenSettingsInitializer sut = new MavenSettingsInitializer(executionContext, new ProjectMetadata());
+		RewriteExecutionContext executionContext = new RewriteExecutionContext();
+		MavenSettingsInitializer sut = new MavenSettingsInitializer(executionContext, new ProjectMetadata());
 
-        sut.initializeMavenSettings();
+		sut.initializeMavenSettings();
 
-        MavenExecutionContextView mavenExecutionContextView = MavenExecutionContextView.view(executionContext);
+		MavenExecutionContextView mavenExecutionContextView = MavenExecutionContextView.view(executionContext);
 
-        assertThat(mavenExecutionContextView.getRepositories()).hasSize(1);
+		assertThat(mavenExecutionContextView.getRepositories()).hasSize(1);
 
-        MavenRepository mavenRepository = mavenExecutionContextView.getRepositories().get(0);
+		MavenRepository mavenRepository = mavenExecutionContextView.getRepositories().get(0);
 
-        assertThat(mavenRepository.getId()).isEqualTo("central");
-        assertThat(mavenRepository.getUri()).isEqualTo("https://jcenter.bintray.com");
-        assertThat(mavenRepository.getReleases()).isNull();
-        assertThat(mavenRepository.getSnapshots()).isEqualToIgnoringCase("false");
+		assertThat(mavenRepository.getId()).isEqualTo("central");
+		assertThat(mavenRepository.getUri()).isEqualTo("https://jcenter.bintray.com");
+		assertThat(mavenRepository.getReleases()).isNull();
+		assertThat(mavenRepository.getSnapshots()).isEqualToIgnoringCase("false");
 
-        MavenRepository localRepository = mavenExecutionContextView.getLocalRepository();
-        assertThat(localRepository.getSnapshots()).isNull();
+		MavenRepository localRepository = mavenExecutionContextView.getLocalRepository();
+		assertThat(localRepository.getSnapshots()).isNull();
 
-        String tmpDir = removeTrailingSlash(System.getProperty("java.io.tmpdir"));
-        String customLocalRepository = "file://" + Path.of(System.getProperty("user.home")).resolve(".m2/repository").toAbsolutePath().normalize().toString();// new URI("file://" + tmpDir).toString();
-        assertThat(removeTrailingSlash(localRepository.getUri())).isEqualTo(customLocalRepository);
-        assertThat(localRepository.getSnapshots()).isNull();
-        assertThat(localRepository.isKnownToExist()).isTrue();
-        assertThat(localRepository.getUsername()).isNull();
-        assertThat(localRepository.getPassword()).isNull();
+		String tmpDir = removeTrailingSlash(System.getProperty("java.io.tmpdir"));
+		String customLocalRepository = "file://" + Path.of(System.getProperty("user.home"))
+			.resolve(".m2/repository")
+			.toAbsolutePath()
+			.normalize()
+			.toString();// new URI("file://" + tmpDir).toString();
+		assertThat(removeTrailingSlash(localRepository.getUri())).isEqualTo(customLocalRepository);
+		assertThat(localRepository.getSnapshots()).isNull();
+		assertThat(localRepository.isKnownToExist()).isTrue();
+		assertThat(localRepository.getUsername()).isNull();
+		assertThat(localRepository.getPassword()).isNull();
 
-        // assert servers were read
-        MavenSettings mavenSettings = mavenExecutionContextView.getSettings();
-        assertThat(mavenSettings.getServers().getServers()).hasSize(1);
-        assertThat(mavenSettings.getServers().getServers().get(0).getUsername()).isEqualTo("user");
-        assertThat(mavenSettings.getServers().getServers().get(0).getPassword()).isEqualTo("secret");
-    }
+		// assert servers were read
+		MavenSettings mavenSettings = mavenExecutionContextView.getSettings();
+		assertThat(mavenSettings.getServers().getServers()).hasSize(1);
+		assertThat(mavenSettings.getServers().getServers().get(0).getUsername()).isEqualTo("user");
+		assertThat(mavenSettings.getServers().getServers().get(0).getPassword()).isEqualTo("secret");
+	}
 
-    String removeTrailingSlash(String string) {
-        if(string.endsWith("/")){
-            return string.substring(0, string.length()-1);
-        }
-        return string;
-    }
+	String removeTrailingSlash(String string) {
+		if (string.endsWith("/")) {
+			return string.substring(0, string.length() - 1);
+		}
+		return string;
+	}
 
 }

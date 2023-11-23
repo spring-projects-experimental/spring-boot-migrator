@@ -36,49 +36,46 @@ import org.springframework.sbm.scopes.ScanScope;
 @Import(RewriteParserConfiguration.class)
 public class SbmTestConfiguration {
 
-    @Autowired
-    private ParserProperties parserProperties;
+	@Autowired
+	private ParserProperties parserProperties;
 
-    @Bean
-    MavenConfigFileParser configFileParser() {
-        return new MavenConfigFileParser();
-    }
+	@Bean
+	MavenConfigFileParser configFileParser() {
+		return new MavenConfigFileParser();
+	}
 
-    @Bean
-    MavenExecutionRequestFactory requestFactory(MavenConfigFileParser configFileParser) {
-        return new MavenExecutionRequestFactory(configFileParser);
-    }
+	@Bean
+	MavenExecutionRequestFactory requestFactory(MavenConfigFileParser configFileParser) {
+		return new MavenExecutionRequestFactory(configFileParser);
+	}
 
-    @Bean
-    MavenExecutor mavenExecutor(MavenExecutionRequestFactory requestFactory, MavenPlexusContainer plexusContainer) {
-        return new MavenExecutor(requestFactory, plexusContainer);
-    }
+	@Bean
+	MavenExecutor mavenExecutor(MavenExecutionRequestFactory requestFactory, MavenPlexusContainer plexusContainer) {
+		return new MavenExecutor(requestFactory, plexusContainer);
+	}
 
-    @Bean
-    MavenMojoProjectParserFactory projectParserFactory() {
-        return new MavenMojoProjectParserFactory(parserProperties);
-    }
+	@Bean
+	MavenMojoProjectParserFactory projectParserFactory() {
+		return new MavenMojoProjectParserFactory(parserProperties);
+	}
 
-    @Bean
-    MavenPlexusContainer plexusContainer() {
-        return new MavenPlexusContainer();
-    }
+	@Bean
+	MavenPlexusContainer plexusContainer() {
+		return new MavenPlexusContainer();
+	}
 
-    @Bean
-    MavenModelReader modelReader() {
-        return new MavenModelReader();
-    }
+	@Bean
+	MavenModelReader modelReader() {
+		return new MavenModelReader();
+	}
 
-    @Bean
-    RewriteMavenProjectParser rewriteMavenProjectParser(MavenPlexusContainer plexusContainer, ParsingEventListener parsingEventListenerAdapter, MavenExecutor mavenExecutor, MavenMojoProjectParserFactory mavenMojoProjectParserFactory, ScanScope scanScope, ConfigurableListableBeanFactory beanFactory, ExecutionContext executionContext) {
-        return new RewriteMavenProjectParser(
-                plexusContainer,
-                parsingEventListenerAdapter,
-                mavenExecutor,
-                mavenMojoProjectParserFactory,
-                scanScope,
-                beanFactory,
-                executionContext
-        );
-    }
+	@Bean
+	RewriteMavenProjectParser rewriteMavenProjectParser(MavenPlexusContainer plexusContainer,
+			ParsingEventListener parsingEventListenerAdapter, MavenExecutor mavenExecutor,
+			MavenMojoProjectParserFactory mavenMojoProjectParserFactory, ScanScope scanScope,
+			ConfigurableListableBeanFactory beanFactory, ExecutionContext executionContext) {
+		return new RewriteMavenProjectParser(plexusContainer, parsingEventListenerAdapter, mavenExecutor,
+				mavenMojoProjectParserFactory, scanScope, beanFactory, executionContext);
+	}
+
 }

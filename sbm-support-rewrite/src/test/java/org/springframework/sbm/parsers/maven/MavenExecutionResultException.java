@@ -28,15 +28,17 @@ import java.util.stream.Collectors;
  */
 public class MavenExecutionResultException extends RuntimeException {
 
-    @Getter
-    private final List<Throwable> exceptions;
+	@Getter
+	private final List<Throwable> exceptions;
 
-    public MavenExecutionResultException(String message, List<Throwable> exceptions) {
-        super(buildMessage(message, exceptions));
-        this.exceptions = exceptions;
-    }
+	public MavenExecutionResultException(String message, List<Throwable> exceptions) {
+		super(buildMessage(message, exceptions));
+		this.exceptions = exceptions;
+	}
 
-    private static String buildMessage(String message, List<Throwable> exceptions) {
-        return message + "\n" + exceptions.stream().map(t -> ExceptionUtils.getStackTrace(t)).collect(Collectors.joining("\n"));
-    }
+	private static String buildMessage(String message, List<Throwable> exceptions) {
+		return message + "\n"
+				+ exceptions.stream().map(t -> ExceptionUtils.getStackTrace(t)).collect(Collectors.joining("\n"));
+	}
+
 }

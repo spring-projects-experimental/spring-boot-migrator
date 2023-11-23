@@ -38,85 +38,80 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Fabian Krüger
  */
-@SpringBootTest(classes = {ScannerConfiguration.class, ParserEventPublicationIntegrationTest.TestEventListener.class})
+@SpringBootTest(classes = { ScannerConfiguration.class, ParserEventPublicationIntegrationTest.TestEventListener.class })
 public class ParserEventPublicationIntegrationTest {
 
-    @Autowired
-    RewriteProjectParser sut;
+	@Autowired
+	RewriteProjectParser sut;
 
-    @Autowired
-    ProjectScanner projectScanner;
+	@Autowired
+	ProjectScanner projectScanner;
 
-    @Autowired
-    ParserProperties parserProperties;
+	@Autowired
+	ParserProperties parserProperties;
 
-    @Autowired
-    ExecutionContext executionContext;
+	@Autowired
+	ExecutionContext executionContext;
 
-    private static List<FinishedParsingResourceEvent> capturedEvents = new ArrayList<>();
-    private static StartedParsingProjectEvent startedParsingEvent;
-    private static SuccessfullyParsedProjectEvent finishedParsingEvent;
+	private static List<FinishedParsingResourceEvent> capturedEvents = new ArrayList<>();
 
-    @Test
-    @DisplayName("Should publish parsing events")
-    void shouldPublishParsingEvents() {
-        Path baseDir = Path.of("./testcode/maven-projects/multi-module-events");
-        parserProperties.setIgnoredPathPatterns(Set.of("{**/target/**,target/**}", "**.adoc"));
-        List<Resource> resources = projectScanner.scan(baseDir);
+	private static StartedParsingProjectEvent startedParsingEvent;
 
-        RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
+	private static SuccessfullyParsedProjectEvent finishedParsingEvent;
 
-        assertThat(parsingResult.sourceFiles()).hasSize(5);
-        assertThat(parsingResult.sourceFiles().stream().map(s -> s.getSourcePath().toString()).toList())
-                .containsExactly(
-                        "pom.xml",
-                        "module-b/pom.xml",
-                        "module-a/pom.xml",
-                        "module-b/src/test/resources/application.yaml",
-                        "module-a/src/main/java/com/acme/SomeClass.java"
-                );
+	@Test
+	@DisplayName("Should publish parsing events")
+	void shouldPublishParsingEvents() {
+		Path baseDir = Path.of("./testcode/maven-projects/multi-module-events");
+		parserProperties.setIgnoredPathPatterns(Set.of("{**/target/**,target/**}", "**.adoc"));
+		List<Resource> resources = projectScanner.scan(baseDir);
 
-        assertThat(capturedEvents).hasSize(5);
+		RewriteProjectParsingResult parsingResult = sut.parse(baseDir, resources);
 
-        assertThat(capturedEvents.get(0).sourceFile().getSourcePath().toString())
-                .isEqualTo("pom.xml");
-        assertThat(capturedEvents.get(1).sourceFile().getSourcePath().toString())
-                .isEqualTo("module-b/pom.xml");
-        assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString())
-                .isEqualTo("module-a/pom.xml");
-        assertThat(capturedEvents.get(3).sourceFile().getSourcePath().toString())
-                .isEqualTo("module-b/src/test/resources/application.yaml");
-        assertThat(capturedEvents.get(4).sourceFile().getSourcePath().toString())
-                .isEqualTo("module-a/src/main/java/com/acme/SomeClass.java");
-        // ResourceParser not firing events
-        // TODO: reactivate after https://github.com/openrewrite/rewrite-maven-plugin/issues/622
-//        assertThat(capturedEvents.get(4).sourceFile().getSourcePath().toString())
-//                .isEqualTo("module-a/src/test/resources/application.yaml");
+		assertThat(parsingResult.sourceFiles()).hasSize(5);
+		assertThat(parsingResult.sourceFiles().stream().map(s -> s.getSourcePath().toString()).toList())
+			.containsExactly("pom.xml", "module-b/pom.xml", "module-a/pom.xml",
+					"module-b/src/test/resources/application.yaml", "module-a/src/main/java/com/acme/SomeClass.java");
 
-        assertThat(startedParsingEvent).isNotNull();
-        assertThat(startedParsingEvent.resources()).isSameAs(resources);
-        assertThat(finishedParsingEvent).isNotNull();
-        assertThat(finishedParsingEvent.sourceFiles()).isSameAs(parsingResult.sourceFiles());
-    }
+		assertThat(capturedEvents).hasSize(5);
 
-    @TestConfiguration
-    static class TestEventListener {
+		assertThat(capturedEvents.get(0).sourceFile().getSourcePath().toString()).isEqualTo("pom.xml");
+		assertThat(capturedEvents.get(1).sourceFile().getSourcePath().toString()).isEqualTo("module-b/pom.xml");
+		assertThat(capturedEvents.get(2).sourceFile().getSourcePath().toString()).isEqualTo("module-a/pom.xml");
+		assertThat(capturedEvents.get(3).sourceFile().getSourcePath().toString())
+			.isEqualTo("module-b/src/test/resources/application.yaml");
+		assertThat(capturedEvents.get(4).sourceFile().getSourcePath().toString())
+			.isEqualTo("module-a/src/main/java/com/acme/SomeClass.java");
+		// ResourceParser not firing events
+		// TODO: reactivate after
+		// https://github.com/openrewrite/rewrite-maven-plugin/issues/622
+		// assertThat(capturedEvents.get(4).sourceFile().getSourcePath().toString())
+		// .isEqualTo("module-a/src/test/resources/application.yaml");
 
+		assertThat(startedParsingEvent).isNotNull();
+		assertThat(startedParsingEvent.resources()).isSameAs(resources);
+		assertThat(finishedParsingEvent).isNotNull();
+		assertThat(finishedParsingEvent.sourceFiles()).isSameAs(parsingResult.sourceFiles());
+	}
 
-        @EventListener(FinishedParsingResourceEvent.class)
-        public void onEvent(FinishedParsingResourceEvent event) {
-            capturedEvents.add(event);
-        }
+	@TestConfiguration
+	static class TestEventListener {
 
-        @EventListener(StartedParsingProjectEvent.class)
-        public void onStartedParsingProjectEvent(StartedParsingProjectEvent event) {
-            startedParsingEvent = event;
-        }
+		@EventListener(FinishedParsingResourceEvent.class)
+		public void onEvent(FinishedParsingResourceEvent event) {
+			capturedEvents.add(event);
+		}
 
-        @EventListener(SuccessfullyParsedProjectEvent.class)
-        public void onFinishedParsingProjectEvent(SuccessfullyParsedProjectEvent event) {
-            finishedParsingEvent = event;
-        }
-    }
+		@EventListener(StartedParsingProjectEvent.class)
+		public void onStartedParsingProjectEvent(StartedParsingProjectEvent event) {
+			startedParsingEvent = event;
+		}
+
+		@EventListener(SuccessfullyParsedProjectEvent.class)
+		public void onFinishedParsingProjectEvent(SuccessfullyParsedProjectEvent event) {
+			finishedParsingEvent = event;
+		}
+
+	}
 
 }

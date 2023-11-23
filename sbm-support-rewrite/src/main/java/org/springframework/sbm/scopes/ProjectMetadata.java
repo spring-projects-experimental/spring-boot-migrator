@@ -22,6 +22,9 @@ import org.openrewrite.maven.MavenSettings;
 @Getter
 @Setter
 public class ProjectMetadata {
-    private String metadata;
-    private MavenSettings mavenSettings;
+
+	private String metadata;
+
+	private MavenSettings mavenSettings;
+
 }

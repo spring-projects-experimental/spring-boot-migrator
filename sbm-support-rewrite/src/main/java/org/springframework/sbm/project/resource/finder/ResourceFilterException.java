@@ -16,7 +16,9 @@
 package org.springframework.sbm.project.resource.finder;
 
 public class ResourceFilterException extends RuntimeException {
-    public ResourceFilterException(String s) {
-        super(s);
-    }
+
+	public ResourceFilterException(String s) {
+		super(s);
+	}
+
 }

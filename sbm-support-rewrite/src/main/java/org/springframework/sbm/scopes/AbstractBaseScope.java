@@ -29,41 +29,43 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 public class AbstractBaseScope implements Scope {
-    private final Map<String, Object> scopedBeans = new ConcurrentHashMap<>();
 
-    public void clear(ConfigurableListableBeanFactory beanFactory) {
-        log.trace("Clearing %d beans from scope %s.".formatted(scopedBeans.keySet().size(), this.getClass().getName()));
-        scopedBeans.keySet().stream().forEach(beanName -> {
-            beanFactory.destroyScopedBean(beanName);
-            log.trace("Removed bean '%s' from scan scope.".formatted(beanName));
-        });
-    }
+	private final Map<String, Object> scopedBeans = new ConcurrentHashMap<>();
 
-    public Object get(String name, ObjectFactory<?> objectFactory) {
-        Object scopedObject = this.scopedBeans.get(name);
-        if (scopedObject == null) {
-            scopedObject = objectFactory.getObject();
-            this.scopedBeans.put(name, scopedObject);
-        }
-        return scopedObject;
-    }
+	public void clear(ConfigurableListableBeanFactory beanFactory) {
+		log.trace("Clearing %d beans from scope %s.".formatted(scopedBeans.keySet().size(), this.getClass().getName()));
+		scopedBeans.keySet().stream().forEach(beanName -> {
+			beanFactory.destroyScopedBean(beanName);
+			log.trace("Removed bean '%s' from scan scope.".formatted(beanName));
+		});
+	}
 
-    @Nullable
-    public Object remove(String name) {
-        Map<String, Object> scope = this.scopedBeans;
-        return scope.remove(name);
-    }
+	public Object get(String name, ObjectFactory<?> objectFactory) {
+		Object scopedObject = this.scopedBeans.get(name);
+		if (scopedObject == null) {
+			scopedObject = objectFactory.getObject();
+			this.scopedBeans.put(name, scopedObject);
+		}
+		return scopedObject;
+	}
 
-    public void registerDestructionCallback(String name, Runnable callback) {
-        log.warn("%s does not support destruction callbacks.".formatted(this.getClass().getName()));
-    }
+	@Nullable
+	public Object remove(String name) {
+		Map<String, Object> scope = this.scopedBeans;
+		return scope.remove(name);
+	}
 
-    @Nullable
-    public Object resolveContextualObject(String key) {
-        return null;
-    }
+	public void registerDestructionCallback(String name, Runnable callback) {
+		log.warn("%s does not support destruction callbacks.".formatted(this.getClass().getName()));
+	}
 
-    public String getConversationId() {
-        return null;
-    }
+	@Nullable
+	public Object resolveContextualObject(String key) {
+		return null;
+	}
+
+	public String getConversationId() {
+		return null;
+	}
+
 }

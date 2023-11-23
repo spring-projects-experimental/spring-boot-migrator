@@ -19,8 +19,10 @@ package org.springframework.sbm.parsers.maven;
  * @author Fabian Krüger
  */
 public class MavenRuntimeInformation {
-    public String getMavenVersion() {
-        // FIXME: 945 implement this
-        return "3.9.1";
-    }
+
+	public String getMavenVersion() {
+		// FIXME: 945 implement this
+		return "3.9.1";
+	}
+
 }

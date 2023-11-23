@@ -31,23 +31,23 @@ import java.io.IOException;
  */
 public class ParserPropertiesPostProcessor implements EnvironmentPostProcessor {
 
-    private final PropertiesPropertySourceLoader loader = new PropertiesPropertySourceLoader();
+	private final PropertiesPropertySourceLoader loader = new PropertiesPropertySourceLoader();
 
-    @Override
-    public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        Resource path = new ClassPathResource("/META-INF/sbm-support-rewrite.properties");
-        PropertySource<?> propertySource = loadProperties(path);
-        environment.getPropertySources().addLast(propertySource);
-    }
+	@Override
+	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+		Resource path = new ClassPathResource("/META-INF/sbm-support-rewrite.properties");
+		PropertySource<?> propertySource = loadProperties(path);
+		environment.getPropertySources().addLast(propertySource);
+	}
 
-    private PropertySource<?> loadProperties(Resource path) {
-        Assert.isTrue(path.exists(), () -> "Resource " + path + " does not exist");
-        try {
-            return this.loader.load("custom-resource", path).get(0);
-        }
-        catch (IOException ex) {
-            throw new IllegalStateException("Failed to load properties configuration from " + path, ex);
-        }
-    }
+	private PropertySource<?> loadProperties(Resource path) {
+		Assert.isTrue(path.exists(), () -> "Resource " + path + " does not exist");
+		try {
+			return this.loader.load("custom-resource", path).get(0);
+		}
+		catch (IOException ex) {
+			throw new IllegalStateException("Failed to load properties configuration from " + path, ex);
+		}
+	}
 
 }

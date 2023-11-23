@@ -35,7 +35,9 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 /**
- * <p>RewriteRecipeDiscovery class.</p>
+ * <p>
+ * RewriteRecipeDiscovery class.
+ * </p>
  *
  * @author Fabian Krüger
  */
@@ -43,188 +45,190 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class RewriteRecipeDiscovery {
 
-    private final ParserProperties parserProperties;
-    /**
-     *
-     */
-    public List<Recipe> discoverRecipes() {
-        ClasspathScanningLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{});
-        return Environment.builder()
-                .load(resourceLoader)
-                .build()
-                .listRecipes();
-    }
+	private final ParserProperties parserProperties;
 
-    public List<Recipe> discoverFilteredRecipes(List<String> activeRecipes, Properties properties, String[] acceptPackages, ClasspathScanningLoader classpathScanningLoader) {
-        if (activeRecipes.isEmpty()) {
-            log.warn("No active recipes were provided.");
-            return emptyList();
-        }
+	/**
+	 *
+	 */
+	public List<Recipe> discoverRecipes() {
+		ClasspathScanningLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[] {});
+		return Environment.builder().load(resourceLoader).build().listRecipes();
+	}
 
-        List<Recipe> recipes = new ArrayList<>();
+	public List<Recipe> discoverFilteredRecipes(List<String> activeRecipes, Properties properties,
+			String[] acceptPackages, ClasspathScanningLoader classpathScanningLoader) {
+		if (activeRecipes.isEmpty()) {
+			log.warn("No active recipes were provided.");
+			return emptyList();
+		}
 
-        Environment environment = Environment.builder(properties)
-                .load(classpathScanningLoader)
-                .build();
+		List<Recipe> recipes = new ArrayList<>();
 
-        Recipe recipe = environment.activateRecipes(activeRecipes);
+		Environment environment = Environment.builder(properties).load(classpathScanningLoader).build();
 
-        if (recipe.getRecipeList().isEmpty()) {
-            log.warn("No recipes were activated. None of the provided 'activeRecipes' matched any of the applicable recipes.");
-            return emptyList();
-        }
+		Recipe recipe = environment.activateRecipes(activeRecipes);
 
-        Collection<Validated<Object>> validated = recipe.validateAll();
-        List<Validated.Invalid<Object>> failedValidations = validated.stream().map(Validated::failures)
-                .flatMap(Collection::stream).collect(toList());
-        if (!failedValidations.isEmpty()) {
-            failedValidations.forEach(failedValidation -> log.error(
-                    "Recipe validation error in " + failedValidation.getProperty() + ": " +
-                            failedValidation.getMessage(), failedValidation.getException()));
-            if (parserProperties.isFailOnInvalidActiveRecipes()) {
-                throw new RecipeValidationErrorException("Recipe validation errors detected as part of one or more activeRecipe(s). Please check error logs.");
-            } else {
-                log.error("Recipe validation errors detected as part of one or more activeRecipe(s). Execution will continue regardless.");
-            }
-        }
+		if (recipe.getRecipeList().isEmpty()) {
+			log.warn(
+					"No recipes were activated. None of the provided 'activeRecipes' matched any of the applicable recipes.");
+			return emptyList();
+		}
 
-        recipes.add(recipe);
+		Collection<Validated<Object>> validated = recipe.validateAll();
+		List<Validated.Invalid<Object>> failedValidations = validated.stream()
+			.map(Validated::failures)
+			.flatMap(Collection::stream)
+			.collect(toList());
+		if (!failedValidations.isEmpty()) {
+			failedValidations
+				.forEach(failedValidation -> log.error("Recipe validation error in " + failedValidation.getProperty()
+						+ ": " + failedValidation.getMessage(), failedValidation.getException()));
+			if (parserProperties.isFailOnInvalidActiveRecipes()) {
+				throw new RecipeValidationErrorException(
+						"Recipe validation errors detected as part of one or more activeRecipe(s). Please check error logs.");
+			}
+			else {
+				log.error(
+						"Recipe validation errors detected as part of one or more activeRecipe(s). Execution will continue regardless.");
+			}
+		}
 
-        return recipes;
-    }
+		recipes.add(recipe);
 
-//    public List<Recipe> discoverFilteredRecipes(List<String> activeRecipes, MavenProject mavenProject) {
-//        if (activeRecipes.isEmpty()) {
-//            log.warn("No active recipes were provided.");
-//            return emptyList();
-//        }
-//
-//        List<Recipe> recipes = new ArrayList<>();
-//
-//        AbstractRewriteMojoHelper helper = new AbstractRewriteMojoHelper(mavenProject);
-//
-//        Environment env = helper.environment(getClass().getClassLoader());
-//        Recipe recipe = env.activateAll();
-////        Recipe recipe = env.activateRecipes(activeRecipes);
-//
-//        if (recipe.getRecipeList().isEmpty()) {
-//            log.warn("No recipes were activated. None of the provided 'activeRecipes' matched any of the applicable recipes.");
-//            return emptyList();
-//        }
-//
-//        Collection<Validated<Object>> validated = recipe.validateAll();
-//        List<Validated.Invalid<Object>> failedValidations = validated.stream().map(Validated::failures)
-//                .flatMap(Collection::stream).collect(toList());
-//        if (!failedValidations.isEmpty()) {
-//            failedValidations.forEach(failedValidation -> log.error(
-//                    "Recipe validation error in " + failedValidation.getProperty() + ": " +
-//                            failedValidation.getMessage(), failedValidation.getException()));
-//            if (parserProperties.isFailOnInvalidActiveRecipes()) {
-//                throw new RecipeValidationErrorException("Recipe validation errors detected as part of one or more activeRecipe(s). Please check error logs.");
-//            } else {
-//                log.error("Recipe validation errors detected as part of one or more activeRecipe(s). Execution will continue regardless.");
-//            }
-//        }
-//
-//        return recipes;
-//    }
+		return recipes;
+	}
 
-    public RecipeDescriptor findRecipeDescriptor(String anotherDummyRecipe) {
-        ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{"io.example"});
-        Environment environment = Environment.builder()
-                .load(resourceLoader)
-                .build();
+	// public List<Recipe> discoverFilteredRecipes(List<String> activeRecipes,
+	// MavenProject mavenProject) {
+	// if (activeRecipes.isEmpty()) {
+	// log.warn("No active recipes were provided.");
+	// return emptyList();
+	// }
+	//
+	// List<Recipe> recipes = new ArrayList<>();
+	//
+	// AbstractRewriteMojoHelper helper = new AbstractRewriteMojoHelper(mavenProject);
+	//
+	// Environment env = helper.environment(getClass().getClassLoader());
+	// Recipe recipe = env.activateAll();
+	//// Recipe recipe = env.activateRecipes(activeRecipes);
+	//
+	// if (recipe.getRecipeList().isEmpty()) {
+	// log.warn("No recipes were activated. None of the provided 'activeRecipes' matched
+	// any of the applicable recipes.");
+	// return emptyList();
+	// }
+	//
+	// Collection<Validated<Object>> validated = recipe.validateAll();
+	// List<Validated.Invalid<Object>> failedValidations =
+	// validated.stream().map(Validated::failures)
+	// .flatMap(Collection::stream).collect(toList());
+	// if (!failedValidations.isEmpty()) {
+	// failedValidations.forEach(failedValidation -> log.error(
+	// "Recipe validation error in " + failedValidation.getProperty() + ": " +
+	// failedValidation.getMessage(), failedValidation.getException()));
+	// if (parserProperties.isFailOnInvalidActiveRecipes()) {
+	// throw new RecipeValidationErrorException("Recipe validation errors detected as part
+	// of one or more activeRecipe(s). Please check error logs.");
+	// } else {
+	// log.error("Recipe validation errors detected as part of one or more
+	// activeRecipe(s). Execution will continue regardless.");
+	// }
+	// }
+	//
+	// return recipes;
+	// }
 
-        Collection<RecipeDescriptor> recipeDescriptors = environment.listRecipeDescriptors();
-        RecipeDescriptor descriptor = recipeDescriptors.stream()
-                .filter(rd -> "AnotherDummyRecipe".equals(rd.getDisplayName()))
-                .findFirst()
-                .get();
-        return descriptor;
-    }
+	public RecipeDescriptor findRecipeDescriptor(String anotherDummyRecipe) {
+		ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[] { "io.example" });
+		Environment environment = Environment.builder().load(resourceLoader).build();
 
-    public List<Recipe> findRecipesByTags(String tag) {
-        ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[]{});
-        Environment environment = Environment.builder()
-                .load(resourceLoader)
-                .build();
+		Collection<RecipeDescriptor> recipeDescriptors = environment.listRecipeDescriptors();
+		RecipeDescriptor descriptor = recipeDescriptors.stream()
+			.filter(rd -> "AnotherDummyRecipe".equals(rd.getDisplayName()))
+			.findFirst()
+			.get();
+		return descriptor;
+	}
 
-        List<Recipe> recipes = environment.listRecipes()
-                .stream()
-                .filter(r -> r.getTags().contains(tag))
-                .toList();
+	public List<Recipe> findRecipesByTags(String tag) {
+		ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[] {});
+		Environment environment = Environment.builder().load(resourceLoader).build();
 
-        return recipes;
-    }
+		List<Recipe> recipes = environment.listRecipes().stream().filter(r -> r.getTags().contains(tag)).toList();
 
+		return recipes;
+	}
 
-//    class AbstractRewriteMojoHelper extends AbstractRewriteMojo {
-//
-//        public AbstractRewriteMojoHelper(MavenProject mavenProject) {
-//            super.project = mavenProject;
-//        }
-//
-//        @Override
-//        public void execute() throws MojoExecutionException, MojoFailureException {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        @Override
-//        public Environment environment(@Nullable ClassLoader recipeClassLoader) {
-//            Environment.Builder env = Environment.builder(this.project.getProperties());
-//            if (recipeClassLoader == null) {
-//                env.scanRuntimeClasspath(new String[0]).scanUserHome();
-//            } else {
-//                env.load(new ClasspathScanningLoader(this.project.getProperties(), recipeClassLoader));
-//            }
-//
-//
-//            /*env.load(new ResourceLoader() {
-//                @Override
-//                public Collection<Recipe> listRecipes() {
-//                    return List.of();
-//                }
-//
-//                @Override
-//                public Collection<RecipeDescriptor> listRecipeDescriptors() {
-//                    return List.of();
-//                }
-//
-//                @Override
-//                public Collection<NamedStyles> listStyles() {
-//                    return List.of();
-//                }
-//
-//                @Override
-//                public Collection<CategoryDescriptor> listCategoryDescriptors() {
-//                    return List.of();
-//                }
-//
-//                @Override
-//                public Map<String, List<Contributor>> listContributors() {
-//                    return Map.of();
-//                }
-//
-//                @Override
-//                public Map<String, List<RecipeExample>> listRecipeExamples() {
-//                    return Map.of();
-//                }
-//            });*/
-//            return env.build();
-//        }
-//
-////        @Override
-////        protected Environment environment() {
-////            try {
-////                return super.environment();
-////            } catch (MojoExecutionException e) {
-////                throw new RuntimeException(e);
-////            }
-////        }
-//
-//        @Override
-//        public Path repositoryRoot() {
-//            return super.repositoryRoot();
-//        }
-//    }
+	// class AbstractRewriteMojoHelper extends AbstractRewriteMojo {
+	//
+	// public AbstractRewriteMojoHelper(MavenProject mavenProject) {
+	// super.project = mavenProject;
+	// }
+	//
+	// @Override
+	// public void execute() throws MojoExecutionException, MojoFailureException {
+	// throw new UnsupportedOperationException();
+	// }
+	//
+	// @Override
+	// public Environment environment(@Nullable ClassLoader recipeClassLoader) {
+	// Environment.Builder env = Environment.builder(this.project.getProperties());
+	// if (recipeClassLoader == null) {
+	// env.scanRuntimeClasspath(new String[0]).scanUserHome();
+	// } else {
+	// env.load(new ClasspathScanningLoader(this.project.getProperties(),
+	// recipeClassLoader));
+	// }
+	//
+	//
+	// /*env.load(new ResourceLoader() {
+	// @Override
+	// public Collection<Recipe> listRecipes() {
+	// return List.of();
+	// }
+	//
+	// @Override
+	// public Collection<RecipeDescriptor> listRecipeDescriptors() {
+	// return List.of();
+	// }
+	//
+	// @Override
+	// public Collection<NamedStyles> listStyles() {
+	// return List.of();
+	// }
+	//
+	// @Override
+	// public Collection<CategoryDescriptor> listCategoryDescriptors() {
+	// return List.of();
+	// }
+	//
+	// @Override
+	// public Map<String, List<Contributor>> listContributors() {
+	// return Map.of();
+	// }
+	//
+	// @Override
+	// public Map<String, List<RecipeExample>> listRecipeExamples() {
+	// return Map.of();
+	// }
+	// });*/
+	// return env.build();
+	// }
+	//
+	//// @Override
+	//// protected Environment environment() {
+	//// try {
+	//// return super.environment();
+	//// } catch (MojoExecutionException e) {
+	//// throw new RuntimeException(e);
+	//// }
+	//// }
+	//
+	// @Override
+	// public Path repositoryRoot() {
+	// return super.repositoryRoot();
+	// }
+	// }
+
 }

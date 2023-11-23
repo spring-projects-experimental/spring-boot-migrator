@@ -20,11 +20,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProjectResourceSetSerializer {
 
-    private final ProjectResourceSerializer resourceSerializer;
+	private final ProjectResourceSerializer resourceSerializer;
 
-    public void writeChanges(ProjectResourceSet projectResourceSet) {
-        projectResourceSet.streamIncludingDeleted()
-                .forEach(resourceSerializer::writeChanges);
-        projectResourceSet.clearDeletedResources();
-    }
+	public void writeChanges(ProjectResourceSet projectResourceSet) {
+		projectResourceSet.streamIncludingDeleted().forEach(resourceSerializer::writeChanges);
+		projectResourceSet.clearDeletedResources();
+	}
+
 }

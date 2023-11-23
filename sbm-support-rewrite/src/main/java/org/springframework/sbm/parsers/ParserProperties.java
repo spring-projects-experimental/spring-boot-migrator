@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * ConfigurationProperties with prefix {@code parser}.
- * Defaults coming from {@code META-INF/sbm-support-rewrite.properties}
+ * ConfigurationProperties with prefix {@code parser}. Defaults coming from
+ * {@code META-INF/sbm-support-rewrite.properties}
  *
  * @author Fabian Krüger
  */
@@ -35,51 +35,58 @@ import java.util.Set;
 @Setter
 public class ParserProperties {
 
-    /**
-     * Whether to skip parsing maven pom files
-     */
-    private boolean skipMavenParsing = false;
+	/**
+	 * Whether to skip parsing maven pom files
+	 */
+	private boolean skipMavenParsing = false;
 
-    /**
-     * Enable org.openrewrite.maven.cache.RocksdbMavenPomCache on 64-Bit system
-     */
-    private boolean pomCacheEnabled = false;
+	/**
+	 * Enable org.openrewrite.maven.cache.RocksdbMavenPomCache on 64-Bit system
+	 */
+	private boolean pomCacheEnabled = false;
 
-    /**
-     * Directory used by RocksdbMavenPomCache when pomCacheEnabled is true
-     */
-    private String pomCacheDirectory = Path.of(System.getProperty("user.home")).resolve(".rewrite-cache").toAbsolutePath().normalize().toString();
+	/**
+	 * Directory used by RocksdbMavenPomCache when pomCacheEnabled is true
+	 */
+	private String pomCacheDirectory = Path.of(System.getProperty("user.home"))
+		.resolve(".rewrite-cache")
+		.toAbsolutePath()
+		.normalize()
+		.toString();
 
-    /**
-     * Comma-separated list of patterns used to create PathMatcher
-     * The pattern should not contain a leading 'glob:'
-     */
-    private Set<String> plainTextMasks = new HashSet<>();
+	/**
+	 * Comma-separated list of patterns used to create PathMatcher The pattern should not
+	 * contain a leading 'glob:'
+	 */
+	private Set<String> plainTextMasks = new HashSet<>();
 
-    /**
-     * Project resources exceeding this threshold will not be parsed and provided as org.openrewrite.quark.Quark
-     */
-    private int sizeThresholdMb = -1;
+	/**
+	 * Project resources exceeding this threshold will not be parsed and provided as
+	 * org.openrewrite.quark.Quark
+	 */
+	private int sizeThresholdMb = -1;
 
-    /**
-     * Whether only the current Maven module will be parsed
-     */
-    private boolean runPerSubmodule = false;
+	/**
+	 * Whether only the current Maven module will be parsed
+	 */
+	private boolean runPerSubmodule = false;
 
-    /**
-     * Whether the discovery should fail on invalid active recipes.
-     * TODO: Move to 'discovery' prefix
-     */
-    private boolean failOnInvalidActiveRecipes = true;
+	/**
+	 * Whether the discovery should fail on invalid active recipes. TODO: Move to
+	 * 'discovery' prefix
+	 */
+	private boolean failOnInvalidActiveRecipes = true;
 
-    /**
-     * Comma-separated list of active Maven profiles
-     */
-    private List<String> activeProfiles = List.of("default");
+	/**
+	 * Comma-separated list of active Maven profiles
+	 */
+	private List<String> activeProfiles = List.of("default");
 
-    /**
-     * Comma-separated list of patterns used to create PathMatcher to exclude paths from being parsed.
-     */
-    private Set<String> ignoredPathPatterns = Set.of("**/target/**", "target/**", "**/.idea/**", ".idea/**", ".mvn/**", "**/.mvn/**");
+	/**
+	 * Comma-separated list of patterns used to create PathMatcher to exclude paths from
+	 * being parsed.
+	 */
+	private Set<String> ignoredPathPatterns = Set.of("**/target/**", "target/**", "**/.idea/**", ".idea/**", ".mvn/**",
+			"**/.mvn/**");
 
 }

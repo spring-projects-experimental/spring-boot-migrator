@@ -31,7 +31,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Initialize {@link MavenSettings} with information from {@code ~/.m2/settings.xml} and {@code settings-security.xml}.
+ * Initialize {@link MavenSettings} with information from {@code ~/.m2/settings.xml} and
+ * {@code settings-security.xml}.
  *
  * @author Fabian Krüger
  */
@@ -39,50 +40,54 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MavenSettingsInitializer {
 
-    private final ExecutionContext executionContext;
-    private final ProjectMetadata projectMetadata;
-    private final MavenPasswordDecrypter passwordDecrypter;
+	private final ExecutionContext executionContext;
 
-    public MavenSettingsInitializer(ExecutionContext executionContext, ProjectMetadata projectMetadata) {
-        this.executionContext = executionContext;
-        this.projectMetadata = projectMetadata;
-        passwordDecrypter = new MavenPasswordDecrypter();
-    }
+	private final ProjectMetadata projectMetadata;
 
-    public void initializeMavenSettings() {
-        Path userHome = Path.of(System.getProperty("user.home"));
-        String m2RepoPath = userHome.resolve(".m2/repository").toAbsolutePath().normalize() + "/";
-        String repo = "file://" + m2RepoPath;
-        Path mavenSettingsFile = userHome.resolve(".m2/settings.xml");
-        Path mavenSecuritySettingsFile = userHome.resolve(".m2/settings-security.xml");
+	private final MavenPasswordDecrypter passwordDecrypter;
 
-        MavenRepository mavenRepository = new MavenRepository("local", repo, null, null, true, null, null, null);
-        MavenSettings.Profile defaultProfile = new MavenSettings.Profile("default", null, new RawRepositories());
-        MavenSettings.@Nullable Profiles profiles = new MavenSettings.Profiles(List.of(defaultProfile));
-        MavenSettings.@Nullable ActiveProfiles activeProfiles = new MavenSettings.ActiveProfiles(List.of("default"));
-        MavenSettings.@Nullable Mirrors mirrors = new MavenSettings.Mirrors();
-        MavenSettings.Servers servers = new MavenSettings.Servers();
-        MavenSettings mavenSettings = new MavenSettings(m2RepoPath, mavenRepository, profiles, activeProfiles, mirrors, servers);
+	public MavenSettingsInitializer(ExecutionContext executionContext, ProjectMetadata projectMetadata) {
+		this.executionContext = executionContext;
+		this.projectMetadata = projectMetadata;
+		passwordDecrypter = new MavenPasswordDecrypter();
+	}
 
-        // TODO: Add support for global Maven settings (${maven.home}/conf/settings.xml).
-        MavenExecutionContextView mavenExecutionContextView = MavenExecutionContextView.view(executionContext);
-        if (Files.exists(mavenSettingsFile)) {
-            mavenSettings = mavenSettings.merge(MavenSettings.parse(mavenSettingsFile, mavenExecutionContextView));
-            if(mavenSecuritySettingsFile.toFile().exists()) {
-                passwordDecrypter.decryptMavenServerPasswords(mavenSettings, mavenSecuritySettingsFile);
-            }
-        }
-//
-//        if(mavenSettings.getMavenLocal() == null) {
-//            mavenSettings.setMavenLocal(new MavenRepository("local", repo, null, null, true, null, null, null));
-//        }
-//
-//        if(mavenSettings.getActiveProfiles() == null) {
-//            mavenSettings.set
-//        }
+	public void initializeMavenSettings() {
+		Path userHome = Path.of(System.getProperty("user.home"));
+		String m2RepoPath = userHome.resolve(".m2/repository").toAbsolutePath().normalize() + "/";
+		String repo = "file://" + m2RepoPath;
+		Path mavenSettingsFile = userHome.resolve(".m2/settings.xml");
+		Path mavenSecuritySettingsFile = userHome.resolve(".m2/settings-security.xml");
 
-        mavenExecutionContextView.setMavenSettings(mavenSettings);
-        projectMetadata.setMavenSettings(mavenSettings);
-    }
+		MavenRepository mavenRepository = new MavenRepository("local", repo, null, null, true, null, null, null);
+		MavenSettings.Profile defaultProfile = new MavenSettings.Profile("default", null, new RawRepositories());
+		MavenSettings.@Nullable Profiles profiles = new MavenSettings.Profiles(List.of(defaultProfile));
+		MavenSettings.@Nullable ActiveProfiles activeProfiles = new MavenSettings.ActiveProfiles(List.of("default"));
+		MavenSettings.@Nullable Mirrors mirrors = new MavenSettings.Mirrors();
+		MavenSettings.Servers servers = new MavenSettings.Servers();
+		MavenSettings mavenSettings = new MavenSettings(m2RepoPath, mavenRepository, profiles, activeProfiles, mirrors,
+				servers);
+
+		// TODO: Add support for global Maven settings (${maven.home}/conf/settings.xml).
+		MavenExecutionContextView mavenExecutionContextView = MavenExecutionContextView.view(executionContext);
+		if (Files.exists(mavenSettingsFile)) {
+			mavenSettings = mavenSettings.merge(MavenSettings.parse(mavenSettingsFile, mavenExecutionContextView));
+			if (mavenSecuritySettingsFile.toFile().exists()) {
+				passwordDecrypter.decryptMavenServerPasswords(mavenSettings, mavenSecuritySettingsFile);
+			}
+		}
+		//
+		// if(mavenSettings.getMavenLocal() == null) {
+		// mavenSettings.setMavenLocal(new MavenRepository("local", repo, null, null,
+		// true, null, null, null));
+		// }
+		//
+		// if(mavenSettings.getActiveProfiles() == null) {
+		// mavenSettings.set
+		// }
+
+		mavenExecutionContextView.setMavenSettings(mavenSettings);
+		projectMetadata.setMavenSettings(mavenSettings);
+	}
 
 }

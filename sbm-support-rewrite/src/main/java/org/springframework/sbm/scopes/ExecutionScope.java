@@ -16,12 +16,13 @@
 package org.springframework.sbm.scopes;
 
 /**
- * Scope implementation for beans marked with {@link org.springframework.sbm.scopes.annotations.ExecutionScope}.
+ * Scope implementation for beans marked with
+ * {@link org.springframework.sbm.scopes.annotations.ExecutionScope}.
  *
  * @author Fabian Krüger
  */
 public class ExecutionScope extends AbstractBaseScope {
 
-    public final static String SCOPE_NAME = "executionScope";
+	public final static String SCOPE_NAME = "executionScope";
 
 }

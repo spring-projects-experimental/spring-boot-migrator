@@ -32,86 +32,92 @@ import java.util.List;
  * @author Fabian Krüger
  */
 public class TestProjectHelper {
-    private final Path targetDir;
-    private List<Resource> resources = new ArrayList<>();
-    private boolean initializeGitRepo;
-    private String gitUrl;
-    private String gitTag;
-    private boolean deleteDirIfExists = false;
 
-    public TestProjectHelper(Path targetDir) {
-        this.targetDir = targetDir;
-    }
+	private final Path targetDir;
 
-    public static Path getMavenProject(String s) {
-        return Path.of("./testcode/maven-projects/").resolve(s).toAbsolutePath().normalize();
-    }
+	private List<Resource> resources = new ArrayList<>();
 
-    public static TestProjectHelper createTestProject(Path targetDir) {
-        return new TestProjectHelper(targetDir);
-    }
+	private boolean initializeGitRepo;
 
-    public static TestProjectHelper createTestProject(String targetDir) {
-        return new TestProjectHelper(Path.of(targetDir).toAbsolutePath().normalize());
-    }
+	private String gitUrl;
 
-    public TestProjectHelper withResources(Resource... resources) {
-        this.resources.addAll(Arrays.asList(resources));
-        return this;
-    }
+	private String gitTag;
 
-    public TestProjectHelper initializeGitRepo() {
-        this.initializeGitRepo = true;
-        return this;
-    }
+	private boolean deleteDirIfExists = false;
 
-    public TestProjectHelper cloneGitProject(String url) {
-        this.gitUrl = url;
-        return this;
-    }
+	public TestProjectHelper(Path targetDir) {
+		this.targetDir = targetDir;
+	}
 
-    public TestProjectHelper checkoutTag(String tag) {
-        this.gitTag = tag;
-        return this;
-    }
+	public static Path getMavenProject(String s) {
+		return Path.of("./testcode/maven-projects/").resolve(s).toAbsolutePath().normalize();
+	}
 
-    public TestProjectHelper deleteDirIfExists() {
-        this.deleteDirIfExists = true;
-        return this;
-    }
+	public static TestProjectHelper createTestProject(Path targetDir) {
+		return new TestProjectHelper(targetDir);
+	}
 
-    public void writeToFilesystem() {
-        if(deleteDirIfExists) {
-            try {
-                FileUtils.deleteDirectory(targetDir.toFile());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+	public static TestProjectHelper createTestProject(String targetDir) {
+		return new TestProjectHelper(Path.of(targetDir).toAbsolutePath().normalize());
+	}
 
-        if (initializeGitRepo) {
-            try {
-                Git.init().setDirectory(targetDir.toFile()).call();
-            } catch (GitAPIException e) {
-                throw new RuntimeException(e);
-            }
-        } else if (gitUrl != null) {
-            try {
-                File directory = targetDir.toFile();
-                Git git = Git.cloneRepository()
-                        .setDirectory(directory)
-                        .setURI(this.gitUrl)
-                        .call();
+	public TestProjectHelper withResources(Resource... resources) {
+		this.resources.addAll(Arrays.asList(resources));
+		return this;
+	}
 
-                if (gitTag != null) {
-                    git.checkout()
-                            .setName("refs/tags/" + gitTag)
-                            .call();
-                }
-            } catch (GitAPIException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        ResourceUtil.write(targetDir, resources);
-    }
+	public TestProjectHelper initializeGitRepo() {
+		this.initializeGitRepo = true;
+		return this;
+	}
+
+	public TestProjectHelper cloneGitProject(String url) {
+		this.gitUrl = url;
+		return this;
+	}
+
+	public TestProjectHelper checkoutTag(String tag) {
+		this.gitTag = tag;
+		return this;
+	}
+
+	public TestProjectHelper deleteDirIfExists() {
+		this.deleteDirIfExists = true;
+		return this;
+	}
+
+	public void writeToFilesystem() {
+		if (deleteDirIfExists) {
+			try {
+				FileUtils.deleteDirectory(targetDir.toFile());
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		if (initializeGitRepo) {
+			try {
+				Git.init().setDirectory(targetDir.toFile()).call();
+			}
+			catch (GitAPIException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		else if (gitUrl != null) {
+			try {
+				File directory = targetDir.toFile();
+				Git git = Git.cloneRepository().setDirectory(directory).setURI(this.gitUrl).call();
+
+				if (gitTag != null) {
+					git.checkout().setName("refs/tags/" + gitTag).call();
+				}
+			}
+			catch (GitAPIException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		ResourceUtil.write(targetDir, resources);
+	}
+
 }

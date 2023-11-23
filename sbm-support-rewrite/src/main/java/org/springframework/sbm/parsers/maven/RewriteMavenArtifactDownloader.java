@@ -32,11 +32,14 @@ import java.util.function.Consumer;
 @Slf4j
 public class RewriteMavenArtifactDownloader extends MavenArtifactDownloader {
 
-    public RewriteMavenArtifactDownloader(MavenArtifactCache mavenArtifactCache, @Nullable MavenSettings mavenSettings, Consumer<Throwable> onError) {
-        super(mavenArtifactCache, mavenSettings, onError);
-    }
+	public RewriteMavenArtifactDownloader(MavenArtifactCache mavenArtifactCache, @Nullable MavenSettings mavenSettings,
+			Consumer<Throwable> onError) {
+		super(mavenArtifactCache, mavenSettings, onError);
+	}
 
-    public RewriteMavenArtifactDownloader(MavenArtifactCache mavenArtifactCache, @Nullable MavenSettings settings, HttpSender httpSender, Consumer<Throwable> onError) {
-        super(mavenArtifactCache, settings, httpSender, onError);
-    }
+	public RewriteMavenArtifactDownloader(MavenArtifactCache mavenArtifactCache, @Nullable MavenSettings settings,
+			HttpSender httpSender, Consumer<Throwable> onError) {
+		super(mavenArtifactCache, settings, httpSender, onError);
+	}
+
 }

@@ -23,15 +23,21 @@ import java.util.ArrayList;
 // TODO: Making ProjectResourceSet a scoped bean would allow to remove this class.
 @RequiredArgsConstructor
 public class ProjectResourceSetHolder {
-    private ProjectResourceSet projectResourceSet;
-    private final ExecutionContext executionContext;
-    private final RewriteMigrationResultMerger migrationResultMerger;
 
-    public void setProjectResourceSet(ProjectResourceSet projectResourceSet) {
-        this.projectResourceSet = projectResourceSet;
-    }
+	private ProjectResourceSet projectResourceSet;
 
-    public ProjectResourceSet getProjectResourceSet() {
-        return projectResourceSet == null ? new ProjectResourceSet(new ArrayList<>(), executionContext, migrationResultMerger) : projectResourceSet;
-    }
+	private final ExecutionContext executionContext;
+
+	private final RewriteMigrationResultMerger migrationResultMerger;
+
+	public void setProjectResourceSet(ProjectResourceSet projectResourceSet) {
+		this.projectResourceSet = projectResourceSet;
+	}
+
+	public ProjectResourceSet getProjectResourceSet() {
+		return projectResourceSet == null
+				? new ProjectResourceSet(new ArrayList<>(), executionContext, migrationResultMerger)
+				: projectResourceSet;
+	}
+
 }

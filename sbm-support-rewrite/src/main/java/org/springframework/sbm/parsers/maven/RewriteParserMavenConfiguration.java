@@ -32,34 +32,38 @@ import java.util.function.Consumer;
  * @author Fabian Krüger
  */
 @AutoConfiguration
-@Import({ScopeConfiguration.class})
+@Import({ ScopeConfiguration.class })
 public class RewriteParserMavenConfiguration {
 
-    @Bean
-    MavenProvenanceMarkerFactory mavenProvenanceMarkerFactory() {
-        return new MavenProvenanceMarkerFactory();
-    }
+	@Bean
+	MavenProvenanceMarkerFactory mavenProvenanceMarkerFactory() {
+		return new MavenProvenanceMarkerFactory();
+	}
 
-    @Bean
-    BuildFileParser buildFileParser(MavenSettingsInitializer mavenSettingsInitializer) {
-        return new BuildFileParser(mavenSettingsInitializer);
-    }
+	@Bean
+	BuildFileParser buildFileParser(MavenSettingsInitializer mavenSettingsInitializer) {
+		return new BuildFileParser(mavenSettingsInitializer);
+	}
 
-    @Bean
-    RewriteMavenArtifactDownloader artifactDownloader(MavenArtifactCache mavenArtifactCache, ProjectMetadata projectMetadata, Consumer<Throwable> artifactDownloaderErrorConsumer) {
-        return new RewriteMavenArtifactDownloader(mavenArtifactCache, projectMetadata.getMavenSettings(), artifactDownloaderErrorConsumer);
-    }
+	@Bean
+	RewriteMavenArtifactDownloader artifactDownloader(MavenArtifactCache mavenArtifactCache,
+			ProjectMetadata projectMetadata, Consumer<Throwable> artifactDownloaderErrorConsumer) {
+		return new RewriteMavenArtifactDownloader(mavenArtifactCache, projectMetadata.getMavenSettings(),
+				artifactDownloaderErrorConsumer);
+	}
 
-    @Bean
-    @ConditionalOnMissingBean(MavenArtifactCache.class)
-    MavenArtifactCache mavenArtifactCache() {
-        return new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository")).orElse(
-                new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".rewrite", "cache", "artifacts"))
-        );
-    }
+	@Bean
+	@ConditionalOnMissingBean(MavenArtifactCache.class)
+	MavenArtifactCache mavenArtifactCache() {
+		return new LocalMavenArtifactCache(Paths.get(System.getProperty("user.home"), ".m2", "repository"))
+			.orElse(new LocalMavenArtifactCache(
+					Paths.get(System.getProperty("user.home"), ".rewrite", "cache", "artifacts")));
+	}
 
-    @Bean
-    MavenSettingsInitializer mavenSettingsInitializer(ExecutionContext executionContext, ProjectMetadata projectMetadata) {
-        return new MavenSettingsInitializer(executionContext, projectMetadata);
-    }
+	@Bean
+	MavenSettingsInitializer mavenSettingsInitializer(ExecutionContext executionContext,
+			ProjectMetadata projectMetadata) {
+		return new MavenSettingsInitializer(executionContext, projectMetadata);
+	}
+
 }

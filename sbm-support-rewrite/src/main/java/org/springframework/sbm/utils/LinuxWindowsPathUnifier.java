@@ -26,23 +26,24 @@ import java.nio.file.Path;
  */
 public class LinuxWindowsPathUnifier {
 
-    public String unifyPath(Path path) {
-        return unifyPath(path.toString());
-    }
+	public String unifyPath(Path path) {
+		return unifyPath(path.toString());
+	}
 
-    public String unifyPath(String path) {
-        path = StringUtils.cleanPath(path);
-        if (isWindows()) {
-            path = transformToLinuxPath(path);
-        }
-        return path;
-    }
+	public String unifyPath(String path) {
+		path = StringUtils.cleanPath(path);
+		if (isWindows()) {
+			path = transformToLinuxPath(path);
+		}
+		return path;
+	}
 
-    boolean isWindows() {
-        return System.getProperty("os.name").contains("Windows");
-    }
+	boolean isWindows() {
+		return System.getProperty("os.name").contains("Windows");
+	}
 
-    private String transformToLinuxPath(String path) {
-        return path.replaceAll("^[\\w]+:\\/?", "/");
-    }
+	private String transformToLinuxPath(String path) {
+		return path.replaceAll("^[\\w]+:\\/?", "/");
+	}
+
 }

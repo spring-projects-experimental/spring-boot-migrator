@@ -26,17 +26,15 @@ import java.lang.annotation.Target;
 
 /**
  *
- * ## scanScope
- * Beans annotated with {@link org.springframework.sbm.scopes.annotations.ScanScope} will be created on first access during scan/parse and added to the scanScope.
- * Subsequent usages will receive instances from the scanScope until the scope ends and all scoped beans get removed
- * from the scope.
+ * ## scanScope Beans annotated with
+ * {@link org.springframework.sbm.scopes.annotations.ScanScope} will be created on first
+ * access during scan/parse and added to the scanScope. Subsequent usages will receive
+ * instances from the scanScope until the scope ends and all scoped beans get removed from
+ * the scope.
  *
- * The `scanScope` starts with
- * - parsing a given application
+ * The `scanScope` starts with - parsing a given application
  *
- * The `scanScope` ends with
- * - a new scan
- * - or when the application stops
+ * The `scanScope` ends with - a new scan - or when the application stops
  *
  * @author Fabian Krüger
  */
@@ -45,4 +43,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Scope(scopeName = org.springframework.sbm.scopes.ScanScope.SCOPE_NAME, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public @interface ScanScope {
+
 }

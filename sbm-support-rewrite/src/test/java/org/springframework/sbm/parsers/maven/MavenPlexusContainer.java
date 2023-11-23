@@ -26,50 +26,54 @@ import java.net.URL;
 @Lazy
 class MavenPlexusContainer {
 
-    public <T> T lookup(Class<T> aClass) {
-        try {
-            return ContainerHolder.INSTANCE.lookup(aClass);
-        } catch (ComponentLookupException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public <T> T lookup(Class<T> aClass) {
+		try {
+			return ContainerHolder.INSTANCE.lookup(aClass);
+		}
+		catch (ComponentLookupException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    private static class ContainerHolder {
-        private static final PlexusContainer INSTANCE = create();
-        public static PlexusContainer create() {
-            try {
-                ClassLoader parent = null;
-                boolean isContainerAutoWiring = false;
-                String containerClassPathScanning = "on";
-                String containerComponentVisibility = null;
-                URL overridingComponentsXml = null; //getClass().getClassLoader().getResource("META-INF/**/components.xml");
+	private static class ContainerHolder {
 
-                ContainerConfiguration configuration = new DefaultContainerConfiguration();
-                configuration.setAutoWiring(isContainerAutoWiring)
-                        .setClassPathScanning(containerClassPathScanning)
-                        .setComponentVisibility(containerComponentVisibility)
-                        .setContainerConfigurationURL(overridingComponentsXml);
+		private static final PlexusContainer INSTANCE = create();
 
-                // inspired from https://github.com/jenkinsci/lib-jenkins-maven-embedder/blob/master/src/main/java/hudson/maven/MavenEmbedderUtils.java#L141
-                ClassWorld classWorld = new ClassWorld();
-                ClassRealm classRealm = new ClassRealm(classWorld, "maven", PlexusContainer.class.getClassLoader());
-                classRealm.setParentRealm(new ClassRealm(classWorld, "maven-parent",
-                        parent == null ? Thread.currentThread().getContextClassLoader()
-                                : parent));
-                configuration.setRealm(classRealm);
+		public static PlexusContainer create() {
+			try {
+				ClassLoader parent = null;
+				boolean isContainerAutoWiring = false;
+				String containerClassPathScanning = "on";
+				String containerComponentVisibility = null;
+				URL overridingComponentsXml = null; // getClass().getClassLoader().getResource("META-INF/**/components.xml");
 
-                configuration.setClassWorld(classWorld);
-                return new DefaultPlexusContainer(configuration);
-            } catch (PlexusContainerException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
+				ContainerConfiguration configuration = new DefaultContainerConfiguration();
+				configuration.setAutoWiring(isContainerAutoWiring)
+					.setClassPathScanning(containerClassPathScanning)
+					.setComponentVisibility(containerComponentVisibility)
+					.setContainerConfigurationURL(overridingComponentsXml);
 
-    @Deprecated
-    public PlexusContainer get() {
-        return ContainerHolder.INSTANCE;
-    }
+				// inspired from
+				// https://github.com/jenkinsci/lib-jenkins-maven-embedder/blob/master/src/main/java/hudson/maven/MavenEmbedderUtils.java#L141
+				ClassWorld classWorld = new ClassWorld();
+				ClassRealm classRealm = new ClassRealm(classWorld, "maven", PlexusContainer.class.getClassLoader());
+				classRealm.setParentRealm(new ClassRealm(classWorld, "maven-parent",
+						parent == null ? Thread.currentThread().getContextClassLoader() : parent));
+				configuration.setRealm(classRealm);
 
+				configuration.setClassWorld(classWorld);
+				return new DefaultPlexusContainer(configuration);
+			}
+			catch (PlexusContainerException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+	}
+
+	@Deprecated
+	public PlexusContainer get() {
+		return ContainerHolder.INSTANCE;
+	}
 
 }

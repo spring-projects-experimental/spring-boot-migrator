@@ -20,5 +20,6 @@ import org.springframework.sbm.parsers.RewriteProjectParsingResult;
 /**
  * @author Fabian Krüger
  */
-public record ParallelParsingResult(RewriteProjectParsingResult expectedParsingResult, RewriteProjectParsingResult actualParsingResult) {
+public record ParallelParsingResult(RewriteProjectParsingResult expectedParsingResult,
+		RewriteProjectParsingResult actualParsingResult) {
 }

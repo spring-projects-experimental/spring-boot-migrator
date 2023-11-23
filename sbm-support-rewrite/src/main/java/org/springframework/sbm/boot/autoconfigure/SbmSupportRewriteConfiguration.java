@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Import;
  * @author Fabian Krüger
  */
 @AutoConfiguration
-@Import({DiscoveryConfiguration.class, ScannerConfiguration.class, ProjectResourceSetConfiguration.class})
+@Import({ DiscoveryConfiguration.class, ScannerConfiguration.class, ProjectResourceSetConfiguration.class })
 public class SbmSupportRewriteConfiguration {
+
 }

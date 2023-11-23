@@ -33,6 +33,7 @@ import java.util.Map;
 public class OsAgnosticPathMatcher implements PathMatcher {
 
 	private PathMatcher pathMatcher = new AntPathMatcher();
+
 	private LinuxWindowsPathUnifier pathUnifier = new LinuxWindowsPathUnifier();
 
 	@Override
@@ -78,6 +79,5 @@ public class OsAgnosticPathMatcher implements PathMatcher {
 	public String combine(String pattern1, String pattern2) {
 		return pathMatcher.combine(pattern1, pattern2);
 	}
-
 
 }
