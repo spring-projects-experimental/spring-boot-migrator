@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.springframework.rewrite</groupId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <artifactId>spring-rewrite-commons</artifactId>
 
     <name>Spring Support for OpenRewrite</name>
@@ -67,7 +66,8 @@
         <url>https://github.com/spring-projects/rewrite-commons</url>
         <connection>scm:git:https://github.com/spring-projects/spring-rewrite-commons</connection>
         <developerConnection>scm:git:https://github.com/spring-projects/spring-rewrite-commons.git</developerConnection>
-    </scm>
+      <tag>spring-rewrite-commons-0.1.0</tag>
+  </scm>
     <issueManagement>
         <system>Github Issues</system>
         <url>https://github.com/spring-projects/spring-rewrite-commons/issues</url>
@@ -396,7 +396,7 @@
                 <configuration>
                     <properties>
                         <owner>the original author or authors.</owner>
-                        <email/>
+                        <email />
                         <year>2023</year>
                     </properties>
                     <licenseSets>
