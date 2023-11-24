@@ -37,7 +37,14 @@
 
         <!-- plugins -->
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
+        <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
+        <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
+        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <spring-javaformat-maven-plugin.version>0.0.39</spring-javaformat-maven-plugin.version>
+        <license-maven-plugin.version>4.1</license-maven-plugin.version>
+        <lombok-maven-plugin.version>1.18.20.0</lombok-maven-plugin.version>
+        <artifactory-maven-plugin.version>3.6.1</artifactory-maven-plugin.version>
 
         <!-- Should be same as version managed by Spring -->
         <lombok.version.annotationProcessorPath>1.18.28</lombok.version.annotationProcessorPath>
@@ -290,7 +297,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.4.1</version>
+                    <version>${maven-javadoc-plugin.version}</version>
                     <configuration>
                         <doclint>accessibility,html,reference,syntax</doclint>
                         <show>package</show>
@@ -358,12 +365,12 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
-                <version>2.16.0</version>
+                <version>${versions-maven-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>4.1</version>
+                <version>${license-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -462,7 +469,7 @@ limitations under the License.
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-jar-plugin</artifactId>
-                        <version>3.3.0</version> <!-- Adjust version as needed -->
+                        <version>${maven-jar-plugin.version}</version> <!-- Adjust version as needed -->
                         <executions>
                             <execution>
                                 <id>create-sources-jar</id>
