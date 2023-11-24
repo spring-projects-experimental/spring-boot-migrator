@@ -481,7 +481,13 @@ limitations under the License.
                                     <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <classesDirectory>${project.build.directory}/delomboked</classesDirectory>
+                                    <classesDirectory>${project.build.directory}/generated-sources/delomboked</classesDirectory>
+                                    <archive>
+                                        <manifestEntries>
+                                            <Implementation-Title>${project.artifactId}</Implementation-Title>
+                                            <Implementation-Version>${project.version}</Implementation-Version>
+                                        </manifestEntries>
+                                    </archive>
                                     <includes>
                                         <include>**/*.java</include>
                                     </includes>
