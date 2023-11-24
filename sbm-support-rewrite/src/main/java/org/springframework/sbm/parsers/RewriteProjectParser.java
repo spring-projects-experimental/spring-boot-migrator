@@ -70,96 +70,96 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RewriteProjectParser {
 
-	private final ProvenanceMarkerFactory provenanceMarkerFactory;
+    private final ProvenanceMarkerFactory provenanceMarkerFactory;
 
-	private final BuildFileParser buildFileParser;
+    private final BuildFileParser buildFileParser;
 
-	private final SourceFileParser sourceFileParser;
+    private final SourceFileParser sourceFileParser;
 
-	private final StyleDetector styleDetector;
+    private final StyleDetector styleDetector;
 
-	private final ParserProperties parserProperties;
+    private final ParserProperties parserProperties;
 
-	private final ParsingEventListener parsingEventListener;
+    private final ParsingEventListener parsingEventListener;
 
-	private final ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
-	private final ScanScope scanScope;
+    private final ScanScope scanScope;
 
-	private final ConfigurableListableBeanFactory beanFactory;
+    private final ConfigurableListableBeanFactory beanFactory;
 
-	private final ProjectScanner scanner;
+    private final ProjectScanner scanner;
 
-	private final ExecutionContext executionContext;
+    private final ExecutionContext executionContext;
 
-	private final MavenProjectAnalyzer mavenProjectAnalyzer;
+    private final MavenProjectAnalyzer mavenProjectAnalyzer;
 
-	/**
-	 * Parse the given {@code baseDir} to OpenRewrite AST.
-	 */
-	public RewriteProjectParsingResult parse(Path baseDir) {
-		List<Resource> resources = scanner.scan(baseDir);
-		return this.parse(baseDir, resources);
-	}
+    /**
+     * Parse the given {@code baseDir} to OpenRewrite AST.
+     */
+    public RewriteProjectParsingResult parse(Path baseDir) {
+        List<Resource> resources = scanner.scan(baseDir);
+        return this.parse(baseDir, resources);
+    }
 
-	/**
-	 * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
-	 */
-	public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources) {
-		scanScope.clear(beanFactory);
+    /**
+     * Parse given {@link Resource}s in {@code baseDir} to OpenRewrite AST representation.
+     */
+    public RewriteProjectParsingResult parse(Path givenBaseDir, List<Resource> resources) {
+        scanScope.clear(beanFactory);
 
-		final Path baseDir = normalizePath(givenBaseDir);
+        final Path baseDir = normalizePath(givenBaseDir);
 
-		eventPublisher.publishEvent(new StartedParsingProjectEvent(resources));
+        eventPublisher.publishEvent(new StartedParsingProjectEvent(resources));
 
-		ParsingExecutionContextView.view(executionContext).setParsingListener(parsingEventListener);
+        ParsingExecutionContextView.view(executionContext).setParsingListener(parsingEventListener);
 
-		// TODO: "runPerSubmodule"
-		// TODO: See ConfigurableRewriteMojo#getPlainTextMasks()
-		// TODO: where to retrieve styles from? --> see
-		// AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
-		List<NamedStyles> styles = List.of();
+        // TODO: "runPerSubmodule"
+        // TODO: See ConfigurableRewriteMojo#getPlainTextMasks()
+        // TODO: where to retrieve styles from? --> see
+        // AbstractRewriteMojo#getActiveStyles() & AbstractRewriteMojo#loadStyles()
+        List<NamedStyles> styles = List.of();
 
-		// Get the ordered otherSourceFiles of projects
-		ParserContext parserContext = mavenProjectAnalyzer.createParserContext(baseDir, resources);
+        // Get the ordered otherSourceFiles of projects
+        ParserContext parserContext = mavenProjectAnalyzer.createParserContext(baseDir, resources);
 
-		// generate provenance
-		Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir,
-				parserContext);
+        // generate provenance
+        Map<Path, List<Marker>> provenanceMarkers = provenanceMarkerFactory.generateProvenanceMarkers(baseDir,
+                parserContext);
 
-		// 127: parse build files
-		// TODO: 945 this map is only used to lookup module pom by path in
-		// SourceFileParser. If possible provide the build file from ParserContext and
-		// remove this map.
-		List<Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(baseDir,
-				parserContext.getBuildFileResources(), parserContext.getActiveProfiles(), executionContext,
-				parserProperties.isSkipMavenParsing(), provenanceMarkers);
-		parserContext.setParsedBuildFiles(parsedBuildFiles);
+        // 127: parse build files
+        // TODO: 945 this map is only used to lookup module pom by path in
+        // SourceFileParser. If possible provide the build file from ParserContext and
+        // remove this map.
+        List<Xml.Document> parsedBuildFiles = buildFileParser.parseBuildFiles(baseDir,
+                parserContext.getBuildFileResources(), parserContext.getActiveProfiles(), executionContext,
+                parserProperties.isSkipMavenParsing(), provenanceMarkers);
+        parserContext.setParsedBuildFiles(parsedBuildFiles);
 
-		log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + parsedBuildFiles.size(),
-				parsedBuildFiles.size()));
-		List<SourceFile> otherSourceFiles = sourceFileParser.parseOtherSourceFiles(baseDir, parserContext, resources,
-				provenanceMarkers, styles, executionContext);
+        log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + parsedBuildFiles.size(),
+                parsedBuildFiles.size()));
+        List<SourceFile> otherSourceFiles = sourceFileParser.parseOtherSourceFiles(baseDir, parserContext, resources,
+                provenanceMarkers, styles, executionContext);
 
-		List<Xml.Document> sortedBuildFileDocuments = parserContext.getSortedBuildFileDocuments();
+        List<Xml.Document> sortedBuildFileDocuments = parserContext.getSortedBuildFileDocuments();
 
-		List<SourceFile> resultingList = new ArrayList<>();
-		resultingList.addAll(sortedBuildFileDocuments);
-		resultingList.addAll(otherSourceFiles);
-		List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
+        List<SourceFile> resultingList = new ArrayList<>();
+        resultingList.addAll(sortedBuildFileDocuments);
+        resultingList.addAll(otherSourceFiles);
+        List<SourceFile> sourceFiles = styleDetector.sourcesWithAutoDetectedStyles(resultingList.stream());
 
-		eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
+        eventPublisher.publishEvent(new SuccessfullyParsedProjectEvent(sourceFiles));
 
-		return new RewriteProjectParsingResult(sourceFiles, executionContext);
-	}
+        return new RewriteProjectParsingResult(sourceFiles, executionContext);
+    }
 
-	@NotNull
-	private static Path normalizePath(Path givenBaseDir) {
-		if (!givenBaseDir.isAbsolute()) {
-			givenBaseDir = givenBaseDir.toAbsolutePath().normalize();
-		}
-		final Path baseDir = givenBaseDir;
-		return baseDir;
-	}
+    @NotNull
+    private static Path normalizePath(Path givenBaseDir) {
+        if (!givenBaseDir.isAbsolute()) {
+            givenBaseDir = givenBaseDir.toAbsolutePath().normalize();
+        }
+        final Path baseDir = givenBaseDir;
+        return baseDir;
+    }
 
 }
