@@ -12,7 +12,7 @@
     <url>https://github.com/spring-projects/spring-rewrite-commons</url>
 
     <organization>
-        <name>Broadcom Inc.</name>
+        <name>VMware Inc.</name>
         <url>https://spring.io</url>
     </organization>
 
@@ -36,8 +36,6 @@
         <junit-pioneer.version>2.1.0</junit-pioneer.version>
 
         <!-- plugins -->
-        <artifactory-maven-plugin.version>3.6.1</artifactory-maven-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <spring-javaformat-maven-plugin.version>0.0.39</spring-javaformat-maven-plugin.version>
 
