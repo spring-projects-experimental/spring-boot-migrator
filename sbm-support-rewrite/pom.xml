@@ -289,6 +289,15 @@
             <scope>test</scope>
         </dependency>
         <!-- END: Required by PrivateArtifactRepositoryTest -->
+
+        <!-- get rid of [WARNING] unknown enum constant javax.annotation.meta.When.MAYBE -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
