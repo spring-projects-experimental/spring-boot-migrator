@@ -45,9 +45,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Project parser parsing resources under a given {@link Path} to OpenRewrite abstract
- * syntax tree (AST). The implementation aims to produce the exact same result as the
- * build tool plugins provided by OpenRewrite. The AST is provided as
+ * Project parser parsing resources under a given {@link Path} to OpenRewrite Lossless Semantic Tree (LST).
+ * The implementation aims to produce the exact same result as the
+ * build tool plugins provided by OpenRewrite. The LST is provided as
  * {@code List<}{@link SourceFile}{@code >}.
  *
  * <p>
@@ -55,11 +55,8 @@ import java.util.Map;
  *
  * <pre>{@code
  *  Path projectBaseDir = ...
- *  RewriteProjectParser parser = ...
- *  RewriteRecipeDiscovery discovery = ...
  *  RewriteProjectParsingResult parsingResult = parser.parse(projectBaseDir);
  *  List<SourceFile> ast = parsingResult.sourceFiles();
- *  ExecutionContext ctx = parsingResult.executionContext();
  *  List<Recipe> recipes = discovery.discoverRecipes();
  *  RecipeRun recipeRun = recipes.get(0).run(ast, ctx);
  *  }
@@ -67,6 +64,7 @@ import java.util.Map;
  *
  * @author Fabian Krüger
  * @see org.springframework.sbm.recipes.RewriteRecipeDiscovery
+ * @see <a href="https://docs.openrewrite.org/concepts-explanations/lossless-semantic-trees">LST</a>
  */
 @Slf4j
 @RequiredArgsConstructor
