@@ -473,7 +473,7 @@ limitations under the License.
                                 </goals>
                                 <configuration>
                                     <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-                                    <outputDirectory>${basedir}/target/delomboked</outputDirectory>
+                                    <outputDirectory>${basedir}/target/generated-sources/delomboked</outputDirectory>
                                 </configuration>
                             </execution>
                         </executions>
