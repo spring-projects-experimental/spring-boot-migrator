@@ -15,10 +15,7 @@
  */
 package org.springframework.sbm.project.resource;
 
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.Recipe;
-import org.openrewrite.Result;
-import org.openrewrite.SourceFile;
+import org.openrewrite.*;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
 
 import java.nio.file.Path;
@@ -76,6 +73,11 @@ public class ProjectResourceSet {
     }
 
     public void apply(Recipe... recipes) {
+        RecipeRun recipeRun = applyAndGet(recipes);
+        migrationResultMerger.mergeResults(this, recipeRun.getChangeset().getAllResults());
+    }
+
+    public RecipeRun applyAndGet(Recipe... recipes) {
         InMemoryLargeSourceSet largeSourceSet = new InMemoryLargeSourceSet(
                 projectResources.stream()
                         .map(RewriteSourceFileHolder::getSourceFile)
@@ -83,7 +85,7 @@ public class ProjectResourceSet {
                         .map(SourceFile.class::cast)
                         .toList()
         );
-        List<Result> results = new Recipe() {
+        RecipeRun results = new Recipe() {
             @Override
             public String getDisplayName() {
                 return "Run a list of recipes";
@@ -99,11 +101,9 @@ public class ProjectResourceSet {
                 return Arrays.asList(recipes);
             }
         }
-        .run(largeSourceSet, executionContext)
-        .getChangeset()
-        .getAllResults();
+        .run(largeSourceSet, executionContext);
 
-        migrationResultMerger.mergeResults(this, results);
+        return results;
     }
 
     void clearDeletedResources() {
