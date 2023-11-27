@@ -1,12 +1,8 @@
-name: Build SBM Legacy
+name: Build Spring Rewrite Commons
 on:
   push:
     branches:
       - "**"
-    branches-ignore:
-      - "version/revamp"
-    paths-ignore:
-      - "sbm-support-rewrite/**"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,7 +12,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 17
