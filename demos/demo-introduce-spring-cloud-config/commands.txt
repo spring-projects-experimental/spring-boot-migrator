@@ -1,3 +1,0 @@
-s ./testcode/result/demo-application
-a cn-spring-cloud-config-server
-exit
