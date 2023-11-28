@@ -2,20 +2,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.springframework.rewrite</groupId>
-    <artifactId>spring-rewrite-commons</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <parent>
+        <groupId>org.springframework.rewrite</groupId>
+        <artifactId>spring-rewrite-commons-functional-tests</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-    <name>Spring OpenRewrite Commons</name>
-    <description>Run OpenRewrite recipes without a build tool plugin</description>
+    <artifactId>private-artifact-repository-tests</artifactId>
+
+    <description>Functional tests for Spring Rewrite Commons using a private artifact repository</description>
     <url>https://github.com/spring-projects/spring-rewrite-commons</url>
-
-    <modules>
-        <module>spring-rewrite-commons-launcher</module>
-        <module>spring-rewrite-commons-functional-tests</module>
-        <module>spring-rewrite-commons-examples</module>
-    </modules>
 
     <organization>
         <name>VMware Inc.</name>
@@ -23,9 +20,6 @@
     </organization>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- prod dependencies -->
         <spring-boot.version>3.1.3</spring-boot.version>
@@ -101,19 +95,21 @@
         </license>
     </licenses>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.rewrite</groupId>
+            <artifactId>spring-rewrite-commons-launcher</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.rewrite</groupId>
+            <artifactId>spring-rewrite-commons-launcher</artifactId>
+            <classifier>tests</classifier>
+            <type>test-jar</type>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+
+
         <!-- prod dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
