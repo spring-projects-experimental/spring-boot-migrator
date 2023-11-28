@@ -1,0 +1,15 @@
+**/target
+**/.rewrite-cache
+/dependency-project/pom.xml
+/dependent-project/pom.xml
+/user.home/.config/
+/user.home/apache-maven-3.9.5/
+/user.home/.m2/repository
+/user.home/.m2/settings.xml
+!/user.home/.m2/settings.xml.template
+!/user.home/.m2/settings-security.xml
+/reposilite-data/static
+/reposilite-data/.local
+/reposilite-data/plugins
+/reposilite-data/reposilite.db
+/reposilite-data/configuration.cdn
