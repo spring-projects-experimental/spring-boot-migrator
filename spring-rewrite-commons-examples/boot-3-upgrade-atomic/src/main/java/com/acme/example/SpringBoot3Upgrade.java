@@ -39,55 +39,63 @@ import java.util.Optional;
  */
 @SpringBootApplication
 public class SpringBoot3Upgrade implements CommandLineRunner {
-    public static void main(String[] args) {
-        SpringApplication.run(SpringBoot3Upgrade.class, args);
-    }
 
-    @Autowired
-    RewriteProjectParser parser;
-    @Autowired
-    ProjectScanner scanner;
-    @Autowired
-    RewriteRecipeDiscovery discovery;
-    @Autowired
-    ExecutionContext executionContext;
-    @Autowired
-    ProjectResourceSetSerializer serializer;
-    @Autowired
-    ProjectResourceSetFactory projectResourceSetFactory;
+	public static void main(String[] args) {
+		SpringApplication.run(SpringBoot3Upgrade.class, args);
+	}
 
-    @EventListener(StartedParsingResourceEvent.class)
-    public void onStartedParsingResourceEvent(StartedParsingResourceEvent event) {
-        System.out.println();
-    }
+	@Autowired
+	RewriteProjectParser parser;
 
-    @Override
-    public void run(String... args) throws Exception {
-        Path baseDir = null;
-        if(args.length == 0) {
-            throw new IllegalArgumentException("A path must be provided");
-        } else {
-            String pathStr = args[0];
-            baseDir = Path.of(pathStr);
-        }
+	@Autowired
+	ProjectScanner scanner;
 
-        // scan
-        List<Resource> resources = scanner.scan(baseDir);
+	@Autowired
+	RewriteRecipeDiscovery discovery;
 
-        // parse
-        RewriteProjectParsingResult parsingResult = parser.parse(baseDir);
-        List<SourceFile> sourceFiles = parsingResult.sourceFiles();
-        ProjectResourceSet projectResourceSet = projectResourceSetFactory.create(baseDir, sourceFiles);
+	@Autowired
+	ExecutionContext executionContext;
 
-        // discover
-        String recipeName = "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1";
-        List<Recipe> recipes = discovery.discoverRecipes();
-        Optional<Recipe> recipe = recipes.stream().filter(r -> recipeName.equals(r.getName())).findFirst();
+	@Autowired
+	ProjectResourceSetSerializer serializer;
 
-        // apply
-        recipe.ifPresent((Recipe r) -> {
-            projectResourceSet.apply(r);
-            serializer.writeChanges(projectResourceSet);
-        });
-    }
+	@Autowired
+	ProjectResourceSetFactory projectResourceSetFactory;
+
+	@EventListener(StartedParsingResourceEvent.class)
+	public void onStartedParsingResourceEvent(StartedParsingResourceEvent event) {
+		System.out.println();
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		Path baseDir = null;
+		if (args.length == 0) {
+			throw new IllegalArgumentException("A path must be provided");
+		}
+		else {
+			String pathStr = args[0];
+			baseDir = Path.of(pathStr);
+		}
+
+		// scan
+		List<Resource> resources = scanner.scan(baseDir);
+
+		// parse
+		RewriteProjectParsingResult parsingResult = parser.parse(baseDir);
+		List<SourceFile> sourceFiles = parsingResult.sourceFiles();
+		ProjectResourceSet projectResourceSet = projectResourceSetFactory.create(baseDir, sourceFiles);
+
+		// discover
+		String recipeName = "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1";
+		List<Recipe> recipes = discovery.discoverRecipes();
+		Optional<Recipe> recipe = recipes.stream().filter(r -> recipeName.equals(r.getName())).findFirst();
+
+		// apply
+		recipe.ifPresent((Recipe r) -> {
+			projectResourceSet.apply(r);
+			serializer.writeChanges(projectResourceSet);
+		});
+	}
+
 }
