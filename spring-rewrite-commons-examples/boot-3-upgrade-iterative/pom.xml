@@ -11,7 +11,7 @@
     <groupId>com.example</groupId>
     <artifactId>boot-3-upgrade-iterative</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>boot-upgrade-iterative</name>
+    <name>Spring Rewrite Commons Examples - Boot 3 Iterative Upgrade</name>
     <description>boot-upgrade-iterative</description>
     <properties>
         <java.version>17</java.version>
