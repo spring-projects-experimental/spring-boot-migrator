@@ -13,6 +13,7 @@
 
     <modules>
         <module>spring-rewrite-commons-launcher</module>
+        <module>spring-rewrite-commons-docs</module>
         <module>spring-rewrite-commons-examples</module>
     </modules>
 
@@ -40,16 +41,25 @@
         <maven-invoker.version>3.2.0</maven-invoker.version>
         <junit-pioneer.version>2.1.0</junit-pioneer.version>
 
+        <!-- documentation dependencies -->
+        <io.spring.maven.antora-version>0.0.4</io.spring.maven.antora-version>
+        <asciidoctorj-pdf.version>1.6.2</asciidoctorj-pdf.version>		<!-- FIXME build failure with version 2.3.9 -->
+        <asciidoctorj-epub.version>1.5.1</asciidoctorj-epub.version>
+        <spring-asciidoctor-backends.version>0.0.6</spring-asciidoctor-backends.version>
+
         <!-- plugins -->
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
         <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
-        <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
+        <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
+        <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
+        <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
         <spring-javaformat-maven-plugin.version>0.0.39</spring-javaformat-maven-plugin.version>
         <license-maven-plugin.version>4.1</license-maven-plugin.version>
         <lombok-maven-plugin.version>1.18.20.0</lombok-maven-plugin.version>
         <artifactory-maven-plugin.version>3.6.1</artifactory-maven-plugin.version>
+        <asciidoctor-maven-plugin.version>2.2.3</asciidoctor-maven-plugin.version>
 
         <!-- Should be same as the Spring managed version -->
         <lombok.version.annotationProcessorPath>1.18.28</lombok.version.annotationProcessorPath>

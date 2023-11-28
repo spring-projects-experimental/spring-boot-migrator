@@ -1,0 +1,12 @@
+name: spring-rewrite-commons
+version: true
+title: Spring Rewrite Commons
+nav:
+  - modules/ROOT/nav.adoc
+ext:
+  collector:
+    - run:
+        command: mvnw process-resources
+        local: true
+      scan:
+        dir: spring-rewrite-commons-docs/target/classes/antora-resources

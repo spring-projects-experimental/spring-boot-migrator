@@ -1,0 +1,44 @@
+= Appendix
+
+== Appendix A: Spring Rewrite Commons Configuration Properties
+
+|===
+|Property |Default Value |Description
+
+| `parser.pomCacheEnabled`
+| `false`
+| Set to 'true' to use a composite cache of `RocksdbMavenPomCache` and `InMemoryMavenPomCache`. Otherwise, use OpenRewrite's `InMemoryMavenPomCache`.
+
+| `parser.pomCacheDirectory`
+| `~/.rewrite-cache`
+| Defines the cache dir for `RocksdbMavenPomCache` when `parser.pomCacheEnabled` is `true`.
+
+| `parser.skipMavenParsing`
+| `false`
+|
+
+| `parser.plainTextMasks`
+| `*.txt`
+|
+
+| `parser.sizeThresholdMb`
+| `10`
+|
+
+| `parser.runPerSubmodule`
+| `false`
+|
+
+| `parser.failOnInvalidActiveRecipes`
+| `true`
+|
+
+| `parser.activeProfiles`
+| `default`
+|
+
+| `parser.ignoredPathPatterns`
+| `**.idea/**,**.git/**,**/target/**,target/**`
+|
+
+|===

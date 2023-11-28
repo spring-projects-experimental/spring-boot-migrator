@@ -1,0 +1,67 @@
+[[introduction]]
+= Spring Rewrite Commons
+
+
+
+== Overview
+The Spring Rewrite Commons project provides a thin abstraction on top of https://github.com/openrewrite/[OpenRewrite].
+
+It helps to parse Java projects and apply OpenRewrite recipes without the need of a build tool plugin.
+Aiming to provide the foundation for custom Spring Boot applications using OpenRewrite capabilities.
+
+It provides these components
+
+* `xref:concepts.adoc#_rewriteprojectparser[RewriteProjectParser]` - Parse a project to a https://docs.openrewrite.org/concepts-explanations/lossless-semantic-trees[Lossless Semantic Tree] (LST).
+* `xref:concepts.adoc#_recipediscovery[RewriteRecipeDiscovery]` - Discover recipes on the classpath
+* `xref:concepts.adoc#_projectresourceset[ProjectResourceSet]` - Run https://github.com/openrewrite/[OpenRewrite] recipes sequentially.
+* `xref:concepts.adoc#_projectresourcesetserializer[ProjectResourceSetSerializer]` Synchronize the filesystem with recipe results
+
+And some helpers for xref:testing.adoc[writing tests].
+
+== Using Spring Rewrite Commons
+Currently only SNAPSHOT releases are available from https://repo.spring.io.
+To access these, a repository must be added to the project pom.xml.
+
+[source,xml]
+.....
+<repositories>
+    <repository>
+        <id>spring-snapshot</id>
+        <url>https://repo.spring.io/snapshot</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+    </repository>
+</repositories>
+.....
+
+Then the dependency can be retrieved.
+Which makes the components available as Spring beans.
+
+[source,xml]
+.....
+<dependency>
+    <groupId>org.springframwork.experimental</groupId>
+    <artifactId>spring-rewrite-commons</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+</dependency>
+.....
+
+
+== Examples
+Some working examples exist to demo things you can build using this project.
+
+* file://spring-rewrite-commons-examples/boot-3-upgrade-atomic[Atomically upgrade a Spring Boot application]
+* file://spring-rewrite-commons-examples/boot-3-upgrade-iterative[Iteratively upgrade a Spring Boot application using PRs]
+* file://spring-rewrite-commons-examples/list-applicable-recipes-example[Find applicable recipes by doing a dry-run]
+
+All examples can be found file://spring-rewrite-commons-examples[here].
+
+== Limitations
+The project has currently some limitations which we're working on.
+
+. *Only Maven supported.* +
+  OpenRewrite provides a build tool plugin for Gradle projects.
+  This project currently only parses Maven projects.
+. *Only Java supported.* +
+OpenRewrite can parse other languages than Java, especially Kotlin. This is not yet supported.
