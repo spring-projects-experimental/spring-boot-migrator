@@ -19,7 +19,7 @@ jobs:
           cache: 'maven'
 
       - name: Maven Build
-        run: ./mvnw --batch-mode clean package
+        run: ./mvnw --batch-mode --fail-at-end clean package
 
       - name: Deploy Snapshot
         env:
