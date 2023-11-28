@@ -16,6 +16,7 @@
 
 	<modules>
 		<module>boot-3-upgrade-atomic</module>
+		<module>boot-3-upgrade-iterative</module>
 		<module>list-applicable-recipes-example</module>
 	</modules>
 
