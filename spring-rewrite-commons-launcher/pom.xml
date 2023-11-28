@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -11,7 +12,7 @@
 
     <artifactId>spring-rewrite-commons-launcher</artifactId>
 
-    <name>Spring Support for OpenRewrite</name>
+    <name>Spring Rewrite Commons Launcher</name>
     <description>Run OpenRewrite recipes without a build tool plugin</description>
     <url>https://github.com/spring-projects/spring-rewrite-commons</url>
 
@@ -71,8 +72,8 @@
         <url>https://github.com/spring-projects/rewrite-commons</url>
         <connection>scm:git:https://github.com/spring-projects/spring-rewrite-commons</connection>
         <developerConnection>scm:git:https://github.com/spring-projects/spring-rewrite-commons.git</developerConnection>
-      <tag>spring-rewrite-commons-0.1.0</tag>
-  </scm>
+        <tag>spring-rewrite-commons-0.1.0</tag>
+    </scm>
     <issueManagement>
         <system>Github Issues</system>
         <url>https://github.com/spring-projects/spring-rewrite-commons/issues</url>
@@ -359,7 +360,7 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>1.18.28</version>
-<!--                            <version>${lombok.version.annotationProcessorPath}</version>-->
+                            <!--                            <version>${lombok.version.annotationProcessorPath}</version>-->
                         </path>
                         <path>
                             <groupId>org.springframework.boot</groupId>
@@ -389,17 +390,20 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>${maven-jar-plugin.version}</version>
                 <executions>
                     <execution>
+                        <id>test</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
+                        <configuration>
+                            <classifier>test</classifier>
+                            <includes>**/parsers/maven/**</includes>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <includes>**/parsers/maven/**</includes>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.mycila</groupId>
@@ -416,7 +420,7 @@
                 <configuration>
                     <properties>
                         <owner>the original author or authors.</owner>
-                        <email />
+                        <email/>
                         <year>2023</year>
                     </properties>
                     <licenseSets>
@@ -510,7 +514,8 @@ limitations under the License.
                                     <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <classesDirectory>${project.build.directory}/generated-sources/delomboked</classesDirectory>
+                                    <classesDirectory>${project.build.directory}/generated-sources/delomboked
+                                    </classesDirectory>
                                     <archive>
                                         <manifestEntries>
                                             <Implementation-Title>${project.artifactId}</Implementation-Title>

@@ -13,7 +13,6 @@
 
     <modules>
         <module>spring-rewrite-commons-launcher</module>
-        <module>spring-rewrite-commons-functional-tests</module>
         <module>spring-rewrite-commons-examples</module>
     </modules>
 

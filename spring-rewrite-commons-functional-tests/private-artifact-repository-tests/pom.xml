@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -19,37 +20,6 @@
         <url>https://spring.io</url>
     </organization>
 
-    <properties>
-
-        <!-- prod dependencies -->
-        <spring-boot.version>3.1.3</spring-boot.version>
-        <rewrite.version>8.5.1</rewrite.version>
-        <rewrite-maven-plugin.version>5.3.2</rewrite-maven-plugin.version>
-        <jaxb-api.version>2.3.1</jaxb-api.version>
-
-        <!-- testing dependencies -->
-        <maven.version>3.9.1</maven.version>
-        <maven-resolver.version>1.9.13</maven-resolver.version>
-        <maven-wagon-http.version>3.5.3</maven-wagon-http.version>
-        <plexus-cypher.version>1.8</plexus-cypher.version>
-        <maven-invoker.version>3.2.0</maven-invoker.version>
-        <junit-pioneer.version>2.1.0</junit-pioneer.version>
-
-        <!-- plugins -->
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
-        <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
-        <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
-        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-        <spring-javaformat-maven-plugin.version>0.0.39</spring-javaformat-maven-plugin.version>
-        <license-maven-plugin.version>4.1</license-maven-plugin.version>
-        <lombok-maven-plugin.version>1.18.20.0</lombok-maven-plugin.version>
-        <artifactory-maven-plugin.version>3.6.1</artifactory-maven-plugin.version>
-
-        <!-- Should be same as the Spring managed version -->
-        <lombok.version.annotationProcessorPath>1.18.28</lombok.version.annotationProcessorPath>
-    </properties>
-
     <developers>
         <developer>
             <id>fkrueger</id>
@@ -67,8 +37,8 @@
         <url>https://github.com/spring-projects/rewrite-commons</url>
         <connection>scm:git:https://github.com/spring-projects/spring-rewrite-commons</connection>
         <developerConnection>scm:git:https://github.com/spring-projects/spring-rewrite-commons.git</developerConnection>
-      <tag>spring-rewrite-commons-0.1.0</tag>
-  </scm>
+        <tag>spring-rewrite-commons-0.1.0</tag>
+    </scm>
     <issueManagement>
         <system>Github Issues</system>
         <url>https://github.com/spring-projects/spring-rewrite-commons/issues</url>
@@ -99,6 +69,7 @@
         <dependency>
             <groupId>org.springframework.rewrite</groupId>
             <artifactId>spring-rewrite-commons-launcher</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.rewrite</groupId>
@@ -120,65 +91,65 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-maven</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-java</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-java-17</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-json</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-yaml</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-hcl</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-protobuf</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-xml</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite</groupId>
-            <artifactId>rewrite-properties</artifactId>
-            <version>${rewrite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>${jaxb-api.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.squareup.okhttp3</groupId>-->
+<!--            <artifactId>okhttp</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.openrewrite</groupId>-->
+<!--            <artifactId>rewrite-maven</artifactId>-->
+<!--            <version>${rewrite.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.openrewrite</groupId>-->
+<!--            <artifactId>rewrite-java</artifactId>-->
+<!--            <version>${rewrite.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.openrewrite</groupId>-->
+<!--            <artifactId>rewrite-java-17</artifactId>-->
+<!--            <version>${rewrite.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.openrewrite</groupId>-->
+<!--            <artifactId>rewrite-json</artifactId>-->
+<!--            <version>${rewrite.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.openrewrite</groupId>-->
+<!--            <artifactId>rewrite-yaml</artifactId>-->
+<!--            <version>${rewrite.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.openrewrite</groupId>-->
+<!--            <artifactId>rewrite-hcl</artifactId>-->
+<!--            <version>${rewrite.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.openrewrite</groupId>-->
+<!--            <artifactId>rewrite-protobuf</artifactId>-->
+<!--            <version>${rewrite.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.openrewrite</groupId>-->
+<!--            <artifactId>rewrite-xml</artifactId>-->
+<!--            <version>${rewrite.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.openrewrite</groupId>-->
+<!--            <artifactId>rewrite-properties</artifactId>-->
+<!--            <version>${rewrite.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.projectlombok</groupId>-->
+<!--            <artifactId>lombok</artifactId>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>javax.xml.bind</groupId>-->
+<!--            <artifactId>jaxb-api</artifactId>-->
+<!--            <version>${jaxb-api.version}</version>-->
+<!--        </dependency>-->
         <!-- required by MavenPasswordDecrypter -->
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
@@ -357,7 +328,7 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>1.18.28</version>
-<!--                            <version>${lombok.version.annotationProcessorPath}</version>-->
+                            <!--                            <version>${lombok.version.annotationProcessorPath}</version>-->
                         </path>
                         <path>
                             <groupId>org.springframework.boot</groupId>
@@ -399,7 +370,7 @@
                 <configuration>
                     <properties>
                         <owner>the original author or authors.</owner>
-                        <email />
+                        <email/>
                         <year>2023</year>
                     </properties>
                     <licenseSets>
@@ -493,7 +464,8 @@ limitations under the License.
                                     <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <classesDirectory>${project.build.directory}/generated-sources/delomboked</classesDirectory>
+                                    <classesDirectory>${project.build.directory}/generated-sources/delomboked
+                                    </classesDirectory>
                                     <archive>
                                         <manifestEntries>
                                             <Implementation-Title>${project.artifactId}</Implementation-Title>
