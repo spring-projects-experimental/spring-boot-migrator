@@ -49,8 +49,6 @@ The project has currently some limitations.
   This project currently only parses Maven projects.
 . No Kotlin support. +
 OpenRewrite can parse other languages than Java, especially Kotlin. This is not yet supported.
-. Supports only Java 17 +
-OpenRewrite uses JDK internals and provides dedicated parsers. Currently only Java 17 parser is supported.
 . Inherited version will just be read from direct parent. Meaning a version from a parent with distance > 1 will be empty (`null`)
 . Maven profiles are currently ignored and 'default' profile is used
 . Styles are not supported +
