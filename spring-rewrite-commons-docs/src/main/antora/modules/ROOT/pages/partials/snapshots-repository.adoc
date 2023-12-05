@@ -1,0 +1,30 @@
+Currently only SNAPSHOT releases are available from the https://repo.spring.io[Spring Repository,window=_blank].
+The repository information must be added to the project build file.
+
+[tabs]
+======
+Maven::
++
+[source,xml,indent=0,subs="verbatim,quotes",role="primary"]
+.....
+<repositories>
+    <repository>
+        <id>spring-snapshot</id>
+        <url>https://repo.spring.io/snapshot</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+    </repository>
+</repositories>
+.....
+
+Gradle::
++
+[source,groovy,indent=0,subs="verbatim,quotes",role="secondary"]
+----
+repositories {
+    mavenCentral()
+    maven { url "http://repo.spring.io/libs-snapshot" }
+}
+----
+======

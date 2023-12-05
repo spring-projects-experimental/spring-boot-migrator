@@ -7,7 +7,7 @@
 
 | `parser.pomCacheEnabled`
 | `false`
-| Set to 'true' to use a composite cache of `RocksdbMavenPomCache` and `InMemoryMavenPomCache`. Otherwise, use OpenRewrite's `InMemoryMavenPomCache`.
+| Set to `true` to use a composite cache of `RocksdbMavenPomCache` and `InMemoryMavenPomCache`. Otherwise, use OpenRewrite's `InMemoryMavenPomCache`.
 
 | `parser.pomCacheDirectory`
 | `~/.rewrite-cache`

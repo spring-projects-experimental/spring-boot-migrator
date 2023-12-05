@@ -1,37 +1,19 @@
 [[concepts]]
 = Spring Rewrite Commons Concepts
 
-* Feature parity with Rewrite Maven Plugin
-* How this allows building tools on top of OpenRewrite
-* Scoped beans
+This sections describes the important concepts of Spring Rewrite Commons and how they relate to concepts from OpenRewrite.
+Running OpenRewrite recipes requires a given project to be parsed to create the LST for it.
 
+== Parsing a Project
+Spring Rewrite Commons aims to yield the same parsing result (LST) as OpenRewrite's `rewrite-maven-plugin`.
+This allows access to the LST from outside the execution of `rewrite-maven-plugin`.
 
+=== RewriteProjectParser
+The `RewriteProjectParser` component is a Spring bean and offers the API to parse projects to OpenRewrite LST.
 
-The following components can be used to parse a project, run recipes and write changes back to the filesystem.
-These components are provided as Spring beans and can be injected into other Spring beans that require them.
+==== Parse a Path
+When the application exists on the local filesystem, the path to the project is enough to parse the project to its LST.
 
-_Example: Inject RewriteProjectParser into your Spring bean_
-[source,java]
-....
-@Autowired
-RewriteProjectParser parser;
-....
-
-== ProjectScanner
-Scan a given path to a list of ``https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/io/Resource.html[Resource]``s using filter definitions provided through xref:properties.adoc[application properties].
-
-[source, java]
-....
-Path baseDir = ...
-List<Resource> resources = scanner.scan(baseDir);
-....
-
-== RewriteProjectParser
-Parses a project to OpenRewrite's LST.
-The parser aims to produce the exact LST as the OpenRewrite Maven plugins does.
-This allows to run recipes outside OpenRewrite's Maven plugin while yielding the same results.
-
-=== Parse a project
 [source, java]
 ....
 Path baseDir = ...
@@ -39,7 +21,10 @@ RewriteProjectParsingResult result = parser.parse(baseDir);
 List<SourceFile> lst = result.sourceFiles();
 ....
 
-=== Parse a List of Resources
+==== Parse a List of Resources
+It is also possible to provide a list of ``https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/io/Resource.html[Resource]``s and their baseDir.
+This allows to provide synthetic resources that only exist in-memory which is helpful to test migration recipes without disk IO.
+
 [source, java]
 ....
 Path baseDir = ...
@@ -48,76 +33,29 @@ List<SourceFile> lst = parser.parse(baseDir, List<Resource> resources);
 List<SourceFile> lst = result.sourceFiles();
 ....
 
-== RewriteExecutionContext
-OpenRewrite's `ExecutionContext` gets initialized during parsing.
-This `ExecutionContext` is required to run recipes and for the inner workings of OpenRewrite.
 
-== RecipeDiscovery
-Discover OpenRewrite recipes on classpath.
-These can be custom recipes or recipes provided through https://docs.openrewrite.org/recipes[OpenRewrite's Recipe Catalog]
+== Provided Scoped Beans
+OpenRewrite initializes some while during parsing a project.
+These objects provide information required to execute recipes.
+Spring Rewrite Commons provides access to these objects through scoped beans.
+The lifetime of these beans starts with the successful parse of a project, and ends with the next parse or when the application is closed.
 
-=== Access the RecipeDiscovery
-The `RecipeDiscovery` component is provided as Spring Bean and can be injected as such, e.g. by using `@Autowired`.
-
-[source,java]
-....
-@Autowired
-private RecipeDiscovery discovery;
-....
-
-=== Discover recipes by name
-A single OpenRewrite recipe can be discovered by name.
-
-[source,java]
-....
-Optional<Recipe> recipe = discovery.findRecipeByName("recipe name");
-....
-
-=== Discover all recipes
-All available OpenRewrite recipes can be discovered.
-
-[source,java]
-....
-List<Recipe> recipes = discovery.findAllRecipes();
-....
-
-== ProjectResourceSet
-Abstraction of OpenRewrite SourceFiles that allows execution of recipes against the SourceFiles while changes are transparently synchronized with the initial list of SourceFiles.
-
-=== Creating a ProjectResourceSet
-`ProjectResourceSet` is not a Spring bean itself.
-The `ProjectResourceSetFactory` is provided as Spring bean and can be injected
+=== ExecutionContext
+OpenRewrite has the concept of an `ExecutionContext`.
+The `ExecutionContext` holds information required during recipe execution.
+This means the exact same instance needs to be provided to recipe runs.
+Spring Rewrite Commons provides the right instance as scoped Spring bean `RewriteExecutionContext`.
+This bean can be injected to other Spring Beans in an application and provides access to the `ExecutionContext`.
 
 [source, java]
 ....
-@Autowired
-ProjectResourceSetFactory resourceSetFactory;
-....
+@Component
+public class MyComponent {
+    @Autowired
+    private ExecutionContext executionContext;
 
-and used to create `ProjectResourceSet` instances
-
-[source, java]
-....
-ProjectResourceSet resourceSet = resourceSetFactory.create(baseDir, lst);
-....
-
-=== Applying recipes
-
-The `ProjectResourceSet` can be used to sequentially apply OpenRewrite recipes. The results from each recipe run is transparently merged back into the initial LST.
-
-[source, java]
-....
-ProjectResourceSet rs = projectResourceSetFactory.create(baseDir, lst);
-
-rs.apply(firstRecipe);
-rs.apply(secondRecipe);
-rs.apply(thirdRecipe);
-....
-
-== ProjectResourceSetSerializer
-`ProjectResourceSetSerializer` helps to synchronize the modified in-memory representation of the scanned project to the filesystem, effectively applying the changes to the codebase (add, update, delete).
-
-[source, java]
-....
-projectResourceSetSerializer.writeChanges(projectResourceSet);
+    public void runRecipe() {
+        Recipe recipe = new SomeOpenRewriteRecipe();
+    }
+}
 ....

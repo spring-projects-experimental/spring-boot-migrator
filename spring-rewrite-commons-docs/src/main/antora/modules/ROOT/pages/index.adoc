@@ -1,55 +1,39 @@
 [[introduction]]
+
 = Spring Rewrite Commons
-
-
+Fabian Krüger
+:revnumber: {projectVersion}
+:revdate: {localdate}
+:toc: left
+:iconfont-fontawesome:
 
 == Overview
-The Spring Rewrite Commons project provides a thin abstraction on top of https://github.com/openrewrite/[OpenRewrite].
+Spring Rewrite Commons provides abstractions and parsers for https://github.com/openrewrite/[OpenRewrite].
+The project can parse Java projects using Maven and apply OpenRewrite recipes without the need of a build tool plugin.
+It aims to become the foundation for Spring Boot applications using OpenRewrite.
 
-It helps to parse Java projects and apply OpenRewrite recipes without the need of a build tool plugin.
-Aiming to provide the foundation for custom Spring Boot applications using OpenRewrite capabilities.
+https://github.com/openrewrite/[OpenRewrite] is a code refactoring, remediation, and modernization automation tool providing a rich https://docs.openrewrite.org/recipes[catalog of recipes] for tasks like automated code transformations.
 
-It provides these components
+These are the main components offered by Spring Rewrite Commons:
 
-* `xref:concepts.adoc#_rewriteprojectparser[RewriteProjectParser]` - Parse a project to a https://docs.openrewrite.org/concepts-explanations/lossless-semantic-trees[Lossless Semantic Tree] (LST).
-* `xref:concepts.adoc#_recipediscovery[RewriteRecipeDiscovery]` - Discover recipes on the classpath
-* `xref:concepts.adoc#_projectresourceset[ProjectResourceSet]` - Run https://github.com/openrewrite/[OpenRewrite] recipes sequentially.
-* `xref:concepts.adoc#_projectresourcesetserializer[ProjectResourceSetSerializer]` Synchronize the filesystem with recipe results
+* `xref:concepts.adoc#_rewriteprojectparser[RewriteProjectParser]` - Parse a project to an OpenRewrite https://docs.openrewrite.org/concepts-explanations/lossless-semantic-trees[Lossless Semantic Tree] (LST).
+* `xref:concepts.adoc#_recipediscovery[RewriteRecipeDiscovery]` - Discover recipes on the classpath.
+* `xref:concepts.adoc#_projectresourceset[ProjectResourceSet]` - Encapsulates the LST to run https://github.com/openrewrite/[OpenRewrite] recipes sequentially.
+* `xref:concepts.adoc#_projectresourcesetserializer[ProjectResourceSetSerializer]` - Serialize the current state of the `ProjectResourceSet` to the filesystem.
+* Some helpers for xref:testing.adoc[testíng] also exist
 
-And some helpers for xref:testing.adoc[writing tests].
 
 == Using Spring Rewrite Commons
-Currently only SNAPSHOT releases are available from https://repo.spring.io.
-To access these, a repository must be added to the project pom.xml.
 
-[source,xml]
-.....
-<repositories>
-    <repository>
-        <id>spring-snapshot</id>
-        <url>https://repo.spring.io/snapshot</url>
-        <releases>
-            <enabled>false</enabled>
-        </releases>
-    </repository>
-</repositories>
-.....
+include::partials/snapshots-repository.adoc[]
 
 Then the dependency can be retrieved.
-Which makes the components available as Spring beans.
 
-[source,xml]
-.....
-<dependency>
-    <groupId>org.springframwork.experimental</groupId>
-    <artifactId>spring-rewrite-commons</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
-</dependency>
-.....
+include::partials/dependency-code.adoc[]
 
 
 == Examples
-Some working examples exist to demo things you can build using this project.
+Some working examples exist to demo what can be built using Spring Rewrite Commons.
 
 * file://spring-rewrite-commons-examples/boot-3-upgrade-atomic[Atomically upgrade a Spring Boot application]
 * file://spring-rewrite-commons-examples/boot-3-upgrade-iterative[Iteratively upgrade a Spring Boot application using PRs]
@@ -58,10 +42,18 @@ Some working examples exist to demo things you can build using this project.
 All examples can be found file://spring-rewrite-commons-examples[here].
 
 == Limitations
-The project has currently some limitations which we're working on.
+The project has currently some limitations.
 
-. *Only Maven supported.* +
+. No Gradle support. +
   OpenRewrite provides a build tool plugin for Gradle projects.
   This project currently only parses Maven projects.
-. *Only Java supported.* +
+. No Kotlin support. +
 OpenRewrite can parse other languages than Java, especially Kotlin. This is not yet supported.
+. Supports only Java 17 +
+OpenRewrite uses JDK internals and provides dedicated parsers. Currently only Java 17 parser is supported.
+. Inherited version will just be read from direct parent. Meaning a version from a parent with distance > 1 will be empty (`null`)
+. Maven profiles are currently ignored and 'default' profile is used
+. Styles are not supported +
+OpenRewrite styles are currently not supported.
+. Migrating projects for Maven plugins might fail +
+Maven plugin projects (modules) are currently ignored when building the reactor order.

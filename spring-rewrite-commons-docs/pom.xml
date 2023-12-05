@@ -89,6 +89,8 @@
                                 <highlightjs-theme>github</highlightjs-theme>
                                 <idprefix />
                                 <idseparator>-</idseparator>
+                                <project-name>${project.name}</project-name>
+                                <projectVersion>${project.version}</projectVersion>
                                 <spring-version>${project.version}</spring-version>
                                 <revnumber>${project.version}</revnumber>
                                 <allow-uri-read />
