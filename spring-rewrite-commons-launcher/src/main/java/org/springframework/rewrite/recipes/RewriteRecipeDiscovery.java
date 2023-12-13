@@ -161,26 +161,29 @@ public class RewriteRecipeDiscovery {
 	 */
 	public Optional<Recipe> findRecipeByName(String name) {
 		List<Recipe> filteredRecipes = getFilteredRecipes(r -> r.getName().equals(name));
-		if(filteredRecipes.size() > 1) {
+		if (filteredRecipes.size() > 1) {
 			throw new IllegalStateException("Found more than one recipe with name '%s'".formatted(name));
-		} else if(filteredRecipes.isEmpty()) {
+		}
+		else if (filteredRecipes.isEmpty()) {
 			return Optional.empty();
-		} else {
+		}
+		else {
 			return Optional.of(filteredRecipes.get(0));
 		}
 	}
 
 	public Recipe getRecipeByName(String name) {
 		List<Recipe> filteredRecipes = getFilteredRecipes(r -> r.getName().equals(name));
-		if(filteredRecipes.size() > 1) {
+		if (filteredRecipes.size() > 1) {
 			throw new IllegalArgumentException("Found more than one recipe with name '%s'".formatted(name));
-		} else if(filteredRecipes.isEmpty()) {
+		}
+		else if (filteredRecipes.isEmpty()) {
 			throw new IllegalArgumentException("No recipe found with name '%s'".formatted(name));
-		} else {
+		}
+		else {
 			return filteredRecipes.get(0);
 		}
 	}
-
 
 	@NotNull
 	public static List<Recipe> getFilteredRecipes(Predicate<Recipe> filterPredicate) {
@@ -190,7 +193,7 @@ public class RewriteRecipeDiscovery {
 		return recipes;
 	}
 
-    // class AbstractRewriteMojoHelper extends AbstractRewriteMojo {
+	// class AbstractRewriteMojoHelper extends AbstractRewriteMojo {
 	//
 	// public AbstractRewriteMojoHelper(MavenProject mavenProject) {
 	// super.project = mavenProject;
