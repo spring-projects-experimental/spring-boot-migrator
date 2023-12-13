@@ -1,3 +1,13 @@
 = Atomic Upgrade to Boot 3
 
 This example shows how to implement a simple Boot application that uses `spring-rewrite-commons` to apply a recipe that upgrades a given Spring application (<3.1) to Spring Boot 3.1.
+
+== Running the example
+
+WARNING: The example will change the sources in the provided project.
+
+From the module dir
+
+. run `mvn clean install`
+. run `java -jar target/boot-3-upgrade-atomic-0.1.0-SNAPSHOT.jar <path-to-project>`
+. Changes were applied to `<path-to-project>`

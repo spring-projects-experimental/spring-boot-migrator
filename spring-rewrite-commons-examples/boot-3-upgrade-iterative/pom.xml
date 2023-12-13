@@ -12,47 +12,24 @@
 
     <groupId>com.example</groupId>
     <artifactId>boot-3-upgrade-iterative</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+
     <name>Spring Rewrite Commons Examples - Boot 3 Iterative Upgrade</name>
-    <description>boot-upgrade-iterative</description>
+    <description>Example of iterative Boot upgrade with PRs</description>
+
     <properties>
         <java.version>17</java.version>
+        <github-api.version>1.317</github-api.version>
     </properties>
+
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.rewrite</groupId>
-            <artifactId>spring-rewrite-commons-launcher</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite.recipe</groupId>
-            <artifactId>rewrite-spring</artifactId>
-            <version>5.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openrewrite.recipe</groupId>
-            <artifactId>rewrite-migrate-java</artifactId>
-            <version>2.3.0</version>
-        </dependency>
-
         <dependency>
             <groupId>org.kohsuke</groupId>
             <artifactId>github-api</artifactId>
-            <version>1.317</version>
+            <version>${github-api.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

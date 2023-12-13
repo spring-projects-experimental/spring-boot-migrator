@@ -25,6 +25,7 @@
     <properties>
         <java.version>17</java.version>
         <rewrite-spring.version>5.0.10</rewrite-spring.version>
+        <rewrite-migrate-java.version>2.3.0</rewrite-migrate-java.version>
     </properties>
 
     <dependencyManagement>
@@ -38,6 +39,11 @@
                 <groupId>org.openrewrite.recipe</groupId>
                 <artifactId>rewrite-spring</artifactId>
                 <version>${rewrite-spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrewrite.recipe</groupId>
+                <artifactId>rewrite-migrate-java</artifactId>
+                <version>${rewrite-migrate-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -54,6 +60,15 @@
         <dependency>
             <groupId>org.openrewrite.recipe</groupId>
             <artifactId>rewrite-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-migrate-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>
