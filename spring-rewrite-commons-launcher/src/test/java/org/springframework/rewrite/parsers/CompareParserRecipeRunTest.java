@@ -15,6 +15,7 @@
  */
 package org.springframework.rewrite.parsers;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;

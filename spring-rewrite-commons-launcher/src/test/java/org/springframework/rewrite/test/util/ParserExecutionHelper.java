@@ -15,6 +15,7 @@
  */
 package org.springframework.rewrite.test.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -34,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * @author Fabian Krüger
  */
+@Slf4j
 public class ParserExecutionHelper {
 
 	public ParallelParsingResult parseParallel(Path baseDir) {
@@ -87,23 +89,35 @@ public class ParserExecutionHelper {
 			ExecutionContext executionContext) {
 		RewriteMavenProjectParser comparingParser = new ComparingParserFactory()
 			.createComparingParser(parserProperties);
-		if (executionContext != null) {
-			return comparingParser.parse(baseDir, executionContext);
+		try {
+			if (executionContext != null) {
+				return comparingParser.parse(baseDir, executionContext);
+			}
+			else {
+				return comparingParser.parse(baseDir);
+			}
 		}
-		else {
-			return comparingParser.parse(baseDir);
+		catch (Exception e) {
+			log.error("Failure while parsing with %s".formatted(RewriteMavenProjectParser.class.getName()), e);
+			throw new RuntimeException(e);
 		}
 	}
 
 	public RewriteProjectParsingResult parseWithRewriteProjectParser(Path baseDir, ParserProperties parserProperties) {
 		AtomicReference<RewriteProjectParsingResult> atomicRef = new AtomicReference<>();
 		new ApplicationContextRunner().withUserConfiguration(SbmSupportRewriteConfiguration.class)
-			.withBean("parser-org.springframework.parsers.rewrite.ParserProperties", ParserProperties.class,
+			.withBean("parser-org.springframework.rewrite.parsers.ParserProperties", ParserProperties.class,
 					() -> parserProperties)
 			.run(appCtx -> {
-				RewriteProjectParser sut = appCtx.getBean(RewriteProjectParser.class);
-				RewriteProjectParsingResult testedParserResult = sut.parse(baseDir);
-				atomicRef.set(testedParserResult);
+				try {
+					RewriteProjectParser sut = appCtx.getBean(RewriteProjectParser.class);
+					RewriteProjectParsingResult testedParserResult = sut.parse(baseDir);
+					atomicRef.set(testedParserResult);
+				}
+				catch (Exception e) {
+					log.error("Failure while parsing with %s".formatted(RewriteProjectParser.class.getName()), e);
+					throw new RuntimeException(e);
+				}
 			});
 		return atomicRef.get();
 	}
