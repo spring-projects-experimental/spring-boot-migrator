@@ -2,6 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.springframework.rewrite</groupId>
         <artifactId>spring-rewrite-commons</artifactId>
@@ -23,6 +24,7 @@
 
     <properties>
         <java.version>17</java.version>
+        <rewrite-spring.version>5.0.10</rewrite-spring.version>
     </properties>
 
     <dependencyManagement>
@@ -30,12 +32,12 @@
             <dependency>
                 <groupId>org.springframework.rewrite</groupId>
                 <artifactId>spring-rewrite-commons-launcher</artifactId>
-                <version>0.1.0-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openrewrite.recipe</groupId>
                 <artifactId>rewrite-spring</artifactId>
-                <version>5.0.10</version>
+                <version>${rewrite-spring.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

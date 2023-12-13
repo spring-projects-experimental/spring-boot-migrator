@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>spring-rewrite-commons-docs</artifactId>
+
     <name>Spring Rewrite Commons Docs</name>
     <description>Spring Rewrite Commons documentation</description>
 
