@@ -44,6 +44,7 @@ All examples can be found file://spring-rewrite-commons-examples[here].
 == Limitations
 The project has currently some limitations.
 
+. Only JDK 17 supported and required
 . No Gradle support. +
   OpenRewrite provides a build tool plugin for Gradle projects.
   This project currently only parses Maven projects.
