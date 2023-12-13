@@ -56,11 +56,11 @@
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
         <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
         <spring-javaformat-maven-plugin.version>0.0.39</spring-javaformat-maven-plugin.version>
-        <license-maven-plugin.version>4.1</license-maven-plugin.version>
+        <license-maven-plugin.version>4.3</license-maven-plugin.version>
         <lombok-maven-plugin.version>1.18.20.0</lombok-maven-plugin.version>
         <artifactory-maven-plugin.version>3.6.1</artifactory-maven-plugin.version>
         <asciidoctor-maven-plugin.version>2.2.3</asciidoctor-maven-plugin.version>
-
+        <project.inceptionYear>2021</project.inceptionYear>
         <!-- Should be same as the Spring managed version -->
         <lombok.version.annotationProcessorPath>1.18.28</lombok.version.annotationProcessorPath>
     </properties>
@@ -418,12 +418,13 @@
                         <owner>the original author or authors.</owner>
                         <email />
                         <year>2023</year>
+                        <inceptionYear>2021</inceptionYear>
                     </properties>
                     <licenseSets>
                         <licenseSet>
                             <inlineHeader>
                                 <!-- @formatter:off -->
-Copyright 2021 - ${year} the original author or authors.
+Copyright ${inceptionYear} - ${year} the original author or authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -439,6 +440,7 @@ limitations under the License.
                                 <!-- @formatter:on -->
                             </inlineHeader>
                             <excludes>
+                                <exclude>**/internal/**</exclude>
                                 <exclude>**/demo/**</exclude>
                                 <exclude>**/.sdkmanrc</exclude>
                                 <exclude>**/*.adoc</exclude>
