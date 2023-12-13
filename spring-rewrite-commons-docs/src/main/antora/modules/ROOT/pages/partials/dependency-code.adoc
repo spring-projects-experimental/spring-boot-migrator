@@ -2,19 +2,9 @@
 ======
 Maven::
 +
-[source,xml,indent=0,subs="verbatim,quotes,attributes",role="primary"]
-----
-<dependency>
-    <groupId>org.springframwork.rewrite</groupId>
-    <artifactId>spring-rewrite-commons</artifactId>
-    <version>{projectVersion}</version>
-</dependency>
-----
+include::maven-dependency-snippet.adoc[]
 
 Gradle::
 +
-[source,groovy,indent=0,subs="verbatim,quotes,attributes",role="secondary"s]
-----
-compile 'org.springframework.rewrite:spring-rewrite-commons:{projectVersion}'
-----
+include::gradle-dependency-snippet.adoc[]
 ======

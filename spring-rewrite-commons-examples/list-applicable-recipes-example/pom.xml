@@ -11,8 +11,8 @@
 	<groupId>org.example</groupId>
 	<artifactId>list-applicable-recipes-example</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>list-applicable-recipes-example</name>
-	<description>list-applicable-recipes-example</description>
+	<name>Spring Rewrite Commons Examples - List Applicable Recipes</name>
+	<description>Example project listing applicable recipes for a given application</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
