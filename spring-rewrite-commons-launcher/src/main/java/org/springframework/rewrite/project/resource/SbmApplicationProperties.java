@@ -15,16 +15,12 @@
  */
 package org.springframework.rewrite.project.resource;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Setter
-@Getter
 @ConfigurationProperties(prefix = "sbm")
 public class SbmApplicationProperties {
 
@@ -52,6 +48,51 @@ public class SbmApplicationProperties {
 		}
 
 		this.ignoredPathsPatterns = patterns;
+	}
+
+	public boolean isGitSupportEnabled() {
+		return gitSupportEnabled;
+	}
+
+	public void setGitSupportEnabled(boolean gitSupportEnabled) {
+		this.gitSupportEnabled = gitSupportEnabled;
+	}
+
+	public boolean isMuleTriggerMeshTransformEnabled() {
+		return muleTriggerMeshTransformEnabled;
+	}
+
+	public void setMuleTriggerMeshTransformEnabled(boolean muleTriggerMeshTransformEnabled) {
+		this.muleTriggerMeshTransformEnabled = muleTriggerMeshTransformEnabled;
+	}
+
+	public String getDefaultBasePackage() {
+		return defaultBasePackage;
+	}
+
+	public void setDefaultBasePackage(String defaultBasePackage) {
+		this.defaultBasePackage = defaultBasePackage;
+	}
+
+	public boolean isWriteInMavenLocal() {
+		return writeInMavenLocal;
+	}
+
+	public void setWriteInMavenLocal(boolean writeInMavenLocal) {
+		this.writeInMavenLocal = writeInMavenLocal;
+	}
+
+	public boolean isJavaParserLoggingCompilationWarningsAndErrors() {
+		return javaParserLoggingCompilationWarningsAndErrors;
+	}
+
+	public void setJavaParserLoggingCompilationWarningsAndErrors(
+			boolean javaParserLoggingCompilationWarningsAndErrors) {
+		this.javaParserLoggingCompilationWarningsAndErrors = javaParserLoggingCompilationWarningsAndErrors;
+	}
+
+	public List<String> getIgnoredPathsPatterns() {
+		return ignoredPathsPatterns;
 	}
 
 }

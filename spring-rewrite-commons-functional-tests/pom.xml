@@ -53,7 +53,6 @@
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <spring-javaformat-maven-plugin.version>0.0.39</spring-javaformat-maven-plugin.version>
         <license-maven-plugin.version>4.1</license-maven-plugin.version>
-        <lombok-maven-plugin.version>1.18.20.0</lombok-maven-plugin.version>
         <artifactory-maven-plugin.version>3.6.1</artifactory-maven-plugin.version>
 
         <!-- Should be same as the Spring managed version -->

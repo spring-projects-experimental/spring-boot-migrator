@@ -15,12 +15,14 @@
  */
 package org.springframework.rewrite.test.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.rewrite.boot.autoconfigure.SbmSupportRewriteConfiguration;
 import org.springframework.rewrite.parsers.ParserProperties;
+import org.springframework.rewrite.parsers.ProjectScanner;
 import org.springframework.rewrite.parsers.RewriteProjectParser;
 import org.springframework.rewrite.parsers.RewriteProjectParsingResult;
 import org.springframework.rewrite.parsers.maven.ComparingParserFactory;
@@ -35,8 +37,9 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * @author Fabian Krüger
  */
-@Slf4j
 public class ParserExecutionHelper {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ParserExecutionHelper.class);
 
 	public ParallelParsingResult parseParallel(Path baseDir) {
 		return parseParallel(baseDir, new ParserProperties(), new InMemoryExecutionContext(t -> {
@@ -98,7 +101,7 @@ public class ParserExecutionHelper {
 			}
 		}
 		catch (Exception e) {
-			log.error("Failure while parsing with %s".formatted(RewriteMavenProjectParser.class.getName()), e);
+			LOGGER.error("Failure while parsing with %s".formatted(RewriteMavenProjectParser.class.getName()), e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -115,7 +118,7 @@ public class ParserExecutionHelper {
 					atomicRef.set(testedParserResult);
 				}
 				catch (Exception e) {
-					log.error("Failure while parsing with %s".formatted(RewriteProjectParser.class.getName()), e);
+					LOGGER.error("Failure while parsing with %s".formatted(RewriteProjectParser.class.getName()), e);
 					throw new RuntimeException(e);
 				}
 			});

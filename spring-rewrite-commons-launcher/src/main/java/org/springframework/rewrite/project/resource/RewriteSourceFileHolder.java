@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.project.resource;
 
-import lombok.Getter;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 
@@ -26,7 +25,6 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
 
 	private T sourceFile;
 
-	@Getter
 	final private Path absoluteProjectDir;
 
 	/**
@@ -40,6 +38,10 @@ public class RewriteSourceFileHolder<T extends SourceFile> extends BaseProjectRe
 			throw new IllegalArgumentException(
 					String.format("Given projectDir '%s' is not absolute.", absoluteProjectDir));
 		}
+	}
+
+	public Path getAbsoluteProjectDir() {
+		return absoluteProjectDir;
 	}
 
 	public String print() {

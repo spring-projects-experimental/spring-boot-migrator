@@ -15,11 +15,13 @@
  */
 package org.springframework.rewrite.scopes;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.Scope;
 import org.springframework.lang.Nullable;
+import org.springframework.rewrite.parsers.RewriteExecutionContextErrorHandler;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,16 +29,18 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Fabian Krüger
  */
-@Slf4j
 public class AbstractBaseScope implements Scope {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(RewriteExecutionContextErrorHandler.class);
 
 	private final Map<String, Object> scopedBeans = new ConcurrentHashMap<>();
 
 	public void clear(ConfigurableListableBeanFactory beanFactory) {
-		log.trace("Clearing %d beans from scope %s.".formatted(scopedBeans.keySet().size(), this.getClass().getName()));
+		LOGGER.trace(
+				"Clearing %d beans from scope %s.".formatted(scopedBeans.keySet().size(), this.getClass().getName()));
 		scopedBeans.keySet().stream().forEach(beanName -> {
 			beanFactory.destroyScopedBean(beanName);
-			log.trace("Removed bean '%s' from scan scope.".formatted(beanName));
+			LOGGER.trace("Removed bean '%s' from scan scope.".formatted(beanName));
 		});
 	}
 
@@ -56,7 +60,7 @@ public class AbstractBaseScope implements Scope {
 	}
 
 	public void registerDestructionCallback(String name, Runnable callback) {
-		log.warn("%s does not support destruction callbacks.".formatted(this.getClass().getName()));
+		LOGGER.warn("%s does not support destruction callbacks.".formatted(this.getClass().getName()));
 	}
 
 	@Nullable

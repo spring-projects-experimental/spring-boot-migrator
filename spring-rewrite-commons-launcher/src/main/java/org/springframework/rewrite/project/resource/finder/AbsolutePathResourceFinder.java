@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.project.resource.finder;
 
-import lombok.RequiredArgsConstructor;
 import org.openrewrite.SourceFile;
 import org.springframework.rewrite.project.resource.ProjectResourceSet;
 import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
@@ -23,11 +22,14 @@ import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import java.nio.file.Path;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 public class AbsolutePathResourceFinder
 		implements ProjectResourceFinder<Optional<RewriteSourceFileHolder<? extends SourceFile>>> {
 
 	private final Path absoluteResourcePath;
+
+	public AbsolutePathResourceFinder(Path absoluteResourcePath) {
+		this.absoluteResourcePath = absoluteResourcePath;
+	}
 
 	@Override
 	public Optional<RewriteSourceFileHolder<? extends SourceFile>> apply(ProjectResourceSet projectResourceSet) {

@@ -15,8 +15,6 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Recipe;
@@ -28,8 +26,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@Getter
-@Slf4j
 public class RewriteExecutionContext implements ExecutionContext {
 
 	private ExecutionContext delegate;

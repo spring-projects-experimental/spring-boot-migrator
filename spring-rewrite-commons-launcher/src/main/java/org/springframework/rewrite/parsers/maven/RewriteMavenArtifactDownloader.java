@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.parsers.maven;
 
-import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.ipc.http.HttpSender;
 import org.openrewrite.maven.MavenSettings;
@@ -29,7 +28,6 @@ import java.util.function.Consumer;
  *
  * @author fkrueger
  */
-@Slf4j
 public class RewriteMavenArtifactDownloader extends MavenArtifactDownloader {
 
 	public RewriteMavenArtifactDownloader(MavenArtifactCache mavenArtifactCache, @Nullable MavenSettings mavenSettings,

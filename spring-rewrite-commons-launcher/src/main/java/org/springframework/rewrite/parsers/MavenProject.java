@@ -15,8 +15,6 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -37,8 +35,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Predicate;
 
-@Getter
-@Setter
 /**
  * @author Fabian Krüger
  */
@@ -247,6 +243,30 @@ public class MavenProject {
 
 	public Object getProjectEncoding() {
 		return getPomModel().getProperties().get("project.build.sourceEncoding");
+	}
+
+	public Path getProjectRoot() {
+		return projectRoot;
+	}
+
+	public Resource getPomFile() {
+		return pomFile;
+	}
+
+	public Model getPomModel() {
+		return pomModel;
+	}
+
+	public Xml.Document getSourceFile() {
+		return sourceFile;
+	}
+
+	public MavenArtifactDownloader getRewriteMavenArtifactDownloader() {
+		return rewriteMavenArtifactDownloader;
+	}
+
+	public void setProjectId(ProjectId projectId) {
+		this.projectId = projectId;
 	}
 
 }

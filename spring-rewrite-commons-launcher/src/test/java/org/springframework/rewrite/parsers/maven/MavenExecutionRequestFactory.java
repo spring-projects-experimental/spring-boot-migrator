@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.parsers.maven;
 
-import lombok.RequiredArgsConstructor;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.ArtifactRepositoryFactory;
 import org.apache.maven.artifact.repository.ArtifactRepositoryPolicy;
@@ -37,10 +36,13 @@ import java.util.Properties;
 /**
  * @author Fabian Krüger
  */
-@RequiredArgsConstructor
 class MavenExecutionRequestFactory {
 
 	private final MavenConfigFileParser mavenConfigFileParser;
+
+	public MavenExecutionRequestFactory(MavenConfigFileParser mavenConfigFileParser) {
+		this.mavenConfigFileParser = mavenConfigFileParser;
+	}
 
 	private static final String LOCAL_REPOSITORY = Path.of(System.getProperty("user.home"))
 		.resolve(".m2")

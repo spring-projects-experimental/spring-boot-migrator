@@ -15,8 +15,6 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.core.io.Resource;
 import org.springframework.rewrite.utils.ResourceUtil;
@@ -29,19 +27,29 @@ import java.util.stream.Collectors;
 /**
  * @author Fabian Krüger
  */
-@RequiredArgsConstructor
 public class ParserContext {
 
 	private final Path baseDir;
 
-	@Getter
 	private final List<Resource> resources;
 
-	@Getter
 	private final List<MavenProject> sortedProjects;
 
-	@Getter
+	public ParserContext(Path baseDir, List<Resource> resources, List<MavenProject> sortedProjects) {
+		this.baseDir = baseDir;
+		this.resources = resources;
+		this.sortedProjects = sortedProjects;
+	}
+
 	private Map<Path, Xml.Document> pathDocumentMap;
+
+	public List<Resource> getResources() {
+		return resources;
+	}
+
+	public List<MavenProject> getSortedProjects() {
+		return sortedProjects;
+	}
 
 	public List<String> getActiveProfiles() {
 		// FIXME: Add support for Maven profiles

@@ -15,13 +15,13 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.xml.tree.Xml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.rewrite.parsers.maven.MavenModuleParser;
 
@@ -31,12 +31,15 @@ import java.util.*;
 /**
  * @author Fabian Krüger
  */
-@Slf4j
-
-@RequiredArgsConstructor
 public class SourceFileParser {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(RewriteParserConfiguration.class);
+
 	private final MavenModuleParser moduleParser;
+
+	public SourceFileParser(MavenModuleParser moduleParser) {
+		this.moduleParser = moduleParser;
+	}
 
 	public List<SourceFile> parseOtherSourceFiles(Path baseDir, ParserContext parserContext, List<Resource> resources,
 			Map<Path, List<Marker>> provenanceMarkers, List<NamedStyles> styles, ExecutionContext executionContext) {
@@ -47,7 +50,7 @@ public class SourceFileParser {
 			Xml.Document moduleBuildFile = currentMavenProject.getSourceFile();
 			List<Marker> markers = provenanceMarkers.get(currentMavenProject.getPomFilePath());
 			if (markers == null || markers.isEmpty()) {
-				log.warn("Could not find provenance markers for resource '%s'"
+				LOGGER.warn("Could not find provenance markers for resource '%s'"
 					.formatted(parserContext.getMatchingBuildFileResource(currentMavenProject)));
 			}
 			List<SourceFile> sourceFiles = moduleParser.parseModuleSourceFiles(resources, currentMavenProject,

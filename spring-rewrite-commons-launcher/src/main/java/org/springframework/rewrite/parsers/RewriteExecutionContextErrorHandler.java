@@ -15,17 +15,17 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.java.JavaParsingException;
 import org.openrewrite.maven.MavenDownloadingException;
 import org.openrewrite.maven.internal.MavenParsingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
 
-@Slf4j
 public class RewriteExecutionContextErrorHandler implements Consumer<Throwable> {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(RewriteExecutionContextErrorHandler.class);
 
 	private final ThrowExceptionSwitch throwExceptionSwitch;
 
@@ -36,10 +36,10 @@ public class RewriteExecutionContextErrorHandler implements Consumer<Throwable> 
 	@Override
 	public void accept(Throwable t) {
 		if (t instanceof MavenParsingException) {
-			log.warn(t.getMessage());
+			LOGGER.warn(t.getMessage());
 		}
 		else if (t instanceof MavenDownloadingException) {
-			log.warn(t.getMessage());
+			LOGGER.warn(t.getMessage());
 		}
 		else if (t instanceof JavaParsingException) {
 			if (t.getMessage().equals("Failed symbol entering or attribution")) {
@@ -53,8 +53,6 @@ public class RewriteExecutionContextErrorHandler implements Consumer<Throwable> 
 		}
 	}
 
-	@Getter
-	@Setter
 	public static class ThrowExceptionSwitch {
 
 		private boolean throwExceptions = true;

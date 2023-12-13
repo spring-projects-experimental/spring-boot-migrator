@@ -15,19 +15,13 @@
  */
 package com.acme.example;
 
-import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.SourceFile;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.io.Resource;
-import org.springframework.rewrite.parsers.ProjectScanner;
 import org.springframework.rewrite.parsers.RewriteProjectParser;
 import org.springframework.rewrite.parsers.RewriteProjectParsingResult;
-import org.springframework.rewrite.parsers.events.StartedParsingResourceEvent;
 import org.springframework.rewrite.project.resource.ProjectResourceSet;
 import org.springframework.rewrite.project.resource.ProjectResourceSetFactory;
 import org.springframework.rewrite.project.resource.ProjectResourceSetSerializer;
@@ -49,32 +43,25 @@ public class SpringBoot3Upgrade implements CommandLineRunner {
 		SpringApplication.run(SpringBoot3Upgrade.class, args);
 	}
 
-	@Autowired
-	RewriteProjectParser parser;
+	private final RewriteProjectParser parser;
 
-	@Autowired
-	ProjectScanner scanner;
+	private final RewriteRecipeDiscovery discovery;
 
-	@Autowired
-	RewriteRecipeDiscovery discovery;
+	private final ProjectResourceSetSerializer serializer;
 
-	@Autowired
-	ExecutionContext executionContext;
+	private final ProjectResourceSetFactory projectResourceSetFactory;
 
-	@Autowired
-	ProjectResourceSetSerializer serializer;
-
-	@Autowired
-	ProjectResourceSetFactory projectResourceSetFactory;
-
-	@EventListener(StartedParsingResourceEvent.class)
-	public void onStartedParsingResourceEvent(StartedParsingResourceEvent event) {
-		System.out.println();
+	public SpringBoot3Upgrade(RewriteProjectParser parser, RewriteRecipeDiscovery discovery,
+			ProjectResourceSetSerializer serializer, ProjectResourceSetFactory projectResourceSetFactory) {
+		this.parser = parser;
+		this.discovery = discovery;
+		this.serializer = serializer;
+		this.projectResourceSetFactory = projectResourceSetFactory;
 	}
 
 	@Override
-	public void run(String... args) throws Exception {
-		Path baseDir = null;
+	public void run(String... args) {
+		Path baseDir;
 		if (args.length == 0) {
 			throw new IllegalArgumentException("A path must be provided");
 		}
@@ -82,9 +69,6 @@ public class SpringBoot3Upgrade implements CommandLineRunner {
 			String pathStr = args[0];
 			baseDir = Path.of(pathStr);
 		}
-
-		// scan
-		List<Resource> resources = scanner.scan(baseDir);
 
 		// parse
 		RewriteProjectParsingResult parsingResult = parser.parse(baseDir);

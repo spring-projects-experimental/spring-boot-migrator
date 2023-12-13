@@ -15,11 +15,11 @@
  */
 package org.springframework.rewrite.parsers.events;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.tree.ParsingEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
@@ -28,11 +28,15 @@ import org.springframework.context.ApplicationEventPublisher;
  *
  * @author Fabian Krüger
  */
-@Slf4j
-@RequiredArgsConstructor
 public class RewriteParsingEventListenerAdapter implements ParsingEventListener {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(RewriteParsingEventListenerAdapter.class);
+
 	private final ApplicationEventPublisher eventPublisher;
+
+	public RewriteParsingEventListenerAdapter(ApplicationEventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
+	}
 
 	@Override
 	public void intermediateMessage(String stateMessage) {
@@ -46,7 +50,7 @@ public class RewriteParsingEventListenerAdapter implements ParsingEventListener 
 
 	@Override
 	public void parsed(Parser.Input input, SourceFile sourceFile) {
-		log.debug("Parsed %s to %s".formatted(input.getPath(), sourceFile.getSourcePath()));
+		LOGGER.debug("Parsed %s to %s".formatted(input.getPath(), sourceFile.getSourcePath()));
 		eventPublisher.publishEvent(new FinishedParsingResourceEvent(input, sourceFile));
 	}
 

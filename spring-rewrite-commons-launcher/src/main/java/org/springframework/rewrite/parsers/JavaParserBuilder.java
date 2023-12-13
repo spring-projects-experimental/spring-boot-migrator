@@ -15,8 +15,6 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.internal.JavaTypeCache;
@@ -26,8 +24,6 @@ import java.util.Collection;
 
 public class JavaParserBuilder extends JavaParser.Builder {
 
-	@Getter
-	@Setter
 	private JavaParser.Builder delegate = JavaParser.fromJavaVersion();
 
 	@Override
@@ -53,6 +49,10 @@ public class JavaParserBuilder extends JavaParser.Builder {
 	@Override
 	public JavaParser.Builder classpathFromResources(ExecutionContext ctx, String... classpath) {
 		return delegate.classpathFromResources(ctx, classpath);
+	}
+
+	public JavaParser.Builder getDelegate() {
+		return delegate;
 	}
 
 	@Override

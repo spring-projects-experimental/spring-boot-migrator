@@ -15,8 +15,6 @@
  */
 package org.springframework.rewrite.recipes;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.Recipe;
 import org.openrewrite.Validated;
@@ -24,6 +22,8 @@ import org.openrewrite.config.ClasspathScanningLoader;
 import org.openrewrite.config.Environment;
 import org.openrewrite.config.RecipeDescriptor;
 import org.openrewrite.config.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.rewrite.parsers.ParserProperties;
 import org.springframework.rewrite.parsers.RecipeValidationErrorException;
 
@@ -40,11 +40,15 @@ import static java.util.stream.Collectors.toList;
  *
  * @author Fabian Krüger
  */
-@Slf4j
-@RequiredArgsConstructor
 public class RewriteRecipeDiscovery {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(RewriteRecipeDiscovery.class);
+
 	private final ParserProperties parserProperties;
+
+	public RewriteRecipeDiscovery(ParserProperties parserProperties) {
+		this.parserProperties = parserProperties;
+	}
 
 	/**
 	 *
@@ -57,7 +61,7 @@ public class RewriteRecipeDiscovery {
 	public List<Recipe> discoverFilteredRecipes(List<String> activeRecipes, Properties properties,
 			String[] acceptPackages, ClasspathScanningLoader classpathScanningLoader) {
 		if (activeRecipes.isEmpty()) {
-			log.warn("No active recipes were provided.");
+			LOGGER.warn("No active recipes were provided.");
 			return emptyList();
 		}
 
@@ -68,7 +72,7 @@ public class RewriteRecipeDiscovery {
 		Recipe recipe = environment.activateRecipes(activeRecipes);
 
 		if (recipe.getRecipeList().isEmpty()) {
-			log.warn(
+			LOGGER.warn(
 					"No recipes were activated. None of the provided 'activeRecipes' matched any of the applicable recipes.");
 			return emptyList();
 		}
@@ -80,14 +84,14 @@ public class RewriteRecipeDiscovery {
 			.collect(toList());
 		if (!failedValidations.isEmpty()) {
 			failedValidations
-				.forEach(failedValidation -> log.error("Recipe validation error in " + failedValidation.getProperty()
+				.forEach(failedValidation -> LOGGER.error("Recipe validation error in " + failedValidation.getProperty()
 						+ ": " + failedValidation.getMessage(), failedValidation.getException()));
 			if (parserProperties.isFailOnInvalidActiveRecipes()) {
 				throw new RecipeValidationErrorException(
 						"Recipe validation errors detected as part of one or more activeRecipe(s). Please check error logs.");
 			}
 			else {
-				log.error(
+				LOGGER.error(
 						"Recipe validation errors detected as part of one or more activeRecipe(s). Execution will continue regardless.");
 			}
 		}

@@ -15,9 +15,9 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternUtils;
@@ -37,13 +37,18 @@ import java.util.stream.Stream;
 /**
  * @author Fabian Krüger
  */
-@Slf4j
-@RequiredArgsConstructor
 public class ProjectScanner {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectScanner.class);
 
 	private final ResourceLoader resourceLoader;
 
 	private final ParserProperties parserProperties;
+
+	public ProjectScanner(ResourceLoader resourceLoader, ParserProperties parserProperties) {
+		this.resourceLoader = resourceLoader;
+		this.parserProperties = parserProperties;
+	}
 
 	public List<Resource> scan(Path baseDir) {
 		if (!baseDir.isAbsolute()) {
@@ -59,14 +64,14 @@ public class ProjectScanner {
 			Resource[] resources = ResourcePatternUtils.getResourcePatternResolver(resourceLoader)
 				.getResources(pattern);
 
-			log.debug("Scanned %d resources in dir: '%s'".formatted(resources.length, absoluteRootPath.toString()));
+			LOGGER.debug("Scanned %d resources in dir: '%s'".formatted(resources.length, absoluteRootPath.toString()));
 
 			List<Resource> resultingResources = filterIgnoredResources(absoluteRootPath, resources);
 
 			int numResulting = resultingResources.size();
 			int numIgnored = resources.length - numResulting;
-			log.debug("Scan returns %s resources, %d resources were ignored.".formatted(numResulting, numIgnored));
-			log.trace("Resources resulting from scan: %s".formatted(resultingResources.stream()
+			LOGGER.debug("Scan returns %s resources, %d resources were ignored.".formatted(numResulting, numIgnored));
+			LOGGER.trace("Resources resulting from scan: %s".formatted(resultingResources.stream()
 				.map(r -> absoluteRootPath.relativize(ResourceUtil.getPath(r)).toString())
 				.collect(Collectors.joining(", "))));
 
@@ -87,7 +92,7 @@ public class ProjectScanner {
 			.map(baseDir.getFileSystem()::getPathMatcher)
 			.toList();
 
-		log.trace("Ignore resources matching any of these PathMatchers: %s"
+		LOGGER.trace("Ignore resources matching any of these PathMatchers: %s"
 			.formatted(effectivePathMatcherPatterns.stream().collect(Collectors.joining(", "))));
 
 		List<Resource> resultingResources = Stream.of(resources)
@@ -110,9 +115,9 @@ public class ProjectScanner {
 			boolean matches = matcher.matches(resourcePath);
 			return matches;
 		}).findFirst();
-		if (isIgnored.isPresent() && log.isInfoEnabled()) {
+		if (isIgnored.isPresent() && LOGGER.isInfoEnabled()) {
 			Set<String> ignoredPathPatterns = parserProperties.getIgnoredPathPatterns();
-			log.info("Ignoring scanned resource '%s' given these path matchers: %s."
+			LOGGER.info("Ignoring scanned resource '%s' given these path matchers: %s."
 				.formatted(baseDir.relativize(ResourceUtil.getPath(r)), ignoredPathPatterns));
 		}
 		return isIgnored.isEmpty();

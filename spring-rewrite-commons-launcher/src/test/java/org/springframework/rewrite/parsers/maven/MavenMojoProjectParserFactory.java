@@ -15,8 +15,6 @@
  */
 package org.springframework.rewrite.parsers.maven;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -25,8 +23,11 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.codehaus.plexus.PlexusContainer;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.maven.MavenMojoProjectParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.rewrite.parsers.ParserProperties;
 import org.springframework.rewrite.parsers.Slf4jToMavenLoggerAdapter;
+import org.springframework.rewrite.test.util.ParserExecutionHelper;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -35,11 +36,15 @@ import java.util.List;
 /**
  * @author Fabian Krüger
  */
-@Slf4j
-@RequiredArgsConstructor
 public class MavenMojoProjectParserFactory {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(MavenMojoProjectParserFactory.class);
+
 	private final ParserProperties parserProperties;
+
+	public MavenMojoProjectParserFactory(ParserProperties parserProperties) {
+		this.parserProperties = parserProperties;
+	}
 
 	public MavenMojoProjectParser create(Path baseDir, List<MavenProject> mavenProjects,
 			PlexusContainer plexusContainer, MavenSession session) {
@@ -55,7 +60,7 @@ public class MavenMojoProjectParserFactory {
 			Collection<String> plainTextMasks, int sizeThresholdMb, boolean runPerSubmodule,
 			PlexusContainer plexusContainer, MavenSession session) {
 		try {
-			Log logger = new Slf4jToMavenLoggerAdapter(log);
+			Log logger = new Slf4jToMavenLoggerAdapter(LOGGER);
 			RuntimeInformation runtimeInformation = plexusContainer.lookup(RuntimeInformation.class);
 			SettingsDecrypter decrypter = plexusContainer.lookup(SettingsDecrypter.class);
 
@@ -72,7 +77,7 @@ public class MavenMojoProjectParserFactory {
 
 	public MavenMojoProjectParser create(Path baseDir, RuntimeInformation runtimeInformation,
 			SettingsDecrypter settingsDecrypter) {
-		return new MavenMojoProjectParser(new Slf4jToMavenLoggerAdapter(log), baseDir,
+		return new MavenMojoProjectParser(new Slf4jToMavenLoggerAdapter(LOGGER), baseDir,
 				parserProperties.isPomCacheEnabled(), parserProperties.getPomCacheDirectory(), runtimeInformation,
 				parserProperties.isSkipMavenParsing(), parserProperties.getIgnoredPathPatterns(),
 				parserProperties.getPlainTextMasks(), parserProperties.getSizeThresholdMb(), null, settingsDecrypter,

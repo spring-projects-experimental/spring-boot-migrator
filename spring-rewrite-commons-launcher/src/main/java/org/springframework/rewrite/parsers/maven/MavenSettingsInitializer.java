@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.parsers.maven;
 
-import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenExecutionContextView;
@@ -36,7 +35,6 @@ import java.util.List;
  * @author Fabian Krüger
  */
 @Component
-@RequiredArgsConstructor
 public class MavenSettingsInitializer {
 
 	private final ExecutionContext executionContext;

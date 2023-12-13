@@ -34,6 +34,8 @@ import org.openrewrite.shaded.jgit.api.errors.GitAPIException;
 import org.openrewrite.shaded.jgit.lib.Ref;
 import org.openrewrite.shaded.jgit.revwalk.RevCommit;
 import org.openrewrite.shaded.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -41,9 +43,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
-import org.springframework.rewrite.parsers.ProjectScanner;
-import org.springframework.rewrite.parsers.RewriteProjectParser;
-import org.springframework.rewrite.parsers.RewriteProjectParsingResult;
+import org.springframework.rewrite.parsers.*;
 import org.springframework.rewrite.parsers.events.StartedParsingResourceEvent;
 import org.springframework.rewrite.project.resource.ProjectResourceSet;
 import org.springframework.rewrite.project.resource.ProjectResourceSetFactory;
@@ -133,7 +133,7 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
 	}
 
 	@Override
-	public void run(ApplicationArguments args) throws Exception {
+	public void run(ApplicationArguments args) {
 		repoUrl = getRepoUrl(args);
 		ghToken = getGitHubToken(args);
 	}
@@ -180,7 +180,7 @@ public class IterativeBoot3UpgradeExample implements ApplicationRunner {
 
 				// Create PR
 				String mainBranch = "main";
-				GHPullRequest pr = createPullRequest(ghToken, message, branchName, mainBranch, message);
+				createPullRequest(ghToken, message, branchName, mainBranch, message);
 			}
 			else {
 				log.info("No migration path found.");

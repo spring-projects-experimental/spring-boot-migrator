@@ -15,13 +15,13 @@
  */
 package org.springframework.rewrite.parsers.maven;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.Maven;
 import org.apache.maven.execution.*;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -32,13 +32,18 @@ import java.util.function.Consumer;
  *
  * @author Fabian Krüger
  */
-@Slf4j
-@RequiredArgsConstructor
 class MavenExecutor {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MavenExecutor.class);
 
 	private final MavenExecutionRequestFactory requestFactory;
 
 	private final MavenPlexusContainer mavenPlexusContainer;
+
+	public MavenExecutor(MavenExecutionRequestFactory requestFactory, MavenPlexusContainer mavenPlexusContainer) {
+		this.requestFactory = requestFactory;
+		this.mavenPlexusContainer = mavenPlexusContainer;
+	}
 
 	/**
 	 * Runs given {@code goals} in Maven and calls {@code eventConsumer} when Maven
@@ -63,7 +68,7 @@ class MavenExecutor {
 			public void projectSucceeded(ExecutionEvent event) {
 				List<MavenProject> sortedProjects = event.getSession().getProjectDependencyGraph().getSortedProjects();
 				MavenProject lastProject = (MavenProject) sortedProjects.get(sortedProjects.size() - 1);
-				log.info("Maven successfully processed project: %s"
+				LOGGER.info("Maven successfully processed project: %s"
 					.formatted(event.getSession().getCurrentProject().getName()));
 				if (event.getSession()
 					.getCurrentProject()
@@ -78,7 +83,7 @@ class MavenExecutor {
 			@Override
 			public void mojoSucceeded(ExecutionEvent event) {
 				super.mojoSucceeded(event);
-				log.info("Mojo succeeded: " + event.getMojoExecution().getGoal());
+				LOGGER.info("Mojo succeeded: " + event.getMojoExecution().getGoal());
 			}
 
 			@Override

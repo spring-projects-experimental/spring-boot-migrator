@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.project.resource;
 
-import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.springframework.rewrite.project.RewriteSourceFileWrapper;
@@ -26,7 +25,6 @@ import java.util.List;
 /**
  * @author Fabian Krüger
  */
-@RequiredArgsConstructor
 public class ProjectResourceSetFactory {
 
 	private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
@@ -34,6 +32,13 @@ public class ProjectResourceSetFactory {
 	private final RewriteSourceFileWrapper sourceFileWrapper;
 
 	private final ExecutionContext executionContext;
+
+	public ProjectResourceSetFactory(RewriteMigrationResultMerger rewriteMigrationResultMerger,
+			RewriteSourceFileWrapper sourceFileWrapper, ExecutionContext executionContext) {
+		this.rewriteMigrationResultMerger = rewriteMigrationResultMerger;
+		this.sourceFileWrapper = sourceFileWrapper;
+		this.executionContext = executionContext;
+	}
 
 	public ProjectResourceSet create(Path baseDir, List<SourceFile> sourceFiles) {
 		List<RewriteSourceFileHolder<? extends SourceFile>> rewriteSourceFileHolders = sourceFileWrapper

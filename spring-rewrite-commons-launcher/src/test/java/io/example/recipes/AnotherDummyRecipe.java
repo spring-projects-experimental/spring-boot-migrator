@@ -15,7 +15,6 @@
  */
 package io.example.recipes;
 
-import lombok.RequiredArgsConstructor;
 import org.openrewrite.Contributor;
 import org.openrewrite.Maintainer;
 import org.openrewrite.Option;
@@ -28,7 +27,6 @@ import java.util.Set;
 /**
  * @author Fabian Krüger
  */
-@RequiredArgsConstructor
 public class AnotherDummyRecipe extends Recipe {
 
 	@Option(displayName = "Property key", description = "The property key to add.", example = "some.example")
@@ -36,6 +34,11 @@ public class AnotherDummyRecipe extends Recipe {
 
 	@Option(displayName = "Property value", description = "The value of the new property key.")
 	private final String value;
+
+	public AnotherDummyRecipe(String property, String value) {
+		this.property = property;
+		this.value = value;
+	}
 
 	@Override
 	public String getDisplayName() {

@@ -15,12 +15,13 @@
  */
 package org.springframework.rewrite.project.resource;
 
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public class ProjectResourceSetSerializer {
 
 	private final ProjectResourceSerializer resourceSerializer;
+
+	public ProjectResourceSetSerializer(ProjectResourceSerializer resourceSerializer) {
+		this.resourceSerializer = resourceSerializer;
+	}
 
 	public void writeChanges(ProjectResourceSet projectResourceSet) {
 		projectResourceSet.streamIncludingDeleted().forEach(resourceSerializer::writeChanges);

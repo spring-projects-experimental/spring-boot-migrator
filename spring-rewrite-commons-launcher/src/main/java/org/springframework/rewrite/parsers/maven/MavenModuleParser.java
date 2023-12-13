@@ -15,8 +15,6 @@
  */
 package org.springframework.rewrite.parsers.maven;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.java.JavaParser;
@@ -25,6 +23,8 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.rewrite.parsers.*;
 
@@ -41,13 +41,18 @@ import java.util.stream.Stream;
 /**
  * @author Fabian Krüger
  */
-@Slf4j
-@RequiredArgsConstructor
 public class MavenModuleParser {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MavenProvenanceMarkerFactory.class);
 
 	private final ParserProperties parserProperties;
 
 	private final ModuleParser mavenMojoProjectParserPrivateMethods;
+
+	public MavenModuleParser(ParserProperties parserProperties, ModuleParser mavenMojoProjectParserPrivateMethods) {
+		this.parserProperties = parserProperties;
+		this.mavenMojoProjectParserPrivateMethods = mavenMojoProjectParserPrivateMethods;
+	}
 
 	public List<SourceFile> parseModuleSourceFiles(List<Resource> resources, MavenProject currentProject,
 			Xml.Document moduleBuildFile, List<Marker> provenanceMarkers, List<NamedStyles> styles,
@@ -73,7 +78,7 @@ public class MavenModuleParser {
 			.logCompilationWarningsAndErrors(false);
 
 		Path buildFilePath = currentProject.getBasedir().resolve(moduleBuildFile.getSourcePath());
-		log.info("Parsing module " + buildFilePath);
+		LOGGER.info("Parsing module " + buildFilePath);
 		// these paths will be ignored by ResourceParser
 		Set<Path> skipResourceScanDirs = pathsToOtherMavenProjects(currentProject, buildFilePath);
 		// FIXME: Why is skipResourceScanDirs required at all? Shouldn't the module know

@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
@@ -29,6 +28,8 @@ import org.openrewrite.quark.QuarkParser;
 import org.openrewrite.text.PlainTextParser;
 import org.openrewrite.xml.XmlParser;
 import org.openrewrite.yaml.YamlParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.rewrite.utils.ResourceUtil;
@@ -45,8 +46,9 @@ import java.util.stream.Stream;
  * https://github.com/fabapp2/rewrite-maven-plugin/blob/83d184ea9ffe3046429f16c91aa56a9610bae832/src/main/java/org/openrewrite/maven/ResourceParser.java
  * The motivation was to decouple the parser from file access.
  */
-@Slf4j
 public class RewriteResourceParser {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(RewriteResourceParser.class);
 
 	private static final Set<String> DEFAULT_IGNORED_DIRECTORIES = new HashSet<>(Arrays.asList("build", "target", "out",
 			".sonar", ".gradle", ".idea", ".project", "node_modules", ".git", ".metadata", ".DS_Store"));
@@ -139,7 +141,7 @@ public class RewriteResourceParser {
 				// FIXME: 945 only check threshold if value > 0 is given
 				long fileSize = ResourceUtil.contentLength(resource);
 				if (isOverSizeThreshold(fileSize)) {
-					log.info("Parsing as quark " + file + " as its size " + fileSize / (1024L * 1024L)
+					LOGGER.info("Parsing as quark " + file + " as its size " + fileSize / (1024L * 1024L)
 							+ "Mb exceeds size threshold " + sizeThresholdMb + "Mb");
 					quarkPaths.add(file);
 				}

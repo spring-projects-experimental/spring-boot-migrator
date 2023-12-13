@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.project.resource.finder;
 
-import lombok.Getter;
 import org.springframework.rewrite.project.resource.ProjectResourceSet;
 
 import java.util.List;
@@ -23,11 +22,14 @@ import java.util.stream.Collectors;
 
 public class GenericTypeListFinder<T> implements ProjectResourceFinder<List<T>> {
 
-	@Getter
 	private final Class<T> type;
 
 	public GenericTypeListFinder(Class<T> type) {
 		this.type = type;
+	}
+
+	public Class<T> getType() {
+		return type;
 	}
 
 	@Override

@@ -15,8 +15,6 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
@@ -25,6 +23,8 @@ import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
@@ -64,9 +64,9 @@ import java.util.Map;
  * @see <a href=
  * "https://docs.openrewrite.org/concepts-explanations/lossless-semantic-trees">LST</a>
  */
-@Slf4j
-@RequiredArgsConstructor
 public class RewriteProjectParser {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(RewriteProjectParser.class);
 
 	private final ProvenanceMarkerFactory provenanceMarkerFactory;
 
@@ -91,6 +91,25 @@ public class RewriteProjectParser {
 	private final ExecutionContext executionContext;
 
 	private final MavenProjectAnalyzer mavenProjectAnalyzer;
+
+	public RewriteProjectParser(ProvenanceMarkerFactory provenanceMarkerFactory, BuildFileParser buildFileParser,
+			SourceFileParser sourceFileParser, StyleDetector styleDetector, ParserProperties parserProperties,
+			ParsingEventListener parsingEventListener, ApplicationEventPublisher eventPublisher, ScanScope scanScope,
+			ConfigurableListableBeanFactory beanFactory, ProjectScanner scanner, ExecutionContext executionContext,
+			MavenProjectAnalyzer mavenProjectAnalyzer) {
+		this.provenanceMarkerFactory = provenanceMarkerFactory;
+		this.buildFileParser = buildFileParser;
+		this.sourceFileParser = sourceFileParser;
+		this.styleDetector = styleDetector;
+		this.parserProperties = parserProperties;
+		this.parsingEventListener = parsingEventListener;
+		this.eventPublisher = eventPublisher;
+		this.scanScope = scanScope;
+		this.beanFactory = beanFactory;
+		this.scanner = scanner;
+		this.executionContext = executionContext;
+		this.mavenProjectAnalyzer = mavenProjectAnalyzer;
+	}
 
 	/**
 	 * Parse the given {@code baseDir} to OpenRewrite AST.
@@ -134,8 +153,8 @@ public class RewriteProjectParser {
 				parserProperties.isSkipMavenParsing(), provenanceMarkers);
 		parserContext.setParsedBuildFiles(parsedBuildFiles);
 
-		log.trace("Start to parse %d source files in %d modules".formatted(resources.size() + parsedBuildFiles.size(),
-				parsedBuildFiles.size()));
+		LOGGER.trace("Start to parse %d source files in %d modules"
+			.formatted(resources.size() + parsedBuildFiles.size(), parsedBuildFiles.size()));
 		List<SourceFile> otherSourceFiles = sourceFileParser.parseOtherSourceFiles(baseDir, parserContext, resources,
 				provenanceMarkers, styles, executionContext);
 

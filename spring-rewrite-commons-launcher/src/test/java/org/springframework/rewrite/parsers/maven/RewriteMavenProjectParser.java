@@ -15,8 +15,6 @@
  */
 package org.springframework.rewrite.parsers.maven;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -33,6 +31,8 @@ import org.openrewrite.style.NamedStyles;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.tree.Xml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.rewrite.parsers.RewriteProjectParsingResult;
@@ -54,8 +54,6 @@ import static java.util.stream.Collectors.toList;
  *
  * @author Fabian Krüger
  */
-@Slf4j
-@RequiredArgsConstructor
 public class RewriteMavenProjectParser {
 
 	private final MavenPlexusContainer mavenPlexusContainer;
@@ -71,6 +69,18 @@ public class RewriteMavenProjectParser {
 	private final ConfigurableListableBeanFactory beanFactory;
 
 	private final ExecutionContext executionContext;
+
+	public RewriteMavenProjectParser(MavenPlexusContainer mavenPlexusContainer, ParsingEventListener parsingListener,
+			MavenExecutor mavenRunner, MavenMojoProjectParserFactory mavenMojoProjectParserFactory, ScanScope scanScope,
+			ConfigurableListableBeanFactory beanFactory, ExecutionContext executionContext) {
+		this.mavenPlexusContainer = mavenPlexusContainer;
+		this.parsingListener = parsingListener;
+		this.mavenRunner = mavenRunner;
+		this.mavenMojoProjectParserFactory = mavenMojoProjectParserFactory;
+		this.scanScope = scanScope;
+		this.beanFactory = beanFactory;
+		this.executionContext = executionContext;
+	}
 
 	/**
 	 * Parses a list of {@link Resource}s in given {@code baseDir} to OpenRewrite AST. It

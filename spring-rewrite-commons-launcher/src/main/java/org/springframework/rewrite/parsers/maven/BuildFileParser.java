@@ -15,14 +15,14 @@
  */
 package org.springframework.rewrite.parsers.maven;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.rewrite.utils.ResourceUtil;
 import org.springframework.util.Assert;
@@ -41,11 +41,15 @@ import static java.util.Collections.emptyList;
  *
  * @author Fabian Krüger
  */
-@Slf4j
-@RequiredArgsConstructor
 public class BuildFileParser {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(BuildFileParser.class);
+
 	private final MavenSettingsInitializer mavenSettingsInitilizer;
+
+	public BuildFileParser(MavenSettingsInitializer mavenSettingsInitilizer) {
+		this.mavenSettingsInitilizer = mavenSettingsInitilizer;
+	}
 
 	/**
 	 * Parse a list of Maven Pom files to a {@code List} of {@link Xml.Document}s. The
@@ -75,7 +79,7 @@ public class BuildFileParser {
 						.toList()));
 
 		if (skipMavenParsing) {
-			log.info("Maven parsing skipped [parser.skipMavenParsing=true].");
+			LOGGER.info("Maven parsing skipped [parser.skipMavenParsing=true].");
 			return List.of();
 		}
 
@@ -174,7 +178,7 @@ public class BuildFileParser {
 		String path = ResourceUtil.getPath(r).toString();
 		boolean underTest = path.contains("src/test");
 		if (underTest) {
-			log.info("Ignore build file '%s' having 'src/test' in its path indicating it's a build file for tests."
+			LOGGER.info("Ignore build file '%s' having 'src/test' in its path indicating it's a build file for tests."
 				.formatted(path));
 		}
 		return !underTest;

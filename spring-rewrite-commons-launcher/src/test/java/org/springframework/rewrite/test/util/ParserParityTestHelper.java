@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.test.util;
 
-import lombok.RequiredArgsConstructor;
 import org.assertj.core.api.SoftAssertions;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
@@ -125,7 +124,6 @@ public class ParserParityTestHelper {
 
 	}
 
-	@RequiredArgsConstructor
 	private class DefaultParserResultParityChecker {
 
 		public static void verifyParserResultParity(Path baseDir, RewriteProjectParsingResult expectedParserResult,

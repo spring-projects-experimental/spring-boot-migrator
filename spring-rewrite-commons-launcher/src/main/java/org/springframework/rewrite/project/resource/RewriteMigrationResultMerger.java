@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.project.resource;
 
-import lombok.RequiredArgsConstructor;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
 import org.springframework.rewrite.project.RewriteSourceFileWrapper;
@@ -25,10 +24,13 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 public class RewriteMigrationResultMerger {
 
 	private final RewriteSourceFileWrapper surceFileWrapper;
+
+	public RewriteMigrationResultMerger(RewriteSourceFileWrapper surceFileWrapper) {
+		this.surceFileWrapper = surceFileWrapper;
+	}
 
 	public void mergeResults(ProjectResourceSet resourceSet, List<Result> results) {
 		results.forEach(result -> {

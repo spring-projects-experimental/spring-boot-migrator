@@ -57,12 +57,9 @@
         <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
         <spring-javaformat-maven-plugin.version>0.0.39</spring-javaformat-maven-plugin.version>
         <license-maven-plugin.version>4.3</license-maven-plugin.version>
-        <lombok-maven-plugin.version>1.18.20.0</lombok-maven-plugin.version>
         <artifactory-maven-plugin.version>3.6.1</artifactory-maven-plugin.version>
         <asciidoctor-maven-plugin.version>2.2.3</asciidoctor-maven-plugin.version>
         <project.inceptionYear>2021</project.inceptionYear>
-        <!-- Should be same as the Spring managed version -->
-        <lombok.version.annotationProcessorPath>1.18.28</lombok.version.annotationProcessorPath>
     </properties>
 
     <developers>
@@ -121,7 +118,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
     <build>
         <pluginManagement>
             <plugins>
@@ -139,11 +136,6 @@
                         <fixFieldComment>false</fixFieldComment>
                         <fixMethodComment>false</fixMethodComment>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.projectlombok</groupId>
-                    <artifactId>lombok-maven-plugin</artifactId>
-                    <version>${lombok-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>io.spring.javaformat</groupId>
@@ -175,19 +167,6 @@
                     <compilerArgs>
                         <arg>-parameters</arg>
                     </compilerArgs>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>1.18.28</version>
-<!--                            <version>${lombok.version.annotationProcessorPath}</version>-->
-                        </path>
-                        <path>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-configuration-processor</artifactId>
-                            <version>${spring-boot.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>
@@ -287,60 +266,6 @@ limitations under the License.
             <modules>
                 <module>spring-rewrite-commons-functional-tests</module>
             </modules>
-        </profile>
-        <profile>
-            <id>delombok</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.projectlombok</groupId>
-                        <artifactId>lombok-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>delombok</goal>
-                                </goals>
-                                <configuration>
-                                    <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-                                    <outputDirectory>${basedir}/target/generated-sources/delomboked</outputDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jar-plugin</artifactId>
-                        <version>${maven-jar-plugin.version}</version> <!-- Adjust version as needed -->
-                        <executions>
-                            <execution>
-                                <id>create-sources-jar</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                                <configuration>
-                                    <classesDirectory>${project.build.directory}/generated-sources/delomboked</classesDirectory>
-                                    <archive>
-                                        <manifestEntries>
-                                            <Implementation-Title>${project.artifactId}</Implementation-Title>
-                                            <Implementation-Version>${project.version}</Implementation-Version>
-                                        </manifestEntries>
-                                    </archive>
-                                    <includes>
-                                        <include>**/*.java</include>
-                                    </includes>
-                                    <classifier>sources</classifier>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <id>artifactory</id>

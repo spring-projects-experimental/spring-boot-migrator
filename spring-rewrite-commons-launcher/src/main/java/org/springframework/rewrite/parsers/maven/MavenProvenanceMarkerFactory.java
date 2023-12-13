@@ -15,8 +15,6 @@
  */
 package org.springframework.rewrite.parsers.maven;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.openrewrite.Tree;
@@ -29,6 +27,8 @@ import org.openrewrite.marker.GitProvenance;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.OperatingSystemProvenance;
 import org.openrewrite.marker.ci.BuildEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.rewrite.parsers.MavenProject;
 
 import java.nio.file.Path;
@@ -39,9 +39,9 @@ import java.util.stream.Stream;
 /**
  * @author Fabian Krüger
  */
-@Slf4j
-@RequiredArgsConstructor
 public class MavenProvenanceMarkerFactory {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MavenProvenanceMarkerFactory.class);
 
 	public List<Marker> generateProvenance(Path baseDir, MavenProject mavenProject) {
 		MavenRuntimeInformation runtime = mavenProject.getMavenRuntimeInformation();
@@ -119,7 +119,7 @@ public class MavenProvenanceMarkerFactory {
 			return GitProvenance.fromProjectDirectory(baseDir, buildEnvironment);
 		}
 		catch (Exception var4) {
-			log.debug("Unable to determine git provenance", var4);
+			LOGGER.debug("Unable to determine git provenance", var4);
 			return null;
 		}
 	}

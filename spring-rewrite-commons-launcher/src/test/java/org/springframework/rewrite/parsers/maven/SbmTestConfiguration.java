@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.parsers.maven;
 
-import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.tree.ParsingEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,6 @@ import org.springframework.rewrite.scopes.ScanScope;
  * @author Fabian Krüger
  */
 @TestConfiguration
-@Slf4j
 @Import(RewriteParserConfiguration.class)
 public class SbmTestConfiguration {
 

@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.parsers.maven;
 
-import lombok.RequiredArgsConstructor;
 import org.openrewrite.marker.Marker;
 import org.springframework.core.io.Resource;
 import org.springframework.rewrite.parsers.ParserContext;
@@ -29,10 +28,13 @@ import java.util.Map;
 /**
  * @author Fabian Krüger
  */
-@RequiredArgsConstructor
 public class ProvenanceMarkerFactory {
 
 	private final MavenProvenanceMarkerFactory markerFactory;
+
+	public ProvenanceMarkerFactory(MavenProvenanceMarkerFactory markerFactory) {
+		this.markerFactory = markerFactory;
+	}
 
 	/**
 	 * Create Provenance markers

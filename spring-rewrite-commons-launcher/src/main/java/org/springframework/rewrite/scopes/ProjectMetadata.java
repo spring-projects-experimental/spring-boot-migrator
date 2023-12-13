@@ -15,16 +15,28 @@
  */
 package org.springframework.rewrite.scopes;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.openrewrite.maven.MavenSettings;
 
-@Getter
-@Setter
 public class ProjectMetadata {
 
 	private String metadata;
 
 	private MavenSettings mavenSettings;
+
+	public String getMetadata() {
+		return metadata;
+	}
+
+	public void setMetadata(String metadata) {
+		this.metadata = metadata;
+	}
+
+	public MavenSettings getMavenSettings() {
+		return mavenSettings;
+	}
+
+	public void setMavenSettings(MavenSettings mavenSettings) {
+		this.mavenSettings = mavenSettings;
+	}
 
 }

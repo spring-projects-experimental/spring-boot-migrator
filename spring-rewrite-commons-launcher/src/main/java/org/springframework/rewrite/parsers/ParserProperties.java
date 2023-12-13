@@ -15,8 +15,6 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.nio.file.Path;
@@ -31,8 +29,6 @@ import java.util.Set;
  * @author Fabian Krüger
  */
 @ConfigurationProperties(prefix = "parser")
-@Getter
-@Setter
 public class ParserProperties {
 
 	/**
@@ -88,5 +84,77 @@ public class ParserProperties {
 	 */
 	private Set<String> ignoredPathPatterns = Set.of("**/target/**", "target/**", "**/.idea/**", ".idea/**", ".mvn/**",
 			"**/.mvn/**");
+
+	public boolean isSkipMavenParsing() {
+		return skipMavenParsing;
+	}
+
+	public void setSkipMavenParsing(boolean skipMavenParsing) {
+		this.skipMavenParsing = skipMavenParsing;
+	}
+
+	public boolean isPomCacheEnabled() {
+		return pomCacheEnabled;
+	}
+
+	public void setPomCacheEnabled(boolean pomCacheEnabled) {
+		this.pomCacheEnabled = pomCacheEnabled;
+	}
+
+	public String getPomCacheDirectory() {
+		return pomCacheDirectory;
+	}
+
+	public void setPomCacheDirectory(String pomCacheDirectory) {
+		this.pomCacheDirectory = pomCacheDirectory;
+	}
+
+	public Set<String> getPlainTextMasks() {
+		return plainTextMasks;
+	}
+
+	public void setPlainTextMasks(Set<String> plainTextMasks) {
+		this.plainTextMasks = plainTextMasks;
+	}
+
+	public int getSizeThresholdMb() {
+		return sizeThresholdMb;
+	}
+
+	public void setSizeThresholdMb(int sizeThresholdMb) {
+		this.sizeThresholdMb = sizeThresholdMb;
+	}
+
+	public boolean isRunPerSubmodule() {
+		return runPerSubmodule;
+	}
+
+	public void setRunPerSubmodule(boolean runPerSubmodule) {
+		this.runPerSubmodule = runPerSubmodule;
+	}
+
+	public boolean isFailOnInvalidActiveRecipes() {
+		return failOnInvalidActiveRecipes;
+	}
+
+	public void setFailOnInvalidActiveRecipes(boolean failOnInvalidActiveRecipes) {
+		this.failOnInvalidActiveRecipes = failOnInvalidActiveRecipes;
+	}
+
+	public List<String> getActiveProfiles() {
+		return activeProfiles;
+	}
+
+	public void setActiveProfiles(List<String> activeProfiles) {
+		this.activeProfiles = activeProfiles;
+	}
+
+	public Set<String> getIgnoredPathPatterns() {
+		return ignoredPathPatterns;
+	}
+
+	public void setIgnoredPathPatterns(Set<String> ignoredPathPatterns) {
+		this.ignoredPathPatterns = ignoredPathPatterns;
+	}
 
 }

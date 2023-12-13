@@ -15,7 +15,6 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.FileAttributes;
@@ -31,6 +30,8 @@ import org.openrewrite.marker.Generated;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.xml.tree.Xml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.rewrite.utils.ResourceUtil;
 
@@ -50,8 +51,9 @@ import static org.openrewrite.Tree.randomId;
 /**
  * @author Fabian Krüger
  */
-@Slf4j
 public class ModuleParser {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ModuleParser.class);
 
 	/**
 	 * Add {@link Marker}s to {@link SourceFile}.
@@ -77,7 +79,7 @@ public class ModuleParser {
 			Xml.Document moduleBuildFile, JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder,
 			RewriteResourceParser rp, List<Marker> provenanceMarkers, Set<Path> alreadyParsed,
 			ExecutionContext executionContext, MavenProject currentProject) {
-		log.info("Processing main sources in module '%s'".formatted(currentProject.getProjectId()));
+		LOGGER.info("Processing main sources in module '%s'".formatted(currentProject.getProjectId()));
 		// FIXME: 945
 		// Some annotation processors output generated sources to the /target directory.
 		// These are added for parsing but
@@ -91,7 +93,7 @@ public class ModuleParser {
 		mainJavaSources.addAll(javaSourcesInTarget);
 		mainJavaSources.addAll(javaSourcesInMain);
 
-		log.info("[%s] Parsing source files".formatted(currentProject));
+		LOGGER.info("[%s] Parsing source files".formatted(currentProject));
 
 		// FIXME 945 classpath
 		// - Resolve dependencies to non-reactor projects from Maven repository
@@ -147,7 +149,8 @@ public class ModuleParser {
 		List<Path> parsedJavaPaths = javaSourcesInTarget.stream().map(ResourceUtil::getPath).toList();
 		Stream<SourceFile> parsedJava = cus.stream()
 			.map(addProvenance(baseDir, mainProjectProvenance, parsedJavaPaths));
-		log.debug("[%s] Scanned %d java source files in main scope.".formatted(currentProject, mainJavaSources.size()));
+		LOGGER.debug(
+				"[%s] Scanned %d java source files in main scope.".formatted(currentProject, mainJavaSources.size()));
 
 		// Filter out any generated source files from the returned list, as we do not want
 		// to apply the recipe to the
@@ -163,7 +166,7 @@ public class ModuleParser {
 			.map(addProvenance(baseDir, mainProjectProvenance, null))
 			.toList();
 
-		log.debug("[%s] Scanned %d resource files in main scope.".formatted(currentProject,
+		LOGGER.debug("[%s] Scanned %d resource files in main scope.".formatted(currentProject,
 				(alreadyParsed.size() - sourcesParsedBefore)));
 		// Any resources parsed from "main/resources" should also have the main source set
 		// added to them.
@@ -200,7 +203,7 @@ public class ModuleParser {
 			JavaParser.Builder<? extends JavaParser, ?> javaParserBuilder, RewriteResourceParser rp,
 			List<Marker> provenanceMarkers, Set<Path> alreadyParsed, ExecutionContext executionContext,
 			MavenProject currentProject, List<Resource> resources, List<JavaType.FullyQualified> classpath) {
-		log.info("Processing test sources in module '%s'".formatted(currentProject.getProjectId()));
+		LOGGER.info("Processing test sources in module '%s'".formatted(currentProject.getProjectId()));
 
 		List<Path> testDependencies = currentProject.getTestClasspathElements();
 
@@ -237,7 +240,8 @@ public class ModuleParser {
 		markers.add(javaSourceSet);
 		Stream<SourceFile> parsedJava = cus.stream().map(addProvenance(baseDir, markers, null));
 
-		log.debug("[%s] Scanned %d java source files in test scope.".formatted(currentProject, testJavaSources.size()));
+		LOGGER.debug(
+				"[%s] Scanned %d java source files in test scope.".formatted(currentProject, testJavaSources.size()));
 		Stream<SourceFile> sourceFiles = parsedJava;
 
 		// Any resources parsed from "test/resources" should also have the test source set
@@ -246,7 +250,7 @@ public class ModuleParser {
 		Stream<SourceFile> parsedResourceFiles = rp
 			.parse(currentProject.getBasedir().resolve("src/test/resources"), resources, alreadyParsed)
 			.map(addProvenance(baseDir, markers, null));
-		log.debug("[%s] Scanned %d resource files in test scope.".formatted(currentProject,
+		LOGGER.debug("[%s] Scanned %d resource files in test scope.".formatted(currentProject,
 				(alreadyParsed.size() - sourcesParsedBefore)));
 		sourceFiles = Stream.concat(sourceFiles, parsedResourceFiles);
 		List<SourceFile> result = sourceFiles.toList();

@@ -15,11 +15,15 @@
  */
 package org.springframework.rewrite.parsers;
 
-import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.maven.cache.*;
+import org.openrewrite.maven.cache.CompositeMavenPomCache;
+import org.openrewrite.maven.cache.InMemoryMavenPomCache;
+import org.openrewrite.maven.cache.MavenPomCache;
+import org.openrewrite.maven.cache.RocksdbMavenPomCache;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.openrewrite.tree.ParsingEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -44,12 +48,13 @@ import java.util.function.Consumer;
  *
  * @author Fabian Krüger
  */
-@Slf4j
 @AutoConfiguration(after = { ScopeConfiguration.class })
 @EnableConfigurationProperties({ ParserProperties.class, SbmApplicationProperties.class })
 @Import({ org.springframework.rewrite.scopes.ScanScope.class, ScopeConfiguration.class,
 		RewriteParserMavenConfiguration.class })
 public class RewriteParserConfiguration {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(RewriteParserConfiguration.class);
 
 	@Bean
 	ProvenanceMarkerFactory provenanceMarkerFactory(MavenProvenanceMarkerFactory mavenPovenanceMarkerFactory) {
@@ -139,7 +144,7 @@ public class RewriteParserConfiguration {
 		MavenPomCache mavenPomCache = new InMemoryMavenPomCache();
 		if (parserProperties.isPomCacheEnabled()) {
 			if (!"64".equals(System.getProperty("sun.arch.data.model", "64"))) {
-				log.warn(
+				LOGGER.warn(
 						"parser.isPomCacheEnabled was set to true but RocksdbMavenPomCache is not supported on 32-bit JVM. falling back to InMemoryMavenPomCache");
 			}
 			else {
@@ -148,12 +153,12 @@ public class RewriteParserConfiguration {
 							new RocksdbMavenPomCache(Path.of(parserProperties.getPomCacheDirectory())));
 				}
 				catch (Exception e) {
-					log.warn("Unable to initialize RocksdbMavenPomCache, falling back to InMemoryMavenPomCache");
-					if (log.isDebugEnabled()) {
+					LOGGER.warn("Unable to initialize RocksdbMavenPomCache, falling back to InMemoryMavenPomCache");
+					if (LOGGER.isDebugEnabled()) {
 						StringWriter sw = new StringWriter();
 						e.printStackTrace(new PrintWriter(sw));
 						String exceptionAsString = sw.toString();
-						log.debug(exceptionAsString);
+						LOGGER.debug(exceptionAsString);
 					}
 				}
 			}
