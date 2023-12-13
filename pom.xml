@@ -477,6 +477,12 @@ limitations under the License.
     </build>
     <profiles>
         <profile>
+            <id>functional-tests</id>
+            <modules>
+                <module>spring-rewrite-commons-functional-tests</module>
+            </modules>
+        </profile>
+        <profile>
             <id>delombok</id>
             <build>
                 <plugins>
