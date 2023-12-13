@@ -3,5 +3,6 @@
 * xref:concepts.adoc[Concepts]
 * xref:components.adoc[Components]
 * xref:testing.adoc[Testing]
+* xref:contributing.adoc[Contributing]
 * Appendices
 ** xref:properties.adoc[]
