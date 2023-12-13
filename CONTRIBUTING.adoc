@@ -36,7 +36,8 @@ None of these is essential for a pull request, but they will all help.  They can
 added after the original pull request but before a merge.
 
 * Make sure all new `.java` files have a Javadoc class comment with at least an `@author` tag identifying you, and preferably at least a paragraph on what the class is for.
-* Add the ASF license header comment to all new `.java` files (copy from existing files in the project).
+* Add the ASF license header comment to all new `.java` files (copy from existing files in the project). +
+The license headers can be generated using the license plugin: `mvn license:format`
 * Add yourself as an `@author` to the `.java` files that you modify substantially (more than cosmetic changes).
 * Add some Javadocs.
 * A few unit tests would help a lot as well -- someone has to do it.
