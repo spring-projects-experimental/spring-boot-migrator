@@ -17,6 +17,7 @@ package org.springframework.rewrite.recipes;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.Recipe;
 import org.openrewrite.Validated;
 import org.openrewrite.config.ClasspathScanningLoader;
@@ -26,10 +27,8 @@ import org.openrewrite.config.ResourceLoader;
 import org.springframework.rewrite.parsers.ParserProperties;
 import org.springframework.rewrite.parsers.RecipeValidationErrorException;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.function.Predicate;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -151,16 +150,47 @@ public class RewriteRecipeDiscovery {
 		return descriptor;
 	}
 
-	public List<Recipe> findRecipesByTags(String tag) {
+	public List<Recipe> findRecipesByTag(String tag) {
+		return getFilteredRecipes(r -> r.getTags().contains(tag));
+	}
+
+	/**
+	 * @param name of the recipe that should be returned.
+	 * @return Optional recipe matching name or empty when no recipe matches.
+	 * @throws IllegalArgumentException when more than one recipe was found.
+	 */
+	public Optional<Recipe> findRecipeByName(String name) {
+		List<Recipe> filteredRecipes = getFilteredRecipes(r -> r.getName().equals(name));
+		if(filteredRecipes.size() > 1) {
+			throw new IllegalStateException("Found more than one recipe with name '%s'".formatted(name));
+		} else if(filteredRecipes.isEmpty()) {
+			return Optional.empty();
+		} else {
+			return Optional.of(filteredRecipes.get(0));
+		}
+	}
+
+	public Recipe getRecipeByName(String name) {
+		List<Recipe> filteredRecipes = getFilteredRecipes(r -> r.getName().equals(name));
+		if(filteredRecipes.size() > 1) {
+			throw new IllegalArgumentException("Found more than one recipe with name '%s'".formatted(name));
+		} else if(filteredRecipes.isEmpty()) {
+			throw new IllegalArgumentException("No recipe found with name '%s'".formatted(name));
+		} else {
+			return filteredRecipes.get(0);
+		}
+	}
+
+
+	@NotNull
+	public static List<Recipe> getFilteredRecipes(Predicate<Recipe> filterPredicate) {
 		ResourceLoader resourceLoader = new ClasspathScanningLoader(new Properties(), new String[] {});
 		Environment environment = Environment.builder().load(resourceLoader).build();
-
-		List<Recipe> recipes = environment.listRecipes().stream().filter(r -> r.getTags().contains(tag)).toList();
-
+		List<Recipe> recipes = environment.listRecipes().stream().filter(filterPredicate).toList();
 		return recipes;
 	}
 
-	// class AbstractRewriteMojoHelper extends AbstractRewriteMojo {
+    // class AbstractRewriteMojoHelper extends AbstractRewriteMojo {
 	//
 	// public AbstractRewriteMojoHelper(MavenProject mavenProject) {
 	// super.project = mavenProject;

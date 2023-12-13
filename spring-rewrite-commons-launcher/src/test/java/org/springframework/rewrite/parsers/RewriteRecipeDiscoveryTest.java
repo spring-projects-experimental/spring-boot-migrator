@@ -147,7 +147,7 @@ class RewriteRecipeDiscoveryTest {
 	void shouldFindRecipesByTag() {
 		String tag = "Java";
 		RewriteRecipeDiscovery sut = buildRecipeDiscovery();
-		List<Recipe> recipes = sut.findRecipesByTags(tag);
+		List<Recipe> recipes = sut.findRecipesByTag(tag);
 
 		assertThat(recipes).hasSize(1);
 		assertThat(getRecipeByName(recipes, "io.example.recipes.AnotherDummyRecipe")).isNotNull();
