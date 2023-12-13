@@ -1,0 +1,30 @@
+== Contributing
+You want to contribute to the Spring Boot Migrator project?
+
+Great! All contributions are welcome.
+
+If you have not previously done so, please sign the https://cla.pivotal.io/sign/spring[Contributor License Agreement]. You will be reminded automatically when you submit the pull request.
+
+Please also see link:../../CONTRIBUTING.adoc[CONTRIBUTING.adoc] for further information.
+
+All files need to have a license header. Please use this copyright text:
+
+[source, text]
+....
+Copyright 2022 the original author or authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+....
+
+You can configure license headers under `IntelliJ IDEA/Copyright/Copyright Profile`.
+See https://www.jetbrains.com/help/idea/copyright.html#configure-copyright-profiles
