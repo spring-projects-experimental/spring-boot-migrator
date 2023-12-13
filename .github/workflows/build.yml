@@ -19,7 +19,11 @@ jobs:
           cache: 'maven'
 
       - name: Maven Build
-        run: ./mvnw --batch-mode --fail-at-end clean package
+        run: ./mvnw --batch-mode --fail-at-end clean install
+
+      - name: Functional Tests
+        run: ./mvnw --batch-mode clean test
+        working-directory: ./spring-rewrite-commons-functional-tests
 
       - name: Deploy Snapshot
         env:
@@ -28,4 +32,4 @@ jobs:
           GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
           GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
           GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
-        run: mvn -B clean deploy -Partifactory,delombok
+        run: mvn --batch-mode deploy -Partifactory,delombok
