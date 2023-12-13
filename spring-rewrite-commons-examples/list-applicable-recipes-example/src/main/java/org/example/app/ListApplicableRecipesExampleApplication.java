@@ -26,10 +26,10 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.ProjectScanner;
-import org.springframework.sbm.parsers.RewriteProjectParser;
-import org.springframework.sbm.parsers.RewriteProjectParsingResult;
-import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
+import org.springframework.rewrite.parsers.ProjectScanner;
+import org.springframework.rewrite.parsers.RewriteProjectParser;
+import org.springframework.rewrite.parsers.RewriteProjectParsingResult;
+import org.springframework.rewrite.recipes.RewriteRecipeDiscovery;
 
 import java.nio.file.Path;
 import java.util.Arrays;

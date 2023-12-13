@@ -1,27 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.rewrite</groupId>
-		<artifactId>spring-rewrite-commons</artifactId>
-		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.rewrite</groupId>
+        <artifactId>spring-rewrite-commons</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-	<artifactId>spring-rewrite-commons-examples</artifactId>
-	<packaging>pom</packaging>
+    <artifactId>spring-rewrite-commons-examples</artifactId>
+    <packaging>pom</packaging>
 
-	<name>Spring Rewrite Commons Examples</name>
-	<description>Examples using Spring Rewrite Commons</description>
+    <name>Spring Rewrite Commons Examples</name>
+    <description>Examples using Spring Rewrite Commons</description>
 
-	<modules>
-		<module>boot-3-upgrade-atomic</module>
-		<module>boot-3-upgrade-iterative</module>
-		<module>list-applicable-recipes-example</module>
-	</modules>
+    <modules>
+        <module>boot-3-upgrade-atomic</module>
+        <module>boot-3-upgrade-iterative</module>
+        <module>list-applicable-recipes-example</module>
+    </modules>
 
-	<properties>
-		<java.version>17</java.version>
-	</properties>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.rewrite</groupId>
+                <artifactId>spring-rewrite-commons-launcher</artifactId>
+                <version>0.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrewrite.recipe</groupId>
+                <artifactId>rewrite-spring</artifactId>
+                <version>5.0.10</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.rewrite</groupId>
+            <artifactId>spring-rewrite-commons-launcher</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-spring</artifactId>
+        </dependency>
+    </dependencies>
 </project>

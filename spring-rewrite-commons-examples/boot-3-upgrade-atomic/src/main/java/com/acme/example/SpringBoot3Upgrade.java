@@ -15,20 +15,23 @@
  */
 package com.acme.example;
 
-import org.openrewrite.*;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.Recipe;
+import org.openrewrite.SourceFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.parsers.ProjectScanner;
-import org.springframework.sbm.parsers.RewriteProjectParser;
-import org.springframework.sbm.parsers.RewriteProjectParsingResult;
-import org.springframework.sbm.parsers.events.StartedParsingResourceEvent;
-import org.springframework.sbm.project.RewriteSourceFileWrapper;
-import org.springframework.sbm.project.resource.*;
-import org.springframework.sbm.recipes.RewriteRecipeDiscovery;
+import org.springframework.rewrite.parsers.ProjectScanner;
+import org.springframework.rewrite.parsers.RewriteProjectParser;
+import org.springframework.rewrite.parsers.RewriteProjectParsingResult;
+import org.springframework.rewrite.parsers.events.StartedParsingResourceEvent;
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.ProjectResourceSetFactory;
+import org.springframework.rewrite.project.resource.ProjectResourceSetSerializer;
+import org.springframework.rewrite.recipes.RewriteRecipeDiscovery;
 
 import java.nio.file.Path;
 import java.util.List;

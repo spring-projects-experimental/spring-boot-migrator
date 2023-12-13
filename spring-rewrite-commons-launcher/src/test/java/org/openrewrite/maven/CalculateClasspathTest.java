@@ -26,11 +26,11 @@ import org.openrewrite.java.tree.JavaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.boot.autoconfigure.ScannerConfiguration;
-import org.springframework.sbm.parsers.RewriteProjectParser;
-import org.springframework.sbm.parsers.RewriteProjectParsingResult;
-import org.springframework.sbm.test.util.DummyResource;
-import org.springframework.sbm.test.util.TestProjectHelper;
+import org.springframework.rewrite.boot.autoconfigure.ScannerConfiguration;
+import org.springframework.rewrite.parsers.RewriteProjectParser;
+import org.springframework.rewrite.parsers.RewriteProjectParsingResult;
+import org.springframework.rewrite.test.util.DummyResource;
+import org.springframework.rewrite.test.util.TestProjectHelper;
 
 import java.nio.file.Path;
 import java.util.List;

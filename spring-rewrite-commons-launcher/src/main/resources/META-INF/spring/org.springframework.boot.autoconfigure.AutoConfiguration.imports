@@ -1,5 +1,5 @@
-org.springframework.sbm.boot.autoconfigure.ScopeConfiguration
-org.springframework.sbm.parsers.RewriteParserConfiguration
-org.springframework.sbm.boot.autoconfigure.ScannerConfiguration
-org.springframework.sbm.boot.autoconfigure.DiscoveryConfiguration
-org.springframework.sbm.boot.autoconfigure.ProjectResourceSetConfiguration
+org.springframework.rewrite.boot.autoconfigure.ScopeConfiguration
+org.springframework.rewrite.parsers.RewriteParserConfiguration
+org.springframework.rewrite.boot.autoconfigure.ScannerConfiguration
+org.springframework.rewrite.boot.autoconfigure.DiscoveryConfiguration
+org.springframework.rewrite.boot.autoconfigure.ProjectResourceSetConfiguration
