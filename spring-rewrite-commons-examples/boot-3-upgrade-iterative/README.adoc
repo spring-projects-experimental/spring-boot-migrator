@@ -1,0 +1,4 @@
+= Iterative Upgrade to Boot 3 using PRs
+
+This example shows how to implement a simple Boot application that uses `spring-rewrite-commons` to apply recipes that upgrade the Spring Boot PetClinic from 2.3.x to Spring Boot 3.1 by applying recipes to upgrade from minor to minor version by creating PRs for every recipe run.
+No new recipes are applied until the last PR has been merged or closed.

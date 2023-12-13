@@ -40,6 +40,8 @@ import java.util.Optional;
 @SpringBootApplication
 public class SpringBoot3Upgrade implements CommandLineRunner {
 
+	public static final String RECIPE_NAME = "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1";
+
 	public static void main(String[] args) {
 		SpringApplication.run(SpringBoot3Upgrade.class, args);
 	}
@@ -87,9 +89,8 @@ public class SpringBoot3Upgrade implements CommandLineRunner {
 		ProjectResourceSet projectResourceSet = projectResourceSetFactory.create(baseDir, sourceFiles);
 
 		// discover
-		String recipeName = "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1";
 		List<Recipe> recipes = discovery.discoverRecipes();
-		Optional<Recipe> recipe = recipes.stream().filter(r -> recipeName.equals(r.getName())).findFirst();
+		Optional<Recipe> recipe = recipes.stream().filter(r -> RECIPE_NAME.equals(r.getName())).findFirst();
 
 		// apply
 		recipe.ifPresent((Recipe r) -> {
