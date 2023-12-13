@@ -13,7 +13,7 @@
 	<groupId>org.example</groupId>
 	<artifactId>list-applicable-recipes-example</artifactId>
 
-	<name>Spring Rewrite Commons Examples - List Applicable Recipes</name>
+	<name>List Applicable Recipes Example</name>
 	<description>Example project listing applicable recipes for a given application</description>
 
 	<properties>

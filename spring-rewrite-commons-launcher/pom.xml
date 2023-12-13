@@ -12,7 +12,7 @@
 
     <artifactId>spring-rewrite-commons-launcher</artifactId>
 
-    <name>Spring Rewrite Commons Launcher</name>
+    <name>Launcher</name>
     <description>Run OpenRewrite recipes without a build tool plugin</description>
     <url>https://github.com/spring-projects/spring-rewrite-commons</url>
 

@@ -13,7 +13,7 @@
     <artifactId>spring-rewrite-commons-functional-tests</artifactId>
     <packaging>pom</packaging>
 
-    <name>Functional tests for Spring Rewrite Commons</name>
+    <name>Spring Rewrite Commons - Functional Tests</name>
     <url>https://github.com/spring-projects/spring-rewrite-commons</url>
 
     <organization>

@@ -13,7 +13,7 @@
     <groupId>com.example</groupId>
     <artifactId>boot-3-upgrade-iterative</artifactId>
 
-    <name>Spring Rewrite Commons Examples - Boot 3 Iterative Upgrade</name>
+    <name>Boot 3 Iterative Upgrade Example</name>
     <description>Example of iterative Boot upgrade with PRs</description>
 
     <properties>

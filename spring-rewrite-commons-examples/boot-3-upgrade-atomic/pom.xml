@@ -14,7 +14,7 @@
     <groupId>com.example</groupId>
     <artifactId>boot-3-upgrade-atomic</artifactId>
 
-    <name>Spring Rewrite Commons Examples - Boot 3 Atomic Upgrade</name>
+    <name>Boot 3 Atomic Upgrade Example</name>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

@@ -12,6 +12,7 @@
 
     <artifactId>private-artifact-repository-tests</artifactId>
 
+    <name>Private Artifact Repo Test</name>
     <description>Functional tests for Spring Rewrite Commons using a private artifact repository</description>
     <url>https://github.com/spring-projects/spring-rewrite-commons</url>
 

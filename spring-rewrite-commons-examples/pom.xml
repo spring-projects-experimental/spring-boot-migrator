@@ -13,7 +13,7 @@
     <artifactId>spring-rewrite-commons-examples</artifactId>
     <packaging>pom</packaging>
 
-    <name>Spring Rewrite Commons Examples</name>
+    <name>Spring Rewrite Commons - Examples</name>
     <description>Examples using Spring Rewrite Commons</description>
 
     <modules>
