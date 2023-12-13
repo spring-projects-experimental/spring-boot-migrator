@@ -1,6 +1,20 @@
 [source,java]
 ....
+package com.acme.example;
+
+import org.openrewrite.Recipe;
+import org.openrewrite.SourceFile;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.rewrite.parsers.RewriteProjectParser;
+import org.springframework.rewrite.parsers.RewriteProjectParsingResult;
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.ProjectResourceSetFactory;
+import org.springframework.rewrite.project.resource.ProjectResourceSetSerializer;
+import org.springframework.rewrite.recipes.RewriteRecipeDiscovery;
+import org.springframework.stereotype.Component;
+
+import java.nio.file.Path;
+import java.util.List;
 
 @Component
 public class MyMigrationApplication {
@@ -9,21 +23,21 @@ public class MyMigrationApplication {
     private RewriteProjectParser parser;
 
     @Autowired
-    private RewriteRecipeDiscovery discovery; <3>
+    private RewriteRecipeDiscovery discovery; <2>
 
     @Autowired
-    private ProjectResourceSetFactory resourceSetFactory; <4>
+    private ProjectResourceSetFactory resourceSetFactory;
 
     @Autowired
-    private ProjectResourceSetSerializer serializer; <5>
+    private ProjectResourceSetSerializer serializer;
 
 
     public void migrateToBoot3_1() {
-        Path baseDir = ... <2>
+        Path baseDir = Path.of("."); <2>
         String recipeName = "org.openrewrite.java.spring.boot3.UpgradeSpringBoot_3_1";
-        Recipe boot3Upgrade = discover.getByName(recipeName); <3>
+        Recipe boot3Upgrade = discovery.getByName(recipeName); <3>
 
-        RewriteParsingResult result = parser.parse(baseDir); <4>
+        RewriteProjectParsingResult result = parser.parse(baseDir); <4>
         List<SourceFile> lst = result.sourceFiles(); <5>
         ProjectResourceSet resourceSet = resourceSetFactory.create(baseDir, lst); <6>
         resourceSet.apply(boot3Upgrade); <7>

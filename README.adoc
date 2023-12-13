@@ -1,11 +1,13 @@
 = Spring Rewrite Commons
 :partials_dir: spring-rewrite-commons-docs/src/main/antora/modules/ROOT/pages/partials
 :project-version: 0.1.0-SNAPSHOTS
+:docs: https://docs.spring.io/spring-rewrite-commons/docs/current-SNAPSHOT/reference/html/
 
 [quote]
 ____
-Spring Rewrite Commons provides a set of components to parse a Java project to OpenRewrite LST and apply recipes outside a build tool plugin.
+Spring Rewrite Commons provides a set of components to parse a Java project to https://github.com/openrewrite[OpenRewrite,window=_blank] LST and apply recipes outside a build tool plugin.
 ____
+
 
 == Get started
 

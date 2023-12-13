@@ -1,4 +1,4 @@
 [source,groovy,indent=0,subs="verbatim,quotes,attributes",role="secondary"s]
 ----
-compile 'org.springframework.rewrite:spring-rewrite-commons:{projectVersion}'
+compile 'org.springframework.rewrite:spring-rewrite-commons-launcher:{project-version}'
 ----
