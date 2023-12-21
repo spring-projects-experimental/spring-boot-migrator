@@ -348,7 +348,7 @@
             <plugin>
                 <groupId>de.jutzig</groupId>
                 <artifactId>github-release-plugin</artifactId>
-                <version>1.4.0</version>
+                <version>1.6.0</version>
                 <configuration>
                     <description>Description of your release</description>
                     <releaseName>0.11.0</releaseName>
