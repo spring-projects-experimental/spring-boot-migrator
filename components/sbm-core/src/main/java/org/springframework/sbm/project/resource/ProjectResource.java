@@ -29,11 +29,22 @@ public interface ProjectResource {
      */
     Path getSourcePath();
 
+    /**
+     * @return the OS agnostic path representation of {@link #getSourcePath()}.
+     */
+    String getSourcePathString();
+
     Path getAbsolutePath();
+
+    /**
+     * @return the OS agnostic path representation of {@link #getAbsolutePath()}.
+     */
+    String getAbsolutePathString();
 
     void delete();
 
     boolean isDeleted();
 
     void moveTo(Path newPath);
+
 }

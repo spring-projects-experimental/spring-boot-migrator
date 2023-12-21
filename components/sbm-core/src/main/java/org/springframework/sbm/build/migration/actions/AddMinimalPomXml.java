@@ -58,8 +58,7 @@ public class AddMinimalPomXml extends AbstractAction {
 
     @Override
     public void apply(ProjectContext context) {
-        String projectDir = context.getProjectRootDirectory().toString();
-        String projectName = projectDir.replace(" ", "-").substring(projectDir.lastIndexOf("/") + 1);
+        String projectName = context.getProjectRootDirectory().getFileName().toString();
         Map<String, String> params = new HashMap<>();
         params.put("groupId", "com.example.change");
         params.put("artifactId", projectName);

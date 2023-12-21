@@ -58,9 +58,7 @@ public class JohnzonDependencyReportSectionTest {
                                 so an explicit version number must now be provided in the POM for this dependency.
                                                                 
                                 ==== Remediation
-                                This recipe will add an explicit version number to the org.apache.johnzon:johnzon-core dependency in the POM.
-                                                                
-                                                                
+                                This recipe will add an explicit version number to the org.apache.johnzon:johnzon-core dependency in the POM.                              
                                 """);
     }
 

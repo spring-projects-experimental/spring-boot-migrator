@@ -16,9 +16,11 @@
 package org.springframework.sbm.project.resource;
 
 import freemarker.template.Configuration;
+import org.apache.commons.lang3.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.Parser;
+import org.openrewrite.maven.cache.InMemoryMavenPomCache;
+import org.openrewrite.maven.cache.MavenPomCache;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -28,7 +30,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;
-import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.project.parser.DependencyHelper;
@@ -38,9 +39,7 @@ import org.springframework.sbm.test.SpringBeanProvider;
 import org.springframework.sbm.test.TestProjectContextInfo;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -212,16 +211,6 @@ public class TestProjectContext {
     }
 
     /**
-     * Build {@code ProjectContext} with default project root of absolute path of './dummy-test-path'
-     * <p>
-     *
-     * @param eventPublisher the eventPublisher to use
-     */
-    public static Builder buildProjectContext(ApplicationEventPublisher eventPublisher, RewriteJavaParser rewriteJavaParser) {
-        return new Builder(DEFAULT_PROJECT_ROOT, eventPublisher, rewriteJavaParser);
-    }
-
-    /**
      * @return the default project root dir
      */
     public static Path getDefaultProjectRoot() {
@@ -256,15 +245,12 @@ public class TestProjectContext {
     }
 
     public static class Builder {
-        @Deprecated
-        private RewriteJavaParser javaParser;
         private ConfigurableListableBeanFactory beanFactory;
         private Path projectRoot;
-        private List<ProjectResourceWrapper> resourceWrapperList = new ArrayList<>();
+        private List<ProjectResourceWrapper<?>> resourceWrapperList = new ArrayList<>();
         private List<String> dependencies = new ArrayList<>();
         private Map<Path, String> resourcesWithRelativePaths = new LinkedHashMap<>();
         private ApplicationEventPublisher eventPublisher;
-        private ProjectResourceWrapperRegistry resourceWrapperRegistry;
         private OpenRewriteMavenBuildFile mockedBuildFile;
         private DependencyHelper dependencyHelper = new DependencyHelper();
         private SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
@@ -278,11 +264,6 @@ public class TestProjectContext {
         public Builder(Path projectRoot, ApplicationEventPublisher eventPublisher) {
             this(projectRoot, (ConfigurableListableBeanFactory) null);
             this.eventPublisher = eventPublisher;
-        }
-
-        public Builder(Path defaultProjectRoot, ApplicationEventPublisher eventPublisher, RewriteJavaParser rewriteJavaParser) {
-            this(defaultProjectRoot, eventPublisher);
-            this.javaParser = rewriteJavaParser;
         }
 
         public Builder(Path defaultProjectRoot, ConfigurableListableBeanFactory beanFactory) {
@@ -308,7 +289,7 @@ public class TestProjectContext {
         }
 
         /**
-         * Adds given resource to list of resources which will be parsed and provided through {@code ProjectContext}.
+         * Adds given resource to a list of resources which will be parsed and provided through {@code ProjectContext}.
          *
          * @param sourcePath relative from project root.
          * @param content    of the resource
@@ -321,7 +302,7 @@ public class TestProjectContext {
         }
 
         /**
-         * Adds given resource to list of resources which will be parsed and provided through {@code ProjectContext}.
+         * Adds given resource to a list of resources which will be parsed and provided through {@code ProjectContext}.
          *
          * @param sourcePathString relative from project root.
          * @param content          of the resource
@@ -332,7 +313,7 @@ public class TestProjectContext {
         }
 
         /**
-         * Adds a resource with no content and given path to list of resources which will be parsed and provided through {@code ProjectContext}.
+         * Adds a resource with no content, and given the path to a list of resources which will be parsed and provided through {@code ProjectContext}.
          *
          * @param sourcePathString relative from project root.
          */
@@ -346,14 +327,14 @@ public class TestProjectContext {
          * <p>
          * {@code BuildFileResourceWrapper} and {@code JavaSourceProjectResourceWrapper} are added by default.
          */
-        public Builder addRegistrar(ProjectResourceWrapper projectResourceWrapper) {
+        public Builder addRegistrar(ProjectResourceWrapper<?> projectResourceWrapper) {
             resourceWrapperList.add(projectResourceWrapper);
             return this;
         }
 
         /**
          * Adds the given Java source to the list of compiled Java sources.
-         * The source Path is ' src/main/java' in the root module and the path inside is calculated from package declaration if exists.
+         * The source Path is 'src/main/java' in the root module and the path inside is calculated from package declaration if it exists.
          */
         @Deprecated
         public Builder withJavaSource(String sourceCode) {
@@ -376,19 +357,19 @@ public class TestProjectContext {
         }
 
         public Builder withJavaSourceInModule(String modulePath, String sourceCode) {
-            if (Path.of(modulePath).isAbsolute()) {
+            Path path = Path.of(modulePath);
+            if (path.isAbsolute()) {
                 throw new IllegalArgumentException("Source path must be relative to project root dir.");
             }
             String fqName = JavaSourceUtil.retrieveFullyQualifiedClassFileName(sourceCode);
-            Path sourcePath = Path.of(modulePath).resolve("src/main/java").resolve(fqName);
+            Path sourcePath = path.resolve("src/main/java").resolve(fqName);
             this.resourcesWithRelativePaths.put(sourcePath, sourceCode);
             return this;
         }
 
-
         /**
          * Adds the given Java sources to the list of compiled Java sources.
-         * The source Path is ' src/main/java' in the root module and the path inside is calculated from package declaration if exists.
+         * The source Path is 'src/main/java' in the root module and the path inside is calculated from package declaration if exists.
          */
         public Builder withJavaSources(String... sourceCodes) {
             Arrays.asList(sourceCodes).forEach(sourceCode -> {
@@ -403,7 +384,7 @@ public class TestProjectContext {
 
         /**
          * Adds the given Java sources to the list of compiled Java sources.
-         * The source Path is ' src/test/java' in the root module and the path inside is calculated from package declaration if exists.
+         * The source Path is 'src/test/java' in the root module and the path inside is calculated from package declaration if exists.
          */
         public Builder withJavaTestSources(String... sourceCodes) {
             Arrays.asList(sourceCodes).forEach(sourceCode -> {
@@ -458,9 +439,21 @@ public class TestProjectContext {
          * This method is obsolete to use as a default {@code pom.xml} is always added if not otherwise specified.
          */
         public Builder withDummyRootBuildFile() {
-            if (containsAnyPomXml() || !dependencies.isEmpty())
+            if (containsAnyPomXml() || !dependencies.isEmpty()) {
                 throw new IllegalArgumentException("ProjectContext already contains pom.xml files.");
-            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" + "    <modelVersion>4.0.0</modelVersion>\n" + "    <groupId>com.example</groupId>\n" + "    <artifactId>dummy-root</artifactId>\n" + "    <version>0.1.0-SNAPSHOT</version>\n" + "    <packaging>jar</packaging>\n" + "</project>\n";
+            }
+
+            String xml = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                        <modelVersion>4.0.0</modelVersion>
+                        <groupId>com.example</groupId>
+                        <artifactId>dummy-root</artifactId>
+                        <version>0.1.0-SNAPSHOT</version>
+                        <packaging>jar</packaging>
+                    </project>
+                    """;
+
             resourcesWithRelativePaths.put(Path.of("pom.xml"), xml);
             return this;
         }
@@ -475,7 +468,7 @@ public class TestProjectContext {
 
             ProjectContextSerializer serializer = new ProjectContextSerializer(
                     new ProjectResourceSetSerializer(new ProjectResourceSerializer()));
-            projectContext.getProjectResources().stream().forEach(r -> r.markChanged());
+            projectContext.getProjectResources().stream().forEach(RewriteSourceFileHolder::markChanged);
             serializer.writeChanges(projectContext);
             return projectContext;
         }
@@ -508,14 +501,14 @@ public class TestProjectContext {
             }
 
 
-            // create resource map with fully qualified paths
+            // create the resource map with fully qualified paths
             Map<Path, String> resourcesWithAbsolutePaths = new LinkedHashMap<>();
-            resourcesWithRelativePaths.entrySet().stream().forEach(e -> {
-                Path absolutePath = projectRoot.resolve(e.getKey()).normalize().toAbsolutePath();
-                resourcesWithAbsolutePaths.put(absolutePath, e.getValue());
+            resourcesWithRelativePaths.forEach((key, value) -> {
+                Path absolutePath = projectRoot.resolve(key).normalize().toAbsolutePath();
+                resourcesWithAbsolutePaths.put(absolutePath, value);
             });
 
-            // create list of dummy resources
+            // create a list of fake resources
             List<Resource> scannedResources = mapToResources(resourcesWithAbsolutePaths);
 
             // create beans
@@ -560,11 +553,11 @@ public class TestProjectContext {
             return projectContext;
         }
 
-        private void orderByOrderAnnotationValue(List<ProjectResourceWrapper> resourceWrapperList) {
+        private void orderByOrderAnnotationValue(List<ProjectResourceWrapper<?>> resourceWrapperList) {
             resourceWrapperList.sort(Comparator.comparing(this::getOrder));
         }
 
-        private Integer getOrder(ProjectResourceWrapper l1) {
+        private Integer getOrder(ProjectResourceWrapper<?> l1) {
             Order annotation = l1.getClass().getAnnotation(Order.class);
             if (annotation != null) {
                 return annotation.value();
@@ -575,18 +568,23 @@ public class TestProjectContext {
         @NotNull
         private ProjectContextInitializer createProjectContextInitializer() {
             AtomicReference<ProjectContextInitializer> projectContextInitializerRef = new AtomicReference<>();
-            if(beanFactory != null) {
+            if (beanFactory != null) {
                 ProjectContextInitializer bean = beanFactory.getBean(ProjectContextInitializer.class);
                 projectContextInitializerRef.set(bean);
                 executionContext = beanFactory.getBean(ExecutionContext.class);
             } else {
-                Map<Class<?>, Object> replacedBean = new HashMap<>();
-                if(sbmApplicationProperties != null) {
-                    replacedBean.put(SbmApplicationProperties.class, sbmApplicationProperties);
+                Map<Class<?>, Object> replacedBeans = new HashMap<>();
+                if (sbmApplicationProperties != null) {
+                    replacedBeans.put(SbmApplicationProperties.class, sbmApplicationProperties);
                 }
 
-                if(eventPublisher != null) {
-                    replacedBean.put(ApplicationEventPublisher.class, eventPublisher);
+                if (eventPublisher != null) {
+                    replacedBeans.put(ApplicationEventPublisher.class, eventPublisher);
+                }
+
+                // Test performance improvement on Windows
+                if (SystemUtils.IS_OS_WINDOWS) {
+                    replacedBeans.put(MavenPomCache.class, new InMemoryMavenPomCache());
                 }
 
                 SpringBeanProvider.run(
@@ -595,11 +593,13 @@ public class TestProjectContext {
                             projectContextInitializerRef.set(ctx.getBean(ProjectContextInitializer.class));
                             executionContext = ctx.getBean(ExecutionContext.class);
                         },
-                        replacedBean,
+                        replacedBeans,
                         SpringBeanProvider.ComponentScanConfiguration.class,
                         Configuration.class,
-                        CustomValidatorBean.class);
+                        CustomValidatorBean.class
+                );
             }
+
             return projectContextInitializerRef.get();
         }
 
@@ -639,12 +639,6 @@ public class TestProjectContext {
                     .map(e -> new TestDummyResource(e.getKey(), e.getValue()))
                     .collect(Collectors.toList());
         }
-
-        private Parser.Input createParserInput(Path path, String value) {
-            return new Parser.Input(path, null, () -> new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)),
-                                    true);
-        }
-
 
         @NotNull
         private String getDependenciesSection() {
@@ -705,17 +699,16 @@ public class TestProjectContext {
         }
 
         public Builder withSpringBootParentOf(String springVersion) {
-
             this.springVersion = Optional.of(springVersion);
             return this;
         }
 
         public TestProjectContextInfo buildProjectContextInfo() {
             ProjectContext build = this.build();
-            if(!AutowireCapableBeanFactory.class.isInstance(beanFactory)){
+            if (!AutowireCapableBeanFactory.class.isInstance(beanFactory)) {
                 throw new IllegalStateException("Provided beanFactory must be of type %s".formatted(AutowireCapableBeanFactory.class.getName()));
             }
-            return new TestProjectContextInfo(build, executionContext, (AutowireCapableBeanFactory)beanFactory);
+            return new TestProjectContextInfo(build, executionContext, beanFactory);
         }
     }
 

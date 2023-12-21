@@ -91,7 +91,7 @@ public class AddSpringBootContextTestClassTest {
 
             assertThat(context.getProjectJavaSources().list()).hasSize(3);
             assertThat(context.getProjectJavaSources().list().get(2).getPackageName()).isEqualTo("org.springframework.sbm.root.test");
-            assertThat(context.getProjectJavaSources().list().get(2).print()).isEqualTo(expectedTestClassSource);
+            assertThat(context.getProjectJavaSources().list().get(2).print()).isEqualToNormalizingNewlines(expectedTestClassSource);
         }
     }
 

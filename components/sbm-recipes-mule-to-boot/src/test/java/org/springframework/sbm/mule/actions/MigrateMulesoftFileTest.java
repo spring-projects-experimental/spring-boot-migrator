@@ -95,6 +95,6 @@ class MigrateMulesoftFileTest {
 
         Path path = TestProjectContext.getDefaultProjectRoot().resolve("src/main/resources/spring-integration-flow.xml");
         ProjectResource springIntegration = projectContext.search(new AbsolutePathResourceFinder(path)).get();
-        assertThat(springIntegration.print()).isEqualTo(expected);
+        assertThat(springIntegration.print()).isEqualToNormalizingNewlines(expected);
     }
 }

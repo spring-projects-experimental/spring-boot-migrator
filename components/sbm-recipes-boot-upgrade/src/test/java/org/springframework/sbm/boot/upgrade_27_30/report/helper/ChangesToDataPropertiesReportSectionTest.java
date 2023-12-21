@@ -60,8 +60,6 @@ public class ChangesToDataPropertiesReportSectionTest {
                                            
                         ==== Remediation
                         Either add `spring-data` dependency, rename the property or remove it in case it's not required anymore.
-                                           
-                                           
                         """);
     }
 

@@ -139,11 +139,11 @@ public class MigrateJaxRsAnnotationsRecipeIntegrationTest extends IntegrationTes
         String javaFile = super.loadJavaFile("com.example.jee.app", "PersonController");
         assertThat(javaFile)
                 .as(TestDiff.of(javaFile, expectedJavaSource))
-                .isEqualTo(expectedJavaSource);
+                .isEqualToNormalizingNewlines(expectedJavaSource);
 
         String pomSource = super.loadFile(Path.of("pom.xml"));
         assertThat(pomSource)
                 .as(TestDiff.of(pomSource, expectedPomSource))
-                .isEqualTo(expectedPomSource);
+                .isEqualToNormalizingNewlines(expectedPomSource);
     }
 }

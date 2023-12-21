@@ -26,6 +26,7 @@ import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -65,7 +66,6 @@ public class Module_searchTestJava_Test {
 
             ProjectContext context = builder.build();
 
-            AtomicBoolean wasCalled = new AtomicBoolean(false);
             verifySearchTest(context, projectResourceSet -> {
                 assertThat(projectResourceSet.list()).isEmpty();
             }, "");
@@ -83,7 +83,7 @@ public class Module_searchTestJava_Test {
 
             verifySearchTest(context, projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/test/java/SomeClass.java");
+                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.get(0).getSourcePath())).isEqualTo("src/test/java/SomeClass.java");
                 assertThat(projectResourceSet.get(0).print()).isEqualTo("public class SomeClass{}");
             }, "");
         }
@@ -98,7 +98,7 @@ public class Module_searchTestJava_Test {
 
             verifySearchTest(context, projectResourceSet -> {
                 assertThat(projectResourceSet.list()).hasSize(1);
-                assertThat(projectResourceSet.get(0).getSourcePath().toString()).isEqualTo("src/test/java/SomeClassTest.java");
+                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.get(0).getSourcePath())).isEqualTo("src/test/java/SomeClassTest.java");
                 assertThat(projectResourceSet.get(0).print()).isEqualTo("public class SomeClassTest{}");
             }, "");
         }
@@ -187,7 +187,6 @@ public class Module_searchTestJava_Test {
                     .withMavenBuildFileSource("component/pom.xml", componentPom);
         }
 
-
         @Test
         @DisplayName("with no classes provides empty ProjectResourceSet to search method")
         void withNoClasses_providesEmptyProjectResources() {
@@ -220,7 +219,7 @@ public class Module_searchTestJava_Test {
             verifySearchTest(context,
                              (projectResourceSet) -> {
                                 assertThat(projectResourceSet.list()).hasSize(1);
-                                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo("application/src/test/java/SomeClassTest.java");
+                                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.list().get(0).getSourcePath())).isEqualTo("application/src/test/java/SomeClassTest.java");
                                 assertThat(projectResourceSet.list().get(0).print()).isEqualTo("public class SomeClassTest{}");
                             },
                             "application");
@@ -237,7 +236,7 @@ public class Module_searchTestJava_Test {
             verifySearchTest(context,
                              projectResourceSet -> {
                                 assertThat(projectResourceSet.list()).hasSize(1);
-                                assertThat(projectResourceSet.list().get(0).getSourcePath().toString()).isEqualTo(
+                                assertThat(LinuxWindowsPathUnifier.unifyPath(projectResourceSet.list().get(0).getSourcePath())).isEqualTo(
                                         "application/src/test/java/SomeClassTest.java");
                                 assertThat(projectResourceSet.list().get(0).print()).isEqualTo("public class SomeClassTest{}");
                             },

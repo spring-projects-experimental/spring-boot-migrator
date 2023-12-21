@@ -26,6 +26,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
+import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -83,7 +84,7 @@ public class GitSupport {
         try {
             Git git = getGit(dirUnderGit);
             AddCommand add = git.add();
-            processFilePatterns(dirUnderGit, git, s -> add.addFilepattern(s), filePatterns);
+            processFilePatterns(dirUnderGit, git, add::addFilepattern, filePatterns);
             DirCache call = add.call();
         } catch (GitAPIException e) {
             throw new RuntimeException(e);
@@ -94,11 +95,11 @@ public class GitSupport {
         Path repoDir = git.getRepository().getDirectory().toPath().getParent();
         Path pathFromGit = repoDir.relativize(dirUnderGit.toPath());
         for (String filePattern : filePatterns) {
-            if(filePattern.equals(".")) {
+            if (filePattern.equals(".")) {
                 add.accept(".");
             } else {
                 filePattern = pathFromGit.resolve(filePattern).toString();
-                add.accept(filePattern);
+                add.accept(LinuxWindowsPathUnifier.unifyPath(filePattern));
             }
         }
     }

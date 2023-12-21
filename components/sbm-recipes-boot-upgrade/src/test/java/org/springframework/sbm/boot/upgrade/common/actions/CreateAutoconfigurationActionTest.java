@@ -23,6 +23,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,7 +72,7 @@ class CreateAutoconfigurationActionTest {
 
         String content = getSpringFactoryFile();
 
-        assertThat(content).isEqualTo("""
+        assertThat(content).isEqualToIgnoringNewLines("""
                 hello.world=something
                 """);
     }
@@ -128,15 +129,13 @@ class CreateAutoconfigurationActionTest {
     private void assertSpringConfigFileContentsInProject(String project) {
         List<ProjectResource> content = getAutoConfigFileAsProjectResource();
         assertThat(content).hasSize(1);
-        assertThat(content.get(0).getAbsolutePath().toString())
-                .isEqualTo(TestProjectContext.getDefaultProjectRoot()
-                        + "/" + project + "/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports");
+        assertThat(content.get(0).getAbsolutePath())
+                .isEqualTo(TestProjectContext.getDefaultProjectRoot().resolve(project).resolve("src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports"));
 
         List<ProjectResource> oldFile = getFileAsProjectResource(EXISTING_SPRING_FACTORIES_FILE);
         assertThat(oldFile).hasSize(1);
-        assertThat(oldFile.get(0).getAbsolutePath().toString())
-                .isEqualTo(TestProjectContext.getDefaultProjectRoot() +
-                        "/" + project + "/src/main/resources/META-INF/spring.factories");
+        assertThat(oldFile.get(0).getAbsolutePath())
+                .isEqualTo(TestProjectContext.getDefaultProjectRoot().resolve(project).resolve("src/main/resources/META-INF/spring.factories"));
 
         assertThat(oldFile.get(0).print()).isEqualTo("");
     }

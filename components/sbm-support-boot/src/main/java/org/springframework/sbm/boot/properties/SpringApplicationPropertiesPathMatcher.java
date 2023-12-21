@@ -24,11 +24,11 @@ import java.util.regex.Pattern;
 @Component
 public class SpringApplicationPropertiesPathMatcher {
     public static final int PROFILE_GROUP_INDEX = 2;
-    private String regex = "src/(main|test)/resources/[/\\w-]*application[-]{0,1}([-\\w]*).properties$";
-    private Pattern profilePattern = Pattern.compile(regex);
+    private static final String REGEX = "src/(main|test)/resources/[/\\w-]*application[-]{0,1}([-\\w]*).properties$";
+    private final Pattern profilePattern = Pattern.compile(REGEX);
 
     public Matcher match(String path) {
-        String unifiedPath = new LinuxWindowsPathUnifier().unifyPath(path);
+        String unifiedPath = LinuxWindowsPathUnifier.unifyPath(path);
         return profilePattern.matcher(unifiedPath);
     }
 }

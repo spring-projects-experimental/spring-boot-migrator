@@ -92,9 +92,7 @@ public class ConstructorBindingReportSectionTest {
                     Remove `@ConstructorBinding` if it matches the criteria, please refer issue: https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[#166]
                     for more information
                                        
-                    * https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[Issue 166]   
-                    
-                                                                                       
+                    * https://github.com/spring-projects-experimental/spring-boot-migrator/issues/166[Issue 166]                                                           
                     """
                 );
     }

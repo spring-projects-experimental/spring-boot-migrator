@@ -317,7 +317,8 @@ public class MigrateEclipseLinkToSpringBoot extends AbstractAction {
             params.put("eclipseLinkProperties", eclipseLinkProperties);
             Template template = configuration.getTemplate("eclipselink-configuration-class.ftl");
             template.process(params, writer);
-            return writer.toString();
+            String out = writer.toString();
+            return out;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

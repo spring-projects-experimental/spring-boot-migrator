@@ -36,15 +36,15 @@ public class ${className} extends JpaBaseConfiguration {
     protected Map<String, Object> getVendorProperties() {
         Map<String, Object> map = new HashMap<>();
 
-    <#list eclipseLinkProperties?keys as p>
+        <#list eclipseLinkProperties?keys as p>
         map.put(${p}, "${eclipseLinkProperties[p]}");
-    </#list>
+        </#list>
 
         return map;
     }
 
     @Bean
-    public InstrumentationLoadTimeWeaver loadTimeWeaver()  throws Throwable {
+    public InstrumentationLoadTimeWeaver loadTimeWeaver() throws Throwable {
         InstrumentationLoadTimeWeaver loadTimeWeaver = new InstrumentationLoadTimeWeaver();
         return loadTimeWeaver;
     }

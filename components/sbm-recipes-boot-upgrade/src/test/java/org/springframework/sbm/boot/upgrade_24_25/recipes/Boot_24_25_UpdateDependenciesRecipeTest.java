@@ -36,14 +36,14 @@ public class Boot_24_25_UpdateDependenciesRecipeTest {
 
         Path resultDir = RecipeIntegrationTestSupport.getResultDir(applicationDir);
 
-        assertThat(contentOf(resultDir.resolve("pom.xml").toFile())).contains(
+        assertThat(contentOf(resultDir.resolve("pom.xml").toFile())).containsIgnoringWhitespaces(
                 """
-                    <parent>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter-parent</artifactId>
-                        <version>2.5.6</version>
-                        <relativePath/> <!-- lookup parent from repository -->
-                    </parent>
+                <parent>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-parent</artifactId>
+                    <version>2.5.6</version>
+                    <relativePath/> <!-- lookup parent from repository -->
+                </parent>
                 """
         );
     }

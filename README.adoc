@@ -37,8 +37,8 @@ ____
 
 == Documentation
 
-- https://spring-projects-experimental.github.io/spring-boot-migrator/user-documentation.html[User documentation,window=_blank]
-- https://spring-projects-experimental.github.io/spring-boot-migrator/developer-documentation.html[Developer documentation,window=_blank]
+- https://github.com/spring-projects-experimental/spring-boot-migrator/blob/main/docs/reference/user-documentation.adoc[User documentation]
+- https://github.com/spring-projects-experimental/spring-boot-migrator/blob/main/docs/reference/developer-documentation.adoc[Developer documentation]
 
 
 == Spring Boot 3.0 Upgrade - Interactive Web UI
@@ -134,7 +134,7 @@ NOTE: **SBM requires a JDK 17.**
 * Clone the repository
 * Change into root dir
 * Run `mvn clean install`
-* Find the jar in `applications/spring-shell/spring-boot-migrator.jar`
+* Find the jar in `applications/spring-shell/target/spring-boot-migrator.jar`
 
 WARNING: **Some integration tests use Docker so you'll need Docker to run them. +
 You can pass the `-DskipTests` flag to the `mvn` command to ignore tests.**

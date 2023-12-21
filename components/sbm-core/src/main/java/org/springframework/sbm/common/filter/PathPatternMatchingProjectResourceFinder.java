@@ -44,8 +44,8 @@ public class PathPatternMatchingProjectResourceFinder implements ProjectResource
     }
 
     private void validateMatchingPatterns(List<String> matchingPatterns) {
-        for(String pattern : matchingPatterns) {
-            if( ! matcher.isPattern(pattern)) {
+        for (String pattern : matchingPatterns) {
+            if (!matcher.isPattern(pattern)) {
                 throw new RuntimeException("The provided pattern '"+pattern+"' is invalid. Please check AntPathMatcher javadoc for examples of valid patterns.");
             }
         }

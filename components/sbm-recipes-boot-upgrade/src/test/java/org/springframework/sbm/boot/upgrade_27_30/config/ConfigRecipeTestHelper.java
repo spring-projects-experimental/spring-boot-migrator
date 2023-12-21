@@ -33,10 +33,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static org.springframework.sbm.SbmConstants.LS;
 
 public class ConfigRecipeTestHelper {
 
@@ -58,19 +61,18 @@ public class ConfigRecipeTestHelper {
 
     public static Pair<String, String> provideIO(String inputFilePath) throws IOException {
 
-        InputStream data = new FileInputStream(inputFilePath);
+        String fileContent = Files.readString(Path.of(inputFilePath));
+        String[] k = fileContent.split("expected:.*" + LS);
 
-        String fileContent = new String(data.readAllBytes());
-        String[] k = fileContent.split("expected:.*\n");
-
-        return new ImmutablePair<>(k[0].replaceAll("input:.*\n", ""), k[1]);
+        return new ImmutablePair<>(k[0].replaceAll("input:.*" + LS, ""), k[1]);
     }
 
     public static Stream<Arguments> provideFiles(String folder, String fileType) throws URISyntaxException {
 
-        URL url = RemovedPropertyTest.class.getResource(folder);
+        URL url = ConfigRecipeTestHelper.class.getResource(folder);
+        if(url == null) throw new IllegalArgumentException("Resource folder " + folder + "  not found");
 
-        File f = Paths.get(url.toURI()).toFile();
+        File f = new File(url.getFile());
 
         return Arrays.stream(f.listFiles())
                 .filter(k -> k.toString().contains(fileType))
