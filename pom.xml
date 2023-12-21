@@ -21,7 +21,7 @@
         <openrewrite.spring.version>4.32.0</openrewrite.spring.version>
         <rewrite-migrate-java.version>1.17.0</rewrite-migrate-java.version>
         <spring-boot.version>2.7.5</spring-boot.version>
-        <progressbar.version>0.9.5</progressbar.version>
+        <progressbar.version>0.10.0</progressbar.version>
         <testcontainers.version>1.19.1</testcontainers.version>
         <maven-invoker.version>3.2.0</maven-invoker.version>
         <shrinkwrap.resolvers.version>3.1.4</shrinkwrap.resolvers.version>
@@ -345,30 +345,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>de.jutzig</groupId>
-                <artifactId>github-release-plugin</artifactId>
-                <version>1.4.0</version>
-                <configuration>
-                    <description>Description of your release</description>
-                    <releaseName>0.11.0</releaseName>
-                    <!-- <tag>${project.version}</tag> -->
-                    <tag>0.11.0</tag>
-
-                    <!-- If your project has additional artifacts, such as ones produced by
-                         the maven-assembly-plugin, you can define the following
-                         (requires version 1.1.1 of the plugin or higher): -->
-                    <fileSets>
-                        <fileSet>
-                            <directory>applications/spring-shell/target</directory>
-                            <includes>
-                                <include>spring-boot-migrator.jar</include>
-                            </includes>
-                        </fileSet>
-                    </fileSets>
-                    <repositoryId>spring-projects-experimental/spring-boot-migrator</repositoryId>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
