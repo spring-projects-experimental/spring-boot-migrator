@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.util.ClassUtils;
 
 import java.io.IOException;
 

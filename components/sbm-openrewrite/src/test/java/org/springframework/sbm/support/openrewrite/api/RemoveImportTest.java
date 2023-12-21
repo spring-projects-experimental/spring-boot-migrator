@@ -15,6 +15,7 @@
  */
 package org.springframework.sbm.support.openrewrite.api;
 
+import org.intellij.lang.annotations.Language;
 import org.openrewrite.RecipeRun;
 import org.springframework.sbm.java.OpenRewriteTestSupport;
 import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
@@ -31,41 +32,42 @@ public class RemoveImportTest {
     @Test
         // Shows that the import to TransactionAttributeType is not removed when @TransactionAttribute is removed
     void failing() {
-        String source =
-                "import org.springframework.transaction.annotation.Propagation;\n" +
-                        "import org.springframework.transaction.annotation.Transactional;\n" +
-                        "\n" +
-                        "import javax.ejb.TransactionAttributeType;\n" +
-                        "import javax.ejb.TransactionAttribute;\n" +
-                        "\n" +
-                        "@TransactionAttribute(TransactionAttributeType.NEVER)\n" +
-                        "public class TransactionalService {\n" +
-                        "   public void requiresNewFromType() {}\n" +
-                        "\n" +
-                        "\n" +
-                        "    @Transactional(propagation = Propagation.NOT_SUPPORTED)\n" +
-                        "    public void notSupported() {}\n" +
-                        "}";
+        @Language("java")
+        String source = """
+                import org.springframework.transaction.annotation.Propagation;
+                import org.springframework.transaction.annotation.Transactional;
+                
+                import javax.ejb.TransactionAttributeType;
+                import javax.ejb.TransactionAttribute;
+                
+                @TransactionAttribute(TransactionAttributeType.NEVER)
+                public class TransactionalService {
+                    public void requiresNewFromType() {}
+                
+                
+                    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+                    public void notSupported() {}
+                }""";
 
         final J.CompilationUnit compilationUnit = OpenRewriteTestSupport.createCompilationUnit(source, "javax.ejb:javax.ejb-api:3.2", "org.springframework.boot:spring-boot-starter-data-jpa:2.4.2");
 
         RecipeRun results = new GenericOpenRewriteRecipe<>(() -> new RemoveAnnotationVisitor(compilationUnit.getClasses().get(0), "javax.ejb.TransactionAttribute")).run(List.of(compilationUnit));
         J.CompilationUnit compilationUnit1 = (J.CompilationUnit) results.getResults().get(0).getAfter();
 
-        assertThat(compilationUnit1.printAll()).isEqualTo(
-                "import org.springframework.transaction.annotation.Propagation;\n" +
-                        "import org.springframework.transaction.annotation.Transactional;\n" +
-                        "\n" +
-                        "import javax.ejb.TransactionAttributeType;\n" +
-                        "\n" +
-                        "\n" +
-                        "public class TransactionalService {\n" +
-                        "   public void requiresNewFromType() {}\n" +
-                        "\n" +
-                        "\n" +
-                        "    @Transactional(propagation = Propagation.NOT_SUPPORTED)\n" +
-                        "    public void notSupported() {}\n" +
-                        "}"
-        );
+        @Language("java")
+        String expected = """
+                import org.springframework.transaction.annotation.Propagation;
+                import org.springframework.transaction.annotation.Transactional;
+                
+                
+                public class TransactionalService {
+                    public void requiresNewFromType() {}
+                
+                              
+                    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+                    public void notSupported() {}
+                }""";
+
+        assertThat(compilationUnit1.printAll()).isEqualToNormalizingNewlines(expected);
     }
 }

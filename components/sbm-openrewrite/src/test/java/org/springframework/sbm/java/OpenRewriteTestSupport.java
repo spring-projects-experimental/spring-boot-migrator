@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.java;
 
+import org.intellij.lang.annotations.Language;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.openrewrite.*;
 import org.springframework.sbm.java.util.JavaSourceUtil;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
-import org.assertj.core.api.Assertions;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaVisitor;
@@ -33,6 +33,9 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 public class OpenRewriteTestSupport {
 
@@ -42,10 +45,10 @@ public class OpenRewriteTestSupport {
      * The first class name and package is used to retrieve the file path of the <code>J.CompilationUnit</code>.
      *
      * @param classpath   entries in <code>artifact:gruopId:version</code> format.
-     * @param sourceCodes
+     * @param sourceCodes source code
      * @return list of <code>J.CompilationUnit</code>s
      */
-    public static List<J.CompilationUnit> createCompilationUnitsFromStrings(List<String> classpath, String... sourceCodes) {
+    public static List<J.CompilationUnit> createCompilationUnitsFromStrings(List<String> classpath, @Language("java") String... sourceCodes) {
         JavaParser javaParser = OpenRewriteTestSupport.getJavaParser(classpath.toArray(new String[]{}));
         List<J.CompilationUnit> compilationUnits = javaParser.parse(sourceCodes);
         return compilationUnits.stream()
@@ -61,10 +64,10 @@ public class OpenRewriteTestSupport {
      * <p>
      * The first class name and package is used to retrieve the file path of the <code>J.CompilationUnit</code>.
      *
-     * @param sourceCodes
+     * @param sourceCodes source code
      * @return list of <code>J.CompilationUnit</code>s
      */
-    public static List<J.CompilationUnit> createCompilationUnitsFromStrings(String... sourceCodes) {
+    public static List<J.CompilationUnit> createCompilationUnitsFromStrings(@Language("java") String... sourceCodes) {
         return createCompilationUnitsFromStrings(List.of(), sourceCodes);
     }
 
@@ -73,19 +76,19 @@ public class OpenRewriteTestSupport {
      * <p>
      * The first class name and package is used to retrieve the file path of the <code>J.CompilationUnit</code>.
      *
-     * @param sourceCode
+     * @param sourceCode source code
      * @return the created <code>J.CompilationUnit</code>
      */
-    public static J.CompilationUnit createCompilationUnitFromString(String sourceCode) {
+    public static J.CompilationUnit createCompilationUnitFromString(@Language("java") String sourceCode) {
         return createCompilationUnitsFromStrings(List.of(), sourceCode).get(0);
     }
 
-    public static J.CompilationUnit createCompilationUnit(JavaParser parser, Path sourceFolder, String sourceCode) {
+    public static J.CompilationUnit createCompilationUnit(JavaParser parser, Path sourceFolder, @Language("java") String sourceCode) {
         J.CompilationUnit cu = parser.parse(sourceCode).get(0);
         return cu.withSourcePath(cu.getPackageDeclaration() == null
                 ? sourceFolder.resolve(cu.getSourcePath())
                 : sourceFolder
-                .resolve(cu.getPackageDeclaration().getExpression().printTrimmed().replace('.', File.separatorChar))
+                .resolve(cu.getPackageDeclaration().getPackageName().replace('.', File.separatorChar))
                 .resolve(cu.getSourcePath()));
     }
 
@@ -98,11 +101,9 @@ public class OpenRewriteTestSupport {
      * @param classpath required for resolving dependencies to create a CompilationUnit from given
      */
     public static <P> void verifyChange(Supplier<JavaIsoVisitor<ExecutionContext>> visitor, String given, String
-
             expected, String... classpath) {
         verifyChange(visitor.get(), given, expected, classpath);
     }
-
 
     /**
      * Verifies that applying the visitor to given results in expected.
@@ -112,7 +113,7 @@ public class OpenRewriteTestSupport {
      * @param expected  source code after applying the visitor
      * @param classpath required for resolving dependencies to create a CompilationUnit from given
      */
-    public static <P> void verifyChange(JavaIsoVisitor<ExecutionContext> visitor, String given, String expected, String... classpath) {
+    public static <P> void verifyChange(JavaIsoVisitor<ExecutionContext> visitor, @Language("java") String given, String expected, String... classpath) {
         J.CompilationUnit compilationUnit = createCompilationUnit(given, classpath);
         verifyChange(visitor, compilationUnit, expected);
     }
@@ -120,7 +121,7 @@ public class OpenRewriteTestSupport {
     /**
      * Verifies that applying the visitor to given results in expected.
      * <p>
-     * Additionally it's verified that the returned change contains exactly given as before and expected as after
+     * Additionally, it's verified that the returned change contains exactly given as before and expected as after
      * <p>
      * Use this method if you had to create a CompilationUnit, e.g. to define a scope for the tested visitor.
      * If the visitor is not scoped it is probably easier (and less caller code)
@@ -133,22 +134,26 @@ public class OpenRewriteTestSupport {
      * @param given    CompilationUnit the visitor will be applied on
      * @param expected source code after applying the visitor
      */
-    public static <P> void verifyChange(JavaIsoVisitor<ExecutionContext> visitor, J.CompilationUnit given, String expected) {
+    public static void verifyChange(JavaIsoVisitor<ExecutionContext> visitor, J.CompilationUnit given, String expected) {
         final Collection<Result> newChanges = refactor(given, visitor).getResults();
-        Assertions.assertThat(newChanges.iterator().hasNext()).as("No change was found.").isTrue();
-        Assertions.assertThat(given.printAll())
-                .as(TestDiff.of(given.printAll(), newChanges.iterator().next().getBefore().printAll()))
-                .isEqualTo(newChanges.iterator().next().getBefore().printAll());
+        assertThat(newChanges.iterator().hasNext()).as("No change was found.").isTrue();
+        SourceFile before = newChanges.iterator().next().getBefore();
+        assertNotNull(before);
+        assertThat(given.printAll())
+                .as(TestDiff.of(given.printAll(), before.printAll()))
+                .isEqualTo(before.printAll());
 
-        Assertions.assertThat(newChanges.iterator().next().getAfter().printAll())
-                .as(TestDiff.of(newChanges.iterator().next().getAfter().printAll(), expected))
+        SourceFile after = newChanges.iterator().next().getAfter();
+        assertNotNull(after);
+        assertThat(after.printAll())
+                .as(TestDiff.of(after.printAll(), expected))
                 .isEqualTo(expected);
     }
 
     /**
      * Verifies that applying the visitor to given results in expected.
      * <p>
-     * It's does not check that given equals before in the change.
+     * It does not check that given equals before in the change.
      * Use this method if you had to create a CompilationUnit, e.g. to define a scope for the tested visitor.
      * If the visitor is not scoped it is probably easier (and less caller code)
      * to use
@@ -160,13 +165,15 @@ public class OpenRewriteTestSupport {
      * @param given    CompilationUnit the visitor will be applied on
      * @param expected source code after applying the visitor
      */
-    public static <P> void verifyChangeIgnoringGiven(JavaIsoVisitor<ExecutionContext> visitor, String given, String expected, String... classpath) {
+    public static void verifyChangeIgnoringGiven(JavaIsoVisitor<ExecutionContext> visitor, @Language("java") String given, String expected, String... classpath) {
         J.CompilationUnit compilationUnit = createCompilationUnit(given, classpath);
         final Collection<Result> newChanges = refactor(compilationUnit, visitor).getResults();
-        Assertions.assertThat(newChanges.iterator().hasNext()).as("No change was found.").isTrue();
-        Assertions.assertThat(expected)
-                .as(TestDiff.of(expected, newChanges.iterator().next().getAfter().printAll()))
-                .isEqualTo(newChanges.iterator().next().getAfter().printAll());
+        assertThat(newChanges.iterator().hasNext()).as("No change was found.").isTrue();
+        SourceFile after = newChanges.iterator().next().getAfter();
+        assertNotNull(after);
+        assertThat(expected)
+                .as(TestDiff.of(expected, after.printAll()))
+                .isEqualTo(after.printAll());
     }
 
     /**
@@ -176,10 +183,10 @@ public class OpenRewriteTestSupport {
      * @param given     the source code to apply the visitor on
      * @param classpath required to compile the given sourceCode in 'groupId:artifactId:version' format
      */
-    public static <P> void verifyNoChange(Supplier<JavaIsoVisitor<ExecutionContext>> visitor, String given, String... classpath) {
+    public static void verifyNoChange(Supplier<JavaIsoVisitor<ExecutionContext>> visitor, @Language("java") String given, String... classpath) {
         J.CompilationUnit compilationUnit = createCompilationUnit(given, classpath);
         final Collection<Result> newChanges = refactor(compilationUnit, visitor.get()).getResults();
-        Assertions.assertThat(newChanges).isEmpty();
+        assertThat(newChanges).isEmpty();
     }
 
     /**
@@ -189,10 +196,10 @@ public class OpenRewriteTestSupport {
      * @param given     the source code to apply the visitor on
      * @param classpath required to compile the given sourceCode in 'groupId:artifactId:version' format
      */
-    public static <P> void verifyNoChange(JavaIsoVisitor<ExecutionContext> visitor, String given, String... classpath) {
+    public static void verifyNoChange(JavaIsoVisitor<ExecutionContext> visitor, @Language("java") String given, String... classpath) {
         J.CompilationUnit compilationUnit = createCompilationUnit(given, classpath);
         final Collection<Result> newChanges = refactor(compilationUnit, visitor).getResults();
-        Assertions.assertThat(newChanges).isEmpty();
+        assertThat(newChanges).isEmpty();
     }
 
     /**
@@ -201,13 +208,14 @@ public class OpenRewriteTestSupport {
      * @param given     sourceCode
      * @param classpath provided in 'groupId:artifactId:version' format
      */
-    public static J.CompilationUnit createCompilationUnit(String given, String... classpath) {
+    public static J.CompilationUnit createCompilationUnit(@Language("java") String given, String... classpath) {
         JavaParser javaParser = getJavaParser(classpath);
 
-        List<J.CompilationUnit> compilationUnits = javaParser
-                .parse(given);
-        if (compilationUnits.size() > 1)
+        List<J.CompilationUnit> compilationUnits = javaParser.parse(given);
+        if (compilationUnits.size() > 1) {
             throw new RuntimeException("More than one compilation was found in given String");
+        }
+
         return compilationUnits.get(0);
     }
 

@@ -27,7 +27,7 @@ import java.util.Optional;
 
 public class AddMavenRepository extends Recipe {
 
-    private RepositoryDefinition mavenRepository;
+    private final RepositoryDefinition mavenRepository;
 
     public AddMavenRepository(RepositoryDefinition repository) {
         this.mavenRepository = repository;

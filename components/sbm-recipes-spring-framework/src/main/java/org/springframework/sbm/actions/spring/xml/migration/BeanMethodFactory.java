@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.springframework.sbm.actions.spring.xml.migration.Helper.classNameMatches;
 import static org.springframework.sbm.actions.spring.xml.migration.Helper.isOfType;
@@ -41,7 +40,6 @@ import static org.springframework.sbm.actions.spring.xml.migration.Helper.isOfTy
 @RequiredArgsConstructor
 public class BeanMethodFactory {
 
-    private final Helper helper;
     private final ListBeanHandler listBeanHandler;
     private final GenericBeanHandler genericBeanHandler;
 
@@ -57,7 +55,7 @@ public class BeanMethodFactory {
         List<XmlBeanDef> otherBeans = migrationContext.getBeanDefinitions().values()
                 .stream()
                 .filter(bd -> !classNameMatches(bd, "PropertyPlaceholderConfigurer"))
-                .collect(Collectors.toList());
+                .toList();
 
         // create
         otherBeans.forEach(beanDef -> {
@@ -163,10 +161,8 @@ public class BeanMethodFactory {
             properties.entrySet().stream()
                     .map(p -> new Property(p.getKey(), p.getValue()))
                     .forEach(p -> {
-                        Optional<Class> aClass = resolvePropertyType(migrationContext, p);
-                        if(aClass.isPresent()) {
-                            p.setType(aClass.get());
-                        }
+                        Optional<Class<?>> aClass = resolvePropertyType(migrationContext, p);
+                        aClass.ifPresent(p::setType);
                         propertiesFile.addProperty(p);
                     });
         } catch (IOException e) {
@@ -174,11 +170,12 @@ public class BeanMethodFactory {
         }
     }
 
-    private Optional<Class> resolvePropertyType(MigrationContext migrationContext, Property p) {
+    private Optional<Class<?>> resolvePropertyType(MigrationContext migrationContext, Property p) {
         return migrationContext.getBeanDefinitions().values().stream()
                 .map(xmlBeanDef -> xmlBeanDef.getTypeOfProperty(migrationContext.getClassLoader(), p.getFieldName()))
-                .filter(t -> t.isPresent())
-                .map(t -> t.get())
+                .flatMap(Optional::stream)
+                //.filter(t -> t.isPresent())
+                //.map(t -> t.get())
                 .findFirst();
     }
 
@@ -188,7 +185,7 @@ public class BeanMethodFactory {
                 .forEach(es -> {
                     String fieldName = es.getFieldName();
                     // get type of field
-//                                        bd.getTypeOfProperty(es.getKey());
+                    //bd.getTypeOfProperty(es.getKey());
                     Class<?> fieldType = es.getPropertyType();
                     // get type of field here and use as type of member
                     typeSpec.addField(FieldSpec.builder(fieldType, fieldName, Modifier.PRIVATE)
@@ -218,7 +215,7 @@ public class BeanMethodFactory {
     }
 
     private boolean isListBeanDefinition(XmlBeanDef xmlBeanDefinition) {
-        return xmlBeanDefinition.getBeanDefinition().getBeanClassName().equals("org.springframework.beans.factory.config.ListFactoryBean");
+        return "org.springframework.beans.factory.config.ListFactoryBean".equals(xmlBeanDefinition.getBeanDefinition().getBeanClassName());
     }
 
 }
