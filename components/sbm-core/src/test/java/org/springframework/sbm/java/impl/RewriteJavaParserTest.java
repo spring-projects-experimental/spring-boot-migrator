@@ -19,11 +19,10 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.java.tree.J;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.sbm.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parsers.SpringRewriteProperties;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 
 import java.io.ByteArrayOutputStream;
@@ -43,10 +42,10 @@ public class RewriteJavaParserTest {
         ByteArrayOutputStream sysOutBuffer = new ByteArrayOutputStream();
         System.setOut(new PrintStream(sysOutBuffer));
 
-        SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
-        sbmApplicationProperties.setJavaParserLoggingCompilationWarningsAndErrors(true);
+        SpringRewriteProperties springRewriteProperties = new SpringRewriteProperties();
+        springRewriteProperties.setLogCompilationWarningsAndErrors(true);
         ExecutionContext executionContext = new RewriteExecutionContext((t) -> t.printStackTrace());
-        RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(sbmApplicationProperties, executionContext);
+        RewriteJavaParser rewriteJavaParser = new RewriteJavaParser(springRewriteProperties, executionContext);
         sysOutBuffer.reset();
         List<J.CompilationUnit> parsed = rewriteJavaParser.parse(executionContext, "public class Broken Class {}").map(J.CompilationUnit.class::cast).toList();
 

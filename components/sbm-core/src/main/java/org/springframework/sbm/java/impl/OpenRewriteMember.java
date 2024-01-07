@@ -15,11 +15,6 @@
  */
 package org.springframework.sbm.java.impl;
 
-import org.springframework.sbm.java.api.Annotation;
-import org.springframework.sbm.java.api.Member;
-import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.internal.lang.Nullable;
@@ -27,6 +22,11 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.VariableDeclarations.NamedVariable;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeTree;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.java.api.Annotation;
+import org.springframework.sbm.java.api.Member;
+import org.springframework.sbm.java.refactoring.JavaRefactoring;
+import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 

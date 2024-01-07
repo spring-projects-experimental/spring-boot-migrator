@@ -15,10 +15,10 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
+import org.springframework.rewrite.project.resource.ProjectResource;
+import org.springframework.rewrite.project.resource.finder.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
-import org.springframework.sbm.project.resource.finder.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.ProjectResource;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

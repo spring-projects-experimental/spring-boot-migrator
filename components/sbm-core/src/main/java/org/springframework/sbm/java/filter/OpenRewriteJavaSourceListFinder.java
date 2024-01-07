@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.java.filter;
 
+import org.springframework.rewrite.project.resource.finder.GenericTypeListFinder;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
-import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
 
 public class OpenRewriteJavaSourceListFinder extends GenericTypeListFinder<OpenRewriteJavaSource> {
 

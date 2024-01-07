@@ -15,16 +15,16 @@
  */
 package org.springframework.sbm.support.openrewrite.java;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.RecipeRun;
 import org.openrewrite.Result;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
-import org.springframework.sbm.java.OpenRewriteTestSupport;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.openrewrite.java.tree.J;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.java.OpenRewriteTestSupport;
 
 import java.util.List;
 import java.util.stream.Collectors;

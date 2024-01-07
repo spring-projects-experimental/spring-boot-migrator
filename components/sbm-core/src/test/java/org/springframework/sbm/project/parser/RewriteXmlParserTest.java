@@ -18,9 +18,9 @@ package org.springframework.sbm.project.parser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.sbm.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.TestDummyResource;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
 
 import java.nio.file.Path;

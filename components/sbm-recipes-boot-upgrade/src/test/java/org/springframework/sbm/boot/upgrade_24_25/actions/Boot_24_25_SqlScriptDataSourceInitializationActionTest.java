@@ -15,14 +15,14 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.rewrite.parsers.RewriteExecutionContext;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
+import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
+import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
-import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.List;

@@ -15,22 +15,20 @@
  */
 package org.springframework.sbm.jee.ejb.actions;
 
-import org.openrewrite.staticanalysis.RemoveUnusedLocalVariables;
-import org.springframework.sbm.engine.recipe.AbstractAction;
-import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.Recipe;
 import org.openrewrite.java.AddImport;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.RemoveUnusedImports;
-import org.openrewrite.staticanalysis.RemoveUnusedLocalVariables;
 import org.openrewrite.java.format.AutoFormat;
 import org.openrewrite.java.tree.*;
+import org.openrewrite.staticanalysis.RemoveUnusedLocalVariables;
+import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.sbm.java.api.JavaSource;
 
 import java.util.ArrayList;
 import java.util.Iterator;

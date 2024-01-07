@@ -26,11 +26,12 @@ import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.text.PlainText;
 import org.openrewrite.text.PlainTextParser;
+import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
+import org.springframework.rewrite.parsers.RewriteExecutionContext;
 import org.springframework.sbm.engine.events.StartedScanningProjectResourceEvent;
-import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.TestDummyResource;
 import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.springframework.sbm.xml.parser.RewriteXmlParser;
@@ -96,11 +97,14 @@ class ResourceParserTest {
         ExecutionContext ctx = new RewriteExecutionContext();
         AtomicReference<Parser.Input> parsedInput = new AtomicReference<>();
         AtomicReference<SourceFile> parsedSourceFile = new AtomicReference<>();
-        ParsingExecutionContextView.view(ctx).setParsingListener((Parser.Input input, SourceFile sourceFile) -> {
-            parsedInput.set(input);
-            parsedSourceFile.set(sourceFile);
-            latch.countDown();
-        } );
+        ParsingExecutionContextView.view(ctx).setParsingListener(new ParsingEventListener() {
+            @Override
+            public void parsed(Parser.Input input, SourceFile sourceFile) {
+                parsedInput.set(input);
+                parsedSourceFile.set(sourceFile);
+                latch.countDown();
+            }
+        });
         List<Resource> resources = getResourceAsList("some-file-parsed-by-plaintext.txt", "content");
 
         PlainTextParser sut = new PlainTextParser();

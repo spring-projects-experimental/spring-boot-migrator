@@ -15,9 +15,9 @@
  */
 package org.springframework.sbm.jee.wls.finder;
 
-import org.springframework.sbm.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.finder.ProjectResourceFinder;
 import org.springframework.sbm.jee.wls.WlsEjbDeploymentDescriptor;
-import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 
 import java.util.Optional;
 

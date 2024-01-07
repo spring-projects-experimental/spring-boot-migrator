@@ -25,23 +25,18 @@ import org.openrewrite.maven.*;
 import org.openrewrite.maven.tree.*;
 import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
-
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.sbm.build.api.BuildFile;
-import org.springframework.sbm.build.api.DependenciesChangedEvent;
+import org.springframework.rewrite.parsers.maven.RewriteMavenArtifactDownloader;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.build.api.Dependency;
-import org.springframework.sbm.build.api.ParentDeclaration;
 import org.springframework.sbm.build.api.Plugin;
-import org.springframework.sbm.build.api.RepositoryDefinition;
-import org.springframework.sbm.build.api.RewriteMavenParentDeclaration;
+import org.springframework.sbm.build.api.*;
 import org.springframework.sbm.build.impl.inner.PluginRepositoryHandler;
 import org.springframework.sbm.build.migration.recipe.AddMavenPlugin;
 import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyManagement;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.parsers.maven.RewriteMavenArtifactDownloader;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.util.Assert;
 
 import java.io.ByteArrayInputStream;
@@ -898,15 +893,35 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         Recipe recipe;
         String coordinate = iterator.next();
         String[] split = coordinate.split(":");
-        recipe = new RemoveMavenPlugin(split[0], split[1]);
+        List<Recipe> recipes = new ArrayList<>();
+        recipes.add(new RemoveMavenPlugin(split[0], split[1]));
         while (iterator.hasNext()) {
             coordinate = iterator.next();
             split = coordinate.split(":");
-            recipe.getRecipeList().add(new RemoveMavenPlugin(split[0], split[1]));
+            recipes.add(new RemoveMavenPlugin(split[0], split[1]));
         }
 
         List<SourceFile> sourceFile = List.of(getSourceFile());
         LargeSourceSet sourceSet = new InMemoryLargeSourceSet(sourceFile);
+
+        recipe = new Recipe() {
+
+            @Override
+            public String getDisplayName() {
+                return "Aggregated Recipes";
+            }
+
+            @Override
+            public String getDescription() {
+                return getDisplayName();
+            }
+
+            @Override
+            public List<Recipe> getRecipeList() {
+                return recipes;
+            }
+        };
+
         List<Result> run = recipe.run(sourceSet, executionContext).getChangeset().getAllResults();
         if (!run.isEmpty()) {
             replaceWith(run.get(0).getAfter());

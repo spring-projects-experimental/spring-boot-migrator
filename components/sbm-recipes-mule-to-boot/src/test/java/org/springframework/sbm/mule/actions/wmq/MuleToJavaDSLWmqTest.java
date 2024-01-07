@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.mule.actions.JavaDSLActionBaseTest;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.jee.jpa.filter;
+package org.springframework.sbm.project.resource;
 
-import org.springframework.rewrite.project.resource.finder.GenericTypeFinder;
-import org.springframework.sbm.jee.jpa.api.PersistenceXml;
+import org.openrewrite.SourceFile;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 
-// FIXME: what if persistence.xml in src/test/resources also exists?!
-public class PersistenceXmlResourceFinder extends GenericTypeFinder<PersistenceXml> {
+public interface ProjectResourceWrapper<TO extends RewriteSourceFileHolder<? extends SourceFile>> {
+    boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder);
 
-    public PersistenceXmlResourceFinder() {
-        super(PersistenceXml.class);
-    }
-
+    TO wrapRewriteSourceFileHolder(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder);
 }

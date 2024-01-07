@@ -16,7 +16,11 @@
 package org.springframework.sbm.build.impl;
 
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.Recipe;
 import org.openrewrite.SourceFile;
+import org.openrewrite.java.tree.J;
+import org.springframework.rewrite.project.resource.ProjectResource;
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
@@ -24,11 +28,6 @@ import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.project.resource.ProjectResource;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.openrewrite.Recipe;
-import org.openrewrite.java.JavaParser;
-import org.openrewrite.java.tree.J;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

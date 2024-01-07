@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.java.filter;
 
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.finder.ProjectResourceFinder;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
 import org.springframework.sbm.java.impl.OpenRewriteType;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 
 import java.util.Optional;
 

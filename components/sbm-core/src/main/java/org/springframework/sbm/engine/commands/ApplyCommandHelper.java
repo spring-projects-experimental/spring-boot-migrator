@@ -15,14 +15,14 @@
  */
 package org.springframework.sbm.engine.commands;
 
+import org.springframework.rewrite.project.resource.finder.DeletedResourcePathStringFilter;
+import org.springframework.rewrite.project.resource.finder.ModifiedResourcePathStringFilter;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;
-import org.springframework.sbm.project.resource.finder.DeletedResourcePathStringFilter;
-import org.springframework.sbm.project.resource.finder.ModifiedResourcePathStringFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

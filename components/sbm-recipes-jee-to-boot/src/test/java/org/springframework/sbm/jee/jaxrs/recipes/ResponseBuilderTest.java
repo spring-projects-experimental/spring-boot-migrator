@@ -15,18 +15,17 @@
  */
 package org.springframework.sbm.jee.jaxrs.recipes;
 
+import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
-import org.openrewrite.java.tree.J;
-import org.springframework.sbm.engine.recipe.AbstractAction;
+import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parsers.SpringRewriteProperties;
 import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
-import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.testhelper.common.utils.TestDiff;
-import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -377,7 +376,7 @@ public class ResponseBuilderTest {
         String actual = projectContext.getProjectJavaSources().list().get(0).print();
 
         // verify it compiles
-        Stream<SourceFile> parse = new RewriteJavaParser(new SbmApplicationProperties(),
+        Stream<SourceFile> parse = new RewriteJavaParser(new SpringRewriteProperties(),
                                                               new RewriteExecutionContext()).parse(actual);
 
         assertThat(actual)

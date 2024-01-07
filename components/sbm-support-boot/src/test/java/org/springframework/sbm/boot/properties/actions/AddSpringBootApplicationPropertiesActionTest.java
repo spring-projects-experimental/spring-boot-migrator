@@ -15,16 +15,16 @@
  */
 package org.springframework.sbm.boot.properties.actions;
 
-import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
-import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.parsers.RewriteExecutionContext;
-import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
+import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
+import org.springframework.sbm.engine.context.ProjectContext;
+import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.test.ActionTest;
 
 import java.nio.file.Path;

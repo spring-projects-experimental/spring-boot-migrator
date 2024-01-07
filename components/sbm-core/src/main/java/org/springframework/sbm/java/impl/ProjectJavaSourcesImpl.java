@@ -25,13 +25,13 @@ import org.openrewrite.java.search.UsesType;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeUtils;
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.exceptions.UnresolvedTypeException;
 import org.springframework.sbm.java.filter.JavaSourceListFinder;
 import org.springframework.sbm.java.refactoring.JavaGlobalRefactoring;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 
 import java.util.ArrayList;
 import java.util.List;

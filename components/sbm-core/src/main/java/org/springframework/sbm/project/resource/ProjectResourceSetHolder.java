@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.sbm.engine.recipe;
+package org.springframework.sbm.project.resource;
 
 import lombok.RequiredArgsConstructor;
-import org.openrewrite.Result;
+import org.openrewrite.ExecutionContext;
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
 import org.springframework.rewrite.project.resource.RewriteMigrationResultMerger;
-import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.ArrayList;
 
-@Component
 @RequiredArgsConstructor
-public class MigrationResultProjectContextMerger {
+@Component
+public class ProjectResourceSetHolder {
+    private ProjectResourceSet projectResourceSet;
+    private final ExecutionContext executionContext;
+    private final RewriteMigrationResultMerger migrationResultMerger;
 
-    private final RewriteMigrationResultMerger rewriteMigrationResultMerger;
+    public void setProjectResourceSet(ProjectResourceSet projectResourceSet) {
+        this.projectResourceSet = projectResourceSet;
+    }
 
-    public void mergeResults(ProjectContext context, List<Result> results) {
-        rewriteMigrationResultMerger.mergeResults(context.getProjectResources(), results);
+    public ProjectResourceSet getProjectResourceSet() {
+        return projectResourceSet == null ? new ProjectResourceSet(new ArrayList<>(), executionContext, migrationResultMerger) : projectResourceSet;
     }
 }

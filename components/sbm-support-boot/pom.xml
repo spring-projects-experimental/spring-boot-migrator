@@ -83,5 +83,10 @@
             <artifactId>archunit-junit5</artifactId>
             <version>1.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>ST4</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

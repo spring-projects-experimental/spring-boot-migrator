@@ -21,7 +21,7 @@ import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Method;
 import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.java.tree.J;
 

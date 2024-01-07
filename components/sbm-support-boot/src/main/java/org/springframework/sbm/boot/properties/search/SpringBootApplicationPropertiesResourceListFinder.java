@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.boot.properties.search;
 
+import org.springframework.rewrite.project.resource.finder.GenericTypeListFinder;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
 
 public class SpringBootApplicationPropertiesResourceListFinder extends GenericTypeListFinder<SpringBootApplicationProperties> {
 

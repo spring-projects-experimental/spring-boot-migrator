@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.boot.properties;
 
-import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
+import org.springframework.rewrite.utils.LinuxWindowsPathUnifier;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
@@ -28,7 +28,7 @@ public class SpringApplicationPropertiesPathMatcher {
     private Pattern profilePattern = Pattern.compile(regex);
 
     public Matcher match(String path) {
-        String unifiedPath = new LinuxWindowsPathUnifier().unifyPath(path);
+        String unifiedPath = LinuxWindowsPathUnifier.unifiedPathString(path);
         return profilePattern.matcher(unifiedPath);
     }
 }

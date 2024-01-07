@@ -15,12 +15,12 @@
  */
 package org.springframework.sbm.engine.commands;
 
+import org.springframework.rewrite.scopes.ExecutionScope;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.ApplicableRecipesListHolder;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
-import org.springframework.sbm.scopes.ExecutionScope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -15,10 +15,10 @@
  */
 package org.springframework.sbm.boot.upgrade_27_30.filter;
 
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.finder.ProjectResourceFinder;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 import org.springframework.sbm.properties.api.PropertiesSource;
 
 import java.util.List;

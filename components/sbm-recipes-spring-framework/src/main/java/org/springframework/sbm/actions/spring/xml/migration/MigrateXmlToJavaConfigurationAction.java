@@ -17,7 +17,7 @@ package org.springframework.sbm.actions.spring.xml.migration;
 
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;

@@ -15,14 +15,21 @@
  */
 package org.springframework.sbm.engine.context;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.RecipeRun;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.ProjectResourceSetFactory;
+import org.springframework.rewrite.project.resource.RewriteMigrationResultMerger;
+import org.springframework.rewrite.project.resource.finder.ProjectResourceFinder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.build.api.ApplicationModules;
-import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.BuildFile;
+import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.RootBuildFileFilter;
 import org.springframework.sbm.build.filter.BuildFileProjectResourceFinder;
 import org.springframework.sbm.java.api.ProjectJavaSources;
@@ -30,13 +37,6 @@ import org.springframework.sbm.java.impl.ProjectJavaSourcesImpl;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.ProjectResourceSetFactory;
-import org.springframework.sbm.project.resource.RewriteMigrationResultMerger;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.nio.file.Path;
 import java.util.List;

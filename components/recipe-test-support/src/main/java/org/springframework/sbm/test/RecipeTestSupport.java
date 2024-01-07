@@ -15,21 +15,21 @@
  */
 package org.springframework.sbm.test;
 
-import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
+import org.springframework.rewrite.boot.autoconfigure.ScopeConfiguration;
+import org.springframework.rewrite.parsers.maven.MavenSettingsInitializer;
+import org.springframework.rewrite.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
-import org.springframework.sbm.parsers.maven.MavenSettingsInitializer;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.context.RewriteJavaSearchActionDeserializer;
 import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.util.BasePackageCalculator;
-import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
-import org.springframework.sbm.scopes.ExecutionScope;
-import org.springframework.sbm.scopes.ScanScope;
+import org.springframework.rewrite.scopes.ExecutionScope;
+import org.springframework.rewrite.scopes.ScanScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
