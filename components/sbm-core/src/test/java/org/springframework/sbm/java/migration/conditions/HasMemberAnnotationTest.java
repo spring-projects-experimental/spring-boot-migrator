@@ -54,6 +54,7 @@ class HasMemberAnnotationTest {
         sut.setAnnotation(annotation);
 
         boolean isTypeInUse = sourceFile.getTypesInUse().getTypesInUse().stream()
+                .filter(JavaType.FullyQualified.class::isInstance)
                 .anyMatch(t -> ((JavaType.FullyQualified)t).getFullyQualifiedName().equals(annotation));
         assertThat(isTypeInUse).isTrue();
 
