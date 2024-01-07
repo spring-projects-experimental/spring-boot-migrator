@@ -32,7 +32,7 @@ public class JavaParserBuilder extends JavaParser.Builder{
 
     @Getter
     @Setter
-    private JavaParser.Builder builder;
+    private JavaParser.Builder builder = JavaParser.fromJavaVersion();
 
     public Supplier<JavaParser.Builder> getSupplier() {
         return () -> builder;
