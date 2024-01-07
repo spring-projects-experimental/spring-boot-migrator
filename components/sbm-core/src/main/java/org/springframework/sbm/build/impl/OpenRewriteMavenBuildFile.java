@@ -898,15 +898,35 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
         Recipe recipe;
         String coordinate = iterator.next();
         String[] split = coordinate.split(":");
-        recipe = new RemoveMavenPlugin(split[0], split[1]);
+        List<Recipe> recipes = new ArrayList<>();
+        recipes.add(new RemoveMavenPlugin(split[0], split[1]));
         while (iterator.hasNext()) {
             coordinate = iterator.next();
             split = coordinate.split(":");
-            recipe.getRecipeList().add(new RemoveMavenPlugin(split[0], split[1]));
+            recipes.add(new RemoveMavenPlugin(split[0], split[1]));
         }
 
         List<SourceFile> sourceFile = List.of(getSourceFile());
         LargeSourceSet sourceSet = new InMemoryLargeSourceSet(sourceFile);
+
+        recipe = new Recipe() {
+
+            @Override
+            public String getDisplayName() {
+                return "Aggregated Recipes";
+            }
+
+            @Override
+            public String getDescription() {
+                return getDisplayName();
+            }
+
+            @Override
+            public List<Recipe> getRecipeList() {
+                return recipes;
+            }
+        };
+
         List<Result> run = recipe.run(sourceSet, executionContext).getChangeset().getAllResults();
         if (!run.isEmpty()) {
             replaceWith(run.get(0).getAfter());
