@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
 import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.parsers.RewriteExecutionContext;
@@ -48,7 +49,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         RewriteExecutionContext.class,
         ScanScope.class,
         ExecutionScope.class,
-        ScopeConfiguration.class
+        SbmSupportRewriteConfiguration.class
 })
 public class OpenRewriteNamedRecipeAdapterIntegrationTest {
 
