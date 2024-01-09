@@ -11,7 +11,8 @@
         <jar.name>spring-boot-migrator</jar.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <openrewrite.version>8.1.8</openrewrite.version>
+        <openrewrite.version>8.12.0</openrewrite.version>
+        <spring-rewrite-commons-launcher.version>0.1.0-SNAPSHOT</spring-rewrite-commons-launcher.version>
         <spring-boot.version>3.1.2</spring-boot.version>
         <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>
         <maven.compiler.target>17</maven.compiler.target>
@@ -31,7 +32,6 @@
         <project.csvParser.outputEncoding>UTF-8</project.csvParser.outputEncoding>
         <generated-sources.dir>src/generated/java</generated-sources.dir>
         <snakeyaml.version>1.33</snakeyaml.version>
-        <sbm-support-rewrite.version>0.1.0-SNAPSHOT</sbm-support-rewrite.version>
         <spring-asciidoctor-backends.version>0.0.5</spring-asciidoctor-backends.version>
     </properties>
 
@@ -256,9 +256,9 @@
             <version>2.0.6</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.experimental</groupId>
-            <artifactId>sbm-support-rewrite</artifactId>
-            <version>${sbm-support-rewrite.version}</version>
+            <groupId>org.springframework.rewrite</groupId>
+            <artifactId>spring-rewrite-commons-launcher</artifactId>
+            <version>${spring-rewrite-commons-launcher.version}</version>
         </dependency>
     </dependencies>
     <build>

@@ -23,11 +23,11 @@ import org.openrewrite.java.search.FindReferencedTypes;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.Marker;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.ReplaceLiteralVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.search.recipe.CommentJavaSearchResult;
 
 import java.io.File;
@@ -53,7 +53,6 @@ public class OpenRewriteJavaSource extends RewriteSourceFileHolder<J.Compilation
 
     @Deprecated
     public RewriteSourceFileHolder<J.CompilationUnit> getResource() {
-        // FIXME: now is a RewriteSourceFileHolder<J.CompilationUnit>
         return this;
     }
 

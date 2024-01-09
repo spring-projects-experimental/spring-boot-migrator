@@ -15,11 +15,11 @@
  */
 package org.springframework.sbm.java.refactoring;
 
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.tree.J;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 
 import java.util.List;
 

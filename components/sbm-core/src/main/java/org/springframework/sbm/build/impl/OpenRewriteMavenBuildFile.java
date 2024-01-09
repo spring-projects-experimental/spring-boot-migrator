@@ -25,23 +25,18 @@ import org.openrewrite.maven.*;
 import org.openrewrite.maven.tree.*;
 import org.openrewrite.xml.tree.Content;
 import org.openrewrite.xml.tree.Xml;
-
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.sbm.build.api.BuildFile;
-import org.springframework.sbm.build.api.DependenciesChangedEvent;
+import org.springframework.rewrite.parsers.maven.RewriteMavenArtifactDownloader;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.build.api.Dependency;
-import org.springframework.sbm.build.api.ParentDeclaration;
 import org.springframework.sbm.build.api.Plugin;
-import org.springframework.sbm.build.api.RepositoryDefinition;
-import org.springframework.sbm.build.api.RewriteMavenParentDeclaration;
+import org.springframework.sbm.build.api.*;
 import org.springframework.sbm.build.impl.inner.PluginRepositoryHandler;
 import org.springframework.sbm.build.migration.recipe.AddMavenPlugin;
 import org.springframework.sbm.build.migration.recipe.RemoveMavenPlugin;
 import org.springframework.sbm.build.migration.visitor.AddOrUpdateDependencyManagement;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.parsers.maven.RewriteMavenArtifactDownloader;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.util.Assert;
 
 import java.io.ByteArrayInputStream;

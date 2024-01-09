@@ -21,10 +21,9 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
-import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
-import org.springframework.sbm.project.resource.SbmApplicationProperties;
-import org.springframework.sbm.scopes.annotations.ScanScope;
+import org.springframework.rewrite.parsers.SpringRewriteProperties;
+import org.springframework.rewrite.scopes.annotations.ScanScope;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -39,14 +38,14 @@ import java.util.stream.Stream;
 @Deprecated
 public class RewriteJavaParser implements JavaParser {
 
-    private final SbmApplicationProperties sbmApplicationProperties;
+    private final SpringRewriteProperties sbmApplicationProperties;
     @Getter
     private final JavaParser javaParser;
     private final ExecutionContext executionContext;
 
 
     // satisfies DI
-    public RewriteJavaParser(SbmApplicationProperties sbmApplicationProperties, ExecutionContext executionContext) {
+    public RewriteJavaParser(SpringRewriteProperties sbmApplicationProperties, ExecutionContext executionContext) {
         this.sbmApplicationProperties = sbmApplicationProperties;
         this.executionContext = executionContext;
         javaParser = buildJavaParser(Collections.emptySet());
@@ -55,7 +54,7 @@ public class RewriteJavaParser implements JavaParser {
     @NotNull
     private JavaParser buildJavaParser(Collection<Path> classpath) {
         Builder<? extends JavaParser, ?> builder = JavaParser.fromJavaVersion()
-                .logCompilationWarningsAndErrors(sbmApplicationProperties.isJavaParserLoggingCompilationWarningsAndErrors());
+                .logCompilationWarningsAndErrors(sbmApplicationProperties.isLogCompilationWarningsAndErrors());
         if (!classpath.isEmpty()) {
             builder.classpath(classpath);
         }

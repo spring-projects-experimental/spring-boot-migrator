@@ -28,6 +28,8 @@ import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
+import org.springframework.rewrite.parsers.SourceFileParser;
+import org.springframework.rewrite.utils.JavaHelper;
 import org.springframework.sbm.build.api.ApplicationModules;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
@@ -35,8 +37,6 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.parsers.SourceFileParser;
-import org.springframework.sbm.utils.JavaHelper;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;

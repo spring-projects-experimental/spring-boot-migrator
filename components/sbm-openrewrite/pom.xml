@@ -33,8 +33,8 @@
             <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.experimental</groupId>
-            <artifactId>sbm-support-rewrite</artifactId>
+            <groupId>org.springframework.rewrite</groupId>
+            <artifactId>spring-rewrite-commons-launcher</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

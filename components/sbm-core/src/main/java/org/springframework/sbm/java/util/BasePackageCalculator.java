@@ -15,14 +15,14 @@
  */
 package org.springframework.sbm.java.util;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Calculates and returns the base package when given a list of JavaSource

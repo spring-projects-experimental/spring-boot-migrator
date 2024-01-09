@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.java.filter;
 
+import org.springframework.rewrite.project.resource.finder.GenericTypeListFinder;
 import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
 
 public class JavaSourceListFinder extends GenericTypeListFinder<JavaSource> {
     public JavaSourceListFinder() {

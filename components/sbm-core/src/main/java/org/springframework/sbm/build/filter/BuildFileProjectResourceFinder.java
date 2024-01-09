@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.build.filter;
 
+import org.springframework.rewrite.project.resource.finder.GenericTypeListFinder;
 import org.springframework.sbm.build.api.BuildFile;
-import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
 
 public class BuildFileProjectResourceFinder extends GenericTypeListFinder<BuildFile> {
     public BuildFileProjectResourceFinder() {
