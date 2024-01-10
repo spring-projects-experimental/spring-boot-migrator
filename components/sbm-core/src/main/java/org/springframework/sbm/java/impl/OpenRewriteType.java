@@ -18,14 +18,19 @@ package org.springframework.sbm.java.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
+import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.*;
 import org.openrewrite.java.format.WrappingAndBraces;
+import org.openrewrite.java.internal.JavaTypeCache;
+import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.search.DeclaresMethod;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.ClassDeclaration;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.JavaType.Class;
 import org.openrewrite.java.tree.TypeUtils;
+import org.openrewrite.marker.Markers;
+import org.springframework.rewrite.parsers.maven.ClasspathDependencies;
 import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.java.api.*;
@@ -155,19 +160,42 @@ public class OpenRewriteType implements Type {
     public void addMethod(String methodTemplate, Set<String> requiredImports) {
         this.apply(new GenericOpenRewriteRecipe<>(() -> new JavaIsoVisitor<ExecutionContext>() {
             @Override
+            public J.CompilationUnit visitCompilationUnit(J.CompilationUnit cu, ExecutionContext executionContext) {
+                J.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
+                return c;
+            }
+
+            @Override
             public ClassDeclaration visitClassDeclaration(ClassDeclaration classDecl, ExecutionContext executionContext) {
                 ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
                 J.CompilationUnit cu = getCursor().dropParentUntil(J.CompilationUnit.class::isInstance).getValue();
                 checkTypeAvailability(cu, requiredImports);
 
+                Markers markers = cu.getMarkers();
+                ClasspathDependencies classpathDependencies = markers.findFirst(ClasspathDependencies.class).get();
+
+                JavaTypeCache javaTypeCache = new JavaTypeCache();
+                JavaParser.Builder clone = javaParserBuilder
+                        .typeCache(javaTypeCache)
+                        .classpath(classpathDependencies.getDependencies())
+                        .clone();
+
                 JavaTemplate template = JavaTemplate
                         .builder(methodTemplate)
-                        .javaParser(javaParserBuilder)
+                        .javaParser(clone)
                         .imports(requiredImports.toArray(new String[0]))
                         .build();
-                requiredImports.forEach(this::maybeAddImport);
                 cd = template.apply(getCursor(), cd.getBody().getCoordinates().lastStatement());
-                return cd;
+
+                JavaSourceSet main = JavaSourceSet.build("main", classpathDependencies.getDependencies(), javaTypeCache, false);
+                markers = markers.removeByType(JavaSourceSet.class);
+                markers = markers.addIfAbsent(main);
+                ClassDeclaration classDeclaration1 = cd.withMarkers(markers);
+
+                boolean onlyIfReferenced = false;
+                requiredImports.forEach(i -> maybeAddImport(i, onlyIfReferenced));
+
+                return classDeclaration1;
             }
         }));
         this.apply(new WrappingAndBraces());

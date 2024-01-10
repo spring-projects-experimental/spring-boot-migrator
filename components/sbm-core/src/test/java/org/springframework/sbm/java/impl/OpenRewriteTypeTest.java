@@ -318,14 +318,13 @@ class OpenRewriteTypeTest {
                 }
                 """;
 
-        Set<String> requiredImports = Set.of("org.springframework.integration.transformer.ObjectToStringTransformer",
-                "org.springframework.context.annotation.Configuration",
-                "org.springframework.integration.amqp.dsl.Amqp",
+        Set<String> requiredImports = Set.of(
                 "org.springframework.integration.handler.LoggingHandler",
                 "org.springframework.integration.dsl.IntegrationFlow",
                 "org.springframework.integration.dsl.IntegrationFlows",
                 "org.springframework.context.annotation.Bean",
-                "org.springframework.integration.http.dsl.Http");
+                "org.springframework.integration.http.dsl.Http"
+        );
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies(
@@ -360,8 +359,7 @@ class OpenRewriteTypeTest {
                                 .log(LoggingHandler.Level.INFO)
                                 .get();
                     }
-                }        
-                """
+                }"""
         );
     }
 
