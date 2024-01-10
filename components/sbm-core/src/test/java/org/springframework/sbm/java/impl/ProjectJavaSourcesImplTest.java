@@ -17,12 +17,18 @@ package org.springframework.sbm.java.impl;
 
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.StdIo;
+import org.junitpioneer.jupiter.StdOut;
+import org.openrewrite.java.JavaParser;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
+import org.springframework.rewrite.parsers.SpringRewriteProperties;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -98,7 +104,8 @@ class ProjectJavaSourcesImplTest {
     }
 
     @Test
-    void whenClassInheritsParameterizedInterfaceButNoResolvedType() {
+    @StdIo
+    void whenClassInheritsParameterizedInterfaceButNoResolvedType(StdOut put) {
         @Language("java") String sourceCode =
                 """
                 package a.b.c;
@@ -108,10 +115,12 @@ class ProjectJavaSourcesImplTest {
                 }
                 """;
 
-
-        assertThrows(UnsatisfiedDependencyException.class, () ->
-            TestProjectContext.buildProjectContext().withJavaSources(sourceCode).build()
-        ).getMessage().contains("src/main/java/a/b/c/SomeClass.java:[2,13] cannot find symbol");
-
+        SpringRewriteProperties springRewriteProperties = new SpringRewriteProperties();
+        springRewriteProperties.setLogCompilationWarningsAndErrors(true);
+        TestProjectContext.buildProjectContext()
+                .withSpringRewriteProperties(springRewriteProperties)
+                .withJavaSources(sourceCode)
+                .build();
+        assertThat(Arrays.stream(put.capturedLines()).collect(Collectors.joining("\n"))).contains("src/main/java/a/b/c/SomeClass.java:4: error: cannot find symbol");
     }
 }
