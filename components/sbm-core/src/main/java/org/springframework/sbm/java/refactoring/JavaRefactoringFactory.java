@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.java.refactoring;
 
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.openrewrite.java.tree.J;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 
 public interface JavaRefactoringFactory {
 

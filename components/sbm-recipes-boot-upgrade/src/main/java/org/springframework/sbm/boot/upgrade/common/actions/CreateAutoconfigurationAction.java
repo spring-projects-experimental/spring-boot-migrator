@@ -20,11 +20,11 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.rewrite.project.resource.ProjectResource;
+import org.springframework.rewrite.project.resource.finder.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.build.api.Module;
-import org.springframework.sbm.project.resource.finder.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
-import org.springframework.sbm.project.resource.ProjectResource;
 import org.springframework.sbm.project.resource.StringProjectResource;
 
 import java.io.ByteArrayInputStream;

@@ -15,14 +15,12 @@
  */
 package org.springframework.sbm.boot.properties;
 
-import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
-import org.springframework.sbm.parsers.RewriteExecutionContext;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.openrewrite.properties.tree.Properties;
+import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
+import org.springframework.sbm.properties.parser.RewritePropertiesParser;
 
 import java.nio.file.Path;
 

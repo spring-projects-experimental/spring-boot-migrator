@@ -17,7 +17,7 @@ package org.springframework.sbm.jee.jaxws;
 
 import org.springframework.sbm.engine.recipe.UserInteractions;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import freemarker.template.Configuration;
 import org.apache.commons.io.IOUtils;

@@ -26,9 +26,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.sbm.boot.autoconfigure.SbmSupportRewriteConfiguration;
-import org.springframework.sbm.boot.autoconfigure.ScopeConfiguration;
-import org.springframework.sbm.parsers.maven.MavenSettingsInitializer;
+import org.springframework.rewrite.parsers.RewriteParserConfiguration;
+import org.springframework.rewrite.boot.autoconfigure.ScopeConfiguration;
+import org.springframework.rewrite.parsers.maven.MavenSettingsInitializer;
+import org.springframework.rewrite.project.RewriteSourceFileWrapper;
+import org.springframework.rewrite.scopes.AbstractBaseScope;
+import org.springframework.rewrite.scopes.ProjectMetadata;
+import org.springframework.rewrite.scopes.ScanScope;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
 import org.springframework.sbm.engine.commands.ApplyCommand;
 import org.springframework.sbm.engine.commands.ScanCommand;
@@ -40,18 +44,14 @@ import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.project.RewriteSourceFileWrapper;
 import org.springframework.sbm.project.parser.*;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
 import org.springframework.sbm.project.resource.ProjectResourceWrapperRegistry;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
-import org.springframework.sbm.scopes.AbstractBaseScope;
-import org.springframework.sbm.scopes.ExecutionScope;
-import org.springframework.sbm.scopes.ProjectMetadata;
-import org.springframework.sbm.scopes.ScanScope;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
+import org.springframework.rewrite.scopes.ExecutionScope;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -64,10 +64,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.ScopeCacheHelper.getCacheSnapshot;
 
 /**
- * Architectural Fitnesse Function for the concept of a `scanScope` ({@link org.springframework.sbm.scopes.annotations.ScanScope}) and `executionScope` ({@link org.springframework.sbm.scopes.annotations.ExecutionScope}).
+ * Architectural Fitnesse Function for the concept of a `scanScope` ({@link org.springframework.rewrite.scopes.annotations.ScanScope}) and `executionScope` ({@link ExecutionScope}).
  *
  * ## executionScope
- * Beans annotated with {@link org.springframework.sbm.scopes.annotations.ExecutionScope} will be created on first access and added to the executionScope.
+ * Beans annotated with {@link ExecutionScope} will be created on first access and added to the executionScope.
  * Subsequent usages will receive the executionScoped instance from the scope until the scope ends and all scoped beans
  * get removed from the scope.
  *
@@ -80,7 +80,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
  * - or when the application stops.
  *
  * ## scanScope
- * Beans annotated with {@link org.springframework.sbm.scopes.annotations.ScanScope} will be created on first access during scan/parse and added to the scanScope.
+ * Beans annotated with {@link org.springframework.rewrite.scopes.annotations.ScanScope} will be created on first access during scan/parse and added to the scanScope.
  * Subsequent usages will receive instances from the scanScope until the scope ends and all scoped beans get removed
  * from the scope.
  *
@@ -137,7 +137,7 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     ApplicableRecipesListHolder.class,
                     SbmRecipeLoader.class,
                     ExecutionScopeArchFitTestContext.class,
-                    SbmSupportRewriteConfiguration.class
+                    RewriteParserConfiguration.class
             },
             properties = {
                     "spring.main.allow-bean-definition-overriding=true", // required to provide custom ProjectMetadata

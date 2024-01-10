@@ -16,8 +16,8 @@
 package org.springframework.sbm.engine.precondition;
 
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.utils.OsAgnosticPathMatcher;
-import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
+import org.springframework.rewrite.utils.LinuxWindowsPathUnifier;
+import org.springframework.rewrite.utils.OsAgnosticPathMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.PathMatcher;
 
@@ -35,7 +35,7 @@ class JavaSourceDirExistsPreconditionCheck extends PreconditionCheck {
 	@Override
 	public PreconditionCheckResult verify(Path projectRoot, List<Resource> projectResources) {
 		if (projectResources.stream()
-				.noneMatch(r -> pathMatcher.match(PATTERN, pathUnifier.unifyPath(getPath(r).toAbsolutePath().toString())))) {
+				.noneMatch(r -> pathMatcher.match(PATTERN, LinuxWindowsPathUnifier.unifiedPathString(r)))) {
 			return new PreconditionCheckResult(ResultState.FAILED, "PreconditionCheck check could not find a '" + JAVA_SRC_DIR + "' dir. This dir is required.");
 		}
 		return new PreconditionCheckResult(ResultState.PASSED, "Found required source dir 'src/main/java'.");

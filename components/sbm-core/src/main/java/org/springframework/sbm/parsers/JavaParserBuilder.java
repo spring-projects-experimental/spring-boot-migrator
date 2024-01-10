@@ -18,7 +18,7 @@ package org.springframework.sbm.parsers;
 import lombok.Getter;
 import lombok.Setter;
 import org.openrewrite.java.JavaParser;
-import org.springframework.sbm.scopes.annotations.ScanScope;
+import org.springframework.rewrite.scopes.annotations.ScanScope;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Supplier;
@@ -32,7 +32,7 @@ public class JavaParserBuilder extends JavaParser.Builder{
 
     @Getter
     @Setter
-    private JavaParser.Builder builder;
+    private JavaParser.Builder builder = JavaParser.fromJavaVersion();
 
     public Supplier<JavaParser.Builder> getSupplier() {
         return () -> builder;

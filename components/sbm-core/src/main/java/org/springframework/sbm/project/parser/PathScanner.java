@@ -17,10 +17,10 @@ package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
-import org.springframework.sbm.utils.OsAgnosticPathMatcher;
+import org.springframework.rewrite.utils.LinuxWindowsPathUnifier;
+import org.springframework.rewrite.utils.OsAgnosticPathMatcher;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
-import org.springframework.sbm.utils.LinuxWindowsPathUnifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
 
@@ -37,11 +37,10 @@ public class PathScanner {
 	private final SbmApplicationProperties sbmApplicationProperties;
 	private final ResourceHelper resourceHelper;
 	private final PathMatcher pathMatcher = new OsAgnosticPathMatcher();
-	private final LinuxWindowsPathUnifier pathUnifier = new LinuxWindowsPathUnifier();
 
 	public List<Resource> scan(Path projectRoot) {
 		Path absoluteRootPath = projectRoot.toAbsolutePath();
-		String pattern = new LinuxWindowsPathUnifier().unifyPath(absoluteRootPath.toString() + "/**");
+		String pattern = LinuxWindowsPathUnifier.unifiedPathString(absoluteRootPath) + "/**";
 		Resource[] resources = resourceHelper.loadResources("file:" + pattern);
 
 		return Arrays.asList(resources)
@@ -56,7 +55,7 @@ public class PathScanner {
 		}
 		return sbmApplicationProperties.getIgnoredPathsPatterns().stream()
 				.noneMatch(ir -> pathMatcher.match(ir,
-						pathUnifier.unifyPath(projectRoot.relativize(givenResource))));
+						LinuxWindowsPathUnifier.unifiedPathString(projectRoot.relativize(givenResource))));
 	}
 
 	private Path getPath(Resource r) {

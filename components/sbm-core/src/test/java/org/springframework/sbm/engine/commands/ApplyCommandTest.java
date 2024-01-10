@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openrewrite.ExecutionContext;
+import org.springframework.rewrite.scopes.ExecutionScope;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;
 import org.springframework.sbm.engine.git.GitSupport;
@@ -29,7 +30,6 @@ import org.springframework.sbm.engine.recipe.Action;
 import org.springframework.sbm.engine.recipe.Recipe;
 import org.springframework.sbm.engine.recipe.Recipes;
 import org.springframework.sbm.engine.recipe.RecipesBuilder;
-import org.springframework.sbm.scopes.ExecutionScope;
 
 import java.util.List;
 import java.util.Optional;

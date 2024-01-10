@@ -23,7 +23,7 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.test.TestProjectContextInfo;
 

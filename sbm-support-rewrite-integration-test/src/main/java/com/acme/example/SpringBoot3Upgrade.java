@@ -23,7 +23,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.parsers.ProjectScanner;
-import org.springframework.sbm.parsers.RewriteProjectParser;
+import org.springframework.rewrite.parsers.RewriteProjectParser;
 import org.springframework.sbm.parsers.RewriteProjectParsingResult;
 import org.springframework.sbm.parsers.events.StartedParsingResourceEvent;
 import org.springframework.sbm.project.RewriteSourceFileWrapper;

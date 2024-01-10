@@ -15,9 +15,9 @@
  */
 package org.springframework.sbm.jee.ejb.filter;
 
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.finder.ProjectResourceFinder;
 import org.springframework.sbm.jee.ejb.api.EjbJarXml;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 
 import java.util.Optional;
 

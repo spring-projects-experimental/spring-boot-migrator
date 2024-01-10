@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.properties.parser;
 
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.openrewrite.properties.PropertiesParser;
 import org.openrewrite.properties.tree.Properties;
 import org.springframework.core.io.Resource;

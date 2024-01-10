@@ -21,12 +21,12 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
+import org.springframework.rewrite.parsers.maven.RewriteMavenArtifactDownloader;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoring;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
-import org.springframework.sbm.parsers.maven.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.project.resource.ProjectResourceWrapper;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;
 
 @Component

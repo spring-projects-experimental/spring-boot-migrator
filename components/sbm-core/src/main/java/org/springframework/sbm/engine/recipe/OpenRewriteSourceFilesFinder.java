@@ -16,9 +16,9 @@
 package org.springframework.sbm.engine.recipe;
 
 import org.openrewrite.SourceFile;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.finder.ProjectResourceFinder;
 
 import java.util.List;
 import java.util.stream.Collectors;

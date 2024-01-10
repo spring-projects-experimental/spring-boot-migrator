@@ -15,30 +15,28 @@
  */
 package org.springframework.sbm.project.buildfile;
 
-import org.jetbrains.annotations.NotNull;
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.maven.tree.Scope;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.rewrite.parsers.RewriteExecutionContext;
 import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.api.Plugin;
-import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
+import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.java.impl.DependencyChangeHandler;
-import org.springframework.sbm.java.impl.RewriteJavaParser;
-import org.springframework.sbm.parsers.RewriteExecutionContext;
 import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
@@ -47,7 +45,8 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class OpenRewriteMavenBuildFileTest {
 

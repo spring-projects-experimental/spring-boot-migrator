@@ -23,7 +23,7 @@ import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.api.JavaSourceSet;
 import org.springframework.sbm.java.api.JavaSourceLocation;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.filter.XmlSpringBeanConfigurationFilter;
 import freemarker.template.Configuration;
 import freemarker.template.Template;

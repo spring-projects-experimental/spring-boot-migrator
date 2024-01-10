@@ -40,7 +40,7 @@ public class AddMavenPlugin extends MultiModuleAwareAction {
 
     @Override
     public void apply(ProjectContext context) {
-        context.getBuildFile().addPlugin(plugin);
+        context.getApplicationModules().getRootModule().getBuildFile().addPlugin(plugin);
     }
 
     private class DefaultMultiModuleHandler implements MultiModuleHandler {

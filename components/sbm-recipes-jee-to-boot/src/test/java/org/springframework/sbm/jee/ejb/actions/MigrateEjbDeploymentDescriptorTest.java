@@ -15,12 +15,12 @@
  */
 package org.springframework.sbm.jee.ejb.actions;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.rewrite.project.resource.finder.GenericTypeListFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.jee.ejb.api.EjbJarXml;
 import org.springframework.sbm.jee.ejb.resource.JeeEjbJarXmlProjectResourceRegistrar;
 import org.springframework.sbm.project.resource.TestProjectContext;
-import org.springframework.sbm.project.resource.finder.GenericTypeListFinder;
-import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.List;

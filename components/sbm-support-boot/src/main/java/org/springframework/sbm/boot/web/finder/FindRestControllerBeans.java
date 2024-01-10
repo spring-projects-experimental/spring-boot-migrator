@@ -15,10 +15,10 @@
  */
 package org.springframework.sbm.boot.web.finder;
 
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.finder.ProjectResourceFinder;
 import org.springframework.sbm.boot.web.api.RestControllerBean;
 import org.springframework.sbm.java.filter.JavaSourceListFinder;
-import org.springframework.sbm.project.resource.ProjectResourceSet;
-import org.springframework.sbm.project.resource.finder.ProjectResourceFinder;
 
 import java.util.List;
 import java.util.stream.Collectors;

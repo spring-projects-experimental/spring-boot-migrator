@@ -16,11 +16,14 @@
 package org.springframework.sbm.engine.context;
 
 import org.openrewrite.ExecutionContext;
+import org.springframework.rewrite.project.resource.ProjectResourceSet;
+import org.springframework.rewrite.project.resource.ProjectResourceSetFactory;
+import org.springframework.rewrite.project.resource.RewriteMigrationResultMerger;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.filter.BuildFileProjectResourceFinder;
-import org.springframework.sbm.engine.recipe.MigrationResultProjectContextMerger;
-import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
+import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.*;

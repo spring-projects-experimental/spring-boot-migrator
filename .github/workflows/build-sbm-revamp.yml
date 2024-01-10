@@ -18,10 +18,6 @@ jobs:
           java-version: 17
           cache: 'maven'
 
-      - name: sbm-support-rewrite (build + test)
-        working-directory: sbm-support-rewrite
-        run: mvn --batch-mode clean install
-
       - name: clean
         run: mvn clean
 

@@ -15,20 +15,23 @@
  */
 package org.springframework.sbm.java.impl;
 
-import org.openrewrite.*;
+import lombok.extern.slf4j.Slf4j;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.Recipe;
 import org.openrewrite.java.*;
 import org.openrewrite.java.format.WrappingAndBraces;
-import org.openrewrite.java.tree.*;
+import org.openrewrite.java.search.DeclaresMethod;
+import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.J.ClassDeclaration;
+import org.openrewrite.java.tree.JavaType;
+import org.openrewrite.java.tree.JavaType.Class;
+import org.openrewrite.java.tree.TypeUtils;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
-import lombok.extern.slf4j.Slf4j;
-import org.openrewrite.java.search.DeclaresMethod;
-import org.openrewrite.java.tree.J.ClassDeclaration;
-import org.openrewrite.java.tree.JavaType.Class;
-import org.springframework.sbm.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.FindCompilationUnitContainingType;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;

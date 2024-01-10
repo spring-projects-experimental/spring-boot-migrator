@@ -28,6 +28,7 @@ import org.openrewrite.marker.Markers;
 import org.openrewrite.properties.PropertiesParser;
 import org.openrewrite.protobuf.ProtoParser;
 import org.openrewrite.text.PlainTextParser;
+import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 import org.openrewrite.xml.XmlParser;
 import org.openrewrite.yaml.YamlParser;
@@ -116,7 +117,14 @@ public class ResourceParser {
         });
 
         ParsingExecutionContextView ctx = ParsingExecutionContextView.view(executionContext);
-        ctx.setParsingListener((input, sourceFile) -> eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(sourceFile.getSourcePath())));
+        ParsingEventListener parsingEventListener = new ParsingEventListener() {
+            @Override
+            public void parsed(Parser.Input input, SourceFile sourceFile) {
+                Path sourcePath = sourceFile.getSourcePath();
+                eventPublisher.publishEvent(new StartedScanningProjectResourceEvent(sourcePath));
+            }
+        };
+        ctx.setParsingListener(parsingEventListener);
 
         return parserAndParserInputMappings.entrySet().stream()
                 .filter(ifNoInput())

@@ -17,7 +17,7 @@ package org.springframework.sbm.build.api;
 
 import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
-import org.springframework.sbm.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parsers.RewriteExecutionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

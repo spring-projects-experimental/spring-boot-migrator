@@ -129,8 +129,8 @@ class RemovePluginsMatchingRegexTest {
                     <packaging>jar</packaging>
                     <name>hello-world</name>
                     <properties>
-                        <mule.maven.plugin.version>3.5.3</mule.maven.plugin.version>
-                        <munit.version>2.2.4</munit.version>
+                        <mule.maven.plugin.version>2.1</mule.maven.plugin.version>
+                        <munit.version>2.1.0</munit.version>
                         <app.runtime>4.1.5</app.runtime>
                         <http.connector.version>1.5.4</http.connector.version>
                         <sockets.connector.version>1.1.5</sockets.connector.version>
@@ -138,6 +138,20 @@ class RemovePluginsMatchingRegexTest {
                         <maven.compiler.source>11</maven.compiler.source>
                         <spring-boot.version>3.1.2</spring-boot.version>
                     </properties>
+                    <pluginRepositories>
+                        <pluginRepository>
+                            <name>Mule Releases</name>
+                            <id>mule-releases</id>
+                            <url>https://repository.mulesoft.org/releases/</url>
+                        </pluginRepository>
+                    </pluginRepositories>
+                    <repositories>
+                        <repository>
+                            <name>Mule Releases</name>
+                            <id>mule-releases</id>
+                            <url>https://repository.mulesoft.org/releases/</url>
+                        </repository>
+                    </repositories>                    
                     <build>
                         <plugins>
                             <plugin>

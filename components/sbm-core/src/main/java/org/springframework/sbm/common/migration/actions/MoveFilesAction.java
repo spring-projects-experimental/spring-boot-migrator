@@ -15,10 +15,10 @@
  */
 package org.springframework.sbm.common.migration.actions;
 
+import org.springframework.rewrite.project.resource.ProjectResource;
+import org.springframework.rewrite.project.resource.finder.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.sbm.project.resource.ProjectResource;
-import org.springframework.sbm.project.resource.finder.PathPatternMatchingProjectResourceFinder;
 import lombok.Getter;
 import lombok.Setter;
 

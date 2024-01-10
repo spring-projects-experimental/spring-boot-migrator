@@ -46,7 +46,7 @@ import org.springframework.sbm.mule.api.toplevel.configuration.ConfigurationType
 import org.springframework.sbm.mule.api.toplevel.configuration.MuleConfigurationsExtractor;
 import org.springframework.sbm.mule.resource.MuleXmlProjectResourceRegistrar;
 import org.springframework.sbm.parsers.RewriteExecutionContext;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.test.TestProjectContextInfo;

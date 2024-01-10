@@ -17,7 +17,7 @@ package org.springframework.sbm.engine.context;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.sbm.scopes.annotations.ScanScope;
+import org.springframework.rewrite.scopes.annotations.ScanScope;
 import org.springframework.stereotype.Component;
 
 @Component

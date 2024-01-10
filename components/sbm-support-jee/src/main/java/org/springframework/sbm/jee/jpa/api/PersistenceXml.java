@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.jee.jpa.api;
 
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import lombok.Getter;
 import org.openrewrite.xml.tree.Xml;
 

@@ -16,7 +16,7 @@
 package org.springframework.sbm.jee.web.api;
 
 import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.web.api.ServletMappingType;
 import org.springframework.sbm.project.web.api.ServletType;
 import org.springframework.sbm.project.web.api.UrlPatternType;

@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.mule.resource;
 
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import lombok.Getter;
 import org.mulesoft.schema.mule.core.MuleType;
 import org.openrewrite.xml.tree.Xml;

@@ -17,14 +17,14 @@ package org.springframework.sbm.jee.jpa.resource;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.jee.jpa.api.PersistenceXml;
-import org.springframework.sbm.project.resource.ProjectResourceWrapper;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.Result;
 import org.openrewrite.SourceFile;
 import org.openrewrite.xml.search.FindTags;
 import org.openrewrite.xml.tree.Xml;
+import org.springframework.sbm.project.resource.ProjectResourceWrapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

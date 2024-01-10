@@ -15,9 +15,9 @@
  */
 package org.springframework.sbm.jee.ejb.resource;
 
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.jee.ejb.api.EjbJarXml;
 import org.springframework.sbm.project.resource.ProjectResourceWrapper;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
 import org.openrewrite.SourceFile;
 import org.openrewrite.xml.tree.Xml;
 import org.springframework.stereotype.Component;

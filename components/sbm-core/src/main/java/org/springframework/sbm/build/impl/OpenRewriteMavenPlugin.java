@@ -15,40 +15,26 @@
  */
 package org.springframework.sbm.build.impl;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.Singular;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
+import lombok.*;
 import org.openrewrite.maven.ChangePluginConfiguration;
 import org.openrewrite.maven.internal.MavenXmlMapper;
 import org.openrewrite.xml.tree.Xml;
 import org.openrewrite.xml.tree.Xml.Document;
-
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.build.api.Plugin;
-import org.springframework.sbm.project.resource.RewriteSourceFileHolder;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
