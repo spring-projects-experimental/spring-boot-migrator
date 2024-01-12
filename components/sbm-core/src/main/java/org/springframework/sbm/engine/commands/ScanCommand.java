@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
+import org.springframework.rewrite.parsers.ProjectScanner;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;
@@ -37,11 +38,11 @@ public class ScanCommand extends AbstractCommand<ProjectContext> {
     private final ProjectRootPathResolver projectRootPathResolver;
     private final ProjectContextInitializer projectContextInitializer;
     private final ApplicationEventPublisher eventPublisher;
-    private final PathScanner pathScanner;
+    private final ProjectScanner pathScanner;
     private final PreconditionVerifier preconditionVerifier;
 
     @Deprecated
-    public ScanCommand(ProjectRootPathResolver projectRootPathResolver, ProjectContextInitializer projectContextInitializer, ApplicationEventPublisher eventPublisher, PathScanner pathScanner, PreconditionVerifier preconditionVerifier, ConfigurableListableBeanFactory beanFactory) {
+    public ScanCommand(ProjectRootPathResolver projectRootPathResolver, ProjectContextInitializer projectContextInitializer, ApplicationEventPublisher eventPublisher, ProjectScanner pathScanner, PreconditionVerifier preconditionVerifier, ConfigurableListableBeanFactory beanFactory) {
         super(COMMAND_NAME);
         this.projectRootPathResolver = projectRootPathResolver;
         this.projectContextInitializer = projectContextInitializer;

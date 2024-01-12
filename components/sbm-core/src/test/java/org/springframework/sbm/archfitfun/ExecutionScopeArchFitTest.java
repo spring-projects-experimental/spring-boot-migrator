@@ -26,11 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.rewrite.parsers.RewriteParserConfiguration;
 import org.springframework.rewrite.boot.autoconfigure.ScopeConfiguration;
+import org.springframework.rewrite.parsers.RewriteParserConfiguration;
 import org.springframework.rewrite.parsers.maven.MavenSettingsInitializer;
 import org.springframework.rewrite.project.RewriteSourceFileWrapper;
 import org.springframework.rewrite.scopes.AbstractBaseScope;
+import org.springframework.rewrite.scopes.ExecutionScope;
 import org.springframework.rewrite.scopes.ProjectMetadata;
 import org.springframework.rewrite.scopes.ScanScope;
 import org.springframework.sbm.engine.commands.ApplicableRecipeListCommand;
@@ -43,15 +44,17 @@ import org.springframework.sbm.engine.precondition.PreconditionVerifier;
 import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
-import org.springframework.sbm.parsers.JavaParserBuilder;
-import org.springframework.sbm.project.parser.*;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
+import org.springframework.sbm.project.parser.JavaProvenanceMarkerFactory;
+import org.springframework.sbm.project.parser.MavenConfigHandler;
+import org.springframework.sbm.project.parser.PathScanner;
+import org.springframework.sbm.project.parser.ProjectContextInitializer;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
 import org.springframework.sbm.project.resource.ProjectResourceWrapperRegistry;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
-import org.springframework.rewrite.scopes.ExecutionScope;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -96,11 +99,8 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
 @Slf4j
 @Disabled()
 @SpringBootTest(classes = {
-//                    ScanScope.class,
-//                    ExecutionScope.class,
                     ScanCommand.class,
                     ProjectRootPathResolver.class,
-//                    PathScanner.class,
                     SbmApplicationProperties.class,
                     ResourceHelper.class,
                     PreconditionVerifier.class,
@@ -112,15 +112,6 @@ import static org.springframework.sbm.archfitfun.ExecutionScopeArchFitTest.Scope
                     JavaRefactoringFactoryImpl.class,
                     BasePackageCalculator.class,
                     JavaParserBuilder.class,
-//                    RewriteParserConfiguration.class,
-//                    RewriteProjectParser.class,
-//                    ResourceParser.class,
-//                    RewriteJsonParser.class,
-//                    RewriteXmlParser.class,
-//                    RewriteYamlParser.class,
-//                    RewritePropertiesParser.class,
-//                    RewritePlainTextParser.class,
-//                    RewriteMavenParser.class,
                     MavenSettingsInitializer.class,
                     MigrationResultProjectContextMerger.class,
                     JavaProvenanceMarkerFactory.class,

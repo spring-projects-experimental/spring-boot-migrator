@@ -33,7 +33,7 @@ import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.JavaSourceLocation;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

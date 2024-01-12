@@ -30,8 +30,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+/**
+ * @deprecated
+ * Use {@link org.springframework.rewrite.parsers.ProjectScanner}
+ */
 @RequiredArgsConstructor
+@Deprecated(forRemoval = true)
 public class PathScanner {
 
 	private final SbmApplicationProperties sbmApplicationProperties;

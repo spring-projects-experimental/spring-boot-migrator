@@ -20,8 +20,11 @@ import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
+import org.openrewrite.java.JavaParser;
+import org.openrewrite.java.internal.JavaTypeCache;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
@@ -29,6 +32,7 @@ import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
 import org.springframework.rewrite.parsers.SourceFileParser;
+import org.springframework.rewrite.parsers.maven.ClasspathDependencies;
 import org.springframework.rewrite.utils.JavaHelper;
 import org.springframework.sbm.build.api.ApplicationModules;
 import org.springframework.sbm.build.api.Module;
@@ -36,7 +40,7 @@ import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -141,20 +145,44 @@ public class DependencyChangeHandler {
     private List<SourceFile> recompileModuleClasses(Module module) {
         Map<Scope, Set<Path>> resolvedDependenciesMap = module.getBuildFile().getResolvedDependenciesMap();
         Map<Scope, Set<Path>> scopeListMap = flattenToCompileAndTestScope(resolvedDependenciesMap);
-        List<Parser.Input> mainSources = module.getMainJavaSourceSet().list().stream()
-                .map(ja -> new Parser.Input(ja.getAbsolutePath(), () -> new ByteArrayInputStream(ja.print().getBytes())))
-                .toList();
         // FIXME: reuse logic from parser here. it must be guaranteed that markers are added
         Set<Path> compileClasspath = scopeListMap.get(Scope.Compile);
-        List<SourceFile> main = javaParserBuilder.classpath(compileClasspath).build().parseInputs(mainSources, module.getProjectRootDir(), executionContext).toList();
-        JavaSourceSet javaSourceSet = module.getMainJavaSourceSet().list().get(0).getResource().getSourceFile().getMarkers().findFirst(JavaSourceSet.class).get();
-        List<Parser.Input> testSources = module.getTestJavaSourceSet().list().stream()
-                .map(ja -> new Parser.Input(ja.getAbsolutePath(), () -> new ByteArrayInputStream(ja.print().getBytes())))
-                .toList();
-        List<SourceFile> test = javaParserBuilder.classpath(scopeListMap.get(Scope.Test)).build().parseInputs(testSources, module.getProjectRootDir(), executionContext).toList();
         List<SourceFile> result = new ArrayList<>();
-        result.addAll(main);
-        result.addAll(test);
+        List<JavaSource> mainJavaSourceSet = module.getMainJavaSourceSet().list();
+        if(!mainJavaSourceSet.isEmpty()) {
+            List<Parser.Input> mainSources = mainJavaSourceSet.stream()
+                    .map(ja -> new Parser.Input(ja.getAbsolutePath(), () -> new ByteArrayInputStream(ja.print().getBytes())))
+                    .toList();
+            JavaTypeCache typeCache = new JavaTypeCache();
+            JavaParser javaParser = javaParserBuilder
+                    .typeCache(typeCache)
+                    .classpath(compileClasspath)
+                    .clone()
+                    .build();
+            JavaSourceSet javaSourceSet = JavaSourceSet.build("main", compileClasspath, typeCache, false);
+            Markers markers = mainJavaSourceSet.get(0).getResource().getSourceFile().getMarkers();
+            markers.removeByType(JavaSourceSet.class);
+            markers.addIfAbsent(javaSourceSet);
+            ClasspathDependencies classpathDependencies = markers.findFirst(ClasspathDependencies.class).get();
+            classpathDependencies.setDependencies(new ArrayList<>(compileClasspath));
+            List<SourceFile> main = javaParser.parseInputs(mainSources, module.getProjectRootDir(), executionContext)
+                    .map(sf -> sf.withMarkers(markers))
+                    .map(SourceFile.class::cast)
+                    .toList();
+
+            result.addAll(main);
+        }
+
+        List<JavaSource> testJavaSourceSet = module.getTestJavaSourceSet().list();
+        if(!testJavaSourceSet.isEmpty()) {
+            List<Parser.Input> testSources = testJavaSourceSet.stream()
+                    .map(ja -> new Parser.Input(ja.getAbsolutePath(), () -> new ByteArrayInputStream(ja.print().getBytes())))
+                    .toList();
+            ClasspathDependencies classpathDependencies = testJavaSourceSet.get(0).getResource().getSourceFile().getMarkers().findFirst(ClasspathDependencies.class).get();
+            classpathDependencies.setDependencies(new ArrayList<>(compileClasspath));
+            List<SourceFile> test = javaParserBuilder.classpath(scopeListMap.get(Scope.Test)).build().parseInputs(testSources, module.getProjectRootDir(), executionContext).toList();
+            result.addAll(test);
+        }
         return result;
     }
 

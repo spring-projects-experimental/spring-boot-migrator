@@ -19,11 +19,9 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.rewrite.boot.autoconfigure.SbmSupportRewriteConfiguration;
+import org.springframework.rewrite.boot.autoconfigure.SpringRewriteCommonsConfiguration;
 import org.springframework.rewrite.parsers.RewriteExecutionContext;
 import org.springframework.rewrite.project.RewriteSourceFileWrapper;
-import org.springframework.rewrite.scopes.ExecutionScope;
-import org.springframework.rewrite.scopes.ScanScope;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -42,13 +40,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         ActionDeserializerRegistry.class,
         DefaultActionDeserializer.class,
         MigrationResultProjectContextMerger.class,
-        RewriteSourceFileWrapper.class,
         RewriteRecipeLoader.class,
         CustomValidatorBean.class,
         RewriteExecutionContext.class,
-        ScanScope.class,
-        ExecutionScope.class,
-        SbmSupportRewriteConfiguration.class
+        SpringRewriteCommonsConfiguration.class
 })
 public class OpenRewriteNamedRecipeAdapterIntegrationTest {
 

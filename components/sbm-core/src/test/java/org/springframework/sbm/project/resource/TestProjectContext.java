@@ -27,6 +27,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.rewrite.boot.autoconfigure.SpringRewriteCommonsConfiguration;
+import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parsers.SpringRewriteProperties;
 import org.springframework.rewrite.project.resource.ProjectResourceSerializer;
 import org.springframework.rewrite.project.resource.ProjectResourceSetSerializer;
 import org.springframework.rewrite.utils.ResourceUtil;
@@ -290,6 +293,7 @@ public class TestProjectContext {
         private SbmApplicationProperties sbmApplicationProperties = new SbmApplicationProperties();
         private ExecutionContext executionContext;
         private Optional<String> springVersion = Optional.empty();
+        private SpringRewriteProperties springRewriteProperties;
 
         public Builder(Path projectRoot) {
             this(projectRoot, (ConfigurableListableBeanFactory) null);
@@ -663,6 +667,10 @@ public class TestProjectContext {
                     replacedBean.put(SbmApplicationProperties.class, sbmApplicationProperties);
                 }
 
+                if(springRewriteProperties != null) {
+                    replacedBean.put(SpringRewriteProperties.class, springRewriteProperties);
+                }
+
                 if(eventPublisher != null) {
                     replacedBean.put(ApplicationEventPublisher.class, eventPublisher);
                 }
@@ -674,6 +682,7 @@ public class TestProjectContext {
                             executionContext = ctx.getBean(ExecutionContext.class);
                         },
                         replacedBean,
+                        SpringRewriteCommonsConfiguration.class,
                         SpringBeanProvider.ComponentScanConfiguration.class,
                         Configuration.class,
                         CustomValidatorBean.class);
@@ -794,6 +803,11 @@ public class TestProjectContext {
                 throw new IllegalStateException("Provided beanFactory must be of type %s".formatted(AutowireCapableBeanFactory.class.getName()));
             }
             return new TestProjectContextInfo(build, executionContext, (AutowireCapableBeanFactory)beanFactory);
+        }
+
+        public Builder withSpringRewriteProperties(SpringRewriteProperties springRewriteProperties) {
+            this.springRewriteProperties = springRewriteProperties;
+            return this;
         }
     }
 

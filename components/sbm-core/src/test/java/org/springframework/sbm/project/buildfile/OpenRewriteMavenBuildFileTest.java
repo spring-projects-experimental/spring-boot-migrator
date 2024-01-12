@@ -36,7 +36,7 @@ import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.java.impl.DependencyChangeHandler;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;
@@ -754,35 +754,38 @@ public class OpenRewriteMavenBuildFileTest {
                         .build())
         );
 
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                        + "<project xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n"
-                        + "    xmlns=\"http://maven.apache.org/POM/4.0.0\"\n"
-                        + "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
-                        + "  <modelVersion>4.0.0</modelVersion>\n"
-                        + "  <groupId>org.springframework.sbm</groupId>\n"
-                        + "  <artifactId>dummy-test-artifact</artifactId>\n"
-                        + "  <version>1.0.0</version>\n"
-                        + "  <dependencies>\n"
-                        + "    <dependency>\n"
-                        + "      <groupId>javax.mail</groupId>\n"
-                        + "      <artifactId>javax.mail-api</artifactId>\n"
-                        + "      <version>1.6.2</version>\n"
-                        + "    </dependency>\n"
-                        + "    <dependency>\n"
-                        + "      <groupId>org.junit.jupiter</groupId>\n"
-                        + "      <artifactId>junit-jupiter-engine</artifactId>\n"
-                        + "      <version>5.7.0</version>\n"
-                        + "      <scope>test</scope>\n"
-                        + "      <exclusions>\n"
-                        + "        <exclusion>\n"
-                        + "          <groupId>org.junit.jupiter</groupId>\n"
-                        + "          <artifactId>junit-jupiter-api</artifactId>\n"
-                        + "        </exclusion>\n"
-                        + "      </exclusions>\n"
-                        + "    </dependency>\n"
-                        + "  </dependencies>\n"
-                        + "</project>\n",
-                sut.print());
+        assertThat(sut.print()).isEqualTo(
+                """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+                    xmlns="http://maven.apache.org/POM/4.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>org.springframework.sbm</groupId>
+                  <artifactId>dummy-test-artifact</artifactId>
+                  <version>1.0.0</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>javax.mail</groupId>
+                      <artifactId>javax.mail-api</artifactId>
+                      <version>1.6.2</version>
+                    </dependency>
+                    <dependency>
+                      <groupId>org.junit.jupiter</groupId>
+                      <artifactId>junit-jupiter-engine</artifactId>
+                      <version>5.7.0</version>
+                      <scope>test</scope>
+                      <exclusions>
+                        <exclusion>
+                          <groupId>org.junit.jupiter</groupId>
+                          <artifactId>junit-jupiter-api</artifactId>
+                        </exclusion>
+                      </exclusions>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """
+        );
 
         assertThat(sut.getEffectiveDependencyManagement()).hasSize(0);
         assertThat(sut.getDeclaredDependencies()).hasSize(2);

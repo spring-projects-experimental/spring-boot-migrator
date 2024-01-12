@@ -17,6 +17,7 @@ package org.springframework.sbm.build.migration.actions;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.internal.util.collections.Sets;
+import org.springframework.sbm.build.api.ApplicationModules;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin;
 import org.springframework.sbm.build.impl.OpenRewriteMavenPlugin.OpenRewriteMavenPluginExecution;
@@ -35,7 +36,11 @@ class AddMavenPluginTest {
         BuildFile buildFile = mock(BuildFile.class);
         ProjectContext projectContext = mock(ProjectContext.class);
 
-        when(projectContext.getBuildFile()).thenReturn(buildFile);
+        ApplicationModules modules = mock(ApplicationModules.class);
+        org.springframework.sbm.build.api.Module rootModule = mock(org.springframework.sbm.build.api.Module.class);
+        when(projectContext.getApplicationModules()).thenReturn(modules);
+        when(modules.getRootModule()).thenReturn(rootModule);
+        when(rootModule.getBuildFile()).thenReturn(buildFile);
 
         addMavenPlugin.apply(projectContext);
 

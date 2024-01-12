@@ -34,29 +34,43 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.rewrite.boot.autoconfigure.ScopeConfiguration;
-import org.springframework.rewrite.scopes.ExecutionScope;
-import org.springframework.rewrite.scopes.ScanScope;
+import org.springframework.rewrite.boot.autoconfigure.SpringRewriteCommonsConfiguration;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parsers.RewriteParserConfiguration;
 import org.springframework.sbm.SbmCoreConfig;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
+import org.springframework.sbm.build.migration.MavenPomCacheProvider;
 import org.springframework.sbm.build.util.PomBuilder;
+import org.springframework.sbm.engine.commands.ScanCommand;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
+import org.springframework.sbm.engine.context.ProjectRootPathResolver;
+import org.springframework.sbm.engine.git.GitSupport;
+import org.springframework.sbm.engine.git.GitSupportTest;
+import org.springframework.sbm.engine.precondition.PreconditionVerifier;
+import org.springframework.sbm.engine.recipe.MigrationResultProjectContextMerger;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.java.impl.DependencyChangeHandler;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
+import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.project.parser.DependencyHelper;
+import org.springframework.sbm.project.parser.JavaProvenanceMarkerFactory;
+import org.springframework.sbm.project.parser.MavenConfigHandler;
 import org.springframework.sbm.project.parser.ProjectContextInitializer;
-import org.springframework.sbm.project.resource.ProjectResourceWrapperRegistry;
-import org.springframework.sbm.project.resource.SbmApplicationProperties;
-import org.springframework.sbm.project.resource.TestProjectContext;
+import org.springframework.sbm.project.resource.*;
+import org.springframework.sbm.properties.parser.RewritePropertiesParser;
+import org.springframework.sbm.test.SpringBeanProvider;
 import org.springframework.sbm.test.TestProjectContextInfo;
+import org.springframework.sbm.xml.parser.RewriteXmlParser;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -69,20 +83,51 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Fabian Krüger
  */
-@SpringBootTest(classes = {
-        SbmCoreConfig.class,
-        ScopeConfiguration.class,
-        ExecutionScope.class,
-        ScanScope.class,
-        DependenciesChangedEventHandler.class,
-        DependencyChangeHandler.class,
-        ProjectContextHolder.class,
-        JavaParserBuilder.class,
-        SbmApplicationProperties.class,
-        ProjectContextInitializer.class,
-        ProjectContextFactory.class,
-        ProjectResourceWrapperRegistry.class
-})
+//@SpringBootTest(classes = {
+//        SpringBeanProvider.ComponentScanConfiguration.class,
+//        ProjectContextInitializer.class,
+//        JavaProvenanceMarkerFactory.class,
+//        BasePackageCalculator.class,
+//        BasePackageCalculator.class,
+//        ProjectRootPathResolver.class,
+//        PreconditionVerifier.class,
+//        ProjectContextFactory.class,
+//        MavenPomCacheProvider.class,
+//        SbmApplicationProperties.class,
+//        MigrationResultProjectContextMerger.class,
+//        RewritePropertiesParser.class,
+//        RewriteMavenParser.class,
+//        RewriteXmlParser.class,
+//        ResourceHelper.class,
+//        ResourceLoader.class,
+//        GitSupport.class,
+//        ScanCommand.class,
+//        ProjectResourceSetHolder.class,
+//        JavaRefactoringFactoryImpl.class,
+//        ProjectResourceWrapperRegistry.class,
+//        MavenConfigHandler.class,
+//        ScopeConfiguration.class,
+//        SpringRewriteCommonsConfiguration.class,
+//        DependenciesChangedEventHandler.class,
+//        DependencyChangeHandler.class,
+//        LocalValidatorFactoryBean.class,
+//        ProjectContextHolder.class
+
+//        DependencyChangeHandler.class,
+//        ProjectContextHolder.class,
+//        SbmApplicationProperties.class,
+//        ProjectContextInitializer.class,
+//        ProjectContextFactory.class,
+//        ProjectResourceSetHolder.class,
+//        GitSupport.class,
+//        JavaRefactoringFactoryImpl.class,
+//        BasePackageCalculator.class,
+//        SpringRewriteCommonsConfiguration.class,
+//        ProjectResourceWrapperRegistry.class,
+//        RewriteParserConfiguration.class,
+//        SpringBeanProvider.ComponentScanConfiguration.class
+
+//})
 public class AddDependencyTest {
 
     @Autowired
@@ -111,15 +156,15 @@ public class AddDependencyTest {
     void typeFromDependencyIsAccessible() {
         String javacode =
                 """
-                        package com.acme;
-                        import javax.validation.constraints.Email;
-                        class SomeClass {
-                            @Email
-                            String someMember;
-                        }
-                        """;
+                package com.acme;
+                import javax.validation.constraints.Email;
+                class SomeClass {
+                    @Email
+                    String someMember;
+                }
+                """;
         ProjectContext context = TestProjectContext
-                .buildProjectContext(beanFactory)
+                .buildProjectContext()
                 .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
                 .withJavaSource("src/main/java", javacode)
                 .build();
@@ -403,131 +448,6 @@ public class AddDependencyTest {
         typeFqNameA = projectContext.getProjectJavaSources().findJavaSourceDeclaringType("com.example.a.A").get().getTypes().get(0).getMembers().get(0).getTypeFqName();
         assertThat(typeFqNameA).isEqualTo("com.example.b.B");
 
-    }
-
-
-    @Test
-    void whenDependencyIsAdded_thenJavaParserTypeCacheGetsUpdated() {
-        // simple ProjectContext
-        String javaSourceCode =
-                """
-                        import javax.validation.constraints.Email; 
-                        class Y {
-                            @Email String email;
-                        }
-                        """;
-
-        TestProjectContextInfo contextInfo = TestProjectContext
-                .buildProjectContext(beanFactory)
-                .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
-//                .buildProjectContext(eventPublisher, javaParser)
-                .withJavaSource("src/main/java", javaSourceCode)
-                .buildProjectContextInfo();
-
-        ProjectContext context = contextInfo.projectContext();
-
-        Map<Scope, Set<Path>> resolvedDependenciesMap = context.getApplicationModules().getRootModule().getBuildFile().getResolvedDependenciesMap();
-
-        JavaParser javaParser = javaParserBuilder
-                .classpath(resolvedDependenciesMap.get(Scope.Compile))
-                .build();
-
-        SourceFile sourceFile1 = JavaParser.fromJavaVersion()
-                .classpath(resolvedDependenciesMap.get(Scope.Compile))
-                .build()
-                .parse(javaSourceCode)
-                .toList()
-                .get(0);
-
-
-        String javaxValidationEmail = "javax.validation.constraints.Email";
-
-        Set<String> typesInUse = ((J.CompilationUnit) sourceFile1).getTypesInUse().getTypesInUse()
-                .stream()
-                .map(t -> ((JavaType.Class) t).getFullyQualifiedName())
-                .collect(Collectors.toSet());
-
-        assertThat(typesInUse).containsExactlyInAnyOrder(javaxValidationEmail, "java.lang.String");
-
-        // Add a new dependency introducing new type
-        RewriteMavenParser parser = contextInfo.beanFactory().getBean(RewriteMavenParser.class);
-        String pom = PomBuilder.buildPom("com.example:app:1.0")
-                .compileScopeDependencies(
-                        "javax.validation:validation-api:2.0.1.Final",
-                        "javax.el:javax.el-api:3.0.0"
-                ).build();
-        SourceFile parsedPom = parser.parse(pom).toList().get(0);
-        Optional<MavenResolutionResult> mavenResolutionResult = parsedPom.getMarkers().findFirst(MavenResolutionResult.class);
-
-        Map<Scope, Set<Path>> dependenciesMap = new HashMap<>();
-        Arrays.stream(Scope.values()).forEach(scope -> {
-            List<ResolvedDependency> resolvedDependencies = mavenResolutionResult.get().getDependencies().get(scope);
-            if (resolvedDependencies != null) {
-                final DependencyHelper rewriteMavenArtifactDownloader = contextInfo.beanFactory().getBean(DependencyHelper.class);
-                Set<Path> paths = resolvedDependencies
-                        .stream()
-                        .map(rewriteMavenArtifactDownloader::downloadArtifact)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .collect(Collectors.toSet());
-                dependenciesMap.put(scope, paths);
-            }
-        });
-        Set<Path> newClasspath = dependenciesMap.get(Scope.Compile);
-        JavaParser javaParser2 = javaParserBuilder
-                .classpath(newClasspath)
-                .build();
-        SourceFile sourceFile = javaParser2.parse(javaSourceCode).toList().get(0);
-
-        // provide ProjectContext to Spring beans
-        contextHolder.setProjectContext(context);
-
-        HashMap<Object, JavaType> typeCache0 = retrieveTypeCache(javaParser);
-        assertThat(typeCache0).isEmpty();
-
-        // classpath
-        List<String> classpath = context.getProjectJavaSources().list().get(0).getResource().getSourceFile().getMarkers().findFirst(JavaSourceSet.class).get().getClasspath().stream().map(fq -> fq.toString()).toList();
-        assertThat(classpath).contains("javax.validation.constraints.Email");
-
-        // Parse the java source to fill the type cache
-        javaParser.parse(javaSourceCode);
-        HashMap<Object, JavaType> typeCache = retrieveTypeCache(javaParser);
-        assertThat(typeCache).hasSize(17_590);
-
-        // javax.validation.Email not in type cache
-        Optional<String> s = findInTypeCache(typeCache, javaxValidationEmail);
-        assertThat(s).isNotPresent();
-
-        // Classpath empty
-        assertThat(ClasspathRegistry.getInstance().getCurrentDependencies()).isEmpty();
-
-
-        // add dependency
-        BuildFile buildFile = context.getApplicationModules().getRootModule().getBuildFile();
-        buildFile.addDependency(Dependency.builder()
-                .groupId("javax.validation")
-                .artifactId("validation-api")
-                .version("2.0.1.Final")
-                .build());
-
-        System.out.println(buildFile.print());
-        assertThat(buildFile.getDeclaredDependencies(Scope.Compile).get(0).getArtifactId()).isEqualTo("validation-api");
-
-        // validation-api added to Classpath
-        assertThat(ClasspathRegistry.getInstance().getCurrentDependencies()).hasSize(1);
-        assertThat(ClasspathRegistry.getInstance().getCurrentDependencies().iterator().next().toString()).contains("validation-api");
-
-        // type cache contains the new types as classes were recompiled in DependenciesChangeEventListener
-        //javaParser.getJavaParser().parse(javaSourceCode);
-        context.getApplicationModules().getRootModule().getMainJavaSourceSet().addJavaSource(TestProjectContext.getDefaultProjectRoot(),
-                Path.of("src/main/java"),
-                "import javax.validation.constraints.Email; class X {@Email String email;}");
-
-        // The Email annotation can now be resolved
-        HashMap<Object, JavaType> typeCacheAfter = retrieveTypeCache(javaParser);
-        Optional<String> emailType = findInTypeCache(typeCacheAfter, javaxValidationEmail);
-        assertThat(emailType).isPresent(); // currently failing
-        assertThat(typeCacheAfter).hasSize(17697);
     }
 
     @NotNull

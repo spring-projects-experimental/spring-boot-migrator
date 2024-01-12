@@ -24,7 +24,7 @@ import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.java.api.Annotation;
 import org.springframework.sbm.java.api.MethodParam;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 

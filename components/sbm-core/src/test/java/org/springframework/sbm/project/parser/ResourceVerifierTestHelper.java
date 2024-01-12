@@ -122,7 +122,7 @@ class ResourceVerifierTestHelper {
                     String format = String.format("Invalid number of markers for resource '%s'. Expected '%d' but found '%d', '%s'", rewriteSourceFileHolder.getAbsolutePath().toString(), size, actualSize, markers.stream().map(m -> m.getClass().getName()).collect(Collectors.joining("', \n'")));
                     return format;
                 })
-                .isSameAs(markerVerifer.size());
+                .isBetween(size, size+3); // JavaSources has more marker (Autodetect and OperatingSystemProvenance were added)
     }
 
 

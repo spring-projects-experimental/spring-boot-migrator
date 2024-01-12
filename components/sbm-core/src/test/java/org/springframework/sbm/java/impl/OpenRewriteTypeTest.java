@@ -109,14 +109,15 @@ class OpenRewriteTypeTest {
         type.addAnnotation("@BeforeEach", newAnnotation);
 
         assertThat(javaSource.print()).isEqualTo(
-                "import org.junit.jupiter.api.BeforeEach;\n" +
-                        "import org.junit.jupiter.api.Test;\n" +
-                        "\n" +
-                        "@Test\n" +
-                        "@BeforeEach\n" +
-                        "public class Class1 {}\n" +
-                        "@Test\n" +
-                        "public class Class2 {}"
+                """
+                import org.junit.jupiter.api.BeforeEach;
+                import org.junit.jupiter.api.Test;
+                                
+                @Test
+                @BeforeEach
+                public class Class1 {}
+                @Test
+                public class Class2 {}"""
         );
 
         Assertions.assertThat(javaSource.getTypes().get(0).hasAnnotation(oldAnnotation)).isTrue();
@@ -261,12 +262,14 @@ class OpenRewriteTypeTest {
     @Test
     void testAddMethod() {
         String template =
-                "@Bean\n" +
-                "IntegrationFlow http_routeFlow() {\n" +
-                "return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
-                ".log(LoggingHandler.Level.INFO)\n" +
-                ".get();\n" +
-                "}\n";
+                """
+                @Bean
+                IntegrationFlow http_routeFlow() {
+                    return IntegrationFlows.from(Http.inboundChannelAdapter("/test")).handle((p, h) -> p)
+                        .log(LoggingHandler.Level.INFO)
+                        .get();
+                }
+                """;
 
         Set<String> requiredImports = Set.of("org.springframework.integration.transformer.ObjectToStringTransformer",
                 "org.springframework.context.annotation.Configuration",
@@ -281,7 +284,7 @@ class OpenRewriteTypeTest {
                 .withBuildFileHavingDependencies("org.springframework.boot:spring-boot-starter-integration:2.5.5",
                         "org.springframework.boot:spring-boot-starter-web:2.5.5",
                         "org.springframework.integration:spring-integration-http:5.4.4")
-                .withJavaSource("src/main/java/Config.java", "public class Config {}")
+                .withJavaSource("src/main/java", "public class Config {}")
                 .build();
 
         Type type = context.getProjectJavaSources().list().get(0).getTypes().get(0);
@@ -289,20 +292,20 @@ class OpenRewriteTypeTest {
 
         System.out.println(context.getProjectJavaSources().list().get(0).print());
         assertThat(context.getProjectJavaSources().list().get(0).print()).isEqualTo(
-                "import org.springframework.context.annotation.Bean;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlow;\n" +
-                        "import org.springframework.integration.dsl.IntegrationFlows;\n" +
-                        "import org.springframework.integration.handler.LoggingHandler;\n" +
-                        "import org.springframework.integration.http.dsl.Http;\n" +
-                        "\n" +
-                        "public class Config {\n" +
-                        "    @Bean\n" +
-                        "    IntegrationFlow http_routeFlow() {\n" +
-                        "        return IntegrationFlows.from(Http.inboundChannelAdapter(\"/test\")).handle((p, h) -> p)\n" +
-                        "                .log(LoggingHandler.Level.INFO)\n" +
-                        "                .get();\n" +
-                        "    }\n" +
-                        "}"
+                """
+                import org.springframework.context.annotation.Bean;
+                import org.springframework.integration.dsl.IntegrationFlow;
+                import org.springframework.integration.dsl.IntegrationFlows;
+                import org.springframework.integration.handler.LoggingHandler;
+                import org.springframework.integration.http.dsl.Http;
+                                
+                public class Config {
+                    @Bean
+                    IntegrationFlow http_routeFlow() {
+                        return IntegrationFlows.from(Http.inboundChannelAdapter("/test")).handle((p, h) -> p)
+                                .log(LoggingHandler.Level.INFO)
+                                .get();
+                    }}"""
         );
     }
 

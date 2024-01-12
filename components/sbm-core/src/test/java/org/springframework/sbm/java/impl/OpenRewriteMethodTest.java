@@ -32,27 +32,31 @@ public class OpenRewriteMethodTest {
     @Test
     void testAddAnnotation() {
         String sourceCode =
-                "import org.junit.jupiter.api.BeforeAll;\n" +
-                        "import org.junit.jupiter.api.Test;\n" +
-                        "public class Foo {\n" +
-                        "   @Test\n" +
-                        "   @BeforeAll\n" +
-                        "   void bar() {\n" +
-                        "   }\n" +
-                        "}";
+                """
+                import org.junit.jupiter.api.BeforeAll;
+                import org.junit.jupiter.api.Test;
+                public class Foo {
+                    @Test
+                    @BeforeAll
+                    void bar() {
+                    }
+                }
+                """;
 
         String expected =
-                "import org.junit.jupiter.api.BeforeAll;\n" +
-                        "import org.junit.jupiter.api.BeforeEach;\n" +
-                        "import org.junit.jupiter.api.Test;\n" +
-                        "\n" +
-                        "public class Foo {\n" +
-                        "    @Test\n" +
-                        "    @BeforeAll\n" +
-                        "    @BeforeEach\n" +
-                        "    void bar() {\n" +
-                        "   }\n" +
-                        "}";
+                """
+                import org.junit.jupiter.api.BeforeAll;
+                import org.junit.jupiter.api.BeforeEach;
+                import org.junit.jupiter.api.Test;
+                                
+                public class Foo {
+                    @Test
+                    @BeforeAll
+                    @BeforeEach
+                    void bar() {
+                    }
+                }
+                """;
 
         JavaSource javaSource = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("org.junit.jupiter:junit-jupiter-api:5.7.0")
@@ -65,7 +69,7 @@ public class OpenRewriteMethodTest {
         javaSource.getTypes().stream()
                 .map(Type::getMethods)
                 .flatMap(List::stream)
-                .forEach(m -> m.addAnnotation("\n@BeforeEach", "org.junit.jupiter.api.BeforeEach"));
+                .forEach(m -> m.addAnnotation("@BeforeEach", "org.junit.jupiter.api.BeforeEach"));
 
         Assertions.assertThat(javaSource.print())
                 .as(TestDiff.of(javaSource.print(), expected))
@@ -170,19 +174,19 @@ public class OpenRewriteMethodTest {
     void removeMethodAnnotationsFromDependency() {
         String given =
                 "import javax.ejb.*;\n" +
-                "@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
-                "public class TransactionalService {\n" +
-                "    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
-                "    public void notSupported() {}\n" +
-                "}";
+                        "@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
+                        "public class TransactionalService {\n" +
+                        "    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
+                        "    public void notSupported() {}\n" +
+                        "}";
 
         String expected =
                 "import javax.ejb.*;\n" +
-                "@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
-                "public class TransactionalService {\n" +
-                "    \n" +
-                "    public void notSupported() {}\n" +
-                "}";
+                        "@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" +
+                        "public class TransactionalService {\n" +
+                        "    \n" +
+                        "    public void notSupported() {}\n" +
+                        "}";
 
         JavaSource javaSource = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies("javax.ejb:javax.ejb-api:3.2", "org.springframework.data:spring-data-jpa:2.6.1")

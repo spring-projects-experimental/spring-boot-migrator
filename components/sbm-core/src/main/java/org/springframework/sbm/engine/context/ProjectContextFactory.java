@@ -25,7 +25,7 @@ import org.springframework.sbm.build.filter.BuildFileProjectResourceFinder;
 import org.springframework.sbm.java.impl.ClasspathRegistry;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactory;
 import org.springframework.sbm.java.util.BasePackageCalculator;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
 import org.springframework.sbm.project.resource.*;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;

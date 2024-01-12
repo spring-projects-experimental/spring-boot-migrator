@@ -17,19 +17,37 @@ package org.springframework.sbm.java.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.openrewrite.ExecutionContext;
+import org.openrewrite.Parser;
+import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.java.JavaIsoVisitor;
+import org.openrewrite.java.JavaParser;
+import org.openrewrite.java.JavaTemplate;
+import org.openrewrite.java.internal.JavaTypeCache;
+import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.VariableDeclarations.NamedVariable;
+import org.openrewrite.java.tree.JavaSourceFile;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeTree;
+import org.openrewrite.marker.Markers;
+import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parsers.maven.ClasspathDependencies;
 import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.java.api.Annotation;
+import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Member;
+import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -110,8 +128,25 @@ public class OpenRewriteMember implements Member {
     @Override
     public void addAnnotation(String fqName) {
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
-        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(() -> javaParserBuilder.getBuilder(), getVariableDeclarations(), snippet, fqName);
-        refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
+        Markers markers = getRewriteSourceFileHolder().getSourceFile().getMarkers();
+        ClasspathDependencies compileClasspath = markers.findFirst(ClasspathDependencies.class).get();
+        JavaParser.Builder parserBuilder = javaParserBuilder
+                .classpath(compileClasspath.getDependencies())
+                .clone();
+        GenericOpenRewriteRecipe<JavaIsoVisitor<ExecutionContext>> addAnnotation = new GenericOpenRewriteRecipe<>(() -> new JavaIsoVisitor<>() {
+            @Override
+            public J.VariableDeclarations visitVariableDeclarations(J.VariableDeclarations multiVariable, ExecutionContext executionContext) {
+                J.VariableDeclarations vd = super.visitVariableDeclarations(multiVariable, executionContext);
+                if (vd == getVariableDeclarations()) {
+                    // TODO: Reminder: Use JavaTemplate to add the annotation here...
+                    JavaTemplate javaTemplate = JavaTemplate.builder(snippet).imports(fqName).javaParser(parserBuilder).build();
+                    maybeAddImport(fqName);
+                    vd = javaTemplate.apply(getCursor(), vd.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
+                }
+                return vd;
+            }
+        });
+        refactoring.refactor(rewriteSourceFileHolder, addAnnotation);
     }
 
     @Override

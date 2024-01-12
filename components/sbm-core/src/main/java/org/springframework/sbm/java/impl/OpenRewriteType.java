@@ -36,15 +36,13 @@ import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.FindCompilationUnitContainingType;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -111,18 +109,33 @@ public class OpenRewriteType implements Type {
 
     @Override
     public void addAnnotation(String fqName) {
-        // FIXME: Hack, JavaParser should have latest classpath
-        Supplier<JavaParser.Builder> javaParserSupplier = () -> javaParserBuilder;
         String snippet = "@" + fqName.substring(fqName.lastIndexOf('.') + 1);
-        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserSupplier, getClassDeclaration(), snippet, fqName);
-        refactoring.refactor(rewriteSourceFileHolder, addAnnotationVisitor);
+        addAnnotation(snippet, fqName);
     }
 
+    /*
+     * TODO: Does JavaParser update typesInUse?
+     */
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
-        // FIXME: #7 JavaParser does not update typesInUse
-        AddAnnotationVisitor addAnnotationVisitor = new AddAnnotationVisitor(javaParserBuilder, getClassDeclaration(), snippet, annotationImport, otherImports);
-        Recipe recipe = new GenericOpenRewriteRecipe<>(() -> addAnnotationVisitor);
+        Optional<ClasspathDependencies> classpathDependencies = rewriteSourceFileHolder.getSourceFile().getMarkers().findFirst(ClasspathDependencies.class);
+        List<Path> classpath = classpathDependencies.get().getDependencies();
+
+        GenericOpenRewriteRecipe<JavaIsoVisitor<ExecutionContext>> recipe = new GenericOpenRewriteRecipe<>(() -> {
+            return new JavaIsoVisitor<>() {
+                @Override
+                public ClassDeclaration visitClassDeclaration(ClassDeclaration classDecl, ExecutionContext executionContext) {
+                    ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
+                    if (cd == getClassDeclaration()) {
+                        List<String> imports = Stream.concat(Stream.of(otherImports), Stream.of(annotationImport)).toList();
+                        JavaTemplate javaTemplate = JavaTemplate.builder(snippet).imports(imports.toArray(String[]::new)).javaParser(javaParserBuilder.classpath(classpath).clone()).build();
+                        cd = javaTemplate.apply(getCursor(), getClassDeclaration().getCoordinates().addAnnotation((o1, o2) -> Integer.valueOf(o1.getSimpleName().length()).compareTo(o2.getSimpleName().length())));
+                        imports.forEach(i -> maybeAddImport(i));
+                    }
+                    return cd;
+                }
+            };
+        });
         refactoring.refactor(rewriteSourceFileHolder, recipe);
     }
 
@@ -162,51 +175,73 @@ public class OpenRewriteType implements Type {
             @Override
             public J.CompilationUnit visitCompilationUnit(J.CompilationUnit cu, ExecutionContext executionContext) {
                 J.CompilationUnit c = super.visitCompilationUnit(cu, executionContext);
+                if (cu == rewriteSourceFileHolder.getSourceFile()) {
+                    ClassDeclaration classDeclaration = cu.getClasses().stream()
+                            .filter(cd -> cd == getClassDeclaration())
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalStateException("Could not find type matching current instance '%s'".formatted(getFullyQualifiedName())));
+
+                    ClasspathDependencies classpathDependencies = cu.getMarkers().findFirst(ClasspathDependencies.class).get();
+                    JavaParser.Builder clone = javaParserBuilder
+                            .classpath(classpathDependencies.getDependencies())
+                            .clone();
+
+                    JavaTemplate template = JavaTemplate
+                            .builder(methodTemplate)
+                            .javaParser(clone)
+                            .imports(requiredImports.toArray(new String[0]))
+                            .build();
+
+                    c = template.apply(getCursor(), classDeclaration.getBody().getCoordinates().lastStatement());
+                    requiredImports.forEach(i -> maybeAddImport(i));
+                }
                 return c;
             }
-
-            @Override
-            public ClassDeclaration visitClassDeclaration(ClassDeclaration classDecl, ExecutionContext executionContext) {
-                ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
-                J.CompilationUnit cu = getCursor().dropParentUntil(J.CompilationUnit.class::isInstance).getValue();
-                checkTypeAvailability(cu, requiredImports);
-
-                Markers markers = cu.getMarkers();
-                ClasspathDependencies classpathDependencies = markers.findFirst(ClasspathDependencies.class).get();
-
-                JavaTypeCache javaTypeCache = new JavaTypeCache();
-                JavaParser.Builder clone = javaParserBuilder
-                        .typeCache(javaTypeCache)
-                        .classpath(classpathDependencies.getDependencies())
-                        .clone();
-
-                JavaTemplate template = JavaTemplate
-                        .builder(methodTemplate)
-                        .javaParser(clone)
-                        .imports(requiredImports.toArray(new String[0]))
-                        .build();
-                cd = template.apply(getCursor(), cd.getBody().getCoordinates().lastStatement());
-
-                JavaSourceSet main = JavaSourceSet.build("main", classpathDependencies.getDependencies(), javaTypeCache, false);
-                markers = markers.removeByType(JavaSourceSet.class);
-                markers = markers.addIfAbsent(main);
-                ClassDeclaration classDeclaration1 = cd.withMarkers(markers);
-
-                boolean onlyIfReferenced = false;
-                requiredImports.forEach(i -> maybeAddImport(i, onlyIfReferenced));
-
-                return classDeclaration1;
-            }
         }));
-        this.apply(new WrappingAndBraces());
     }
+
+//            @Override
+//            public ClassDeclaration visitClassDeclaration(ClassDeclaration classDecl, ExecutionContext executionContext) {
+//                ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
+//                J.CompilationUnit cu = getCursor().dropParentUntil(J.CompilationUnit.class::isInstance).getValue();
+//                checkTypeAvailability(cu, requiredImports);
+//
+//                Markers markers = cu.getMarkers();
+//                ClasspathDependencies classpathDependencies = markers.findFirst(ClasspathDependencies.class).get();
+//
+//                JavaTypeCache javaTypeCache = new JavaTypeCache();
+//                JavaParser.Builder clone = javaParserBuilder
+//                        .typeCache(javaTypeCache)
+//                        .classpath(classpathDependencies.getDependencies())
+//                        .clone();
+//
+//                JavaTemplate template = JavaTemplate
+//                        .builder(methodTemplate)
+//                        .javaParser(clone)
+//                        .imports(requiredImports.toArray(new String[0]))
+//                        .build();
+//                cd = template.apply(getCursor(), cd.getBody().getCoordinates().lastStatement());
+//
+//                JavaSourceSet main = JavaSourceSet.build("main", classpathDependencies.getDependencies(), javaTypeCache, false);
+//                markers = markers.removeByType(JavaSourceSet.class);
+//                markers = markers.addIfAbsent(main);
+//                ClassDeclaration classDeclaration1 = cd.withMarkers(markers);
+//
+//                boolean onlyIfReferenced = false;
+//                requiredImports.forEach(i -> maybeAddImport(i, onlyIfReferenced));
+//
+//                return classDeclaration1;
+//            }
+//        }));
+//        this.apply(new WrappingAndBraces());
+//    }
 
     private void checkTypeAvailability(J.CompilationUnit cd, Set<String> requiredImports) {
         List<String> missingTypes = cd.getTypesInUse().getTypesInUse().stream()
                 .map(JavaType::toString)
                 .filter(t -> !requiredImports.contains(t))
                 .toList();
-        if(!missingTypes.isEmpty()) {
+        if (!missingTypes.isEmpty()) {
             throw new IllegalArgumentException("These types %s are not available to in compilation unit %s".formatted(missingTypes, cd.getSourcePath()));
         }
     }
@@ -299,7 +334,7 @@ public class OpenRewriteType implements Type {
                 .findFirst()
                 .orElseThrow();
         return Optional.of(new OpenRewriteType(classDeclaration, modifiableCompilationUnit, refactoring,
-                                               executionContext, javaParserBuilder));
+                executionContext, javaParserBuilder));
     }
 
     @Override
@@ -354,13 +389,13 @@ public class OpenRewriteType implements Type {
 
     /**
      * Add a non static member to this type
-     *
+     * <p>
      * [source, java]
      * .....
-     *  import <type>;
-     *  class MyClass {
-     *      <visibilit> <type> <name>;
-     *  }
+     * import <type>;
+     * class MyClass {
+     * <visibilit> <type> <name>;
+     * }
      * .....
      *
      * @param visibility of the member
@@ -392,7 +427,7 @@ public class OpenRewriteType implements Type {
         apply(new GenericOpenRewriteRecipe<JavaIsoVisitor<ExecutionContext>>(() -> javaIsoVisitor));
     }
 
-    public boolean isImplementing(String fqClassName){
+    public boolean isImplementing(String fqClassName) {
         return getClassDeclaration()
                 .getType()
                 .getInterfaces()

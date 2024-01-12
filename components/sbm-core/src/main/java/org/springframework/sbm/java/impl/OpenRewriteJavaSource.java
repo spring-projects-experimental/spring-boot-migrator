@@ -24,7 +24,7 @@ import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.Marker;
 import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
 import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.ReplaceLiteralVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;

@@ -19,7 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.ChangeMethodName;
+import org.openrewrite.java.JavaIsoVisitor;
+import org.openrewrite.java.JavaParser;
+import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.tree.*;
+import org.springframework.rewrite.parsers.maven.ClasspathDependencies;
 import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.java.api.Annotation;
@@ -27,16 +31,18 @@ import org.springframework.sbm.java.api.Method;
 import org.springframework.sbm.java.api.MethodParam;
 import org.springframework.sbm.java.api.Visibility;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.sbm.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
 import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class OpenRewriteMethod implements Method {
@@ -105,8 +111,24 @@ public class OpenRewriteMethod implements Method {
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
         // FIXME: #7 requires a fresh instance of JavaParser to update typesInUse
-        Recipe visitor = new GenericOpenRewriteRecipe<>(() -> {
-            return new AddAnnotationVisitor(javaParserBuilder, getMethodDecl(), snippet, annotationImport, otherImports);
+        Recipe visitor = new GenericOpenRewriteRecipe<>(() -> new JavaIsoVisitor<>(){
+            @Override
+            public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {
+                J.MethodDeclaration md = super.visitMethodDeclaration(method, executionContext);
+                if(md == getMethodDecl()) {
+                    J.CompilationUnit cu = getCursor().dropParentUntil(J.CompilationUnit.class::isInstance).getValue();
+                    List<Path> dependencies = cu.getMarkers().findFirst(ClasspathDependencies.class).get().getDependencies();
+                    JavaParser.Builder clone = javaParserBuilder.classpath(dependencies)
+                            .clone();
+                    List<String> imports = Stream.concat(Stream.of(annotationImport), Stream.of(otherImports)).toList();
+                    JavaTemplate javaTemplate = JavaTemplate.builder(snippet).imports(imports.toArray(String[]::new))
+                            .javaParser(clone)
+                            .build();
+                    md = javaTemplate.apply(getCursor(), md.getCoordinates().addAnnotation((a1, a2) -> Integer.valueOf(a1.getSimpleName().length()).compareTo(a2.getSimpleName().length())));
+                    imports.forEach(i -> maybeAddImport(i));
+                }
+                return md;
+            }
         });
         refactoring.refactor(sourceFile, visitor);
     }

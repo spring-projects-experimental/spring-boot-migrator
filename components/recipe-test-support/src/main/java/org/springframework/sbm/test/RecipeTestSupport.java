@@ -15,6 +15,12 @@
  */
 package org.springframework.sbm.test;
 
+import jakarta.validation.Validator;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.rewrite.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.rewrite.parsers.maven.MavenSettingsInitializer;
 import org.springframework.rewrite.project.RewriteSourceFileWrapper;
@@ -26,21 +32,15 @@ import org.springframework.sbm.engine.recipe.*;
 import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
-import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
-import org.springframework.rewrite.scopes.ExecutionScope;
-import org.springframework.rewrite.scopes.ScanScope;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import jakarta.validation.Validator;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -78,9 +78,7 @@ public class RecipeTestSupport {
             MavenSettingsInitializer.class,
             MavenBuildFileRefactoringFactory.class,
             ProjectResourceSetHolder.class,
-            ScopeConfiguration.class,
-            ExecutionScope.class,
-            ScanScope.class
+            ScopeConfiguration.class
     };
 
 

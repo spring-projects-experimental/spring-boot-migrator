@@ -531,21 +531,43 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
                 false,
                 null);
 
-        return new GenericOpenRewriteRecipe<>(() -> addDependencyVisitor);
+        return new GenericOpenRewriteRecipe<>(() -> addDependencyVisitor) {
+            private List<Recipe> recipeList = new ArrayList<>();
+            @Override
+            public List<Recipe> getRecipeList() {
+                return recipeList;
+            }
+        };
     }
 
     public void removeDependenciesInner(List<Dependency> dependencies) {
         if (!dependencies.isEmpty()) {
-            Recipe r = getDeleteDependencyVisitor(dependencies.get(0));
+            List<Recipe> recipeList = new ArrayList<>();
+            Recipe r = getDeleteDependencyRecipe(dependencies.get(0));
+            recipeList.add(r);
             dependencies.stream().skip(1).forEach(d -> {
-                r.getRecipeList().add(getDeleteDependencyVisitor(d));
+                recipeList.add(getDeleteDependencyRecipe(d));
             });
-            apply(r);
+            apply(new GenericOpenRewriteRecipe<>() {
+                // hack to provide a list of recipes by a recipe.
+                // The visitor does nothing and the getRecipeList()
+                // method provides the recipes that actually perform changes
+                // TODO: Add this to GenericOpenRewriteRecipe, like new GenericOpenRewriteRecipe(recipeList)
+                @Override
+                public TreeVisitor<?, ExecutionContext> getVisitor() {
+                    return new MavenIsoVisitor<>();
+                }
+
+                @Override
+                public List<Recipe> getRecipeList() {
+                    return recipeList;
+                }
+            });
             refreshPomModel();
         }
     }
 
-    private Recipe getDeleteDependencyVisitor(Dependency dependency) {
+    private Recipe getDeleteDependencyRecipe(Dependency dependency) {
         // FIXME: Test that RemoveDependency considers scope
         return new RemoveDependency(dependency.getGroupId(), dependency.getArtifactId(), dependency.getScope());
     }
@@ -703,7 +725,7 @@ public class OpenRewriteMavenBuildFile extends RewriteSourceFileHolder<Xml.Docum
 
     @Override
     public List<Path> getResolvedDependenciesPaths() {
-        List<Path> dependenciesPaths = getResolvedDependenciesMap().values().stream().flatMap(Set::stream).toList();
+        List<Path> dependenciesPaths = getResolvedDependenciesMap().values().stream().flatMap(Set::stream).distinct().toList();
         return dependenciesPaths;
     }
 
