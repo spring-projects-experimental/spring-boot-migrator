@@ -72,14 +72,14 @@ public class ClasspathRegistry {
 	public static void initializeFromBuildFiles(List<BuildFile> buildFiles) {
 		ClasspathRegistry.getInstance().clear();
 		Set<ResolvedDependency> effectiveDependencies = new HashSet<>();
-		buildFiles.forEach(bf -> {
-            Map<Scope, List<ResolvedDependency>> dependencies = ((OpenRewriteMavenBuildFile) bf).getPom().getDependencies();
-			// FIXME: #7 respect scope
-            effectiveDependencies.addAll(dependencies.get(Scope.Compile));
-			effectiveDependencies.addAll(dependencies.get(Scope.Test));
-			effectiveDependencies.addAll(dependencies.get(Scope.Provided));
-			effectiveDependencies.addAll(dependencies.get(Scope.Runtime));
-		});
+//		buildFiles.forEach(bf -> {
+//            Map<Scope, List<ResolvedDependency>> dependencies = ((OpenRewriteMavenBuildFile) bf).getPom().getDependencies();
+//			// FIXME: #7 respect scope
+//            effectiveDependencies.addAll(dependencies.get(Scope.Compile));
+//			effectiveDependencies.addAll(dependencies.get(Scope.Test));
+//			effectiveDependencies.addAll(dependencies.get(Scope.Provided));
+//			effectiveDependencies.addAll(dependencies.get(Scope.Runtime));
+//		});
 		ClasspathRegistry.initialize(effectiveDependencies);
 	}
 

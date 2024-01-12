@@ -107,16 +107,16 @@ class ModuleTest {
 
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withProjectResource("pom.xml", parentPom)
-                .withProjectResource("module1/pom.xml", pom1)
-                .withProjectResource("module2/pom.xml", pom2)
-                .withJavaSource("module1/src/main/java", javaSource2)
-                .withJavaSource("module2/src/main/java", javaSource3)
-                .withJavaSource("module2/src/test/java", javaSource4)
+                .withProjectResource("pom1/pom.xml", pom1)
+                .withProjectResource("pom2/pom.xml", pom2)
+                .withJavaSource("pom1/src/main/java", javaSource2)
+                .withJavaSource("pom2/src/main/java", javaSource3)
+                .withJavaSource("pom2/src/test/java", javaSource4)
                 .build();
 
         Module parentModule = context.getApplicationModules().getModule(Path.of(""));
-        Module module1 = context.getApplicationModules().getModule(Path.of("module1"));
-        Module module2 = context.getApplicationModules().getModule(Path.of("module2"));
+        Module module1 = context.getApplicationModules().getModule(Path.of("pom1"));
+        Module module2 = context.getApplicationModules().getModule(Path.of("pom2"));
 
         assertThat(parentModule.getMainJavaSourceSet().list()).isEmpty();
 

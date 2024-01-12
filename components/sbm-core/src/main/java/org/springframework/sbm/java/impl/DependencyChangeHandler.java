@@ -31,16 +31,20 @@ import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.rewrite.parsers.RewriteProjectParser;
 import org.springframework.rewrite.parsers.SourceFileParser;
 import org.springframework.rewrite.parsers.maven.ClasspathDependencies;
 import org.springframework.rewrite.utils.JavaHelper;
 import org.springframework.sbm.build.api.ApplicationModules;
+import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.rewrite.parsers.JavaParserBuilder;
+import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -142,8 +146,19 @@ public class DependencyChangeHandler {
         });
     }
 
+
     private List<SourceFile> recompileModuleClasses(Module module) {
-        Map<Scope, Set<Path>> resolvedDependenciesMap = module.getBuildFile().getResolvedDependenciesMap();
+        // FIXME: Partial parsing
+//        List<SourceFile> sourceFiles = projectResourceSetHolder.getProjectResourceSet().stream()
+//                .map(r -> r.getSourceFile())
+//                .map(SourceFile.class::cast)
+//                .toList();
+//        Path baseDir = module.getProjectRootDirectory();
+        OpenRewriteMavenBuildFile buildFile = (OpenRewriteMavenBuildFile) module.getBuildFile();
+//        SourceFile moduleBuildFile = buildFile.getResource().getSourceFile();
+//        rewriteProjectParser.parsePartial(baseDir, sourceFiles, moduleBuildFile);
+
+        Map<Scope, Set<Path>> resolvedDependenciesMap = buildFile.getResolvedDependenciesMap();
         Map<Scope, Set<Path>> scopeListMap = flattenToCompileAndTestScope(resolvedDependenciesMap);
         // FIXME: reuse logic from parser here. it must be guaranteed that markers are added
         Set<Path> compileClasspath = scopeListMap.get(Scope.Compile);

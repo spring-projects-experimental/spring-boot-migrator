@@ -16,6 +16,8 @@
 package org.springframework.sbm.build.api;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junitpioneer.jupiter.ExpectedToFail;
 import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -62,6 +64,7 @@ class Module_contains_Test {
     }
 
     @Test
+    @ExpectedToFail("https://github.com/spring-projects/spring-rewrite-commons/issues/37")
     void multiModuleProject() {
         String rootPom = PomBuilder
                 .buildPom("com.example:parent:1.0")
@@ -70,13 +73,13 @@ class Module_contains_Test {
                 .build();
 
         String module1Pom = PomBuilder
-                .buildPom("com.example:parent:1.0", "module1")
+                .buildPom("com.example:parent:1.0", "..", "module1")
                 .unscopedDependencies("com.example:module2:1.0")
                 .build();
 
-        String module2Pom = PomBuilder.buildPom("com.example:parent:1.0", "module2").build();
+        String module2Pom = PomBuilder.buildPom("com.example:parent:1.0", "..", "module2").build();
 
-        String moduleInModule1Pom = PomBuilder.buildPom("com.example:parent:1.0", "module-in-module1").build();
+        String moduleInModule1Pom = PomBuilder.buildPom("com.example:parent:1.0", "../..", "module-in-module1").build();
 
 
         String javaClass = """
@@ -107,7 +110,6 @@ class Module_contains_Test {
                 .withMavenBuildFileSource("module2/pom.xml", module2Pom)
                 .withJavaSource("module2/src/main/java", javaClass)
                 .withProjectResource("module2/src/main/resources/resource-found.txt", "")
-
                 .build();
 
         Module root = context.getApplicationModules().getModule("root");

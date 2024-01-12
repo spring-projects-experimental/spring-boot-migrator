@@ -29,28 +29,37 @@ import org.openrewrite.maven.tree.Dependency;
 import org.openrewrite.maven.tree.Scope;
 
 public class PomBuilder {
-        private String coordinate;
-        private List<String> modules;
-		private String packaging;
-        private String parent;
-        private String artifactId;
-		private Map<String, String> properties = new HashMap<>();
-		private Map<Scope, Set<Dependency>> dependencies = new LinkedHashMap<>();
-		private List<Plugin> plugins = new ArrayList<>();
+    private String coordinate;
+    private List<String> modules;
+    private String packaging;
+    private String parent;
+    private String artifactId;
+    private Map<String, String> properties = new HashMap<>();
+    private Map<Scope, Set<Dependency>> dependencies = new LinkedHashMap<>();
+    private List<Plugin> plugins = new ArrayList<>();
 
-    	private DependencyHelper dependencyHelper = new DependencyHelper();
-    	private String parentPom;
+    private DependencyHelper dependencyHelper = new DependencyHelper();
+    private String parentPom;
+    private String relativePath;
 
-		public static PomBuilder buildPom(String coordinate) {
-			PomBuilder pomBuilder = new PomBuilder();
-			pomBuilder.coordinate = coordinate;
-			return pomBuilder;
-		}
+    public static PomBuilder buildPom(String coordinate) {
+        PomBuilder pomBuilder = new PomBuilder();
+        pomBuilder.coordinate = coordinate;
+        return pomBuilder;
+    }
 
     public static PomBuilder buildPom(String parentCoordinate, String artifactId) {
         PomBuilder pomBuilder = new PomBuilder();
         pomBuilder.parent = parentCoordinate;
         pomBuilder.artifactId = artifactId;
+        return pomBuilder;
+    }
+
+    public static PomBuilder buildPom(String parentCoordinate, String pathToParent, String artifactId) {
+        PomBuilder pomBuilder = new PomBuilder();
+        pomBuilder.parent = parentCoordinate;
+        pomBuilder.artifactId = artifactId;
+        pomBuilder.relativePath = !pathToParent.endsWith("/") ? pathToParent + "/" : pathToParent;
         return pomBuilder;
     }
 
@@ -85,19 +94,20 @@ public class PomBuilder {
     public PomBuilder withModules(String... moduleArtifactNames) {
         this.packaging = "pom";
         this.modules = Arrays.asList(moduleArtifactNames);
-        if(this.modules.stream().anyMatch(m -> m.contains(":"))) throw new RuntimeException("Found ':' in artifact name but artifact names of modules must not be provided as coordinate.");
+        if (this.modules.stream().anyMatch(m -> m.contains(":")))
+            throw new RuntimeException("Found ':' in artifact name but artifact names of modules must not be provided as coordinate.");
         return this;
     }
 
     public String build() {
         StringBuilder sb = new StringBuilder();
         sb.append("""
-                          <?xml version="1.0" encoding="UTF-8"?>
-                          <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-                              <modelVersion>4.0.0</modelVersion>
-                          """);
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                """);
 
-        if(parentPom != null && parent != null) {
+        if (parentPom != null && parent != null) {
             throw new IllegalStateException("parentPom and parent were set.");
         }
 
@@ -107,6 +117,9 @@ public class PomBuilder {
             sb.append("        <groupId>").append(coord[0]).append("</groupId>").append("\n");
             sb.append("        <artifactId>").append(coord[1]).append("</artifactId>").append("\n");
             sb.append("        <version>").append(coord[2]).append("</version>").append("\n");
+            if(relativePath != null) {
+                sb.append("        <relativePath>").append(relativePath).append("pom.xml</relativePath>").append("\n");
+            }
             sb.append("    </parent>").append("\n");
             sb.append("    <artifactId>").append(artifactId).append("</artifactId>").append("\n");
         } else if (parentPom != null) {
@@ -116,24 +129,25 @@ public class PomBuilder {
             sb.append("        <artifactId>").append(coord[1]).append("</artifactId>").append("\n");
             sb.append("        <version>").append(coord[2]).append("</version>").append("\n");
             sb.append("    </parent>").append("\n");
-        } if (parent == null){
+        }
+        if (parent == null) {
             String[] coord = coordinate.split(":");
             sb.append("    <groupId>").append(coord[0]).append("</groupId>").append("\n");
             sb.append("    <artifactId>").append(coord[1]).append("</artifactId>").append("\n");
             sb.append("    <version>").append(coord[2]).append("</version>").append("\n");
         }
 
-		if(packaging != null ){
-			sb.append("    <packaging>").append(packaging).append("</packaging>").append("\n");
-		}
+        if (packaging != null) {
+            sb.append("    <packaging>").append(packaging).append("</packaging>").append("\n");
+        }
 
-        if(properties.isEmpty()) {
-            sb.append(  """
-                        <properties>
-                            <maven.compiler.target>1.8</maven.compiler.target>
-                            <maven.compiler.source>1.8</maven.compiler.source>
-                        </properties>
-                        """);
+        if (properties.isEmpty()) {
+            sb.append("""
+                    <properties>
+                        <maven.compiler.target>1.8</maven.compiler.target>
+                        <maven.compiler.source>1.8</maven.compiler.source>
+                    </properties>
+                    """);
         }
         sb.append(buildProperties(properties));
 
@@ -148,16 +162,16 @@ public class PomBuilder {
             sb.append(dependenciesRendered);
         }
 
-		if(!plugins.isEmpty()){
-			sb.append(renderPlugins());
-		}
+        if (!plugins.isEmpty()) {
+            sb.append(renderPlugins());
+        }
 
         sb.append("</project>\n");
         return sb.toString();
     }
 
-	String buildProperties(Map<String, String> properties) {
-        if(!properties.isEmpty()) {
+    String buildProperties(Map<String, String> properties) {
+        if (!properties.isEmpty()) {
             StringBuilder builder = new StringBuilder();
             builder.append("    ").append("<properties>").append("\n");
             String props = properties.entrySet().stream().map(entry -> "    " + "    " + "<" + entry.getKey() + ">"
@@ -168,7 +182,7 @@ public class PomBuilder {
         } else {
             return "";
         }
-	}
+    }
 
     String renderDependencies(Map<Scope, Set<org.openrewrite.maven.tree.Dependency>> dependencies) {
         StringBuilder dependenciesSection = new StringBuilder();
@@ -189,41 +203,41 @@ public class PomBuilder {
                 .append("<dependency>")
                 .append("\n");
         dependenciesSection
-                    .append("    ")
-                    .append("    ")
-                    .append("    ")
-                    .append("<groupId>")
-                    .append(dependency.getGroupId())
-                    .append("</groupId>")
-                    .append("\n");
+                .append("    ")
+                .append("    ")
+                .append("    ")
+                .append("<groupId>")
+                .append(dependency.getGroupId())
+                .append("</groupId>")
+                .append("\n");
+        dependenciesSection
+                .append("    ")
+                .append("    ")
+                .append("    ")
+                .append("<artifactId>")
+                .append(dependency.getArtifactId())
+                .append("</artifactId>")
+                .append("\n");
+        if (dependency.getVersion() != null) {
             dependenciesSection
                     .append("    ")
                     .append("    ")
                     .append("    ")
-                    .append("<artifactId>")
-                    .append(dependency.getArtifactId())
-                    .append("</artifactId>")
+                    .append("<version>")
+                    .append(dependency.getVersion())
+                    .append("</version>")
                     .append("\n");
-            if(dependency.getVersion() != null) {
-                dependenciesSection
-                        .append("    ")
-                        .append("    ")
-                        .append("    ")
-                        .append("<version>")
-                        .append(dependency.getVersion())
-                        .append("</version>")
-                        .append("\n");
-            }
-            if(scope != Scope.None) {
-                dependenciesSection
-                        .append("    ")
-                        .append("    ")
-                        .append("    ")
-                        .append("<scope>")
-                        .append(scope.name().toLowerCase())
-                        .append("</scope>")
-                        .append("\n");
-            }
+        }
+        if (scope != Scope.None) {
+            dependenciesSection
+                    .append("    ")
+                    .append("    ")
+                    .append("    ")
+                    .append("<scope>")
+                    .append(scope.name().toLowerCase())
+                    .append("</scope>")
+                    .append("\n");
+        }
         dependenciesSection
                 .append("    ")
                 .append("    ")
@@ -231,28 +245,27 @@ public class PomBuilder {
                 .append("\n");
     }
 
-	private String renderPlugins(){
-		StringBuilder pluginSection = new StringBuilder();
-		if (!plugins.isEmpty()) {
-			pluginSection.append("    ").append("<build>").append("\n");
-			pluginSection.append("    ").append("    ").append("<plugins>").append("\n");
-			try {
-				String plugin = MavenXmlMapper.writeMapper().writerWithDefaultPrettyPrinter().writeValueAsString(plugins.get(0));
-				pluginSection.append(plugin.replaceAll("  ", "    ").replaceAll("(?m)^", " ".repeat(12)));
-			}
-			catch (JsonProcessingException e) {
-				throw new RuntimeException(e);
-			}
-			pluginSection.append("    ").append("    ").append("</plugins>").append("\n");
-			pluginSection.append("    ").append("</build>").append("\n");
-		}
-		return pluginSection.toString();
-	}
+    private String renderPlugins() {
+        StringBuilder pluginSection = new StringBuilder();
+        if (!plugins.isEmpty()) {
+            pluginSection.append("    ").append("<build>").append("\n");
+            pluginSection.append("    ").append("    ").append("<plugins>").append("\n");
+            try {
+                String plugin = MavenXmlMapper.writeMapper().writerWithDefaultPrettyPrinter().writeValueAsString(plugins.get(0));
+                pluginSection.append(plugin.replaceAll("  ", "    ").replaceAll("(?m)^", " ".repeat(12)));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            pluginSection.append("    ").append("    ").append("</plugins>").append("\n");
+            pluginSection.append("    ").append("</build>").append("\n");
+        }
+        return pluginSection.toString();
+    }
 
-	public PomBuilder packaging(String type) {
-		this.packaging = type;
-		return this;
-	}
+    public PomBuilder packaging(String type) {
+        this.packaging = type;
+        return this;
+    }
 
     public PomBuilder unscopedDependencies(String... coordinates) {
         dependencyHelper.mapCoordinatesToDependencies(Arrays.asList(coordinates))
@@ -280,13 +293,13 @@ public class PomBuilder {
         return this;
     }
 
-	public PomBuilder property(String property, String value){
-		this.properties.put(property,value);
-		return this;
-	}
+    public PomBuilder property(String property, String value) {
+        this.properties.put(property, value);
+        return this;
+    }
 
-	public PomBuilder plugins(Plugin... p) {
-		this.plugins = Arrays.asList(p);
-		return this;
-	}
+    public PomBuilder plugins(Plugin... p) {
+        this.plugins = Arrays.asList(p);
+        return this;
+    }
 }

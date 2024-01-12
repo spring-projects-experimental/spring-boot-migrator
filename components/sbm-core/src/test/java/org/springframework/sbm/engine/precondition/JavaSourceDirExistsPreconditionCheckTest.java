@@ -47,7 +47,7 @@ class JavaSourceDirExistsPreconditionCheckTest {
         JavaSourceDirExistsPreconditionCheck sut = new JavaSourceDirExistsPreconditionCheck();
         Resource r1 = mock(Resource.class);
         File f1 = mock(File.class);
-        when(f1.toPath()).thenReturn(Path.of("src/main/java"));
+        when(f1.toPath()).thenReturn(Path.of("src/main/java/some/Class.java"));
         when(r1.getFile()).thenReturn(f1);
         List<Resource> resources = List.of(r1);
         PreconditionCheckResult checkResult = sut.verify(Path.of("."), resources);

@@ -18,6 +18,7 @@ package org.springframework.sbm.project.buildfile;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.junitpioneer.jupiter.ExpectedToFail;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.openrewrite.ExecutionContext;
@@ -278,6 +279,7 @@ public class OpenRewriteMavenBuildFileTest {
         }
 
         @Test
+        @ExpectedToFail("See https://github.com/openrewrite/rewrite/issues/3409")
         void itResolvesVariableFromMavenConfig() {
             @Language("xml")
             String pom = """

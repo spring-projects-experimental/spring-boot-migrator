@@ -55,6 +55,9 @@ public class Issue54Test {
                             <properties>
                                 <boolean-variable>false</boolean-variable>
                             </properties>
+                            <modules>
+                                <module>b</module>
+                            </modules>
                         </project>
                         """;
 
@@ -68,6 +71,7 @@ public class Issue54Test {
                                 <groupId>com.acme</groupId>
                                 <artifactId>a</artifactId>
                                 <version>1.1.0</version>
+                                <relativePath>../pom.xml</relativePath>
                             </parent>
                             <artifactId>b</artifactId>
                             <dependencies>
@@ -95,10 +99,10 @@ public class Issue54Test {
         ProjectContext projectContext = TestProjectContext
                 .buildProjectContext()
                 .withMavenBuildFileSource("pom.xml", pomA)
-                .withMavenBuildFileSource("a/pom.xml", pomB)
+                .withMavenBuildFileSource("b/pom.xml", pomB)
                 .build();
         assertThat(projectContext.getApplicationModules().getModule("").getBuildFile().getProperty("boolean-variable")).isEqualTo("false");
-        assertThat(projectContext.getApplicationModules().getModule("a").getBuildFile().getRequestedDependencies()).hasSize(1);
+        assertThat(projectContext.getApplicationModules().getModule("b").getBuildFile().getRequestedDependencies()).hasSize(1);
     }
 
     @Test
@@ -117,6 +121,9 @@ public class Issue54Test {
                     <properties>
                         <scope-variable>3.0.2</scope-variable>
                     </properties>
+                    <modules>
+                        <module>b</module>
+                    </modules>
                 </project>
                 """;
 
@@ -130,6 +137,7 @@ public class Issue54Test {
                         <groupId>com.acme</groupId>
                         <artifactId>a</artifactId>
                         <version>1.1.0</version>
+                        <relativePath>../pom.xml</relativePath>
                     </parent>
                     <artifactId>b</artifactId>
                     <dependencies>
@@ -164,11 +172,11 @@ public class Issue54Test {
         ProjectContext projectContext = TestProjectContext
                 .buildProjectContext()
                 .withMavenBuildFileSource("pom.xml", pomA)
-                .withMavenBuildFileSource("a/pom.xml", pomB)
+                .withMavenBuildFileSource("b/pom.xml", pomB)
                 .build();
         assertThat(projectContext.getApplicationModules().getModule("").getBuildFile().getProperty("scope-variable")).isEqualTo("3.0.2");
-        assertThat(projectContext.getApplicationModules().getModule("a").getBuildFile().getRequestedDependencies()).hasSize(1);
-        assertThat(projectContext.getApplicationModules().getModule("a").getBuildFile().getRequestedDependencies().get(0).getVersion()).isEqualTo("3.0.2");
+        assertThat(projectContext.getApplicationModules().getModule("b").getBuildFile().getRequestedDependencies()).hasSize(1);
+        assertThat(projectContext.getApplicationModules().getModule("b").getBuildFile().getRequestedDependencies().get(0).getVersion()).isEqualTo("3.0.2");
     }
 
 }

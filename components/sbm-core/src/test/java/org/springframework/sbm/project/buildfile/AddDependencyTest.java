@@ -18,6 +18,7 @@ package org.springframework.sbm.project.buildfile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.*;
+import org.junitpioneer.jupiter.ExpectedToFail;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.RecipeRun;
 import org.openrewrite.SourceFile;
@@ -83,35 +84,35 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Fabian Krüger
  */
-//@SpringBootTest(classes = {
-//        SpringBeanProvider.ComponentScanConfiguration.class,
-//        ProjectContextInitializer.class,
-//        JavaProvenanceMarkerFactory.class,
-//        BasePackageCalculator.class,
-//        BasePackageCalculator.class,
-//        ProjectRootPathResolver.class,
-//        PreconditionVerifier.class,
-//        ProjectContextFactory.class,
-//        MavenPomCacheProvider.class,
-//        SbmApplicationProperties.class,
-//        MigrationResultProjectContextMerger.class,
-//        RewritePropertiesParser.class,
-//        RewriteMavenParser.class,
-//        RewriteXmlParser.class,
-//        ResourceHelper.class,
-//        ResourceLoader.class,
-//        GitSupport.class,
-//        ScanCommand.class,
-//        ProjectResourceSetHolder.class,
-//        JavaRefactoringFactoryImpl.class,
-//        ProjectResourceWrapperRegistry.class,
-//        MavenConfigHandler.class,
-//        ScopeConfiguration.class,
-//        SpringRewriteCommonsConfiguration.class,
-//        DependenciesChangedEventHandler.class,
-//        DependencyChangeHandler.class,
-//        LocalValidatorFactoryBean.class,
-//        ProjectContextHolder.class
+@SpringBootTest(classes = {
+        SpringBeanProvider.ComponentScanConfiguration.class,
+        ProjectContextInitializer.class,
+        JavaProvenanceMarkerFactory.class,
+        BasePackageCalculator.class,
+        BasePackageCalculator.class,
+        ProjectRootPathResolver.class,
+        PreconditionVerifier.class,
+        ProjectContextFactory.class,
+        MavenPomCacheProvider.class,
+        SbmApplicationProperties.class,
+        MigrationResultProjectContextMerger.class,
+        RewritePropertiesParser.class,
+        RewriteMavenParser.class,
+        RewriteXmlParser.class,
+        ResourceHelper.class,
+        ResourceLoader.class,
+        GitSupport.class,
+        ScanCommand.class,
+        ProjectResourceSetHolder.class,
+        JavaRefactoringFactoryImpl.class,
+        ProjectResourceWrapperRegistry.class,
+        MavenConfigHandler.class,
+        ScopeConfiguration.class,
+        SpringRewriteCommonsConfiguration.class,
+        DependenciesChangedEventHandler.class,
+        DependencyChangeHandler.class,
+        LocalValidatorFactoryBean.class,
+        ProjectContextHolder.class
 
 //        DependencyChangeHandler.class,
 //        ProjectContextHolder.class,
@@ -127,7 +128,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 //        RewriteParserConfiguration.class,
 //        SpringBeanProvider.ComponentScanConfiguration.class
 
-//})
+})
 public class AddDependencyTest {
 
     @Autowired
@@ -369,6 +370,7 @@ public class AddDependencyTest {
      */
     @Test
     @DisplayName("flow")
+    @ExpectedToFail("https://github.com/spring-projects/spring-rewrite-commons/issues/38")
     void flow() {
         // create project with four modules
         /*

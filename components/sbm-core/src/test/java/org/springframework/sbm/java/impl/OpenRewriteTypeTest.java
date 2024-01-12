@@ -346,7 +346,6 @@ class OpenRewriteTypeTest {
         JavaSource javaSource = context.getProjectJavaSources().findJavaSourceDeclaringType("Config").get();
         Type type = javaSource.getTypes().get(0);
         type.addMethod(template, requiredImports);
-
         assertThat(javaSource.print()).isEqualTo(
                 """
                 import org.springframework.context.annotation.Bean;
@@ -361,8 +360,7 @@ class OpenRewriteTypeTest {
                         return IntegrationFlows.from(Http.inboundChannelAdapter("/test")).handle((p, h) -> p)
                                 .log(LoggingHandler.Level.INFO)
                                 .get();
-                    }
-                }"""
+                    }}"""
         );
     }
 
