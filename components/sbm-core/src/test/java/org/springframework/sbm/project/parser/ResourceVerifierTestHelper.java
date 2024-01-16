@@ -205,7 +205,7 @@ class ResourceVerifierTestHelper {
                     .isEqualTo(source);
 
             assertThat(marker.getTargetCompatibility())
-                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", sourceFile.getSourcePath().toString(), target, marker.getSourceCompatibility())
+                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", sourceFile.getSourcePath().toString(), target, marker.getTargetCompatibility())
                     .isEqualTo(target);
         }
 
