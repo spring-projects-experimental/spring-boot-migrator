@@ -11,7 +11,7 @@
         <jar.name>spring-boot-migrator</jar.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <openrewrite.version>8.12.0</openrewrite.version>
+        <openrewrite.version>8.13.4</openrewrite.version>
         <spring-rewrite-commons-launcher.version>0.1.0-SNAPSHOT</spring-rewrite-commons-launcher.version>
         <spring-boot.version>3.1.2</spring-boot.version>
         <jaxb-maven-plugin.version>2.5.0</jaxb-maven-plugin.version>

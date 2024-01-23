@@ -288,9 +288,6 @@ class ProjectContextInitializerTest {
     @Test
     @Tag("integration")
     void test() {
-
-        final String MAVEN_VERSION = "3.9.1";
-
         final String defaultBranchName = GitSupport.getBranchName(new File("./testcode/path-scanner")).get();
 
         List<Resource> resources = scanCommand.scanProjectRoot(projectDirectory.toString());

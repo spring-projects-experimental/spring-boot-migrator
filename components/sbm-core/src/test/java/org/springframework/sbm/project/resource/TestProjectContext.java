@@ -32,6 +32,7 @@ import org.springframework.rewrite.parsers.RewriteExecutionContext;
 import org.springframework.rewrite.parsers.SpringRewriteProperties;
 import org.springframework.rewrite.project.resource.ProjectResourceSerializer;
 import org.springframework.rewrite.project.resource.ProjectResourceSetSerializer;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.rewrite.utils.ResourceUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -625,6 +626,24 @@ public class TestProjectContext {
             }
 
             return projectContext;
+        }
+
+        public ProjectContext buildAndPrintTree() {
+            ProjectContext projectContext = build();
+            printTree(projectContext);
+            return projectContext;
+        }
+
+        private void printTree(ProjectContext projectContext) {
+            projectContext.getProjectResources()
+                    .stream()
+                    .map(RewriteSourceFileHolder::getSourcePath)
+                    .map(Path::toString)
+                    .sorted()
+                    .forEach(r -> {
+                        String[] split = r.split("/");
+                        System.out.println(r);
+                    });
         }
 
         private void writeResources(Path projectRoot, List<Resource> scannedResources) {

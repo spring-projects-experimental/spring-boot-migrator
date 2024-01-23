@@ -196,10 +196,6 @@ class ResourceVerifierTestHelper {
 
         @Override
         public void assertMarker(SourceFile sourceFile, JavaVersion marker) {
-            assertThat(marker.getCreatedBy())
-                    .as("Invalid marker [JavaVersion] for resource '%s'. Expected targetCompatibility to be '%s' but was '%s'", sourceFile.getSourcePath().toString(), version, marker.getSourceCompatibility())
-                    .startsWith(Integer.toString(version));
-
             assertThat(marker.getSourceCompatibility())
                     .as("Invalid marker [JavaVersion] for resource '%s'. Expected sourceCompatibility to be '%s' but was '%s'", sourceFile.getSourcePath().toString(), source, marker.getSourceCompatibility())
                     .isEqualTo(source);

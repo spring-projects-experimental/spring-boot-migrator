@@ -28,7 +28,9 @@ import org.openrewrite.marker.SearchResult;
 import org.springframework.rewrite.project.resource.ProjectResourceSet;
 import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.rewrite.utils.LinuxWindowsPathUnifier;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -139,11 +141,19 @@ public class JavaGlobalRefactoringImpl implements JavaGlobalRefactoring {
     }
 
     private void processResult(Result result) {
-        UUID id = result.getBefore().getId();
+        if(result.getAfter() != null) {
+            RewriteSourceFileHolder<J.CompilationUnit> match = findRewriteSourceFileHolderHoldingCompilationUnitWithPath(result.getAfter().getSourcePath());
+            match.replaceWith((J.CompilationUnit) result.getAfter());
+        }
+    }
 
-        RewriteSourceFileHolder<J.CompilationUnit> match = findRewriteSourceFileHolderHoldingCompilationUnitWithId(id);
-
-        match.replaceWith((J.CompilationUnit) result.getAfter());
+    private RewriteSourceFileHolder<J.CompilationUnit> findRewriteSourceFileHolderHoldingCompilationUnitWithPath(Path sourcePath) {
+        return projectResourceSet.stream()
+                .filter(pr -> LinuxWindowsPathUnifier.pathEquals(pr.getSourcePath(), sourcePath))
+                .filter(pr -> J.CompilationUnit.class.isAssignableFrom(pr.getSourceFile().getClass()))
+                .map(pr -> (RewriteSourceFileHolder<J.CompilationUnit>) pr)
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("Not matching modification found"));
     }
 
     private RewriteSourceFileHolder<J.CompilationUnit> findRewriteSourceFileHolderHoldingCompilationUnitWithId(UUID id) {

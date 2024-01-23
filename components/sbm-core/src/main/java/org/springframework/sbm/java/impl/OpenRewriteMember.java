@@ -18,8 +18,6 @@ package org.springframework.sbm.java.impl;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
-import org.openrewrite.Parser;
-import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaParser;
@@ -28,29 +26,23 @@ import org.openrewrite.java.internal.JavaTypeCache;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.VariableDeclarations.NamedVariable;
-import org.openrewrite.java.tree.JavaSourceFile;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.TypeTree;
 import org.openrewrite.marker.Markers;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parsers.JavaParserBuilder;
 import org.springframework.rewrite.parsers.maven.ClasspathDependencies;
 import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
 import org.springframework.sbm.java.api.Annotation;
-import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Member;
-import org.springframework.sbm.java.api.Type;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
-import org.springframework.rewrite.parsers.JavaParserBuilder;
-import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @Slf4j
@@ -66,6 +58,7 @@ public class OpenRewriteMember implements Member {
 
     private final JavaRefactoring refactoring;
     private final JavaParserBuilder javaParserBuilder;
+
 
     public OpenRewriteMember(
             J.VariableDeclarations variableDecls, NamedVariable namedVar,
@@ -151,8 +144,86 @@ public class OpenRewriteMember implements Member {
 
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
-        AddAnnotationVisitor visitor = new AddAnnotationVisitor(() -> javaParserBuilder, getVariableDeclarations(), snippet, annotationImport, otherImports);
-        refactoring.refactor(rewriteSourceFileHolder, visitor);
+        GenericOpenRewriteRecipe<JavaIsoVisitor<ExecutionContext>> recipe = new GenericOpenRewriteRecipe<>(() -> new JavaIsoVisitor<>() {
+
+//            private JavaSourceSet main;
+//            private List<Path> classpath;
+//            private Set<String> imports;
+//            private List<JavaType.FullyQualified> newCLasspathFqn;
+//            private JavaTypeCache typeCache;
+//            private boolean visitCu = false;
+
+//            @Override
+//            public J.CompilationUnit visitCompilationUnit(J.CompilationUnit compilationUnit, ExecutionContext executionContext) {
+//                J.CompilationUnit cu = super.visitCompilationUnit(compilationUnit, executionContext);
+//                if(visitCu) {
+//                    // TODO: De ganze Zirkus hier nochmal
+//                    JavaSourceSet javaSourceSet = cu.getMarkers().findFirst(JavaSourceSet.class).get();
+//                    Field field = ReflectionUtils.findField(JavaSourceSet.class, "classpath");
+//                    ReflectionUtils.makeAccessible(field);
+//                    ReflectionUtils.setField(field, javaSourceSet, newCLasspathFqn);
+//                    imports.forEach(i -> maybeAddImport(i));
+//                    visitCu = false;
+//                    final J.CompilationUnit tmpCu = cu;
+//                    J.CompilationUnit cu1 = (J.CompilationUnit) JavaParser.fromJavaVersion().typeCache(typeCache).classpath(classpath).clone().build().parseInputs(List.of(new JavaParser.Input(cu.getSourcePath(), () -> new ByteArrayInputStream(tmpCu.printAll().getBytes()))), null, executionContext).toList().get(0);
+//                    cu = cu1.withMarkers(Markers.build(List.of(main)));
+//                }
+//                return cu;
+//            }
+
+            @Override
+            public J.VariableDeclarations visitVariableDeclarations(J.VariableDeclarations multiVariable, ExecutionContext executionContext) {
+                J.VariableDeclarations vd = super.visitVariableDeclarations(multiVariable, executionContext);
+                if (vd == getVariableDeclarations()) {
+                    J.CompilationUnit cu = getCursor().dropParentUntil(J.CompilationUnit.class::isInstance).getValue();
+                    List<Path> classpathJars = cu.getMarkers().findFirst(ClasspathDependencies.class).get().getDependencies();
+//                    JavaSourceSet javaSourceSet = cu.getMarkers().findFirst(JavaSourceSet.class).get();
+//                    JavaTypeCache typeCache = new JavaTypeCache();
+
+                    Set<String> imports = Stream.concat(Stream.of(annotationImport), Stream.of(annotationImport)).collect(Collectors.toSet());
+                    JavaTypeCache typeCache = new JavaTypeCache();
+
+
+
+                    JavaParser.Builder<? extends JavaParser, ?> javaParser = JavaParser.fromJavaVersion().typeCache(typeCache.clone()).classpath(classpathJars);
+
+                    vd = JavaTemplate.builder(snippet)
+                            .imports(new ArrayList<>(imports).toArray(String[]::new))
+                            .javaParser(javaParser)
+                            .build()
+                            .apply(getCursor(), vd.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
+                    imports.forEach(i -> maybeAddImport(i, false));
+
+//                    final J.CompilationUnit tmpCu = cu;
+//                    J.CompilationUnit cu1 = (J.CompilationUnit) JavaParser.fromJavaVersion().typeCache(typeCache).classpath(classpath).build().parseInputs(List.of(new JavaParser.Input(cu.getSourcePath(), () -> new ByteArrayInputStream(tmpCu.printAll().getBytes()))), null, executionContext).toList().get(0);
+
+/*
+                    visitCu = false;
+                    final J.CompilationUnit tmpCu = cu;
+                    J.CompilationUnit cu1 = (J.CompilationUnit) JavaParser.fromJavaVersion().typeCache(typeCache).classpath(classpath).build().parseInputs(List.of(new JavaParser.Input(cu.getSourcePath(), () -> new ByteArrayInputStream(tmpCu.printAll().getBytes()))), null, executionContext).toList().get(0);
+                    JavaSourceSet newJavaSourceSet = JavaSourceSet.build(javaSourceSet.getName(), cu.getMarkers().findFirst(ClasspathDependencies.class).get().getDependencies(), typeCache, true);
+                    cu = cu1.withMarkers(cu1.getMarkers().removeByType(JavaSourceSet.class).addIfAbsent(newJavaSourceSet));
+//                    cu = cu1.withMarkers(Markers.build(List.of(main)));
+
+
+//                    J.CompilationUnit cu = getRewriteSourceFileHolder().getSourceFile();
+//                    classpath = cu.getMarkers().findFirst(ClasspathDependencies.class).get().getDependencies();
+                    imports = Stream.concat(Stream.of(annotationImport), Stream.of(annotationImport)).collect(Collectors.toSet());
+//                    // FIXME: main is not always correct
+//                    typeCache = new JavaTypeCache();
+//                    main = JavaSourceSet.build("main", classpath, typeCache, true);
+
+                    newCLasspathFqn = main.getClasspath();
+
+                    visitCu = true;
+                    imports.forEach(i -> maybeAddImport(i, false));
+
+ */
+                }
+                return vd;
+            }
+        });
+        refactoring.refactor(rewriteSourceFileHolder, recipe);
     }
 
     @Override

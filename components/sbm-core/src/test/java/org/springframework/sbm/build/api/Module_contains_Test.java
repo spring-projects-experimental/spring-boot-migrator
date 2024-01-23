@@ -64,7 +64,6 @@ class Module_contains_Test {
     }
 
     @Test
-    @ExpectedToFail("https://github.com/spring-projects/spring-rewrite-commons/issues/37")
     void multiModuleProject() {
         String rootPom = PomBuilder
                 .buildPom("com.example:parent:1.0")
@@ -80,7 +79,6 @@ class Module_contains_Test {
         String module2Pom = PomBuilder.buildPom("com.example:parent:1.0", "..", "module2").build();
 
         String moduleInModule1Pom = PomBuilder.buildPom("com.example:parent:1.0", "../..", "module-in-module1").build();
-
 
         String javaClass = """
                 package com.example;

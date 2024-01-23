@@ -15,8 +15,10 @@
  */
 package org.springframework.sbm.java.impl;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.io.TempDir;
+import org.openrewrite.java.tree.JavaType;
 import org.springframework.sbm.GitHubIssue;
-import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.Type;
@@ -25,6 +27,7 @@ import org.springframework.sbm.testhelper.common.utils.TestDiff;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -310,8 +313,8 @@ class OpenRewriteTypeTest {
     }
 
     @Test
-    void testAddMethod2() {
-        String template =
+    void testAddMethod2(@TempDir Path tempDir) {
+        String methodCode =
                 """
                 @Bean
                 IntegrationFlow http_routeFlow() {
@@ -332,20 +335,39 @@ class OpenRewriteTypeTest {
         ProjectContext context = TestProjectContext.buildProjectContext()
                 .withBuildFileHavingDependencies(
                         "org.springframework.boot:spring-boot-starter-integration:2.5.5",
-                        "org.springframework.boot:spring-boot-starter-web:2.5.5"
+                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
+                        "org.springframework.integration:spring-integration-http:5.4.4"
                 )
                 .withJavaSource("src/main/java", "public class Config {}")
+//                .buildAndSerializeProjectContext(tempDir);
                 .build();
 
-        context.getApplicationModules().getRootModule().getBuildFile().addDependency(Dependency.builder()
-                        .groupId("org.springframework.integration")
-                        .artifactId("spring-integration-http")
-                        .version("5.4.4")
-                .build());
+//        context.getApplicationModules().getRootModule().getBuildFile().addDependency(Dependency.builder()
+//                        .groupId("org.springframework.integration")
+//                        .artifactId("spring-integration-http")
+//                        .version("5.4.4")
+//                .build());
 
-        JavaSource javaSource = context.getProjectJavaSources().findJavaSourceDeclaringType("Config").get();
+        OpenRewriteJavaSource javaSource = (OpenRewriteJavaSource) context.getProjectJavaSources().findJavaSourceDeclaringType("Config").get();
+        List<String> typesInUse = javaSource.getSourceFile().getTypesInUse().getTypesInUse().stream().map(JavaType.FullyQualified.class::cast).map(JavaType.FullyQualified::getFullyQualifiedName).toList();
+        assertThat(typesInUse).isEmpty();
+
         Type type = javaSource.getTypes().get(0);
-        type.addMethod(template, requiredImports);
+        type.addMethod(methodCode, requiredImports);
+
+        List<String> typesInUseAfter = javaSource.getSourceFile().getTypesInUse().getTypesInUse().stream().map(t ->t.toString()).toList();
+        assertThat(typesInUseAfter).containsExactlyInAnyOrder(
+                "org.springframework.integration.handler.LoggingHandler",
+                "org.springframework.integration.dsl.IntegrationFlow",
+                "org.springframework.integration.dsl.IntegrationFlows",
+                "org.springframework.context.annotation.Bean",
+                "org.springframework.integration.http.dsl.Http",
+                "java.lang.Object",
+                "org.springframework.integration.handler.LoggingHandler$Level",
+                "org.springframework.messaging.MessageHeaders",
+                "String"
+        );
+
         assertThat(javaSource.print()).isEqualTo(
                 """
                 import org.springframework.context.annotation.Bean;
@@ -361,6 +383,50 @@ class OpenRewriteTypeTest {
                                 .log(LoggingHandler.Level.INFO)
                                 .get();
                     }}"""
+        );
+    }
+    
+    @Test
+    @DisplayName("return type not containerd in typesInUse")
+    void returnTypeNotContainedInTypesInUse() {
+        String javaCode =
+        """
+                import org.springframework.context.annotation.Bean;
+                import org.springframework.integration.dsl.IntegrationFlow;
+                import org.springframework.integration.dsl.IntegrationFlows;
+                import org.springframework.integration.handler.LoggingHandler;
+                import org.springframework.integration.http.dsl.Http;
+                                
+                public class Config {
+                    @Bean
+                    IntegrationFlow http_routeFlow() {
+                        return IntegrationFlows.from(Http.inboundChannelAdapter("/test")).handle((p, h) -> p)
+                                .log(LoggingHandler.Level.INFO)
+                                .get();
+                    }}""";
+
+        ProjectContext context = TestProjectContext.buildProjectContext()
+                .withBuildFileHavingDependencies(
+                        "org.springframework.boot:spring-boot-starter-integration:2.5.5",
+                        "org.springframework.boot:spring-boot-starter-web:2.5.5",
+                        "org.springframework.integration:spring-integration-http:5.4.4"
+                )
+                .withJavaSource("src/main/java", javaCode)
+//                .buildAndSerializeProjectContext(tempDir);
+                .build();
+
+        OpenRewriteJavaSource config = (OpenRewriteJavaSource) context.getProjectJavaSources().findJavaSourceDeclaringType("Config").get();
+        List<String> typesInUseAfter = config.getSourceFile().getTypesInUse().getTypesInUse().stream().map(t ->t.toString()).toList();
+        assertThat(typesInUseAfter).containsExactlyInAnyOrder(
+                "org.springframework.integration.handler.LoggingHandler",
+                "org.springframework.integration.dsl.IntegrationFlow",
+                "org.springframework.integration.dsl.IntegrationFlows",
+                "org.springframework.context.annotation.Bean",
+                "org.springframework.integration.http.dsl.Http",
+                "java.lang.Object",
+                "org.springframework.integration.handler.LoggingHandler$Level",
+                "org.springframework.messaging.MessageHeaders",
+                "String"
         );
     }
 

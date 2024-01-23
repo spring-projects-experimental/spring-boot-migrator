@@ -24,6 +24,8 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.internal.JavaTypeCache;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaType;
+import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.MavenExecutionContextView;
 import org.openrewrite.maven.MavenSettings;
@@ -35,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.rewrite.parsers.RewriteProjectParser;
 import org.springframework.rewrite.parsers.SourceFileParser;
 import org.springframework.rewrite.parsers.maven.ClasspathDependencies;
+import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.rewrite.utils.JavaHelper;
 import org.springframework.sbm.build.api.ApplicationModules;
 import org.springframework.sbm.build.api.BuildFile;
@@ -50,6 +53,9 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Fabian Krüger
@@ -62,6 +68,7 @@ public class DependencyChangeHandler {
     private final ExecutionContext executionContext;
 
     private SourceFileParser sourceFileParser;
+
     /**
      * Handle changes of the dependency list in {@code currentBuildFile}.
      * First the affected java sources in the module of the {@code currentBuildFile} are recompiled.
@@ -105,7 +112,7 @@ public class DependencyChangeHandler {
 
     private Map<String, List<DependingModuleInfo>> createDependencyToModuleMappings(ApplicationModules applicationModules) {
         Map<String, List<DependingModuleInfo>> map = new HashMap<>();
-        for(Module m : applicationModules.list()) {
+        for (Module m : applicationModules.list()) {
             m.getBuildFile().getDeclaredDependencies().forEach(d -> {
                 String scope = JavaHelper.uppercaseFirstChar(d.getEffectiveScope().toLowerCase());
                 DependingModuleInfo moduleInfo = new DependingModuleInfo(d.getGav(), Scope.valueOf(scope), m);
@@ -123,7 +130,7 @@ public class DependencyChangeHandler {
 
         projectContext.getProjectResources().stream()
                 .forEach(r -> {
-                    if(recompiledClassesPaths.contains(r.getAbsolutePath().toString())) {
+                    if (recompiledClassesPaths.contains(r.getAbsolutePath().toString())) {
                         int i = recompiledClassesPaths.indexOf(r.getAbsolutePath().toString());
                         SourceFile sourceFile = recompiledClasses.get(i);
                         r.replaceWith(sourceFile);
@@ -164,32 +171,56 @@ public class DependencyChangeHandler {
         Set<Path> compileClasspath = scopeListMap.get(Scope.Compile);
         List<SourceFile> result = new ArrayList<>();
         List<JavaSource> mainJavaSourceSet = module.getMainJavaSourceSet().list();
-        if(!mainJavaSourceSet.isEmpty()) {
+        if (!mainJavaSourceSet.isEmpty()) {
+
+            JavaTypeCache typeCache = new JavaTypeCache();
+
+            // build map of markers
+            Map<Path, List<Marker>> markerMap = mainJavaSourceSet.stream()
+                    .filter(OpenRewriteJavaSource.class::isInstance)
+                    .map(OpenRewriteJavaSource.class::cast)
+                    .map(OpenRewriteJavaSource::getResource)
+                    .map(RewriteSourceFileHolder::getSourceFile)
+                    .collect(Collectors.toMap(
+                            (J.CompilationUnit js) -> js.getSourcePath(),
+                            (J.CompilationUnit js) -> js.getMarkers().getMarkers().stream().filter(Predicate.not(JavaSourceSet.class::isInstance)).toList()
+                    ));
+
             List<Parser.Input> mainSources = mainJavaSourceSet.stream()
                     .map(ja -> new Parser.Input(ja.getAbsolutePath(), () -> new ByteArrayInputStream(ja.print().getBytes())))
                     .toList();
-            JavaTypeCache typeCache = new JavaTypeCache();
             JavaParser javaParser = javaParserBuilder
                     .typeCache(typeCache)
                     .classpath(compileClasspath)
-                    .clone()
                     .build();
-            JavaSourceSet javaSourceSet = JavaSourceSet.build("main", compileClasspath, typeCache, false);
-            Markers markers = mainJavaSourceSet.get(0).getResource().getSourceFile().getMarkers();
-            markers.removeByType(JavaSourceSet.class);
-            markers.addIfAbsent(javaSourceSet);
-            ClasspathDependencies classpathDependencies = markers.findFirst(ClasspathDependencies.class).get();
-            classpathDependencies.setDependencies(new ArrayList<>(compileClasspath));
             List<SourceFile> main = javaParser.parseInputs(mainSources, module.getProjectRootDir(), executionContext)
-                    .map(sf -> sf.withMarkers(markers))
                     .map(SourceFile.class::cast)
                     .toList();
 
-            result.addAll(main);
+            JavaSourceSet javaSourceSet = JavaSourceSet.build("main", compileClasspath, typeCache, true);
+
+            List<J.CompilationUnit> sourceFiles = main.stream().map(s -> {
+                        List<Marker> newMarkers = new ArrayList<>();
+                        List<Marker> inheritedMarkers = markerMap.get(s.getSourcePath());
+                        if(inheritedMarkers == null) {
+                            throw new IllegalStateException("Could not find marker for path '%s' in markerMap: '%s'".formatted(s.getSourcePath(), markerMap));
+                        }
+                        newMarkers.addAll(inheritedMarkers);
+                        newMarkers.add(javaSourceSet);
+                        return s.withMarkers(Markers.build(newMarkers));
+                    })
+                    .map(J.CompilationUnit.class::cast)
+                    .toList();
+//                    .stream()
+//                    .map()
+////                    .map(sf -> sf.withMarkers(sf.getMarkers().removeByType(JavaSourceSet.class).addIfAbsent(javaSourceSet)))
+//                    .map(SourceFile.class::cast)
+//                    .toList();
+            result.addAll(sourceFiles);
         }
 
         List<JavaSource> testJavaSourceSet = module.getTestJavaSourceSet().list();
-        if(!testJavaSourceSet.isEmpty()) {
+        if (!testJavaSourceSet.isEmpty()) {
             List<Parser.Input> testSources = testJavaSourceSet.stream()
                     .map(ja -> new Parser.Input(ja.getAbsolutePath(), () -> new ByteArrayInputStream(ja.print().getBytes())))
                     .toList();
@@ -315,11 +346,11 @@ public class DependencyChangeHandler {
         Arrays.stream(Scope.values())
                 .forEach(scope -> {
                     Set<Path> paths = resolvedDependencies.get(scope);
-                    if(paths != null) {
-                        if(scope.isInClasspathOf(Scope.Compile)) {
+                    if (paths != null) {
+                        if (scope.isInClasspathOf(Scope.Compile)) {
                             boiled.computeIfAbsent(Scope.Compile, k -> new HashSet<>()).addAll(paths);
                         }
-                        if(scope.isInClasspathOf(Scope.Test)) {
+                        if (scope.isInClasspathOf(Scope.Test)) {
                             boiled.computeIfAbsent(Scope.Test, k -> new HashSet<>()).addAll(paths);
                         }
                     }
