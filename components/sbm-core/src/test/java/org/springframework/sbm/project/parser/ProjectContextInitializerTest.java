@@ -33,14 +33,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.rewrite.boot.autoconfigure.RewriteLauncherConfiguration;
 import org.springframework.rewrite.boot.autoconfigure.ScopeConfiguration;
-import org.springframework.rewrite.boot.autoconfigure.SpringRewriteCommonsConfiguration;
-import org.springframework.rewrite.parsers.RewriteProjectParser;
-import org.springframework.rewrite.parsers.maven.MavenSettingsInitializer;
-import org.springframework.rewrite.parsers.maven.RewriteMavenArtifactDownloader;
-import org.springframework.rewrite.project.RewriteSourceFileWrapper;
-import org.springframework.rewrite.project.resource.RewriteMigrationResultMerger;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.build.migration.MavenPomCacheProvider;
 import org.springframework.sbm.engine.commands.ScanCommand;
@@ -51,7 +46,6 @@ import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.precondition.PreconditionVerifier;
 import org.springframework.sbm.engine.recipe.MigrationResultProjectContextMerger;
-import org.springframework.sbm.java.impl.RewriteJavaParser;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
@@ -94,7 +88,7 @@ import static org.springframework.sbm.project.parser.ResourceVerifierTestHelper.
         ProjectResourceWrapperRegistry.class,
         MavenConfigHandler.class,
         ScopeConfiguration.class,
-        SpringRewriteCommonsConfiguration.class,
+        RewriteLauncherConfiguration.class,
         ProjectContextHolder.class
 }, properties = {"sbm.gitSupportEnabled=false"})
 class ProjectContextInitializerTest {

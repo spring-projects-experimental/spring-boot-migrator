@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.openrewrite.properties.tree.Properties;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.rewrite.utils.OsAgnosticPathMatcher;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.api.SpringProfile;

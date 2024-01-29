@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.engine.context.ProjectContext;

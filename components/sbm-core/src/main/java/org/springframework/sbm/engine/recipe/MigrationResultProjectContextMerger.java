@@ -17,7 +17,7 @@ package org.springframework.sbm.engine.recipe;
 
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.Result;
-import org.springframework.rewrite.project.resource.RewriteMigrationResultMerger;
+import org.springframework.rewrite.resource.RewriteMigrationResultMerger;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.stereotype.Component;
 

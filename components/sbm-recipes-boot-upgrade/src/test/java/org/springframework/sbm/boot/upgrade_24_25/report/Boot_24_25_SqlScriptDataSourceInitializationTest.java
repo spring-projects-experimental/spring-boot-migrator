@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;

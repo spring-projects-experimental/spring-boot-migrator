@@ -22,7 +22,7 @@ import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
-import org.springframework.rewrite.parsers.SpringRewriteProperties;
+import org.springframework.rewrite.parser.SpringRewriteProperties;
 import org.springframework.rewrite.scopes.annotations.ScanScope;
 import org.springframework.stereotype.Component;
 

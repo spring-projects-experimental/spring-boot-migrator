@@ -17,8 +17,8 @@ package org.springframework.sbm.jee.jaxrs.recipes;
 
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
-import org.springframework.rewrite.parsers.SpringRewriteProperties;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
+import org.springframework.rewrite.parser.SpringRewriteProperties;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.impl.RewriteJavaParser;

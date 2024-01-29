@@ -17,7 +17,7 @@ package org.springframework.sbm.java.refactoring;
 
 import org.openrewrite.ExecutionContext;
 import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.java.tree.J;
 import org.springframework.stereotype.Component;

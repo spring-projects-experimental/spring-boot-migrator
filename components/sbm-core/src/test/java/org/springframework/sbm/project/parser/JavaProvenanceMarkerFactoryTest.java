@@ -23,8 +23,8 @@ import org.openrewrite.java.marker.JavaVersion;
 import org.openrewrite.marker.BuildTool;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
-import org.springframework.rewrite.parsers.maven.MavenSettingsInitializer;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
+import org.springframework.rewrite.parser.maven.MavenSettingsInitializer;
 import org.springframework.rewrite.scopes.ProjectMetadata;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 

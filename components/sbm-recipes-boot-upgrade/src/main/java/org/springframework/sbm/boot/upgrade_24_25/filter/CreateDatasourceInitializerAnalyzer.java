@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.boot.upgrade_24_25.filter;
 
-import org.springframework.rewrite.project.resource.ProjectResource;
-import org.springframework.rewrite.project.resource.finder.PathPatternMatchingProjectResourceFinder;
+import org.springframework.rewrite.resource.ProjectResource;
+import org.springframework.rewrite.resource.finder.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.build.api.Module;

@@ -16,7 +16,7 @@
 package org.springframework.sbm.boot.upgrade_24_25.actions;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;

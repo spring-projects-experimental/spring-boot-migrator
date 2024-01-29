@@ -29,15 +29,17 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JavaType;
+import org.openrewrite.java.tree.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.rewrite.boot.autoconfigure.RewriteLauncherConfiguration;
 import org.springframework.rewrite.boot.autoconfigure.ScopeConfiguration;
-import org.springframework.rewrite.boot.autoconfigure.SpringRewriteCommonsConfiguration;
-import org.springframework.rewrite.parsers.JavaParserBuilder;
-import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.rewrite.parser.JavaParserBuilder;
+import org.springframework.rewrite.parser.maven.ClasspathDependencies;
+import org.springframework.rewrite.recipes.GenericOpenRewriteRecipe;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 import org.springframework.sbm.build.migration.MavenPomCacheProvider;
@@ -53,6 +55,7 @@ import org.springframework.sbm.engine.recipe.MigrationResultProjectContextMerger
 import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.java.impl.DependencyChangeHandler;
+import org.springframework.sbm.java.impl.OpenRewriteJavaSource;
 import org.springframework.sbm.java.refactoring.JavaRefactoringFactoryImpl;
 import org.springframework.sbm.java.util.BasePackageCalculator;
 import org.springframework.sbm.project.parser.JavaProvenanceMarkerFactory;
@@ -104,7 +107,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         ProjectResourceWrapperRegistry.class,
         MavenConfigHandler.class,
         ScopeConfiguration.class,
-        SpringRewriteCommonsConfiguration.class,
+        RewriteLauncherConfiguration.class,
         DependenciesChangedEventHandler.class,
         DependencyChangeHandler.class,
         LocalValidatorFactoryBean.class,

@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.common.api.TextResource;
 
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.openrewrite.text.PlainText;
 
 import java.nio.file.Path;

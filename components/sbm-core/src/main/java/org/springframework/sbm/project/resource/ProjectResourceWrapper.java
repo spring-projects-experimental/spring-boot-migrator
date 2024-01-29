@@ -16,7 +16,7 @@
 package org.springframework.sbm.project.resource;
 
 import org.openrewrite.SourceFile;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 
 public interface ProjectResourceWrapper<TO extends RewriteSourceFileHolder<? extends SourceFile>> {
     boolean shouldHandle(RewriteSourceFileHolder<? extends SourceFile> rewriteSourceFileHolder);

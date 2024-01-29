@@ -27,12 +27,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.rewrite.boot.autoconfigure.SpringRewriteCommonsConfiguration;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
-import org.springframework.rewrite.parsers.SpringRewriteProperties;
-import org.springframework.rewrite.project.resource.ProjectResourceSerializer;
-import org.springframework.rewrite.project.resource.ProjectResourceSetSerializer;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.boot.autoconfigure.RewriteLauncherConfiguration;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
+import org.springframework.rewrite.parser.SpringRewriteProperties;
+import org.springframework.rewrite.resource.ProjectResourceSerializer;
+import org.springframework.rewrite.resource.ProjectResourceSetSerializer;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.rewrite.utils.ResourceUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
@@ -701,7 +701,7 @@ public class TestProjectContext {
                             executionContext = ctx.getBean(ExecutionContext.class);
                         },
                         replacedBean,
-                        SpringRewriteCommonsConfiguration.class,
+                        RewriteLauncherConfiguration.class,
                         SpringBeanProvider.ComponentScanConfiguration.class,
                         Configuration.class,
                         CustomValidatorBean.class);

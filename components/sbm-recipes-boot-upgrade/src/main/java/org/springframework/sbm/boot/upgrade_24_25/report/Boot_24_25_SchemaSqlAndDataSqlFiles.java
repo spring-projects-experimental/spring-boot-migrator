@@ -16,8 +16,8 @@
 package org.springframework.sbm.boot.upgrade_24_25.report;
 
 import org.springframework.core.annotation.Order;
-import org.springframework.rewrite.project.resource.ProjectResource;
-import org.springframework.rewrite.project.resource.finder.PathPatternMatchingProjectResourceFinder;
+import org.springframework.rewrite.resource.ProjectResource;
+import org.springframework.rewrite.resource.finder.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.boot.UpgradeSectionBuilder;
 import org.springframework.sbm.boot.asciidoctor.ChangeSection;
 import org.springframework.sbm.boot.asciidoctor.Section;

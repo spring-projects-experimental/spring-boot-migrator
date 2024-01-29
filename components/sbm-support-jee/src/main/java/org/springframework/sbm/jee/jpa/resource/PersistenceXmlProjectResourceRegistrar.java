@@ -17,7 +17,7 @@ package org.springframework.sbm.jee.jpa.resource;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.jee.jpa.api.PersistenceXml;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.Result;

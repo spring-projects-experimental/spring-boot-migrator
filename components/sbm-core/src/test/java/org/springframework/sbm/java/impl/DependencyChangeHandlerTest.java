@@ -17,14 +17,14 @@ package org.springframework.sbm.java.impl;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Dependency;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.build.util.PomBuilder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
-import org.springframework.rewrite.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parser.JavaParserBuilder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import static org.junit.jupiter.api.Assertions.*;

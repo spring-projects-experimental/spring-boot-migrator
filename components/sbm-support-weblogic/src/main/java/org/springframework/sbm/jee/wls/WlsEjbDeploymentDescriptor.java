@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.jee.wls;
 
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.openrewrite.xml.XmlParser;
 import org.openrewrite.xml.tree.Xml;
 

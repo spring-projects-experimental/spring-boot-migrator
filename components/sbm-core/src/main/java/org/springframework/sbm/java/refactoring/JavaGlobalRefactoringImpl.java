@@ -25,9 +25,9 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.marker.RecipesThatMadeChanges;
 import org.openrewrite.marker.SearchResult;
-import org.springframework.rewrite.project.resource.ProjectResourceSet;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
-import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.rewrite.resource.ProjectResourceSet;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.recipes.GenericOpenRewriteRecipe;
 import org.springframework.rewrite.utils.LinuxWindowsPathUnifier;
 
 import java.nio.file.Path;

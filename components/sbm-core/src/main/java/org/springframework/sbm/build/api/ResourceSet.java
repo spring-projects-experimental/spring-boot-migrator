@@ -18,8 +18,8 @@ package org.springframework.sbm.build.api;
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
-import org.springframework.rewrite.project.resource.ProjectResourceSet;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.ProjectResourceSet;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.StringProjectResource;
 
 import java.nio.file.Path;

@@ -19,7 +19,7 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.tree.J;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 
 import java.util.List;
 

@@ -17,7 +17,7 @@ package org.springframework.sbm.java.api;
 
 import org.openrewrite.Recipe;
 import org.openrewrite.java.tree.J;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 
 import java.util.List;
 import java.util.Optional;

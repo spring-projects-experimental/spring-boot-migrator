@@ -16,7 +16,7 @@
 package org.springframework.sbm.jee.ejb.api;
 
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.xml.sax.InputSource;
 
 import javax.xml.bind.*;

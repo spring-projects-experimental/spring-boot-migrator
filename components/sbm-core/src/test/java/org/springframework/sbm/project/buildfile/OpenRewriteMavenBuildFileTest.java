@@ -24,7 +24,7 @@ import org.mockito.Mockito;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.maven.tree.Scope;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
 import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.DependenciesChangedEvent;
@@ -37,7 +37,7 @@ import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.Member;
 import org.springframework.sbm.java.impl.DependenciesChangedEventHandler;
 import org.springframework.sbm.java.impl.DependencyChangeHandler;
-import org.springframework.rewrite.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parser.JavaParserBuilder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.nio.file.Path;

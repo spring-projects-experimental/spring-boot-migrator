@@ -17,8 +17,8 @@ package org.springframework.sbm.project.resource;
 
 import lombok.RequiredArgsConstructor;
 import org.openrewrite.ExecutionContext;
-import org.springframework.rewrite.project.resource.ProjectResourceSet;
-import org.springframework.rewrite.project.resource.RewriteMigrationResultMerger;
+import org.springframework.rewrite.resource.ProjectResourceSet;
+import org.springframework.rewrite.resource.RewriteMigrationResultMerger;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

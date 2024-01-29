@@ -24,9 +24,9 @@ import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.rewrite.project.resource.ProjectResourceSet;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
-import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.rewrite.resource.ProjectResourceSet;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.recipes.GenericOpenRewriteRecipe;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;

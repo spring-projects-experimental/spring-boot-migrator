@@ -19,9 +19,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.rewrite.boot.autoconfigure.SpringRewriteCommonsConfiguration;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
-import org.springframework.rewrite.project.RewriteSourceFileWrapper;
+import org.springframework.rewrite.boot.autoconfigure.RewriteLauncherConfiguration;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.project.resource.ResourceHelper;
 import org.springframework.sbm.project.resource.TestProjectContext;
@@ -43,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
         RewriteRecipeLoader.class,
         CustomValidatorBean.class,
         RewriteExecutionContext.class,
-        SpringRewriteCommonsConfiguration.class
+        RewriteLauncherConfiguration.class
 })
 public class OpenRewriteNamedRecipeAdapterIntegrationTest {
 

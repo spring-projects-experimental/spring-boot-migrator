@@ -30,7 +30,7 @@ import org.openrewrite.maven.ChangePluginConfiguration;
 import org.openrewrite.maven.internal.MavenXmlMapper;
 import org.openrewrite.xml.tree.Xml;
 import org.openrewrite.xml.tree.Xml.Document;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.build.api.Plugin;
 
 import java.util.*;

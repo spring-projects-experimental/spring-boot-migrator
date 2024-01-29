@@ -16,7 +16,7 @@
 package org.springframework.sbm.project.openrewrite;
 
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.java.tree.J;

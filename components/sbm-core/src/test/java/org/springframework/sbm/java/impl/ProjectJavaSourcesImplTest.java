@@ -21,7 +21,7 @@ import org.junitpioneer.jupiter.StdIo;
 import org.junitpioneer.jupiter.StdOut;
 import org.openrewrite.java.JavaParser;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
-import org.springframework.rewrite.parsers.SpringRewriteProperties;
+import org.springframework.rewrite.parser.SpringRewriteProperties;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.JavaSourceAndType;
 import org.springframework.sbm.project.resource.TestProjectContext;

@@ -21,9 +21,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
-import org.springframework.rewrite.project.resource.finder.ProjectResourceFinder;
+import org.springframework.rewrite.resource.finder.ProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 
 import java.util.List;

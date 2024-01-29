@@ -16,8 +16,8 @@
 package org.springframework.sbm.boot.common.finder;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.rewrite.project.resource.ProjectResourceSet;
-import org.springframework.rewrite.project.resource.finder.ProjectResourceFinder;
+import org.springframework.rewrite.resource.ProjectResourceSet;
+import org.springframework.rewrite.resource.finder.ProjectResourceFinder;
 import org.springframework.sbm.java.filter.JavaSourceListFinder;
 
 import java.util.ArrayList;

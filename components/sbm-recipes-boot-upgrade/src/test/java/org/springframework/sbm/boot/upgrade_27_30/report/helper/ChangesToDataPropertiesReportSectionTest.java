@@ -17,7 +17,7 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
 import org.springframework.sbm.boot.properties.SpringApplicationPropertiesPathMatcher;
 import org.springframework.sbm.boot.properties.SpringBootApplicationPropertiesRegistrar;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportTestSupport;

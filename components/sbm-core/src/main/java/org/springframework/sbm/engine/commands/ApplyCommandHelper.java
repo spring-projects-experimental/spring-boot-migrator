@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.engine.commands;
 
-import org.springframework.rewrite.project.resource.finder.DeletedResourcePathStringFilter;
-import org.springframework.rewrite.project.resource.finder.ModifiedResourcePathStringFilter;
+import org.springframework.rewrite.resource.finder.DeletedResourcePathStringFilter;
+import org.springframework.rewrite.resource.finder.ModifiedResourcePathStringFilter;
 import org.springframework.sbm.engine.git.GitSupport;
 import org.springframework.sbm.engine.git.ProjectSyncVerifier;
 import org.springframework.sbm.engine.recipe.Recipe;

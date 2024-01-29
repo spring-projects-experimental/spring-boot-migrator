@@ -16,7 +16,7 @@
 package org.springframework.sbm.engine.context;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.rewrite.project.resource.ProjectResourceSetSerializer;
+import org.springframework.rewrite.resource.ProjectResourceSetSerializer;
 import org.springframework.stereotype.Component;
 
 @Component

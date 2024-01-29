@@ -19,7 +19,7 @@ import org.springframework.sbm.java.api.Annotation;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
-import org.springframework.rewrite.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parser.JavaParserBuilder;
 import org.springframework.util.Assert;
 
 public class Wrappers {

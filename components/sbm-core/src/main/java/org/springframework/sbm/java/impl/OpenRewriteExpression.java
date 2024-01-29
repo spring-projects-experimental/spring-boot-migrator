@@ -19,7 +19,7 @@ import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import lombok.Getter;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
-import org.springframework.rewrite.parsers.JavaParserBuilder;
+import org.springframework.rewrite.parser.JavaParserBuilder;
 
 @Getter
 public class OpenRewriteExpression implements org.springframework.sbm.java.api.Expression {

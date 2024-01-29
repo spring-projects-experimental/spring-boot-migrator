@@ -25,7 +25,7 @@ import org.openrewrite.marker.Marker;
 import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 
 import java.nio.file.Path;
 import java.util.Arrays;

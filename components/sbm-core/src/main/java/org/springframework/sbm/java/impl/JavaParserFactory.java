@@ -18,7 +18,7 @@ package org.springframework.sbm.java.impl;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.JavaParser;
-import org.springframework.rewrite.parsers.SpringRewriteProperties;
+import org.springframework.rewrite.parser.SpringRewriteProperties;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

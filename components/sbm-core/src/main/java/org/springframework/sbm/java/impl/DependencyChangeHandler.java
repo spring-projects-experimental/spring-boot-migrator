@@ -24,7 +24,6 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.internal.JavaTypeCache;
 import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.maven.MavenExecutionContextView;
@@ -33,21 +32,17 @@ import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.maven.utilities.MavenArtifactDownloader;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.rewrite.parsers.RewriteProjectParser;
-import org.springframework.rewrite.parsers.SourceFileParser;
-import org.springframework.rewrite.parsers.maven.ClasspathDependencies;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.parser.JavaParserBuilder;
+import org.springframework.rewrite.parser.SourceFileParser;
+import org.springframework.rewrite.parser.maven.ClasspathDependencies;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.rewrite.utils.JavaHelper;
 import org.springframework.sbm.build.api.ApplicationModules;
-import org.springframework.sbm.build.api.BuildFile;
 import org.springframework.sbm.build.api.Module;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.java.api.JavaSource;
-import org.springframework.rewrite.parsers.JavaParserBuilder;
-import org.springframework.sbm.project.resource.ProjectResourceSetHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -55,7 +50,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Fabian Krüger

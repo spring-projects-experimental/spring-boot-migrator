@@ -16,8 +16,8 @@
 package org.springframework.sbm.engine.commands;
 
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.rewrite.project.resource.finder.DeletedResourcePathStringFilter;
-import org.springframework.rewrite.project.resource.finder.ModifiedResourcePathStringFilter;
+import org.springframework.rewrite.resource.finder.DeletedResourcePathStringFilter;
+import org.springframework.rewrite.resource.finder.ModifiedResourcePathStringFilter;
 import org.springframework.rewrite.scopes.ExecutionScope;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextSerializer;

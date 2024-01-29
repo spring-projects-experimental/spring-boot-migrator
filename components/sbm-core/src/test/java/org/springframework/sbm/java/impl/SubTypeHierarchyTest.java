@@ -19,7 +19,7 @@ import org.springframework.sbm.java.api.JavaSource;
 import org.springframework.sbm.java.api.ProjectJavaSources;
 import org.springframework.sbm.java.api.SubTypeHierarchy;
 import org.springframework.sbm.java.api.TypeHierarchyNode;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.TestProjectContext;
 import org.springframework.sbm.support.openrewrite.java.FindCompilationUnitContainingType;
 import org.junit.jupiter.api.Test;

@@ -18,7 +18,7 @@ package org.springframework.sbm.jee.jaxws;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
 import org.springframework.sbm.GitHubIssue;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.java.api.Type;

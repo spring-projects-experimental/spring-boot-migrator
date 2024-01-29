@@ -21,7 +21,7 @@ import org.openrewrite.Parser;
 import org.openrewrite.SourceFile;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.maven.MavenParser;
-import org.springframework.rewrite.parsers.maven.MavenSettingsInitializer;
+import org.springframework.rewrite.parser.maven.MavenSettingsInitializer;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;

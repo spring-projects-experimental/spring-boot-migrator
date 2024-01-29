@@ -18,7 +18,7 @@ package org.springframework.sbm.jee.web.api;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.project.resource.ProjectResourceWrapper;
 import org.springframework.sbm.project.web.api.WebAppType;
 import org.openrewrite.SourceFile;

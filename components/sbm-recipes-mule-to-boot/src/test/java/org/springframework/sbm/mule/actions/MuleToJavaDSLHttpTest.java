@@ -17,7 +17,7 @@ package org.springframework.sbm.mule.actions;
 
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 
 import java.util.List;
 import java.util.stream.Collectors;

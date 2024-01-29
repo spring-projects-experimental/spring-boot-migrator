@@ -16,7 +16,7 @@
 package org.springframework.sbm.build.api;
 
 import org.openrewrite.maven.tree.Scope;
-import org.springframework.rewrite.project.resource.ProjectResource;
+import org.springframework.rewrite.resource.ProjectResource;
 
 import java.nio.file.Path;
 import java.util.List;

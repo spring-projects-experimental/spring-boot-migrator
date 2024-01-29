@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.tree.J;
 import org.slf4j.LoggerFactory;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
-import org.springframework.rewrite.parsers.SpringRewriteProperties;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
+import org.springframework.rewrite.parser.SpringRewriteProperties;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 
 import java.io.ByteArrayOutputStream;

@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.jee.jpa.filter;
 
-import org.springframework.rewrite.project.resource.finder.GenericTypeFinder;
+import org.springframework.rewrite.resource.finder.GenericTypeFinder;
 import org.springframework.sbm.jee.jpa.api.PersistenceXml;
 
 // FIXME: what if persistence.xml in src/test/resources also exists?!

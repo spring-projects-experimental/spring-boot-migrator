@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.rewrite.project.resource.ProjectResource;
+import org.springframework.rewrite.resource.ProjectResource;
 import org.springframework.sbm.boot.properties.api.SpringBootApplicationProperties;
 import org.springframework.sbm.boot.properties.search.SpringBootApplicationPropertiesResourceListFinder;
 import org.springframework.sbm.boot.upgrade_24_25.filter.CreateDatasourceInitializerAnalyzer;

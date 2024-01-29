@@ -19,7 +19,7 @@ import org.openrewrite.*;
 import org.openrewrite.internal.InMemoryLargeSourceSet;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.maven.MavenVisitor;
-import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.rewrite.recipes.GenericOpenRewriteRecipe;
 
 import java.util.stream.Stream;
 

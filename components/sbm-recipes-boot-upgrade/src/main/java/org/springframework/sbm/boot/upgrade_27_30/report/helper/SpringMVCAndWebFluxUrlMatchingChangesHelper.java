@@ -17,8 +17,8 @@ package org.springframework.sbm.boot.upgrade_27_30.report.helper;
 
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.java.search.UsesType;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
-import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.recipes.GenericOpenRewriteRecipe;
 import org.springframework.sbm.boot.common.conditions.IsSpringBootProject;
 import org.springframework.sbm.boot.upgrade_27_30.report.SpringBootUpgradeReportSectionHelper;
 import org.springframework.sbm.engine.context.ProjectContext;

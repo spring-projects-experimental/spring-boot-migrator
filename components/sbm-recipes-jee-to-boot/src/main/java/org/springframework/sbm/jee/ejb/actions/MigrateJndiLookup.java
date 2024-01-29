@@ -25,7 +25,7 @@ import org.openrewrite.java.RemoveUnusedImports;
 import org.openrewrite.java.format.AutoFormat;
 import org.openrewrite.java.tree.*;
 import org.openrewrite.staticanalysis.RemoveUnusedLocalVariables;
-import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.rewrite.recipes.GenericOpenRewriteRecipe;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;
 import org.springframework.sbm.java.api.JavaSource;

@@ -19,7 +19,7 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.text.PlainText;
 import org.openrewrite.text.PlainTextParser;
 import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 
 import java.nio.file.Path;
 import java.util.List;

@@ -22,7 +22,7 @@ import org.springframework.sbm.boot.asciidoctor.TodoList;
 import org.springframework.sbm.boot.upgrade_27_30.Sbu30_UpgradeSectionBuilder;
 import org.springframework.sbm.boot.upgrade_27_30.openrewrite.SecurityManagerUsagesFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

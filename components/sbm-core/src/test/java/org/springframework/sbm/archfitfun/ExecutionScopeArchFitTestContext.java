@@ -19,7 +19,7 @@ import org.openrewrite.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
 import org.springframework.rewrite.scopes.ProjectMetadata;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.AbstractAction;

@@ -16,8 +16,8 @@
 package org.springframework.sbm.build.api;
 
 
-import org.springframework.rewrite.project.resource.ProjectResourceSet;
-import org.springframework.rewrite.project.resource.finder.ProjectResourceFinder;
+import org.springframework.rewrite.resource.ProjectResourceSet;
+import org.springframework.rewrite.resource.finder.ProjectResourceFinder;
 
 public class RootBuildFileFilter implements ProjectResourceFinder<BuildFile> {
     @Override

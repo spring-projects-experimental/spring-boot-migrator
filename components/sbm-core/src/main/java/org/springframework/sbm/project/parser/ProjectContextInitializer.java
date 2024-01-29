@@ -16,19 +16,18 @@
 package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
-import org.openrewrite.ExecutionContext;
 import org.openrewrite.SourceFile;
 import org.springframework.core.io.Resource;
-import org.springframework.rewrite.parsers.RewriteProjectParser;
-import org.springframework.rewrite.project.RewriteSourceFileWrapper;
-import org.springframework.rewrite.project.resource.ProjectResourceSet;
-import org.springframework.rewrite.project.resource.ProjectResourceSetFactory;
+import org.springframework.rewrite.RewriteProjectParser;
+import org.springframework.rewrite.resource.ProjectResourceSet;
+import org.springframework.rewrite.resource.ProjectResourceSetFactory;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileWrapper;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectContextFactory;
 import org.springframework.sbm.engine.context.ProjectContextHolder;
 import org.springframework.sbm.engine.git.Commit;
 import org.springframework.sbm.engine.git.GitSupport;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;

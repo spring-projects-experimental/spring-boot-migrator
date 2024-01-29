@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
-import org.springframework.rewrite.parsers.ProjectScanner;
+import org.springframework.rewrite.parser.ProjectScanner;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.context.ProjectRootPathResolver;
 import org.springframework.sbm.engine.precondition.PreconditionVerificationResult;

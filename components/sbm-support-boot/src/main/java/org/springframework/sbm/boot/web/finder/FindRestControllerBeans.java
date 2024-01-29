@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.boot.web.finder;
 
-import org.springframework.rewrite.project.resource.ProjectResourceSet;
-import org.springframework.rewrite.project.resource.finder.ProjectResourceFinder;
+import org.springframework.rewrite.resource.ProjectResourceSet;
+import org.springframework.rewrite.resource.finder.ProjectResourceFinder;
 import org.springframework.sbm.boot.web.api.RestControllerBean;
 import org.springframework.sbm.java.filter.JavaSourceListFinder;
 

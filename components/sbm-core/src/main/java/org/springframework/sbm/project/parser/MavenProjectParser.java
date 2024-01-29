@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.SourceFile;
 import org.springframework.core.io.Resource;
-import org.springframework.rewrite.parsers.RewriteProjectParser;
+import org.springframework.rewrite.RewriteProjectParser;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;

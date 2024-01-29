@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.openrewrite.properties.PropertiesParser;
 import org.openrewrite.properties.tree.Properties;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
 
 import java.nio.file.Path;
 import java.util.List;

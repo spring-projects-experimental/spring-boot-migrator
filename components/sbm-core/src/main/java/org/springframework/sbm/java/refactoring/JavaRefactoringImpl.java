@@ -20,9 +20,9 @@ import org.openrewrite.Recipe;
 import org.openrewrite.Result;
 import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.tree.J;
-import org.springframework.rewrite.project.resource.ProjectResourceSet;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
-import org.springframework.rewrite.support.openrewrite.GenericOpenRewriteRecipe;
+import org.springframework.rewrite.resource.ProjectResourceSet;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.recipes.GenericOpenRewriteRecipe;
 
 import java.util.Arrays;
 import java.util.List;

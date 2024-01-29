@@ -15,8 +15,8 @@
  */
 package org.springframework.sbm.java.api;
 
-import org.springframework.rewrite.project.resource.ProjectResource;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.ProjectResource;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.sbm.java.impl.StaticFieldAccessTransformer;
 import org.openrewrite.Recipe;
 import org.openrewrite.java.tree.J;

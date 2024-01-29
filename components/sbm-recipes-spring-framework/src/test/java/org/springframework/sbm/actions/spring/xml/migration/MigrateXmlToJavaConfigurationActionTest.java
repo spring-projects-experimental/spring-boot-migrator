@@ -18,7 +18,7 @@ package org.springframework.sbm.actions.spring.xml.migration;
 import org.springframework.sbm.build.api.ApplicationModules;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.build.api.Module;
-import org.springframework.rewrite.project.resource.RewriteSourceFileHolder;
+import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

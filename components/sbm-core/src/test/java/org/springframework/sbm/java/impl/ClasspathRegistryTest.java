@@ -22,8 +22,8 @@ import org.openrewrite.maven.tree.MavenResolutionResult;
 import org.openrewrite.maven.tree.ResolvedDependency;
 import org.openrewrite.maven.tree.Scope;
 import org.openrewrite.xml.tree.Xml;
-import org.springframework.rewrite.parsers.RewriteExecutionContext;
-import org.springframework.rewrite.parsers.maven.MavenSettingsInitializer;
+import org.springframework.rewrite.parser.RewriteExecutionContext;
+import org.springframework.rewrite.parser.maven.MavenSettingsInitializer;
 import org.springframework.rewrite.scopes.ProjectMetadata;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
 

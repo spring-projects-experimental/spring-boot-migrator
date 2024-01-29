@@ -15,7 +15,7 @@
  */
 package org.springframework.sbm.boot.upgrade.common.conditions;
 
-import org.springframework.rewrite.project.resource.finder.PathPatternMatchingProjectResourceFinder;
+import org.springframework.rewrite.resource.finder.PathPatternMatchingProjectResourceFinder;
 import org.springframework.sbm.engine.context.ProjectContext;
 import org.springframework.sbm.engine.recipe.Condition;
 
