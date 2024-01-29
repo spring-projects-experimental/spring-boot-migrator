@@ -299,6 +299,86 @@ public class AddDependencyTest {
             assertThat(fullyQualifiedName).isEqualTo("javax.validation.constraints.Email");
         }
 
+        @Test
+        @DisplayName("after adding an dependency the type should resolved")
+        void test1() {
+            ProjectContext projectContext = TestProjectContext.buildProjectContext()
+                    .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
+                    .withJavaSource("src/main/java", "public class Fred { private int age;}")
+                    .build();
+
+            JavaSource javaSource = projectContext.getProjectJavaSources().list().get(0);
+            javaSource.getTypes().get(0).getMembers().get(0).addAnnotation("@Max(8)", "javax.validation.constraints.Max");
+            System.out.println(javaSource.print());
+            Statement statement = ((OpenRewriteJavaSource) javaSource).getSourceFile().getClasses().get(0).getBody().getStatements().get(0);
+            J.VariableDeclarations vd = (J.VariableDeclarations) statement;
+            assertThat(((JavaType.Class)vd.getLeadingAnnotations().get(0).getType()).getFullyQualifiedName()).isEqualTo("javax.validation.constraints.Max");
+        }
+
+        @Test
+        @DisplayName("after adding an dependency the type should resolved")
+        void test2() {
+            ProjectContext projectContext = TestProjectContext.buildProjectContext()
+//                    .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
+                    .withJavaSource("src/main/java", "public class Fred { private int age;}")
+                    .build();
+
+            projectContext.getApplicationModules().getRootModule().getBuildFile().addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
+
+            JavaSource javaSource = projectContext.getProjectJavaSources().list().get(0);
+            javaSource.getTypes().get(0).getMembers().get(0).addAnnotation("@Max(8)", "javax.validation.constraints.Max");
+            System.out.println(javaSource.print());
+            Statement statement = ((OpenRewriteJavaSource) javaSource).getSourceFile().getClasses().get(0).getBody().getStatements().get(0);
+            J.VariableDeclarations vd = (J.VariableDeclarations) statement;
+            JavaType type = vd.getLeadingAnnotations().get(0).getType();
+            assertThat(type).isInstanceOf(JavaType.Class.class);
+            assertThat(((JavaType.Class) type).getFullyQualifiedName()).isEqualTo("javax.validation.constraints.Max");
+        }
+
+        @Test
+        @DisplayName("compare differences")
+        void classpathFromJavaSourceSetShouldBeEqual() {
+            ProjectContext projectContextWithDep = TestProjectContext.buildProjectContext()
+                    .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
+                    .withJavaSource("src/main/java", "public class Fred { private int age;}")
+                    .build();
+
+            ProjectContext projectContextNoDep = TestProjectContext.buildProjectContext()
+//                    .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
+                    .withJavaSource("src/main/java", "public class Fred { private int age;}")
+                    .build();
+
+            projectContextNoDep.getApplicationModules().getRootModule().getBuildFile().addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
+
+            List<String> noDepClasspath = ((OpenRewriteJavaSource) projectContextNoDep.getProjectJavaSources().list().get(0)).getSourceFile().getMarkers().findFirst(JavaSourceSet.class).get().getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList();
+            List<String> withDepClasspath = ((OpenRewriteJavaSource) projectContextWithDep.getProjectJavaSources().list().get(0)).getSourceFile().getMarkers().findFirst(JavaSourceSet.class).get().getClasspath().stream().map(JavaType.FullyQualified::getFullyQualifiedName).toList();
+
+            assertThat(noDepClasspath).isEqualTo(withDepClasspath);
+        }
+
+        @Test
+        @DisplayName("compare differences")
+        void classpathFromJClasspathMarkerShouldBeEqual() {
+            ProjectContext projectContextWithDep = TestProjectContext.buildProjectContext()
+                    .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
+                    .withJavaSource("src/main/java", "public class Fred { private int age;}")
+                    .build();
+
+            ProjectContext projectContextNoDep = TestProjectContext.buildProjectContext()
+//                    .withBuildFileHavingDependencies("javax.validation:validation-api:2.0.1.Final")
+                    .withJavaSource("src/main/java", "public class Fred { private int age;}")
+                    .build();
+
+            projectContextNoDep.getApplicationModules().getRootModule().getBuildFile().addDependency(Dependency.fromCoordinates("javax.validation:validation-api:2.0.1.Final"));
+
+            List<String> noDepClasspath = ((OpenRewriteJavaSource) projectContextNoDep.getProjectJavaSources().list().get(0)).getSourceFile().getMarkers().findFirst(ClasspathDependencies.class).get().getDependencies().stream().map(Path::toString).toList();
+            List<String> withDepClasspath = ((OpenRewriteJavaSource) projectContextWithDep.getProjectJavaSources().list().get(0)).getSourceFile().getMarkers().findFirst(ClasspathDependencies.class).get().getDependencies().stream().map(Path::toString).toList();
+
+            assertThat(noDepClasspath).isEqualTo(withDepClasspath);
+        }
+
+
+
         private ProjectContext createProjectContext() {
             return TestProjectContext
                     .buildProjectContext(beanFactory)
