@@ -37,7 +37,7 @@ import java.util.Optional;
 public class SpringBeanProvider {
 
     @Configuration
-    @ComponentScan(value = "org.springframework.sbm", excludeFilters = @ComponentScan.Filter(classes = TestConfiguration.class))
+    @ComponentScan(value = {"org.springframework.sbm", "org.springframework.rewrite"}, excludeFilters = @ComponentScan.Filter(classes = TestConfiguration.class))
     public static class ComponentScanConfiguration { }
 
     public static void run(ContextConsumer<AssertableApplicationContext> testcode, Class<?>... springBeans) {
@@ -80,7 +80,7 @@ public class SpringBeanProvider {
 //        annotationConfigApplicationContext.scan("org.springframework.sbm", "org.springframework.freemarker");
         annotationConfigApplicationContext.refresh();
         if (new File("./src/main/resources/templates").exists()) {
-            freemarker.template.Configuration configuration = annotationConfigApplicationContext.getBean("configuration", freemarker.template.Configuration.class); // FIXME: two freemarker configurations exist
+            freemarker.template.Configuration configuration = annotationConfigApplicationContext.getBean(freemarker.template.Configuration.class); // FIXME: two freemarker configurations exist
             try {
                 configuration.setDirectoryForTemplateLoading(new File("./src/main/resources/templates"));
             } catch (IOException e) {

@@ -37,6 +37,6 @@ public class NoExactDependencyExist implements Condition {
 
     @Override
     public boolean evaluate(ProjectContext context) {
-        return false == context.getBuildFile().hasExactDeclaredDependency(dependency);
+        return false == context.getApplicationModules().getRootModule().getBuildFile().hasExactDeclaredDependency(dependency);
     }
 }

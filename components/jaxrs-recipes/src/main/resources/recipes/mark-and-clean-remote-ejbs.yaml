@@ -1,0 +1,22 @@
+- name: mark-and-clean-remote-ejbs
+  description: "Search @Stateless EJBs implementing a @Remote interface"
+  order: 85
+  condition:
+    description: 'Any class has import starting with javax.ejb.Stateless'
+    type: org.springframework.sbm.java.migration.conditions.HasImportStartingWith
+    value: javax.ejb.Remote
+  actions:
+    - type: org.springframework.sbm.search.recipe.actions.OpenRewriteJavaSearchAction
+      condition:
+        description: 'Any class has import starting with javax.ejb.Stateless'
+        type: org.springframework.sbm.java.migration.conditions.HasImportStartingWith
+        value: javax.ejb.Remote
+      description: Mark occurences of @javax.ejb.Remote on types with comment
+      rewriteRecipeDefinition:
+        type: specs.openrewrite.org/v1beta/recipe
+        name: com.vmware.my.name
+        recipeList:
+          - org.openrewrite.java.search.FindAnnotations:
+              annotationPattern: "@javax.ejb.Remote"
+      commentText: |-
+        SBM-FIXME: Remove @javax.ejb.Remote annotation and provide as Remote Api, maybe RESTful.

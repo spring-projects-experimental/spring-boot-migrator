@@ -18,10 +18,8 @@ package org.springframework.sbm.java.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.maven.cache.LocalMavenArtifactCache;
 import org.openrewrite.maven.tree.ResolvedDependency;
-import org.openrewrite.maven.tree.Scope;
 import org.springframework.rewrite.parser.maven.RewriteMavenArtifactDownloader;
 import org.springframework.sbm.build.api.BuildFile;
-import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 import org.springframework.sbm.project.parser.DependencyHelper;
 
 import java.nio.file.Path;

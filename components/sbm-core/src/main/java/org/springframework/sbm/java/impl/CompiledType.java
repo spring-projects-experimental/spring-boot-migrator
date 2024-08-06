@@ -118,6 +118,11 @@ public class CompiledType implements Type {
     }
 
     @Override
+    public void addAnnotation(String snippet, String annotationImport, Set<String> typeStubs, String... otherImports) {
+
+    }
+
+    @Override
     public Annotation getAnnotation(String fqName) {
         return null;
     }

@@ -51,7 +51,7 @@ public class ProjectJavaSourcesImpl implements ProjectJavaSources {
     }
 
     @Override
-    public void apply(Recipe recipe) {
+    public void apply(Recipe... recipe) {
         globalRefactoring.refactor(recipe);
     }
 

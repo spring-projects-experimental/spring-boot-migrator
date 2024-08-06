@@ -15,12 +15,10 @@
  */
 package org.springframework.sbm.engine.recipe;
 
+import jakarta.validation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ValidationException;
-import jakarta.validation.Validator;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,9 +26,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CustomValidator {
 
-    private final Validator validator;
-
     void validate(Recipe recipe) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
         final Set<ConstraintViolation<Recipe>> violations = validator.validate(recipe);
         if (!violations.isEmpty()) {
             String message = String.format(

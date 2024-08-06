@@ -19,6 +19,7 @@ import org.openrewrite.java.tree.J;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public interface Method {
@@ -34,6 +35,8 @@ public interface Method {
     void removeAnnotation(Annotation annotation);
 
     void addAnnotation(String snippet, String annotationImport, String... otherImports);
+
+    void addAnnotation(String snippet, String annotationImport, Set<String> typeStubs, String... otherImports);
 
     /**
      * Checks if method is annotated with annotation with {@code annotationFqName}.

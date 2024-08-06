@@ -23,6 +23,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.rewrite.boot.autoconfigure.ScopeConfiguration;
 import org.springframework.rewrite.parser.maven.MavenSettingsInitializer;
+import org.springframework.rewrite.resource.RewriteMigrationResultMerger;
 import org.springframework.rewrite.resource.RewriteSourceFileWrapper;
 import org.springframework.sbm.build.impl.MavenBuildFileRefactoringFactory;
 import org.springframework.sbm.build.impl.RewriteMavenParser;
@@ -66,6 +67,7 @@ public class RecipeTestSupport {
             ResourceHelperDummy.class,
             ActionDeserializerRegistry.class,
             MultiModuleAwareActionDeserializer.class,
+            RewriteMigrationResultMerger.class,
             DefaultActionDeserializer.class,
             RewriteJavaSearchActionDeserializer.class,
             RewriteRecipeLoader.class,

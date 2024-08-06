@@ -18,18 +18,13 @@ package org.springframework.sbm.java.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
-import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.*;
-import org.openrewrite.java.format.WrappingAndBraces;
-import org.openrewrite.java.internal.JavaTypeCache;
-import org.openrewrite.java.marker.JavaSourceSet;
 import org.openrewrite.java.search.DeclaresMethod;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.J.ClassDeclaration;
 import org.openrewrite.java.tree.JavaType;
 import org.openrewrite.java.tree.JavaType.Class;
 import org.openrewrite.java.tree.TypeUtils;
-import org.openrewrite.marker.Markers;
 import org.springframework.rewrite.parser.maven.ClasspathDependencies;
 import org.springframework.rewrite.resource.RewriteSourceFileHolder;
 import org.springframework.rewrite.recipes.GenericOpenRewriteRecipe;
@@ -37,13 +32,11 @@ import org.springframework.sbm.java.api.*;
 import org.springframework.sbm.java.migration.visitor.RemoveImplementsVisitor;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.springframework.rewrite.parser.JavaParserBuilder;
-import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.FindCompilationUnitContainingType;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -118,6 +111,7 @@ public class OpenRewriteType implements Type {
      */
     @Override
     public void addAnnotation(String snippet, String annotationImport, String... otherImports) {
+        // FIXME: The ClasspathDependencies Marker makes this code incompatible to OpenRewrite
         Optional<ClasspathDependencies> classpathDependencies = rewriteSourceFileHolder.getSourceFile().getMarkers().findFirst(ClasspathDependencies.class);
         List<Path> classpath = classpathDependencies.get().getDependencies();
 
@@ -128,7 +122,34 @@ public class OpenRewriteType implements Type {
                     ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
                     if (cd == getClassDeclaration()) {
                         List<String> imports = Stream.concat(Stream.of(otherImports), Stream.of(annotationImport)).toList();
+                        // FIXME: Requires stubs for JAX-RS instead of types from jar
                         JavaTemplate javaTemplate = JavaTemplate.builder(snippet).imports(imports.toArray(String[]::new)).javaParser(javaParserBuilder.classpath(classpath).clone()).build();
+                        cd = javaTemplate.apply(getCursor(), getClassDeclaration().getCoordinates().addAnnotation((o1, o2) -> Integer.valueOf(o1.getSimpleName().length()).compareTo(o2.getSimpleName().length())));
+                        imports.forEach(i -> maybeAddImport(i));
+                    }
+                    return cd;
+                }
+            };
+        });
+        refactoring.refactor(rewriteSourceFileHolder, recipe);
+    }
+
+    /**
+     * Does not rely on markers to resolve classpath but takes a list of type stubs instead.
+     */
+    @Override
+    public void addAnnotation(String snippet, String annotationImport, Set<String> typeStubs, String... otherImports) {
+        // FIXME: The ClasspathDependencies Marker makes this code incompatible to OpenRewrite
+        GenericOpenRewriteRecipe<JavaIsoVisitor<ExecutionContext>> recipe = new GenericOpenRewriteRecipe<>(() -> {
+            return new JavaIsoVisitor<>() {
+                @Override
+                public ClassDeclaration visitClassDeclaration(ClassDeclaration classDecl, ExecutionContext executionContext) {
+                    ClassDeclaration cd = super.visitClassDeclaration(classDecl, executionContext);
+                    if (cd == getClassDeclaration()) {
+                        List<String> imports = Stream.concat(Stream.of(otherImports), Stream.of(annotationImport)).toList();
+                        // FIXME: Requires stubs for JAX-RS instead of types from jar
+                        String[] classpath = typeStubs.toArray(String[]::new);
+                        JavaTemplate javaTemplate = JavaTemplate.builder(snippet).imports(imports.toArray(String[]::new)).javaParser(javaParserBuilder.dependsOn(classpath).clone()).build();
                         cd = javaTemplate.apply(getCursor(), getClassDeclaration().getCoordinates().addAnnotation((o1, o2) -> Integer.valueOf(o1.getSimpleName().length()).compareTo(o2.getSimpleName().length())));
                         imports.forEach(i -> maybeAddImport(i));
                     }

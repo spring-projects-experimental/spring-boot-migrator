@@ -72,19 +72,33 @@ class ApplicationModules_getTopmostModulesTest {
     @Nested
     public class GivenTwoModuleProject {
         private static final String parentPom =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\n" +
-                        "         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-                        "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                        "    <groupId>com.example.sbm</groupId>\n" +
-                        "    <artifactId>parent</artifactId>\n" +
-                        "    <version>0.1.0-SNAPSHOT</version>\n" +
-                        "    <modelVersion>4.0.0</modelVersion>\n" +
-                        "    <packaging>pom</packaging>\n" +
-                        "    <modules>\n" +
-                        "        <module>module1</module>\n" +
-                        "    </modules>" +
-                        "</project>\n";
+                """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <groupId>com.example.sbm</groupId>
+                    <artifactId>parent</artifactId>
+                    <version>0.1.0-SNAPSHOT</version>
+                    <modelVersion>4.0.0</modelVersion>
+                    <packaging>pom</packaging>
+                    <modules>
+                        <module>module1</module>
+                    </modules>
+                    <dependencies>
+                            <dependency>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-validator</artifactId>
+                                <version>7.0.2.Final</version>
+                            </dependency>
+                           <dependency>
+                                <groupId>jakarta.validation</groupId>
+                                <artifactId>jakarta.validation-api</artifactId>
+                                <version>3.0.1</version>
+                            </dependency>
+                    </dependencies>
+                </project>
+                """;
 
         private static final String childModule =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

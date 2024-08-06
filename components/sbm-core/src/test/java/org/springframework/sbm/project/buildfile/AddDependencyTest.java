@@ -148,6 +148,13 @@ public class AddDependencyTest {
     @Autowired
     ExecutionContext executionContext;
 
+    @Test
+    @DisplayName("start context")
+    void startContext() {
+        System.out.println("yes");
+
+    }
+
     /**
      *
      */

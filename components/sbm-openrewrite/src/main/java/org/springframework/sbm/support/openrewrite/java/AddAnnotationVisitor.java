@@ -33,12 +33,15 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
     private final J target;
     private final String snippet;
     private final String[] imports;
-    private final Supplier<JavaParser.Builder> javaParserSupplier;
     // ugly, just because UUID of elemnts stay same now and can't be used as criteria leading to multiple visits of the same .
     private boolean targetVisited;
 
     public AddAnnotationVisitor(JavaParser.Builder javaParserSupplier, J target, String snippet, String annotationImport, String... otherImports) {
         this(() -> javaParserSupplier, target, snippet, annotationImport, otherImports);
+    }
+
+    public AddAnnotationVisitor(J target, String snippet, String annotationImport, String... otherImports) {
+        this(() -> null, target, snippet, annotationImport, otherImports);
     }
 
     public AddAnnotationVisitor(Supplier<JavaParser.Builder> javaParserSupplier, J target, String snippet, String annotationImport, String... otherImports) {
@@ -47,7 +50,6 @@ public class AddAnnotationVisitor extends JavaIsoVisitor<ExecutionContext> {
         this.imports = otherImports == null
                 ? new String[]{annotationImport}
                 : concat(annotationImport, otherImports);
-        this.javaParserSupplier = javaParserSupplier;
     }
 
     public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext p) {

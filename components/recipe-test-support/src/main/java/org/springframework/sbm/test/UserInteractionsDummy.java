@@ -18,7 +18,7 @@ package org.springframework.sbm.test;
 import org.springframework.sbm.engine.recipe.UserInteractions;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class UserInteractionsDummy implements UserInteractions {
     @Override
     public boolean askUserYesOrNo(String question) {

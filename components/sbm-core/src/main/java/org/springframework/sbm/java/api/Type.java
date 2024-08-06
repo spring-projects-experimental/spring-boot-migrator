@@ -57,6 +57,8 @@ public interface Type {
 
     void addAnnotation(String snippet, String annotationImport, String... otherImports);
 
+    void addAnnotation(String snippet, String annotationImport, Set<String> typeStubs, String... otherImports);
+
     Annotation getAnnotation(String fqName);
 
     void apply(Recipe... r);

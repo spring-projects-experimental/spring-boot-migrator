@@ -30,7 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MoveFilesActionTest {
 
     // TODO: test moving outside project root
-
     @Test
     @DisplayName("Move two files to a new dir")
     void moveFile() {

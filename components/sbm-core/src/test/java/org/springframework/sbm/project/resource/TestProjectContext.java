@@ -702,9 +702,8 @@ public class TestProjectContext {
                         },
                         replacedBean,
                         RewriteLauncherConfiguration.class,
-                        SpringBeanProvider.ComponentScanConfiguration.class,
-                        Configuration.class,
-                        CustomValidatorBean.class);
+                        SpringBeanProvider.ComponentScanConfiguration.class
+                );
             }
             return projectContextInitializerRef.get();
         }

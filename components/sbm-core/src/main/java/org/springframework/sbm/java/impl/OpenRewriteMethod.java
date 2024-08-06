@@ -32,14 +32,10 @@ import org.springframework.sbm.java.api.MethodParam;
 import org.springframework.sbm.java.api.Visibility;
 import org.springframework.sbm.java.refactoring.JavaRefactoring;
 import org.springframework.rewrite.parser.JavaParserBuilder;
-import org.springframework.sbm.support.openrewrite.java.AddAnnotationVisitor;
 import org.springframework.sbm.support.openrewrite.java.RemoveAnnotationVisitor;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -118,9 +114,14 @@ public class OpenRewriteMethod implements Method {
                 if(md == getMethodDecl()) {
                     J.CompilationUnit cu = getCursor().dropParentUntil(J.CompilationUnit.class::isInstance).getValue();
                     List<Path> dependencies = cu.getMarkers().findFirst(ClasspathDependencies.class).get().getDependencies();
+
+                    // FIXME: (jaxrs): Build JavaParser and use dependsOn to provide stubs for required types
                     JavaParser.Builder clone = javaParserBuilder.classpath(dependencies)
                             .clone();
                     List<String> imports = Stream.concat(Stream.of(annotationImport), Stream.of(otherImports)).toList();
+
+                    System.out.println("Snippet: " + snippet);
+
                     JavaTemplate javaTemplate = JavaTemplate.builder(snippet).imports(imports.toArray(String[]::new))
                             .javaParser(clone)
                             .build();
@@ -132,6 +133,35 @@ public class OpenRewriteMethod implements Method {
         });
         refactoring.refactor(sourceFile, visitor);
     }
+
+    @Override
+    public void addAnnotation(String snippet, String annotationImport, Set<String> typeStubs, String... otherImports) {
+        // FIXME: #7 requires a fresh instance of JavaParser to update typesInUse
+        Recipe visitor = new GenericOpenRewriteRecipe<>(() -> new JavaIsoVisitor<>(){
+            @Override
+            public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext executionContext) {
+                J.MethodDeclaration md = super.visitMethodDeclaration(method, executionContext);
+                if(md == getMethodDecl()) {
+                    J.CompilationUnit cu = getCursor().dropParentUntil(J.CompilationUnit.class::isInstance).getValue();
+
+                    // FIXME: (jaxrs): Build JavaParser and use dependsOn to provide stubs for required types
+                    JavaParser.Builder clone = JavaParser.fromJavaVersion().dependsOn(typeStubs.toArray(String[]::new)).clone();
+                    List<String> imports = Stream.concat(Stream.of(annotationImport), Stream.of(otherImports)).toList();
+
+                    System.out.println("Snippet: " + snippet);
+
+                    JavaTemplate javaTemplate = JavaTemplate.builder(snippet).imports(imports.toArray(String[]::new))
+                            .javaParser(clone)
+                            .build();
+                    md = javaTemplate.apply(getCursor(), md.getCoordinates().addAnnotation((a1, a2) -> Integer.valueOf(a1.getSimpleName().length()).compareTo(a2.getSimpleName().length())));
+                    imports.forEach(i -> maybeAddImport(i));
+                }
+                return md;
+            }
+        });
+        refactoring.refactor(sourceFile, visitor);
+    }
+
 
     /**
      * {@inheritDoc}

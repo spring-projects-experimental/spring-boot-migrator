@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 
 public interface ProjectJavaSources {
 
-    void apply(Recipe recipe);
+    void apply(Recipe... recipe);
 
     List<JavaSource> list();
 
