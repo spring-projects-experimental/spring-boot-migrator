@@ -1,4 +1,26 @@
 {
+  "users":[
+    {
+      "name":"guest",
+      "password_hash":"NnOJMfR7/f8OAs2T4vR6KUXNle/f7oBVifv7ksvqR7xtnnuX",
+      "hashing_algorithm":"rabbit_password_hashing_sha256",
+      "tags":"administrator"
+    }
+  ],
+  "vhosts":[
+    {
+      "name":"/"
+    }
+  ],
+  "permissions":[
+    {
+      "user":"guest",
+      "vhost":"/",
+      "configure":".*",
+      "write":".*",
+      "read":".*"
+    }
+  ],
   "queues": [
     {
       "name": "sales_queue",
