@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  *
  * @author Fabian Krüger
  */
-public class MavenExecutionResultException extends RuntimeException {
+ class MavenExecutionResultException extends RuntimeException {
 
     @Getter
     private final List<Throwable> exceptions;
