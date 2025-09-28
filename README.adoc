@@ -14,7 +14,7 @@ image:https://img.shields.io/github/downloads/spring-projects-experimental/sprin
 image:https://img.shields.io/youtube/channel/views/UC6NuSiwpvI32YTcdIflObPQ?logo=youtube&style=flat-square[YouTube Channel Views]
 
 image:https://img.shields.io/badge/Join-Slack-green?logo=slack&color=007EC6&style=for-the-badge[link="https://join.slack.com/t/springbootmigrator/shared_invite/zt-1k6yxfi3b-MEQ_MM67qXufWtc~Tw6y9w"]
-image:https://img.shields.io/github/discussions/spring-projects-experimental/spring-boot-migrator?label=GitHub%20discussions&logo=GitHUb&style=for-the-badge[GitHub Discussions]
+image:https://img.shields.io/github/discussions/spring-projects-experimental/spring-boot-migrator?label=GitHub%20discussions&logo=GitHub&style=for-the-badge[GitHub Discussions]
 image:https://img.shields.io/gitter/room/spring-boot-migrator/community?color=007EC6&logo=gitter&style=for-the-badge[link="https://gitter.im/spring-boot-migrator/community"]
 
 
@@ -58,7 +58,7 @@ NOTE: **Use JDK 17**
 
 If any of your applications is on 2.7 and uses Maven (Gradle is currently not supported), we'd be happy if you
 could give SBM a try and provide feedback of how it worked out.
-It is very hard to come up with all the possible setups found in the wild and therefor we need you - the community - to provide feedback to stabilize the recipe.
+It is very hard to come up with all the possible setups found in the wild and therefore we need you - the community - to provide feedback to stabilize the recipe.
 
 Thank you!
 
@@ -73,10 +73,10 @@ If you decided you want to work on an issue, leave a comment letting us know tha
 
 Thank you!
 
-== JEE to Spring Boot Migration
-Spring Boot Migrator offers recipes to migrate JEE applications to Spring Boot.
+== Jakarta EE to Spring Boot Migration
+Spring Boot Migrator offers recipes to migrate Jakarta EE applications to Spring Boot.
 
-These specifications are covered (to some extent and varying completeness)
+These specifications are covered (to varying degrees of completeness)
 
 * Servlet
 * JAX-RS
@@ -127,7 +127,7 @@ Spring Boot Migrator will now apply the migrations defined in the recipe to the 
 
 NOTE: When using Windows you must either escape `\` or use `/` as path separator, e.g. `C:\\my\\app` or `C:/my/app`
 
-NOTE: **SBM requires a JDK 17.**
+NOTE: **SBM requires JDK 17.**
 
 
 === Building from source
