@@ -21,10 +21,7 @@ import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,10 +40,21 @@ public class ApplicationModules {
     }
 
     public Module getRootModule() {
+        // 1st try: module explicitly marked as having a root build file
         return modules.stream()
                 .filter(m -> m.getBuildFile().isRootBuildFile())
                 .findFirst()
-                .orElseThrow(() -> new RootBuildFileNotFoundException("Module with root build file is missing"));
+                // 2nd try (fallback): no module marked as root → choose the one
+                // whose build file path is closest to the project root
+                .orElseGet(() -> modules.stream()
+                        .min(Comparator.comparingInt(m -> pathDepth(m.getBuildFile())))
+                        .orElseThrow(() -> new RootBuildFileNotFoundException("Module with root build file is missing")));
+    }
+
+    private int pathDepth(BuildFile buildFile) {
+        Path path = buildFile.getSourcePath();
+        // if for some reason there is no path, treat it as "very deep"
+        return (path == null) ? Integer.MAX_VALUE : path.getNameCount();
     }
 
     public List<Module> list() {
