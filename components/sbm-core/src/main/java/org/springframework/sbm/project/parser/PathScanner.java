@@ -17,6 +17,8 @@ package org.springframework.sbm.project.parser;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.eclipse.jgit.ignore.IgnoreNode;
+import org.eclipse.jgit.ignore.IgnoreNode.MatchResult;
 import org.springframework.sbm.common.util.OsAgnosticPathMatcher;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
@@ -24,6 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -38,18 +42,26 @@ public class PathScanner {
 	private final PathMatcher pathMatcher = new OsAgnosticPathMatcher();
 
 	public List<Resource> scan(Path projectRoot) {
-		String pattern = "%s/**".formatted(projectRoot.toAbsolutePath().toUri());
+		Path normalizedProjectRoot = projectRoot.toAbsolutePath().normalize();
+		String pattern = "%s/**".formatted(normalizedProjectRoot.toUri());
 		Resource[] resources = resourceHelper.loadResources(pattern);
+		IgnoreNode gitIgnore = loadGitIgnore(normalizedProjectRoot);
 
 		return Arrays.stream(resources)
-				.filter(p -> this.isRelevant(projectRoot, getPath(p)))
+				.filter(p -> this.isRelevant(normalizedProjectRoot, getPath(p), gitIgnore))
 				.collect(Collectors.toList());
 	}
 
-	private boolean isRelevant(Path projectRoot, Path givenResource) {
+	private boolean isRelevant(Path projectRoot, Path givenResource, IgnoreNode gitIgnore) {
 		if (givenResource.toFile().isDirectory()) {
 			return false;
 		}
+		String relativePath = projectRoot.relativize(givenResource).toString().replace('\\', '/');
+
+		if (isIgnoredByGitignore(gitIgnore, relativePath)) {
+			return false;
+		}
+
 		return sbmApplicationProperties.getIgnoredPathsPatterns().stream()
 				.noneMatch(ir -> pathMatcher.match(ir, projectRoot.relativize(givenResource).toString()));
 	}
@@ -61,6 +73,29 @@ public class PathScanner {
 		catch (IOException e) {
 			throw new ProjectParserException(String.format("Error retrieving path for Resource '%s'", r), e);
 		}
+	}
+
+	private IgnoreNode loadGitIgnore(Path projectRoot) {
+		Path gitignore = projectRoot.resolve(".gitignore");
+		if (!Files.exists(gitignore)) {
+			return null;
+		}
+		IgnoreNode ignoreNode = new IgnoreNode();
+		try (InputStream inputStream = Files.newInputStream(gitignore)) {
+			ignoreNode.parse(inputStream);
+			return ignoreNode;
+		}
+		catch (IOException e) {
+			throw new ProjectParserException(String.format("Error reading .gitignore from '%s'", gitignore), e);
+		}
+	}
+
+	private boolean isIgnoredByGitignore(IgnoreNode gitIgnore, String relativePath) {
+		if (gitIgnore == null) {
+			return false;
+		}
+		MatchResult result = gitIgnore.isIgnored(relativePath, false);
+		return result == MatchResult.IGNORED;
 	}
 
 }
