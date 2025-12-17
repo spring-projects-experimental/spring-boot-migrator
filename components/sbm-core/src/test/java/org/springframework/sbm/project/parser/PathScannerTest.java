@@ -16,11 +16,14 @@
 package org.springframework.sbm.project.parser;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -58,6 +61,23 @@ class PathScannerTest {
         List<Resource> resources = sut.scan(Path.of(TESTCODE_DIR).toAbsolutePath().normalize());
 
         assertThat(resources).hasSize(1);
+    }
+
+    @Test
+    void ignoresResourcesListedInGitignore(@TempDir Path tempDir) throws IOException {
+
+        Path projectRoot = tempDir.toAbsolutePath().normalize();
+        Files.writeString(projectRoot.resolve(".gitignore"), "some-file.txt\n");
+        Files.writeString(projectRoot.resolve("some-file.txt"), "ignore me");
+        Files.writeString(projectRoot.resolve("kept-file.txt"), "keep me");
+
+        PathScanner sut = new PathScanner(new SbmApplicationProperties(), new ResourceHelper(new DefaultResourceLoader()));
+        List<String> scannedResources = sut.scan(projectRoot).stream()
+                .map(Resource::getFilename)
+                .toList();
+
+        assertThat(scannedResources).contains("kept-file.txt");
+        assertThat(scannedResources).doesNotContain("some-file.txt");
     }
 
 }
