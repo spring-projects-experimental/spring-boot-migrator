@@ -15,17 +15,25 @@
  */
 package org.springframework.sbm.build.api;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.sbm.project.resource.ProjectResourceSet;
 import org.springframework.sbm.project.resource.filter.ProjectResourceFinder;
 
+import java.util.List;
+
 public class RootBuildFileFilter implements ProjectResourceFinder<BuildFile> {
+
     @Override
-    public BuildFile apply(ProjectResourceSet projectResourceSet) {
-        return projectResourceSet.stream()
-                .filter(pr -> BuildFile.class.isAssignableFrom(pr.getClass()))
+    public BuildFile apply(@NotNull ProjectResourceSet projectResourceSet) {
+        List<BuildFile> buildFiles = projectResourceSet.stream()
+                .filter(BuildFile.class::isInstance)
                 .map(BuildFile.class::cast)
-                .filter(bf -> bf.isRootBuildFile())
-                .findFirst()
-                .orElseThrow(() -> new RootBuildFileNotFoundException("Could not find BuildFile for root module."));
+                .toList();
+
+        if (buildFiles.isEmpty()) {
+            throw new RootBuildFileNotFoundException("Could not find BuildFile for root module.");
+        }
+
+        return RootBuildFileSelector.selectRootBuildFile(buildFiles);
     }
 }

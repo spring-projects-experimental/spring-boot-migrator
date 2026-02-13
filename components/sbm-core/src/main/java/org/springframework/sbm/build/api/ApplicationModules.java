@@ -21,15 +21,12 @@ import org.springframework.sbm.build.impl.MavenBuildFileUtil;
 import org.springframework.sbm.build.impl.OpenRewriteMavenBuildFile;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /***
- * Represents all modules in the {@code ProjectCOntext}.
+ * Represents all modules in the {@code ProjectContext}.
  */
 public class ApplicationModules {
     private final List<Module> modules;
@@ -44,8 +41,7 @@ public class ApplicationModules {
 
     public Module getRootModule() {
         return modules.stream()
-                .filter(m -> m.getBuildFile().isRootBuildFile())
-                .findFirst()
+                .min(RootBuildFileSelector.rootModuleComparator())
                 .orElseThrow(() -> new RootBuildFileNotFoundException("Module with root build file is missing"));
     }
 
@@ -89,8 +85,8 @@ public class ApplicationModules {
     }
 
     /**
-    * Takes a list of {@code MavenResolutionResult}s and returns the modules with matching {@code groupId:artifactId}.
-    */
+     * Takes a list of {@code MavenResolutionResult}s and returns the modules with matching {@code groupId:artifactId}.
+     */
     @NotNull
     private List<Module> getModulesContainingMavens(List<MavenResolutionResult> mavens) {
         List<String> relevantGroupAndArtifactIds = mavens.stream()
@@ -112,12 +108,10 @@ public class ApplicationModules {
      */
     public List<Module> getTopmostApplicationModules() {
         List<Module> topmostModules = new ArrayList<>();
-        Set<String> packagingTypes = Set.of("jar","war","mule-application");
+        Set<String> packagingTypes = Set.of("jar", "war", "mule-application");
         modules.forEach(module -> {
             if (packagingTypes.contains(module.getBuildFile().getPackaging())) {
-                // no other pom depends on this pom in its dependency section
                 if (noOtherPomDependsOn(module.getBuildFile())) {
-                    // has no parent or parent has packaging pom
                     Optional<ParentDeclaration> parentPomDeclaration = module.getBuildFile().getParentPomDeclaration();
                     if (parentPomDeclaration.isEmpty()) {
                         topmostModules.add(module);
@@ -144,7 +138,7 @@ public class ApplicationModules {
     }
 
     private boolean isDependencyOfAnotherModule(Module applicationModule) {
-        return ! noOtherPomDependsOn(applicationModule.getBuildFile());
+        return !noOtherPomDependsOn(applicationModule.getBuildFile());
     }
 
     private boolean isPackagingOfPom(ParentDeclaration parentPomDeclaration) {
@@ -165,11 +159,11 @@ public class ApplicationModules {
 
     private boolean noOtherPomDependsOn(BuildFile buildFile) {
         return !this.modules.stream()
-                .anyMatch(module -> module.getBuildFile().getRequestedDependencies().stream().anyMatch(d -> d.getCoordinates().equals(buildFile.getCoordinates())));
+                .anyMatch(module -> module.getBuildFile().getRequestedDependencies().stream()
+                        .anyMatch(d -> d.getCoordinates().equals(buildFile.getCoordinates())));
     }
 
     public boolean isSingleModuleApplication() {
         return modules.size() == 1;
     }
-
 }
