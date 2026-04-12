@@ -2,6 +2,40 @@
 
 Different classes exist to help writing tests for ``Recipe``s, ``Condition``s and ``Action``s.
 
+=== Running OpenRewrite Spring Recipes Tests (English)
+
+If you run tests in `components/openrewrite-spring-recipes` as a single module,
+dependency resolution can fail because it depends on internal SNAPSHOT artifacts
+(`sbm-core`, `sbm-support-boot`, `recipe-test-support`).
+Also, when `-Dtest=...` is used, other reactor modules can fail with
+"No tests matching pattern" unless configured explicitly.
+
+Use the helper script below to run tests with the required options.
+
+[source,bash]
+.....
+./ci/scripts/run-openrewrite-spring-recipes-test.sh
+.....
+
+To run a specific test class, pass the class name as an argument.
+
+[source,bash]
+.....
+./ci/scripts/run-openrewrite-spring-recipes-test.sh org.springframework.sbm.OpenRewriteRecipeTest
+.....
+
+The script runs the following command:
+
+[source,bash]
+.....
+./mvnw \
+  -pl components/openrewrite-spring-recipes \
+  -am \
+  -Dtest=org.springframework.sbm.OpenRewriteRecipeTest \
+  -Dsurefire.failIfNoSpecifiedTests=false \
+  test
+.....
+
 === Windows & Linux
 
 Linebreaks, encoding and path separator do (most probably will) differ depending on the OS the tests and the application
