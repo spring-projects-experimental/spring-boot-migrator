@@ -32,13 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Scans a project for resources, skipping everything matched by
- * {@code sbm.ignoredPathsPatterns} or by the project's {@code .gitignore}.
- *
- * @author Fabian Krüger
- * @author Sumedh Gole
- */
 @Service
 @RequiredArgsConstructor
 public class PathScanner {
@@ -71,10 +64,6 @@ public class PathScanner {
 				.noneMatch(ir -> pathMatcher.match(ir, relativePath.toString()));
 	}
 
-	/**
-	 * Reads the {@code .gitignore} of the scanned project, if any. Returns an empty
-	 * {@link IgnoreNode} when the project has none, which ignores nothing.
-	 */
 	private IgnoreNode readGitIgnore(Path projectRoot) {
 		IgnoreNode ignoreNode = new IgnoreNode();
 		Path gitIgnoreFile = projectRoot.resolve(GIT_IGNORE_FILE);
@@ -89,10 +78,6 @@ public class PathScanner {
 		return ignoreNode;
 	}
 
-	/**
-	 * Git never descends into an ignored directory, so a resource is ignored as soon as
-	 * the resource itself or any of its parent directories is ignored.
-	 */
 	private boolean isIgnoredByGit(IgnoreNode gitIgnore, Path relativePath) {
 		StringBuilder pathSoFar = new StringBuilder();
 		for (int i = 0; i < relativePath.getNameCount(); i++) {
