@@ -16,11 +16,14 @@
 package org.springframework.sbm.project.parser;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.sbm.project.resource.SbmApplicationProperties;
 import org.springframework.sbm.project.resource.ResourceHelper;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -58,6 +61,40 @@ class PathScannerTest {
         List<Resource> resources = sut.scan(Path.of(TESTCODE_DIR).toAbsolutePath().normalize());
 
         assertThat(resources).hasSize(1);
+    }
+
+    @Test
+    void ignoresResourcesMatchedByGitignore(@TempDir Path projectRoot) throws IOException {
+        Files.writeString(projectRoot.resolve(".gitignore"), """
+                some-file.txt
+                logs/
+                *.tmp
+                !keep.tmp
+                """);
+        Files.writeString(projectRoot.resolve("pom.xml"), "");
+        Files.writeString(projectRoot.resolve("some-file.txt"), "");
+        Files.writeString(projectRoot.resolve("build.tmp"), "");
+        Files.writeString(projectRoot.resolve("keep.tmp"), "");
+        Files.createDirectory(projectRoot.resolve("logs"));
+        Files.writeString(projectRoot.resolve("logs/app.log"), "");
+
+        PathScanner sut = new PathScanner(new SbmApplicationProperties(), new ResourceHelper(new DefaultResourceLoader()));
+
+        assertThat(sut.scan(projectRoot))
+                .extracting(Resource::getFilename)
+                .containsExactlyInAnyOrder(".gitignore", "pom.xml", "keep.tmp");
+    }
+
+    @Test
+    void scansAllResourcesWhenProjectHasNoGitignore(@TempDir Path projectRoot) throws IOException {
+        Files.writeString(projectRoot.resolve("pom.xml"), "");
+        Files.writeString(projectRoot.resolve("some-file.txt"), "");
+
+        PathScanner sut = new PathScanner(new SbmApplicationProperties(), new ResourceHelper(new DefaultResourceLoader()));
+
+        assertThat(sut.scan(projectRoot))
+                .extracting(Resource::getFilename)
+                .containsExactlyInAnyOrder("pom.xml", "some-file.txt");
     }
 
 }
