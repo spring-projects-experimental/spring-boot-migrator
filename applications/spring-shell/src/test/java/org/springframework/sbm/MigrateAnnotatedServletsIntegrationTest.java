@@ -22,7 +22,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@Disabled("Temporary disabled before CI will be fixed with docker in docker issue: #351")
 public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBaseClass {
 
 
@@ -31,6 +30,7 @@ public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBase
         return "bootify-servlets";
     }
 
+    @Disabled("Temporary disabled before CI will be fixed with docker in docker issue: #351")
     @Tag("integration")
     @Test
     void happyPath() {
@@ -125,7 +125,7 @@ public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBase
     }
 
     @Test
-    void recipeNBotApplicableWhenOnlyFilterExists() {
+    void shouldMigrateWebFilter() {
         String pom = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
@@ -152,9 +152,19 @@ public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBase
         String servletFilterClass = """
                 package org.jboss.as.quickstarts.helloworld;
                 import javax.servlet.annotation.WebFilter;
-                
+                import javax.servlet.Filter;
+                import javax.servlet.FilterChain;
+                import javax.servlet.ServletException;
+                import javax.servlet.ServletRequest;
+                import javax.servlet.ServletResponse;
+                import java.io.IOException;
+
                 @WebFilter("/")
-                public class MyFilter {
+                public class MyFilter implements Filter {
+                    @Override
+                    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+                        chain.doFilter(request, response);
+                    }
                 }
                 """;
 
@@ -165,8 +175,16 @@ public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBase
 
         scanProject();
 
-        assertRecipeNotApplicable(
+        assertApplicableRecipesContain(
+                "initialize-spring-boot-migration",
                 "migrate-annotated-servlets"
         );
+
+        applyRecipe("initialize-spring-boot-migration");
+        applyRecipe("migrate-annotated-servlets");
+
+        String content = loadJavaFile("org.jboss.as.quickstarts.helloworld", "SpringBootApp");
+        assertThat(content).contains("@SpringBootApplication").withFailMessage(() -> "@SpringBootApplication annotation not found");
+        assertThat(content).contains("@ServletComponentScan").withFailMessage(() -> "@ServletComponentScan annotation not found");
     }
 }
