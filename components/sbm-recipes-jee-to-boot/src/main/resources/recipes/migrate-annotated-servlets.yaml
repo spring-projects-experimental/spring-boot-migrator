@@ -1,10 +1,10 @@
 - name: migrate-annotated-servlets
-  description: Allow Spring Boot to deploy servlets annotated with @WebServlet
+  description: Allow Spring Boot to deploy servlets and filters annotated with @WebServlet or @WebFilter
   order: 70
   condition:
-    description: Any class has import starting with javax.servlet
-    type: org.springframework.sbm.java.migration.conditions.HasTypeAnnotation
-    annotation: javax.servlet.annotation.WebServlet
+    description: Any class has import starting with javax.servlet.annotation
+    type: org.springframework.sbm.java.migration.conditions.HasImportStartingWith
+    value: javax.servlet.annotation
   actions:
     - type: org.springframework.sbm.build.migration.actions.AddDependencies
       condition:
