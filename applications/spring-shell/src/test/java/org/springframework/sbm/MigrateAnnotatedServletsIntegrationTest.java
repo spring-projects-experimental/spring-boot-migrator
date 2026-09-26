@@ -74,7 +74,6 @@ public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBase
                 package org.jboss.as.quickstarts.helloworld;
                                 
                 import java.io.IOException;
-                import java.io.PrintWriter;
                                 
                 import javax.servlet.ServletException;
                 import javax.servlet.annotation.WebServlet;
@@ -86,13 +85,35 @@ public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBase
                 public class HelloWorldServlet extends HttpServlet {
                     @Override
                     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-                        resp.getWriter().append("Hello World!");
+                        resp.getWriter().append("Hello World! ")
+                                .append(String.valueOf(req.getServletContext().getAttribute("listenerInitialized")));
+                    }
+                }
+                """;
+        
+        String listenerClass = """
+                package org.jboss.as.quickstarts.helloworld;
+                
+                import javax.servlet.ServletContextEvent;
+                import javax.servlet.ServletContextListener;
+                import javax.servlet.annotation.WebListener;
+                
+                @WebListener
+                public class MyContextListener implements ServletContextListener {
+                    @Override
+                    public void contextInitialized(ServletContextEvent sce) {
+                        sce.getServletContext().setAttribute("listenerInitialized", "Listener initialized");
+                    }
+                
+                    @Override
+                    public void contextDestroyed(ServletContextEvent sce) {
                     }
                 }
                 """;
 
         writeFile(pomXml, "pom.xml");
         writeJavaFile(servletClass);
+        writeJavaFile(listenerClass);
 
         executeMavenGoals(getTestDir(), "compile");
 
@@ -111,7 +132,10 @@ public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBase
         assertThat(content).contains("@ServletComponentScan").withFailMessage(() -> "@ServletComponentScan annotation not found");
 
         String servlet = loadJavaFile("org.jboss.as.quickstarts.helloworld", "HelloWorldServlet");
-        assertThat(content).contains("@SpringBootApplication").withFailMessage(() -> "@SpringBootApplication annotation not found");
+        assertThat(servlet).contains("@WebServlet").withFailMessage(() -> "@WebServlet annotation not found");
+
+        String listener = loadJavaFile("org.jboss.as.quickstarts.helloworld", "MyContextListener");
+        assertThat(listener).contains("@WebListener").withFailMessage(() -> "@WebListener annotation not found");
 
         executeMavenGoals(getTestDir(), "spring-boot:build-image");
 
@@ -120,7 +144,7 @@ public class MigrateAnnotatedServletsIntegrationTest extends IntegrationTestBase
         TestRestTemplate testRestTemplate = new TestRestTemplate();
         String response = testRestTemplate.getForObject("http://localhost:" + port + "/HelloWorld", String.class);
 
-        assertThat(response).isEqualTo("Hello World!");
+        assertThat(response).isEqualTo("Hello World! Listener initialized");
 
     }
 
