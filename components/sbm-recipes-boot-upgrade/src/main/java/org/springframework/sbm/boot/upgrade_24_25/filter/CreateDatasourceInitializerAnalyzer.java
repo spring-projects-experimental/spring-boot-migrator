@@ -58,4 +58,9 @@ public class CreateDatasourceInitializerAnalyzer {
         List<SpringBootApplicationProperties> applicationProperties = context.search(new SpringBootApplicationPropertiesResourceListFilter());
         return findPropertyFilesContainingProperty(applicationProperties, "spring.datasource.schema-username");
     }
+
+    public List<SpringBootApplicationProperties> findPropertyFilesContainingSchemaPasswordProperty(Module module) {
+        List<SpringBootApplicationProperties> applicationProperties = module.search(new SpringBootApplicationPropertiesResourceListFilter());
+        return findPropertyFilesContainingProperty(applicationProperties, "spring.datasource.schema-password");
+    }
 }
