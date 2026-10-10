@@ -30,9 +30,11 @@ import org.springframework.sbm.project.resource.ProjectResource;
 
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class Boot_24_25_CreateDatasourceInitializerAction extends AbstractAction {
 
@@ -64,6 +66,8 @@ public class Boot_24_25_CreateDatasourceInitializerAction extends AbstractAction
 
         List<SpringBootApplicationProperties> propertyFilesContainingDataUsername = analyzer.findPropertyFilesContainingDataUsernameProperty(module);
         List<SpringBootApplicationProperties> propertyFilesContainingDataPassword = analyzer.findPropertyFilesContainingDataPasswordProperty(module);
+        List<SpringBootApplicationProperties> propertyFilesContainingSchemaUsername = analyzer.findPropertyFilesContainingSchemaUsernameProperty(module);
+        List<SpringBootApplicationProperties> propertyFilesContainingSchemaPassword = analyzer.findPropertyFilesContainingSchemaPasswordProperty(module);
 
         if(sqlDataFileProperty.isEmpty()) {
             if(dataFile.isPresent()){
@@ -80,26 +84,38 @@ public class Boot_24_25_CreateDatasourceInitializerAction extends AbstractAction
             });
         }
 
-        if( ! propertyFilesContainingDataUsername.isEmpty()) {
-            renameProperty(propertyFilesContainingDataUsername, "spring.datasource.data-username","spring.sql.init.username");
-        }
+        boolean conflictingCredentials = conflictingCredentials(propertyFilesContainingSchemaUsername, propertyFilesContainingDataUsername);
+        if( ! conflictingCredentials) {
+            if( ! propertyFilesContainingDataUsername.isEmpty()) {
+                renameProperty(propertyFilesContainingDataUsername, "spring.datasource.data-username","spring.sql.init.username");
+            }
 
-        if( ! propertyFilesContainingDataPassword.isEmpty()) {
-            renameProperty(propertyFilesContainingDataUsername, "spring.datasource.data-password","spring.sql.init.password");
+            if( ! propertyFilesContainingDataPassword.isEmpty()) {
+                renameProperty(propertyFilesContainingDataPassword, "spring.datasource.data-password","spring.sql.init.password");
+            }
+
+            if( ! propertyFilesContainingSchemaUsername.isEmpty()) {
+                renameProperty(propertyFilesContainingSchemaUsername, "spring.datasource.schema-username","spring.sql.init.username");
+            }
+
+            if( ! propertyFilesContainingSchemaPassword.isEmpty()) {
+                renameProperty(propertyFilesContainingSchemaPassword, "spring.datasource.schema-password","spring.sql.init.password");
+            }
         }
 
         if(sqlSchemaFileProperty.isEmpty()) {
             if(schemaFile.isPresent()) {
-                // add spring.datasource.schema=...
+                // add spring.sql.init.schema-locations=...
                 // FIXME: handle properties in test resources
-                String propertyName = "spring.datasource.schema";
+                String propertyName = "spring.sql.init.schema-locations";
                 String propertyValue = module.getMainJavaSourceSet().getBaseResourcesLocation(module.getProjectRootDirectory()).get().relativize(schemaFile.get().getAbsolutePath()).normalize().toString();
                 addProperty(applicationProperties, propertyName, propertyValue);
             } else {
                 // should not happen as isApplicable() should return false
             }
         } else {
-            // keep spring.datasource.schema
+            // rename spring.datasource.schema to spring.sql.init.schema-locations
+            sqlSchemaFileProperty.forEach(p -> renameProperty(p, "spring.datasource.schema", "spring.sql.init.schema-locations"));
         }
 
 
@@ -123,6 +139,26 @@ public class Boot_24_25_CreateDatasourceInitializerAction extends AbstractAction
         applicationPropertiesList.forEach(p -> p.setProperty(propertyName, propertyValue));
     }
 
+    /**
+     * Spring Boot 2.5 has a single {@code spring.sql.init.username} and {@code spring.sql.init.password}
+     * shared by schema and data scripts. If schema and data usernames differ they cannot be represented
+     * in a single property, so the credentials must not be renamed automatically.
+     */
+    private boolean conflictingCredentials(List<SpringBootApplicationProperties> schemaUsernameFiles, List<SpringBootApplicationProperties> dataUsernameFiles) {
+        Set<String> values = new HashSet<>();
+        schemaUsernameFiles.stream()
+                .map(f -> f.getProperty("spring.datasource.schema-username"))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(values::add);
+        dataUsernameFiles.stream()
+                .map(f -> f.getProperty("spring.datasource.data-username"))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(values::add);
+        return values.size() > 1;
+    }
+
     private String calculatePackage(Module module) {
         return module.getMainJavaSourceSet().getJavaSourceLocation().getPackageName();
     }
@@ -131,9 +167,9 @@ public class Boot_24_25_CreateDatasourceInitializerAction extends AbstractAction
         try(StringWriter writer = new StringWriter()) {
             Map<String, Object> params = new HashMap<>();
             params.put("package", classPakage);
-            params.put("springDatasourceSchemaProperty", "${spring.datasource.schema}");
-            params.put("springDatasourceSchemaUsernameProperty","${spring.datasource.schema-username}");
-            params.put("springDatasourceSchemaPasswordProperty", "${spring.datasource.schema-password}");
+            params.put("springDatasourceSchemaProperty", "${spring.sql.init.schema-locations}");
+            params.put("springDatasourceSchemaUsernameProperty","${spring.sql.init.username}");
+            params.put("springDatasourceSchemaPasswordProperty", "${spring.sql.init.password}");
 
             Template template = configuration.getTemplate("DataSourceInitializerConfiguration.ftl");
             template.process(params, writer);
