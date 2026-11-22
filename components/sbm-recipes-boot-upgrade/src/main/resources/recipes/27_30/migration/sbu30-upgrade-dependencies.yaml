@@ -36,3 +36,16 @@
                 newGroupId: com.github.tomakehurst
                 newArtifactId: wiremock-jre8-standalone
                 newVersion: 2.34.0
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+      description: Migrate Thymeleaf Spring 5 integration to Spring 6
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.springframework.sbm.boot.upgrade_27_30.MigrateThymeleafToSpring6
+        displayName: Migrate Thymeleaf Spring 5 to Spring 6
+        description: Migrate Thymeleaf Spring 5 to Spring 6
+        recipeList:
+          - org.springframework.sbm.boot.upgrade_27_30.MigrateThymeleafSpring5To6
