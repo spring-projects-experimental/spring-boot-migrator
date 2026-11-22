@@ -1,0 +1,18 @@
+- name: sbu30-migrate-thymeleaf
+  description: Spring boot 3.0 Upgrade - Migrate Thymeleaf Spring 5 to Spring 6
+  condition:
+    type: org.springframework.sbm.common.migration.conditions.TrueCondition
+  actions:
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+      description: Migrate Thymeleaf Spring 5 to Spring 6
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.springframework.sbm.boot.upgrade_27_30.MigrateThymeleafToSpring6
+        displayName: Migrate Thymeleaf Spring 5 to Spring 6
+        description: Migrate Thymeleaf Spring 5 to Spring 6
+        recipeList:
+          - org.springframework.sbm.boot.upgrade_27_30.MigrateThymeleafSpring5To6

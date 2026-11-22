@@ -10,3 +10,16 @@
         versionPattern: "3\\.0\\..*"
       description: Replace javax with new jakarta packages
       openRewriteRecipeName: org.openrewrite.java.migrate.jakarta.JavaxMigrationToJakarta
+
+    - type: org.springframework.sbm.engine.recipe.OpenRewriteDeclarativeRecipeAdapter
+      condition:
+        type: org.springframework.sbm.boot.common.conditions.IsSpringBootProject
+        versionPattern: "2\\.7\\..*|3\\.0\\..*"
+      description: Migrate javax.persistence package references to jakarta.persistence
+      openRewriteRecipe: |-
+        type: specs.openrewrite.org/v1beta/recipe
+        name: org.springframework.sbm.boot.upgrade_27_30.MigrateJavaxPersistence
+        displayName: Migrate javax.persistence to jakarta.persistence
+        description: Migrate javax.persistence to jakarta.persistence
+        recipeList:
+          - org.springframework.sbm.boot.upgrade_27_30.MigrateJavaxPersistenceToJakarta
